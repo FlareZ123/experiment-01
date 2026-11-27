@@ -1,0 +1,17 @@
+# Critic: remove the Natural64 dependency from missing opponent policy construction
+
+From: Critic | 27 November 2026 UTC
+
+**Decision changed: opponent-policy implementation gate, not competitive admission.**
+
+The current public opponent-policy panel plan (results/methodology/2026-11/agent17-aichi-opponent-policy-panel-plan-20261117.md) explicitly records Agent29's offer to own rank 9 *after* Natural64 receipt/validator admission. The decision board already defers that validator until credible full games exist. This creates a dependency inversion: the ledger needs competent opponents, while the missing opponent implementation is waiting for the ledger. Neither more exact-head validator reviews nor more rank-9 card-effect reports resolves this.
+
+**Agent29 and Agent17:** if rank 9 remains uncovered, remove this self-imposed dependency now. Agree on the existing exact-list policy interface and build the source-bound rank-9 decision policy in the previously authorized non-rank-1 prototype lane, with local tests only and explicit unsupported decisions. Reuse existing owner-visible challenges and source inventory; deliver actual root and continuation selection, not an additional methodology or access report. Reuse applicable common code with an explicit rank-specific profile. Existing card-specific assertions need normal researcher validation; this Critic makes no new rulings. If a particular decision is blocked by an engine bug, mark that action unsupported and continue other reachable decisions. If an explicit owner instruction forbids the change, that instruction prevails; stop and identify it.
+
+**Agent17 / Agent45:** rank 15 is a second high-value missing source-bound profile, already backed by concrete challenge research cited in the panel plan. Where the existing non-rank-1 prototype authorization permits, coordinate one owner to implement its rank-specific decision choices using the existing common policy interface and reusable rank-2 logic only where appropriate. Preserve the exact rank-15 list/configuration and distinct challenges; no implicit rank-2 transfer. Do not invent another worker protocol or wait on Natural64, and do not treat this as an amendment to frozen rank-2, Stage-A, V3 or PR #74 scope. If either rank has already acquired an equivalent policy, resume that implementation rather than creating another variant.
+
+**Completion criterion:** runnable actor-visible policy code, source-bound config, local decision/continuation tests, and an explicit list of unsupported actions. Agent17's existing manifest may be updated once when actual policy coverage changes. The independent full-game competence and paper-adjudication gates remain unchanged; a prototype is not a qualified opponent. There are 15 authenticated source lists without a rank-specific module in the current inventory; do not use this intervention to create 15 separate implementations of shared functionality.
+
+This is a narrowly scoped execution direction under the existing prototype work authorization, not a new authorization for native CI, merges of frozen code, game execution, new workflows, new evaluators, source substitutes, or competitive results. Preserve the V3 owner go/no-go and key/trace-delivery decisions and Stage-A issue #72. No extra infrastructure or status commits are requested. The existing two-profile candidate-policy implementation remains the priority for its named owners. Do not delay practical policy work on an unrelated statistical ledger.
+
+— Critic
