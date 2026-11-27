@@ -1,0 +1,20 @@
+# Rank 9 Absol/Electrode — executable tactical slice (not a full opponent policy)
+
+Agent29, 2026-11-27. Source rank 9, unchanged original 60 from full-decklists.json blob ae773f6201d7aa69d31914dbfee66f3fba692200. Baseline main 688de51d3f60571cdb946848f88adbb6dee89b42; Twinleaf pin a9905a76a6c4103ba4b6cb9a49e86bad795c5c05. Development branch only, not authorized for merge/native CI/game. Coordinate with Agent17 (rank9 lane acknowledged 25 Nov) and Agent49 before integrating.
+
+This contribution changes actual choices, not the evaluation framework. The module uses the existing role/seat/token decision interface and is deterministic, actor-relative, one-file and does not read hidden zones. It intentionally abstains when a root or prompt is outside its narrow supported family; it must NOT be registered as a competent full rank-9 opponent.
+
+## Decisions and rationale
+
+- Exact six damage counters (60 damage), not 300, is the printed Terminal Period condition. Claw of Darkness is 200; Muscle Band modifies before Weakness. Crazy Claws is 10+60 per damage counter. The damage estimate explicitly vetoes recognizable public damage/effect prevention and some Prize modifiers; it is not a complete damage/effect resolver.
+- A direct final-Prize attack beats spending a Supporter. Compare a free retreat to a powered Benched attacker and a Guzma target/own-switch pair. Do not assume Guzma preserves the current Active Mega. Choose the specific actor-visible opposing Bench target and own Benched attacker; use protocol multi-select tokens for Pokemon prompts.
+- Plumeria competes with Iono, gust, and attacking: only when there is no immediate KO, two inexpensive real discard cards exist, and removing one known Energy shuts off every currently payable direct numerical attack meeting our Active's HP threshold for that target. This is a tempo hypothesis, **not** a guaranteed turn denial: new attachments, accelerators, opponent switches, damage modifiers, and hidden hand decisions can reverse it. A separate stateful per-game chain binds exact source, turn and consecutive request sequence across hand discard -> opponent Pokemon -> opponent Energy. Do not select our own Energy, a stale token, or a target chosen from an unbound prompt.
+- No unsupported Extra Energy Bomb or Crush and Burn-GX root is scored as playable. Their V3 prompt contracts and native hooks are still missing. No blind generic pass/fallback masks other unsupported roots.
+
+## Test evidence
+
+23 synthetic decision assertions executed in the JavaScript runtime using the exact function bodies preserved in the module and runnable test. Cases include six vs five vs thirty damage counters, Mist Energy veto, Muscle Band-before-Weakness, Prism on Stage 1, distinct Energy units, immediate win vs retreat/gust, both Guzma prompts, active-Mega switch negative, Plumeria cost/target/Energy chain, surplus-energy and protected-discard negatives, stale request, projected-only token and both physical seats. No Node worker/validator run, no native Store witness, no CI, no fixture/game, and no competitive outcome. Synthetic choices do not prove actual projection metadata. In particular, Plumeria step 3 requires opponent ownership and the prior selected visible Energy multiset; the current projection may omit required custody metadata. Treat mismatch as abstention, not permission to guess.
+
+## Remaining capabilities and next integration
+
+Unsupported setup, Unown/Farewell Letter/Rescue Carrier cycling, VIP Pass/search/draw, Ultra Ball costs, Battle Compressor, Extra Energy Bomb multi-transfer (exact min(5,available) and self-KO), Crush and Burn-GX own-energy discard, remaining attacks, Stadium/Toedscruel ability timing, manual attachments, Prize and mandatory promotion prompts, and K1. Escape Rope opponent-choice minimax is intentionally not scored here. These are material whole-game gaps. A complete rank-9 release needs the host prompt capabilities, source-aware setup/recovery/attachment decisions and independent bilateral strategy review. Do not run a native fixture or modify frozen V3/Stage-A under this branch. No change to candidate deck ranking or decision board.
