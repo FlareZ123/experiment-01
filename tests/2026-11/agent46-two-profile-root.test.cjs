@@ -1017,3 +1017,36 @@ paired('A live Door consumes held Energy before hand reset, but never draws thro
   view.ownPublic.deckCount=3;
   assert.deepEqual(decide(profile,root(seat,view,[door],receipt)),sel('door'));
 });
+
+
+paired('Guzma breaks an Active-only Ability lock only for a productive post-switch turn',(seat,profile)=>{
+  const guzma='Guzma BUS';
+  const thorns=()=>pokemon({printing:'Iron Thorns ex TWM',name:'Iron Thorns ex',types:['Lightning'],
+    subtypes:['Basic','ex'],abilities:['Initialization'],suppression:false});
+  const active=vmax([P],true);active.abilitySuppressions[0].sourcePrinting='Iron Thorns ex TWM';
+  const view=observation(seat,{active,bench:[v()],opponentActive:thorns(),opponentBench:[defender(),thorns()],ownHand:[guzma,P]});
+  const receipt={version:'agent8-public-event-receipt-v3-turn-stamped',ownerActive:{printing:M,knownAbilityUse:[{name:'Underworld Door',usedThisTurn:false}]}};
+  const actions=[play('guzma',guzma),play('attach',P,M,target('active',0))];
+  assert.deepEqual(decide(profile,root(seat,view,actions,receipt)),sel('guzma'));
+  const req={role:'candidate',seat,observation:{...view,decisionKind:'owner-prompt',pendingPromptType:'ChoosePokemonPrompt'},publicEventReceipt:receipt,
+    prompt:{actingSeat:seat,promptType:'ChoosePokemonPrompt',description:null,source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:guzma,effectName:'Guzma'},
+      choices:view.opponentPublic.bench.filter(Boolean).map((p,i)=>({token:'gust-'+i,kind:'pokemon',label:'Opponent bench '+(i+1),printing:p.printing,
+        publicMetadata:{selectionIndex:i,selectedCount:1,selectionType:'pokemon',ownerSeat:'opponent',targetZone:'bench',benchIndex:i,isOwnerVisible:true}})),
+      publicMetadata:{minimumCount:1,maximumCount:1,allowCancel:false,isSecret:false,selectionType:'pokemon',targetZone:'bench'}}};
+  assert.deepEqual(decide(profile,req),mult('gust-0'));
+  receipt.ownerActive.knownAbilityUse[0].usedThisTurn=true;
+  assert.deepEqual(decide(profile,root(seat,view,actions,receipt)),sel('attach'));
+  receipt.ownerActive.knownAbilityUse[0].usedThisTurn=false;
+  view.ownHand=[guzma];view.ownPublic.handCount=1;
+  assert.deepEqual(decide(profile,root(seat,view,[play('guzma',guzma)],receipt)),sel('pass'));
+  view.ownHand=[guzma,P];view.ownPublic.handCount=2;
+  const garb=pokemon({printing:'Garbodor DRX',name:'Garbodor',subtypes:['Stage 1'],abilities:['Garbotoxin'],suppression:false,tools:['Float Stone BKT']});
+  view.opponentPublic.bench[2]=garb;
+  assert.deepEqual(decide(profile,root(seat,view,actions,receipt)),sel('attach'));
+  view.opponentPublic.bench[2]=null;view.opponentPublic.bench[0]=null;
+  assert.deepEqual(decide(profile,root(seat,view,actions,receipt)),sel('attach'));
+  const gateView=observation(seat,{active:v(),bench:[v()],opponentActive:pokemon({printing:'Klefki SVI',name:'Klefki',abilities:['Mischievous Lock'],suppression:false}),opponentBench:[defender()],ownHand:[guzma,R]});
+  assert.deepEqual(decide(profile,root(seat,gateView,[play('guzma',guzma),play('gate',R,null,target('bench',1))])),sel('guzma'));
+  gateView.opponentPublic.stadium=['Path to the Peak CRE'];
+  assert.deepEqual(decide(profile,root(seat,gateView,[play('guzma',guzma),play('gate',R,null,target('bench',1))])),sel('pass'));
+});

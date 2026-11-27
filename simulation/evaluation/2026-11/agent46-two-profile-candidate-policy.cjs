@@ -1815,7 +1815,7 @@ function supporterNeedScore(view, printing, receipt) {
   if (hasName(printing, 'Raihan')) {
     return raihanNeed(view,receipt);
   }
-  if (hasName(printing, 'Guzma')) return canGuzmaForAttack(view) ? 92 : -5;
+  if (hasName(printing, 'Guzma')) return canGuzmaForAttack(view,receipt) ? 92 : -5;
   if (hasName(printing, 'Arven')) {
     const missingV = !hasBasicShadowRiderV(view) && hasOpenBench(view);
     const missingHood = hasStealthyHoodSearchNeed(view);
@@ -2192,7 +2192,7 @@ function chooseCardCombination(view, prompt, receipt = null) {
   return { kind: 'select-choices', tokens: selected.map(choice => choice.token) };
 }
 
-function choosePokemonRecipient(view, prompt) {
+function choosePokemonRecipient(view, prompt, receipt=null) {
   setPolicyAuditRule('POKEMON_TARGET_SCORE', 'SCORE_DESC_NATIVE_TARGET_INDEX');
   const metadata = prompt.publicMetadata;
   if (!metadata || metadata.selectionType !== 'pokemon') {
@@ -2254,12 +2254,11 @@ function choosePokemonRecipient(view, prompt) {
   } else if (effectName === 'Guzma' && actorChoices.length > 0) {
     const target=view.opponentPublic.active;
     ranked=actorChoices.map(row=>{
-      const moved=switchedPublic(view,'ownPublic',row.target.index);
-      const attack=bestAttackForSlot(row.target.slot,moved,target);
-      return {...row,score:(attack?.score??-1000)-prizeLiability(row.target.slot)*100};
+      const moved=guzmaSwitch(view,'ownPublic',row.target.index);
+      return {...row,score:guzmaPivotScore(view,moved,row.target.index,receipt)};
     });
   } else if (effectName === 'Guzma' && opponentChoices.length > 0) {
-    const plans=guzmaPlans(view);
+    const plans=guzmaPlans(view,receipt);
     ranked=opponentChoices.map(row=>({...row,
       score:Math.max(-Infinity,...plans.filter(p=>p.targetIndex===row.target.index).map(p=>p.score))}));
   } else {
@@ -2813,7 +2812,7 @@ function choosePrompt(view, prompt, receipt, profile) {
     case 'ChoosePokemonPrompt':
       return isFieldBlowerPrompt(prompt)
         ? chooseFieldBlowerPokemon(view, prompt)
-        : choosePokemonRecipient(view, prompt);
+        : choosePokemonRecipient(view, prompt, receipt);
     case 'ChooseEnergyPrompt':
       return chooseEnergyPayment(view, prompt);
     case 'AttachEnergyPrompt':
@@ -3226,35 +3225,96 @@ function switchedPublic(view,side,index) {
   return {...view,[side]:{...player,active:incoming,
     bench:player.bench.map((slot,i)=>i===index?player.active:slot)}};
 }
-function guzmaPlans(view) {
+// Active-only Ability locks cease when the holder leaves the Active Spot.
+// Project only the named departure; retain all other suppression evidence.
+function activeOnlyLockSource(view,side) {
+  const seat=side==='ownPublic'?'actor':'opponent';
+  return fairyZoneLockSources(view).find(s=>s.seat===seat&&s.zone==='active'&&s.scope.startsWith('active-'))??null;
+}
+function guzmaSwitch(view,side,index) {
+  const source=activeOnlyLockSource(view,side);
+  const moved=switchedPublic(view,side,index);
+  if(!source||effectiveAbilityStatus(source.slot,source.abilityName,source.seat,view)!==true)return moved;
+  if([moved.ownPublic.active,moved.opponentPublic.active].some(p=>hasName(p?.printing,source.cardName)))return moved;
+  const clear=s=>!s||!Array.isArray(s.abilitySuppressions)?s:{...s,
+    abilitySuppressions:s.abilitySuppressions.filter(r=>!(r.suppressed===true&&hasName(r.sourcePrinting??'',source.cardName)))};
+  const player=p=>({...p,active:clear(p.active),bench:p.bench.map(clear)});
+  return {...moved,ownPublic:player(moved.ownPublic),opponentPublic:player(moved.opponentPublic)};
+}
+function guzmaDoorOpportunity(before,after,ownIndex,receipt,newlyUnlocked) {
+  if(!handHas(after,'Psychic Energy')||after.ownPublic.deckCount<=2||
+      !after.ownPublic.bench.some(s=>s?.printed?.types?.includes('Psychic')))return 0;
+  let count=0;
+  for(const [zone,index,slot] of [['active',0,before.ownPublic.active],
+      ...before.ownPublic.bench.map((s,i)=>['bench',i,s])]){
+    if(!isShadowRiderVmax(slot)||!underworldDoorSourceIsUnspent(receipt,{sourceZone:zone,sourceIndex:index},slot))continue;
+    if(newlyUnlocked&&effectiveAbilityStatus(slot,'Underworld Door','actor',before)!==false)continue;
+    const target=ownIndex<0?(zone==='active'?after.ownPublic.active:after.ownPublic.bench[index]):
+      zone==='active'?after.ownPublic.bench[ownIndex]:
+      index===ownIndex?after.ownPublic.active:after.ownPublic.bench[index];
+    if(target&&effectiveAbilityStatus(target,'Underworld Door','actor',after)===true)count++;
+  }
+  return Math.min(count,after.ownHand.filter(p=>hasName(p,'Psychic Energy')).length);
+}
+function guzmaGateOpportunity(view){
+  return handHas(view,'Radiant Eternatus')&&!boardHas(view,'Radiant Eternatus')&&canPlayRadiantForGate(view);
+}
+function guzmaPivotScore(view,after,ownIndex,receipt){
+  const slot=after.ownPublic.active;
+  if(!slot)return -Infinity;
+  const attack=bestAttackForSlot(slot,after,after.opponentPublic.active);
+  const cost=ownRetreatCost(after);
+  const exposed=visibleCounterattackThreat(after,slot)>=slot.hp-slot.damage;
+  return (attack?.score??-1000)+guzmaDoorOpportunity(view,after,ownIndex,receipt,false)*450+
+    (guzmaGateOpportunity(after)?1100:0)+(cost===0?150:0)-prizeLiability(slot)*100-
+    (exposed&&prizeLiability(slot)>=after.opponentPublic.prizeCount?3500:0);
+}
+function guzmaPlans(view,receipt=null) {
   if(!view.ownPublic.active||!view.opponentPublic.active)return [];
   const ownIndices=view.ownPublic.bench.map((slot,i)=>slot?i:-1).filter(i=>i>=0);
   if(!ownIndices.length)ownIndices.push(-1);
   const rows=[];
+  const departed=activeOnlyLockSource(view,'opponentPublic');
+  const departingLive=departed&&effectiveAbilityStatus(departed.slot,departed.abilityName,'opponent',view)===true;
   for(const [targetIndex,target] of view.opponentPublic.bench.entries()){
     if(!target)continue;
-    const gusted=switchedPublic(view,'opponentPublic',targetIndex);
+    const gusted=guzmaSwitch(view,'opponentPublic',targetIndex);
     for(const ownIndex of ownIndices){
-      const moved=ownIndex<0?gusted:switchedPublic(gusted,'ownPublic',ownIndex);
+      const moved=ownIndex<0?gusted:guzmaSwitch(gusted,'ownPublic',ownIndex);
       const attacker=moved.ownPublic.active;
-      const attack=bestAttackForSlot(attacker,moved,target);
-      if(!attack||!Number.isFinite(attack.damage)||attack.damage<Math.max(0,target.hp-target.damage))continue;
-      const prizes=prizeLiability(target);
-      rows.push({targetIndex,ownIndex,prizes,score:prizes*1500+attack.score-prizeLiability(attacker)*100});
+      const attack=bestAttackForSlot(attacker,moved,moved.opponentPublic.active);
+      if(attack&&Number.isFinite(attack.damage)&&attack.damage>=Math.max(0,target.hp-target.damage)){
+        const prizes=prizeLiability(target);
+        rows.push({targetIndex,ownIndex,prizes,unlock:0,score:prizes*1500+attack.score-prizeLiability(attacker)*100});
+        continue;
+      }
+      // No new Active-only locker may be activated in this speculative
+      // non-KO unlock route. A remaining continuous lock must still be
+      // resolved by the normal public Ability-status logic.
+      if(!departingLive||activeOnlyLockSource(moved,'opponentPublic')||
+          activeOnlyLockSource(moved,'ownPublic')||resolveAbilityLockSources(moved).unknown)continue;
+      const doors=guzmaDoorOpportunity(view,moved,ownIndex,receipt,true);
+      const gate=!guzmaGateOpportunity(view)&&guzmaGateOpportunity(moved);
+      const unlock=doors*1100+(gate?1800:0);
+      if(unlock<=0)continue;
+      const pivot=guzmaPivotScore(view,moved,ownIndex,receipt);
+      if(pivot<=-3000)continue;
+      rows.push({targetIndex,ownIndex,prizes:0,unlock,score:unlock+pivot});
     }
   }
-  return rows.sort((a,b)=>b.score-a.score||a.targetIndex-b.targetIndex||a.ownIndex-b.ownIndex);
+  return rows.sort((a,b)=>Number(b.prizes>0)-Number(a.prizes>0)||b.score-a.score||a.targetIndex-b.targetIndex||a.ownIndex-b.ownIndex);
 }
-function usefulGuzma(view) {
-  const plan=guzmaPlans(view)[0];
+function usefulGuzma(view,receipt=null) {
+  const plan=guzmaPlans(view,receipt)[0];
   if(!plan)return -Infinity;
   const current=bestAttackForSlot(view.ownPublic.active,view,view.opponentPublic.active);
   if(current?.damage>=Math.max(0,view.opponentPublic.active.hp-view.opponentPublic.active.damage)&&
       prizeLiability(view.opponentPublic.active)>=plan.prizes)return -Infinity;
+  if(plan.prizes===0)return 1180+Math.min(200,plan.unlock/20);
   return plan.prizes>=view.ownPublic.prizeCount?2600:1150+plan.prizes*100;
 }
-function canGuzmaForAttack(view) {
-  return Number.isFinite(usefulGuzma(view));
+function canGuzmaForAttack(view,receipt=null) {
+  return Number.isFinite(usefulGuzma(view,receipt));
 }
 
 function actionTargetSlot(view, metadata) {
@@ -3377,7 +3437,7 @@ function scoreTrainerPlay(item, view, receipt, profile) {
   if (hasName(name, 'Arven') && !supporterUsed &&
       (missingBasicV || hasStealthyHoodSearchNeed(view) || forestSealAccessNeed(view)))
     return forestSealAccessNeed(view) ? 925 : 760;
-  if (hasName(name, 'Guzma') && !supporterUsed) return usefulGuzma(view);
+  if (hasName(name, 'Guzma') && !supporterUsed) return usefulGuzma(view,receipt);
   if (hasAnyName(name,['Iono',"Lillie's Determination"]) && !supporterUsed) {
     const need=handResetNeed(view,name);
     if(Number.isFinite(need))return 650+need;
@@ -3771,10 +3831,10 @@ if(item.kind==='play-card'&&hasName(item.actorPrinting,'Float Stone')&&
       offer(item,projectedStadium(view,item.actorPrinting),250,'ROOT_FINAL_BY_STADIUM');
     }
     if(item.kind==='play-card'&&hasName(item.actorPrinting,'Guzma')&&supporterAvailable(view)&&
-      Number.isFinite(usefulGuzma(view))){
-      for(const plan of guzmaPlans(view)){
-        const gusted=switchedPublic(view,'opponentPublic',plan.targetIndex);
-        const moved=plan.ownIndex<0?gusted:switchedPublic(gusted,'ownPublic',plan.ownIndex);
+      Number.isFinite(usefulGuzma(view,receipt))){
+      for(const plan of guzmaPlans(view,receipt).filter(p=>p.prizes>0)){
+        const gusted=guzmaSwitch(view,'opponentPublic',plan.targetIndex);
+        const moved=plan.ownIndex<0?gusted:guzmaSwitch(gusted,'ownPublic',plan.ownIndex);
         offer(item,moved,200,'ROOT_FINAL_BY_GUZMA');
       }
     }
