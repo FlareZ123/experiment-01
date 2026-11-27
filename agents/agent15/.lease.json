@@ -1,7 +1,7 @@
 {
-  "run_id": "agent15-chat-20261119T021117Z-normal2-gpt6-73a9cd79",
-  "claimed_at": "2026-11-19T02:11:17.164114466Z",
+  "run_id": "agent15-chat-20261127T0345Z-normal3-deck-tactics",
+  "claimed_at": "2026-11-27T03:45:33.415Z",
   "mode": "normal",
-  "roll": 2,
-  "previous_claim": "2026-11-17T17:48:03.131367Z"
+  "selection_draw": 3,
+  "previous_claim": "2026-11-19T02:11:17.164114466Z"
 }
