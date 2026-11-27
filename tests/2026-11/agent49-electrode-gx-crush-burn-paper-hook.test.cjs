@@ -3,7 +3,8 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {
   PINNED_COMMIT,PRINTING,NATIVE_ATTACK,PAPER_ATTACK,
-  normalizeElectrodeGXPrintedAttack,wrapElectrodeGXCrushBurnReducer
+  normalizeElectrodeGXPrintedAttack,wrapElectrodeGXCrushBurnReducer,
+  installElectrodeGXCrushBurnWithDependencies
 }=require('../../simulation/twinleaf/electrode-gx-crush-burn-paper-hook.cjs');
 
 class AttackEffect{
@@ -162,4 +163,76 @@ test('reject absent GX prompt and unsupported shape without partial modification
   assert.throws(()=>normalizeElectrodeGXPrintedAttack(
     {...f.el,attacks:[{name:'Electro Ball'}]},new Map()
   ),/Unexpected pinned CES48 attack shape/);
+});
+
+
+
+test('dependency-injected install is idempotent, patches clones, and truly restores all instances',()=>{
+  class FakeElectrode {
+    constructor(){
+      this.fullName=PRINTING;
+      this.attacks=[
+        {name:'Electro Ball',damage:50},
+        {name:NATIVE_ATTACK,gxAttack:true,damage:30,damageCalculation:'+'}
+      ];
+    }
+    reduceEffect(store,state,effect){
+      return pinnedNativeReduce.call(this,store,state,effect);
+    }
+  }
+  class FakeManager {
+    constructor(){this.template=new FakeElectrode()}
+    getAllCards(){return [this.template]}
+    getCardByName(name){
+      if(name!==PRINTING)return undefined;
+      const clone=new FakeElectrode();
+      clone.attacks=this.template.attacks.map(x=>({...x}));
+      return clone;
+    }
+    static getInstance(){return FakeManager.single}
+  }
+  FakeManager.single=new FakeManager();
+  const originalReducer=FakeElectrode.prototype.reduceEffect;
+  const originalGet=FakeManager.prototype.getCardByName;
+  const restore=installElectrodeGXCrushBurnWithDependencies({
+    ElectrodeGX:FakeElectrode,CardManager:FakeManager,
+    AttackEffect,DiscardEnergyPrompt,GameMessage
+  });
+  assert.equal(installElectrodeGXCrushBurnWithDependencies({
+    ElectrodeGX:FakeElectrode,CardManager:FakeManager,
+    AttackEffect,DiscardEnergyPrompt,GameMessage
+  }),restore,'idempotent reinstallation must not stack wrappers');
+  assert.equal(FakeManager.single.template.attacks[1].name,PAPER_ATTACK);
+  const first=FakeManager.single.getCardByName(PRINTING);
+  const second=FakeManager.single.getCardByName(PRINTING);
+  assert.equal(first.attacks[1].name,PAPER_ATTACK);
+  assert.equal(second.attacks[1].name,PAPER_ATTACK);
+  assert.notEqual(first.attacks[1],FakeManager.single.template.attacks[1]);
+  const effect=new AttackEffect(first);
+  const state={owner:{seat:1,energyCount:3,moved:[],usedGX:false}};
+  let pending=null;
+  const store={prompt(next,prompt,callback){pending={prompt,callback};return next}};
+  assert.equal(first.reduceEffect(store,state,effect),state);
+  assert.ok(pending);
+  const chosen=Array.from({length:3},(_,i)=>({card:{id:i,energy:'Lightning'}}));
+  pending.callback(chosen);
+  assert.equal(effect.damage,180);
+  assert.equal(state.owner.moved.length,3);
+  assert.equal(state.owner.usedGX,true);
+  restore();
+  assert.equal(FakeManager.single.template.attacks[1].name,NATIVE_ATTACK);
+  assert.equal(first.attacks[1].name,NATIVE_ATTACK);
+  assert.equal(second.attacks[1].name,NATIVE_ATTACK);
+  assert.equal(FakeElectrode.prototype.reduceEffect,originalReducer);
+  assert.equal(FakeManager.prototype.getCardByName,originalGet);
+  const after=FakeManager.single.getCardByName(PRINTING);
+  assert.equal(after.attacks[1].name,NATIVE_ATTACK);
+  // A second independent installation/restore is safe.
+  const again=installElectrodeGXCrushBurnWithDependencies({
+    ElectrodeGX:FakeElectrode,CardManager:FakeManager,
+    AttackEffect,DiscardEnergyPrompt,GameMessage
+  });
+  assert.equal(FakeManager.single.template.attacks[1].name,PAPER_ATTACK);
+  again();
+  assert.equal(FakeManager.single.template.attacks[1].name,NATIVE_ATTACK);
 });
