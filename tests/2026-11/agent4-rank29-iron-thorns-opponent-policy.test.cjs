@@ -445,7 +445,7 @@ test('Peonia is not selected without a supported owner-K1 Prize-exchange continu
     publicMetadata:multiMetadata(1,1,'prize-slots'),
     choices:[cardChoice('prize-1','Prize slot 1','prize','actor','prize')]
   });
-  assert.deepEqual(checkedDecision(prompt),{kind:'abstain',reasonCode:'PEONIA_PRIZE_EXCHANGE_UNSUPPORTED'});
+  assert.deepEqual(checkedDecision(prompt),{kind:'abstain',reasonCode:'UNSUPPORTED_PRIZE_SELECTION'});
 });
 
 test('common rank-6 denial engine still chooses Crushing Hammer in rank 29', () => {
