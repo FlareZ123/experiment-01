@@ -441,6 +441,9 @@ function runCases(policy,protocol) {
     const garb={...rainV,opponentPublic:{...opp,bench:[...opp.bench,slot('Garbodor BKP',{tools:['Float Stone BKT'],abilities:['Garbotoxin']})]}};
     same(policy.liveBombs(garb).length,0,tag+'live Garbotoxin blocks Bomb');
     same(policy.ropeRainPlan({observation:rainV})?.plan.prizes,5,tag+'Rope worst-case five Prize projection');
+    const mailForRope={...rainV,ownHand:[A.mail]};
+    same(runPrompt(p,mailForRope,cards(mailForRope,A.mail,"Trainers' Mail",'deck',
+      [A.research,rope],0,1)),choose('c1'),tag+'Mail values Rope by executable Rain line');
     same(runRoot(p,rainV,[play('rope',rope),pass]),action('rope'),tag+'Rope unlocks Bomb against every visible switch');
     same(policy.ropeRainPlan({observation:{...rainV,opponentPublic:{...opp,bench:[...opp.bench,wob]}}}),null,tag+'second Wob invalidates switch plan');
     same(policy.ropeRainPlan({observation:{...rainV,opponentPublic:{...opp,bench:[]}}}),null,tag+'no opposing bench cannot remove Wob');
