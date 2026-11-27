@@ -118,11 +118,25 @@ test('Compressor does not waste a singleton already present in discard',()=>{
   assert.deepEqual(promptDecision(req),{kind:'select-choices',tokens:['g']});
 });
 
-test('Ultra Ball discards a copy payload rather than protected Double Dragon Energy',()=>{
-  const req=request({prompt:{...prompt('Ultra Ball MEG 131','Ultra Ball discard 2 cards',
+test('funded Ultra Ball discards donor and surplus Basic rather than Double Dragon Energy',()=>{
+  const req=request({
+    active:pokemon(P.regidrago,{energies:[P.energy,'Fire Energy MEE 10',P.doubleDragon]}),
+    hand:['Grass Energy MEE 9','Fire Energy MEE 10',P.goodra],
+    prompt:prompt('Ultra Ball MEG 131','Ultra Ball discard 2 cards',
     [choice('dde',P.doubleDragon),choice('g',P.goodra),
-     choice('fire','Fire Energy MEE 10')],'ChooseCardsPrompt',[1,2])}});
+     choice('fire','Fire Energy MEE 10')],'ChooseCardsPrompt',[2,2])});
   assert.deepEqual(promptDecision(req),{kind:'select-choices',tokens:['g','fire']});
+});
+test('unfunded Ultra Ball with only one donor and protected Energy is not a complete root',()=>{
+  const items=[action('ball','play-card','Ultra Ball MEG 131'),action('pass','pass')];
+  const hand=['Ultra Ball MEG 131',P.goodra,P.doubleDragon,'Fire Energy MEE 10'];
+  const root=request({hand,items});
+  assert.deepEqual(bestAction(root),{kind:'select-action',token:'pass'});
+  const selection=prompt('Ultra Ball MEG 131','Ultra Ball discard 2 cards',
+    [choice('g',P.goodra),choice('dde',P.doubleDragon),
+     choice('fire','Fire Energy MEE 10')],'ChooseCardsPrompt',[2,2]);
+  assert.deepEqual(promptDecision(request({hand,prompt:selection})),
+    {kind:'abstain',reasonCode:'RANK32_BALL_NO_SAFE_DISCARD'});
 });
 
 test('Ryuno Glide becomes the strongest available copied active KO in the offered choice',()=>{
