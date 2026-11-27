@@ -43,10 +43,24 @@ test('both actor seats: select payable Apex over offered alternative',()=>{
     wrong.observation.actorSeat=seat;wrong.role='candidate';assert.equal(decide(wrong),null);
   }
 });
+test('offered Apex can use visible Basic cost when optional action annotations are absent',()=>{
+  const s=state();s.actionFrontier.items[1].publicMetadata={};
+  assert.deepEqual(decide(s),{kind:'select-action',token:'apex'});
+  s.observation.ownPublic.active.energies=['Grass Energy MEE 9','Fire Energy MEE 10'];
+  assert.equal(decide(s),null);
+});
 test('minimal root metadata can execute; explicit prevention veto',()=>{
   const s=state();s.actionFrontier.items[1].publicMetadata={attackCostPayable:true};
   assert.deepEqual(decide(s),{kind:'select-action',token:'apex'});
   s.actionFrontier.items[1].publicMetadata.hasPrevention=true;assert.equal(decide(s),null);
+});
+test('existing worker Apex effectName and source-unannotated choice remain executable',()=>{
+  const s=attackPrompt(state());
+  s.prompt.source={classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:'Regidrago VSTAR SIT 136',effectName:'Apex Dragon'};
+  delete s.prompt.choices[1].publicMetadata.sourceZone;
+  delete s.prompt.choices[1].publicMetadata.ownerSeat;
+  assert.deepEqual(decide(s),{kind:'select-choice',token:'ryuno'});
+  s.prompt.choices[1].publicMetadata.ownerSeat='opponent';assert.equal(decide(s),null);
 });
 test('copy exact source Mega Dragonite Ryuno over Dominating Echo; reject wrong source',()=>{
   const s=attackPrompt(state());assert.deepEqual(decide(s),{kind:'select-choice',token:'ryuno'});
