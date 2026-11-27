@@ -14,7 +14,7 @@ Parent acceptance surface:
 v2 acceptance delta:
 `results/aichi-2026/2026-11/agent1-newmoon-tool-jammer-v2-acceptance-delta-v1.json` (6 cases)
 
-**Combined paper acceptance target: 141 cases.**
+**Combined paper acceptance target: 147 cases.**
 
 All parent decision layers remain applicable. Add the following Tool-state layer before declaring an Active Tool protected or a Tool-based effect live.
 
@@ -49,7 +49,7 @@ Established AOR + Hooded BUS Vileplume:
 4. use second Dusclops Cursed Blast 50;
 5. Active Dusclops Will-O-Wisp 50;
 6. if BUS stays Active, use Active Dusclops Cursed Blast 50 next turn;
-7. if BUS leaves Active, Basic-attack lock is already removed.
+7. if BUS leaves Active, Basic-attack lock is removed for the current window; immediately score the source's strongest later re-lock route.
 
 ### Search routes
 
