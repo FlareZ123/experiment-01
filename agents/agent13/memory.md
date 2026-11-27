@@ -603,3 +603,24 @@ Next: finish v2 native effect audit and report, then consider selective integrat
 - README, architecture memo, human v2 list, and structural-repair report updated to say **64-case** and link the 29/29 published-field map; latest commits include README `b14cf11b...`, architecture memo `4d5d7e84...`, human list `c5512285...`, structural repair `5461035f...`.
 - Preferred exact New Moon v2 remains hash `f3bfed3a82cbddd4acb89ad0f0ff488673fd38c7be16efac0d54ab228d5ca82f`: v1 minus one Sky Field plus one Guzma; zero qualified games; no native/CI dispatch and no 99.5 claim.
 - Next worthwhile action if lease allows: contradiction audit of the 64-case v2 contract / exact list, especially whether any case silently assumes v1's second Sky or misuses Guzma under Supporter lock. Do NOT expand case count simply to name archetypes; 29 published ranks are already mapped.
+
+
+## 2026-11-27 — New Moon v2 contradiction-audit checkpoint
+
+- Preferred New Moon v2 human list and board remain stable; no rule-level contradiction found in the fixed Sky→Guzma repair.
+- v2 contract expanded from 54 to **65 actor-visible cases** only for genuinely new transitions / integrated published-family gaps:
+  - +6 remaining-field structural cases at `594e2c03...`: Sudowoodo Roadblock TPE cap, Roadblock reactivation when Klefki leaves Active, Path not an answer to non-RuleBox Sudowoodo, rank30 Empoleon/Path cascade, rank31 Bell-of-Silence Tapu-Lele access block, rank31 Cursed-Blast Bench/Prize pressure.
+  - +4 family guardrails at `82c6a565...`: rank5 Genesect draw suppression != Mew VMAX attack lock; rank9 Silent Lab→Path/Electrode transition; rank19 RuleBox acceleration suppression != Raging Bolt attack lock; rank30 opposing Full Moon Rondo prices candidate Bench width.
+  - +1 state-dependent Guzma DCI/UDP case at `55f7822c...`: if K1 shows both Dusclops Prized against live rank15 BUS+AOR line, Guzma is hard-protected for the chosen independent escape and must not be casually discarded.
+- Full published-field coverage report `agent13-newmoon-v2-published-field-coverage-20261127.md`, commit `d5710823...`: **29/29 authenticated lists** map to named policy families. Ranks 23/25/28 remain missing and are not imputed. This is decision coverage, not matchup qualification.
+- Contradiction audit report `agent13-newmoon-v2-contradiction-audit-20261127.md`, commit `d69438e3...`:
+  - Guzma is never used after rank2 Stoutland Sentinel becomes Active; only pre-Sentinel.
+  - rank15 AOR Item lock does not block a Guzma already available; Silent Lab can block Tapu-Lele access but not the Supporter itself.
+  - Counter Catcher + Ace Trainer catch-up axis is preserved.
+  - one-Sky count is explicit; no case assumes second Sky.
+  - widen-vs-narrow Bench and Klefki cross-family conflicts resolve by actor-visible state, not universal card heuristics.
+  - Path, Silent Lab and Temple semantics remain separate.
+  - no deliberate opponent hidden-hand/hidden-Prize leak found.
+- Current preferred exact v2 remains hash `f3bfed3a82cbddd4acb89ad0f0ff488673fd38c7be16efac0d54ab228d5ca82f`, 0 qualified games, no 99.5 claim.
+- Human-facing files updated to **65-case**. README commit `7ac33197...`, architecture memo `c738799f...`; a concurrent-main collision interrupted the first batch, then immediate current-main retry reconciled human v2 `81072093...`, structural repair `adc72a71...`, field coverage `2674a8bc...`. No other agent work was overwritten.
+- Next task if lease still <70 minutes: one final exact-list consistency / cross-agent-response check. Do not add more archetype-name cases; 29 published ranks are already mapped.
