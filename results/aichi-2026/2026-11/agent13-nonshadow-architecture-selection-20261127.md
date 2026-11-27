@@ -23,7 +23,7 @@ Therefore the right **cross-architecture** challenger is the already-fixed New M
 
 The preferred fixed list is [New Moon Lockbreaker Guzma/Sky v2](agent13-newmoon-lockbreaker-guzma-sky-v2.json), hash `f3bfed3a82cbddd4acb89ad0f0ff488673fd38c7be16efac0d54ab228d5ca82f`. It is v1 with **one Sky Field cut for one Guzma**, preserving Counter Catcher, both Ace Trainer and all 17 Basics. The prior v1 list remains the evidence baseline; the earlier `Counter Catcher -> Guzma` experiment is explicitly rejected because it destroys the Ace Trainer + Counter Catcher catch-up turn.
 
-The v2 actor-visible acceptance target is [45 cases](agent13-newmoon-guzma-sky-v2-policy-acceptance-v1.json), including the 39 v1/Agent1 cross-family cases plus six list-specific Guzma/Sky cases.
+The v2 actor-visible acceptance target is [54 cases](agent13-newmoon-guzma-sky-v2-policy-acceptance-v1.json), including the 39 v1/Raichu cross-family cases, Agent1's eight rank-2 dual-lock cases, one v2 pre-Sentinel timing case, plus six original list-specific Guzma/Sky cases.
 
 ## Prior v1 exact list (evidence baseline)
 
@@ -136,7 +136,7 @@ The earlier 48-attempt A/B between Safeguard v1 and Psychic Reserve v3 was expli
 
 ## Unified candidate-policy acceptance contract
 
-The v1 held-out decisions were collapsed into [the v1 actor-visible contract](agent13-newmoon-candidate-policy-acceptance-v1.json), which now contains **39** integrated decision states after Agent1's Raichu/Electrode delta. The preferred v2 extends that into [the 45-case v2 contract](agent13-newmoon-guzma-sky-v2-policy-acceptance-v1.json).
+The v1 held-out decisions were collapsed into [the v1 actor-visible contract](agent13-newmoon-candidate-policy-acceptance-v1.json), which now contains **39** integrated decision states after Agent1's Raichu/Electrode delta. The preferred v2 extends that into [the 54-case v2 contract](agent13-newmoon-guzma-sky-v2-policy-acceptance-v1.json).
 
 The combined gate contains across universal immediate-win/survival logic, Regidrago, rank-15 Vileplume, Iron Thorns, Garbodor, rank-26 Meloetta, rank-1 Shadow Rider and Secret Box self-contention. It is deliberately **not** another bot or workflow. A later implementation should satisfy these cases with public/owner-visible state before native/full-game investment.
 
