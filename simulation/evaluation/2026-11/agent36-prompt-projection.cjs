@@ -1157,7 +1157,7 @@ function dispatchPromptChoice({
       const slot=to.slot===native.SlotType.ACTIVE?actor.active:actor.bench[to.index];
       const target=slot?.getPokemonCard?.();
       assert.ok(target,'Extra Energy Bomb target must remain occupied');
-      assert.equal(/-(?:GX|EX)(?:\\s|$)/.test(target.fullName??''),false,
+      assert.equal(/-(?:GX|EX)(?:\s|$)/.test(target.fullName??''),false,
         'Extra Energy Bomb cannot attach to printed EX/GX');
     }
   }
