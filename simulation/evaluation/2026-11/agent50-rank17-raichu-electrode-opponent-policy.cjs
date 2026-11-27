@@ -2174,6 +2174,16 @@ function r17Score(item,request) {
 function r17Best(request) {
   const items=list(request.actionFrontier?.items).filter(i=>EXECUTABLE.has(i.kind));
   const ranked=r17Rank(items,i=>r17Score(i,request));
+  // Do not hide a terminal but unsupported Rain line behind a weaker,
+  // supported attack. A directly terminal supported attack still wins.
+  const terminal=ranked.find(i=>i.kind==='attack'&&r17DirectPressure(request.observation,i)?.terminalProjection===true);
+  if(terminal)return {kind:'select-action',token:terminal.token};
+  const rainRoot=items.some(i=>i.kind==='attack'&&r17Key(i)==='raichu'&&i.attackName==='Electro Rain');
+  if(rainRoot) {
+    const projection=r17RainProjection(request.observation,active(own(request.observation)));
+    if(projection?.terminalProjection===true&&projection.bombs===0)
+      return r17Abstain('R17_CORE_COMBO_NOT_IMPLEMENTED');
+  }
   if(ranked[0])return {kind:'select-action',token:ranked[0].token};
   if(items.some(i=>r17Score(i,request)<0))return r17Abstain('R17_CORE_COMBO_NOT_IMPLEMENTED');
   const pass=items.find(i=>i.kind==='pass');
