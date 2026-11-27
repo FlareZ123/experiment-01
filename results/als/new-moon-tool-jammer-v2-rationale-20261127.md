@@ -85,7 +85,7 @@ Candidate next turn if BUS stayed Active:
 
 Asleep/Confused does not remove the Ability, so the final Cursed Blast does not depend on winning an attack coin flip.
 
-The line is therefore deterministic **once the stated board/resource prerequisites exist and BUS stays Active**.
+The KO branch is deterministic **once the stated board/resource prerequisites exist and BUS stays Active**. Exact rank15 counterplay can instead move BUS off Active with Guzma/Jet/retreat, yielding a temporary unlocked turn rather than a guaranteed permanent lockbreak. See `results/aichi-2026/2026-11/agent1-tool-jammer-v2-rank15-counterplay-stress-20261127.md`.
 
 ## Tool Jammer is searchable through a channel that also survives Item lock
 
@@ -173,7 +173,7 @@ Before v2 can replace v1 operationally, require:
 1. **V15-JAMMER-LEGAL-UNDER-AOR** — Tool Jammer remains playable while AOR Item lock is active.
 2. **V15-JAMMER-HOOD** — Active candidate Tool Jammer disables Active BUS Stealthy Hood.
 3. **V15-JAMMER-DUSCLOPS-SEQUENCE** — Bench Cursed Blast 50 + Active Will-O-Wisp 50 + next-turn Active Cursed Blast 50 removes BUS if it remains Active.
-4. **V15-JAMMER-SOURCE-RETREAT** — if BUS retreats/switches to evade the final 50, recognize that Basic-attack lock is already broken and re-plan rather than calling the line failed.
+4. **V15-JAMMER-SOURCE-RETREAT** — if BUS retreats/switches to evade the final 50, recognize a temporary unlocked window, then score the source's strongest later BUS re-lock instead of calling the matchup solved.
 5. **V15-FSS-JAMMER** — under AOR lock with Articuno V/FSS live, Star Alchemy may search Tool Jammer.
 6. **V2-SKYFIELD-SINGLETON-K1** — if the sole Sky Field is Prized, remove neutral-Sky-Field continuations and use Path/other Stadium plans instead.
 
