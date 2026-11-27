@@ -1477,7 +1477,7 @@ function r17VipValue(key,view) {
     if(r17SecondBombUseful(view)&&r17BoardCount(view,'voltorb')+r17BoardCount(view,'electrode')+r17HandCount(view,'voltorb')<2)return 165;
   }
   if(key==='unown'&&r17UnownUseful(view))return 150;
-  if(key==='marshadow'&&r17NeedStadiumRemoval(view)&&!r17Board(view,key))return 210;
+  if(key==='marshadow'&&r17NeedStadiumRemoval(view)&&!r17Board(view,key))return 500;
   // Squawk and Seize is usable from play on own first turn, not a hand-play trigger.
   if(key==='squawk'&&r17First(view)&&!r17AbilityBlocked(view,'squawk')&&!r17Board(view,key)&&
      !r17Hand(view,key)&&handCount(view)<=2&&r17Deck(view)>=7)return 140;
@@ -2184,7 +2184,14 @@ function r17ScorePlay(item,view) {
       r17Discard(view).some(c=>!R17_CORE_KEYS.includes(r17Key(c))&&r17RecoveryValue(r17Key(c),view)>0)?275:0;
   }
   if(k==='mail')return r17Deck(view)>=2?175:0;
-  if(k==='heavy')return r17Missing(view,'voltorb','electrode')||r17Missing(view,'pikachu','raichu')?160:0;
+  if(k==='heavy'){
+    const z=r17KnownOwnZones(view);
+    if(r17NeedStadiumRemoval(view)&&!r17Board(view,'marshadow')&&!r17Hand(view,'marshadow')&&
+      (z?.prizes?.marshadow||0)>0)return 405;
+    if(z&&((r17Missing(view,'voltorb','electrode')&&(z.prizes.voltorb||0)>0)||
+      (r17Missing(view,'pikachu','raichu')&&(z.prizes.pikachu||0)>0)))return 245;
+    return r17Missing(view,'voltorb','electrode')||r17Missing(view,'pikachu','raichu')?160:0;
+  }
   if(k==='secret'){
     const payment=r17SecretPayment(hand(view),view,'secret');
     return payment.length>=3?(payment.some(c=>R17_ENERGY.has(r17Key(c)))&&r17RainWindow(view,active(own(view)))?380:155):0;
