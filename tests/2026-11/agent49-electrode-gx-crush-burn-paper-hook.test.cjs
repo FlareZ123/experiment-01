@@ -117,8 +117,10 @@ test('wrong attack, attack identity or wrong printing leaves the reducer untouch
   const wrongPrinting={...f.el,fullName:'Electrode-GX LOT'};
   const e=new AttackEffect(wrongPrinting);
   f.wrapped.call(wrongPrinting,f.store,f.state,e);
-  assert.equal(f.pending(),null);
-  assert.equal(e.damage,30);
+  assert.ok(f.pending(),'nonmatching printing uses the native reducer untouched');
+  f.pending().callback(Array.from({length:4},()=>({card:{name:'Lightning Energy'}})));
+  assert.equal(e.damage,30+50*4*4,
+    'other source printing retains its own original reducer calculation');
 });
 
 test('reject zero, over-max and malformed native transfer counts without moving cards',()=>{
