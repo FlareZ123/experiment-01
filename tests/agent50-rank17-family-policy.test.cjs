@@ -436,7 +436,7 @@ function runCases(policy,protocol) {
       ownPublic:player({active:slot(A.raichu,{hp:110,energies:[R,R]}),prizeCount:2}),
       opponentPublic:player({active:slot('Shadow Rider Calyrex V CRE',{hp:210,damage:60}),
         bench:[slot('Girafarig LOT',{hp:90})],prizeCount:1})});
-    same(runRoot(p,terminalRain,[rainAttack,ballAttack,pass]),abstain('R17_CORE_COMBO_NOT_IMPLEMENTED'),tag+'terminal Rain abstains instead of weaker Ball');
+    same(runRoot(p,terminalRain,[rainAttack,ballAttack,pass]),abstain('NO_SUPPORTED_ROOT_ACTION'),tag+'terminal Rain abstains instead of weaker Ball');
     const ballLethal={...terminalRain,opponentPublic:player({
       active:slot('Shadow Rider Calyrex V CRE',{hp:210,damage:120}),
       bench:[slot('Girafarig LOT',{hp:90})],prizeCount:1})};
