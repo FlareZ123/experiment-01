@@ -70,7 +70,9 @@ function visiblePokemon(slot){
       types:(pokemon.cardType??[]).map(canonicalCardType),
       retreatCost:(pokemon.retreat??[]).map(canonicalCardType),
       weakness:(pokemon.weakness??[]).map(weakness=>({
-        type:canonicalCardType(weakness.type),value:weakness.value??null
+        // Native PokemonCard Weakness.value is optional: undefined means x2,
+        // not missing/unknown (pokemon-types.ts, pinned Twinleaf).
+        type:canonicalCardType(weakness.type),value:weakness.value??2
       })),
       resistance:(pokemon.resistance??[]).map(resistance=>({
         type:canonicalCardType(resistance.type),value:resistance.value
