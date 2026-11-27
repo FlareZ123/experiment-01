@@ -223,11 +223,55 @@
       "state": "Secret Box can fetch Field Blower but paying the cost would discard the only accessible Gengar donor required for the intended Blower -> Horror House line.",
       "must": "Reject that Box route or explicitly select a different continuation.",
       "forbids": "Counting Box->Blower access as success after destroying its follow-up."
+    },
+    {
+      "id": "STALL-TPE-NARROW",
+      "family": "Snorlax Stall",
+      "sourceRanks": [
+        3,
+        7
+      ],
+      "state": "Current attacker/line is already functional; TPE can fetch extra low-impact support Basics such as Unown/Duskull; opponent has Snorlax Block plus repeated gust capacity.",
+      "must": "Allow zero or one TPE target and preserve a narrow Bench when the extra body is primarily a future trap target.",
+      "forbids": "Maximizing Bench occupancy for generic setup value."
+    },
+    {
+      "id": "STALL-ROPE-SCARCITY",
+      "family": "Snorlax Stall",
+      "sourceRanks": [
+        3,
+        7
+      ],
+      "state": "Singleton Escape Rope is available but no current Block trap requires it; opponent retains public/source-known gust capacity.",
+      "must": "Price Escape Rope as future Block insurance before spending it for minor positioning.",
+      "forbids": "Treating the singleton switch as ordinary low-value mobility."
+    },
+    {
+      "id": "STALL-TRAPPED-UNOWN",
+      "family": "Snorlax Stall",
+      "sourceRanks": [
+        3,
+        7
+      ],
+      "state": "Unown AOR 30 is Active against 150-HP Snorlax PGO 55 with Block operating.",
+      "must": "Recognize normal retreat is prohibited and 10-damage Hidden Power is not a quick escape; prioritize a legal switch/board-release plan.",
+      "forbids": "Assuming Energy attachments eventually permit retreat through Block."
+    },
+    {
+      "id": "STALL-DUSKULL-EXCEPTION",
+      "family": "Snorlax Stall",
+      "sourceRanks": [
+        3,
+        7
+      ],
+      "state": "Duskull is trapped Active, but Dusclops and the required Energy/evolution timing are actor-visible and achievable.",
+      "must": "Recognize the developed Stage-1 attack route as a possible board-release line.",
+      "forbids": "Hardcoding Escape Rope as the only response to every Block trap."
     }
   ],
   "implementationGate": {
     "requiredBeforeNativeInvestment": [
-      "pure or synthetic tests covering every case above",
+      "pure or synthetic tests covering every case above, including Snorlax bench-trap states",
       "trace exposes selected continuation, strongest competing action, protected resources and reason for any Secret Box discards",
       "TPE target resolver can legally return 0, 1 or 2 targets",
       "policy explicitly conditions on opponent Ability source stage/type and public board position",
