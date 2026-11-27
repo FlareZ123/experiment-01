@@ -58,6 +58,9 @@ for(const seat of [0,1]){
   const v=observe.actorObservation(state,seat);
   assert.deepEqual(v.ownPublic.active.printed.types,['Psychic']);
   assert.deepEqual(v.ownPublic.active.printed.subtypes,['VMAX','V']);
+  assert.equal(v.ownPublic.active.printed.stage,'VMAX');
+  assert.equal(v.opponentPublic.active.printed.stage,'VSTAR');
+  assert.equal(v.opponentPublic.bench[0].printed.stage,'BASIC');
   assert.deepEqual(v.ownPublic.active.printed.retreatCost,['Colorless','Colorless']);
   assert.deepEqual(v.ownPublic.active.printed.weakness,[{type:'Darkness',value:2}]);
   assert.deepEqual(v.ownPublic.active.printed.resistance,[{type:'Fighting',value:-30}]);
