@@ -35,4 +35,32 @@ test('Guzma of a different exact bench object retains old active and Mimikyu',()
 test('copied GX attack is not evaluated',()=>assert.equal(r(fixture(adp(),[m(),clef()]),a('Altered Creation-GX')),null));
 test('attack restriction defeats visible payment',()=>assert.equal(r(fixture(mol(),[m(2,0,{publicRestrictions:{blockedAttackNameNextTurn:'Copycat'}})]),a('Aura Burn')),null));
 test('no synthetic veto of sole option; demote score to positive 1',()=>{const f=fixture(mol(),[m()]),x=a('Aura Burn');const y=adjust(f.o,f.own,f.target,x);assert.equal(y.score,1);assert.equal(x.score,500);assert.equal(y.copycatReply.kind,'visible-terminal-copycat-reply');});
-test('nonlethal attack does not imply free promotion',()=>assert.equal(r(fixture(mol(),[m()]),{...a('Aura Burn'),lethal:false}),null));
+test('nonlethal attack does not imply free promotion',()=>assert.equal(r(fixture(adp(),[m(),clef()],{target:vmax(1),their:3}),{...a('Ultimate Ray'),lethal:false,prizes:0,damage:150}),null));
+
+test('nonlethal Ray permits paid pivot to Mimikyu copying 300 into ADP',()=>{
+ const f=fixture(adp(),[m(),clef()],{target:vmax(3),their:3});
+ const x=r(f,{...a('Ultimate Ray'),lethal:false,prizes:0,damage:150});
+ assert.equal(x.damage,300);assert.equal(x.replyRoute,'retreat');assert.equal(x.paidRetreat,2);
+});
+test('nonlethal GX cannot be copied even with paid pivot',()=>{
+ const f=fixture(adp(),[m(),clef()],{target:vmax(3),their:3});
+ assert.equal(r(f,{...a('Altered Creation-GX'),lethal:false,prizes:0,damage:0}),null);
+});
+test('nonlethal Ray plus live Skyliner gives Basic free pivot',()=>{
+ const lat=mon('Latias ex SSP 76',210,[],0,{abilitySuppressions:[{abilityName:'Skyliner',suppressed:false}]});
+ const f=fixture(adp(),[m(),clef()],{target:lat,their:3});
+ const x=r(f,{...a('Ultimate Ray'),lethal:false,prizes:0,damage:150});
+ assert.equal(x.damage,300);assert.equal(x.paidRetreat,0);
+});
+test('paid pivot consumes Basics that Copycat Bellowing would otherwise discard',()=>{
+ let f=fixture(bolt(),[m(),clef()],{target:vmax(2)});
+ const x={...a('Bellowing Thunder'),lethal:false,prizes:0,damage:140};
+ assert.equal(r(f,x),null);
+ f=fixture(bolt(),[m(),clef(true,1)],{target:vmax(2)});
+ assert.equal(r(f,x).damage,280);assert.equal(r(f,x).paidRetreat,2);
+});
+test('nonlethal attack damage must be known and post-damage Mimikyu must survive',()=>{
+ const f=fixture(adp(),[clef()],{target:m(),their:3});
+ assert.equal(r(f,{...a('Ultimate Ray'),lethal:false,prizes:0,damage:70}),null);
+ assert.equal(r(f,{...a('Ultimate Ray'),lethal:false,prizes:0}),null);
+});

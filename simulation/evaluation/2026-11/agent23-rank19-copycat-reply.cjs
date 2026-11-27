@@ -1,6 +1,7 @@
 'use strict';
 // Rank19 source-side, visible one-reply tactical advisory. Not a copied-attack
 // resolver, game simulator, registration, or claim of opponent competence.
+const movement=require('./agent23-rank19-funded-reply-routes.cjs');
 const list = x => Array.isArray(x) ? x : [];
 const name = x => typeof x === 'string' ? x : x?.printing ?? x?.fullName ?? '';
 const is = (x,re) => re.test(name(x));
@@ -25,37 +26,36 @@ function fairyZone(survivors){
 }
 function reply(observation,own,defender,attack){
   const foe=observation?.opponentPublic,source=own?.active;
-  if(!foe||!source||!attack?.lethal||attack.terminal||!Number.isSafeInteger(attack.prizes)||attack.prizes<1||attack.prizes>3||!Number.isSafeInteger(own.prizeCount)||!Number.isSafeInteger(foe.prizeCount)||foe.prizeCount<1||foe.prizeCount>6)return null;
+  if(!foe||!source||!attack||typeof attack.lethal!=='boolean'||attack.terminal||!Number.isSafeInteger(attack.prizes)||(attack.lethal?(attack.prizes<1||attack.prizes>3):attack.prizes!==0||!Number.isFinite(attack.damage)||attack.damage<0)||!Number.isSafeInteger(own.prizeCount)||!Number.isSafeInteger(foe.prizeCount)||foe.prizeCount<1||foe.prizeCount>6)return null;
   // Do not disfavor a possibly terminal source attack if the projected
   // public observation has not resolved whether ADP's extra Prize is live.
   const possibleExtra=own.publicTurnRestrictions?.gxUsed===false?0:1;
-  if(own.prizeCount<=attack.prizes+possibleExtra)return null;
-  const prior=board(foe);
-  // Defender is the exact active/bench object selected by the existing
-  // mobility scorer, including prospective Guzma, not a printing alias.
-  if(!prior.includes(defender)||prior.filter(p=>p===defender).length!==1)return null;
-  const survivors=prior.filter(p=>p!==defender);
-  if(!survivors.length||!Array.isArray(source.tools)||source.tools.some(t=>!is(t,TOOL))||hp(source)===null)return null;
+  if(attack.lethal&&own.prizeCount<=attack.prizes+possibleExtra)return null;
+  const plan=movement.routes(observation,own,defender,attack);
+  if(!plan||!Array.isArray(source.tools)||source.tools.some(t=>!is(t,TOOL))||hp(source)===null)return null;
+  const {survivors,options}=plan;
   if(!Array.isArray(own.stadium)||!Array.isArray(foe.stadium))return null;
   const valley=[...own.stadium,...foe.stadium].some(x=>is(x,VALLEY))&&!(foe.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining>0);
-  const mims=survivors.filter(p=>canCopy(p,foe,valley));
+  const postHP=p=>hp(p)-(!attack.lethal&&p===defender?attack.damage:0);
+  const mims=options.filter(x=>canCopy(x.pokemon,foe,valley)&&postHP(x.pokemon)>0);
   if(!mims.length)return null;
-  const fairy=fairyZone(survivors),total=survivors.every(p=>Array.isArray(p.energies)&&p.energies.every(e=>is(e,PSY)))?survivors.reduce((n,p)=>n+p.energies.length,0):null;
-  const weak=fairy?2:1;
-  let damage=0,remaining=hp(source),prizes=0,minimumBasics=0;
+  const fairy=fairyZone(survivors),weak=fairy?2:1;
+  let damage=0,remaining=hp(source),prizes=0,minimumBasics=0,route=mims[0];
   if(attack.attackName==='Aura Burn'&&is(source,MOL)){
     remaining-=30;
-    if(remaining<=0||!mims.some(p=>hp(p)>30))return null;
+    route=mims.find(x=>postHP(x.pokemon)>30);
+    if(remaining<=0||!route)return null;
     damage=190;prizes=2;
   }else if(attack.attackName==='Ultimate Ray'&&is(source,ADP)){
     damage=150*weak;prizes=3;
   }else if(attack.attackName==='Bellowing Thunder'&&is(source,BOLT)){
     minimumBasics=Math.ceil(remaining/(70*weak));
-    if(total===null||total<minimumBasics)return null;
+    route=mims.find(x=>x.totalPsychic>=minimumBasics);
+    if(!route)return null;
     damage=70*weak*minimumBasics;prizes=2;
   }else return null;
   if(damage<remaining||foe.prizeCount>prizes)return null;
-  return Object.freeze({kind:'visible-terminal-copycat-reply',attackName:attack.attackName,copycatCost:valley?1:2,fairyZone:fairy,damage,remaining,prizes,minimumBasics});
+  return Object.freeze({kind:'visible-terminal-copycat-reply',attackName:attack.attackName,copycatCost:valley?1:2,fairyZone:fairy,damage,remaining,prizes,minimumBasics,replyRoute:route.route,paidRetreat:route.paidRetreat});
 }
 // Preserve all scored options. This is an advisory ordering, not a forced
 // pass, hidden-hand prediction, or veto when every alternative is risky.
