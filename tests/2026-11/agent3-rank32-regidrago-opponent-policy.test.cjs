@@ -612,3 +612,31 @@ test('Apex Rolling Iron takes advantage of known Dragon Weakness for no-cost KO'
   assert.deepEqual(promptDecision(request({ownPublic,opponentPublic,prompt:p})),
     {kind:'select-choice',token:'rolling'});
 });
+
+
+test('Ryuno 330 doubles into an otherwise unreachable Dragon-weak 440 HP KO',()=>{
+  const p=prompt(P.regidrago,'Apex Dragon',[
+    {token:'rolling',publicMetadata:{sourceAttack:'Rolling Iron'}},
+    {token:'ryuno',publicMetadata:{sourceAttack:'Ryuno Glide'}}
+  ],'ChooseAttackPrompt');
+  const ownPublic=player({active:pokemon(P.regidrago,{
+    hp:280,energies:[P.doubleDragon,P.energy]})});
+  const opponentPublic=player({active:pokemon('High HP example ex TWM 3',{
+    hp:440,damage:0,printed:{subtypes:['ex'],
+      weakness:[{type:'Dragon',value:'×2'}],resistance:[]}})});
+  assert.deepEqual(promptDecision(request({ownPublic,opponentPublic,prompt:p})),
+    {kind:'select-choice',token:'ryuno'});
+});
+
+test('a native-ineligible Rolling Iron must not suppress a legal Ryuno active KO',()=>{
+  const p=prompt(P.regidrago,'Apex Dragon',[
+    {token:'rolling',publicMetadata:{sourceAttack:'Rolling Iron',eligible:false}},
+    {token:'ryuno',publicMetadata:{sourceAttack:'Ryuno Glide',eligible:true}}
+  ],'ChooseAttackPrompt');
+  const ownPublic=player({active:pokemon(P.regidrago,{
+    hp:280,energies:[P.doubleDragon,P.energy]})});
+  const opponentPublic=player({active:pokemon('Wobbuffet PHF 36',{
+    hp:110,damage:0,printed:{subtypes:['Basic'],weakness:[],resistance:[]}})});
+  assert.deepEqual(promptDecision(request({ownPublic,opponentPublic,prompt:p})),
+    {kind:'select-choice',token:'ryuno'});
+});
