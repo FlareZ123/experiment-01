@@ -62,7 +62,7 @@ function setup(seat,enemyPrizes=4){
   });
   return {seat,view,policy,owner,enemy,state,store,decide,project,settle};
 }
-function bombPrompt(f){
+function bombPrompt(f,sourceZone='active'){
   class AttachEnergyPrompt{
     constructor(){
       this.id=1;this.playerId=f.owner.id;this.message='ATTACH_ENERGY_CARDS';
@@ -71,7 +71,7 @@ function bombPrompt(f){
       this.slots=[native.SlotType.BENCH,native.SlotType.ACTIVE];
       this.filter={superType:'ENERGY'};
       this.options={allowCancel:false,min:0,max:5,blocked:[],
-        blockedTo:[{player:0,slot:0,index:0}],differentTypes:false,
+        blockedTo:[{player:0,slot:sourceZone==='active'?0:1,index:0}],differentTypes:false,
         sameTarget:false,differentTargets:false};
     }
     getPerspectivePlayerId(){return this.playerId}
@@ -79,7 +79,9 @@ function bombPrompt(f){
     validate(rows){return rows.length<=5&&rows.every(r=>r.card?.superType==='ENERGY')}
   }
   const prompt=new AttachEnergyPrompt();f.state.prompts=[prompt];
-  return {prompt,projection:f.project(prompt,f.owner.active.getPokemonCard(),'Extra Energy Bomb')};
+  const sourceCard=sourceZone==='active'?f.owner.active.getPokemonCard():
+    f.owner.bench[0].getPokemonCard();
+  return {prompt,projection:f.project(prompt,sourceCard,'Extra Energy Bomb')};
 }
 function promotePrompt(f){
   class ChoosePokemonPrompt{
@@ -200,5 +202,53 @@ test('Bomb line does not execute when self-KO would award opponent final Prizes'
         sourceZone:'active',sourceIndex:0,abilityLive:true}};
     assert.notDeepEqual(f.decide(1,null,[bomb,{kind:'pass',token:'pass'}]),
       {kind:'select-action',token:'bomb'});
+  }
+});
+
+test('one Benched Electrode Bomb -> funded Active Raichu -> Rain, no promotion required',()=>{
+  for(const seat of [0,1]){
+    const f=setup(seat);
+    f.owner.active=slot(R);f.owner.bench[0]=slot(E);
+    f.view.ownPublic.active=viewSlot(R);
+    f.view.ownPublic.bench[0]=viewSlot(E);
+    const bomb={kind:'use-ability',token:'bomb',actorPrinting:E,
+      publicMetadata:{abilityName:'Extra Energy Bomb',sourceSeat:'actor',
+        sourceZone:'bench',sourceIndex:0,abilityLive:true}};
+    assert.deepEqual(f.decide(1,null,[bomb,{kind:'pass',token:'pass'}]),
+      {kind:'select-action',token:'bomb'});
+    const b=bombPrompt(f,'bench'),bp=b.projection.promptProjection;
+    assert.equal(bp.publicMetadata.selectionType,'energy-transfers');
+    const bs=f.decide(2,bp);
+    assert.equal(bs.kind,'select-choices');
+    const br=f.settle(b.prompt,b.projection,bs);
+    assert.deepEqual(br.rawResult,[{index:0,to:{player:0,slot:0,index:0}}]);
+    const attached=f.owner.discard.cards.splice(0,1)[0];
+    f.owner.active.cards.push(attached);
+    f.owner.active.energies.cards.push(attached);
+    f.owner.bench[0]=slot(null);
+    f.view.ownPublic.active.energies=[P];
+    f.view.ownPublic.bench[0]=null;
+    f.view.ownPublic.discard=[];
+    f.view.opponentPublic.prizeCount=2;
+    const rain={kind:'attack',token:'rain',actorPrinting:R,
+      attackName:'Electro Rain',publicMetadata:{attackCostPayable:true}};
+    assert.deepEqual(f.decide(3,null,[rain,{kind:'pass',token:'pass'}]),
+      {kind:'select-action',token:'rain'});
+    const e=discardPrompt(f),ep=e.projection.promptProjection;
+    const es=f.decide(4,ep);
+    assert.equal(es.kind,'select-choices');
+    assert.equal(es.tokens.length,1);
+    f.settle(e.prompt,e.projection,es);
+    f.owner.active.cards.splice(1,1);
+    f.owner.active.energies.cards.splice(0,1);
+    f.view.ownPublic.active.energies=[];
+    const d=rainPrompt(f),dp=d.projection.promptProjection;
+    const ds=f.decide(5,dp);
+    assert.equal(ds.kind,'select-choices');
+    assert.equal(ds.tokens.length,3);
+    const settlement=f.settle(d.prompt,d.projection,ds);
+    assert.equal(settlement.rawResult.length,3);
+    assert.ok(settlement.rawResult.every(x=>x.damage===30&&
+      x.target.slot===0));
   }
 });
