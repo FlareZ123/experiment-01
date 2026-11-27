@@ -636,7 +636,7 @@ function projectRaihanAttachEnergyPrompt({
 }={}){
   const actor=state.players[actorSeat];
   const exactPrompt=source?.sourceKind==='card-effect'&&
-    source.effectName==='Raihan'&&source.sourcePrinting==='Raihan EVS'&&
+    source.effectName==='Raihan'&&hasName(source.sourcePrinting,'Raihan')&&
     prompt.message==='ATTACH_ENERGY_CARDS'&&prompt.cardList===actor.discard&&
     prompt.playerType===native.PlayerType.BOTTOM_PLAYER&&
     Array.isArray(prompt.slots)&&prompt.slots.length===2&&
@@ -655,7 +655,7 @@ function projectRaihanAttachEnergyPrompt({
   const blocked=new Set(Array.isArray(prompt.options?.blocked)?prompt.options.blocked:[]);
   const energies=cardListCards(prompt.cardList).map((card,index)=>({card,index})).filter(({card,index})=>
     !blocked.has(index)&&card instanceof native.EnergyCard&&
-    card.energyType===native.EnergyType.BASIC&&card.name==='Psychic Energy');
+    card.superType===native.SuperType.ENERGY&&card.energyType===native.EnergyType.BASIC&&card.name==='Psychic Energy');
   const targets=[];
   const active=actor.active?.getPokemonCard?.();
   if(active)targets.push({zone:'active',slot:native.SlotType.ACTIVE,index:0,pokemon:active});
