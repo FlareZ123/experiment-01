@@ -49,6 +49,7 @@ test('projects Prize membership from knownPrized, not remaining-deck knownPrinti
     { printing: 'A SET 001', copies: 2 }
   ]);
   assert.deepEqual(projected.ownerK1Snapshot, {
+    ownerSeat: 1,
     epoch: 4,
     exactMembershipKnown: true,
     knownPrintings: [{ printing: 'A SET 001', copies: 2 }],
