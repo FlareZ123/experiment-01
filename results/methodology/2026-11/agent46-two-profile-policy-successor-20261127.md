@@ -15,7 +15,7 @@ The branch is based on current mainline. It reuses the mainline owner-K1 capture
 
 - **Profile identity/config:** `prepareTwoProfileCandidate`, `buildTwoProfileCandidateIdentity`, and `bindTwoProfileCandidate` resolve the exact printed 60 and bind the candidate-only worker bundle. The session sends frozen identity-bound config; the protocol accepts only the two registered profile IDs and exact printed-deck hashes.
 - **Owner prize facts:** `agent46-owner-prize-facts.cjs` wraps the current mainline K1 capture/advance/sampler. Protocol validation checks optional `prizeFacts` against the selected profile, current turn/prize count, and cards already visible in the owner's public zones. No opponent prize identities are exposed.
-- **Prompt projection:** successor-only ChooseCards projection uses pinned `matchesPromptFilter`. Hisuian Heavy Ball exposes only the actor's revealed own Prize collection; owner deck/discard/hand searches respect native filters, including empty collections.
+- **Prompt projection:** successor-only ChooseCards projection uses pinned `matchesPromptFilter`. Hisuian Heavy Ball exposes only the actor's revealed own Prize collection; owner deck/discard/hand searches respect native filters, including empty collections. The pinned Raihan EVS `AttachEnergyPrompt` is also projected for actor-owned discard Basic Psychic Energy to occupied own Active/Bench targets; the existing candidate policy then chooses one target.
 - **Energy payment:** `energyCount` remains the number of offered Energy entries; `energyType` carries the required cost vector. The worker selects the minimum exact number of Basic Psychic Energy cards for Colorless/Psychic costs and abstains on unsupported types or non-Basic/non-Psychic Energy. This follows the pinned `ChooseEnergyPrompt` exact-Energy validation contract.
 - **Stadium projection:** a projected Stadium replaces the shared Stadium on both actor and opponent views. Sky Field is considered only when it changes a real three-slot Radiant Eternatus Gate bottleneck; Dimension Valley only when it funds the active's attack without newly enabling a visible opponent attack. Unknown opponent Energy supply fails closed; already-funded final KOs are preserved.
 
@@ -25,17 +25,17 @@ Local tests were executed in a V8 harness with small Node `test`/`assert` shims.
 
 | Surface | Coverage | Status / limit |
 |---|---|---|
-| Root policy | 31 named groups; paired cases cover both seats and both profiles | Passed; synthetic observations |
+| Root policy | 32 named groups; paired cases cover both seats and both profiles, including Raihan attachment selection | Passed; synthetic observations |
 | Setup | 7 groups: initial Active, pre-deal GO_FIRST, post-bonus placement | Passed; no native setup dispatch |
 | Owner K1/prize facts | 3 groups: owner-only capture, safe-source progression, invalidation | Passed against mainline helper/sampler |
-| Prompt projection | 4 groups: Heavy Ball Prize visibility, native-filtered search, empty owner collection, Energy metadata | Passed; pinned filter injected by host |
+| Candidate prompt projection | 4 groups: Heavy Ball Prize visibility, native-filtered search, empty owner collection, Energy metadata, Raihan own-discard attachment | Passed; synthetic prompt fixture |
 | Shared mainline prompt-projection regression | 23/23 existing tests, including actor-relative projection, multi-select dispatch, setup projection, and cloned prompt validation | Passed in V8 harness with Buffer/assert/hash shims; actual mainline createStoreStateSnapshotter loaded, but not the Node test runner or a native game |
 | Energy payment | One-cost/two-cost from three offered Basic Psychic cards; Fire cost, non-Basic Energy, and insufficient available-count cases abstain | Passed; Special Energy unsupported |
 | Stadium decisions | Sky Field Gate bottleneck, Dimension Valley active unlock/opponent unlock, unknown opponent Energy fail-closed, shared-Stadium replacement | Passed in synthetic harness; wider Stadium interactions untested |
 
 ## Explicit limits
 
-- **Raihan `AttachEnergyPrompt` is unsupported:** current projection supports the pinned Underworld Door contract, not Raihan's distinct attachment prompt. A test asserts fail-closed `UNSUPPORTED_ATTACH_ENERGY_PROMPT_SOURCE`.
+- **Raihan support is intentionally narrow:** the projection accepts the pinned Raihan card-effect provenance and exact `ATTACH_ENERGY_CARDS` prompt shape, and exposes only Basic Psychic Energy from the actor's discard to occupied own Active/Bench targets. Other `AttachEnergyPrompt` sources or shapes remain fail-closed. The pinned source is `vendor/twinleaf/ptcg-server/src/sets/09-sword-and-shield/set-evolving-skies/raihan.ts` and `.../game/store/prompts/attach-energy-prompt.ts` at submodule revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The pinned Raihan call site supplies a Basic-Energy filter but does not pass its locally computed blocked-index list; the projection therefore enforces the Basic Energy type itself rather than relying on `AttachEnergyPrompt.validate` to enforce the UI filter.
 - Special Energy payment, non-Psychic candidate Energy, unknown prompts, and unsupported native card effects remain fail-closed or untested.
 - Host binding/config resolver are implemented, but no Docker worker or native fixture/game was started.
 - No held-out adversarial games, all-32 matchup results, confidence intervals, or paper-play validation were produced.
