@@ -577,12 +577,21 @@ function validatePrizeFacts(k, view, profile) {
     'Forest Seal Stone':1,'Hisuian Heavy Ball':1,'Tapu Lele-GX':1,'Latias ex':1,
     "Lillie's Clefairy ex":hood?2:1,'Stealthy Hood':2,
     ...(hood?{'Pokémon Ranger':1}:{'Wobbuffet':1,'Temple of Sinnoh':1})};
+  const visible=new Set([...view.ownHand,...view.ownPublic.discard,...view.ownPublic.lostZone,
+    ...view.ownPublic.stadium,...view.ownPublic.resolvingSupporter]);
+  for(const slot of [view.ownPublic.active,...view.ownPublic.bench]){
+    if(!slot)continue;
+    for(const card of [slot.printing,...slot.evolutionPrintings,...slot.energies,...slot.tools])visible.add(card);
+  }
+  const prints={'Radiant Eternatus':'CRZ','Shadow Rider Calyrex V':'CRE','Shadow Rider Calyrex VMAX':'CRE',
+    'Forest Seal Stone':'SIT','Hisuian Heavy Ball':'ASR','Tapu Lele-GX':'GRI','Latias ex':'SSP',
+    "Lillie's Clefairy ex":'JTG','Stealthy Hood':'UNB','Pokémon Ranger':'STS','Wobbuffet':'PHF','Temple of Sinnoh':'ASR'};
   const seen=new Set();let total=0;
   for (const row of f.fullyPrized) {
     exactKeys(row,['cardName','printing','copies']);
     if (!Object.hasOwn(counts,row.cardName) || counts[row.cardName]!==row.copies ||
-        !boundedString(row.printing,null,256) || !row.printing.startsWith(row.cardName+' ') ||
-        seen.has(row.cardName) || view.ownHand.includes(row.printing)) fail('BAD_PRIZE_FACT_ROW');
+        !boundedString(row.printing,null,256) || row.printing!==row.cardName+' '+prints[row.cardName] ||
+        seen.has(row.cardName) || visible.has(row.printing)) fail('BAD_PRIZE_FACT_ROW');
     seen.add(row.cardName);total+=row.copies;
   }
   if(total>f.prizeCount) fail('BAD_PRIZE_FACT_COUNT');

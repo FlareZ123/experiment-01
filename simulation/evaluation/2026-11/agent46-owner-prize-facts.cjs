@@ -5,7 +5,7 @@ const {projectOwnerK1PrizeKnowledge} = require('../../twinleaf/2026-11/agent48-o
 const TARGETS = new Set(['Radiant Eternatus','Shadow Rider Calyrex V','Shadow Rider Calyrex VMAX','Forest Seal Stone','Hisuian Heavy Ball','Tapu Lele-GX','Latias ex',"Lillie's Clefairy ex",'Stealthy Hood','Pokémon Ranger','Wobbuffet','Temple of Sinnoh']);
 // Only these source-bound effects are permitted to retain inferred Prize composition.
 // Unknown effects, opposing actions, or Heavy Ball clear the inference, even at unchanged counts.
-const SAFE_SOURCES = new Set(['Fog Crystal','Mysterious Treasure','Quick Ball','Forest Seal Stone','Arven','Tapu Lele-GX','Radiant Eternatus','Night Stretcher','VS Seeker','Raihan','Teammates']);
+const SAFE_SOURCES = new Set(['Fog Crystal','Mysterious Treasure','Quick Ball','Forest Seal Stone','Arven','Tapu Lele-GX','Radiant Eternatus','Night Stretcher','VS Seeker','Raihan','Teammates','Shadow Rider Calyrex V','Shadow Rider Calyrex VMAX',"Lillie's Clefairy ex",'Latias ex','Trevenant & Dusknoir-GX','Marshadow','Girafarig','Mimikyu','Dialga-GX','Wobbuffet','Psychic Energy','Field Blower','Stealthy Hood','Float Stone','Sky Field','Dimension Valley','Temple of Sinnoh','Iono',"Lillie's Determination",'Acerola','Guzma','Pokémon Ranger','Unfair Stamp','Battle Compressor']);
 function createOwnerPrizeFacts({candidateSeat, resolved, baseObserve}) {
   assert.ok(candidateSeat===0 || candidateSeat===1);
   assert.equal(typeof baseObserve,'function');
@@ -15,7 +15,7 @@ function createOwnerPrizeFacts({candidateSeat, resolved, baseObserve}) {
     cardName:row.name,printing:row.engineFullName,copies:row.count
   })));
   let store=null,hook=null,snapshot=null,lastOrdinal=-1;
-  const captured=new WeakSet();
+  const captured=new Set();
   function bindStore(s,h) {
     assert.equal(store,null,'one live game per adapter');
     assert.equal(typeof h.getPromptProvenance,'function');
@@ -35,10 +35,13 @@ function createOwnerPrizeFacts({candidateSeat, resolved, baseObserve}) {
     const prompt=state.prompts.find(p=>p.result===undefined);
     if(prompt?.constructor?.name==='ChooseCardsPrompt' &&
        prompt.playerId===owner.id && prompt.cards===owner.deck &&
-       sourceName(prompt)!==null && !captured.has(prompt)) {
-      captured.add(prompt);
+       sourceName(prompt)!==null && !captured.has(state.turn+':'+String(prompt.id))) {
+      captured.add(state.turn+':'+String(prompt.id));
       try { snapshot=captureOwnerK1(state,seat,names,snapshot,()=>view); }
-      catch { snapshot=null; }
+      catch {
+        if(snapshot) snapshot=advanceOwnerK1(snapshot,{currentOwnPrizeCount:view.ownPublic.prizeCount,
+          deckMayHaveChanged:true,prizeCompositionMayHaveChanged:true});
+      }
     }
     if(!snapshot?.prizeInferenceCertified) return view;
     try {

@@ -66,3 +66,19 @@ test('unknown/other-seat effects and incomplete accounting cannot certify prizes
     assert.equal(f.adapter.observe(f.state,seat).ownerK1,null);
   }
 });
+
+test('duplicate prompt identity does not recapture and a failed search cannot reset the epoch',()=>{
+  for(const seat of [0,1]){
+    const f=fixture(seat);const p=f.search();
+    const first=f.adapter.observe(f.state,seat).ownerK1.epoch;
+    f.search();
+    assert.equal(f.adapter.observe(f.state,seat).ownerK1.epoch,first);
+    f.after(p,1);
+    f.owner.deck.cards.push({fullName:HB});
+    f.search(FOG,true,'bad');
+    assert.equal(f.adapter.observe(f.state,seat).ownerK1,null);
+    f.owner.deck.cards.pop();
+    f.search(FOG,true,'fresh');
+    assert.ok(f.adapter.observe(f.state,seat).ownerK1.epoch>first+1);
+  }
+});
