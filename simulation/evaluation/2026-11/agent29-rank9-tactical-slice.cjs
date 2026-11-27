@@ -7,7 +7,37 @@ module.exports = (function build() {
   const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
   const L = x => Array.isArray(x) ? x : [];
   const M = x => x?.publicMetadata ?? {};
-  const name = x => typeof x === 'string' ? x : x?.printing ?? x?.actorPrinting ?? x?.targetPrinting ?? '';
+  // Actor observations expose pinned Twinleaf card.fullName (which normally
+  // omits setNumber, and for MEG 86 uses the native M1L identity). The
+  // original-source policy's printed-inventory regexes include set numbers.
+  // Normalize only this source's exact known public printings at the policy
+  // boundary; do not alter generic observations, opponent hidden zones, or
+  // source-list identities.
+  const originalPrintings = Object.freeze([
+    'Mega Absol ex MEG 86','Sableye V SSH 120',
+    'Plumeria BUS 120','Guzma BUS 115','Iono PAL 185',
+    'Electrode-GX CES 48','Prism Energy ASC 216',
+    'Darkness Energy MEE 15','Telepathic Psychic Energy POR 88',
+    'Shadow Rider Calyrex V CRE 74','Unown AOR 30',
+    'Squawkabilly ex PAL 169','Toedscruel PAR 17',
+    'Battle VIP Pass FST 225',"Trainers' Mail ROS 92",
+    'Rescue Carrier EVS 154','Rescue Stretcher GRI 130',
+    'Ultra Ball MEG 131','Battle Compressor PHF 92',
+    'VS Seeker PHF 109','Float Stone BKT 137',
+    'Muscle Band XY 121','Forest Seal Stone SIT 156',
+    'Wobbuffet PHF 36','Silent Lab PRC 140',
+    'Path to the Peak CRE 148','PokéStop PGO 68',
+    'Secret Box TWM 163','Temple of Sinnoh ASR 155'
+  ]);
+  const printingAliases=new Map(originalPrintings.map(full=>[
+    full.replace(/ [0-9]+$/,''),full
+  ]));
+  printingAliases.set('Mega Absol ex M1L','Mega Absol ex MEG 86');
+  const originalPrinting=x=>{
+    const raw=typeof x==='string'?x:x?.printing??x?.actorPrinting??x?.targetPrinting??'';
+    return printingAliases.get(raw)??raw;
+  };
+  const name = originalPrinting;
   const mega = x => /^Mega Absol ex MEG 86\b/i.test(name(x));
   const sableye = x => /^Sableye V SSH 120\b/i.test(name(x));
   const plumeria = x => /^Plumeria BUS 120\b/i.test(name(x));
@@ -1117,5 +1147,5 @@ function bombPlanner(o,sourceBenchIndex){
       return r.prompt===null?root(r):prompt(r);
     }});
   }
-  return {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,createPolicy,printedDamage,payable,rootAttack,denial,prize,safeCosts,bombPlanner,stadiumScore,bombMobility,ropePlan,defensiveSwitch,horrorDesired,protectedReset,ionoScore,pokeStopScore,knownSafeDecline,deferCompressor,cologneDrawScore};
+  return {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,createPolicy,printedDamage,payable,rootAttack,denial,prize,safeCosts,bombPlanner,stadiumScore,bombMobility,ropePlan,defensiveSwitch,horrorDesired,protectedReset,ionoScore,pokeStopScore,knownSafeDecline,deferCompressor,cologneDrawScore,originalPrinting};
 })();
