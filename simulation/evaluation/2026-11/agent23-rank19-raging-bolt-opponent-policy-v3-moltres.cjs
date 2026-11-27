@@ -28,6 +28,7 @@ const ALIASES=Object.freeze({
   "Arceus & Dialga & Palkia-GX CEC": "Arceus & Dialga & Palkia-GX CEC 156",
   "Sandy Shocks ex PAR": "Sandy Shocks ex PAR 108",
   "Galarian Moltres V CRE": "Galarian Moltres V CRE 97",
+  "Ho-Oh EX DRX": "Ho-Oh-EX DRX 22",
   "Ho-Oh-EX DRX": "Ho-Oh-EX DRX 22",
   "Tapu Koko Prism Star TEU": "Tapu Koko ♢ TEU 51",
   "Tapu Koko ♢ TEU": "Tapu Koko ♢ TEU 51",
@@ -169,7 +170,7 @@ const vip=x=>/^Battle VIP Pass FST(?: 225)?$/.test(p(x));
 const latias=x=>/^Latias ex SSP(?: 76)?$/.test(p(x));
 const bolt=x=>/^Raging Bolt ex TEF(?: 123)?$/.test(p(x));
 const adp=x=>/^Arceus & Dialga & Palkia-? ?GX CEC(?: 156)?$/.test(p(x));
-const ho=x=>/^Ho-Oh-EX DRX(?: 22)?$/.test(p(x));
+const ho=x=>/^Ho-Oh-? ?EX DRX(?: 22)?$/.test(p(x));
 const typ=x=>/^(?:Basic )?(Lightning|Fighting|Darkness) Energy/.exec(p(x))?.[1]??null;
 function discardTypes(r){return new Set(list(own(r).discard).map(typ).filter(Boolean));}
 function hoSetup(r){
