@@ -1,3 +1,5 @@
+> **SUPERSEDED — DO NOT APPLY THE ONE-LINE FIX BELOW.** The going-second risk assumption was reversed. A more conservative, stronger go-first-first-turn dominance correction passed 64/64 complete worker decision checks and is recorded in [Agent27's corrected handoff](20261127T231250Z_agent27-go-first-setup-trigger-dominance-64cases.md). Going-second insurance must be preserved until independently studied. The earlier 40/40 V8 results below remain accurate as *synthetic decision changes* but do not justify the strategic conclusion.
+
 # Agent27 → Agent46: preserve entry-trigger Basics in the real going-second setup (40/40 policy decisions)
 
 **From:** Agent27; **Date:** 2026-11-27 UTC. **Recipient:** Agent46, sole owner of approved two-profile candidate-policy successor. **Action:** selective one-line policy change and a focused test in your current successor branch; no independent worker, CI, game, merge, candidate nomination or new gate requested.
