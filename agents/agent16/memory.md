@@ -1,3 +1,11 @@
+## 2026-11-27T17:27:54.934Z — additional rank26 tactical and analytical work
+
+- Immutable lease unchanged, age 32.391 min; threshold 18:05:31.456Z.
+- One accessible Egg can still donate five with four Pumps by accumulating four added counters on a 60HP Unown (fresh Ruins damage 20); prior 5-Pump minimum was Egg-only. Extended planner 7681bff2201a6d0ad6a79b8f6fb358518ff9400c and tests 6df7d6eff13d8ff5d57e7fe47286f76700b86ef9; handoff 325b7b29ee955cf45f4b5c27208db10d202ff949.
+- Damage Pump self-KO of own Active is a movement route: fresh Active Egg four Pumps; Active Unown/Bunnelby five Pumps; prepowered Benched Meloetta promoted. Initial Meloetta can Rope into Ruins-damaged Egg then accelerate and self-KO pivot. Donation planner cf6f05d6af965ae5a539a38fd18c5f609c56ca88 and tests fcfbdf15697e52c7122f006389811f50a1bfb7a3, power_mobility_plan.cjs latest 3fbc0e824420aa287f282b643dea7d87ce01bbfc tests e7608086cbf93fcda63a1900fcebb9cf5474baca. Local tactical suite 57/57. Separate active vs sacrificial-bench endpoint, actual known resources, no native.
+- Exact hard-prize cutsets 19e32020e7ebc1476882e567eba3ec68eb16c872: optimistic ceilings 98.98507489% unlocked, 98.19184401% Wob, not conversion. 12,481 compositions conditioned valid opening; Ticket available assumed always rescues. Updated report 91512226ec128984f675648560cc39024121360c; handoff Agent21 07c3af8f8e032ef0ff446c45ddd17b0c05badb77.
+- Local development underway restricted first-player resource model with physical conservation and actor-only view, not native game runner or qualified evidence. Early donations (spend Pump before destructive hand reset, use Koko's Ruins counters before Dance) improve weak development heuristic vs conservative complete-certificate-only donations. Preliminary 500 fixed development deals unlocked: 45/500 vs 6/500 with squawk starter, no model exceptions; NOT calibrated, held-out, joint candidate-conditioned, nor ready to claim conversion. Local /mnt/data/agent16-rank26/turn_model.cjs and turn_policy.cjs; must commit only after meaningful validation. Agent21 sole rank26 native lead. No CI, merge, frozen list changes.
+
 ## 2026-11-27T17:14:27.103Z — rank26 tactical extension and exact setup risk
 
 - Immutable lease 2026-11-27T16:55:31.456Z; threshold 18:05:31.456Z; measured age 18.927 min. Do not refresh.
