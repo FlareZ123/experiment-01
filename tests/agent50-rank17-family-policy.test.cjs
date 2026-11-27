@@ -188,6 +188,45 @@ function runCases(policy,protocol) {
     same(runPrompt(p,v,cards(v,A.compressor,'Battle Compressor','deck',[A.raichu,A.electrode,A.voltorb,A.pikachu],0,3)),choose('c3','c0'),tag+'locked Ditto cannot supply a base; recover actual Pikachu and Raichu');
     v=view(seat,{ownHand:[A.carrier,A.stretcher],ownPublic:player({discard:[A.pikachu]})});
     same(runRoot(p,v,[play('recover',A.stretcher),play('carrier',A.carrier),pass]),action('carrier'),tag+'reserve Stretcher when Carrier can recover Basic');
+    // Count-aware recovery and safe two-Bomb window.
+    v=view(seat,{ownHand:[A.compressor,A.carrier],ownPublic:player({bench:[slot(A.pikachu),slot(A.voltorb)]})});
+    same(runPrompt(p,v,cards(v,A.compressor,'Battle Compressor','deck',[A.voltorb,A.electrode],0,3)),choose('c0'),tag+'second Bomb uses second physical Voltorb');
+    const unsafeBomb={...v,opponentPublic:{...v.opponentPublic,prizeCount:4}};
+    same(runPrompt(p,unsafeBomb,cards(unsafeBomb,A.compressor,'Battle Compressor','deck',[A.voltorb,A.electrode],0,3)),single('empty'),tag+'four opposing Prizes: no second Bomb search');
+    v=view(seat,{ownHand:[A.compressor,A.carrier,A.carrier]});
+    same(runPrompt(p,v,cards(v,A.compressor,'Battle Compressor','deck',[A.voltorb,A.voltorb,A.pikachu],0,3)),choose('c0','c2','c1'),tag+'two Carriers fund three physical bases');
+    v=view(seat,{ownHand:[A.carrier],ownPublic:player({bench:[slot(A.pikachu)],discard:[A.voltorb,A.voltorb]})});
+    same(runPrompt(p,v,cards(v,A.carrier,'Rescue Carrier','discard',[A.voltorb,A.voltorb],0,2)),choose('c0','c1'),tag+'one Carrier recovers both physical Voltorb');
+    v=view(seat,{ownHand:[A.compressor,A.stretcher,A.stretcher],ownPublic:player({bench:[slot(A.raichu),slot(A.voltorb),slot(A.voltorb)]})});
+    same(runPrompt(p,v,cards(v,A.compressor,'Battle Compressor','deck',[A.electrode,A.electrode,A.raichu],0,3)),choose('c0','c1'),tag+'two Stretcher recover two funded Electrode');
+    const noSecond={...v,opponentPublic:{...v.opponentPublic,prizeCount:4}};
+    same(runPrompt(p,noSecond,cards(noSecond,A.compressor,'Battle Compressor','deck',[A.electrode,A.electrode],0,3)),choose('c0'),tag+'no gratuitous second liability');
+    v=view(seat,{ownHand:[A.raichu,A.electrode],ownPublic:player({bench:[slot(A.ditto)]})});
+    const exclusive=policy.planCoreAccess(v);
+    same([exclusive.readyR,exclusive.readyE],[1,0],tag+'one Ditto cannot be assigned twice');
+    v=view(seat,{ownHand:[A.voltorb],ownPublic:player({bench:[slot(A.pikachu),slot(A.voltorb)]})});
+    same(runRoot(p,v,[play('second-voltorb',A.voltorb),pass]),action('second-voltorb'),tag+'play second Voltorb after attacker base');
+    same(runRoot(p,{...v,opponentPublic:{...v.opponentPublic,prizeCount:4}},[play('second-voltorb',A.voltorb),pass]),action('pass'),tag+'do not reserve useless dual Bomb Bench');
+    v=view(seat,{ownHand:[A.vip],ownPublic:player({bench:[slot(A.pikachu)]})});
+    same(runPrompt(p,v,cards(v,A.vip,'Battle VIP Pass','deck',[A.voltorb,A.voltorb,A.unown],0,2)),choose('c0','c1'),tag+'VIP takes both Voltorb after Pikachu secured');
+    v=view(seat,{ownHand:[A.electrode],ownPublic:player({bench:[slot(A.raichu),slot(A.electrode),slot(A.voltorb)]})});
+    same(runRoot(p,v,[play('second-electrode',A.electrode,{zone:'bench',index:2,printing:A.voltorb}),pass]),action('second-electrode'),tag+'evolve second Electrode in safe window');
+    same(runRoot(p,{...v,opponentPublic:{...v.opponentPublic,prizeCount:4}},[play('second-electrode',A.electrode,{zone:'bench',index:2,printing:A.voltorb}),pass]),action('pass'),tag+'preserve one-Prize base after window closes');
+    // Pinned setup reducer uses the first selection as Active.
+    const setupSource={classification:'actor-choice',sourceKind:'engine',sourcePrinting:null,effectName:'CHOOSE_STARTING_POKEMONS'};
+    const setup=(v,names,min=1,max=6)=>cards(v,null,'CHOOSE_STARTING_POKEMONS','hand',names,min,max,{source:setupSource});
+    v=view(seat,{phase:1,turnSeat:1-seat,ownHand:[A.unown,A.pikachu,A.gengar,A.unit,A.voltorb,A.voltorb],
+      ownPublic:player({active:null,bench:[],prizeCount:0})});
+    const setupNames=[A.unown,A.pikachu,A.gengar,A.voltorb,A.voltorb];
+    same(runPrompt(p,v,setup(v,setupNames)),choose('c2','c1','c3','c4','c0'),tag+'going second ready Horror House Active');
+    const first={...v,turnSeat:seat};
+    same(runPrompt(p,first,setup(first,setupNames)),choose('c0','c1','c3','c4'),tag+'going first protect three-Prize Gengar');
+    const klefki={...first,ownHand:[A.klefki,A.unown,A.pikachu,A.voltorb]};
+    same(runPrompt(p,klefki,setup(klefki,[A.klefki,A.unown,A.pikachu,A.voltorb])),choose('c1','c2','c3'),tag+'avoid own Unown lock without mobility');
+    const mobile={...klefki,ownHand:[...klefki.ownHand,A.rope||'Escape Rope BST']};
+    same(runPrompt(p,mobile,setup(mobile,[A.klefki,A.unown,A.pikachu,A.voltorb])),choose('c0','c2','c3'),tag+'mobile Klefki lock preserves Unown');
+    const extraBench={...v,ownPublic:player({active:slot(A.unown),bench:[slot(A.pikachu)],prizeCount:0}),ownHand:[A.voltorb,A.voltorb,A.squawk]};
+    same(runPrompt(p,extraBench,setup(extraBench,[A.voltorb,A.voltorb,A.squawk],0,3)),choose('c0','c1'),tag+'optional extra Bench establishes dual Bomb, not Squawk');
     // Certified own inventory permits aggregate Prize inference, never slot mapping.
     const ticket=full.ticket;
     v=exact(seat,{h:[ticket,A.compressor,A.stretcher],bench:[A.pikachu],prizes:[A.raichu,A.raichu,A.unown,A.unit,A.vip,A.research]});
