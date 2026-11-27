@@ -6,6 +6,7 @@ const bolt=require('./agent23-rank19-bellowing-thunder-draft.cjs');
 const targets=require('./agent23-rank19-candidate-targets.cjs');
 const opening=require('./agent23-rank19-opening.cjs');
 const copycat=require('./agent23-rank19-copycat-reply.cjs');
+const tempo=require('./agent23-rank19-adp-tempo.cjs');
 const list=x=>Array.isArray(x)?x:[];
 const name=x=>typeof x==='string'?x:x?.printing??x?.fullName??'';
 const kind=opening.kind, md=x=>x?.publicMetadata??{};
@@ -53,11 +54,11 @@ function result(t,remaining,damage,extra={}){
  return {damage,lethal,terminal,prizes:lethal?t.prizes:0,score:terminal?10000:lethal?200+t.prizes*100:damage,...extra};
 }
 // A prospective attack is never used to assert an actual native root's legality.
-function bestAttack(o,own,target,caps){
+function attackOptions(o,own,target,caps){
  const t=targets.target(target),p=own?.active,k=kind(p),temple=bolt.templeMayApply(o);
- if(!t||!p||!k||attackBlocked(p)||!Number.isFinite(p.hp)||!Number.isFinite(p.damage)||p.damage>=p.hp||own.publicTurnRestrictions?.attackLockTurnsRemaining>0)return null;
+ if(!t||!p||!k||attackBlocked(p)||!Number.isFinite(p.hp)||!Number.isFinite(p.damage)||p.damage>=p.hp||own.publicTurnRestrictions?.attackLockTurnsRemaining>0)return [];
  const e=physicalEnergy(p,temple);
- if(!e)return null;
+ if(!e)return [];
  const left=own.prizeCount,out=[];
  const add=(attackName,damage,extra={})=>out.push({attackName,...result(t,left,damage,extra)});
  if(k==='moltres'&&e.d>=2&&e.total>=3){
@@ -83,13 +84,19 @@ function bestAttack(o,own,target,caps){
  if(k==='bird'&&e.total>=3)add('Rainbow Burn',20+20*[e.l,e.f,e.d].filter(n=>n>0).length);
  if(k==='lele'&&e.total>=2&&Array.isArray(target.energies)&&target.energies.every(x=>/^(?:Basic )?Psychic Energy(?: [A-Z0-9]+(?: \d+)?)?$/.test(name(x))))add('Energy Drive',20*(e.total+target.energies.length));
  if(k==='sudo'&&e.f>=1&&e.total>=2)add('Rock Throw',Math.max(0,40-fightingResistance(target)));
- return out.map(x=>copycat.adjust(o,own,target,x)).filter(x=>x.score>0).sort((a,b)=>b.score-a.score)[0]??null;
+ const scored=out.map(x=>copycat.adjust(o,own,target,x));
+ const gx=scored.find(a=>a.attackName==='Altered Creation-GX'),ray=scored.find(a=>a.attackName==='Ultimate Ray');
+ if(gx&&ray){
+  if(tempo.preferRay(o,own,target))gx.score=Math.min(gx.score,ray.score-1);
+  else ray.score=Math.min(ray.score,gx.score-1);
+ }
+ return scored.filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
+}
+function bestAttack(o,own,target,caps){return attackOptions(o,own,target,caps)[0]??null;
 }
 function direct(r,caps){
  const o=r.observation,own=o.ownPublic;
- const x=bestAttack(o,own,o.opponentPublic.active,caps);
- if(!x)return null;
- return list(r.actionFrontier?.items).some(a=>a.kind==='attack'&&a.attackName===x.attackName&&same(a.actorPrinting,own.active)&&md(a).attackCostPayable===true)?x:null;
+ return attackOptions(o,own,o.opponentPublic.active,caps).find(x=>list(r.actionFrontier?.items).some(a=>a.kind==='attack'&&a.attackName===x.attackName&&same(a.actorPrinting,own.active)&&md(a).attackCostPayable===true))??null;
 }
 function attackRoot(r,caps={discard:false,attach:false},terminalOnly=false){
  const p=direct(r,caps);

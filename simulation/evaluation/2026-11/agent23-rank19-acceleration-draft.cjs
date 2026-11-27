@@ -4,6 +4,7 @@
 // energy-attachment-set requires a separately reviewed protocol extension.
 const bolt=require('./agent23-rank19-bellowing-thunder-draft.cjs');
 const targets=require('./agent23-rank19-candidate-targets.cjs');
+const tempo=require('./agent23-rank19-adp-tempo.cjs');
 const SADA=/^Professor Sada's Vitality PAR(?: 170)?$/;
 const ADP=/^Arceus & Dialga & Palkia-? ?GX CEC(?: 156)?$/;
 const BOLT=/^Raging Bolt ex TEF(?: 123)?$/;
@@ -113,12 +114,10 @@ function root(r,capability){
   return {kind:'select-action',token:supporters[0].a.token};
  }
  const ray=items.find(a=>a.kind==='attack'&&a.attackName==='Ultimate Ray'&&ADP.test(name(a.actorPrinting))&&a.publicMetadata?.attackCostPayable===true);
- if(ray&&ADP.test(name(o.active))){
-  const gx=items.find(a=>a.kind==='attack'&&a.attackName==='Altered Creation-GX'&&a.publicMetadata?.attackCostPayable===true);
-  const t=targets.target(p);
-  if(t&&t.remaining<=150&&Number.isSafeInteger(o.prizeCount)&&o.prizeCount<=t.prizes)return {kind:'select-action',token:ray.token};
-  if(gx&&o.publicTurnRestrictions?.gxUsed===false)return {kind:'select-action',token:gx.token};
-  return {kind:'select-action',token:ray.token};
+ const gx=items.find(a=>a.kind==='attack'&&a.attackName==='Altered Creation-GX'&&ADP.test(name(a.actorPrinting))&&a.publicMetadata?.attackCostPayable===true);
+ if(ADP.test(name(o.active))){
+  if(gx&&o.publicTurnRestrictions?.gxUsed===false&&(!ray||!tempo.preferRay(r.observation,o,p)))return {kind:'select-action',token:gx.token};
+  if(ray)return {kind:'select-action',token:ray.token};
  }
  return null;
 }
