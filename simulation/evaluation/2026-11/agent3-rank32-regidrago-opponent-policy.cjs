@@ -241,6 +241,54 @@ function targetFromGustChoice(choice,observation) {
   if(!player||typeof printing!=='string')return null;
   return slots(player).find(p=>print(p)===printing)??null;
 }
+function aceSpecBlowerPriority(observation) {
+  const own=observation?.ownPublic??{},opp=observation?.opponentPublic??{};
+  const active=own.active,target=opp.active;
+  if(canAttackNow(active,observation)&&remainingHP(target)>0 &&
+      strongestCopiedDamage(observation,target)>=remainingHP(target) &&
+      prizeValue(target)>=Number(own.prizeCount??6))
+    return 0; // Already have immediate game-winning Prize, save the ACE SPEC.
+  const energy=list(opp.active?.energies)
+    .concat(list(opp.bench).flatMap(p=>list(p?.energies)));
+  const special=energy.filter(e=>
+    /^(?:Double Dragon Energy|Double Colorless Energy|Triple Acceleration Energy|Mystery Energy|Prism Energy|Aurora Energy|Rapid Strike Energy|Fusion Strike Energy)\b/i.test(print(e)) ||
+    /Special Energy/i.test(print(e))).length;
+  const tools=slots(opp).reduce((n,p)=>n+list(p.tools).length,0);
+  const temple=list(opp.stadium).concat(list(own.stadium))
+    .some(st=>/^Temple of Sinnoh ASR 155\b/i.test(print(st)));
+  const impededDde=slots(own).some(p=>
+    list(p.energies).some(e=>/^Double Dragon Energy ROS 97\b/i.test(print(e)))) ||
+    list(observation?.ownHand).some(e=>/^Double Dragon Energy ROS 97\b/i.test(print(e)));
+  if(temple&&impededDde)return 265;
+  if(special>=3)return 285;
+  if(special>=2)return 245;
+  if(tools>=3)return 245;
+  if(tools>=2)return 225;
+  if(special===1)return 145;
+  if(tools===1)return 75;
+  if(list(opp.stadium).length)return 90;
+  return 0;
+}
+function muscleBandPriority(action,observation) {
+  const target=nativeOwnerTarget(action,observation);
+  if(!target || !/^Regidrago V(?:STAR)? SIT 13[56]\b/i.test(print(target)) ||
+      list(target.tools).length>0)return 0;
+  const own=observation?.ownPublic??{},opp=observation?.opponentPublic??{};
+  const targetIsActive=own.active===target;
+  const realTarget=opp.active,remaining=remainingHP(realTarget);
+  const projected={...target,tools:[...list(target.tools),{printing:'Muscle Band XY 121'}]};
+  const before=strongestCopiedDamage({...observation,
+    ownPublic:{...own,active:target}},realTarget);
+  const after=strongestCopiedDamage({...observation,
+    ownPublic:{...own,active:projected}},realTarget);
+  if(targetIsActive&&canAttackNow(target,observation) &&
+      Number.isFinite(remaining)&&remaining>before&&remaining<=after)
+    return 310; // Exact threshold-crossing for immediate KO
+  if(targetIsActive&&canAttackNow(target,observation) &&
+      Number.isFinite(remaining)&&remaining>0&&remaining<=before)
+    return 30;
+  return targetIsActive?135:95;
+}
 function scoreAction(action, request) {
   const obs = request?.observation ?? {};
   const own = obs.ownPublic ?? {};
@@ -251,6 +299,10 @@ function scoreAction(action, request) {
   const enabledVstar = slots(own).some(p => /^Regidrago VSTAR SIT 136\b/i.test(print(p)));
   const gustScore=tacticalGustScore(action,obs);
   if(gustScore !== null) return gustScore;
+  if(action.kind==='play-card'&&/^Megaton Blower SSP 182\b/i.test(name))
+    return aceSpecBlowerPriority(obs);
+  if(action.kind==='play-card'&&/^Muscle Band XY 121\b/i.test(name))
+    return muscleBandPriority(action,obs);
   const enabledV = slots(own).some(p => /^Regidrago V SIT 135\b/i.test(print(p)));
   if (action.kind === 'attack' && /^(Apex Dragon)$/i.test(action.attackName ?? action.label ?? '')) {
     return countDonors(own) ? 230 : 0;
@@ -750,4 +802,5 @@ module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
   engineSetupDecision,setupActiveScore,setupBenchScore,
   isSourceSupporter,cynthiaRecoverPriority,
   legacyRecoverPriority,canUseLegacyStar,superRodRecoverPriority,estimatedDragonDamage,
-  strongestCopiedDamage,canAttackNow,tacticalGustScore,gustTargetPriority,targetFromGustChoice};
+  strongestCopiedDamage,canAttackNow,tacticalGustScore,gustTargetPriority,targetFromGustChoice,
+  aceSpecBlowerPriority,muscleBandPriority};
