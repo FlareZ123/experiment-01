@@ -39,7 +39,7 @@ function developmentTerminal(terminal,input,development,options={}){
     check(["pokemonPlayAllowed","abilityPokemonPlayAllowed","evolutionAllowed"].every(k=>typeof development[k]==="boolean"),"permissions unknown");
     check(int(development.treasureCount??0,0,4)&&int(development.quickCount??0,0,1)&&
       Array.isArray(development.fodder??[])&&(development.fodder??[]).every(p=>typeof p==="string"&&
-        !cat[p]&&development.fodderCertified===true),"unverified exact discard fodder");
+        !cat[p]&&development.fodderCertified===true&&development.fodderDisjointFromModeledResources===true),"unverified exact discard fodder");
     const firstAllowed=options.firstActionAllowed??(()=>true);
     const maxNodes=options.maxDevelopmentNodes??250,maxStates=options.maxStatesPerNode??6000,maxDepth=options.maxDevelopmentDepth??4;
     check(int(maxNodes,1,10000)&&int(maxStates,1,1000000)&&int(maxDepth,0,12),"invalid development budget");
@@ -139,4 +139,60 @@ function developmentTerminal(terminal,input,development,options={}){
       boundary:"No positive witness in bounded development model; does not rule out legal wins."};
   }catch(e){return reject(e.message)}
 }
-module.exports={developmentTerminal};
+function developmentSelfTest(terminal){
+ const assert=(x,m)=>{if(!x)throw Error(m)};
+ const V="Shadow Rider Calyrex V CRE",M="Shadow Rider Calyrex VMAX CRE",C="Lillie's Clefairy ex JTG",W="Wobbuffet PHF",L="Latias ex SSP";
+ const c=(printing,kind,basic,retreatCost,ruleBox=true)=>({printing,kind,basic,retreatCost,ruleBox,psychic:true,dragon:false,future:false,
+  canAttack:true,canRetreat:true,onPlayChoiceRequired:false,hasAbility:kind!=="v",copyLimit:kind==="v"||kind==="vmax"?4:1,entryCertified:true});
+ const catalog={[V]:c(V,"v",true,2),[M]:c(M,"vmax",false,2),[C]:c(C,"clefairy",true,1),[W]:c(W,"wob",true,2,false),[L]:c(L,"latias",true,1)};
+ const row=(id,p,energy,eligible=false)=>{const q=catalog[p];return {id,printing:p,kind:q.kind,energy,damage:0,psychic:true,
+  vmax:q.kind==="vmax",doorAvailable:false,retreatCost:q.retreatCost,canAttack:true,canRetreat:true,wobbuffet:q.kind==="wob",
+  latias:q.kind==="latias",fairyZone:q.kind==="clefairy",basic:q.basic,ruleBox:q.ruleBox,future:false,tool:"none",stackCount:1,
+  stackPrintings:[p],evolutionEligible:eligible}};
+ const opp=(id,hp,dragon=false)=>({id,remainingHP:hp,damage:0,energyUnits:0,ultraBeast:false,prizesOnKO:2,counterPrizesOnKO:2,
+  opponentBoardCount:2,weaknessMultiplier:1,resistance:0,damageReduction:0,damageReductionAllKindsCertified:true,
+  counterBlockedActive:false,counterBlockedBench:false,thorns:false,dragon,hood:false});
+ const input=(board,hp,dragon=false)=>({stablePublicEffects:true,noUnmodeledTerminalEffects:true,attackModel:"candidate-printed-v1",
+  dynamicEffects:{kind:"thorns-wobbuffet-v1",otherEffectsStable:true,toolsEffective:true},board,active:0,
+  opponents:[opp("oa",hp,dragon),opp("ob0",320)],activeOpponent:0,handPsychic:0,deckCount:10,knownDeckPsychic:0,
+  knownDeckPsychicCertified:true,prizesRemaining:2,manualAvailable:true,retreatAvailable:false,supportAvailable:true,
+  manualAttachmentAllowed:true,itemPlayAllowed:true,acerolaHeld:false,dimensionValley:false});
+ const dev=(handPokemon,knownDeckPokemon={},extra={})=>({permissionsCertified:true,noBenchCapacityChange:true,maxBench:5,catalog,
+  handPokemon,knownDeckPokemon,knownDeckPokemonCertified:true,discardPokemon:{},pokemonPlayAllowed:true,
+  abilityPokemonPlayAllowed:true,evolutionAllowed:true,...extra});
+ const cases=[];
+ function test(name,x,y,kind,damage,opts={}){
+  const z=developmentTerminal(terminal,x,y,opts);
+  assert((z.decision?.firstAction.kind??null)===kind,name+" wrong first action: "+JSON.stringify(z));
+  if(kind)assert(z.decision.plan.damage===damage,name+" wrong damage");
+  cases.push({name,kind,damage:kind?z.decision.plan.damage:null,actions:z.decision?.prefix??[],stats:z.stats});
+ }
+ const evo=input([row("a",V,3,true),row("b",M,3)],190);
+ const dragon=input([row("a",M,3),row("b",V,2)],320,true);
+ test("held VMAX evolves established V",evo,dev({[M]:1}),"evolve-pokemon",190);
+ test("newly played V cannot evolve",input([row("a",V,3,false),row("b",M,3)],190),dev({[M]:1}),null);
+ test("evolution lock forbids same",evo,dev({[M]:1},{},{evolutionAllowed:false}),null);
+ test("Clefairy bench doubles Max Geist",dragon,dev({[C]:1}),"bench-pokemon",320);
+ test("full Bench excludes Fairy Zone",dragon,dev({[C]:1},{},{maxBench:1}),null);
+ test("Ability Pokémon lock excludes Fairy Zone",dragon,dev({[C]:1},{},{abilityPokemonPlayAllowed:false}),null);
+ test("Fog -> Clefairy -> 320", {...dragon,fogCount:1},dev({}, {[C]:1}),"fog-crystal",320);
+ test("no unseen Fog target inferred",{...dragon,fogCount:1},dev({}, {},{knownDeckPokemonCertified:false}),null);
+ test("Night Stretcher -> VMAX -> 190",{...evo,nightStretcherCount:1},dev({}, {},{discardPokemon:{[M]:1}}),"night-stretcher",190);
+ test("Mysterious Treasure spends exact disjoint fodder",evo,dev({}, {[M]:1},
+  {treasureCount:1,fodder:["Other"],fodderCertified:true,fodderDisjointFromModeledResources:true}),"mysterious-treasure",190);
+ test("Mysterious Treasure lacks discard",evo,dev({}, {[M]:1},{treasureCount:1}),null);
+ test("unsupported root excluded",dragon,dev({[C]:1}),null,undefined,{firstActionAllowed:a=>a.kind!=="bench-pokemon"});
+ test("Quick Ball -> Clefairy -> 320",dragon,dev({}, {[C]:1},{quickCount:1,fodder:["Other"],
+  fodderCertified:true,fodderDisjointFromModeledResources:true}),"quick-ball",320);
+ // Underworld Door consumes one held P and may draw the only known VMAX.
+ // With an exact single remaining copy, a later tutor must not guarantee it.
+ const delayed={...evo,board:[row("a",V,2,true),{...row("b",M,3),doorAvailable:true}],handPsychic:1,manualAvailable:false};
+ test("unknown Door draw can consume a tutor target",delayed,dev({}, {[M]:1},{treasureCount:1,fodder:["Other"],
+  fodderCertified:true,fodderDisjointFromModeledResources:true}),null,undefined,{firstActionAllowed:a=>a.kind==="underworld-door"});
+ return cases;
+}
+module.exports={developmentTerminal,developmentSelfTest};
+if(require.main===module){
+ const {acerolaMaxGeist}=require("./acerola-max-geist-advisory.cjs");
+ console.log(JSON.stringify(developmentSelfTest(acerolaMaxGeist),null,2));
+}
