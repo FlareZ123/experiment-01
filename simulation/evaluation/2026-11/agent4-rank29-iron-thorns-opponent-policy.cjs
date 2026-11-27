@@ -485,8 +485,100 @@ function bestGuzmaHalaSearch(choices, observation, maximum) {
   return selected.slice(0, maximum);
 }
 
+
+function engineSetupDecision(request) {
+  const prompt = request.prompt;
+  const observation = request.observation;
+  const meta = prompt?.publicMetadata ?? {};
+  const choices = list(prompt?.choices);
+  if (observation?.phase !== 1)
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_ENGINE_SETUP_PHASE' };
+  if (prompt?.source?.classification !== 'actor-choice' ||
+      prompt.source.sourceKind !== 'engine' ||
+      prompt.source.sourcePrinting !== null ||
+      prompt.source.effectName !== prompt.description)
+    return { kind: 'abstain', reasonCode: 'UNTRUSTED_ENGINE_SETUP_PROMPT' };
+
+  if (prompt.promptType === 'ConfirmPrompt' && prompt.description === 'GO_FIRST') {
+    if (meta.selectionType !== 'confirm' || choices.length !== 2)
+      return { kind: 'abstain', reasonCode: 'BAD_GO_FIRST_SETUP_PROMPT' };
+    const yes = choices.filter(c => c.kind === 'confirm' && c.label === 'Yes');
+    const no = choices.filter(c => c.kind === 'confirm' && c.label === 'No');
+    if (yes.length !== 1 || no.length !== 1)
+      return { kind: 'abstain', reasonCode: 'BAD_GO_FIRST_CONFIRM_CHOICES' };
+    // Source policy: choose second to make Guzma & Hala live on the first own
+    // turn; unlike the candidate baseline, this is a source-specific heuristic.
+    return { kind: 'select-choice', token: no[0].token };
+  }
+
+  if (prompt.promptType === 'ChooseCardsPrompt' &&
+      prompt.description === 'CHOOSE_STARTING_POKEMONS') {
+    if (meta.selectionType !== 'card-combination' ||
+        meta.sourceZone !== 'hand' || meta.ownerSeat !== 'actor' ||
+        meta.isOwnerVisible !== true || meta.isSecret !== false ||
+        meta.allowCancel !== false ||
+        !Number.isSafeInteger(meta.minimumCount) ||
+        !Number.isSafeInteger(meta.maximumCount) ||
+        ![0, 1].includes(meta.minimumCount) ||
+        meta.maximumCount < meta.minimumCount || meta.maximumCount > 6)
+      return { kind: 'abstain', reasonCode: 'BAD_STARTING_POKEMON_SETUP_PROMPT' };
+    const cards = choices.filter(c => c.kind === 'card');
+    const empty = choices.filter(c => c.kind === 'empty-selection');
+    if (cards.length + empty.length !== choices.length ||
+        empty.length !== (meta.minimumCount === 0 ? 1 : 0))
+      return { kind: 'abstain', reasonCode: 'BAD_STARTING_POKEMON_EMPTY_CHOICE' };
+    let previous = -1;
+    for (const c of cards) {
+      const data = c.publicMetadata ?? {};
+      if (typeof c.printing !== 'string' ||
+          !matches(c.printing, PRINT.ironThorns) ||
+          data.ownerSeat !== 'actor' || data.sourceZone !== 'hand' ||
+          data.isOwnerVisible !== true || data.selectedCount !== 1 ||
+          !Number.isSafeInteger(data.selectionIndex) ||
+          data.selectionIndex <= previous)
+        return { kind: 'abstain', reasonCode: 'UNTRUSTED_STARTING_POKEMON_CHOICE' };
+      previous = data.selectionIndex;
+    }
+    // Only Iron Thorns ex is Basic in the exact rank-29 60. Accept the legal
+    // native selection order and retain Bench copies for Volt Cyclone handoff.
+    const selected = cards.slice(0, meta.maximumCount);
+    if (selected.length < meta.minimumCount)
+      return { kind: 'abstain', reasonCode: 'INSUFFICIENT_STARTING_POKEMON_CHOICES' };
+    if (!selected.length) {
+      return empty.length
+        ? { kind: 'select-choice', token: empty[0].token }
+        : { kind: 'abstain', reasonCode: 'NO_STARTING_POKEMON_CHOICE' };
+    }
+    return { kind: 'select-choices', tokens: selected.map(c => c.token) };
+  }
+
+  if (prompt.promptType === 'SelectPrompt' && prompt.description === 'WANT_TO_DRAW_CARDS') {
+    if (meta.selectionType !== 'option' || meta.allowCancel !== false ||
+        !Number.isSafeInteger(meta.count) || meta.count < 1)
+      return { kind: 'abstain', reasonCode: 'BAD_MULLIGAN_DRAW_SETUP_PROMPT' };
+    const seen = new Set();
+    let chosen = null;
+    let bestCount = -1;
+    for (const c of choices) {
+      const index = c.publicMetadata?.choiceIndex;
+      if (c.kind !== 'option' || !Number.isSafeInteger(index) ||
+          index < 0 || index >= meta.count || seen.has(index))
+        return { kind: 'abstain', reasonCode: 'BAD_MULLIGAN_DRAW_CHOICE_INDEX' };
+      seen.add(index);
+      const count = meta.count - 1 - index;
+      if (c.label !== `Draw ${count} card(s)`)
+        return { kind: 'abstain', reasonCode: 'MULLIGAN_DRAW_LABEL_INDEX_MISMATCH' };
+      if (count > bestCount) { chosen = c; bestCount = count; }
+    }
+    return chosen ? { kind: 'select-choice', token: chosen.token } :
+      { kind: 'abstain', reasonCode: 'NO_MULLIGAN_DRAW_OPTION' };
+  }
+  return { kind: 'abstain', reasonCode: 'UNSUPPORTED_ENGINE_SETUP_PROMPT' };
+}
+
 function promptDecision(request) {
   const prompt = request.prompt;
+  if (prompt?.source?.sourceKind === 'engine') return engineSetupDecision(request);
   const observation = request.observation;
   const choices = list(prompt?.choices);
   const sourcePrinting = prompt?.source?.sourcePrinting ?? '';
