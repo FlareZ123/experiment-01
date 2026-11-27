@@ -124,3 +124,45 @@ const setupCount=(function setupTests(P,protocol){
  return n;
 })(P,protocol);
 console.log('passed '+setupCount+' protocol-validated setup/Claw assertions');
+
+const devCount=(function developmentTests(P,protocol){
+ const Meg='Mega Absol ex MEG 86',Vol='Voltorb ROS 21',El='Electrode-GX CES 48',Un='Unown AOR 30',To='Toedscool PAR 16',De='Dedenne-GX UNB 57',VIP='Battle VIP Pass FST 225',C='Battle Compressor PHF 92',UC='Ultra Ball MEG 131',Car='Rescue Carrier EVS 154',D='Darkness Energy MEE 15',Pr='Prism Energy ASC 216',T='Telepathic Psychic Energy POR 88',Opp='Shadow Rider Calyrex V CRE 74';
+ const poke=(printing,energies=[])=>({printing,hp:280,damage:0,energies,printed:{stage:'Basic',weakness:[],resistance:[]},tools:[],specialConditions:[],publicRestrictions:{}});
+ const view=(h=[],own={})=>({actorSeat:0,globalTurn:1,phase:2,ownHand:h,ownPublic:{active:poke(Un),bench:[null,null,null,null,null],deckCount:25,prizeCount:6,discard:[],publicTurnRestrictions:{},...own},opponentPublic:{active:poke(Opp),bench:[],prizeCount:6},ownTurnResources:{supporterPlayedTurn:0,energyPlayedTurn:false}});
+ const pol=P.createPolicy({role:'opponent',seat:0,policyVersion:P.POLICY_VERSION,config:{}});
+ const a=(token,actorPrinting,publicMetadata={},kind='play-card')=>({token,kind,actorPrinting,publicMetadata});
+ const card=(token,printing,sourceZone='deck')=>({token,kind:'card',label:printing,printing,publicMetadata:{ownerSeat:'actor',sourceZone,isOwnerVisible:true}});
+ const empty={token:'empty',kind:'empty-selection',label:'Choose no items'};
+ const pr=(source,cs,min,max,zone)=>({schema:protocol.PROMPT_SCHEMA,actingSeat:0,promptType:'ChooseCardsPrompt',description:source,source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:source,effectName:source},choices:cs,publicMetadata:{selectionType:'card-combination',sourceZone:zone,ownerSeat:'actor',isOwnerVisible:true,allowCancel:false,isSecret:false,minimumCount:min,maximumCount:max}});
+ let n=0;
+ function root(o,items,token){
+   const front={schema:protocol.FRONTIER_SCHEMA,items},allowed=protocol.validateFrontier(front);
+   const d=pol.decide({role:'opponent',seat:0,sequence:1,observation:o,prompt:null,actionFrontier:front});
+   protocol.validateDecision(d,null,allowed);
+   if(d.kind!=='select-action'||d.token!==token)throw Error('root '+JSON.stringify(d)+' != '+token);n++;
+ }
+ function prompt(o,p,expected){
+   protocol.validatePrompt(p,0);const d=pol.decide({role:'opponent',seat:0,sequence:2,observation:o,prompt:p});
+   protocol.validateDecision(d,p,new Set());
+   if(JSON.stringify(d)!==JSON.stringify(expected))throw Error('prompt '+JSON.stringify(d)+' != '+JSON.stringify(expected));n++;
+ }
+ let o=view([VIP,Meg,Vol]);
+ root(o,[a('vip',VIP),a('mega',Meg),a('vol',Vol)],'vip');
+ prompt(o,pr(VIP,[card('m',Meg),card('v',Vol),card('d',De),card('t',To),empty],0,2,'deck'),{kind:'select-choices',tokens:['m','v']});
+ o=view([Car],{active:poke(Meg),bench:[poke(Un),poke(Vol),null,null,null],discard:[Un,Un]});
+ root(o,[a('carrier',Car),a('farewell',Un,{sourceSeat:'actor',sourceZone:'bench',sourceIndex:0,abilityName:'Farewell Letter'},'use-ability')],'farewell');
+ prompt(o,pr(Car,[card('u1',Un,'discard'),card('u2',Un,'discard'),empty],0,2,'discard'),{kind:'select-choices',tokens:['u1','u2']});
+ o=view([Pr],{active:poke(Meg,[D,Pr]),bench:[poke(Vol),null,null,null,null]});
+ root(o,[a('bad',Pr,{targetSeat:'actor',targetZone:'bench',targetIndex:0,isOwnerVisible:true}),a('good',Pr,{targetSeat:'actor',targetZone:'active',targetIndex:0,isOwnerVisible:true})],'good');
+ o={...view([El],{bench:[poke(Vol),null,null,null,null]}),globalTurn:3};
+ root(o,[a('evolve',El,{targetSeat:'actor',targetZone:'bench',targetIndex:0,isOwnerVisible:true})],'evolve');
+ o=view([C,Pr],{active:poke(Meg),bench:[poke(Vol),null,null,null,null]});
+ root(o,[a('comp',C)],'comp');
+ prompt(o,pr(C,[card('p1',Pr),card('p2',Pr),card('d',D),card('t',T),empty],0,3,'deck'),{kind:'select-choices',tokens:['p1','p2','d']});
+ o=view([UC,Pr,Pr,Pr],{active:poke(Meg),bench:[poke(Vol),null,null,null,null]});
+ root(o,[a('ultra',UC)],'ultra');
+ prompt(o,pr(UC,[card('p1',Pr,'hand'),card('p2',Pr,'hand'),card('p3',Pr,'hand')],2,2,'hand'),{kind:'select-choices',tokens:['p1','p2']});
+ prompt(o,pr(UC,[card('e',El),card('t',To)],1,1,'deck'),{kind:'select-choices',tokens:['e']});
+ return n;
+})(P,protocol);
+console.log('passed '+devCount+' protocol-validated development assertions');

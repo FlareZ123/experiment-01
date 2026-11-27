@@ -1,7 +1,7 @@
 'use strict';
 // Development-only actor-visible tactical slice; see accompanying report.
 module.exports = (function build() {
-  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v4';
+  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v5';
   const SOURCE_RANK = 9;
   const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
   const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -312,6 +312,219 @@ function bombPlanner(o,sourceBenchIndex){
     return c?select(p,[c],1,'NO_USEFUL_CARD_CHOICE'):{kind:'abstain',reasonCode:'NO_USEFUL_CARD_CHOICE'};
   }
 
+
+  const R={
+    electrode:/^Electrode-GX CES 48\b/i,cruel:/^Toedscruel PAR 17\b/i,
+    vip:/^Battle VIP Pass FST 225\b/i,mail:/^Trainers' Mail ROS 92\b/i,carrier:/^Rescue Carrier EVS 154\b/i,
+    stretcher:/^Rescue Stretcher GRI 130\b/i,ultra:/^Ultra Ball MEG 131\b/i,compressor:/^Battle Compressor PHF 92\b/i,
+    vs:/^VS Seeker PHF 109\b/i,float:/^Float Stone BKT 137\b/i,muscle:/^Muscle Band XY 121\b/i,seal:/^Forest Seal Stone SIT 156\b/i,
+    energy:/^(?:Prism Energy ASC 216|Darkness Energy MEE 15|Telepathic Psychic Energy POR 88)\b/i,
+    dark:/^(?:Prism Energy ASC 216|Darkness Energy MEE 15)\b/i,psychic:/^(?:Prism Energy ASC 216|Telepathic Psychic Energy POR 88)\b/i
+  };
+  const match=(x,re)=>re.test(name(x));
+  const ownHas=(o,pred)=>slots(o.ownPublic).some(x=>pred(x.p));
+  const handHas=(o,pred)=>L(o.ownHand).some(pred);
+  const has=(o,pred)=>ownHas(o,pred)||handHas(o,pred);
+  const ePred=x=>match(x,R.energy);
+  const elec=x=>match(x,R.electrode);
+  const cruel=x=>match(x,R.cruel);
+  const cap=o=>Math.max(0,5-benchCount(o));
+  const first=o=>Number.isInteger(o.globalTurn)&&o.globalTurn<=2;
+  const liveStadium=(o,re)=>activeStadium(o).some(x=>re.test(x))&&!o.ownPublic?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
+  const drawEngineLive=o=>!liveStadium(o,/Silent Lab|Path to the Peak/i)&&Number(o.ownPublic?.deckCount)>6;
+  const abilityLive=(p,a)=>p&&!L(p.abilitySuppressions).some(x=>x.abilityName===a&&x.suppressed===true);
+  function bombPossible(o){
+    // A planning predicate, not authority to use the unavailable adapter.
+    return Number(o.opponentPublic?.prizeCount)>2&&has(o,mega)&&
+      (has(o,elec)||has(o,isVol))&&!liveStadium(o,/Path to the Peak/i);
+  }
+  function fundCost(cards,o,n,excluded){
+    const cheap=safeCosts(cards,o,n,excluded);
+    if(cheap.length===n)return cheap;
+    // For search, explicitly allow useful Bomb fuel, but hold one manual
+    // attachment and never discard the only strategic Pokemon to pay.
+    if(!bombPossible(o))return [];
+    const hand=L(o.ownHand).map(name),hs=hand.filter(ePred).length;
+    const reserve=o.ownTurnResources?.energyPlayedTurn===false?1:0;
+    const need=Math.max(0,5-L(o.ownPublic?.discard).filter(ePred).length);
+    const es=cards.filter(c=>ePred(c)&&(M(c).ownerSeat===undefined||M(c).ownerSeat==='actor')).sort((a,b)=>
+      (match(b,R.dark)?1:0)-(match(a,R.dark)?1:0));
+    const burn=Math.min(n,need,Math.max(0,hs-reserve),es.length);
+    for(let k=burn;k>0;k--){
+      const others=n-k===0?[]:safeCosts(cards.filter(c=>!ePred(c)),o,n-k,excluded);
+      if(others.length===n-k)return [...others,...es.slice(0,k)];
+    }
+    return [];
+  }
+  function pokemonSearch(c,o){
+    if(mega(c))return has(o,mega)?0:420;
+    if(elec(c))return has(o,isVol)&&!has(o,elec)?365:0;
+    if(isVol(c))return !has(o,isVol)&&!has(o,elec)?385:0;
+    if(isToed(c))return !has(o,isToed)&&!has(o,cruel)?210:0;
+    if(cruel(c))return has(o,isToed)&&!has(o,cruel)?240:0;
+    if(isDedenne(c))return drawEngineLive(o)&&cap(o)>0&&!has(o,isDedenne)&&L(o.ownHand).length<=3?230:0;
+    if(isSquawk(c))return first(o)&&drawEngineLive(o)&&cap(o)>0&&!has(o,isSquawk)&&L(o.ownHand).length<=3?220:0;
+    if(isUn(c))return cap(o)>0&&!liveStadium(o,/Silent Lab/i)&&Number(o.ownPublic?.deckCount)>8?175:0;
+    if(sableye(c))return !has(o,sableye)&&Number(o.opponentPublic?.active?.damage)>=30?245:0;
+    if(isGengar(c))return first(o)&&!has(o,isGengar)&&handHas(o,x=>match(x,R.psychic))?200:0;
+    return 0;
+  }
+  function supporterSearch(c,o){
+    if(guzma(c))return Math.max(0,...slots(o.opponentPublic).filter(t=>t.zone==='bench').flatMap(t=>slots(o.ownPublic).filter(a=>a.zone==='bench').map(a=>bestAttackAgainst(o,a.p,t.p))));
+    if(plumeria(c)){
+      const d=best(slots(o.opponentPublic),row=>denial(o,row)?.score??0);
+      return d&&safeCosts(L(o.ownHand).map(printing=>({printing})),o,2,name(c)).length===2?denial(o,d).score:0;
+    }
+    if(iono(c))return L(o.ownHand).length<=3&&Number(o.ownPublic?.prizeCount)>=3?220:0;
+    return 0;
+  }
+  function trainerSearch(c,o){
+    if(match(c,R.vip))return first(o)&&cap(o)>0&&(!ownHas(o,mega)||!ownHas(o,isVol)&&!ownHas(o,elec))?370:0;
+    if(match(c,R.ultra))return !has(o,mega)||has(o,isVol)&&!has(o,elec)||has(o,isToed)&&!has(o,cruel)?300:0;
+    if(match(c,R.mail))return Number(o.ownPublic?.deckCount)>8?185:0;
+    if(match(c,R.carrier))return L(o.ownPublic?.discard).some(x=>[isVol,isToed,isUn].some(f=>f(x))&&pokemonSearch(x,o)>0)?280:0;
+    if(match(c,R.stretcher))return L(o.ownPublic?.discard).some(x=>pokemonSearch(x,o)>0)?260:0;
+    if(match(c,R.compressor))return bombPossible(o)&&L(o.ownPublic?.discard).filter(ePred).length<3?315:0;
+    if(match(c,R.vs))return L(o.ownPublic?.discard).some(x=>supporterSearch(x,o)>0)?230:0;
+    if(match(c,R.float))return slots(o.ownPublic).some(x=>x.zone==='bench'&&bestAttackAgainst(o,x.p,o.opponentPublic?.active)>0)&&!L(o.ownPublic?.active?.tools).length?330:0;
+    if(match(c,R.muscle))return ownHas(o,mega)?140:0;
+    return supporterSearch(c,o);
+  }
+  function protectedReset(o,exclude=''){
+    const h=L(o.ownHand).map(name).filter(x=>x!==exclude);
+    return h.length<=3&&!h.some(x=>mega(x)||isVol(x)||elec(x)||isToed(x)||cruel(x)||ePred(x)||match(x,R.vip)&&first(o)||/^Secret Box\b/i.test(x));
+  }
+  function targetSlot(o,item){
+    const m=M(item);
+    if(m.targetSeat!=='actor'||m.isOwnerVisible!==true)return null;
+    if(m.targetZone==='active')return o.ownPublic?.active;
+    if(m.targetZone==='bench'&&Number.isSafeInteger(m.targetIndex))return o.ownPublic?.bench?.[m.targetIndex];
+    return null;
+  }
+  function devScore(item,o){
+    const m=M(item),x=name(item),p=targetSlot(o,item),d=L(o.ownPublic?.discard),h=L(o.ownHand);
+    if(item.kind==='use-ability'){
+      const src=m.sourceZone==='active'?o.ownPublic?.active:m.sourceZone==='bench'&&Number.isSafeInteger(m.sourceIndex)?o.ownPublic?.bench?.[m.sourceIndex]:null;
+      if(m.sourceSeat!=='actor'||!src||name(src)!==x||!abilityLive(src,m.abilityName))return 0;
+      if(m.abilityName==='Farewell Letter'&&isUn(src)&&m.sourceZone==='bench'&&!liveStadium(o,/Silent Lab/i)&&!L(src.energies).length&&!L(src.tools).length&&Number(o.ownPublic?.deckCount)>8)return 390;
+      if(m.abilityName==='Squawk and Seize'&&isSquawk(src)&&first(o)&&drawEngineLive(o)&&protectedReset(o))return 290;
+      if(m.abilityName==='Star Alchemy'&&sableye(src)&&L(src.tools).some(x=>match(x,R.seal))&&!o.ownTurnResources?.vstarUsed&&(!has(o,mega)||has(o,isVol)&&!has(o,elec)||h.length<=2))return 280;
+      return 0;
+    }
+    if(item.kind!=='play-card'||m.isLegal===false||m.canPlay===false)return 0;
+    if(ePred(x)){
+      if(!p||o.ownTurnResources?.energyPlayedTurn!==false||liveStadium(o,/Temple of Sinnoh/i))return 0;
+      const next={...p,energies:[...L(p.energies),x]};
+      if(mega(p)||sableye(p)){
+        const cost=mega(p)?['darkness','darkness','colorless']:['darkness','darkness'];
+        const before=payable(p,cost),after=payable(next,cost);
+        if(before===true||after===null)return 0;
+        if(after===true)return 350+Math.min(100,bestAttackAgainst(o,next,o.opponentPublic?.active)/10);
+        if(!match(x,R.dark)&&L(p.energies).filter(e=>match(e,R.dark)).length<2)return 0;
+        return mega(p)?315:200;
+      }
+      if(isGengar(p)&&first(o)&&o.ownPublic?.publicTurnRestrictions?.gxUsed!==true&&payable(p,['psychic'])!==true&&match(x,R.psychic))return 300;
+      return 0;
+    }
+    if(elec(x)&&p&&isVol(p))return 380;
+    if(cruel(x)&&p&&isToed(p))return 375;
+    if(basic(x)&&cap(o)>0){
+      if(mega(x)&&!ownHas(o,mega))return 410;
+      if(isVol(x)&&!ownHas(o,isVol)&&!ownHas(o,elec))return 395;
+      if(isToed(x)&&!ownHas(o,isToed)&&!ownHas(o,cruel))return 250;
+      if(isUn(x)&&!liveStadium(o,/Silent Lab/i)&&Number(o.ownPublic?.deckCount)>8)return 310;
+      if(isDedenne(x)&&drawEngineLive(o)&&!ownHas(o,isDedenne)&&protectedReset(o,x))return 290;
+      if(isSquawk(x)&&first(o)&&drawEngineLive(o)&&!ownHas(o,isSquawk)&&protectedReset(o,x))return 285;
+      if(sableye(x)&&!ownHas(o,sableye)&&Number(o.opponentPublic?.active?.damage)>=30)return 240;
+      if(isGengar(x)&&first(o)&&!ownHas(o,isGengar)&&handHas(o,x=>match(x,R.psychic)))return 230;
+      return 0;
+    }
+    if(match(x,R.vip)&&first(o)&&cap(o)>0)return 440;
+    if(match(x,R.mail)&&Number(o.ownPublic?.deckCount)>0)return 330;
+    if(match(x,R.carrier)&&cap(o)>0&&d.some(c=>[isVol,isToed,isUn].some(f=>f(c))&&pokemonSearch(c,o)>0))return 320;
+    if(match(x,R.stretcher)&&d.some(c=>pokemonSearch(c,o)>0))return 305;
+    if(match(x,R.compressor)&&bombPossible(o)&&d.filter(ePred).length<5&&Number(o.ownPublic?.deckCount)>4)return 325;
+    if(match(x,R.ultra)&&fundCost(h.map(printing=>({printing})),o,2,x).length===2&&(!has(o,mega)||has(o,isVol)&&!has(o,elec)||has(o,isToed)&&!has(o,cruel)))return 335;
+    if(match(x,R.vs)&&o.ownTurnResources?.supporterPlayedTurn===0&&!o.ownTurnResources?.supporterPlayLocked&&d.some(c=>supporterSearch(c,o)>0))return 240;
+    if(match(x,R.float)&&p&&p===o.ownPublic?.active&&!L(p.tools).length&&slots(o.ownPublic).some(y=>y.zone==='bench'&&bestAttackAgainst(o,y.p,o.opponentPublic?.active)>0))return 360;
+    if(match(x,R.muscle)&&p&&mega(p)&&!L(p.tools).length){
+      const before=bestAttackAgainst(o,p,o.opponentPublic?.active),after=bestAttackAgainst(o,{...p,tools:[x]},o.opponentPublic?.active);
+      return after>before?430:0;
+    }
+    if(match(x,R.seal)&&p&&sableye(p)&&!L(p.tools).length&&!o.ownTurnResources?.vstarUsed)return 220;
+    return 0;
+  }
+  function chooseDevelopment(r){
+    const p=r.prompt,o=r.observation,src=p.source,m=M(p),cs=L(p.choices),x=name(src?.sourcePrinting);
+    if(p.actingSeat!==o.actorSeat||src?.classification!=='actor-choice'||src.sourceKind!=='card-effect')return null;
+    const no=reasonCode=>({kind:'abstain',reasonCode});
+    const card=(c,z)=>c.kind==='card'&&M(c).ownerSeat==='actor'&&M(c).isOwnerVisible===true&&M(c).sourceZone===z;
+    function pick(cs,score,limit=Infinity){
+      const min=m.minimumCount,max=m.maximumCount;
+      if(!Number.isInteger(min)||!Number.isInteger(max)||min<0||max<min)return no('BAD_CARD_SELECTION_BOUNDS');
+      const out=cs.map((c,i)=>({c,i,v:score(c)})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v||a.i-b.i).slice(0,Math.min(max,limit)).map(x=>x.c);
+      if(out.length<min)return no('NO_USEFUL_CARD_CHOICE');
+      if(out.length)return select(p,out,out.length,'NO_SUPPORTED_CARD_SELECTION');
+      const empty=L(p.choices).find(c=>c.kind==='empty-selection');
+      return min===0&&empty?{kind:'select-choice',token:empty.token}:no('NO_USEFUL_CARD_CHOICE');
+    }
+    if(p.promptType==='ChooseCardsPrompt'&&m.selectionType==='card-combination'){
+      const deck=cs.filter(c=>card(c,'deck')),discard=cs.filter(c=>card(c,'discard')),hand=cs.filter(c=>card(c,'hand'));
+      if(match(x,R.vip)){
+        const out=[],board=slots(o.ownPublic).map(y=>y.p);
+        for(const f of [mega,isVol,isToed,isUn,isUn]){
+          if(out.length>=Math.min(m.maximumCount,cap(o)))break;
+          if(board.filter(f).length>=(f===isUn?2:1))continue;
+          if(f===isVol&&board.some(elec)||f===isToed&&board.some(cruel))continue;
+          const c=deck.find(c=>!out.includes(c)&&f(c));
+          if(c){out.push(c);board.push(c);}
+        }
+        return out.length>=m.minimumCount&&out.length?select(p,out,out.length,'NO_SUPPORTED_CARD_SELECTION'):pick([],()=>0);
+      }
+      if(match(x,R.ultra)){
+        if(hand.length)return select(p,fundCost(hand,o,2,x),2,'NO_LEGAL_CARD_SET');
+        return pick(deck,c=>pokemonSearch(c,o),1);
+      }
+      if(match(x,R.mail))return pick(deck,c=>trainerSearch(c,o),1);
+      if(match(x,R.carrier))return pick(discard.filter(c=>[isUn,isVol,isToed].some(f=>f(c))),c=>pokemonSearch(c,o),2);
+      if(match(x,R.stretcher))return pick(discard,c=>pokemonSearch(c,o),m.maximumCount===3?3:1);
+      if(match(x,R.vs))return pick(discard,c=>supporterSearch(c,o),1);
+      if(match(x,R.compressor)){
+        const e=deck.filter(ePred),need=Math.max(0,5-L(o.ownPublic?.discard).filter(ePred).length);
+        const reserve=!handHas(o,ePred)&&o.ownTurnResources?.energyPlayedTurn===false?1:0;
+        const k=Math.min(need,Math.max(0,e.length-reserve),m.maximumCount,3);
+        return pick(e,c=>match(c,R.dark)?100:75,k);
+      }
+      if(src.effectName==='Star Alchemy'&&(sableye(x)||match(x,R.seal)))return pick(deck,c=>Math.max(pokemonSearch(c,o),trainerSearch(c,o),ePred(c)&&!handHas(o,ePred)?310:0),1);
+      if(/^Telepathic Psychic Energy POR 88\b/i.test(x)){
+        // Direct Bench (not hand-play Abilities); choose distinct useful Basics.
+        const candidates=deck.filter(c=>isUn(c)||isGengar(c));
+        const out=[];
+        if(!ownHas(o,isGengar)&&cap(o)>0&&m.maximumCount>0){
+          const g=candidates.find(isGengar);if(g)out.push(g);
+        }
+        const n=Math.max(0,Math.min(m.maximumCount,cap(o))-out.length);
+        out.push(...candidates.filter(isUn).slice(0,n));
+        return out.length>=m.minimumCount&&out.length?select(p,out,out.length,'NO_SUPPORTED_CARD_SELECTION'):pick([],()=>0);
+      }
+      if(sableye(x)&&src.effectName==='Lode Search')return pick(discard,c=>trainerSearch(c,o),1);
+    }
+    if(p.promptType==='ConfirmPrompt'&&m.selectionType==='confirm'){
+      let answer=null;
+      if(isDedenne(x)&&src.effectName==='Dedechange'||isSquawk(x)&&src.effectName==='Squawk and Seize')answer=drawEngineLive(o)&&protectedReset(o);
+      if(isUn(x)&&src.effectName==='Farewell Letter')answer=!liveStadium(o,/Silent Lab/i)&&Number(o.ownPublic?.deckCount)>8;
+      if(answer!==null){
+        const c=cs.find(c=>c.kind==='confirm'&&String(c.label).toLowerCase()===(answer?'yes':'no'));
+        return c?{kind:'select-choice',token:c.token}:no('UNRECOGNIZED_SIMPLE_PROMPT');
+      }
+    }
+    if((p.promptType==='SelectPrompt'||p.promptType==='SelectOptionPrompt')&&match(x,R.stretcher)&&m.selectionType==='option'){
+      const c=cs.find(c=>c.kind==='option'&&/put.*pok[eé]mon.*hand/i.test(c.label??''));
+      return c&&L(o.ownPublic?.discard).some(c=>pokemonSearch(c,o)>0)?{kind:'select-choice',token:c.token}:no('NO_USEFUL_CARD_CHOICE');
+    }
+    return null;
+  }
+
   function createPolicy({role,seat,policyVersion,config}) {
     if(role!=='opponent'||![0,1].includes(seat)||policyVersion!==POLICY_VERSION||!config||Array.isArray(config)||Object.keys(config).length)throw Error('RANK9_INIT_MISMATCH');
     let chain=null;
@@ -342,7 +555,15 @@ function bombPlanner(o,sourceBenchIndex){
         return {kind:'select-action',token:g.token};
       }
       if(retScore>directScore&&ret)return {kind:'select-action',token:ret.token};
-      if(directScore>=400)return {kind:'select-action',token:direct.token};
+      const development=best(items,x=>devScore(x,o)),developmentScore=development?devScore(development,o):0;
+      // Non-turn-ending setup is valuable before a non-final attack, but
+      // never trade away a known final-Prize action or choose a speculative
+      // discard/draw reset ahead of an existing non-final KO.
+      if(directScore>=400){
+        if(development&&developmentScore>=375&&(development.kind==='use-ability'&&M(development).abilityName==='Farewell Letter'||development.kind==='play-card'&&(mega(development)||isVol(development)||elec(development)||cruel(development))))return {kind:'select-action',token:development.token};
+        return {kind:'select-action',token:direct.token};
+      }
+      if(development&&developmentScore>=280)return {kind:'select-action',token:development.token};
       const p=items.find(x=>x.kind==='play-card'&&plumeria(x));
       const denialRow=best(slots(opp),row=>denial(o,row)?.score??0);
       const d=denial(o,denialRow);
@@ -352,14 +573,16 @@ function bombPlanner(o,sourceBenchIndex){
       }
       const i=items.find(x=>x.kind==='play-card'&&iono(x));
       if(i&&supporterFree&&L(o.ownHand).length<=2&&Number(own?.prizeCount)>=3&&Number(own?.deckCount)>=Number(own?.prizeCount)&&directScore<400)return {kind:'select-action',token:i.token};
+      if(development&&developmentScore>directScore)return {kind:'select-action',token:development.token};
       if(direct)return {kind:'select-action',token:direct.token};
+      const pass=items.find(x=>x.kind==='pass');if(pass&&items.every(x=>x.kind==='pass'||x.kind==='projected-attack'))return {kind:'select-action',token:pass.token};
       return {kind:'abstain',reasonCode:'NO_SUPPORTED_ROOT_ACTION'};
     }
     function prompt(r) {
       const o=r.observation,p=r.prompt,source=name(p.source?.sourcePrinting);
       const choices=L(p.choices).filter(x=>typeof x.token==='string');
       const fail=code=>{chain=null;return {kind:'abstain',reasonCode:code};};
-      if(!chain){const setup=chooseSetup(r);if(setup)return setup;const claw=chooseClaw(r);if(claw)return claw;}
+      if(!chain){const setup=chooseSetup(r);if(setup)return setup;const claw=chooseClaw(r);if(claw)return claw;const d=chooseDevelopment(r);if(d)return d;}
       if(!chain||chain.turn!==o.globalTurn||r.sequence!==chain.sequence+1||
          !(chain.kind==='guzma'?guzma(source):plumeria(source)))return fail('UNTRUSTED_PROMPT_SOURCE');
       chain.sequence=r.sequence;
