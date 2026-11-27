@@ -7,7 +7,7 @@
 const REPLIES=Object.freeze({ covert:70, phantom:200, rolling:200, ryuno:330 });
 function evaluate(opts={}){
   const o={dna:true,band:true,valley:true,fairy:true,skyliner:true,
-           guzma:true,vs:true,items:true,thirdVstar:true,fourthDragonV:true,
+           guzma:true,vs:true,items:true,secondGustDragon:true,finalGustDragon:true,
            replies:['covert','covert'],clefairyHealth:190,initialLatiasDamage:0,
            ...opts};
   const trace=[];
@@ -41,11 +41,11 @@ function evaluate(opts={}){
   }
   if(!eon(280,'Eon KO A1'))return fail('first funded Eon unavailable');
   if(!reply(o.replies[0],1))return fail('Latias knocked out by first source reply');
-  if(!o.thirdVstar)return fail('no second 2-Prize Dragon available to gust');
-  if(!guzmaBounce(280,2))return fail('A2 Guzma bounce / target or Eon unavailable');
+  if(!o.secondGustDragon)return fail('no second 2-Prize Dragon available to gust');
+  if(!guzmaBounce(220,2))return fail('A2 Guzma bounce / target or Eon unavailable');
   if(!reply(o.replies[1],2))return fail('Latias knocked out by second source reply');
   if(!o.items||!o.vs)return fail('VS Seeker recovery unavailable for A3 Guzma');
-  if(!o.fourthDragonV)return fail('no third 2-Prize Dragon available to gust');
+  if(!o.finalGustDragon)return fail('no third 2-Prize Dragon available to gust');
   if(!guzmaBounce(220,3))return fail('A3 Guzma bounce / target or Eon unavailable');
   if(ownPrizes!==6)return fail('did not take all six Prizes');
   return {success:true,why:'conditional three-KO route',ownPrizes,sourcePrizes,
@@ -55,6 +55,6 @@ module.exports={REPLIES,evaluate};
 if(require.main===module){
   console.log(JSON.stringify([
     evaluate(),evaluate({dna:false}),evaluate({replies:['phantom','covert']}),
-    evaluate({vs:false}),evaluate({fourthDragonV:false})
+    evaluate({vs:false}),evaluate({finalGustDragon:false})
   ],null,2));
 }
