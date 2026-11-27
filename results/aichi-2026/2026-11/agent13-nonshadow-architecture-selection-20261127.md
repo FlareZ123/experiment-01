@@ -6,9 +6,9 @@
 
 ## Decision
 
-Retain the **New Moon architecture**, now with **Guzma/Sky v2** as the preferred exact fixed 60 for the next policy-investment slot. Park **Iron Thorns ex / Mimikyu Psychic Reserve v3e from the next cross-architecture policy slot**, while preserving it as a legitimate within-Thorns refinement candidate.
+Retain the **New Moon architecture**, with the **original New Moon Lockbreaker v1** restored as the preferred exact fixed 60 for the next policy-investment slot after cross-review. Park **Iron Thorns ex / Mimikyu Psychic Reserve v3e from the next cross-architecture policy slot**, while preserving it as a legitimate within-Thorns refinement candidate.
 
-This is not a final-best-deck nomination. Hood Shield and Lockbridge remain unranked active Shadow Rider profiles; no matchup is competitively qualified and the 99.5% target is unproven. The preferred New Moon v2 differs from v1 only by −1 Sky Field, +1 Guzma; the exact repair decision is documented in [the structural repair selection](agent13-newmoon-structural-repair-selection-20261127.md). The narrower decision is where to spend the next scarce policy-development effort on a genuinely different engine.
+This is not a final-best-deck nomination. Hood Shield and Lockbridge remain unranked active Shadow Rider profiles; no matchup is competitively qualified and the 99.5% target is unproven. Agent13's −1 Sky Field +1 Guzma branch is preserved as a frozen challenger, but [the cross-review correction](agent13-newmoon-v2-reversal-after-crossreview-20261127.md) restored v1 because the narrow rank-15 Prize-collapse signal did not yet justify losing Sky #2's broader Stadium/Rondo roles. The narrower decision is where to spend the next scarce policy-development effort on a genuinely different engine.
 
 The distinction is structural:
 
@@ -19,13 +19,15 @@ The distinction is structural:
 
 Therefore the right **cross-architecture** challenger is the already-fixed New Moon 60, subjected to the hostile cases below before any policy investment is called successful. Psychic Reserve v3e remains available for later within-Thorns refinement rather than being rejected as inherently weak.
 
-## Exact preferred New Moon v2
+## Exact preferred New Moon v1 after cross-review
 
-The preferred fixed list is [New Moon Lockbreaker Guzma/Sky v2](agent13-newmoon-lockbreaker-guzma-sky-v2.json), hash `f3bfed3a82cbddd4acb89ad0f0ff488673fd38c7be16efac0d54ab228d5ca82f`. It is v1 with **one Sky Field cut for one Guzma**, preserving Counter Catcher, both Ace Trainer and all 17 Basics. The prior v1 list remains the evidence baseline; the earlier `Counter Catcher -> Guzma` experiment is explicitly rejected because it destroys the Ace Trainer + Counter Catcher catch-up turn.
+The preferred fixed list is the established v1 machine-readable manifest at `results/als/new-moon-lockbreak-english-proxy-60.json`, hash `a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4`.
 
-The v2 actor-visible acceptance target is [65 cases](agent13-newmoon-guzma-sky-v2-policy-acceptance-v1.json), including the 39 v1/Raichu cross-family cases, Agent1's eight rank-2 dual-lock cases, one v2 pre-Sentinel timing case, plus six original list-specific Guzma/Sky cases.
+Use Agent1's [80-case v1 policy contract](agent1-newmoon-candidate-policy-acceptance-v2.json) as the implementation gate. It covers all 29 authenticated ranks while preserving the exact v1 60.
 
-## Prior v1 exact list (evidence baseline)
+Agent13's [Guzma/Sky v2](agent13-newmoon-lockbreaker-guzma-sky-v2.md) remains a frozen material challenger. Its role is to test whether a Supporter own-switch/gust is worth more than Sky #2 after competent v1 policy evidence exists; it is **not** the current preferred list.
+
+## Exact retained v1 list (evidence baseline)
 
 This is the existing **New Moon Lockbreaker v1**, unchanged. The canonical machine-readable list remains `results/als/new-moon-lockbreak-english-proxy-60.json`; the identity/count hash recorded by the existing result is `sha256:a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4`.
 
@@ -144,7 +146,7 @@ The rank-1 addition is especially important: an Active Klefki is valuable agains
 
 ## Policy-investment recommendation
 
-Allocate the next non-Shadow-Rider policy-development slot to the **New Moon Lockbreaker Guzma/Sky v2 fixed 60**, with the following held-out order:
+Allocate the next non-Shadow-Rider policy-development slot to the **New Moon Lockbreaker v1 fixed 60**, with the following held-out order:
 
 1. Regidrago Budew → Apex Dragon pressure, including a Dragapult-spread and Noivern-Covert-Flight case.
 2. Rank-15 competent AOR + BUS Vileplume line, with an explicit pre-lock Item window and powered Dusclops continuation.
@@ -158,7 +160,7 @@ A competent policy need not “win” every synthetic case. It must choose a leg
 ## Boundaries
 
 - This note changes **research allocation**, not the final deck nomination.
-- The New Moon candidate 60 changes only within this architecture decision to the documented Guzma/Sky v2. No source opponent, Twinleaf pin, workflow, V3 registration, Stage-A disposition, or owner-controlled game gate changes.
+- The New Moon candidate 60 remains the established v1 after cross-review. The Guzma/Sky v2 branch is preserved only as a challenger. No source opponent, Twinleaf pin, workflow, V3 registration, Stage-A disposition, or owner-controlled game gate changes.
 - The owner-gated Hood/rank-1 V3 seat-swap pair remains independent and should not be delayed by this architecture exercise.
 - The three missing source lists (ranks 23/25/28) remain missing and are not imputed.
 - No game or qualified matchup is created here; **99.5% remains unproven**.
