@@ -313,7 +313,9 @@ function trainersMailChoiceScore(value, observation) {
     list(observation?.ownHand).some(card => matches(card, DOUBLE_COLORLESS));
   const ghCanCompleteAttack = !voltCycloneFunded(active, observation) &&
     (dceReady || canPayGuzmaHala(observation));
-  if (matches(value, MEGATON_BLOWER)) return 300;
+  if (matches(value, MEGATON_BLOWER)) {
+    return (opponentSpecialEnergyCount(observation) > 0 || opponentToolCount(observation) > 0) ? 300 : 55;
+  }
   if (matches(value, ENHANCED_HAMMER)) return opponentSpecialEnergyCount(observation) > 0 ? 275 : 160;
   if (matches(value, TAG_CALL)) return ghCanCompleteAttack ? 286 : 235;
   if (matches(value, GUZMA_HALA)) return ghCanCompleteAttack ? 282 : 210;
@@ -324,7 +326,12 @@ function trainersMailChoiceScore(value, observation) {
   if (matches(value, TOOL_JAMMER)) return opponentActiveHasTool(observation) ? 220 : 95;
   if (matches(value, PLUMERIA)) return opponentEnergyCount(observation) > 0 ? 205 : 100;
   if (matches(value, TEAM_FLARE_GRUNT)) return list(opponentActive(observation)?.energies).length > 0 ? 200 : 95;
-  if (matches(value, FABA)) return 195;
+  if (matches(value, FABA)) {
+    const stadiumVisible = list(observation?.ownPublic?.stadium).length > 0 ||
+      list(observation?.opponentPublic?.stadium).length > 0;
+    return (opponentSpecialEnergyCount(observation) > 0 || opponentToolCount(observation) > 0 ||
+      stadiumVisible) ? 195 : 60;
+  }
   if (matches(value, XEROSIC_MACHINATIONS)) return (opponentHandCount(observation) ?? 0) > 3 ? 190 : 70;
   if (matches(value, LILLIE_DETERMINATION)) return list(observation?.ownHand).length <= 3 ? 180 : 80;
   if (matches(value, ERI)) return (opponentHandCount(observation) ?? 0) >= 6 ? 170 : 70;
