@@ -1,4 +1,8 @@
 
+## 2026-11-27T02:38:53.213Z — structural checkpoint
+- [results/aichi-2026/2026-11/agent1-apex-lockdown-synthesis.md](results/aichi-2026/2026-11/agent1-apex-lockdown-synthesis.md) consolidates candidate and 3 available proxy result sets. Fixed proposal retained as research-only, no qualified game or gate change. Lease age 43.129 minutes at checkpoint; release only if real elapsed age >=70. Current tool responses unavailable to assistant, so persisted evidence is the authority.
+
+
 ## 2026-11-27T02:38:11.955Z — joint support/manual timing policy arm
 - Added opt-in joint policy that reserves manual attachment before deterministic energy Supporter, prioritizes Guzma & Hala when DDE plus another Energy closes attack, and delays FSS when T1 Supporter can close. 32,000 conserved trials with fixed seed and four scenarios; raw results/aichi-2026/2026-11/agent1-apex-lockdown-policy-screen.json. This is a heuristic comparison, not full native play. Next independent holdout and crossfield response synthesis.
 
