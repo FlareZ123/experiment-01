@@ -1,0 +1,510 @@
+{
+  "schema": "agent13-newmoon-guzma-sky-v2-policy-acceptance-v1",
+  "dateUTC": "2026-11-27",
+  "candidate": {
+    "name": "New Moon Lockbreaker Guzma/Sky v2",
+    "manifest": "results/aichi-2026/2026-11/agent13-newmoon-lockbreaker-guzma-sky-v2.json",
+    "identityCountSha256": "f3bfed3a82cbddd4acb89ad0f0ff488673fd38c7be16efac0d54ab228d5ca82f",
+    "parentV1Hash": "a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4",
+    "delta": [
+      "Sky Field xy6-89: 2 -> 1",
+      "Guzma sm3-115: 0 -> 1"
+    ],
+    "fixed60": true
+  },
+  "status": "preferred New Moon v2 actor-visible acceptance contract; no native games or competitive qualification",
+  "informationBoundary": {
+    "mayUse": [
+      "own hand, board, discard, attached cards, used-GX/VSTAR state",
+      "public opponent board, discard, attached cards, revealed cards and known exact source list",
+      "K1 own Prize inference after a legitimate own-deck search",
+      "turn, starting orientation, Prize counts, current legal-action surface"
+    ],
+    "mustNotUse": [
+      "opponent hidden hand identities unless revealed by a legal effect",
+      "opponent face-down Prize identities",
+      "future random draws",
+      "simulator-only hidden zones unavailable to a paper player"
+    ]
+  },
+  "lexicographicDecisionLayers": [
+    "take an immediate legal game win; avoid an immediate forced loss when a survival action exists",
+    "reject mechanically illegal or currently inaccessible actions/lines",
+    "preserve or exploit a disappearing action window (Item/Ability/hand-play/evolution window)",
+    "score the opponent's strongest immediate reply, including promotion caused by a KO",
+    "preserve the selected continuation's required cards/Bench/Energy before paying discard/search costs",
+    "compare discrete tactical value and Prize map before raw damage or graph connectivity",
+    "only then optimize ordinary setup, draw and damage"
+  ],
+  "cases": [
+    {
+      "id": "UNIV-FINAL-PRIZE",
+      "family": "universal",
+      "state": "A legal action takes the final Prize now.",
+      "must": "Prefer the immediate game-winning action over future lock/setup value.",
+      "forbids": "Passing a forced win to preserve resources."
+    },
+    {
+      "id": "REG-TPE-SPREAD",
+      "family": "Regidrago",
+      "sourceRanks": [
+        10,
+        12,
+        13,
+        14,
+        18,
+        20,
+        21,
+        27,
+        32
+      ],
+      "state": "TPE trigger is resolving; Dragapult ex is a known accessible Apex Dragon payload; candidate target choices include 60-HP Unown/Duskull and nonessential extra Basics.",
+      "must": "Allow 0, 1, or 2 TPE targets; do not add a second 60-HP Basic without a concrete immediate purpose.",
+      "forbids": "Always maximizing an 'up to 2' search."
+    },
+    {
+      "id": "REG-DUSKULL-EXCEPTION",
+      "family": "Regidrago",
+      "state": "Same spread threat, but Duskull is required for a near-term Dusclops response and the evolution/energy continuation is actor-visible.",
+      "must": "Permit fetching Duskull when the non-Basic continuation outweighs its spread liability.",
+      "forbids": "A hard-coded never-fetch-60HP rule."
+    },
+    {
+      "id": "REG-COVERT-FLIGHT",
+      "family": "Regidrago",
+      "state": "Active Regidrago is protected by a copied Covert Flight effect; candidate has a nominal high-damage Basic attack plus one or more legal non-Basic/effect/switch alternatives.",
+      "must": "Recognize that Basic attack damage is prevented and compare Horror House effect, Dusclops, Escape Rope/Counter Catcher, or another legal target.",
+      "forbids": "Selecting the Basic damage attack solely by printed damage."
+    },
+    {
+      "id": "VIL-BUNNELBY-PROMOTION",
+      "family": "rank15 Lopunny Vileplume",
+      "sourceRanks": [
+        15
+      ],
+      "state": "AOR and BUS Vileplume are Benched; low-HP Bunnelby is Active; GX unused; a Bunnelby KO and Horror House are both legal.",
+      "must": "Score BUS Vileplume's immediate promotion after the KO; compare Horror House hand lock before taking the one-Prize KO.",
+      "forbids": "Treating the KO as pure positive value without the promotion consequence."
+    },
+    {
+      "id": "VIL-HOOD",
+      "family": "rank15 Lopunny Vileplume",
+      "state": "BUS Vileplume is or will be Active and already has Stealthy Hood attached.",
+      "must": "Do not credit Cursed Blast as an effective Ability effect on the Hooded BUS target; evaluate non-Ability/non-Basic alternatives.",
+      "forbids": "Assuming Horror House can retroactively prevent an already attached Hood."
+    },
+    {
+      "id": "VIL-WINNING-KO",
+      "family": "rank15 Lopunny Vileplume",
+      "state": "The Bunnelby KO takes the candidate's final Prize.",
+      "must": "Take the win.",
+      "forbids": "Overriding a final-Prize KO with the promotion-trap heuristic."
+    },
+    {
+      "id": "THR-NATIVE-GENGAR-SECOND",
+      "family": "Iron Thorns",
+      "sourceRanks": [
+        6,
+        24,
+        29
+      ],
+      "state": "Candidate goes second; fresh native Gengar & Mimikyu-GX is Active with one Psychic; GX unused; Active Thorns is powered enough to threaten at most one 140-damage hit before candidate's next turn.",
+      "must": "Recognize Horror House -> survive one hit -> second Psychic -> Poltergeist as a coherent non-Perfection line, subject to actual legality/public state.",
+      "forbids": "Declaring the matchup locked merely because Perfection is suppressed."
+    },
+    {
+      "id": "THR-DAMAGED-GENGAR-FIRST",
+      "family": "Iron Thorns",
+      "state": "Candidate goes first and Gengar has already taken 140 before the candidate's Horror House turn; opponent can attack again from board without hand play.",
+      "must": "Price the second 140 as lethal before valuing a future Poltergeist turn.",
+      "forbids": "Assuming Horror House skips the opponent's attack."
+    },
+    {
+      "id": "THR-KLEFKI-BUFFER",
+      "family": "Iron Thorns",
+      "state": "Klefki is Active, fresh native Gengar is Benched/powered for the next attack, and opponent threatens a 140 attack but no actor-visible gust bypass is currently established.",
+      "must": "Value the one-Prize buffer and fresh post-KO Gengar promotion as a possible survival line.",
+      "forbids": "Treating the buffer as unconditional if a legal gust counter is public/available."
+    },
+    {
+      "id": "GAR-TWO-TOOLS",
+      "family": "Absol Garbodor",
+      "sourceRanks": [
+        8,
+        11,
+        16,
+        22
+      ],
+      "state": "Two opposing Garbodor are each Tool-enabled and suppressing Abilities; one Field Blower is playable; a Stadium is also a desirable target.",
+      "must": "If choosing the Perfection-restoration line, target both Garbodor Tools before the optional Stadium.",
+      "forbids": "Removing Stadium + one Tool and then assuming Perfection is restored."
+    },
+    {
+      "id": "GAR-BLOWER-HORROR",
+      "family": "Absol Garbodor",
+      "state": "All live Garbotoxin Tools can be removed now; Mewtwo/Gengar Horror House is legal after removal; opponent has future hand-based retool capacity.",
+      "must": "Compare Field Blower -> Horror House against immediate damage, crediting the protected no-retool hand-lock turn.",
+      "forbids": "Scoring Field Blower only as an instantaneous Tool removal."
+    },
+    {
+      "id": "GAR-THREE-LIVE",
+      "family": "Absol Garbodor",
+      "state": "Three Garbodor are simultaneously Tool-enabled; only one Field Blower is available.",
+      "must": "Reject a Perfection line that depends on one Blower disabling all three.",
+      "forbids": "Treating partial Tool removal as full Garbotoxin release."
+    },
+    {
+      "id": "R26-PREGAME-TWO-BASICS",
+      "family": "rank26 Meloetta donk",
+      "sourceRanks": [
+        26
+      ],
+      "state": "Before game start, candidate has at least two Basics available for Active/Bench setup.",
+      "must": "Put at least one Basic on the Bench; avoid a voluntary lone-Active loss exposure.",
+      "forbids": "Keeping every extra Basic in hand for ordinary resource efficiency."
+    },
+    {
+      "id": "R26-KLEFKI",
+      "family": "rank26 Meloetta donk",
+      "state": "Klefki and at least one other Basic are available during setup.",
+      "must": "Strongly prefer Klefki Active plus a Benched survivor unless a concrete stronger exception exists; recognize Cologne as opponent counter.",
+      "forbids": "Treating Mischievous Lock as an absolute donk prevention."
+    },
+    {
+      "id": "R26-SETUP-TURN",
+      "family": "rank26 Meloetta donk",
+      "state": "New Moon receives a normal setup turn before rank26's first attack and would otherwise end with no Bench; TPE or Basic search is legal.",
+      "must": "Spend sufficient setup resources to create a Bench before passing.",
+      "forbids": "Saving search/TPE for later while leaving an immediate no-Pokémon loss condition."
+    },
+    {
+      "id": "R1-LATE-KLEFKI",
+      "family": "rank1 Shadow Rider",
+      "sourceRanks": [
+        1
+      ],
+      "state": "One or more Shadow Rider VMAX are evolved and operating; candidate can promote Klefki; Mewtwo & Mew-GX Perfection is relevant.",
+      "must": "Recognize Klefki does not suppress Evolution VMAX Underworld Door and does suppress own Basic Perfection.",
+      "forbids": "Scoring Klefki as universal Ability lock."
+    },
+    {
+      "id": "R1-ASYMMETRIC-PATH",
+      "family": "rank1 Shadow Rider",
+      "state": "Candidate has Solrock + Lunatone OBF in play and can play Path to the Peak.",
+      "must": "Recognize Path suppresses opponent Rule-Box Abilities while Lunatone's New Moon protects candidate Pokémon from Stadium effects.",
+      "forbids": "Treating Path as symmetric self-lock in this exact candidate board."
+    },
+    {
+      "id": "R1-MARSHADOW-BENCHED",
+      "family": "rank1 Shadow Rider",
+      "state": "Path is active, Horror House hand lock is available/applied, and opponent Marshadow UNB is already on the Bench.",
+      "must": "Expect Resetting Hole to remain a board Ability that can discard Path; do not credit Horror House with stopping it.",
+      "forbids": "Conflating hand lock with in-play Ability lock."
+    },
+    {
+      "id": "R1-MARSHADOW-NOT-IN-PLAY",
+      "family": "rank1 Shadow Rider",
+      "state": "Candidate has asymmetric Path setup; opponent Marshadow is not publicly in play; Horror House is legal.",
+      "must": "Credit Horror House with blocking hand-played Marshadow, Field Blower and replacement Stadium during the locked turn, without assuming those hidden cards are actually in hand.",
+      "forbids": "Using hidden-hand knowledge to claim a specific out was denied."
+    },
+    {
+      "id": "BOX-PROTECTED-ENERGY",
+      "family": "Secret Box / self-contention",
+      "state": "Secret Box is mechanically legal and only three other hand cards exist, but one is the only Energy required for the chosen attack continuation.",
+      "must": "Reject Secret Box for that intended continuation unless another coherent line justifies changing plans.",
+      "forbids": "Treating three physical cards as three acceptable discards."
+    },
+    {
+      "id": "BOX-DEAD-CARDS",
+      "family": "Secret Box / self-contention",
+      "state": "Secret Box is legal; at least three actor-visible cards are genuinely dead/redundant for the selected horizon (for example post-turn-one VIP Pass with no remaining role); fetched bundle advances the selected continuation.",
+      "must": "Permit the Box line and record why each discard is acceptable.",
+      "forbids": "Permanent card-name 'never discard' rules detached from state."
+    },
+    {
+      "id": "BOX-GARBODOR-DONOR",
+      "family": "Secret Box / Garbodor",
+      "state": "Secret Box can fetch Field Blower but paying the cost would discard the only accessible Gengar donor required for the intended Blower -> Horror House line.",
+      "must": "Reject that Box route or explicitly select a different continuation.",
+      "forbids": "Counting Box->Blower access as success after destroying its follow-up."
+    },
+    {
+      "id": "STALL-TPE-NARROW",
+      "family": "Snorlax Stall",
+      "sourceRanks": [
+        3,
+        7
+      ],
+      "state": "Current attacker/line is already functional; TPE can fetch extra low-impact support Basics such as Unown/Duskull; opponent has Snorlax Block plus repeated gust capacity.",
+      "must": "Allow zero or one TPE target and preserve a narrow Bench when the extra body is primarily a future trap target.",
+      "forbids": "Maximizing Bench occupancy for generic setup value."
+    },
+    {
+      "id": "STALL-ROPE-SCARCITY",
+      "family": "Snorlax Stall",
+      "sourceRanks": [
+        3,
+        7
+      ],
+      "state": "Singleton Escape Rope is available but no current Block trap requires it; opponent retains public/source-known gust capacity.",
+      "must": "Price Escape Rope as future Block insurance before spending it for minor positioning.",
+      "forbids": "Treating the singleton switch as ordinary low-value mobility."
+    },
+    {
+      "id": "STALL-TRAPPED-UNOWN",
+      "family": "Snorlax Stall",
+      "sourceRanks": [
+        3,
+        7
+      ],
+      "state": "Unown AOR 30 is Active against 150-HP Snorlax PGO 55 with Block operating.",
+      "must": "Recognize normal retreat is prohibited and 10-damage Hidden Power is not a quick escape; prioritize a legal switch/board-release plan.",
+      "forbids": "Assuming Energy attachments eventually permit retreat through Block."
+    },
+    {
+      "id": "STALL-DUSKULL-EXCEPTION",
+      "family": "Snorlax Stall",
+      "sourceRanks": [
+        3,
+        7
+      ],
+      "state": "Duskull is trapped Active, but Dusclops and the required Energy/evolution timing are actor-visible and achievable.",
+      "must": "Recognize the developed Stage-1 attack route as a possible board-release line.",
+      "forbids": "Hardcoding Escape Rope as the only response to every Block trap."
+    },
+    {
+      "id": "TEMPLE-TPE-SETUP",
+      "family": "Temple of Sinnoh / Special Energy timing",
+      "sourceRanks": [
+        3,
+        8,
+        11,
+        16,
+        22
+      ],
+      "state": "Temple of Sinnoh is active; candidate legally attaches Telepathic Psychic Energy from hand to a Psychic Pokémon with available Bench space.",
+      "must": "Allow the attachment-time TPE search for up to two Basic Psychic Pokémon, while separately tracking Temple's suppression after attachment.",
+      "forbids": "Treating Temple as canceling the attachment-time search trigger."
+    },
+    {
+      "id": "TEMPLE-TPE-ATTACK-COST",
+      "family": "Temple of Sinnoh / Special Energy timing",
+      "sourceRanks": [
+        3,
+        8,
+        11,
+        16,
+        22
+      ],
+      "state": "Temple remains active; candidate has one attached TPE and no other Psychic-providing Energy; a Psychic-cost attack such as Horror House is being considered.",
+      "must": "Treat the attached TPE as Colorless under Temple and require another legal Psychic source or Stadium removal/replacement before the attack.",
+      "forbids": "Equating successful TPE setup with a currently paid Psychic attack cost."
+    },
+    {
+      "id": "LAB-NEWMoon-SELF-DISABLE",
+      "family": "Silent Lab",
+      "sourceRanks": [
+        9,
+        13,
+        15,
+        32
+      ],
+      "state": "Silent Lab is active and candidate has Solrock + Lunatone OBF in play; Mewtwo & Mew-GX Perfection is relevant.",
+      "must": "Treat Lunatone's Basic Ability New Moon as removed by Silent Lab and Perfection as suppressed.",
+      "forbids": "Generalizing the Path-to-the-Peak asymmetry to Silent Lab."
+    },
+    {
+      "id": "LAB-REPLACE-FIRST",
+      "family": "Silent Lab",
+      "sourceRanks": [
+        9,
+        13,
+        15,
+        32
+      ],
+      "state": "Silent Lab is active; candidate has a legal own-Stadium replacement and an Ability-dependent attack continuation.",
+      "must": "Price Stadium replacement/removal as a prerequisite to the Ability-dependent line.",
+      "forbids": "Spending resources on Solrock/Lunatone as if the pair alone clears Silent Lab."
+    },
+    {
+      "id": "LAB-ITEMLOCK-COMPOUND",
+      "family": "rank15 Lopunny Vileplume",
+      "sourceRanks": [
+        15
+      ],
+      "state": "Silent Lab and AOR Vileplume Item lock are simultaneously active.",
+      "must": "Treat Field Blower as inaccessible while Item lock holds and search for a legal non-Item/pre-lock Stadium solution.",
+      "forbids": "Hallucinating a live Field Blower answer under Item lock."
+    },
+    {
+      "id": "RAI-KLEFKI-STAGE1",
+      "state": "Opposing Klefki is Active; opposing Electrode-GX is Benched and otherwise able to use Extra Energy Bomb; candidate Mewtwo & Mew-GX and Lunatone Abilities are relevant.",
+      "must": "Recognize Klefki suppresses Basic Perfection and Basic New Moon, but does not suppress Stage-1 Electrode-GX.",
+      "forbids": "Treating opposing Klefki as symmetrical shutdown of Electrode-GX or treating Lunatone as active under Klefki.",
+      "family": "Raichu / Electrode",
+      "sourceRanks": [
+        4,
+        17
+      ]
+    },
+    {
+      "id": "RAI-PATH-NATIVE-HORROR",
+      "state": "Native Gengar & Mimikyu-GX is attack-ready with GX unused; Path to the Peak is playable; opposing Electrode-GX is live; no actor-visible board-only Stadium removal is established.",
+      "must": "Compare Path -> native Horror House-GX against Cologne/Perfection, crediting Path's suppression of Electrode and Horror House's denial of hand-played Stadium/evolution answers.",
+      "forbids": "Requiring Perfection or Cologne merely because opposing Klefki suppresses Mewtwo.",
+      "family": "Raichu / Electrode",
+      "sourceRanks": [
+        4,
+        17
+      ]
+    },
+    {
+      "id": "RAI-R17-MARSHADOW",
+      "state": "Rank-17 Marshadow UNB 81 is already on the Bench while Path/Horror House is being considered.",
+      "must": "Expect Resetting Hole to remain a board Ability that can discard Path despite Horror House.",
+      "forbids": "Conflating hand lock with in-play Ability lock.",
+      "family": "Raichu / Electrode",
+      "sourceRanks": [
+        4,
+        17
+      ]
+    },
+    {
+      "id": "RAI-BENCH-FRONTIER",
+      "state": "A legal TPE/Bench choice would add unnecessary low-HP or multi-Prize bodies while the source can plausibly reach a Telescopic-Sight Electro Rain Bomb turn.",
+      "must": "Allow 0/1 TPE targets and price each Bench body by Electro Rain packets-to-KO plus Prize yield; prefer discard-zone Gengar donor over an unnecessary Benched donor when legal.",
+      "forbids": "Maximizing Bench/search connectivity without scoring distributed Prize conversion.",
+      "family": "Raichu / Electrode",
+      "sourceRanks": [
+        4,
+        17
+      ]
+    },
+    {
+      "id": "RAI-PARITY-TWO-DUSCLOPS",
+      "state": "No Prize changes yet; both candidate Dusclops can use Cursed Blast and self-KO before the opponent's first Electrode Bomb; their counter placement does not take an opposing Prize.",
+      "must": "Recognize two self-KOs make the first Bomb restore 4-4 Prize parity, so Reversal/Counter Energy Prize-deficit multipliers are off after that Bomb unless another Prize change occurs.",
+      "forbids": "Assuming the first Bomb always activates Reversal/Counter multipliers.",
+      "family": "Raichu / Electrode",
+      "sourceRanks": [
+        4,
+        17
+      ]
+    },
+    {
+      "id": "RAI-PARITY-ONE-DUSCLOPS",
+      "state": "Exactly one candidate Cursed Blast self-KO occurred before the opponent's first Electrode Bomb and no other Prize changes occurred.",
+      "must": "Recognize the post-Bomb state is candidate 4 Prizes remaining vs Raichu 5, so Raichu is still behind and Reversal/Counter multipliers remain live.",
+      "forbids": "Treating one self-KO as sufficient Prize-parity control.",
+      "family": "Raichu / Electrode",
+      "sourceRanks": [
+        4,
+        17
+      ]
+    },
+    {
+      "id": "RAI-GOING-SECOND-PREEVOLUTION",
+      "state": "Candidate goes second on its first turn; Horror House-GX is legal; opponent has not yet legally evolved Voltorb/Pikachu on its first turn.",
+      "must": "Value Horror House as denial of the next hand-play evolution/Bomb-combo turn, not merely generic hand disruption.",
+      "forbids": "Waiting for Electrode/Raichu to exist before valuing the lock.",
+      "family": "Raichu / Electrode",
+      "sourceRanks": [
+        4,
+        17
+      ]
+    },
+    {
+      "id": "V2-R15-DUSCLOPS-PRIZED",
+      "family": "rank15 Lopunny Vileplume",
+      "sourceRanks": [
+        15
+      ],
+      "state": "K1 shows both Dusclops are Prized; BUS Vileplume is Active; AOR Vileplume is Benched and Item lock is live; Guzma is legally available; opponent has a legal Bench target.",
+      "must": "Use or seriously score the Supporter switch that moves BUS off Active so Basic attackers can function; do not declare the board structurally attack-locked solely because both Dusclops are Prized.",
+      "forbids": "Relying on Item switch/gust through AOR lock or on a Prized Dusclops."
+    },
+    {
+      "id": "V2-ACE-COUNTER-PRESERVED",
+      "family": "New Moon catch-up ALS",
+      "state": "Cursed Blast self-KO has put New Moon behind on Prizes; Ace Trainer and Counter Catcher are both legal and useful; Guzma is also available.",
+      "must": "Preserve the option to play Ace Trainer plus Counter Catcher in the same turn and compare that multi-axis line against Guzma.",
+      "forbids": "Replacing the Item gust with Guzma merely because both gust, thereby losing the Ace Trainer action."
+    },
+    {
+      "id": "V2-R26-AHEAD-GUST",
+      "family": "rank26 Meloetta donk",
+      "sourceRanks": [
+        26
+      ],
+      "state": "New Moon survived the source's Prize-donation plan and has one Prize remaining while the opponent has fewer remaining Prizes than required for Counter Catcher to be legal; a gusted target can yield the last Prize.",
+      "must": "Recognize Counter Catcher is disabled by Prize state and evaluate Guzma as the no-Prize-condition gust.",
+      "forbids": "Assuming Counter Catcher remains active simply because it is in hand."
+    },
+    {
+      "id": "V2-SNORLAX-BLOCK",
+      "family": "Snorlax Stall",
+      "sourceRanks": [
+        3,
+        7
+      ],
+      "state": "A support Pokémon is trapped Active by Snorlax Block; both Guzma and Escape Rope are legal alternatives; candidate has a Bench.",
+      "must": "Compare Supporter contention and future singleton-Rope value; recognize Guzma as a functional own-switch because it also switches the opponent's Active.",
+      "forbids": "Treating Counter Catcher as an own-switch or preserving Guzma solely because it is a Supporter."
+    },
+    {
+      "id": "V2-SILENT-LAB-GUZMA-ACCESS",
+      "family": "Silent Lab / rank15",
+      "sourceRanks": [
+        9,
+        13,
+        15,
+        32
+      ],
+      "state": "Silent Lab is active and Guzma is not already in hand; Tapu Lele-GX Wonder Tag would otherwise be the intended Supporter search.",
+      "must": "Treat Wonder Tag as unavailable while Silent Lab suppresses Basic Abilities; first establish a legal Stadium removal/replacement or use another real access route.",
+      "forbids": "Hallucinating Tapu Lele-to-Guzma through Silent Lab."
+    },
+    {
+      "id": "V2-STADIUM-COUNT",
+      "family": "v2 list fidelity",
+      "state": "A line depends on candidate-owned Stadium availability or replacement count.",
+      "must": "Use the actual v2 count of three own Stadiums: one Sky Field and two Path to the Peak.",
+      "forbids": "Inheriting the v1 fixture assumption of two Sky Field / four own Stadiums."
+    }
+  ],
+  "implementationGate": {
+    "requiredBeforeNativeInvestment": [
+      "pure or synthetic actor-visible tests covering all cases in this v2 contract",
+      "fixture/list hash asserts f3bfed3a82cbddd4acb89ad0f0ff488673fd38c7be16efac0d54ab228d5ca82f",
+      "trace exposes selected continuation, strongest competing action, protected resources, Stadium count and any Secret Box discard reasons",
+      "TPE target resolver can legally return 0, 1 or 2 targets",
+      "policy explicitly conditions on opponent Ability source stage/type and public board position",
+      "no case relies on opponent hidden-hand or face-down-Prize identities except own K1 Prize inference",
+      "no native/full-game dispatch until the repository's current owner/CI gates permit it"
+    ],
+    "notRequired": [
+      "winning every acceptance state",
+      "a new workflow",
+      "a third live V3 branch",
+      "new deck-card changes"
+    ]
+  },
+  "competitiveQualified": false,
+  "claim99Point5": false,
+  "crossAgentDeltas": [
+    {
+      "path": "results/aichi-2026/2026-11/agent1-newmoon-raichu-acceptance-delta-v1.json",
+      "author": "Agent1",
+      "integratedCases": [
+        "RAI-KLEFKI-STAGE1",
+        "RAI-PATH-NATIVE-HORROR",
+        "RAI-R17-MARSHADOW",
+        "RAI-BENCH-FRONTIER",
+        "RAI-PARITY-TWO-DUSCLOPS",
+        "RAI-PARITY-ONE-DUSCLOPS",
+        "RAI-GOING-SECOND-PREEVOLUTION"
+      ]
+    }
+  ]
+}
