@@ -788,14 +788,16 @@ function validateInit(message) {
   if (!isRecord(message.config)) fail('BAD_POLICY_CONFIG');
   if (message.policyVersion === 'agent46-two-profile-v1') {
     if (message.role !== 'candidate') fail('BAD_POLICY_CONFIG');
-    exactKeys(message.config, ['schema','profileId','deckSha256']);
+    exactKeys(message.config, ['schema','profileId','deckSha256'],['paperAstralBarrageTargets']);
     const profileDecks = {
       'hood-shield-shadow-rider-v1': '1cc3d2080b40c7a9e0c61297439ba5d1ae34f9211ba9b24fcffffb2786a3e924',
       'lockbridge-shadow-rider-v1': '011cb8481b473c8566935d6835fc9a2a5762e4f09349f23c8284ec19b0cac642'
     };
     if (message.config.schema !== 'agent46-candidate-profile-v1' ||
         !Object.prototype.hasOwnProperty.call(profileDecks,message.config.profileId) ||
-        message.config.deckSha256 !== profileDecks[message.config.profileId]) fail('BAD_POLICY_CONFIG');
+        message.config.deckSha256 !== profileDecks[message.config.profileId] ||
+        (Object.prototype.hasOwnProperty.call(message.config,'paperAstralBarrageTargets') &&
+          message.config.paperAstralBarrageTargets!=='agent4-cre74-hook-v1')) fail('BAD_POLICY_CONFIG');
   } else {
     exactKeys(message.config, []); // Existing frozen workers retain empty init config.
   }
