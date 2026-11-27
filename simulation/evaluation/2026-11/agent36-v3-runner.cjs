@@ -1983,6 +1983,82 @@ function loadWorkerPolicyModule(repositoryRoot,relativePath,role) {
   };
 }
 
+const TWO_PROFILE_POLICY_PATH='simulation/evaluation/2026-11/agent46-two-profile-candidate-policy.cjs';
+const TWO_PROFILE_K1_PATH='simulation/evaluation/2026-11/agent46-owner-prize-facts.cjs';
+const TWO_PROFILE_REGISTRATION=Object.freeze({
+  'hood-shield-shadow-rider-v1':Object.freeze({
+    deckPath:'results/aichi-2026/candidate-hood-shadow-rider.json',
+    blob:'24ace2d6feb9ce5d9056bcf271827cfe31b7357b',
+    sha:'1cc3d2080b40c7a9e0c61297439ba5d1ae34f9211ba9b24fcffffb2786a3e924'}),
+  'lockbridge-shadow-rider-v1':Object.freeze({
+    deckPath:'results/aichi-2026/2026-11/agent31-lockbridge-shadow-rider-v1.json',
+    blob:'32557af137c70010970cde8dc5eaa1105935b59d',
+    sha:'011cb8481b473c8566935d6835fc9a2a5762e4f09349f23c8284ec19b0cac642'})
+});
+// Preparation only: deliberately not invoked by the owner-gated fixture CLI.
+function prepareTwoProfileCandidate({profileId,allCards,repositoryRoot=ROOT,enginePin,runnerRevision}) {
+  assert.ok(Object.hasOwn(TWO_PROFILE_REGISTRATION,profileId),'unknown candidate profile');
+  const registration=TWO_PROFILE_REGISTRATION[profileId];
+  const bytes=fs.readFileSync(path.join(repositoryRoot,registration.deckPath));
+  assert.equal(gitBlobSha(bytes),registration.blob,'exact deck blob differs');
+  const deck=JSON.parse(bytes);
+  assert.equal(printed60Fingerprint(deck),registration.sha,'exact deck fingerprint differs');
+  const resolved=resolvePrintedDeck(deck,allCards,{label:profileId});
+  const config=Object.freeze({schema:'agent46-candidate-profile-v1',profileId,deckSha256:registration.sha});
+  const manifestResult=buildFixtureRoleEntryManifest({repositoryRoot,enginePin,runnerRevision,
+    commonRuntimeBindings:[...V3_FIXTURE_WORKER_COMMON_BINDINGS,
+      {name:'candidatePrizeFacts',path:TWO_PROFILE_K1_PATH,exportName:'createOwnerPrizeFacts'},
+      {name:'candidatePromptFilter',path:'vendor/twinleaf/ptcg-server/output/game/store/prompts/choose-cards-prompt.js',exportName:'matchesPromptFilter'}],
+    orderedPromptChain:V3_FIXTURE_WORKER_PROMPT_CHAIN,
+    additionalDataAssetPaths:[registration.deckPath,TWO_PROFILE_POLICY_PATH]});
+  return Object.freeze({config,resolved,manifestResult,
+    policyVersion:'agent46-two-profile-v1',policyModulePath:TWO_PROFILE_POLICY_PATH,
+    policySha256:createHash('sha256').update(fs.readFileSync(path.join(repositoryRoot,TWO_PROFILE_POLICY_PATH))).digest('hex')});
+}
+// Construct the normal role identity using the selected registered deck and
+// successor options. This is preparation, not fixture/seed authorization.
+function buildTwoProfileCandidateIdentity({prepared,challengeSuiteSha256,policyConstraintsSha256,preparedRuntime}) {
+  return roleIdentity.buildRolePolicyIdentity({
+    entryManifest:prepared.manifestResult.manifest,
+    entryManifestSha256:prepared.manifestResult.entryManifestSha256,
+    policyVersion:prepared.policyVersion,deckSha256:prepared.config.deckSha256,
+    role:'candidate-policy',rank:null,producerId:'agent46-candidate-worker-policy',
+    policyOptions:prepared.config,challengeSuiteSha256,policyConstraintsSha256,
+    runtimePinUnionSha256:preparedRuntime.runtimePinUnionSha256,
+    loadedProcessClosureSha256:preparedRuntime.loadedProcessClosureSha256,
+    cardPoolInitializationSha256:preparedRuntime.cardPoolInitializationSha256
+  });
+}
+function bindTwoProfileCandidate({prepared,candidateIdentity,candidateSeat,native,repositoryRoot=ROOT,
+    onAction=null,provenanceContext={current:null}}) {
+  assert.ok(candidateSeat===0||candidateSeat===1);
+  assert.equal(candidateIdentity.policyDefinition.role,'candidate-policy');
+  assert.equal(candidateIdentity.policyDefinition.deckSha256,prepared.config.deckSha256);
+  assert.equal(candidateIdentity.policyDefinition.policyVersion,prepared.policyVersion);
+  assert.deepEqual(candidateIdentity.policyDefinition.policyOptions,prepared.config);
+  assert.equal(candidateIdentity.policyOptionsSha256,evidenceBundleSha256(prepared.config));
+  assert.equal(candidateIdentity.policyDefinition.entryManifestSha256,
+    prepared.manifestResult.entryManifestSha256);
+  const asset=prepared.manifestResult.manifest.dataAssets.find(row=>row.path===TWO_PROFILE_POLICY_PATH);
+  assert.equal(asset?.sha256,prepared.policySha256,'policy asset not bound to role manifest');
+  const {createOwnerPrizeFacts}=require('./agent46-owner-prize-facts.cjs');
+  const knowledge=createOwnerPrizeFacts({candidateSeat,resolved:prepared.resolved,baseObserve:native.observe,Stage:native.Stage});
+  const {bundle,policySha256}=buildRoleWorkerBundle({repositoryRoot,policyModulePath:prepared.policyModulePath});
+  assert.equal(policySha256,prepared.policySha256);
+  const matchesPromptFilter=require('../../../vendor/twinleaf/ptcg-server/output/game/store/prompts/choose-cards-prompt').matchesPromptFilter;
+  assert.equal(typeof matchesPromptFilter,'function','native prompt filter export absent');
+  const successorNative=Object.freeze({...native,observe:knowledge.observe,candidateSuccessorSeat:candidateSeat,matchesPromptFilter});
+  return Object.freeze({
+    native:successorNative,
+    onStoreCreated(store){const hook=installPromptProvenanceHook(store);knowledge.bindStore(store,hook);
+      provenanceContext.current=hook;return hook;},
+    onAction(record,context){knowledge.onAction(record,context);if(onAction)onAction(record,context);},
+    resolverOptions:Object.freeze({native:successorNative,candidateSeat,opponentSeat:1-candidateSeat,provenanceContext}),
+    sessionOptions:Object.freeze({role:'candidate',seat:candidateSeat,policyVersion:prepared.policyVersion,
+      bundle,policyIdentity:candidateIdentity})
+  });
+}
+
 function buildRoleWorkerBundle({repositoryRoot=ROOT,policyModulePath}={}) {
   const workerFilename=path.resolve(repositoryRoot,V3_FIXTURE.workerPath);
   const protocolFilename=path.resolve(repositoryRoot,V3_FIXTURE.protocolPath);
@@ -4485,6 +4561,9 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,V3_FIXTURE,V3_FIXTURE_TEST_PATHS,p
   printed60Fingerprint,
   resolvePrintedDeck,resolveFixtureSeatAssignment,candidateOpponentRoleSeats,assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,validateV3DiagnosticMode,requireEncryptedFullDiagnosticMode,
   buildFixtureRoleEntryManifest,
+  prepareTwoProfileCandidate,
+  buildTwoProfileCandidateIdentity,
+  bindTwoProfileCandidate,
   fixtureChallengeSuiteSha256,
   loadWorkerPolicyModule,buildRoleWorkerBundle,loadNativeRoleDependencies,V3_FIXTURE,
   assertWorkerOnlyPolicyPathsAbsentFromHostClosure,preloadRoleHostModules,

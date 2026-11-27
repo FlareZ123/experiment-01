@@ -351,13 +351,37 @@ function addCancelChoice(choices, choiceByToken, prompt, state) {
   }, prompt, state);
 }
 
-function projectChooseCards(prompt, state, actorSeat, choices, choiceByToken) {
+function projectChooseCards(prompt, state, actorSeat, choices, choiceByToken, native, source) {
   const cards = cardListCards(prompt.cards);
-  const visibility = cardCollectionVisibility(state, actorSeat, cards);
+  const successor = native?.candidateSuccessorSeat === actorSeat;
+  let visibility;
+  if(successor && source?.sourceKind==='card-effect' &&
+      source.sourcePrinting==='Hisuian Heavy Ball ASR') {
+    // The actual ASR146 reducer constructs a temporary CardList of all own
+    // Prize cards and sets their isSecret flags false before this prompt.
+    // Grant visibility only for this authenticated owner-only look effect.
+    const actor=state.players[actorSeat];
+    const owned=actor.prizes.flatMap(group=>cardListCards(group));
+    assert.ok(prompt.player===actor && owned.length===cards.length &&
+      new Set(cards).size===cards.length && cards.every(card=>owned.includes(card)) &&
+      actor.prizes.every(group=>cardListCards(group).length===0 || group.isSecret===false),
+      'Heavy Ball requires the revealed native owner Prize collection');
+    visibility={sourceZone:'prizes',ownerSeat:'actor',isOwnerVisible:true};
+  } else {
+    visibility=cardCollectionVisibility(state, actorSeat, cards);
+    // Empty native owner collections still permit an optional zero-result search.
+    if(successor && cards.length===0) {
+      const actor=state.players[actorSeat];
+      if(prompt.cards===actor.deck)visibility={sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true};
+      else if(prompt.cards===actor.discard)visibility={sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true};
+      else if(prompt.cards===actor.hand)visibility={sourceZone:'hand',ownerSeat:'actor',isOwnerVisible:true};
+    }
+  }
   const min = Math.max(0, Number.isSafeInteger(prompt.options?.min) ? prompt.options.min : 0);
   const requestedMax = Number.isSafeInteger(prompt.options?.max) ? prompt.options.max : cards.length;
   const blocked = new Set(prompt.options?.blocked ?? []);
-  const indices = cards.map((_, index) => index).filter(index => !blocked.has(index));
+  const indices = cards.map((_, index) => index).filter(index => !blocked.has(index) &&
+    (!successor || native.matchesPromptFilter(cards[index],prompt.filter??{})));
   const max = Math.min(indices.length, requestedMax);
   for (const index of indices) {
     const name = printing(cards[index]) ?? ('Card ' + (index + 1));
@@ -867,7 +891,7 @@ function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook
   switch (type) {
     case 'ChooseCardsPrompt':
     case 'NightWatchPrompt':
-      publicMetadata = projectChooseCards(prompt, state, actorSeat, choices, choiceByToken);
+      publicMetadata = projectChooseCards(prompt, state, actorSeat, choices, choiceByToken, native, source);
       break;
     case 'ChoosePokemonPrompt':
       publicMetadata = projectChoosePokemon(prompt, state, actorSeat, native, choices, choiceByToken);

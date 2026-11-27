@@ -1,0 +1,84 @@
+'use strict';
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {createOwnerPrizeFacts}=require('../../simulation/evaluation/2026-11/agent46-owner-prize-facts.cjs');
+const R='Radiant Eternatus CRZ',HB='Hisuian Heavy Ball ASR',FOG='Fog Crystal CRE',P='Psychic Energy SVE';
+class ChooseCardsPrompt{constructor(playerId,cards,id){Object.assign(this,{playerId,cards,id});}}
+function fixture(seat) {
+  const rows=[{name:'Radiant Eternatus',engineFullName:R,count:1},{name:'Hisuian Heavy Ball',engineFullName:HB,count:1},{name:'Fog Crystal',engineFullName:FOG,count:4},{name:'Psychic Energy',engineFullName:P,count:54}];
+  const fullNames=rows.flatMap(r=>Array(r.count).fill(r.engineFullName));
+  const prizes=Array.from({length:6},()=>({cards:new Proxy([{}],{get(t,p){if(p==='length')return 1;throw Error('hidden prize content accessed');}})}));
+  const owner={id:'owner',deck:{cards:[...Array(49).fill(P),...Array(3).fill(FOG)].map(fullName=>({fullName}))},prizes};
+  const other={id:'other',get deck(){throw Error('opponent deck accessed')},get prizes(){throw Error('opponent prizes accessed')}};
+  const state={turn:3,players:seat===0?[owner,other]:[other,owner],prompts:[]};
+  const store={state};
+  const sources=new WeakMap();
+  const hook={getPromptProvenance:p=>sources.get(p)};
+  const baseObserve=(s,a)=>({actorSeat:a,globalTurn:s.turn,
+    decisionKind:s.prompts.some(p=>p.result===undefined)?'owner-prompt':'owner-root',
+    pendingOwnerDeckSearch:s.prompts.some(p=>p.cards===owner.deck&&p.result===undefined),
+    ownHand:[HB],ownPublic:{prizeCount:owner.prizes.length,active:null,bench:[],
+      stadium:[],discard:[FOG],lostZone:[],resolvingSupporter:[]},ownerK1:null});
+  const adapter=createOwnerPrizeFacts({candidateSeat:seat,resolved:{fullNames,resolvedRows:rows},baseObserve});
+  adapter.bindStore(store,hook);
+  function search(source=FOG,actualOwner=true,id='s1') {
+    const p=new ChooseCardsPrompt(owner.id,actualOwner?owner.deck:{cards:[]},id);
+    state.prompts=[p];sources.set(p,{sourceKind:'card-effect',sourceCard:{fullName:source}});return p;
+  }
+  function after(p,ordinal,source=FOG,actorSeat=seat) {
+    state.prompts=[];
+    adapter.onAction({dispatchStatus:'succeeded',actionOrdinal:ordinal,actingSeat:actorSeat,
+      actionName:p?'ResolvePromptAction':'PlayCardAction',selectedCardIdentity:{fullName:source}},
+      {store,state,pendingPrompt:p});
+  }
+  return {state,owner,adapter,search,after};
+}
+test('owner-only K1 capture exposes all-copy targets but no full Prize multiset',()=>{
+  for(const seat of [0,1]){
+    const f=fixture(seat);
+    assert.equal(f.adapter.observe(f.state,seat).ownerK1,null);
+    f.search(FOG,false);
+    assert.equal(f.adapter.observe(f.state,seat).ownerK1,null);
+    const p=f.search();
+    let v=f.adapter.observe(f.state,seat);
+    assert.deepEqual(v.ownerK1.prizeFacts.fullyPrized,[{cardName:'Radiant Eternatus',printing:R,copies:1}]);
+    assert.equal(v.ownerK1.knownPrintings,null);
+    assert.equal(f.adapter.observe(f.state,1-seat).ownerK1,null);
+    assert.throws(()=>f.adapter.observe({...f.state},seat));
+    f.after(p,1);
+    v=f.adapter.observe(f.state,seat);
+    assert.equal(v.ownerK1.epoch,2);
+    assert.equal(v.ownerK1.prizeFacts.fullyPrized[0].cardName,'Radiant Eternatus');
+    f.after(null,2,HB);
+    assert.equal(f.adapter.observe(f.state,seat).ownerK1,null);
+  }
+});
+test('unknown/other-seat effects and incomplete accounting cannot certify prizes',()=>{
+  for(const seat of [0,1]){
+    const f=fixture(seat);
+    const p=f.search();
+    assert.ok(f.adapter.observe(f.state,seat).ownerK1);
+    f.after(p,1);
+    f.after(null,2,FOG,1-seat);
+    assert.equal(f.adapter.observe(f.state,seat).ownerK1,null);
+    f.owner.deck.cards.pop();
+    f.search(FOG,true,'s2');
+    assert.equal(f.adapter.observe(f.state,seat).ownerK1,null);
+  }
+});
+
+test('duplicate prompt identity does not recapture and a failed search cannot reset the epoch',()=>{
+  for(const seat of [0,1]){
+    const f=fixture(seat);const p=f.search();
+    const first=f.adapter.observe(f.state,seat).ownerK1.epoch;
+    f.search();
+    assert.equal(f.adapter.observe(f.state,seat).ownerK1.epoch,first);
+    f.after(p,1);
+    f.owner.deck.cards.push({fullName:HB});
+    f.search(FOG,true,'bad');
+    assert.equal(f.adapter.observe(f.state,seat).ownerK1,null);
+    f.owner.deck.cards.pop();
+    f.search(FOG,true,'fresh');
+    assert.ok(f.adapter.observe(f.state,seat).ownerK1.epoch>first+1);
+  }
+});
