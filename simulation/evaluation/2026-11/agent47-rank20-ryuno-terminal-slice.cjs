@@ -16,6 +16,8 @@ const VSTAR = /^Regidrago VSTAR SIT 136\b/i;
 const DRAGONITE = /^Mega Dragonite ex ASC 152\b/i;
 const SHADOW_VMAX = /^Shadow Rider Calyrex VMAX CRE 75\b/i;
 const BASIC_ENERGY = /^(?:Grass Energy MEE 9|Fire Energy MEE 10)\b/i;
+const DDE = /^Double Dragon Energy ROS 97\b/i;
+const TEMPLE = /^Temple of Sinnoh\b/i;
 const SAFE_STADIUM = /^(?:Path to the Peak|Parallel City|Sky Field|Dimension Valley|Temple of Sinnoh)\b/i;
 
 function arr(x) { return Array.isArray(x) ? x : []; }
@@ -46,6 +48,13 @@ function safeStadiums(obs) {
   }
   return true;
 }
+function templeActive(obs) {
+  return [obs.ownPublic,obs.opponentPublic].some(p=>arr(p?.stadium).some(s=>TEMPLE.test(printing(s))));
+}
+function payableForApex(energies,obs) {
+  return activeBasicCostPayable(energies) ||
+    (!templeActive(obs) && arr(energies).some(e=>DDE.test(printing(e))) && arr(energies).length>=2);
+}
 function canTerminalRyuno(request) {
   const obs = request?.observation;
   if (!localActor(request) || !obs?.ownPublic || !obs?.opponentPublic) return false;
@@ -57,10 +66,10 @@ function canTerminalRyuno(request) {
   if (!Array.isArray(active.energies) || !Array.isArray(active.tools) ||
       active.tools.length !== 0 || !Array.isArray(active.specialConditions) ||
       active.specialConditions.length !== 0) return false;
-  // Two distinct ordinary Basic Energy cards provide a conservative payment
-  // path. A single multi-unit Double Dragon Energy MAY be valid under paper
-  // rules but its native payment behavior is not certified here.
-  if (active.energies.filter(e => BASIC_ENERGY.test(printing(e))).length < 2) return false;
+  // Native Store evidence (Agent12, 2026-11-03) established that one
+  // attached Double Dragon + one Grass pays Apex, then that one Double
+  // Dragon pays both required Ryuno-discard units. Temple suppresses DDE.
+  if (!payableForApex(active.energies,obs)) return false;
   if (!Array.isArray(active.publicRestrictions?.cannotUseAttacksNextTurn) ||
       active.publicRestrictions.cannotUseAttacksNextTurn.length !== 0 ||
       active.publicRestrictions.cannotAttackNextTurn !== false) return false;
@@ -81,7 +90,7 @@ function apexRootDecision(request) {
     typeof c.token === 'string' && c.token.length > 0 &&
     meta(c).attackCostPayable !== false &&
     (meta(c).attackCostPayable === true ||
-      activeBasicCostPayable(request.observation.ownPublic.active.energies)) &&
+      payableForApex(request.observation.ownPublic.active.energies, request.observation)) &&
     meta(c).hasPrevention !== true &&
     meta(c).hasUnmodeledModifier !== true &&
     !(Number(meta(c).damagePrevented) > 0) && !(Number(meta(c).damageReduced) > 0) &&
@@ -106,17 +115,34 @@ function apexCopyChoiceDecision(request) {
 function paymentDecision(request) {
   if (!canTerminalRyuno(request) || request?.prompt?.promptType !== 'ChooseEnergyPrompt') return null;
   const prompt = request.prompt, m = meta(prompt);
-  if (m.selectionType !== 'energy-payment' ||
-      !/Ryuno Glide/i.test([prompt?.source?.sourceAttack, prompt?.source?.effectName, prompt?.description, m.sourceAttack, m.sourceEffect].filter(Boolean).join(' ')) ||
-      m.minimumCount !== 2 || m.maximumCount !== 2) return null;
-  const available = arr(prompt.choices).filter(c =>
-    c && (c.kind === 'card' || c.kind === 'energy') &&
-    BASIC_ENERGY.test(printing(c)) && meta(c).ownerSeat === 'actor' &&
-    meta(c).sourceZone === 'active' && meta(c).eligible !== false &&
-    typeof c.token === 'string' && c.token.length > 0);
-  const unique = [...new Map(available.map(c => [c.token,c])).values()];
-  if (unique.length < 2) return null;
-  return { kind: 'select-choices', tokens: unique.slice(0, 2).map(c => c.token) };
+  const source = prompt?.source ?? {};
+  const copiedRyuno = /Ryuno Glide/i.test([
+    source.effectName,source.copiedAttackName,source.sourceAttack,
+    prompt.description,m.sourceAttack,m.sourceEffect
+  ].filter(Boolean).join(' '));
+  // V3 multiSelectBounds uses minimum=1 and maximum=energyCount: it
+  // counts selectable card tokens, not the effect's required Energy units.
+  // The pinned native Store has accepted one attached Double Dragon card
+  // as both units of this exact copied attack's discard.
+  const units = m.energyCount ?? m.count;
+  if (m.selectionType !== 'energy-payment' || !copiedRyuno ||
+      !Number.isSafeInteger(units) || units < 1 ||
+      m.allowCancel !== false) return null;
+  const choices = arr(prompt.choices).filter(c =>
+    c?.kind === 'energy' && (BASIC_ENERGY.test(printing(c)) || DDE.test(printing(c))) &&
+    (meta(c).ownerSeat === undefined || meta(c).ownerSeat === 'actor') &&
+    (meta(c).sourceZone === undefined || meta(c).sourceZone === 'active') &&
+    meta(c).eligible !== false && typeof c.token === 'string' && c.token.length > 0);
+  const unique = [...new Map(choices.map(c => [c.token,c])).values()];
+  const basic = unique.filter(c => BASIC_ENERGY.test(printing(c)));
+  if (basic.length >= 2 && units >= 2) {
+    return {kind:'select-choices',tokens:basic.slice(0,2).map(c => c.token)};
+  }
+  if (!templeActive(request.observation)) {
+    const dde = unique.find(c => DDE.test(printing(c)));
+    if (dde) return {kind:'select-choices',tokens:[dde.token]};
+  }
+  return null;
 }
 function decideRank20RyunoSlice(request) {
   if (!localActor(request)) return null;
