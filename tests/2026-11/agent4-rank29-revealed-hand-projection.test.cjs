@@ -16,11 +16,28 @@ class ChooseCardsPrompt {
     this.options={min:0,max:2,allowCancel:false};
   }
   getPerspectivePlayerId(){return this.playerId;}
+  validate(selected) {
+    if(!Array.isArray(selected)||selected.length>2)return false;
+    const source=this.sourceCard.fullName;
+    return selected.every(card=>{
+      const n=card.fullName;
+      if(source==='Eri TEF')
+        return /Fog Crystal|Unfair Stamp|VS Seeker/i.test(n);
+      if(source==='Sidney FST 241')
+        return /Double Colorless|Float Stone|Sky Field/i.test(n);
+      if(source==='Team Skull Grunt SUM')
+        return /Psychic Energy|Double Colorless/i.test(n);
+      return false;
+    });
+  }
 }
 
-function makeFixture({seat=0,source='Eri TEF',opponentItems=[
-  'Fog Crystal CRE 140','Unfair Stamp TWM 165',
-  'Iono PAL 185']}={}){
+function makeFixture({seat=0,source='Eri TEF',opponentItems}={}){
+  opponentItems ??= source==='Sidney FST 241'?
+    ['Float Stone BKT 137','Double Colorless Energy SUM 136','Iono PAL 185']:
+    source==='Team Skull Grunt SUM'?
+    ['Psychic Energy SVE 5','Double Colorless Energy SUM 136','Iono PAL 185']:
+    ['Fog Crystal CRE 140','Unfair Stamp TWM 165','Iono PAL 185'];
   const players=[
     {id:10,hand:{cards:[]},supporter:{cards:[]}},
     {id:20,hand:{cards:[]},supporter:{cards:[]}}
@@ -44,12 +61,27 @@ function makeFixture({seat=0,source='Eri TEF',opponentItems=[
 function fakeProject(args){
   const hand=args.state.players[1-args.actorSeat].hand;
   if(hand.isPublic!==true)throw Error('PROMPT_CHOICE_NOT_ACTOR_VISIBLE');
-  return {source:{classification:'actor-choice',sourceKind:'card-effect'},
-    choices:hand.cards.map((card,i)=>({
-      token:'opponent-'+i,kind:'card',printing:card.fullName,
-      publicMetadata:{ownerSeat:'opponent',sourceZone:'hand',
-        isOwnerVisible:true,selectionIndex:i,selectedCount:1}
-    }))};
+  const cards=hand.cards.map((card,i)=>({
+    token:'opponent-'+i,kind:'card',printing:card.fullName,
+    publicMetadata:{ownerSeat:'opponent',sourceZone:'hand',
+      isOwnerVisible:true,selectionIndex:i,selectedCount:1}
+  }));
+  const empty={token:'empty',kind:'empty-selection',label:'Choose no cards'};
+  return {
+    promptProjection:{
+      promptType:'ChooseCardsPrompt',
+      source:{classification:'actor-choice',sourceKind:'card-effect',
+        sourcePrinting:args.prompt.sourceCard.fullName,
+        effectName:'Eri'},
+      publicMetadata:{
+        selectionType:'card-combination',ownerSeat:'opponent',sourceZone:'hand',
+        isOwnerVisible:true,isSecret:false,allowCancel:false,
+        minimumCount:0,maximumCount:2},
+      choices:[...cards,empty]
+    },
+    choiceByToken:new Map([...cards,empty].map(c=>[c.token,c.token])),
+    diagnostics:{promptType:'ChooseCardsPrompt',choiceCount:cards.length+1}
+  };
 }
 function stubReject(args){
   const h=args.state.players[1-args.actorSeat].hand;
@@ -68,8 +100,10 @@ test('only known source card owners can access reveal effect',()=>{
     const result=projectRank29RevealedHandPrompt({
       ...args,baseProjectPrompt:fakeProject
     });
-    assert.equal(result.choices.length,3);
-    assert.equal(result.choices[0].publicMetadata.ownerSeat,'opponent');
+    assert.equal(result.promptProjection.choices.length,3);
+    assert.equal(result.promptProjection.choices[0].publicMetadata.ownerSeat,'opponent');
+    assert.equal(result.promptProjection.publicMetadata.maximumCount,2);
+    assert.equal(result.choiceByToken.size,3);
     assert.equal(result.rank29RevealedHandEvidence.liveHandWasNotMutated,true);
     assert.deepEqual(args.state,before);
   }
