@@ -175,7 +175,7 @@ test('native ChooseEnergyPrompt uses energyCount and retains DDE if two Basics a
     {token:'f',kind:'energy',printing:'Fire Energy MEE 10'}
   ];
   const p=prompt(P.dragonite,'Ryuno Glide',options,'ChooseEnergyPrompt',[1,2]);
-  p.publicMetadata={selectionType:'energy-payment',energyCount:3,count:3};
+  p.publicMetadata={selectionType:'energy-payment',energyCount:3,count:3,allowCancel:false};
   assert.deepEqual(promptDecision(request({prompt:p})),
     {kind:'select-choices',tokens:['g','f']});
   p.choices=[options[0]];
@@ -292,7 +292,7 @@ test('production V3 validates a copied Ryuno ChooseEnergyPrompt selection',()=>{
     {token:'g',kind:'energy',printing:P.energy},
     {token:'f',kind:'energy',printing:'Fire Energy MEE 10'}],
     'ChooseEnergyPrompt');
-  p.publicMetadata={selectionType:'energy-payment',energyCount:3,count:3};
+  p.publicMetadata={selectionType:'energy-payment',energyCount:3,count:3,allowCancel:false};
   const req=request({prompt:p});
   const policy=createPolicy({role:'opponent',seat:0,policyVersion:POLICY_VERSION,
     config:{},rng:()=>0.5});
