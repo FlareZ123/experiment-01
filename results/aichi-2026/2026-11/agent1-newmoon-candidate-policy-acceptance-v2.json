@@ -13,8 +13,8 @@
     "note": "Agent13 v1 already integrates Agent1's Raichu/Electrode delta. V2 adds uncovered rank2/rank5/rank9/rank19/rank30/rank31 families without changing the fixed 60."
   },
   "status": "actor-visible paper acceptance consolidation; no policy implementation, native game, competitive qualification, or win-rate claim",
-  "addedCaseCount": 71,
-  "totalCaseCount": 110,
+  "addedCaseCount": 76,
+  "totalCaseCount": 115,
   "addedCases": [
     {
       "id": "R2-DUAL-LOCK-RONDO",
@@ -698,6 +698,48 @@
       "state": "Reconstitute is available but its only two discard candidates are protected continuation resources and the draw is not guaranteed to repair the line.",
       "must": "Reject discard-2/draw-1 smoothing unless intentionally abandoning the continuation.",
       "forbids": "Treating Reconstitute as generic positive draw regardless of payment."
+    },
+    {
+      "id": "SUPPORTER-ACE-NIGHTWATCH",
+      "family": "Supporter contention",
+      "sourceRanks": [],
+      "state": "Ace Trainer is legal after settled Prize transitions; Night Watch is payable after the Supporter; no immediate win dominates.",
+      "must": "Credit Ace reducing opponent to 3 followed by Night Watch shuffling 2 random cards as a distinct one-card-hand control line.",
+      "forbids": "Scoring Ace only as candidate draw six."
+    },
+    {
+      "id": "SUPPORTER-LILLIE-EIGHT",
+      "family": "Supporter contention",
+      "sourceRanks": [],
+      "state": "Candidate has exactly six Prize cards remaining and Lillie's Determination is legal.",
+      "must": "Use the draw-8 mode in the continuation comparison and remove that mode after candidate takes a Prize.",
+      "forbids": "Treating Lillie's Determination as fixed draw six in all states."
+    },
+    {
+      "id": "SUPPORTER-KEEP-WINNING-HAND",
+      "family": "Supporter contention",
+      "sourceRanks": [],
+      "state": "A draw Supporter is legal but the current hand already contains a deterministic winning continuation.",
+      "must": "Preserve the winning hand and execute the line unless the Supporter creates an even higher-priority win/survival result.",
+      "forbids": "Playing a shuffle-draw Supporter solely for nominal card count."
+    },
+    {
+      "id": "SUPPORTER-STOUTLAND-WINDOW",
+      "family": "rank2 Vileplume Control",
+      "sourceRanks": [
+        2
+      ],
+      "state": "Candidate has a meaningful Supporter action now and actor-visible board development makes Active Stoutland Sentinel likely on the opponent's next turn.",
+      "must": "Price the current turn as a disappearing Supporter window before passing or spending the turn on lower-value actions.",
+      "forbids": "Assuming the Supporter can simply be played next turn after Stoutland promotes."
+    },
+    {
+      "id": "BOX-SUPPORTER-SPENT",
+      "family": "Secret Box / Supporter contention",
+      "sourceRanks": [],
+      "state": "Candidate has already played a Supporter this turn and Secret Box is being evaluated.",
+      "must": "Treat the Box Supporter category as unplayable this turn and value only categories/continuations that remain live.",
+      "forbids": "Counting a fetched Supporter as same-turn value after the Supporter quota is spent."
     }
   ],
   "authenticatedFamilyCoverage": {
@@ -756,7 +798,8 @@
     "Before passing into Bench-punishment, compress/harden existing liabilities: Farewell unneeded Unown when legal and evolve Duskull when the HP/Stage change alters opponent reply thresholds.",
     "Attack effects persist only while their target remains in the relevant state: explicitly score retreat/switch/evolution before treating copied Techno Blast, Eon Blade or Pale Moon as future-turn guarantees.",
     "At K1, exact Prize knowledge must recompute continuation viability and DCI; do not preserve singleton/pair pieces for lines whose prerequisite is Prized or discard the only surviving redundancy.",
-    "Discard-paying connectors are continuation transactions, not raw access: select the line first, classify payments dynamically, then compare the whole post-payment continuation against not using the connector."
+    "Discard-paying connectors are continuation transactions, not raw access: select the line first, classify payments dynamically, then compare the whole post-payment continuation against not using the connector.",
+    "Supporter value is continuation-specific: settle Prize legality first, preserve deterministic hands, exploit disappearing Supporter windows, and score Ace Trainer's opponent reset together with Night Watch rather than as draw volume."
   ],
   "implementationGate": {
     "required": [
@@ -780,7 +823,8 @@
     "results/strategy/2026-11/agent1-bench-compression-hardening-policy-v1.md",
     "results/strategy/2026-11/agent1-attack-effect-mobility-policy-v1.md",
     "results/strategy/2026-11/agent1-k1-continuation-viability-dci-v1.md",
-    "results/strategy/2026-11/agent1-newmoon-discard-connector-policy-v1.md"
+    "results/strategy/2026-11/agent1-newmoon-discard-connector-policy-v1.md",
+    "results/strategy/2026-11/agent1-newmoon-supporter-contention-policy-v1.md"
   ],
   "competitiveQualified": false,
   "claim99Point5": false
