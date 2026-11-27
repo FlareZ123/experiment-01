@@ -36,7 +36,7 @@ function deficit(s,remove,temple){
   if(SANDY.test(n))return Math.max(0,2-f,3-e.length);
   return null;
 }
-function score(o,remove,temple){
+function score(o,remove,temple,policy={}){
   let readyLoss=0,deficitIncrease=0,activeLoss=0;
   for(const s of slots(o)){
     const a=deficit(s,new Set(),temple),b=deficit(s,remove,temple);
@@ -46,23 +46,81 @@ function score(o,remove,temple){
     deficitIncrease+=weight*Math.max(0,b-a);
     if(s.zone==='active')activeLoss+=Math.max(0,b-a);
   }
-  return [readyLoss,deficitIncrease,activeLoss];
+  // The source has exactly three Darkness Basics. Two exposed Darkness\n  // in discard can be permanently removed by Girafarig's Get Lost. Do\n  // not create this loss-of-attacker condition to save an ordinary donor.\n  const lost=(o.lostZone??[]).filter(x=>basic(x)==='Darkness').length;\n  const exposed=(o.discard??[]).filter(x=>basic(x)==='Darkness').length;\n  const darkDonors=(inventory(o)??[]).filter(x=>remove.has(x.key)&&x.type==='Darkness').length;\n  const risk=policy.girafarigThreat&&lost<2&&lost+exposed<2&&lost+exposed+darkDonors>=2?1:0;\n  return [risk,readyLoss,deficitIncrease,activeLoss];
 }
 const less=(a,b)=>a.some((x,i)=>x<b[i]&&a.slice(0,i).every((y,j)=>y===b[j]));
-function plan(o,target,temple){
+function plan(o,target,temple,policy={}){
   if(!BOLT.test(name(o?.active)))return null;
   const all=inventory(o),n=knockoutCost(target);
   if(!all||!n||n>all.length||typeof temple!=='boolean')return null;
   let best=null;
   function visit(start,chosen){
     if(chosen.length===n){
-      const rank=score(o,new Set(chosen.map(x=>x.key)),temple);
+      const rank=score(o,new Set(chosen.map(x=>x.key)),temple,policy);
       if(!best||less(rank,best.rank))best={donors:chosen.slice(),rank,minimumCards:n,damage:70*n};
       return;
     }
     for(let i=start;i<=all.length-(n-chosen.length);i++)visit(i+1,[...chosen,all[i]]);
   }
   visit(0,[]);return best;
+}
+function threatPolicy(observation){
+ const foe=observation?.opponentPublic;
+ // Both fixed candidates carry one Girafarig. Public evidence of its
+ // permanent loss is sufficient to remove the denial penalty. If it is
+ // in discard, recovery is still possible. Do not inspect hidden zones.
+ const gira=x=>/^Girafarig LOT(?: 94)?$/.test(name(x));
+ return {girafarigThreat:!!foe&&!(foe.lostZone??[]).some(gira)};
+}
+function reserveDamage(o,target,temple,remove){
+ let max=0;
+ for(const s of slots(o).filter(s=>s.zone==='bench')){
+  const p=s.pokemon,n=name(p),e=p.energies.filter((x,i)=>!remove.has(key(s,i)));
+  const l=e.filter(x=>basic(x)==='Lightning').length,f=e.filter(x=>basic(x)==='Fighting').length,d=e.filter(x=>basic(x)==='Darkness').length;
+  const b=l+f+d, t=targets.target(target);
+  if(!t||!Number.isFinite(p.hp)||!Number.isFinite(p.damage)||p.hp<=p.damage||p.publicRestrictions?.cannotAttackNextTurn===true)continue;
+  if(MOL.test(n)&&d>=2&&b>=3&&p.hp-p.damage>30)max=Math.max(max,t.darkWeak?380:190);
+  if(SANDY.test(n)&&f>=2&&b>=3){
+   const tn=name(target),res=/^Shadow Rider Calyrex V(?:MAX)? CRE|^Latias ex SSP/.test(tn)?30:/^Trevenant & Dusknoir-GX SMP|^Marshadow UNB/.test(tn)?20:0;
+   max=Math.max(max,200-res);
+  }
+  if(/^Ho-Oh-? ?EX DRX(?: 22)?$/.test(n)&&b>=3)max=Math.max(max,20+20*[l,f,d].filter(x=>x>0).length);
+  if(/^Tapu Lele-GX GRI(?: 60)?$/.test(n)&&b>=2&&Array.isArray(target.energies)&&target.energies.every(x=>/^(?:Basic )?Psychic Energy(?: [A-Z0-9]+(?: \d+)?)?$/.test(name(x))))max=Math.max(max,20*(b+target.energies.length));
+ }
+ return max;
+}
+// Nonlethal pressure is explicitly different from a certified knockout.
+// Preserve a funded second attacker and spend just enough to put the
+// current target in its range. If that is impossible, only consider
+// pressure of at least 140 damage without breaking a ready reserve.
+function planPressure(o,target,temple,policy={}){
+ if(!BOLT.test(name(o?.active)))return null;
+ const all=inventory(o),t=targets.target(target);
+ if(!all||!all.length||!t||typeof temple!=='boolean'||all.length*70>=t.remaining)return null;
+ let best=null;
+ function visit(start,chosen){
+  if(chosen.length){
+   const remove=new Set(chosen.map(x=>x.key)),damage=70*chosen.length,rank=score(o,remove,temple,policy);
+   const followup=reserveDamage(o,target,temple,remove);
+   const setup=damage+followup>=t.remaining&&followup>0;
+   if(setup||damage>=140&&rank[1]===0){
+    // Any threatened permanent loss is worse than a clean two-hit
+    // setup. Prefer a two-hit setup over speculative chip, then reserve
+    // readiness and fewer cards for an achieved damage threshold.
+    const order=[rank[0],setup?0:1,rank[1],rank[2],setup?chosen.length:-damage,rank[3]];
+    if(!best||less(order,best.order))best={mode:'pressure',donors:chosen.slice(),damage,minimumCards:chosen.length,followupDamage:followup,setup,rank,order};
+   }
+  }
+  for(let i=start;i<all.length;i++)visit(i+1,[...chosen,all[i]]);
+ }
+ visit(0,[]);return best;
+}
+function pressureRoot(r,capability){
+ if(capability!=='rank19-bellowing-discard-v1'||r?.role!=='opponent'||r.observation?.actorSeat!==r.seat)return null;
+ const o=r.observation,attack=r.actionFrontier?.items?.find(x=>x.kind==='attack'&&x.attackName==='Bellowing Thunder'&&BOLT.test(name(x.actorPrinting))&&x.publicMetadata?.attackCostPayable===true);
+ if(!attack||o.globalTurn<=3&&(o.ownHand??[]).length<=2)return null;
+ const p=planPressure(o.ownPublic,o.opponentPublic?.active,templeMayApply(o),threatPolicy(o));
+ return p?{kind:'select-action',token:attack.token}:null;
 }
 function templeMayApply(o){
   const a=o?.ownPublic?.stadium,b=o?.opponentPublic?.stadium;
@@ -72,7 +130,7 @@ function root(request,capability){
   if(capability!=='rank19-bellowing-discard-v1'||request?.role!=='opponent'||request.observation?.actorSeat!==request.seat)return null;
   const o=request.observation, a=request.actionFrontier?.items?.find(x=>x.kind==='attack'&&x.attackName==='Bellowing Thunder'&&BOLT.test(name(x.actorPrinting))&&x.publicMetadata?.attackCostPayable===true);
   if(!a)return null;
-  const p=plan(o.ownPublic,o.opponentPublic?.active,templeMayApply(o));
+  const p=plan(o.ownPublic,o.opponentPublic?.active,templeMayApply(o),threatPolicy(o));
   return p?{kind:'select-action',token:a.token}:null;
 }
 function decideDiscard(request){
@@ -92,8 +150,8 @@ function decideDiscard(request){
     choices.set(k,c.token);
   }
   if(!empty||choices.size!==inv.length)return null;
-  const best=plan(o.ownPublic,o.opponentPublic?.active,templeMayApply(o));
-  // If the originally certified attack is no longer lethal, don't sacrifice energy blindly.
+  const best=plan(o.ownPublic,o.opponentPublic?.active,templeMayApply(o),threatPolicy(o))??planPressure(o.ownPublic,o.opponentPublic?.active,templeMayApply(o),threatPolicy(o));
+  // Nonlethal attack is separately justified by a pressure plan, otherwise no payment.
   return best?{kind:'select-choices',tokens:best.donors.map(e=>choices.get(e.key))}:{kind:'select-choice',token:empty.token};
 }
 // Host-only construction. Must be called from a reviewed, source-authenticated
@@ -137,4 +195,4 @@ function project({pin,native,state,prompt,actorSeat,source}){
     try {return prompt.validate(prompt.decode(result,state))?result:null;}catch{return null;}
   }};
 }
-module.exports={PIN,inventory,knockoutCost,plan,root,decideDiscard,project,deficit,templeMayApply,basic};
+module.exports={planPressure,pressureRoot,threatPolicy,PIN,inventory,knockoutCost,plan,root,decideDiscard,project,deficit,templeMayApply,basic};
