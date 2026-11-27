@@ -82,3 +82,23 @@ test('Exact candidate singleton Trevenant survives Fighting resistance only, not
 test('Iron Thorns requires actual Debut restoration, not a discarded Cologne',()=>{
  const o=funded();o.opponentPublic.active=card('Iron Thorns ex TWM',0,230,{abilities:['Initialization']});o.ownPublic.active.abilitySuppressions=[{abilityName:'Debut Performance',suppressed:true}];o.ownPublic.discard=['Canceling Cologne ASR'];assert.equal(A.terminalReady(o),null);o.ownHand.push('Canceling Cologne ASR');const d=policy().decide(req(o,rootRows(o)));assert.equal(d.token,'h3');
 });
+
+test('Acquisition: exact actor-visible inventory and capped hypergeometric expectation',()=>{
+ const o=funded();o.ownPublic.deckCount=42;
+ const inv=A.acquisitionInventory(o);assert.ok(inv);assert.equal(inv.status,'K0');assert.equal(inv.size,48);assert.equal(inv.pool.DP,1);assert.equal(inv.pool.M,0);assert.equal(inv.pool.DCE,0);
+ assert.ok(Math.abs(A.expectedUseful(4,2,2,1)-5/6)<1e-12);
+ assert.ok(Math.abs(A.expectedUseful(4,2,2,2)-1)<1e-12);
+ assert.equal(A.expectedUseful(4,2,0,1),0);
+});
+test('Acquisition: inconsistent physical count or unknown card fails closed',()=>{
+ const o=funded();o.ownPublic.deckCount=42;assert.ok(A.acquisitionInventory(o));o.ownHand.push('Unknown');assert.equal(A.acquisitionInventory(o),null);
+ const p=funded();p.ownPublic.deckCount=42;p.ownHand.push('Meloetta ex BLK');assert.equal(A.acquisitionInventory(p),null);
+});
+test('Acquisition: last DCE cannot be discarded for speculative draw',()=>{
+ const o=funded();o.ownPublic.deckCount=42;o.ownPublic.active.energies=['Lightning Energy'];o.ownHand.push('Double Colorless Energy SUM');
+ assert.equal(A.resetValue(o,o.ownHand,6),-Infinity);
+});
+test('Acquisition: incoherent exact-membership claim falls back to K0',()=>{
+ const o=funded();o.ownPublic.deckCount=42;o.ownerK1={exactMembershipKnown:true,knownPrintings:[{printing:'Meloetta ex BLK',copies:1}]};
+ assert.equal(A.acquisitionInventory(o).status,'K0');
+});
