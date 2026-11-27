@@ -456,3 +456,44 @@ console.log('passed '+(function cologneDraw(P,protocol){
  o=obs();o.ownPublic.active.energies=[Dark,Pr,Pr];o.ownPublic.prizeCount=1;const atk={kind:'attack',token:'claw',actorPrinting:M,attackName:'Claw of Darkness',publicMetadata:{attackCostPayable:true}};a(decide(o,[col,den,atk,pass]).token==='claw','immediate win precedes setup');
  return n;
 })(P,protocol)+' Cologne Dedechange assertions');
+
+(function nativePrintingCompatibility(P){
+  // Actual pinned a9905a76 card.fullName strings (source card class values),
+  // not the numbered names in original Aichi registration files.
+  const aliases=[
+    ['Mega Absol ex M1L','Mega Absol ex MEG 86'],
+    ['Electrode-GX CES','Electrode-GX CES 48'],
+    ['Guzma BUS','Guzma BUS 115'],
+    ['Sableye V SSH','Sableye V SSH 120'],
+    ['Prism Energy ASC','Prism Energy ASC 216'],
+    ['Shadow Rider Calyrex V CRE','Shadow Rider Calyrex V CRE 74'],
+    ['Ultra Ball MEG','Ultra Ball MEG 131']
+  ];
+  for(const [native,original] of aliases){
+    if(P.originalPrinting(native)!==original)throw Error('pinned fullName bridge failed for '+native);
+    if(P.originalPrinting(original)!==original)throw Error('original source identity changed for '+original);
+  }
+  if(P.originalPrinting('Opponent undisclosed card FAK')!=='Opponent undisclosed card FAK')
+    throw Error('unlisted identity must never be rewritten');
+  const p=(printing,hp=280,energies=[],damage=0)=>({
+    printing,hp,damage,energies,tools:[],printed:{
+      stage:'Basic',subtypes:['Basic'],weakness:[],resistance:[]
+    },specialConditions:[],publicRestrictions:{},abilityDetails:[]
+  });
+  const own={
+    active:p('Mega Absol ex M1L'),
+    bench:[p('Electrode-GX CES',190),p('Sableye V SSH',190)],
+    discard:['Prism Energy ASC','Prism Energy ASC','Prism Energy ASC'],
+    prizeCount:3,stadium:[],publicTurnRestrictions:{}
+  };
+  own.bench[0].printed.stage='Stage 1';
+  const target=p('Shadow Rider Calyrex VMAX CRE 75',320);
+  target.printed.weakness=[{type:'Darkness',value:'×2'}];
+  const view={actorSeat:0,globalTurn:5,ownPublic:own,
+    opponentPublic:{active:target,bench:[],prizeCount:3,stadium:[]},
+    ownHand:[],ownTurnResources:{supporterPlayedTurn:0,retreatedTurn:0}};
+  const nativePlan=P.bombPlanner(view,0);
+  if(!nativePlan||nativePlan.required!==3||nativePlan.assignments.length!==3||
+     !nativePlan.immediateWin)throw Error('pinned native names suppressed a supported terminal Bomb plan');
+  console.log('passed native fullName compatibility cases');
+})(P);
