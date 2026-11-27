@@ -270,6 +270,9 @@ function chooseRank32Apex(choices, observation) {
   const hp = Number(target?.hp) - Number(target?.damage ?? 0);
   const energyCards = list(observation?.ownPublic?.active?.energies).length;
   const ownPrizes = Number(observation?.ownPublic?.prizeCount ?? 6);
+  const rollingChoice = list(choices).find(c=>
+    (c?.publicMetadata?.sourceAttack??c?.attackName??c?.label)==='Rolling Iron');
+  const rolling = rollingChoice ? evaluateApexAttackChoice(rollingChoice,observation):null;
   const rows = list(choices).map((choice, index) => {
     const name = choice?.publicMetadata?.sourceAttack ?? choice?.attackName ?? choice?.label ?? '';
     let score = Number(evaluateApexAttackChoice(choice, observation)?.score ?? -1);
@@ -279,8 +282,12 @@ function chooseRank32Apex(choices, observation) {
       // actual damage, prevention and energy-discard requirements; this is only
       // a decision heuristic based on visible HP.
       const knockout = Number.isFinite(hp) && hp > 0 && hp <= 330;
-      score = knockout ? (ownPrizes <= 2 ? 300 : 240) : 125;
-      if (energyCards <= 2) score -= 20;
+      // When a legal Rolling Iron already Knocks Out the same Active,
+      // discard-two Ryuno is connector-dominated: it loses future Energy
+      // and the 80-damage defensive reduction for no additional Prize.
+      if (rolling?.activeKnockout === true) score=65;
+      else score = knockout ? (ownPrizes <= 2 ? 300 : 240) : 125;
+      if (energyCards <= 2 && rolling?.activeKnockout!==true) score -= 20;
     } else if (name === 'Dominating Echo') {
       const hasStadium = list(observation?.opponentPublic?.stadium).length > 0;
       const hasSpecial = slots(observation?.opponentPublic).some(p =>
