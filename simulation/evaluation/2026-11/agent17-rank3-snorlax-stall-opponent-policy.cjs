@@ -1216,6 +1216,8 @@ function promptDecision(request) {
 
 function isTurnEndingAction(item) {
   if (item.kind === 'attack' || item.kind === 'pass') return true;
+  // Rotom V's Instant Charge ends the turn, unlike Star Alchemy.
+  if (item.kind === 'use-ability' && item.publicMetadata?.abilityName === 'Instant Charge') return true;
   if (item.kind !== 'use-stadium') return false;
   const stadium = item.actorPrinting ?? item.publicMetadata?.stadiumPrinting ?? '';
   return matches(stadium, PRINT.tropicalBeach) || matches(stadium, PRINT.playersCeremony);
@@ -1225,7 +1227,7 @@ function bestAction(request) {
   const items = list(request.actionFrontier?.items).filter(item => EXECUTABLE.has(item.kind));
   if (!items.length) return { kind: 'abstain', reasonCode: 'NO_EXECUTABLE_ACTION' };
   const scored = items.map(item => ({ item, score: scoreAction(item, request) }));
-  // Draw-and-end-turn Stadium effects and attacks are terminal choices. Finish
+  // Draw-and-end-turn Abilities/Stadium effects and attacks are terminal choices. Finish
   // every positively scored non-terminal action first, then compare terminal lines.
   const nonTerminal = scored.filter(row => !isTurnEndingAction(row.item) && row.score > 0);
   const candidates = nonTerminal.length ? nonTerminal : scored;

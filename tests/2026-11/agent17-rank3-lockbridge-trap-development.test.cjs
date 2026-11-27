@@ -163,3 +163,31 @@ test('native set-only action aliases reach the actual Arven, Guzma, and Counter 
     obench:[mon('Dialga-GX UPR')],hand:['Guzma BUS']});
   assert.equal(score(root('g','Guzma BUS'),g),290);
 });
+
+
+const R='Rotom V LOR 58', B='Bunnelby PRC 121', F='Float Stone BKT 137';
+const charge={token:'charge',kind:'use-ability',actorPrinting:R,publicMetadata:{abilityName:'Instant Charge'}};
+const burrow={token:'burrow',kind:'attack',attackName:'Burrow',actorPrinting:B};
+for(const seat of [0,1]) {
+  test('seat '+seat+': funded Burrow beats turn-ending Instant Charge at one opposing deck card',()=>{
+    const o=state({seat,own:mon(B,{hp:60,energies:['Capture Energy RCL 171']}),
+      bench:[mon(R,{hp:190})],opp:mon(D,{hp:180}),hand:[],oppExtra:{deckCount:1}});
+    assert.deepEqual(decide(o,[charge,burrow,pass]),{kind:'select-action',token:'burrow'});
+  });
+  test('seat '+seat+': useful nonterminal Float Stone attachment precedes Instant Charge',()=>{
+    const o=state({seat,own:mon(R,{hp:190}),bench:[mon(B,{hp:60})],hand:[F]});
+    assert.deepEqual(decide(o,[charge,tool('float',F,R),pass]),{kind:'select-action',token:'float'});
+  });
+  test('seat '+seat+': Instant Charge remains available when no better terminal or positive nonterminal choice',()=>{
+    const o=state({seat,own:mon(S),bench:[mon(R,{hp:190})],hand:[]});
+    assert.deepEqual(decide(o,[charge,pass]),{kind:'select-action',token:'charge'});
+  });
+  test('seat '+seat+': useful Star Alchemy remains nonterminal and beats a funded Burrow',()=>{
+    const o=state({seat,own:mon(B,{hp:60,energies:['Capture Energy RCL 171']}),
+      bench:[mon(R,{hp:190,tools:['Forest Seal Stone SIT 156']})],hand:[],
+      oppExtra:{deckCount:1},resources:{vstarUsed:false}});
+    const star={token:'star',kind:'use-ability',actorPrinting:'Forest Seal Stone SIT 156',
+      publicMetadata:{abilityName:'Star Alchemy'}};
+    assert.deepEqual(decide(o,[charge,burrow,star,pass]),{kind:'select-action',token:'star'});
+  });
+}
