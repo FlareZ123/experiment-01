@@ -305,6 +305,111 @@ return module.exports;})();
     return chooseChoices(selected.map(x=>x.c.token));
   }
   const visible=(c,z)=>meta(c).ownerSeat==='actor'&&meta(c).isOwnerVisible===true&&meta(c).sourceZone===z&&typeof c.printing==='string';
+
+  const COPIES=Object.freeze({M:1,K:1,U:4,E:2,B:1,S:1,C:1,D:1,
+    QB:4,VIP:3,BC:4,DP:4,MAIL:4,PAD:3,HB:2,BI:2,RC:2,TK:1,COL:1,NAV:1,
+    ROPE:1,DM:1,CC:1,RED:1,FSS:1,FLOAT:1,CAR:1,IONO:1,TM:2,R:4,L:2,DCE:1});
+  // Exact K1 is used only when every known printing is from this exact source
+  // roster and total membership agrees with the public count. K0 uses the
+  // exchangeable unseen pool (deck + unrevealed Prizes), not guessed slots.
+  function acquisitionInventory(o){
+    const pool=Object.fromEntries(Object.keys(COPIES).map(k=>[k,0]));
+    const k1=o.ownerK1;
+    if(k1?.exactMembershipKnown===true&&Array.isArray(k1.knownPrintings)){
+      let valid=true,sum=0;
+      for(const row of k1.knownPrintings){
+        const k=kind(row.printing);
+        if(!k||!Number.isSafeInteger(row.copies)||row.copies<0){valid=false;break;}
+        pool[k]+=row.copies;sum+=row.copies;
+        if(pool[k]>COPIES[k]){valid=false;break;}
+      }
+      if(valid&&sum===own(o).deckCount)return {status:'K1',pool,size:sum};
+    }
+    Object.assign(pool,COPIES);
+    const visibleCards=[...hand(o),...discard(o),...arr(own(o).lostZone),...arr(own(o).stadium),
+      ...arr(own(o).resolvingSupporter),...arr(own(o).prizeSlots).filter(x=>typeof x?.printing==='string'),
+      ...board(o).flatMap(x=>[x.p,...arr(x.p.energies),...arr(x.p.tools),...arr(x.p.evolutionPrintings)])];
+    for(const x of visibleCards){
+      const k=kind(x);if(!k||--pool[k]<0)return null;
+    }
+    const size=Object.values(pool).reduce((a,b)=>a+b,0);
+    const prizes=own(o).prizeCount,knownPrize=arr(own(o).prizeSlots).filter(x=>typeof x?.printing==='string').length;
+    if(!Number.isSafeInteger(prizes)||!Number.isSafeInteger(own(o).deckCount)||
+      size!==own(o).deckCount+prizes-knownPrize)return null;
+    return {status:'K0',pool,size};
+  }
+  function binom(n,k){if(k<0||k>n)return 0;k=Math.min(k,n-k);let a=1;for(let i=1;i<=k;i++)a=a*(n-k+i)/i;return a;}
+  // Expected number of useful copies, capped at the current resource deficit.
+  function expectedUseful(N,K,draws,need=1){
+    if(!Number.isSafeInteger(N)||!Number.isSafeInteger(K)||!Number.isSafeInteger(draws)||!Number.isSafeInteger(need)||
+      N<0||K<0||K>N||draws<0||draws>N||need<1)return 0;
+    if(!draws||!K)return 0;
+    const den=binom(N,draws);let s=0;
+    for(let i=Math.max(0,draws-(N-K));i<=Math.min(K,draws);i++)s+=Math.min(i,need)*binom(K,i)*binom(N-K,draws-i)/den;
+    return s;
+  }
+  function available(o,k){
+    const inv=acquisitionInventory(o);
+    // null means unknown; do not confuse an inconsistent K0 view with absence.
+    return inv===null?null:inv.pool[k]>0;
+  }
+  function resourceNeeds(o,h=hand(o)){
+    const b=board(o), m=find(o,'M'), k=find(o,'K'), a=own(o).active;
+    const powered=m&&energy(m.p)>=3;
+    const hasM=!!m||has(h,'M'),hasK=!!k||has(h,'K');
+    const lightOnM=!!m&&has(m.p.energies,'L');
+    const dceOnM=!!m&&has(m.p.energies,'DCE');
+    const toolOnM=!!m&&has(m.p.tools,'TM');
+    const pumps=Math.max(0,Math.ceil((opp(o).prizeCount-1)/2)-n(h,'DP'));
+    const eggs=Math.max(0,2-countBoard(o,'E')-n(h,'E')-n(discard(o),'E'));
+    const needs=[];
+    const add=(keys,weight,count=1)=>{if(count>0)needs.push({keys,weight,count});};
+    if(!hasM)add(['M','QB','VIP','HB'],340);
+    if(!powered&&!lightOnM&&!hasK&&!has(own(o).lostZone,'K'))add(['K','QB','VIP','HB'],300);
+    if(!powered&&!dceOnM&&!has(h,'DCE'))add(['DCE','FSS'],360);
+    if(!toolOnM&&!has(h,'TM'))add(['TM','FSS','MAIL','PAD'],230);
+    if(!ruins(o)&&!has(h,'R'))add(['R','NAV','MAIL'],220);
+    if(!powered&&!lightOnM&&!has(discard(o),'L')&&!has(h,'L'))add(['L','BC'],230);
+    if(!powered&&!lightOnM&&!has(discard(o),'L')&&!has(h,'BC')&&has(h,'L'))add(['QB','BC'],170);
+    if(pumps>0)add(['DP','DM','MAIL','PAD'],150,pumps);
+    if(eggs>0)add(['E','BC','QB','VIP','HB'],105,eggs);
+    if(m?.zone==='bench'&&arr(a?.printed?.retreatCost).length>0&&!has(a?.tools,'FLOAT')&&!has(h,'FLOAT')&&!has(h,'ROPE'))add(['FLOAT','ROPE','FSS','MAIL'],150);
+    if(lockLive(o)&&!has(h,'COL'))add(['COL','FSS','MAIL','PAD'],190);
+    return needs;
+  }
+  function expectedDrawValue(o,draws,postHand=hand(o)){
+    const inv=acquisitionInventory(o);
+    if(!inv||draws<=0||own(o).deckCount<=0)return null;
+    const nDraw=Math.min(draws,own(o).deckCount,inv.size);
+    return resourceNeeds(o,postHand).reduce((s,row)=>{
+      const K=row.keys.reduce((x,k)=>x+inv.pool[k],0);
+      return s+row.weight*expectedUseful(inv.size,K,nDraw,row.count);
+    },0);
+  }
+  function resetValue(o,remainingHand,draws){
+    const h=arr(remainingHand),m=find(o,'M'),k=find(o,'K');
+    // Permanent loss of a sole physical key is not compensated by a speculative draw.
+    if((has(h,'M')&&!m)||(has(h,'DCE')&&!board(o).some(x=>has(x.p.energies,'DCE')))||
+      (has(h,'K')&&!k&&!(m&&has(m.p.energies,'L'))))return -Infinity;
+    const inv=acquisitionInventory(o);
+    if(!inv)return h.length<=3&&!h.some(x=>['TM','DP','RC'].includes(kind(x)))?350:-Infinity;
+    const needPumps=Math.max(0,Math.ceil((opp(o).prizeCount-1)/2));
+    if(has(h,'DP')&&inv.pool.DP+(has(h,'DM')?0:Math.min(1,inv.pool.DM+n(hand(o),'DM')))<needPumps)return -Infinity;
+    if(has(h,'TM')&&!board(o).some(x=>has(x.p.tools,'TM'))&&inv.pool.TM===0)return -Infinity;
+    if(has(h,'R')&&!ruins(o)&&inv.pool.R===0)return -Infinity;
+    if(has(h,'ROPE')&&m?.zone==='active'&&energy(m.p)<3&&inv.pool.FLOAT===0&&!has(h,'FLOAT'))return -Infinity;
+    const value=expectedDrawValue(o,draws,[]);
+    if(value===null)return -Infinity;
+    let penalty=0;
+    for(const x of h){
+      const k=kind(x);
+      if(k==='E'||(k==='L'&&needLightning(o)))continue;
+      penalty+=({TM:160,DP:120,RC:70,ROPE:125,FLOAT:100,FSS:180,COL:lockLive(o)?200:40,
+        R:ruins(o)?10:130,BC:needLightning(o)?130:35,VIP:120,QB:100,HB:80,TK:60,DM:140,
+        U:45,C:130,D:120,S:110,MAIL:65,PAD:50,NAV:45,BI:65,CAR:50,IONO:50})[k]??25;
+    }
+    return 220+Math.min(360,Math.round(value/3))-penalty;
+  }
   const setupPriority={U:100,B:90,E:80,M:70,C:60,D:50,S:40,K:30};
   function setup(p,o){
     const m=meta(p),desc=p.description;
@@ -350,8 +455,8 @@ return module.exports;})();
     return 0;
   }
   function basicScore(o,k,fromDeckDirect=false){
-    if(k==='M'&&!find(o,'M')&&!has(hand(o),'M'))return 300;
-    if(k==='K'&&!find(o,'K')&&!has(hand(o),'K')&&!has(own(o).lostZone,'K'))return 260;
+    if(k==='M'&&!find(o,'M')&&!has(hand(o),'M')&&available(o,'M')!==false)return 300;
+    if(k==='K'&&!find(o,'K')&&!has(hand(o),'K')&&!has(own(o).lostZone,'K')&&available(o,'K')!==false)return 260;
     if(k==='E'&&needEgg(o))return 180;
     if(k==='B'&&!find(o,'B')&&!has(hand(o),'B')&&!find(o,'M'))return 140;
     if(k==='U'&&countBoard(o,'U')+n(hand(o),'U')<2)return 100;
@@ -402,7 +507,7 @@ return module.exports;})();
       if(ab==='Dance of the Ancients')return s&&kind(s)==='K'&&m.sourceZone==='bench'&&g?.zone==='bench'&&g.index!==m.sourceIndex&&!has(g.p.energies,'L')&&has(discard(o),'L')&&(has(g.p.energies,'DCE')||has(h,'DCE'))&&!lockLive(o)?1500:0;
       if(ab==='Propagation'&&k==='E'&&needEgg(o)&&room>0&&!lockLive(o))return 560;
       if(ab==='Farewell Letter'&&s&&kind(s)==='U'&&m.sourceZone==='bench'&&energy(s)===0&&!arr(s.tools).length&&own(o).deckCount>0&&s.damage===0&&(h.length<=5||room===0))return 350;
-      if(ab==='Squawk and Seize'&&s&&kind(s)==='S'&&h.length<=3&&!h.some(x=>['DCE','K','M','TM','DP','RC'].includes(kind(x))))return 350;
+      if(ab==='Squawk and Seize'&&s&&kind(s)==='S'&&Number(o.globalTurn)<=2)return Math.max(0,resetValue(o,h,6));
       if(ab==='Star Alchemy'&&h.length<=5&&!own(o).publicTurnRestrictions?.vstarUsed&&!o.ownTurnResources?.vstarUsed)return 470;
       return 0;
     }
@@ -419,8 +524,8 @@ return module.exports;})();
       if(k==='M'&&!find(o,'M'))return 620;
       if(k==='K'&&!find(o,'K')&&!has(own(o).lostZone,'K')&&find(o,'M')&&find(o,'M').zone==='bench'&&has(discard(o),'L'))return 250;
       if(k==='C'&&!find(o,'C')&&h.length<=5&&room>=2)return 530;
-      if(k==='D'&&!find(o,'D')&&h.length<=3&&room>=2&&!h.some(x=>['DCE','K','M','TM','DP','RC'].includes(kind(x))))return 520;
-      if(k==='S'&&!find(o,'S')&&Number(o.globalTurn)<=2&&h.length<=3&&room>=2)return 420;
+      if(k==='D'&&!find(o,'D')&&room>=2)return Math.max(0,resetValue(o,h.filter((x,i)=>i!==m.handIndex),6));
+      if(k==='S'&&!find(o,'S')&&Number(o.globalTurn)<=2&&room>=2)return Math.max(0,resetValue(o,h.filter((x,i)=>i!==m.handIndex),6)-25);
       if(k==='E'&&ruins(o)&&countBoard(o,'E')<2&&room>=2)return 190;
       if(k==='U'&&room>=2&&h.length<=5&&(!ruins(o)||countBoard(o,'U')<1))return 220;
       if(k==='B'&&!find(o,'B')&&!find(o,'M')&&room>=2)return 160;
@@ -453,9 +558,14 @@ return module.exports;})();
       (g.zone==='bench'&&has(discard(o),'L')&&find(o,'K'))||suppression(g.p,'Debut Performance')===true||
       (terminalReady(o)&&opp(o).prizeCount>1))?1850:0;
     if(k==='BC')return needLightning(o)||needEgg(o)&&!activeOpponentLock(o)?590:0;
-    if(k==='QB'&&room>0&&h.some(x=>discardValue(o,kind(x))>0)&&(!find(o,'M')&&!has(h,'M')||!find(o,'K')&&!has(h,'K')||h.length<=3))return 570;
-    if(k==='VIP'&&Number(o.globalTurn)<=2&&room>0&&(!find(o,'M')&&!has(h,'M')||!find(o,'K')&&!has(h,'K')))return 600;
-    if(k==='BI')return h.length<=4?470:0;
+    if(k==='QB'&&room>0&&h.some(x=>discardValue(o,kind(x))>0)&&(
+      (!find(o,'M')&&!has(h,'M')&&available(o,'M')!==false)||
+      (!find(o,'K')&&!has(h,'K')&&available(o,'K')!==false)||
+      (h.length<=3&&['C','D','S','E','U'].some(k=>available(o,k)!==false&&basicScore(o,k)>0))))return 570;
+    if(k==='VIP'&&Number(o.globalTurn)<=2&&room>0&&(
+      (!find(o,'M')&&!has(h,'M')&&available(o,'M')!==false)||
+      (!find(o,'K')&&!has(h,'K')&&available(o,'K')!==false)))return 600;
+    if(k==='BI')return h.length<=4?400+Math.min(120,Math.round((expectedDrawValue(o,5-h.length)??0)/5)):0;
     if(k==='MAIL'||k==='PAD')return h.length<=6?390:0;
     if(k==='NAV')return !ruins(o)&&!has(h,'R')?480:0;
     if(k==='RC')return room>0&&has(discard(o),'E')&&needEgg(o)||room>=2&&has(discard(o),'U')&&h.length<=4?310:0;
@@ -463,7 +573,8 @@ return module.exports;})();
     if(k==='ROPE')return slots(opp(o)).length===1&&g?.zone==='bench'&&readyTarget(o)?.zone==='bench'&&(opp(o).prizeCount===1||Number(o.globalTurn)===1)?1750:0;
     if(k==='CC')return opp(o).prizeCount<own(o).prizeCount&&slots(opp(o)).length>1&&readyTarget(o)?.zone==='active'&&opp(o).prizeCount===1?1400:0;
     if(k==='RED')return opp(o).prizeCount<=3&&opp(o).handCount>3?120:0;
-    if(k==='CAR'||k==='IONO')return h.length<=3&&!h.some(x=>['DCE','K','M','TM','DP','RC'].includes(kind(x)))&&own(o).deckCount>=6?380:0;
+    if(k==='CAR')return own(o).deckCount>=5?Math.max(0,resetValue(o,h.filter((x,i)=>i!==m.handIndex),5)-30):0;
+    if(k==='IONO')return h.length<=3&&!h.some(x=>['DCE','K','M','TM','DP','RC'].includes(kind(x)))&&own(o).deckCount>=6?380:0;
     return 0;
   }
 
@@ -721,8 +832,8 @@ return module.exports;})();
       const no=arr(p.choices).find(c=>c.kind==='confirm'&&c.label==='No');
       if(!yes||!no)return abstain('AMBIGUOUS_SIMPLE_PROMPT');
       if(effect==='Dark Asset'&&sk==='C')return chooseChoice(hand(o).length<6?yes.token:no.token);
-      if(effect==='Dedechange'&&sk==='D')return chooseChoice(context.intent?.type!=='donor-entry'&&hand(o).length<=3&&!hand(o).some(x=>['DCE','K','M','TM','DP','RC'].includes(kind(x)))?yes.token:no.token);
-      if(effect==='Squawk and Seize'&&sk==='S')return chooseChoice(hand(o).length<=3&&!hand(o).some(x=>['DCE','K','M','TM','DP','RC'].includes(kind(x)))?yes.token:no.token);
+      if(effect==='Dedechange'&&sk==='D')return chooseChoice(context.intent?.type!=='donor-entry'&&resetValue(o,hand(o),6)>0?yes.token:no.token);
+      if(effect==='Squawk and Seize'&&sk==='S')return chooseChoice(resetValue(o,hand(o),6)>0?yes.token:no.token);
       return abstain('UNSUPPORTED_CONFIRMATION_SOURCE');
     }
     if(p.promptType==='ChoosePrizePrompt'&&m.ownerSeat==='actor'&&sk!=='HB'&&sk!=='TK'){
@@ -741,5 +852,5 @@ return module.exports;})();
       return req.prompt?prompt(req,context):root(req,context);
     }});
   }
-  module.exports={POLICY_VERSION:VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,WORKER_PROTOCOL_BLOB_SHA1:PROTOCOL_BLOB,createPolicy,scoreRoot,scoreAttack,kind,root,prompt,donationPlan,terminalReady,powerPlan};
+  module.exports={POLICY_VERSION:VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,WORKER_PROTOCOL_BLOB_SHA1:PROTOCOL_BLOB,createPolicy,scoreRoot,scoreAttack,kind,root,prompt,donationPlan,terminalReady,powerPlan,acquisitionInventory,resourceNeeds,expectedUseful,expectedDrawValue,resetValue};
 })(module);
