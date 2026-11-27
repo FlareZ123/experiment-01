@@ -6,9 +6,9 @@
 
 ## Decision
 
-Retain the **unchanged New Moon Lockbreaker v1 English-mechanics 60** as the one current non-Shadow-Rider architecture worth the next policy-investment slot. Park **Iron Thorns ex / Mimikyu Psychic Reserve v3e from the next cross-architecture policy slot**, while preserving it as a legitimate within-Thorns refinement candidate.
+Retain the **New Moon architecture**, now with **Guzma/Sky v2** as the preferred exact fixed 60 for the next policy-investment slot. Park **Iron Thorns ex / Mimikyu Psychic Reserve v3e from the next cross-architecture policy slot**, while preserving it as a legitimate within-Thorns refinement candidate.
 
-This is not a final-best-deck nomination. Hood Shield and Lockbridge remain unranked active Shadow Rider profiles; no matchup is competitively qualified and the 99.5% target is unproven. The narrower decision is where to spend the next scarce policy-development effort on a genuinely different engine.
+This is not a final-best-deck nomination. Hood Shield and Lockbridge remain unranked active Shadow Rider profiles; no matchup is competitively qualified and the 99.5% target is unproven. The preferred New Moon v2 differs from v1 only by −1 Sky Field, +1 Guzma; the exact repair decision is documented in [the structural repair selection](agent13-newmoon-structural-repair-selection-20261127.md). The narrower decision is where to spend the next scarce policy-development effort on a genuinely different engine.
 
 The distinction is structural:
 
@@ -19,7 +19,13 @@ The distinction is structural:
 
 Therefore the right **cross-architecture** challenger is the already-fixed New Moon 60, subjected to the hostile cases below before any policy investment is called successful. Psychic Reserve v3e remains available for later within-Thorns refinement rather than being rejected as inherently weak.
 
-## Exact retained New Moon 60
+## Exact preferred New Moon v2
+
+The preferred fixed list is [New Moon Lockbreaker Guzma/Sky v2](agent13-newmoon-lockbreaker-guzma-sky-v2.json), hash `f3bfed3a82cbddd4acb89ad0f0ff488673fd38c7be16efac0d54ab228d5ca82f`. It is v1 with **one Sky Field cut for one Guzma**, preserving Counter Catcher, both Ace Trainer and all 17 Basics. The prior v1 list remains the evidence baseline; the earlier `Counter Catcher -> Guzma` experiment is explicitly rejected because it destroys the Ace Trainer + Counter Catcher catch-up turn.
+
+The v2 actor-visible acceptance target is [45 cases](agent13-newmoon-guzma-sky-v2-policy-acceptance-v1.json), including the 39 v1/Agent1 cross-family cases plus six list-specific Guzma/Sky cases.
+
+## Prior v1 exact list (evidence baseline)
 
 This is the existing **New Moon Lockbreaker v1**, unchanged. The canonical machine-readable list remains `results/als/new-moon-lockbreak-english-proxy-60.json`; the identity/count hash recorded by the existing result is `sha256:a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4`.
 
@@ -130,15 +136,15 @@ The earlier 48-attempt A/B between Safeguard v1 and Psychic Reserve v3 was expli
 
 ## Unified candidate-policy acceptance contract
 
-The held-out decisions have now been collapsed into one machine-readable, actor-visible contract: [New Moon candidate-policy acceptance v1](agent13-newmoon-candidate-policy-acceptance-v1.json).
+The v1 held-out decisions were collapsed into [the v1 actor-visible contract](agent13-newmoon-candidate-policy-acceptance-v1.json), which now contains **39** integrated decision states after Agent1's Raichu/Electrode delta. The preferred v2 extends that into [the 45-case v2 contract](agent13-newmoon-guzma-sky-v2-policy-acceptance-v1.json).
 
-It contains **23** decision states across universal immediate-win/survival logic, Regidrago, rank-15 Vileplume, Iron Thorns, Garbodor, rank-26 Meloetta, rank-1 Shadow Rider and Secret Box self-contention. It is deliberately **not** another bot or workflow. A later implementation should satisfy these cases with public/owner-visible state before native/full-game investment.
+The combined gate contains across universal immediate-win/survival logic, Regidrago, rank-15 Vileplume, Iron Thorns, Garbodor, rank-26 Meloetta, rank-1 Shadow Rider and Secret Box self-contention. It is deliberately **not** another bot or workflow. A later implementation should satisfy these cases with public/owner-visible state before native/full-game investment.
 
 The rank-1 addition is especially important: an Active Klefki is valuable against Basic Iron Thorns but can be a self-lock after Shadow Rider VMAX is evolved, because Mischievous Lock disables Basic Mewtwo & Mew-GX Perfection while leaving the Evolution VMAX's Underworld Door operating. The source-specific control channel is instead [asymmetric Path + Solrock/Lunatone](agent13-newmoon-rank1-asymmetric-path-policy-20261127.md), with Marshadow's public board position determining whether Horror House can protect the Stadium window.
 
 ## Policy-investment recommendation
 
-Allocate the next non-Shadow-Rider policy-development slot to the **unchanged New Moon Lockbreaker v1 60 above**, with the following held-out order:
+Allocate the next non-Shadow-Rider policy-development slot to the **New Moon Lockbreaker Guzma/Sky v2 fixed 60**, with the following held-out order:
 
 1. Regidrago Budew → Apex Dragon pressure, including a Dragapult-spread and Noivern-Covert-Flight case.
 2. Rank-15 competent AOR + BUS Vileplume line, with an explicit pre-lock Item window and powered Dusclops continuation.
@@ -152,7 +158,7 @@ A competent policy need not “win” every synthetic case. It must choose a leg
 ## Boundaries
 
 - This note changes **research allocation**, not the final deck nomination.
-- No candidate 60, source opponent, Twinleaf pin, workflow, V3 registration, Stage-A disposition, or owner-controlled game gate changes.
+- The New Moon candidate 60 changes only within this architecture decision to the documented Guzma/Sky v2. No source opponent, Twinleaf pin, workflow, V3 registration, Stage-A disposition, or owner-controlled game gate changes.
 - The owner-gated Hood/rank-1 V3 seat-swap pair remains independent and should not be delayed by this architecture exercise.
 - The three missing source lists (ranks 23/25/28) remain missing and are not imputed.
 - No game or qualified matchup is created here; **99.5% remains unproven**.
