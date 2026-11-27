@@ -16,7 +16,7 @@ Machine-readable list: [Psychic Reserve v3e](agent13-psychic-reserve-english-v3e
 
 This corrects the earlier overly broad statement that there was no plausible English role repair. There is one.
 
-The candidate remains **parked for policy investment**, however, because this repair does not address the larger structural objection: the deck still has only five Basic Pokémon and therefore retains the exact opening/mulligan burden already measured for v3. In addition, the two English substitutes are role-adjacent rather than text-equivalent, so the old v3 policy/native evidence does not transfer cleanly.
+The candidate remains **parked from the next architecture-policy investment slot**, but not because five Basics prove that the deck is weak. The published rank-6 Iron Thorns source itself placed sixth with only four Basics, so the event provides direct evidence that a very-low-Basic Thorns control shell can succeed competitively. The stronger allocation reason is that v3e is a near-derivative of that already-represented Thorns control architecture, while its two English draw substitutions are role-adjacent rather than text-equivalent and have no qualified policy evidence. New Moon supplies a genuinely different engine and therefore has higher information value for the next scarce cross-architecture policy slot.
 
 ## Why these two replacements
 
@@ -117,7 +117,7 @@ The already-published exact screen therefore still applies:
 - across the 29 authenticated Aichi source lists, the equal-weighted mean maximum optional bonus-draw ceiling is **0.975 cards to the opponent vs 0.202 to the candidate**;
 - **26/29** authenticated opponents have the higher optional-draw ceiling.
 
-This remains the dominant structural reason to park v3e.
+This remains a real structural **cost to price**, not a disqualifier. Rank 6's actual four-Basic tournament result is counterevidence to any claim that low Basic count alone makes the architecture noncompetitive.
 
 The count-only sensitivity in the same exact study crosses roughly field-neutral around **10–11 Basics**. Moving from five Basics to that range would require adding about five or six Basic Pokémon and cutting the same number of control/draw/resource slots. That is not an English-print normalization; it is a materially different architecture.
 
@@ -133,36 +133,35 @@ Those are not cosmetic differences.
 
 The prior native A/B is still useful historical evidence that adding the second Psychic Energy can enable more Mimikyu lines in some cells. It is **not evidence that v3e preserves the old control performance**.
 
-## Adversarial reason to keep it parked
+## Adversarial reason to keep it out of the next architecture slot
 
-The five-Basic burden is especially costly for a denial deck because the opponent often receives the extra setup resources.
+The strongest counterargument to parking is the **actual source result**: rank 6 Iron Thorns, the parent of Psychic Reserve, placed sixth at Aichi with only four Basic Pokémon. That is empirical evidence that the low-Basic tax can be worth paying when the denial shell is strong enough.
 
-That creates a strategic paradox:
+So the correct allocation argument is not “five Basics are too inconsistent.” It is:
 
-- the deck's central plan is to reduce the opponent's options through Ability lock, Energy denial, hand disruption and Stadium/Tool pressure;
-- but its own five-Basic construction frequently grants the opponent extra optional setup draws before the first normal turn;
-- a role-adjacent Rotom Bike/Lucky Helmet repair does nothing to remove that initial resource donation.
+- Psychic Reserve v3e keeps the same four Iron Thorns ex and the overwhelming majority of the rank-6 denial shell;
+- relative to that already-authenticated architecture, its main strategic experiment is one Mimikyu plus the Psychic/Jet funding package, while the English repair changes two draw-engine cards;
+- the existing v1/v3 native A/B is explicitly unqualified and matchup-dependent, so it does not yet establish that the Mimikyu package is a durable within-family upgrade;
+- spending the next **cross-architecture** policy slot on v3e would therefore refine an already-successful Thorns architecture rather than test a genuinely different engine;
+- New Moon's Mewtwo toolbox, TPE setup, native-Gengar bypass, Stage-1 counter channel and asymmetric Stadium package are structurally different and can falsify assumptions that all strong solutions must resemble Thorns/Shadow Rider.
 
-A control architecture can still be worth this cost if its lock strength is extraordinary. The current repository does not have qualified evidence that Psychic Reserve's lock advantage is large enough to pay it.
+The five-Basic screen remains useful for policy design and for comparing v3e to alternatives, but it is not the reason to reject the family.
 
 ## Reopening condition
 
-Do **not** spend the next shared policy slot on v3e.
+Do **not** spend the next **cross-architecture** shared policy slot on v3e.
 
-Reopen Psychic Reserve only if one of the following occurs:
+Preserve v3e as a legitimate **within-Iron-Thorns refinement candidate**. Reopen it when there is capacity for family optimization or when an actor-visible analysis shows that Mimikyu plus its funding package materially fixes a hard Thorns matchup without degrading the parent shell.
 
-1. a complete English Expanded redesign raises the Basic count materially while preserving a concrete denial engine, with explicit slot costs; or
-2. a source-specific adversarial analysis demonstrates that the five-Basic shell's lock sequence is uniquely strong enough to justify the measured setup tax, followed by an actor-visible policy that can actually execute it.
-
-Merely running the old v3 policy with Rotom Bike/Lucky Helmet is not enough.
+A future v3e policy must also reason about Rotom Bike/Lucky Helmet rather than assuming Palace Book/Belt behavior. Merely running the old v3 policy with renamed cards is not enough.
 
 ## Architecture allocation consequence
 
 The non-Shadow-Rider recommendation remains:
 
 - **retain unchanged New Moon Lockbreaker v1** for the next policy-investment slot;
-- **park Psychic Reserve v3e** despite having repaired its English format conflict.
+- **park Psychic Reserve v3e from this cross-architecture slot**, while preserving it as a within-Thorns refinement candidate.
 
-This is now a strategic allocation decision rather than a legality-only rejection.
+This is an information-allocation decision, not a claim that the low-Basic Thorns architecture is weak.
 
 No qualified matchup or 99.5% claim is created.
