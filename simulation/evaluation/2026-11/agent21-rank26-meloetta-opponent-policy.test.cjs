@@ -102,3 +102,13 @@ test('Acquisition: incoherent exact-membership claim falls back to K0',()=>{
  const o=funded();o.ownPublic.deckCount=42;o.ownerK1={exactMembershipKnown:true,knownPrintings:[{printing:'Meloetta ex BLK',copies:1}]};
  assert.equal(A.acquisitionInventory(o).status,'K0');
 });
+
+test('Acquisition: physically consistent complete K1 membership excludes a prized singleton',()=>{
+ const o=funded();o.ownPublic.deckCount=42;
+ const inv=A.acquisitionInventory(o);
+ const print={M:'Meloetta ex BLK',K:'Tapu Koko Prism Star TEU',U:'Unown AOR',E:'Exeggcute PLF',B:'Bunnelby PRC',S:'Squawkabilly ex PAL',C:'Crobat V DAA',D:'Dedenne-GX UNB',QB:'Quick Ball SSH',VIP:'Battle VIP Pass FST',BC:'Battle Compressor PHF',DP:'Damage Pump LOR',MAIL:"Trainers' Mail ROS",PAD:'Order Pad UPR',HB:'Hisuian Heavy Ball ASR',BI:'Bicycle PLS',RC:'Rescue Carrier EVS',TK:'Redeemable Ticket',COL:'Canceling Cologne ASR',NAV:'Stadium Nav UNM',ROPE:'Escape Rope BST',DM:'Dowsing Machine PLS',CC:'Counter Catcher PAR',RED:'Special Red Card',FSS:'Forest Seal Stone SIT',FLOAT:'Float Stone BKT',CAR:'Carmine TWM',IONO:'Iono PAL',TM:'Technical Machine: Crisis Punch PAF',R:'Risky Ruins MEG',L:'Lightning Energy',DCE:'Double Colorless Energy SUM'};
+ const deck={...inv.pool,K:0,DP:0,QB:0};
+ o.ownerK1={exactMembershipKnown:true,knownPrintings:Object.entries(deck).filter(([,copies])=>copies>0).map(([k,copies])=>({printing:print[k],copies}))};
+ const k1=A.acquisitionInventory(o);assert.equal(k1.status,'K1');assert.equal(k1.size,42);assert.equal(k1.pool.K,0);assert.equal(k1.pool.DP,0);assert.equal(k1.pool.QB,0);
+ o.ownerK1.knownPrintings[0].copies++;assert.equal(A.acquisitionInventory(o).status,'K0');
+});
