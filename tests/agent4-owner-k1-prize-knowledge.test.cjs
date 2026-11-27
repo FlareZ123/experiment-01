@@ -142,6 +142,7 @@ test('evolution layers, Tools, Energy and resolving Supporter count in owner zon
   const zones=knownOutsideDeck(view);
   assert.equal(zones.filter(s=>s==='Stealthy Hood UNB').length,2);
   assert.ok(zones.includes('Basic SET'));
-  assert.equal(zones.filter(s=>s==='Psychic Energy MEE').length,1);
+  assert.equal(zones.filter(s=>s==='Psychic Energy MEE').length,2,
+    'one physical Energy card per occupied Pokémon, not two projections per card');
   assert.ok(zones.includes('Tapu Koko Prism Star TEU'));
 });
