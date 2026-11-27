@@ -2619,6 +2619,72 @@ function r17OneBombRainWindow(request){
     discardPrintings:new Map(discard.map(d=>[d.token,d.printing]))
   };
 }
+// Two-Bomb execution is restricted to Active Raichu plus exactly two
+// simultaneously live Benched Electrode-GX. Execute only the first Bomb
+// now; at the next actual root, replan the second Bomb under the new
+// Prize count and observed card custody rather than assuming an imagined
+// state change. Avoids stacking two Abilities into a fictitious root action.
+function r17TwoBombRainWindow(request){
+  const v=request?.observation,a=active(own(v));
+  if(!v||r17Key(a)!=='raichu'||
+     r17NeedTempleRemoval(v)||list(own(v).stadium).length||
+     list(opponent(v).stadium).length||
+     !Number.isSafeInteger(own(v).prizeCount)||
+     !Number.isSafeInteger(opponent(v).prizeCount)||
+     opponent(v).prizeCount<=4||!r17RainWindow(v,a))return null;
+  const bench=list(own(v).bench),live=r17LiveBombs(v);
+  const sources=bench.map((q,index)=>({q,index})).filter(
+    entry=>r17Key(entry.q)==='electrode');
+  if(sources.length!==2||sources.some(x=>!live.includes(x.q)))return null;
+  const items=list(request.actionFrontier?.items);
+  const actions=sources.map(({q,index})=>items.find(x=>
+    x.kind==='use-ability'&&r17Key(x)==='electrode'&&
+    metadata(x).abilityName==='Extra Energy Bomb'&&
+    metadata(x).sourceZone==='bench'&&metadata(x).sourceIndex===index&&
+    metadata(x).abilityLive!==false&&metadata(x).abilitySuppressed!==true));
+  if(actions.some(x=>!x))return null;
+  const disc=list(own(v).discard);
+  const discard=disc.map((c,index)=>({
+    printing:printingValue(c),token:'discard-'+index
+  })).filter(x=>R17_ENERGY.has(r17Key(x.printing)));
+  const attached=list(a.energies).map((c,index)=>({
+    printing:printingValue(c),token:'attached-'+index
+  }));
+  if(discard.length<6||discard.length>12||
+     attached.length+discard.length>12||
+     attached.some(x=>!R17_ENERGY.has(r17Key(x.printing))))return null;
+  const targets=r17VisibleRainTargets(v,a);
+  if(!targets||targets.length>9||targets.some(t=>{
+    const q=t.zone==='active'?active(opponent(v)):opponent(v).bench?.[t.index];
+    return !q||list(q.tools).length||q.publicDamageEffects!==undefined&&(
+      q.publicDamageEffects.prevention!=='none'||
+      q.publicDamageEffects.effectsPrevention!=='none'||
+      q.publicDamageEffects.reduction!==0);
+  }))return null;
+  const full=r17PlanRainTurn({
+    attackWindowKnown:true,modifiersComplete:true,temple:false,
+    ownPrizes:own(v).prizeCount,opponentPrizes:opponent(v).prizeCount,
+    availableBombs:2,attached,discard,
+    targets:targets.map(t=>({
+      id:t.zone+':'+t.index,remainingHp:t.hits*30,
+      prizes:t.prizes,threat:0,damageAllowed:true,
+      flatDamageModifier:0,requiresNoSpecialAttached:false,
+      minRemainingEnergy:0
+    }))
+  });
+  if(full?.status!=='immediate-ko-plan'||!full.win||
+     full.bombsUsed!==2||
+     full.opponentPrizesAfterBomb!==opponent(v).prizeCount-4||
+     full.attachTokens.length!==Math.min(10,discard.length)||
+     full.attachTokens.length<6)return null;
+  const first=full.attachTokens.slice(0,5);
+  return {
+    action:actions[0],benchIndex:0,targetZone:'active',
+    benchPrinting:printingValue(a),requiresPromotion:false,
+    plan:{...full,attachTokens:first},
+    discardPrintings:new Map(discard.map(d=>[d.token,d.printing]))
+  };
+}
 function r17BombAttachDecision(req,chain){
   const p=req.prompt,s=p?.source,m=metadata(p);
   if(req.sequence!==chain.sequence+1||
@@ -2744,20 +2810,30 @@ function r17CreatePolicy({role,seat,policyVersion,config}) {
     if(rain){
       const bad=rain.turn!==request.observation.globalTurn||
         !Number.isSafeInteger(request.sequence)||request.sequence!==rain.sequence+1||
-        (rain.stage==='bomb-rain-root'?request.prompt!==null:!request.prompt);
+        (['bomb-rain-root','two-bomb-next-root'].includes(rain.stage)?
+          request.prompt!==null:!request.prompt);
       if(bad){rain=null;return r17Abstain('R17_UNTRUSTED_PROMPT');}
+      if(rain.stage==='two-bomb-next-root'){
+        const actual=r17OneBombRainWindow(request);
+        if(!actual){rain=null;return r17Abstain('R17_UNTRUSTED_PROMPT');}
+        rain={stage:'bomb-transfer',turn:rain.turn,sequence:request.sequence,...actual};
+        return {kind:'select-action',token:actual.action.token};
+      }
       if(rain.stage==='bomb-rain-root'){
         const actual=r17DirectRainWindow(request);
         if(!actual){rain=null;return r17Abstain('R17_UNTRUSTED_PROMPT');}
         rain={stage:'discard',turn:rain.turn,sequence:request.sequence,...actual};
         return {kind:'select-action',token:actual.action.token};
       }
-      const decision=rain.stage==='bomb-transfer'?
+      const decision=rain.stage==='two-bomb-transfer'?
+        r17BombAttachDecision(request,rain):rain.stage==='bomb-transfer'?
         r17BombAttachDecision(request,rain):rain.stage==='bomb-promotion'?
         r17BombPromoteDecision(request,rain):rain.stage==='discard'?
         r17RainEnergyDecision(request,rain):r17RainPacketsDecision(request,rain);
       if(!decision){rain=null;return r17Abstain('R17_UNTRUSTED_PROMPT');}
-      if(rain.stage==='bomb-transfer')
+      if(rain.stage==='two-bomb-transfer')
+        rain={...rain,stage:'two-bomb-next-root',sequence:request.sequence};
+      else if(rain.stage==='bomb-transfer')
         rain={...rain,stage:rain.requiresPromotion?
           'bomb-promotion':'bomb-rain-root',sequence:request.sequence};
       else if(rain.stage==='bomb-promotion')
@@ -2779,6 +2855,12 @@ function r17CreatePolicy({role,seat,policyVersion,config}) {
       rain={stage:'bomb-transfer',turn:request.observation.globalTurn,
         sequence:request.sequence,...bomb};
       return {kind:'select-action',token:bomb.action.token};
+    }
+    const two=r17TwoBombRainWindow(request);
+    if(two){
+      rain={stage:'two-bomb-transfer',turn:request.observation.globalTurn,
+        sequence:request.sequence,...two};
+      return {kind:'select-action',token:two.action.token};
     }
     return r17Best(request);
   }});
