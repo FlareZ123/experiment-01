@@ -410,7 +410,7 @@ console.log('passed '+(function activeBomb(P,protocol){
  const non=o([mk(Meg,[D,Pr,Pr])]);non.ownPublic.active.energies=[D];a(P.bombPlanner(non,-1)===null,'ordinary paid retreat win dominates self-KO');
  const pcy=P.createPolicy({role:'opponent',seat:0,policyVersion:P.POLICY_VERSION,config:{}});
  const f={schema:protocol.FRONTIER_SCHEMA,items:[{kind:'pass',token:'pass'},{kind:'use-ability',token:'bomb',actorPrinting:El,publicMetadata:{sourceSeat:'actor',sourceZone:'active',sourceIndex:0,abilityName:'Extra Energy Bomb'}}]};
- const d=pcy.decide({role:'opponent',seat:0,sequence:1,observation:o(),prompt:null,actionFrontier:f});protocol.validateDecision(d,null,protocol.validateFrontier(f));a(d.kind==='abstain','actual root still exposes missing transfer adapter');
+ const d=pcy.decide({role:'opponent',seat:0,sequence:1,observation:o(),prompt:null,actionFrontier:f});protocol.validateDecision(d,null,protocol.validateFrontier(f));a(d.kind==='select-action'&&d.token==='bomb','actual Active-source Bomb now has a full transfer continuation');
  return n;
 })(P,protocol)+' active-source Bomb and promotion assertions');
 
