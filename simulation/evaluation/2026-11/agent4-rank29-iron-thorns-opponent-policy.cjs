@@ -415,12 +415,12 @@ function multiSelectDecision(prompt, rows, minimum, maximum) {
   if (selected.length < minimum) {
     const empty = list(prompt?.choices).find(choice => choice.kind === 'empty-selection');
     if (minimum === 0 && empty) return { kind: 'select-choice', token: empty.token };
-    return { kind: 'abstain', reasonCode: 'MULTI_SELECT_TARGETS_UNAVAILABLE' };
+    return { kind: 'abstain', reasonCode: 'NO_LEGAL_CARD_SET' };
   }
   if (selected.length === 0) {
     const empty = list(prompt?.choices).find(choice => choice.kind === 'empty-selection');
     return empty ? { kind: 'select-choice', token: empty.token } :
-      { kind: 'abstain', reasonCode: 'EMPTY_MULTI_SELECT_UNAVAILABLE' };
+      { kind: 'abstain', reasonCode: 'NO_LEGAL_CARD_SET' };
   }
   return { kind: 'select-choices', tokens: selected.map(choice => choice.token) };
 }
@@ -497,11 +497,11 @@ function promptDecision(request) {
   const selectionType = metadata.selectionType ?? null;
 
   if (matches(sourcePrinting, PRINT.peonia)) {
-    return { kind: 'abstain', reasonCode: 'PEONIA_PRIZE_EXCHANGE_UNSUPPORTED' };
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PRIZE_SELECTION' };
   }
   if (/player'?s ceremony|palace book|handheld fan|gladion/i.test(source) ||
       selectionType === 'prize-slots') {
-    return { kind: 'abstain', reasonCode: 'RANK29_SOURCE_HOOK_BLOCKED' };
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
   }
 
   if (prompt.promptType === 'ChooseCardsPrompt') {
@@ -606,51 +606,51 @@ function promptDecision(request) {
         minimum, maximum);
       }
 
-      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_RANK29_MULTI_SELECT_SOURCE' };
+      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_COMBINATION_SOURCE' };
     }
 
     if (matches(sourcePrinting, PRINT.fieldBlower)) {
       return singleChoice(choices, choice =>
-        cardChoiceScore(choice, observation, 'field-blower'), 'NO_FIELD_BLOWER_TARGET');
+        cardChoiceScore(choice, observation, 'field-blower'), 'NO_USEFUL_CARD_CHOICE');
     }
     if (matches(sourcePrinting, PRINT.targetWhistle)) {
       return singleChoice(choices, choice =>
-        cardChoiceScore(choice, observation, 'target-whistle'), 'NO_TARGET_WHISTLE_TARGET');
+        cardChoiceScore(choice, observation, 'target-whistle'), 'NO_USEFUL_CARD_CHOICE');
     }
     if (source.includes('faba')) {
       return singleChoice(choices.filter(choice =>
         choiceOwner(choice) === 'opponent' || choiceZone(choice) === 'stadium' ||
         choice.kind === 'stadium'),
-      choice => cardChoiceScore(choice, observation, 'faba'), 'NO_FABA_TARGET');
+      choice => cardChoiceScore(choice, observation, 'faba'), 'NO_USEFUL_CARD_CHOICE');
     }
     if (source.includes('enhanced hammer')) {
       return singleChoice(choices.filter(choice => choiceOwner(choice) === 'opponent'),
         choice => cardChoiceScore(choice, observation, 'enhanced-hammer'),
-        'NO_SPECIAL_ENERGY_TARGET');
+        'NO_VISIBLE_ENERGY_CHOICE');
     }
     if (source.includes('trainers')) {
       return singleChoice(choices, choice =>
-        cardChoiceScore(choice, observation, 'trainers-mail'), 'NO_TRAINERS_MAIL_TARGET');
+        cardChoiceScore(choice, observation, 'trainers-mail'), 'NO_USEFUL_CARD_CHOICE');
     }
     if (source.includes('camping gear')) {
       return singleChoice(choices, choice =>
-        cardChoiceScore(choice, observation, 'camping-gear'), 'NO_CAMPING_GEAR_TARGET');
+        cardChoiceScore(choice, observation, 'camping-gear'), 'NO_USEFUL_CARD_CHOICE');
     }
     if (matches(sourcePrinting, PRINT.targetWhistle)) {
       return singleChoice(choices.filter(choice =>
         choiceOwner(choice) === 'opponent' &&
           (choiceZone(choice) === 'discard' || choice?.publicMetadata?.sourceZone === 'discard')),
       choice => cardChoiceScore(choice, observation, 'target-whistle'),
-      'NO_TARGET_WHISTLE_TARGET');
+      'NO_USEFUL_CARD_CHOICE');
     }
     if (source.includes('echoing horn')) {
       return singleChoice(choices.filter(choice =>
         choiceOwner(choice) === 'opponent' &&
           (choiceZone(choice) === 'discard' || choice?.publicMetadata?.sourceZone === 'discard')),
       choice => cardChoiceScore(choice, observation, 'echoing-horn'),
-      'NO_ECHOING_HORN_TARGET');
+      'NO_USEFUL_CARD_CHOICE');
     }
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_RANK29_CARD_PROMPT' };
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_COMBINATION_SOURCE' };
   }
 
   if (prompt.promptType === 'ChoosePokemonPrompt') {
@@ -660,43 +660,43 @@ function promptDecision(request) {
       if (opponentChoices.length) {
         return singleChoice(opponentChoices,
           choice => opponentPokemonScore(choice, observation, 'guzma'),
-          'NO_TRAPPABLE_OPPONENT_BENCH_TARGET');
+          'NO_VISIBLE_POKEMON_TARGET');
       }
       return singleChoice(choices,
         choice => ownSwitchScore(choice, observation),
-        'NO_SAFE_IRON_THORNS_SWITCH_TARGET');
+        'NO_VISIBLE_POKEMON_TARGET');
     }
     if (source.includes('plumeria')) {
       return singleChoice(choices.filter(choice =>
         choiceOwner(choice) === 'opponent'),
       choice => opponentPokemonScore(choice, observation, 'plumeria'),
-      'NO_OPPONENT_ENERGY_TARGET');
+      'NO_VISIBLE_ENERGY_CHOICE');
     }
     if (source.includes('team flare')) {
       return singleChoice(choices.filter(choice =>
         choiceOwner(choice) === 'opponent' && choiceZone(choice) === 'active'),
       choice => opponentPokemonScore(choice, observation, 'team-flare'),
-      'NO_OPPONENT_ACTIVE_TARGET');
+      'NO_VISIBLE_POKEMON_TARGET');
     }
     if (source.includes('captivating pok')) {
       return singleChoice(choices.filter(choice =>
         choiceOwner(choice) === 'opponent' && choiceZone(choice) === 'hand'),
       choice => cardChoiceScore(choice, observation, 'captivating-puff'),
-      'NO_CAPTIVATING_POKE_PUFF_TARGET');
+      'NO_USEFUL_CARD_CHOICE');
     }
     if (source.includes('echoing horn')) {
       return singleChoice(choices.filter(choice =>
         choiceOwner(choice) === 'opponent' &&
           (choiceZone(choice) === 'discard' || choice?.publicMetadata?.sourceZone === 'discard')),
       choice => cardChoiceScore(choice, observation, 'echoing-horn'),
-      'NO_ECHOING_HORN_TARGET');
+      'NO_USEFUL_CARD_CHOICE');
     }
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_RANK29_POKEMON_PROMPT' };
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_POKEMON_PROMPT' };
   }
 
   if (prompt.promptType === 'ChooseEnergyPrompt') {
     if (source.includes('handheld fan')) {
-      return { kind: 'abstain', reasonCode: 'HANDHELD_FAN_HOOK_BLOCKED' };
+      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
     }
     const context = source.includes('enhanced hammer') ? 'enhanced-hammer' :
       source.includes('team flare') ? 'team-flare-energy' :
@@ -704,11 +704,11 @@ function promptDecision(request) {
     const opponentChoices = choices.filter(choice => choiceOwner(choice) === 'opponent');
     return singleChoice(opponentChoices,
       choice => cardChoiceScore(choice, observation, context),
-      'NO_LEGAL_OPPONENT_ENERGY_TARGET');
+      'NO_VISIBLE_ENERGY_CHOICE');
   }
 
   if (prompt.promptType === 'ChoosePrizePrompt') {
-    return { kind: 'abstain', reasonCode: 'PEONIA_PRIZE_EXCHANGE_UNSUPPORTED' };
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PRIZE_SELECTION' };
   }
 
   if (prompt.promptType === 'ConfirmPrompt' ||
@@ -721,10 +721,10 @@ function promptDecision(request) {
       return { kind: 'select-choice', token: yes.token };
     }
     if (no) return { kind: 'select-choice', token: no.token };
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_RANK29_OPTIONAL_PROMPT' };
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CONFIRMATION_SOURCE' };
   }
 
-  return { kind: 'abstain', reasonCode: 'UNSUPPORTED_RANK29_PROMPT_TYPE' };
+  return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
 }
 
 function hasUsefulDiscardForLusamine(observation) {
@@ -989,7 +989,7 @@ function bestAction(request) {
   if (best) return { kind: 'select-action', token: best.token };
   const pass = items.find(item => item.kind === 'pass');
   return pass ? { kind: 'select-action', token: pass.token } :
-    { kind: 'abstain', reasonCode: 'NO_SUPPORTED_RANK29_ACTION' };
+    { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ROOT_ACTION' };
 }
 
 function createPolicy({ role, seat, policyVersion, config }) {
@@ -1000,7 +1000,7 @@ function createPolicy({ role, seat, policyVersion, config }) {
       policyVersion !== POLICY_VERSION || !config ||
       typeof config !== 'object' || Array.isArray(config) ||
       Object.keys(config).length !== 0) {
-    throw new Error('AGENT39_RANK29_POLICY_INIT_MISMATCH');
+    throw new Error('AGENT4_RANK29_POLICY_INIT_MISMATCH');
   }
 
   return Object.freeze({
