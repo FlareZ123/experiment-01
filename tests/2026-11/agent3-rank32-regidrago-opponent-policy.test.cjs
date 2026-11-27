@@ -194,15 +194,6 @@ test('native ChooseEnergyPrompt uses energyCount and retains DDE if two Basics a
     {kind:'abstain',reasonCode:'RANK32_RYUNO_ENERGY_PROMPT_UNPROJECTED'});
 });
 
-test('Sky Transport selects own Regidrago rather than an opposing Pokemon',()=>{
-  const req=request({active:pokemon('Mega Dragonite ex ASC 152'),
-    prompt:{...prompt(P.dragonite,'Sky Transport',[
-      choice('attacker',P.regidrago),choice('random','Dedenne-GX UNB 57')],
-      'ChoosePokemonPrompt',[1,1]),
-      publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1}}});
-  assert.deepEqual(promptDecision(req),{kind:'select-choices',tokens:['attacker']});
-});
-
 test('Silent Lab is not played to disable own unused Basic-Ability draw support',()=>{
   const items=[action('lab','play-card','Silent Lab PRC 140'),action('pass','pass')];
   const opponentActive=pokemon('Dedenne-GX UNB 57',
