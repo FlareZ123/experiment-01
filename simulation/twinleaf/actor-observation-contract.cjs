@@ -17,6 +17,13 @@ const canonicalCardType=type=>Number.isSafeInteger(type)&&type>=0&&
 // Pinned PokemonCard has `stage` (numeric Stage enum) and `tags` (CardTag[]),
 // NOT a reliable `subtypes` property. Emit the strategic subtype strings
 // consumed throughout candidate and opponent policies.
+const PINNED_STAGE_NAMES=Object.freeze([
+  'NONE','RESTORED','BASIC','STAGE_1','STAGE_2','VMAX',
+  'VSTAR','VUNION','LEGEND','MEGA','BREAK','LV_X'
+]);
+const canonicalStage=stage=>Number.isSafeInteger(stage)&&stage>=0&&
+  stage<PINNED_STAGE_NAMES.length?PINNED_STAGE_NAMES[stage]:stage;
+
 const PINNED_STAGE_SUBTYPES=Object.freeze({
   2:'Basic',3:'Stage 1',4:'Stage 2',5:'VMAX',6:'VSTAR',
   7:'V-UNION',8:'LEGEND',9:'MEGA',10:'BREAK',11:'Lv.X'
@@ -65,7 +72,7 @@ function visiblePokemon(slot){
     // vulnerabilities, and retreat. Printed values are not a final damage
     // or retreat-cost calculation; effects may modify them in the Store.
     printed:{
-      stage:pokemon.stage??null,
+      stage:canonicalStage(pokemon.stage??null),
       subtypes:canonicalPokemonSubtypes(pokemon),
       types:(pokemon.cardType??[]).map(canonicalCardType),
       retreatCost:(pokemon.retreat??[]).map(canonicalCardType),
