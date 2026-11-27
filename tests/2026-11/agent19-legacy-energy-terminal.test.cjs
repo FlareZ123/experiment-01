@@ -93,6 +93,8 @@ test('Actor projection exposes only an actual boolean Legacy use marker',()=>{
     ignoreAttackCostCardTypes:[]};
   const withUse=projection.publicPlayer(playerState);
   assert.equal(withUse.publicTurnRestrictions.legacyEnergyUsed,true);
+  // The actual host projection must satisfy the strict shared worker protocol.
+  assert.doesNotThrow(()=>protocol.validatePublicPlayer(withUse,false));
   playerState.legacyEnergyUsed=false;
   assert.equal(projection.publicPlayer(playerState).publicTurnRestrictions.legacyEnergyUsed,false);
   delete playerState.legacyEnergyUsed;
