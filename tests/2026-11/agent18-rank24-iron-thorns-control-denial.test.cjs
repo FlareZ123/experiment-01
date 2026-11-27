@@ -165,7 +165,7 @@ test('Enhanced Hammer energy prompt selects Special Energy', () => {
       selectionType: 'card-combination', minimumCount: 1, maximumCount: 1
     }
   });
-  assert.deepEqual(policy.decide(request), { kind: 'select-choice', token: 'dce' });
+  assert.deepEqual(policy.decide(request), { kind: 'select-choices', tokens: ['dce'] });
 });
 
 test('Team Flare prompt prefers Special Energy over Basic when both are legal', () => {
