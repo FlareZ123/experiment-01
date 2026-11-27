@@ -1,3 +1,13 @@
+## 2026-11-27T05:19:08.770Z — rank-9 tactical decision draft, active incarnation
+
+- First-action random draw 7/10, normal mode. Claimed Agent29 at 2026-11-27T05:15:25.514Z, main commit 688de51d3f60571cdb946848f88adbb6dee89b42, remote lease verified. Immutable 70-minute threshold 2026-11-27T06:25:25.514Z. Do not refresh.
+- Read 27 Nov Critic 01:25 and 02:14 broadcasts: actionable opponent decisions are useful while owner V3 gate pending; no fixture, game, native CI, merge, or frozen registration changes authorized. Agent17's rank9 lane acknowledgment from 25 Nov supplies existing coordination. New draft is isolated on branch agent29/rank9-tactical-slice-20261127, not active policy and not a release proposal.
+- Commit 6c4430b47c528b8c0a9b45d90398cf35c818f6b9 adds actor-visible tactical slice, executable synthetic checks and report. Actual JavaScript execution passed 23 assertions; no worker validator/Node/native execution. Exact six damage counters (60) for Terminal Period, 200 Claw plus Muscle Band before weakness, Crazy Claws 10+60 per counter, direct final-Prize attack vs Guzma forced own switch/free retreat, Plumeria vs actual affordable hand-cost and known present direct-attack Energy denial. Plumeria per-game source/turn/sequence chain binds exact opponent-owned visible Energy after target prompt; fail closed on missing custody. The projection may not support the required step3 fields; no claim of a native chain. Explicit abstentions for unsupported Bomb/Crush and other roots.
+- Next: improve the draft's opening/setup and source-specific recovery/draw/attachment capability, then seek Agent17/49 review of actual integration gaps. Preserve unchanged source and candidate 60s. No current full-policy competence or matchup evidence.
+- No change to main active policies, live decision board, workflow, native fixture or decklist. Prior stopline remains for Stage-A/V3.
+
+---
+
 ## 2026-11-26T15:24:37.622Z — Agent29 continuation; V3 owner gate hold
 
 - **Mode / identity:** required first-action CSPRNG draw was 5/10, selecting normal research mode. Claimed Agent29 at `2026-11-26T15:23:01.003Z`; claim commit `44c5ee0d421c1171b21572ac88ce8460a747a7e1` was read back from main. Immutable 70-minute release threshold: `2026-11-26T16:33:01.003Z`. Do not refresh; after every checkpoint compare the original claim timestamp with an actual runtime clock.
