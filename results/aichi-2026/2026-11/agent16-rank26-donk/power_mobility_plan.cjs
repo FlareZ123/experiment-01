@@ -18,6 +18,7 @@ function planPowerMobility(input){
  const all=[...board,...handBasics];const ids=all.map(p=>p.id);
  if(all.length>12||ids.some(id=>typeof id!=='string'||!id)||new Set(ids).size!==ids.length||all.some(p=>!Object.hasOwn(TYPES,p.kind))||board.length<1||board.length>6||board.filter(p=>p.active===true).length!==1||board.some(p=>typeof p.active!=='boolean'||!Array.isArray(p.energy)||p.energy.some(e=>e!=='L'&&e!=='DCE')||!['','float','tm','fss'].includes(p.tool)||!int(p.counters,0,TYPES[p.kind].hp-1)))return bad('BOARD');
  for(const [kind,max] of Object.entries({M:1,K:1,U:4,E:2,B:1,S:1,C:1,D:1}))if(all.filter(p=>p.kind===kind).length>max)return bad('PRINT_COUNT');
+ const mode=input.finishMode??'active';if(!['active','sacrificial-bench'].includes(mode))return bad('FINISH_MODE');
  const target=all.find(p=>p.id===input.attackerId);
  if(!target||!['M','B'].includes(target.kind))return bad('ATTACKER');
  if(input.firstTurnGoingFirst&&(target.kind!=='M'||!input.debutEffective))return {status:'unreachable-under-model',reason:'FIRST_TURN_ATTACK_PROHIBITED'};
@@ -29,10 +30,10 @@ function planPowerMobility(input){
  const maxStates=input.maxStates??100000;if(!int(maxStates,1,1000000))return bad('LIMIT');
  const key=s=>JSON.stringify({...s,board:s.board.map(p=>({...p,energy:[...p.energy].sort()})).sort((a,b)=>a.id.localeCompare(b.id)),handBasics:[...s.handBasics].sort((a,b)=>a.id.localeCompare(b.id))});
  const q=[{s:initial,parent:-1,action:null}],seen=new Set([key(initial)]);let capped=false;
- const finish=s=>{const a=s.board.find(p=>p.id===input.attackerId);return !!a&&a.active&&a.tool==='tm'&&energyUnits(a)>=3;};
+ const finish=s=>{const a=s.board.find(p=>p.id===input.attackerId);const active=s.board.find(p=>p.active);return !!a&&a.tool==='tm'&&energyUnits(a)>=3&&(mode==='active'?a.active:!a.active&&['E','U','B'].includes(active.kind));};
  for(let pos=0;pos<q.length;pos++){
   const s=q[pos].s;
-  if(finish(s)){const actions=[];for(let j=pos;j>0;j=q[j].parent)actions.push(q[j].action);actions.reverse();return {status:'solved',actions,explored:pos+1,dowsingUsed:initial.dowsing&&!s.dowsing,final:s};}
+  if(finish(s)){const actions=[];for(let j=pos;j>0;j=q[j].parent)actions.push(q[j].action);actions.reverse();return {status:'solved',actions,explored:pos+1,dowsingUsed:initial.dowsing&&!s.dowsing,requiresPromotion:mode==='sacrificial-bench',final:s};}
   const add=(n,action)=>{const k=key(n);if(seen.has(k))return;if(q.length>=maxStates){capped=true;return;}seen.add(k);q.push({s:n,parent:pos,action});};
   const edit=(action,fn)=>{const n=copy(s);fn(n);add(n,action);};
   const a=s.board.find(p=>p.active),t=s.board.find(p=>p.id===input.attackerId),k=s.board.find(p=>p.kind==='K');
