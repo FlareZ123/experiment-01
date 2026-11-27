@@ -313,19 +313,7 @@ return module.exports;})();
   // roster and total membership agrees with the public count. K0 uses the
   // exchangeable unseen pool (deck + unrevealed Prizes), not guessed slots.
   function acquisitionInventory(o){
-    const pool=Object.fromEntries(Object.keys(COPIES).map(k=>[k,0]));
-    const k1=o.ownerK1;
-    if(k1?.exactMembershipKnown===true&&Array.isArray(k1.knownPrintings)){
-      let valid=true,sum=0;
-      for(const row of k1.knownPrintings){
-        const k=kind(row.printing);
-        if(!k||!Number.isSafeInteger(row.copies)||row.copies<0){valid=false;break;}
-        pool[k]+=row.copies;sum+=row.copies;
-        if(pool[k]>COPIES[k]){valid=false;break;}
-      }
-      if(valid&&sum===own(o).deckCount)return {status:'K1',pool,size:sum};
-    }
-    Object.assign(pool,COPIES);
+    const pool={...COPIES};
     const visibleCards=[...hand(o),...discard(o),...arr(own(o).lostZone),...arr(own(o).stadium),
       ...arr(own(o).resolvingSupporter),...arr(own(o).prizeSlots).filter(x=>typeof x?.printing==='string'),
       ...board(o).flatMap(x=>[x.p,...arr(x.p.energies),...arr(x.p.tools),...arr(x.p.evolutionPrintings)])];
@@ -336,6 +324,18 @@ return module.exports;})();
     const prizes=own(o).prizeCount,knownPrize=arr(own(o).prizeSlots).filter(x=>typeof x?.printing==='string').length;
     if(!Number.isSafeInteger(prizes)||!Number.isSafeInteger(own(o).deckCount)||
       size!==own(o).deckCount+prizes-knownPrize)return null;
+    const k1=o.ownerK1;
+    if(k1?.exactMembershipKnown===true&&Array.isArray(k1.knownPrintings)){
+      const deck=Object.fromEntries(Object.keys(COPIES).map(k=>[k,0]));
+      let valid=true,sum=0;
+      for(const row of k1.knownPrintings){
+        const k=kind(row.printing);
+        if(!k||!Number.isSafeInteger(row.copies)||row.copies<0){valid=false;break;}
+        deck[k]+=row.copies;sum+=row.copies;
+        if(deck[k]>pool[k]){valid=false;break;}
+      }
+      if(valid&&sum===own(o).deckCount)return {status:'K1',pool:deck,size:sum};
+    }
     return {status:'K0',pool,size};
   }
   function binom(n,k){if(k<0||k>n)return 0;k=Math.min(k,n-k);let a=1;for(let i=1;i<=k;i++)a=a*(n-k+i)/i;return a;}
@@ -362,25 +362,30 @@ return module.exports;})();
     const toolOnM=!!m&&has(m.p.tools,'TM');
     const pumps=Math.max(0,Math.ceil((opp(o).prizeCount-1)/2)-n(h,'DP'));
     const eggs=Math.max(0,2-countBoard(o,'E')-n(h,'E')-n(discard(o),'E'));
+    const sealLive=(!!find(o,'C')||has(h,'C'))&&!own(o).publicTurnRestrictions?.vstarUsed;
+    const fss=sealLive?['FSS']:[];
+    const ball=benchRoom(o)>0?['QB','VIP']:[];
     const needs=[];
     const add=(keys,weight,count=1)=>{if(count>0)needs.push({keys,weight,count});};
-    if(!hasM)add(['M','QB','VIP','HB'],340);
-    if(!powered&&!lightOnM&&!hasK&&!has(own(o).lostZone,'K'))add(['K','QB','VIP','HB'],300);
-    if(!powered&&!dceOnM&&!has(h,'DCE'))add(['DCE','FSS'],360);
-    if(!toolOnM&&!has(h,'TM'))add(['TM','FSS','MAIL','PAD'],230);
+    if(!hasM)add(['M',...ball],340);
+    if(!powered&&!lightOnM&&!hasK&&!has(own(o).lostZone,'K'))add(['K',...ball],300);
+    if(!powered&&!dceOnM&&!has(h,'DCE'))add(['DCE',...fss],360);
+    if(!toolOnM&&!has(h,'TM'))add(['TM',...fss,'MAIL'],230);
     if(!ruins(o)&&!has(h,'R'))add(['R','NAV','MAIL'],220);
     if(!powered&&!lightOnM&&!has(discard(o),'L')&&!has(h,'L'))add(['L','BC'],230);
     if(!powered&&!lightOnM&&!has(discard(o),'L')&&!has(h,'BC')&&has(h,'L'))add(['QB','BC'],170);
     if(pumps>0)add(['DP','DM','MAIL','PAD'],150,pumps);
-    if(eggs>0)add(['E','BC','QB','VIP','HB'],105,eggs);
-    if(m?.zone==='bench'&&arr(a?.printed?.retreatCost).length>0&&!has(a?.tools,'FLOAT')&&!has(h,'FLOAT')&&!has(h,'ROPE'))add(['FLOAT','ROPE','FSS','MAIL'],150);
-    if(lockLive(o)&&!has(h,'COL'))add(['COL','FSS','MAIL','PAD'],190);
+    if(eggs>0)add(['E','BC',...ball],105,eggs);
+    if(m?.zone==='bench'&&arr(a?.printed?.retreatCost).length>0&&!has(a?.tools,'FLOAT')&&!has(h,'FLOAT')&&!has(h,'ROPE'))add(['FLOAT','ROPE',...fss,'MAIL'],150);
+    if(lockLive(o)&&!has(h,'COL'))add(['COL',...fss,'MAIL','PAD'],190);
     return needs;
   }
   function expectedDrawValue(o,draws,postHand=hand(o)){
     const inv=acquisitionInventory(o);
     if(!inv||draws<=0||own(o).deckCount<=0)return null;
     const nDraw=Math.min(draws,own(o).deckCount,inv.size);
+    // Marginal weighted opportunity score: connector overlap is intentional and
+    // must NOT be interpreted as joint success probability or a win forecast.
     return resourceNeeds(o,postHand).reduce((s,row)=>{
       const K=row.keys.reduce((x,k)=>x+inv.pool[k],0);
       return s+row.weight*expectedUseful(inv.size,K,nDraw,row.count);
@@ -455,8 +460,8 @@ return module.exports;})();
     return 0;
   }
   function basicScore(o,k,fromDeckDirect=false){
-    if(k==='M'&&!find(o,'M')&&!has(hand(o),'M')&&available(o,'M')!==false)return 300;
-    if(k==='K'&&!find(o,'K')&&!has(hand(o),'K')&&!has(own(o).lostZone,'K')&&available(o,'K')!==false)return 260;
+    if(k==='M'&&!find(o,'M')&&!has(hand(o),'M'))return 300;
+    if(k==='K'&&!find(o,'K')&&!has(hand(o),'K')&&!has(own(o).lostZone,'K'))return 260;
     if(k==='E'&&needEgg(o))return 180;
     if(k==='B'&&!find(o,'B')&&!has(hand(o),'B')&&!find(o,'M'))return 140;
     if(k==='U'&&countBoard(o,'U')+n(hand(o),'U')<2)return 100;
