@@ -11,7 +11,7 @@ function card(fullName) {
 }
 function occupied(n) {
   const pokemon=card(n);
-  return {getPokemonCard:()=>pokemon,cards:[pokemon],damage:0,
+  return {getPokemonCard:()=>pokemon,cards:[pokemon],damage:0,pokemonPlayedTurn:1,
     energies:{cards:[]},tools:[]};
 }
 function empty() {
