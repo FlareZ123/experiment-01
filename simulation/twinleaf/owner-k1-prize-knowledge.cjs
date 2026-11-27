@@ -135,6 +135,57 @@ function advanceOwnerK1(snapshot, transition) {
 }
 
 /**
+ * Create a host-only, fail-closed witness that the owner's *physical Prize
+ * multiset* has remained unchanged across Store mutations. The witness never
+ * reads Prize card names, card IDs, deck order, or opponent concealed zones.
+ * Only the exact original State object and the original Prize-card object
+ * references may satisfy it; detached/redeterminized states are not admitted.
+ *
+ * Store this capability solely in the trusted host adapter. Do not serialize
+ * it or expose native handles to actor observations/worker decisions.
+ *
+ * If the pinned Store re-creates Prize Card objects, this witness safely
+ * declines to certify continuity. It does not assume face identity can change
+ * in place on an existing Card object without a physical Prize-zone mutation.
+ *
+ * @param {object} state Native current Store State, not a sampled clone.
+ * @param {0|1} ownerSeat Owner's fixed physical seat.
+ * @returns {{unchanged:(state:object)=>boolean}|null} Opaque custody proof.
+ */
+function createOwnerPrizeCompositionGuard(state, ownerSeat) {
+  assert.ok(ownerSeat === 0 || ownerSeat === 1, 'Invalid owner seat');
+  assert.ok(state?.players?.length === 2, 'A two-seat native State is required');
+  const owner = state.players[ownerSeat];
+  const collect = () => {
+    if (!Array.isArray(owner?.prizes)) return null;
+    const cards = [];
+    for (const slot of owner.prizes) {
+      if (!Array.isArray(slot?.cards) || slot.cards.length > 1) return null;
+      for (const card of slot.cards) {
+        if (card === null || typeof card !== 'object') return null;
+        cards.push(card);
+      }
+    }
+    if (new Set(cards).size !== cards.length) return null;
+    return cards;
+  };
+  let original;
+  try { original = collect(); } catch { return null; }
+  if (original === null) return null;
+  const originalRefs = new Set(original);
+  return Object.freeze({
+    unchanged(nextState) {
+      if (nextState !== state || nextState.players[ownerSeat] !== owner)
+        return false;
+      let current;
+      try { current = collect(); } catch { return false; }
+      return current !== null && current.length === originalRefs.size &&
+        current.every(card => originalRefs.has(card));
+    }
+  });
+}
+
+/**
  * Refuse an unreachable deck-search line when the actor legitimately knows
  * that every registered copy of its required printing was Prized.
  * Otherwise remain conservative about draws, recovery and search costs.
@@ -153,5 +204,6 @@ function assessRequiredDeckPrinting(snapshot, target) {
 
 module.exports = {
   countPrintings, knownOutsideDeck, captureOwnerK1,
-  advanceOwnerK1, assessRequiredDeckPrinting
+  advanceOwnerK1, assessRequiredDeckPrinting,
+  createOwnerPrizeCompositionGuard
 };
