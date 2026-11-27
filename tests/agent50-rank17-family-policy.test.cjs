@@ -135,6 +135,12 @@ function runCases(policy,protocol) {
     v=view(seat,{ownHand:[A.mail],ownPublic:player({discard:[A.voltorb]})});
     same(runRoot(p,v,[play('mail',A.mail),pass]),action('mail'),tag+'Mail root');
     same(runPrompt(p,v,cards(v,A.mail,"Trainers' Mail",'deck',[A.mail,A.carrier,A.research,A.vip],0,1)),choose('c1'),tag+'Mail selects live Carrier');
+    const mailSecret=view(seat,{globalTurn:4,ownHand:[A.mail,A.vip,A.vip,A.unit,A.unit],
+      ownPublic:player({active:slot(A.raichu,{hp:110}),deckCount:30})});
+    same(runPrompt(p,mailSecret,cards(mailSecret,A.mail,"Trainers' Mail",'deck',[A.secret,A.research,A.carrier],0,1)),choose('c0'),tag+'Mail selects payable Secret Box');
+    const mailNoPay=view(seat,{globalTurn:4,ownHand:[A.mail,A.unit],
+      ownPublic:player({active:slot(A.raichu,{hp:110}),deckCount:30})});
+    same(runPrompt(p,mailNoPay,cards(mailNoPay,A.mail,"Trainers' Mail",'deck',[A.secret,A.research],0,1)),choose('c1'),tag+'Mail rejects unpayable Secret Box');
     // Rank17 root cannot invoke unsupported core prompt paths.
     v=view(seat,{ownPublic:player({bench:[slot(A.electrode)]})});
     same(runRoot(p,v,[ability('bomb',A.electrode,'Extra Energy Bomb',0),pass]),abstain('NO_SUPPORTED_ROOT_ACTION'),tag+'explicit Bomb abstention');
