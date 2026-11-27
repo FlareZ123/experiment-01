@@ -14,3 +14,13 @@ test('Bunnelby only legal first turn going second',()=>{const o={attackerId:'B',
 test('already ready needs no further action',()=>{const r=p(base({board:[b('M',true,'tm',['DCE','L'])],handBasics:[],dceHand:0,lightningDiscard:0,trainersHand:{},manualAvailable:false}));assert.equal(r.status,'solved');assert.deepEqual(r.actions,[]);});
 test('a locked full board with no pivot expansion fails closed',()=>{const board=[b('S',true),b('D',false),b('C',false),b('U',false),b('E',false),b('B',false)];assert.equal(p(base({board})).status,'unreachable-under-model');});
 test('no falsely declared failure at state cap',()=>assert.equal(p(base({maxStates:1})).status,'limit'));
+test('prepowered Benched attacker can hand off to sacrificial promotion planner',()=>{
+ const r=p(base({finishMode:'sacrificial-bench',board:[b('E',true)],trainersHand:{tm:1}}));
+ assert.equal(r.status,'solved');assert.equal(r.requiresPromotion,true);assert.equal(r.final.board.find(x=>x.id==='M').active,false);
+ assert.equal(r.final.board.find(x=>x.id==='E').active,true);
+});
+test('starting Meloetta can Rope to a damaged sacrificial Egg instead of requiring Float',()=>{
+ const r=p(base({finishMode:'sacrificial-bench',board:[b('M',true)],handBasics:[h('K'),h('E')],trainersHand:{rope:1,tm:1}}));
+ assert.equal(r.status,'solved');assert.equal(r.final.board.find(x=>x.id==='E').active,true);
+ assert.equal(r.final.board.find(x=>x.id==='E').counters,2);assert.equal(r.requiresPromotion,true);
+});
