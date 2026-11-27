@@ -607,10 +607,95 @@ function projectSimplePrompt(prompt, state, choices, choiceByToken) {
   return null;
 }
 
+function projectElectrodeBombTransfers({
+  prompt,state,actorSeat,native,source,choices,choiceByToken
+}) {
+  const actor=state.players[actorSeat];
+  // Pinned CES48 Electrode-GX: one AttachEnergyPrompt from the actor's
+  // public discard, min:0/max:5, to own Active/Bench excluding EX and GX.
+  // The native validator does NOT enforce blockedTo. Our dispatch does.
+  const validSource=source?.sourceKind==='card-effect'&&
+    source.sourcePrinting==='Electrode-GX CES'&&
+    source.effectName==='Extra Energy Bomb';
+  const opt=prompt.options;
+  const validShape=validSource&&prompt.message==='ATTACH_ENERGY_CARDS'&&
+    prompt.cardList===actor.discard&&
+    prompt.playerType===native.PlayerType.BOTTOM_PLAYER&&
+    Array.isArray(prompt.slots)&&prompt.slots.length===2&&
+    prompt.slots[0]===native.SlotType.BENCH&&
+    prompt.slots[1]===native.SlotType.ACTIVE&&
+    prompt.filter?.superType===native.SuperType.ENERGY&&
+    Object.keys(prompt.filter).length===1&&
+    opt?.allowCancel===false&&opt?.min===0&&opt?.max===5&&
+    Array.isArray(opt.blockedTo)&&Array.isArray(opt.blocked)&&
+    opt.blocked.length===0&&!opt.differentTypes&&!opt.sameTarget&&!opt.differentTargets;
+  if(!validShape)throw Object.assign(
+    new Error('Unsupported pinned Electrode-GX Extra Energy Bomb prompt shape'),
+    {code:'UNSUPPORTED_ELECTRODE_BOMB_PROMPT_SHAPE'});
+  assert.ok(typeof native.EnergyCard==='function'&&native.EnergyType&&
+    native.PlayerType&&native.SlotType&&native.SuperType,
+    'pinned Extra Energy Bomb native bindings missing');
+
+  const energies=cardListCards(prompt.cardList).map((card,index)=>({card,index}))
+    .filter(({card})=>card instanceof native.EnergyCard&&
+      card.superType===native.SuperType.ENERGY);
+  const blocked=new Set(opt.blockedTo.map(t=>[t.player,t.slot,t.index].join('|')));
+  const targets=[];
+  const pushTarget=(slot,slotType,index)=>{
+    const card=slot?.getPokemonCard?.();
+    if(!card)return;
+    const target={player:native.PlayerType.BOTTOM_PLAYER,slot:slotType,index};
+    if(blocked.has([target.player,target.slot,target.index].join('|')))return;
+    // Redundant printed-name veto, in addition to pinned blockedTo.
+    if(/-(?:GX|EX)(?:\s|$)/.test(card.fullName??''))return;
+    targets.push({target,card,zone:slotType===native.SlotType.ACTIVE?'active':'bench',index});
+  };
+  pushTarget(actor.active,native.SlotType.ACTIVE,0);
+  actor.bench.forEach((slot,index)=>pushTarget(slot,native.SlotType.BENCH,index));
+  if(energies.length===0||targets.length===0)throw Object.assign(
+    new Error('No playable public Energy and unblocked recipient for Extra Energy Bomb'),
+    {code:'NO_ELIGIBLE_ELECTRODE_BOMB_TRANSFER'});
+  if(energies.length*targets.length>MAX_PROMPT_CHOICES)throw Object.assign(
+    new Error('Extra Energy Bomb transfer frontier exceeds protocol limit'),
+    {code:'PROMPT_FRONTIER_TOO_LARGE'});
+  for(const {card,index} of energies){
+    const energyPrinting=printing(card);
+    if(!energyPrinting)throw Object.assign(
+      new Error('Extra Energy Bomb public discard Energy is missing identity'),
+      {code:'UNKNOWN_ELECTRODE_BOMB_ENERGY'});
+    for(const entry of targets){
+      addSelectableItem(choices,choiceByToken,{
+        index,to:{...entry.target}
+      },{
+        kind:'energy',printing:energyPrinting,
+        label:'Attach '+energyPrinting+' to '+entry.zone+
+          (entry.zone==='bench'?' '+(entry.index+1):'')+
+          ': '+(printing(entry.card)??entry.card.name),
+        publicMetadata:{
+          selectionIndex:index,sourceZone:'discard',ownerSeat:'actor',
+          isOwnerVisible:true,selectedCount:1,
+          energyType:card.energyType===native.EnergyType.BASIC?'BASIC':'SPECIAL',
+          zone:entry.zone,slotIndex:entry.index
+        }
+      });
+    }
+  }
+  const needed=Math.min(5,energies.length);
+  return {
+    selectionType:'energy-transfers',count:choices.length,
+    minimumCount:needed,maximumCount:needed,allowCancel:false,
+    sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true
+  };
+}
+
 function projectAttachEnergyPrompt({
   prompt,state,actorSeat,native,store,source,choices,choiceByToken
 }={}){
   const actor=state.players[actorSeat];
+  if(source?.sourceKind==='card-effect'&&
+      source.sourcePrinting==='Electrode-GX CES'&&
+      source.effectName==='Extra Energy Bomb')
+    return projectElectrodeBombTransfers({prompt,state,actorSeat,native,source,choices,choiceByToken});
   const supportedSource=source?.sourceKind==='card-effect'&&
     source.effectName==='Underworld Door'&&
     typeof source.sourcePrinting==='string'&&
@@ -1022,7 +1107,7 @@ function dispatchPromptChoice({
     const unique = new Set(selected.tokens);
     assert.equal(unique.size, selected.tokens.length, 'multi-select decision contains duplicate tokens');
     const selectionType = projection.promptProjection?.publicMetadata?.selectionType;
-    assert.ok(['card-combination', 'pokemon', 'energy-payment', 'prize-slots', 'card-order'].includes(selectionType),
+    assert.ok(['card-combination', 'pokemon', 'energy-payment', 'energy-transfers', 'prize-slots', 'card-order'].includes(selectionType),
       'multi-select decision is unsupported for this prompt type');
     rawResult = selected.tokens.map(selectedToken => {
       assert.equal(typeof selectedToken, 'string');
@@ -1037,6 +1122,44 @@ function dispatchPromptChoice({
     throw Object.assign(new Error('Unsupported typed worker prompt decision'), {
       code: 'UNSUPPORTED_WORKER_PROMPT_DECISION'
     });
+  }
+
+  // The pinned native AttachEnergyPrompt.validate() neither checks duplicate
+  // physical card indices nor blockedTo recipients. Reject either before
+  // cloned/live Store dispatch; one token represents one physical transfer.
+  if(projection.promptProjection?.publicMetadata?.selectionType==='energy-transfers'){
+    const source=projection.promptProjection.source;
+    assert.equal(source.sourceKind,'card-effect');
+    assert.equal(source.sourcePrinting,'Electrode-GX CES');
+    assert.equal(source.effectName,'Extra Energy Bomb');
+    const actor=state.players[actorSeat];
+    assert.equal(prompt.cardList,actor.discard);
+    assert.ok(Array.isArray(rawResult)&&rawResult.length>0&&rawResult.length<=5);
+    const knownEnergy=cardListCards(actor.discard).filter(card=>
+      card instanceof native.EnergyCard&&card.superType===native.SuperType.ENERGY).length;
+    assert.equal(rawResult.length,Math.min(5,knownEnergy),
+      'Extra Energy Bomb must use distinct physical Energy up to five');
+    const used=new Set();
+    const blocked=new Set((prompt.options?.blockedTo??[]).map(t=>
+      [t.player,t.slot,t.index].join('|')));
+    for(const transfer of rawResult){
+      const idx=transfer?.index,to=transfer?.to;
+      assert.ok(Number.isSafeInteger(idx)&&idx>=0&&idx<actor.discard.cards.length);
+      assert.equal(used.has(idx),false,'Extra Energy Bomb cannot reuse the same Energy');
+      used.add(idx);
+      assert.ok(actor.discard.cards[idx] instanceof native.EnergyCard);
+      assert.equal(actor.discard.cards[idx].superType,native.SuperType.ENERGY);
+      assert.equal(to?.player,native.PlayerType.BOTTOM_PLAYER);
+      assert.ok(to?.slot===native.SlotType.ACTIVE||to?.slot===native.SlotType.BENCH);
+      assert.ok(Number.isSafeInteger(to.index)&&to.index>=0);
+      assert.equal(blocked.has([to.player,to.slot,to.index].join('|')),false,
+        'Extra Energy Bomb target cannot be EX/GX');
+      const slot=to.slot===native.SlotType.ACTIVE?actor.active:actor.bench[to.index];
+      const target=slot?.getPokemonCard?.();
+      assert.ok(target,'Extra Energy Bomb target must remain occupied');
+      assert.equal(/-(?:GX|EX)(?:\\s|$)/.test(target.fullName??''),false,
+        'Extra Energy Bomb cannot attach to printed EX/GX');
+    }
   }
 
   let validationReceipt = null;
