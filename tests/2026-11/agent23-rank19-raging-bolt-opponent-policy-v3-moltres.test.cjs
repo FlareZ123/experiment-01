@@ -189,3 +189,33 @@ for(const seat of [0,1]){
   assert.deepEqual(mod.tacticalPrompt(r),choices('bird'));
  });
 }
+
+const exactTargets=require('../../simulation/evaluation/2026-11/agent23-rank19-candidate-targets.cjs');
+test('complete exact candidate target map: weakness, remaining HP and base prizes',()=>{
+ const rows=[
+ ['Shadow Rider Calyrex V CRE 74',210,2],['Shadow Rider Calyrex VMAX CRE 75',320,3],["Lillie's Clefairy ex JTG 56",190,2],
+ ['Trevenant & Dusknoir-GX SMP 217',270,3],['Tapu Lele-GX GRI 60',170,2],['Latias ex SSP 76',210,2],['Dialga-GX UPR 100',180,2],
+ ['Mimikyu GRI 58',70,1],['Girafarig LOT 94',90,1],['Marshadow UNB 81',80,1],['Radiant Eternatus CRZ 105',170,1],['Wobbuffet PHF 36',110,1]
+ ];
+ for(const [printing,hp,prizes] of rows){
+  assert.equal(exactTargets.auraPrizeValue(mon(printing,hp)),prizes);
+  assert.equal(exactTargets.knockoutCost(mon(printing,hp)),Math.ceil(hp/70));
+ }
+ assert.equal(exactTargets.auraPrizeValue(mon('Shadow Rider Calyrex VMAX CRE 74',320)),0);
+ assert.equal(exactTargets.auraPrizeValue(mon("Lillie's Clefairy ex JTG 56",200)),0);
+ assert.equal(exactTargets.auraPrizeValue(mon("Lillie's Clefairy ex JTG 56",200,[],10)),2);
+});
+for(const seat of [0,1]){
+ test('seat '+seat+' three-Prize gust outvalues nonterminal one-Prize direct knockout',()=>{
+  const r=request(seat,adp(),benchSlot(molt()),mon('Wobbuffet PHF',110),benchSlot(mon('Trevenant & Dusknoir-GX SMP',270)),[retreat(seat),gust,pass]);
+  r.observation.ownPublic.prizeCount=4;
+  assert.deepEqual(mod.tacticalRoot(r),sel('guzma'));
+ });
+ test('seat '+seat+' Aura Burn self-KO accepted only for safe terminal prize race',()=>{
+  const r=request(seat,molt([D,D,L],190),benchSlot(latias()),vmax(),[],[burn,pass]);
+  r.observation.ownPublic.prizeCount=3;r.observation.opponentPublic.prizeCount=3;
+  assert.deepEqual(mod.tacticalRoot(r),sel('burn'));
+  r.observation.opponentPublic.prizeCount=2;assert.equal(mod.tacticalRoot(r),null);
+  r.observation.opponentPublic.prizeCount=3;r.observation.ownPublic.bench=[];assert.equal(mod.tacticalRoot(r),null);
+ });
+}
