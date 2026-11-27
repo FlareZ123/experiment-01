@@ -149,17 +149,24 @@ function vipPrompt(request) {
   const find=pattern=>offered.find(x=>has(x,pattern)&&!picked.some(y=>y.token===x.token));
   const clefsAlready=slots(o.ownPublic).filter(x=>has(x,P.clefairy)).length+
     o.ownHand.filter(x=>has(x,P.clefairy)).length;
-  const availableClefs=offered.filter(x=>has(x,P.clefairy));
-  for(let i=0;i<Math.min(2-clefsAlready,availableClefs.length,m.maximumCount);i++){
+  // A first Clefairy and Latias enable attacking + retreat mobility.
+  if(clefsAlready===0 && picked.length<m.maximumCount){
     const x=find(P.clefairy);if(x)picked.push(x);
   }
-  if(picked.length<m.maximumCount&&!slots(o.ownPublic).some(x=>/^Latias ex SSP 76\b/i.test(text(x)))){
+  if(picked.length<m.maximumCount &&
+     !slots(o.ownPublic).some(x=>/^Latias ex SSP 76\b/i.test(text(x))) &&
+     !o.ownHand.some(x=>/^Latias ex SSP 76\b/i.test(text(x)))){
     const x=find(/^Latias ex SSP 76\b/i);if(x)picked.push(x);
   }
-  if(picked.length<m.maximumCount && picked.length===0){
+  if(picked.length<m.maximumCount && clefsAlready+
+      picked.filter(x=>has(x,P.clefairy)).length<2){
+    const x=find(P.clefairy);if(x)picked.push(x);
+  }
+  if(picked.length===0){
     const x=find(/^Mimikyu GRI 58\b/i)??find(/^Unown AOR 30\b/i);
     if(x)picked.push(x);
   }
+
   if(picked.length<m.minimumCount)return no('R30_VIP_NO_TARGET');
   if(picked.length===0){
     const empty=arr(p.choices).find(x=>x.kind==='empty-selection'&&typeof x.token==='string');
