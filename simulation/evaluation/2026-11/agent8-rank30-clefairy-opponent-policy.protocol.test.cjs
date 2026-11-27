@@ -433,3 +433,59 @@ test('Trainers Mail optional no-Trainer and source owner gate fail closed',()=>{
   r.prompt.publicMetadata.sourceZone='opponentDeck';
   assertValid(0,r,{kind:'abstain',reasonCode:'UNSUPPORTED_CARD_COMBINATION_SOURCE'});
 });
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' Ultra Ball spends exactly two disposable copies to find unprized source Clefairy',()=>{
+    const r=request(seat,['Ultra Ball MEG','Battle VIP Pass FST','Battle VIP Pass FST'],
+      [],'Ultra Ball MEG','hand',
+      [['Battle VIP Pass FST','vip-a'],['Battle VIP Pass FST','vip-b']],2,2);
+    r.observation.globalTurn=4;
+    r.observation.ownPublic.active={printing:'Unown AOR',hp:60,damage:0};
+    r.prompt=null;
+    r.actionFrontier.items=[{kind:'play-card',actorPrinting:'Ultra Ball MEG',token:'ultra'}];
+    assert.deepEqual(p(seat).decide(r),{kind:'select-action',token:'ultra'});
+    r.prompt=request(seat,['Ultra Ball MEG','Battle VIP Pass FST','Battle VIP Pass FST'],
+      [],'Ultra Ball MEG','hand',
+      [['Battle VIP Pass FST','vip-a'],['Battle VIP Pass FST','vip-b']],2,2).prompt;
+    r.prompt.source.effectName='Ultra Ball';
+    assertValid(seat,r,{kind:'select-choices',tokens:['vip-a','vip-b']});
+    r.prompt=request(seat,[],[],'Ultra Ball MEG','deck',
+      [[clef,'clefairy'],['Minior PAR','minior']],0,1).prompt;
+    r.observation.ownHand=[];
+    assertValid(seat,r,{kind:'select-choices',tokens:['clefairy']});
+  });
+  test('seat '+seat+' Ultra Ball cannot burn last anti-Snorlax Psychic Energy across two-card cost',()=>{
+    const r=request(seat,['Ultra Ball MEG','Psychic Energy MEE',
+      'Psychic Energy MEE'],[],'Ultra Ball MEG','hand',
+      [['Psychic Energy MEE','psychic-a'],['Psychic Energy MEE','psychic-b']],2,2);
+    r.observation.globalTurn=4;
+    r.observation.ownTurnResources={energyPlayedTurn:0};
+    r.observation.ownPublic.active={printing:clef,hp:190,damage:0,energies:[]};
+    r.observation.opponentPublic.active={printing:'Snorlax PGO',hp:150,damage:0,tools:[]};
+    r.actionFrontier.items=[{kind:'play-card',actorPrinting:'Ultra Ball MEG',token:'ultra'}];
+    r.prompt=null;
+    assert.deepEqual(p(seat).decide(r),{kind:'abstain',reasonCode:'NO_SUPPORTED_ROOT_ACTION'});
+    r.prompt=request(seat,['Ultra Ball MEG','Psychic Energy MEE',
+      'Psychic Energy MEE'],[],'Ultra Ball MEG','hand',
+      [['Psychic Energy MEE','psychic-a'],['Psychic Energy MEE','psychic-b']],2,2).prompt;
+    r.prompt.source.effectName='Ultra Ball';
+    assertValid(seat,r,{kind:'abstain',reasonCode:'NO_LEGAL_CARD_SET'});
+    r.observation.ownHand=['Ultra Ball MEG','Psychic Energy MEE',
+      'Psychic Energy MEE','Battle VIP Pass FST'];
+    r.prompt=request(seat,r.observation.ownHand,[],'Ultra Ball MEG','hand',
+      [['Psychic Energy MEE','psychic-a'],['Psychic Energy MEE','psychic-b'],
+        ['Battle VIP Pass FST','vip']],2,2).prompt;
+    assertValid(seat,r,{kind:'select-choices',tokens:['psychic-a','vip']});
+  });
+}
+test('Ultra Ball deck search prioritizes Minior against visible rank3 Snorlax and fails to find safely',()=>{
+  const r=request(0,[],[],'Ultra Ball MEG','deck',
+    [[clef,'clefairy'],['Minior PAR','minior']],0,1);
+  r.observation.ownPublic.active={printing:clef,energies:[]};
+  r.observation.opponentPublic.active={printing:'Snorlax PGO',hp:150,damage:0,tools:[]};
+  r.prompt.source.effectName='Ultra Ball';
+  assertValid(0,r,{kind:'select-choices',tokens:['minior']});
+  r.prompt=request(0,[],[],'Ultra Ball MEG','deck',[],0,1).prompt;
+  assertValid(0,r,{kind:'select-choice',token:'none'});
+});
