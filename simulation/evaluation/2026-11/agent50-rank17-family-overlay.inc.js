@@ -904,6 +904,16 @@ function r17FreeRetreat(item,view) {
 const R17_TARGET_ROWS=Object.freeze([
   [/^Shadow Rider Calyrex VMAX CRE(?: 75)?$/i,3,true],
   [/^Shadow Rider Calyrex V CRE(?: 74)?$/i,2,true],
+  // Exact New Moon Lockbreaker English mechanics-proxy printings.
+  [/^Mewtwo & Mew-GX UNM(?: 71)?$/i,3,true],
+  [/^Gengar & Mimikyu-GX TEU(?: 53)?$/i,3,true],
+  [/^Galarian Articuno V CRE(?: 58)?$/i,2,true],
+  [/^Squawkabilly ex PAL(?: 169)?$/i,2,false],
+  [/^Unown AOR(?: 30)?$/i,1,false],
+  [/^Dusclops SFA(?: 19)?$/i,1,false],
+  [/^Duskull VIV(?: 69)?$/i,1,false],
+  [/^Solrock CES(?: 62)?$/i,1,false],
+  [/^Lunatone OBF(?: 92)?$/i,1,false],
   [/^Lillie['’]s Clefairy ex JTG(?: 56)?$/i,2,false],
   [/^Tapu Lele-GX GRI(?: 60)?$/i,2,true],
   [/^Trevenant & Dusknoir-GX SMP(?: 217)?$/i,3,true],
@@ -952,7 +962,7 @@ function r17RainCapacity(view,p,{extraDiscard=[],extraAttached=[],ignoreTemple=f
 }
 function r17VisibleRainTargets(view,p,forceSight=false) {
   const stad=r17Stadium(view);
-  if(stad&&!/^(Sky Field ROS|Dimension Valley PHF|Temple of Sinnoh ASR|Pok[eé]Stop PGO)(?: \d+)?$/i.test(stad))return null;
+  if(stad&&!/^(Sky Field ROS|Dimension Valley PHF|Temple of Sinnoh ASR|Pok[eé]Stop PGO|Path to the Peak CRE|Power Plant UNB)(?: \d+)?$/i.test(stad))return null;
   const sight=r17StadiumToolLive(view)&&(forceSight||list(p?.tools).some(c=>r17Key(c)==='sight'));
   const targets=[];
   for(const [zone,rows] of [['active',[active(opponent(view))]],['bench',list(opponent(view).bench)]]){
@@ -961,7 +971,7 @@ function r17VisibleRainTargets(view,p,forceSight=false) {
       const row=R17_TARGET_ROWS.find(x=>x[0].test(printingValue(q)));
       if(!row||!Number.isSafeInteger(q.hp)||!Number.isSafeInteger(q.damage)||
          q.hp<=0||q.damage<0||q.damage>=q.hp||
-         list(q.tools).some(t=>!/^(Stealthy Hood UNB|Forest Seal Stone SIT|Float Stone BKT)(?: \d+)?$/i.test(printingValue(t))))return null;
+         list(q.tools).some(t=>!/^(Stealthy Hood UNB|Forest Seal Stone SIT|Float Stone BKT|Powerglass SFA)(?: \d+)?$/i.test(printingValue(t))))return null;
       const modifier=zone==='bench'&&sight&&row[2]?30:0;
       targets.push({zone,index,printing:printingValue(q),prizes:row[1],
         hits:Math.max(1,Math.ceil((q.hp-q.damage-modifier)/30))});
