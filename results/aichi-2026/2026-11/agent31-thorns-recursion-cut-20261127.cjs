@@ -19,7 +19,7 @@ function transitions(state,live,target){
    let rec=[0];
    if(b&L)rec=subsets(discard,Math.min(2,names(discard).length));
    else if(b===C)rec=subsets(discard&~C,Math.min(1,names(discard&~C).length));
-   for(const take of rec)out.push({next:[(hand&~b)|take,vs],reward:Number(b===target),act:'play '+names(b)+' retrieve '+names(take)});
+   for(const take of rec)out.push({next:[(hand&~b)|take,vs],reward:Number(Boolean(b&target)),act:'play '+names(b)+' retrieve '+names(take)});
  }
  if(vs)for(const b of bits)if(discard&b)out.push({next:[hand|b,vs-1],reward:0,act:'VS Seeker '+names(b)});
  return out;
@@ -44,7 +44,7 @@ function report(){
  const rows=[];
  for(let lost=0;lost<32;lost++){
   if(names(lost).length>2)continue;
-  rows.push({lost:names(lost),mill:maxUses(lost,M),faba:maxUses(lost,F)});
+  rows.push({lost:names(lost),mill:maxUses(lost,M),faba:maxUses(lost,F),combined:maxUses(lost,M|F)});
  }
  return rows;
 }
@@ -52,9 +52,10 @@ function test(){
  const a=(x,y)=>{if(x!==y)throw Error('expected '+y+', got '+x)};
  let n=0;
  // All masks, both targets, four possible remaining VS counts.
- for(let cut=0;cut<32;cut++)for(let v=0;v<=3;v++)for(const t of [M,F]){
+ for(let cut=0;cut<32;cut++)for(let v=0;v<=3;v++)for(const t of [M,F,M|F]){
   const l=names((31&~cut)&L).length,c=Boolean((31&~cut)&C);
-  const expected=cut&t?0:l===2||l===1&&c?'unbounded':1+v+l+Number(c);
+  const k=names((31&~cut)&t).length;
+  const expected=k===0?0:l===2||l===1&&c?'unbounded':l===1?k+Math.min(2,k)*(1+v):k+v+Number(c);
   a(maxUses(cut,t,v),expected);n++;
  }
  // Explicit cycle: one L + C, one or more effect targets.
