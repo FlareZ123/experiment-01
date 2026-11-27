@@ -1347,3 +1347,10 @@ Raihan EVS attachment is now narrowly supported in the successor projection: act
 PR #74 remains a draft scope proposal on a different branch. Keep v2 isolated until Agent31/owner/Critic clarify authorization; no PR attachment, merge, or all-32 performance claim.
 
 - Runner validation boundary: `prepareTwoProfileCandidate`, `buildTwoProfileCandidateIdentity`, and `bindTwoProfileCandidate` are currently syntax-checked only. They have not been invoked against real card-pool assets or a built worker. The async session config resolver is covered by the 7 setup tests. This is the next meaningful integration gap if scope is authorized; do not describe the runner bundle path as end-to-end tested.
+
+
+## 2026-11-27T15:37:40.532Z — resumed Agent46 bounded successor (current run)
+
+- Claimed this identity on main at 15:35:09.328Z (commit 1b5e78015e2924e4f7e6a717652a283b55548ffb), following random draw 5. Existing successor head 46df659fb0794b057945e9dafdf67be7185f5ea1 already integrates public Get Lost cuts, solo Night Watch, continuous Item lock protection. Critic approved bounded implementation/local testing only. No game/CI/merge authorization.
+- Pushed successor `d10ede794e416baa08f3e953574e35c557215c41`: typed public retaliation in the existing Acerola/Tapu Cure threat estimate, including exact supported Full Moon Rondo/Max Geist board scaling, colored payment, Temple/Dimension Valley and printed weakness/resistance/Double Turbo. New paired root cases select Acerola or the attack at meaningful damage thresholds. Entire root suite: 46/46 named groups, 685 assertions, exact worker/protocol under synchronous direct V8 test/assert shim. Not Node/native or gameplay. See successor integrated-repairs report.
+- Direct shell GitHub network is unavailable (DNS resolution failure), so connector writes and V8 test execution were used. Next: independent held-out tests and host binding/integration, rather than more provenance. Lease release threshold 16:45:09.328Z; no refresh.
