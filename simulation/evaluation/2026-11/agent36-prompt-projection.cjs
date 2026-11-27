@@ -631,10 +631,85 @@ function projectSimplePrompt(prompt, state, choices, choiceByToken) {
   return null;
 }
 
+function projectRaihanAttachEnergyPrompt({
+  prompt,state,actorSeat,native,source,choices,choiceByToken
+}={}){
+  const actor=state.players[actorSeat];
+  const exactPrompt=source?.sourceKind==='card-effect'&&
+    source.effectName==='Raihan'&&source.sourcePrinting==='Raihan EVS'&&
+    prompt.message==='ATTACH_ENERGY_CARDS'&&prompt.cardList===actor.discard&&
+    prompt.playerType===native.PlayerType.BOTTOM_PLAYER&&
+    Array.isArray(prompt.slots)&&prompt.slots.length===2&&
+    prompt.slots[0]===native.SlotType.BENCH&&prompt.slots[1]===native.SlotType.ACTIVE&&
+    prompt.filter?.superType===native.SuperType.ENERGY&&
+    prompt.filter?.energyType===native.EnergyType.BASIC&&
+    prompt.options?.min===1&&prompt.options?.max===1&&
+    prompt.options?.allowCancel===false;
+  if(!exactPrompt){
+    throw Object.assign(new Error('AttachEnergyPrompt does not match the pinned Raihan EVS contract'),{
+      code:'UNSUPPORTED_RAIHAN_ATTACH_ENERGY_PROMPT_SHAPE'
+    });
+  }
+  assert.ok(native.EnergyCard&&native.EnergyType&&native.SuperType&&native.PlayerType&&native.SlotType,
+    'pinned Raihan AttachEnergyPrompt bindings are incomplete');
+  const blocked=new Set(Array.isArray(prompt.options?.blocked)?prompt.options.blocked:[]);
+  const energies=cardListCards(prompt.cardList).map((card,index)=>({card,index})).filter(({card,index})=>
+    !blocked.has(index)&&card instanceof native.EnergyCard&&
+    card.energyType===native.EnergyType.BASIC&&card.name==='Psychic Energy');
+  const targets=[];
+  const active=actor.active?.getPokemonCard?.();
+  if(active)targets.push({zone:'active',slot:native.SlotType.ACTIVE,index:0,pokemon:active});
+  for(let index=0;index<(actor.bench??[]).length;index++){
+    const slot=actor.bench[index],pokemon=slot?.getPokemonCard?.();
+    if(pokemon)targets.push({zone:'bench',slot:native.SlotType.BENCH,index,pokemon});
+  }
+  for(const target of targets){
+    for(const energy of energies){
+      const rawResult=[{
+        to:{player:native.PlayerType.BOTTOM_PLAYER,slot:target.slot,index:target.index},
+        index:energy.index
+      }];
+      const energyPrinting=printing(energy.card)??energy.card.name;
+      const targetName=printing(target.pokemon)??target.pokemon.name??'Pokemon';
+      const targetLabel=target.zone==='active'?'Active':'Bench '+(target.index+1);
+      addChoice(choices,choiceByToken,rawResult,{
+        kind:'energy',
+        printing:energyPrinting,
+        label:'Attach '+energyPrinting+' to '+targetLabel+': '+targetName,
+        publicMetadata:{
+          sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true,
+          energyType:'BASIC',zone:target.zone,
+          ...(target.zone==='bench'?{benchIndex:target.index}:{}),
+          choiceIndex:choices.length,selectedCount:1
+        }
+      },prompt,state);
+    }
+  }
+  if(choices.length===0){
+    throw Object.assign(new Error('Raihan has no eligible actor-owned Basic Psychic Energy/occupied Pokemon assignment'),{
+      code:'NO_ELIGIBLE_RAIHAN_ATTACH_CHOICES'
+    });
+  }
+  return {
+    selectionType:'energy-attachment',
+    count:choices.length,
+    minimumCount:1,
+    maximumCount:1,
+    allowCancel:false,
+    sourceZone:'discard',
+    ownerSeat:'actor',
+    isOwnerVisible:true,
+    energyType:'BASIC'
+  };
+}
+
 function projectAttachEnergyPrompt({
   prompt,state,actorSeat,native,store,source,choices,choiceByToken
 }={}){
   const actor=state.players[actorSeat];
+  if(source?.sourceKind==='card-effect'&&source.effectName==='Raihan'&&source.sourcePrinting==='Raihan EVS'){
+    return projectRaihanAttachEnergyPrompt({prompt,state,actorSeat,native,source,choices,choiceByToken});
+  }
   const supportedSource=source?.sourceKind==='card-effect'&&
     source.effectName==='Underworld Door'&&
     typeof source.sourcePrinting==='string'&&
