@@ -6,7 +6,7 @@ const MOL=/^Galarian Moltres V CRE(?: 97)?$/;
 const ADP=/^Arceus & Dialga & Palkia-? ?GX CEC(?: 156)?$/;
 const SANDY=/^Sandy Shocks ex PAR(?: 108)?$/;
 const DDE=/^Double Dragon Energy ROS(?: 97)?$/;
-const knownTarget=/^(?:Shadow Rider Calyrex V(?:MAX)? CRE(?: 74| 75)?|Lillie's Clefairy ex JTG(?: 56)?|Tapu Lele-GX GRI(?: 60)?|Trevenant & Dusknoir-GX SMP(?: 217)?|Latias ex SSP(?: 76)?|Dialga-GX UPR(?: 100)?|Mimikyu GRI(?: 58)?|Girafarig LOT(?: 94)?|Marshadow UNB(?: 81)?|Radiant Eternatus CRZ(?: 105)?|Wobbuffet PHF(?: 36)?)$/;
+const knownTarget=/^(?:Shadow Rider Calyrex (?:V CRE(?: 74)?|VMAX CRE(?: 75)?)|Lillie's Clefairy ex JTG(?: 56)?|Tapu Lele-GX GRI(?: 60)?|Trevenant & Dusknoir-GX SMP(?: 217)?|Latias ex SSP(?: 76)?|Dialga-GX UPR(?: 100)?|Mimikyu GRI(?: 58)?|Girafarig LOT(?: 94)?|Marshadow UNB(?: 81)?|Radiant Eternatus CRZ(?: 105)?|Wobbuffet PHF(?: 36)?)$/;
 const harmlessTool=/^(?:Stealthy Hood UNB(?: 186)?|Float Stone BKT(?: 137)?|Forest Seal Stone SIT(?: 156)?)$/;
 const name=x=>typeof x==='string'?x:x?.printing??x?.fullName??'';
 const basic=x=>/^(?:Basic )?(Lightning|Fighting|Darkness) Energy(?: [A-Z0-9]+(?: \d+)?)?$/.exec(name(x))?.[1]??null;
@@ -71,11 +71,15 @@ function plan(o,target,temple){
   }
   visit(0,[]);return best;
 }
+function templeMayApply(o){
+  const a=o?.ownPublic?.stadium,b=o?.opponentPublic?.stadium;
+  return !Array.isArray(a)||!Array.isArray(b)||[...a,...b].some(x=>/^Temple of Sinnoh ASR(?: 155)?$/.test(name(x)));
+}
 function root(request,capability){
   if(capability!=='rank19-bellowing-discard-v1'||request?.role!=='opponent'||request.observation?.actorSeat!==request.seat)return null;
   const o=request.observation, a=request.actionFrontier?.items?.find(x=>x.kind==='attack'&&x.attackName==='Bellowing Thunder'&&BOLT.test(name(x.actorPrinting))&&x.publicMetadata?.attackCostPayable===true);
-  if(!a||typeof o.templeEffective!=='boolean')return null;
-  const p=plan(o.ownPublic,o.opponentPublic?.active,o.templeEffective);
+  if(!a)return null;
+  const p=plan(o.ownPublic,o.opponentPublic?.active,templeMayApply(o));
   return p?{kind:'select-action',token:a.token}:null;
 }
 function decideDiscard(request){
@@ -95,7 +99,7 @@ function decideDiscard(request){
     choices.set(k,c.token);
   }
   if(!empty||choices.size!==inv.length)return null;
-  const best=plan(o.ownPublic,o.opponentPublic?.active,o.templeEffective);
+  const best=plan(o.ownPublic,o.opponentPublic?.active,templeMayApply(o));
   // If the originally certified attack is no longer lethal, don't sacrifice energy blindly.
   return best?{kind:'select-choices',tokens:best.donors.map(e=>choices.get(e.key))}:{kind:'select-choice',token:empty.token};
 }
@@ -106,7 +110,7 @@ function project({pin,native,state,prompt,actorSeat,source}){
   if(pin!==PIN||!native||!state||![0,1].includes(actorSeat)||prompt?.constructor?.name!=='DiscardEnergyPrompt'||source?.effectName!=='Bellowing Thunder'||!BOLT.test(name(source.sourcePrinting)))return null;
   const actor=state.players?.[actorSeat],p=prompt.options;
   if(!actor||prompt.getPerspectivePlayerId()!==actor.id||prompt.playerId!==actor.id||prompt.message!=='CHOOSE_ENERGIES_TO_DISCARD'||prompt.playerType!==native.PlayerType.BOTTOM_PLAYER||prompt.slots?.length!==2||!prompt.slots.includes(native.SlotType.ACTIVE)||!prompt.slots.includes(native.SlotType.BENCH)||prompt.filter?.superType!==native.SuperType.ENERGY||prompt.filter?.energyType!==native.EnergyType.BASIC||p?.min!==0||p.allowCancel!==false||p.blockedFrom?.length!==0||p.blockedMap?.length!==0||!BOLT.test(name(actor.active?.getPokemonCard?.())))return null;
-  const choices=[],raw=new Map(),objects=new Set();
+  const choices=[],raw=new Map(),expected=new Map(),objects=new Set();
   for(const s of slots(actor)){
     const slot=s.pokemon;
     if(!Array.isArray(slot.cards)||!Array.isArray(slot.energies?.cards))return null;
@@ -119,7 +123,7 @@ function project({pin,native,state,prompt,actorSeat,source}){
       const token='bolt-energy-'+choices.length;
       const from={player:native.PlayerType.BOTTOM_PLAYER,slot:s.zone==='active'?native.SlotType.ACTIVE:native.SlotType.BENCH,index:s.index};
       choices.push({kind:'energy',token,printing:name(card),publicMetadata:{ownerSeat:'actor',sourceZone:'play',isOwnerVisible:true,energyType:'BASIC',zone:s.zone,...(s.zone==='bench'?{benchIndex:s.index}:{}),slotIndex:ei,selectionIndex:choices.length,selectedCount:1}});
-      raw.set(token,{from,index:i});objects.add(card);
+      raw.set(token,{from,index:i});expected.set(token,card);objects.add(card);
     }
     if(slot.energies.cards.some(c=>c.energyType===native.EnergyType.BASIC&&!slot.cards.includes(c)))return null;
   }
@@ -131,10 +135,10 @@ function project({pin,native,state,prompt,actorSeat,source}){
     else if(decision?.kind==='select-choices'&&Array.isArray(decision.tokens)&&decision.tokens.length&&new Set(decision.tokens).size===decision.tokens.length&&decision.tokens.every(t=>raw.has(t)))result=decision.tokens.map(t=>raw.get(t));
     else return null;
     // Recheck current slot identity; never resolve stale tokens after board mutation.
-    for(const t of result){
-      const sl=t.from.slot===native.SlotType.ACTIVE?actor.active:actor.bench[t.from.index];
+    for(let j=0;j<result.length;j++){
+      const t=result[j],sl=t.from.slot===native.SlotType.ACTIVE?actor.active:actor.bench[t.from.index];
       const card=sl?.cards?.[t.index];
-      if(!objects.has(card)||card.superType!==native.SuperType.ENERGY||card.energyType!==native.EnergyType.BASIC)return null;
+      if(card!==expected.get(decision.tokens[j])||card.superType!==native.SuperType.ENERGY||card.energyType!==native.EnergyType.BASIC)return null;
     }
     try {return prompt.validate(prompt.decode(result,state))?result:null;}catch{return null;}
   }};
