@@ -77,10 +77,12 @@ test('ASC152 native manager printing M2a identifies exact source donor',()=>{
   s.prompt.choices[1].printing='Mega Dragonite ex M2a';
   assert.deepEqual(decide(s),{kind:'select-choice',token:'ryuno'});
 });
-test('actual existing Regidrago worker label-only attack-choice offers Ryuno',()=>{
+test('unidentified label-only Ryuno offer is rejected; exact source-bound printing accepted',()=>{
   const s=attackPrompt(state());
   s.prompt.source={classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:'Regidrago VSTAR SIT 136',effectName:'Apex Dragon'};
   s.prompt.choices[1]={token:'ryuno',kind:'attack',label:'Ryuno Glide',publicMetadata:{sourceAttack:'Ryuno Glide',sourcePrinting:'Regidrago VSTAR SIT 136'}};
+  assert.equal(decide(s),null);
+  s.prompt.choices[1].printing='Mega Dragonite ex M2a';
   assert.deepEqual(decide(s),{kind:'select-choice',token:'ryuno'});
   s.observation.ownPublic.discard=[];assert.equal(decide(s),null);
 });
@@ -243,4 +245,15 @@ test('final opposing Active is a terminal win even when its Prizes are fewer',()
  assert.deepEqual(decide(s),{kind:'select-action',token:'apex'});
  s.observation.opponentPublic.bench[0]={printing:'Marshadow UNB',hp:80};
  assert.equal(decide(s),null);
+});
+
+test('unknown numerical reprints cannot impersonate the original source VSTAR or donor',()=>{
+  const s=state();
+  s.observation.ownPublic.active.printing='Regidrago VSTAR SIT 999';
+  assert.equal(decide(s),null);
+  s.observation.ownPublic.active.printing='Regidrago VSTAR SIT 136';
+  s.observation.ownPublic.discard=['Mega Dragonite ex ASC 999'];
+  assert.equal(decide(s),null);
+  s.observation.ownPublic.discard=['Mega Dragonite ex ASC 152'];
+  assert.deepEqual(decide(s),{kind:'select-action',token:'apex'});
 });
