@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
   "plan_id": "aichi-2026-opponent-policy-panel-v2",
-  "generated_at": "2026-11-27T20:47:15.030350Z",
+  "generated_at": "2026-11-27T21:00:28.628383Z",
   "generated_by": "Agent17",
-  "snapshot_commit_sha": "eb400ae3819d9a384bfd615333889694f31e0dbb",
+  "snapshot_commit_sha": "c0b6b0b9ddacb1d302f8897bbdfffdddec3c646c",
   "supersedes": "results/methodology/2026-11/agent17-aichi-policy-panel-manifest-20261117.json",
   "benchmark": {
     "name": "Aichi Open League 2026 Top 32",
@@ -53,7 +53,7 @@
   },
   "policy_panel": {
     "rank_count": 32,
-    "implemented_rank_count": 16,
+    "implemented_rank_count": 17,
     "implemented_ranks": [
       1,
       2,
@@ -63,6 +63,7 @@
       6,
       7,
       8,
+      9,
       10,
       11,
       12,
@@ -72,9 +73,8 @@
       26,
       31
     ],
-    "implementation_module_file_count": 22,
+    "implementation_module_file_count": 23,
     "missing_policy_ranks": [
-      9,
       14,
       15,
       16,
@@ -91,7 +91,7 @@
       30,
       32
     ],
-    "missing_policy_rank_count": 16,
+    "missing_policy_rank_count": 15,
     "full_game_competence_rank_count": 0,
     "independent_full_game_review_rank_count": 0,
     "qualified_matchup_count": 0,
@@ -670,8 +670,21 @@
         "can_transfer_attacker_energy_on_damage": false,
         "has_special_energy_removal": false
       },
-      "rank_policy_status": "no_rank_specific_policy",
-      "policy_variants": [],
+      "rank_policy_status": "prototype_only_not_frozen",
+      "policy_variants": [
+        {
+          "variant_id": "agent29-rank9-tactical-slice.cjs@45741d29d50d6e7af46d1ec56c765a65ac9a0623",
+          "version_label": "v17-development",
+          "producer": "agent29",
+          "policy_path": "simulation/evaluation/2026-11/agent29-rank9-tactical-slice.cjs",
+          "git_blob_sha1": "45741d29d50d6e7af46d1ec56c765a65ac9a0623",
+          "source_ref": "agent29/rank9-tactical-slice-20261127",
+          "test_path": "tests/2026-11/agent29-rank9-tactical-slice.test.cjs",
+          "test_git_blob_sha1": "6052138d5236c6578c67627af0b12b79d4ad539e",
+          "frozen": false,
+          "selected_for_competence": false
+        }
+      ],
       "policy_profile": {
         "profile_id": null,
         "configuration_sha256": null,
@@ -681,10 +694,10 @@
         "native_complete_games": 0,
         "independently_reviewed_full_game_witness": null,
         "qualified_matchups": 0,
-        "admission_status": "not_started"
+        "admission_status": "blocked_no_competence_evidence"
       },
-      "reported_readiness_summary": null,
-      "readiness_reference": "results/methodology/2026-11/agent35-opponent-policy-prototype-readiness-20261117.md",
+      "reported_readiness_summary": "Branch-only exact-rank-9 actor-only development worker on agent29/rank9-tactical-slice-20261127, policy blob 45741d29d50d6e7af46d1ec56c765a65ac9a0623 and test blob 6052138d5236c6578c67627af0b12b79d4ad539e. Agent29 reports 165 protocol-validated synthetic tactical assertions through v17, including direct attacks, disruption chains, setup/recovery slices, conditional Compressor timing and Cologne→Dedechange decisions. Extra Energy Bomb multi-transfer remains explicitly unsupported at the root; no Node IPC/native Store/full game/merge/freeze or independent competence evidence.",
+      "readiness_reference": "branch report commit 1845e4948d14ade67f5061a4b910bea6450487f6 on agent29/rank9-tactical-slice-20261127",
       "source_binding": {
         "file": "results/aichi-2026/full-decklists.json",
         "rank_pointer": "rank 9",
@@ -692,8 +705,8 @@
       },
       "future_policy_owner": {
         "owner": "agent29",
-        "status": "future_owner_after_natural64_gate_admission",
-        "current_policy_module": false
+        "status": "development_owner_active_branch",
+        "current_policy_module": true
       },
       "candidate_pressure_semantics_note": {
         "status": "unresolved_do_not_infer_paper_restriction",
