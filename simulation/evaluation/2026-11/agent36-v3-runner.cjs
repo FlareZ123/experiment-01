@@ -2567,7 +2567,7 @@ function createV3WorkerDecisionResolver({
         const projected=promptProjection.projectPrompt({
           prompt:request.prompt,state:request.state,actorSeat,native,store:request.store,
           provenanceHook:activeProvenanceHook,
-          candidatePromotion:role==='candidate'&&roleAudit.policyVersion==='agent46-two-profile-v1'
+          candidateKnockoutContinuation:role==='candidate'&&roleAudit.policyVersion==='agent46-two-profile-v1'
         });
         if(projected.hostOnly){
           const resolved=promptProjection.resolveHostOnlyPrompt({

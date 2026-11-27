@@ -2739,6 +2739,22 @@ function choosePrompt(view, prompt, receipt, profile) {
   }
   if (prompt.source.sourceKind === 'engine') {
     if(prompt.description==='CHOOSE_NEW_ACTIVE_POKEMON')return chooseKnockoutPromotion(view,prompt);
+    if(prompt.description==='CHOOSE_PRIZE_CARD'){
+      const m=prompt.publicMetadata;
+      if(![2,3].includes(view.phase)||prompt.promptType!=='ChoosePrizePrompt'||
+          prompt.source.sourcePrinting!==null||prompt.source.effectName!==prompt.description||
+          m?.selectionType!=='prize-slots'||m.ownerSeat!=='actor'||m.sourceZone!=='prizes'||
+          m.isOwnerVisible!==false||m.allowCancel!==false||!Number.isSafeInteger(m.requiredCount)||
+          m.requiredCount<1||m.requiredCount>6||
+          prompt.choices.some(c=>c.kind!=='prize'||c.printing!==undefined||
+            c.publicMetadata?.ownerSeat!=='actor'||c.publicMetadata?.sourceZone!=='prizes'||
+            c.publicMetadata?.isOwnerVisible!==false||
+            !Number.isSafeInteger(c.publicMetadata.selectionIndex)))
+        return abstain('UNSUPPORTED_PRIZE_SELECTION');
+      if(new Set(prompt.choices.map(c=>c.publicMetadata.selectionIndex)).size!==prompt.choices.length)
+        return abstain('NO_LEGAL_PRIZE_SELECTION');
+      return choosePrizeSlots(prompt);
+    }
     return chooseEngineSetupPrompt(view, prompt, profile);
   }
   if (prompt.source.sourceKind !== 'card-effect') {

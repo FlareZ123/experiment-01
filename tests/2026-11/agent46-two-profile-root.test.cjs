@@ -913,13 +913,13 @@ test('Candidate-only native promotion projection admits strict owner Bench choic
     const state={players,phase:3};
     const prompt=Object.assign(new ChoosePokemonPrompt(),{playerId:seat,message:'CHOOSE_NEW_ACTIVE_POKEMON',playerType:0,slots:[1],
       options:{min:1,max:1,allowCancel:false,blocked:[]}});
-    const args={prompt,state,actorSeat:seat,native,candidatePromotion:true};
+    const args={prompt,state,actorSeat:seat,native,candidateKnockoutContinuation:true};
     const result=projectPrompt(args);
     assert.equal(result.promptProjection.source.sourceKind,'engine');
     assert.deepEqual(result.promptProjection.choices.map(c=>c.printing),[V,M]);
     assert.ok(result.promptProjection.choices.every(c=>c.publicMetadata.ownerSeat==='actor'));
     assert.equal(result.choiceByToken.size,2);
-    assert.throws(()=>projectPrompt({...args,candidatePromotion:false}),/trusted/);
+    assert.throws(()=>projectPrompt({...args,candidateKnockoutContinuation:false}),/trusted/);
     players[seat].active=slot(V);
     assert.throws(()=>projectPrompt(args),/trusted/);
     players[seat].active=slot(null);
@@ -930,4 +930,52 @@ test('Candidate-only native promotion projection admits strict owner Bench choic
     prompt.playerType=0;state.phase=2;
     assert.throws(()=>projectPrompt(args),/trusted/);
   }
+});
+
+
+paired('Mandatory owner-hand Prize selection uses occupied indices and no hidden identities',(seat,profile)=>{
+  const {projectPrompt}=require('../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
+  class ChoosePrizePrompt{getPerspectivePlayerId(){return this.playerId;}}
+  const hidden=()=>({get fullName(){throw Error('Concealed Prize face read');}});
+  const players=[0,1].map(i=>({id:i,hand:{cards:[]},prizes:Array.from({length:6},(_,j)=>({cards:j===1?[]:[hidden()]}))}));
+  const state={players,phase:3};
+  const prompt=Object.assign(new ChoosePrizePrompt(),{playerId:seat,message:'CHOOSE_PRIZE_CARD',
+    options:{count:2,allowCancel:false,useOpponentPrizes:false,blocked:[],destination:players[seat].hand}});
+  const args={prompt,state,actorSeat:seat,native:{GamePhase:{ATTACK:3}},candidateKnockoutContinuation:true};
+  const projection=projectPrompt(args);
+  const binding=projection.promptProjection;
+  assert.equal(binding.source.sourceKind,'engine');
+  assert.equal(binding.choices.length,5);
+  assert.ok(binding.choices.every(c=>c.printing===undefined&&c.publicMetadata.isOwnerVisible===false));
+  const view=observation(seat,{active:v(),opponentActive:defender(),decisionKind:'owner-prompt',promptType:'ChoosePrizePrompt'});view.phase=3;
+  const req={role:'candidate',seat,observation:view,prompt:binding,publicEventReceipt:null};
+  assert.deepEqual(decide(profile,req),mult(binding.choices[0].token,binding.choices[1].token));
+  assert.deepEqual([projection.choiceByToken.get(binding.choices[0].token),projection.choiceByToken.get(binding.choices[1].token)],[0,1]);
+  // Missing destination is the demonstrated same-class/message collision
+  // with reveal/swap/attach effects. Foreign destination is also rejected.
+  const options=prompt.options;
+  options.destination=undefined;
+  assert.throws(()=>projectPrompt(args),/trusted/);
+  options.destination=players[1-seat].hand;
+  assert.throws(()=>projectPrompt(args),/trusted/);
+  options.destination=players[seat].hand;options.useOpponentPrizes=true;
+  assert.throws(()=>projectPrompt(args),/trusted/);
+  options.useOpponentPrizes=false;options.blocked=[0];
+  assert.throws(()=>projectPrompt(args),/trusted/);
+  options.blocked=[];options.allowCancel=true;
+  assert.throws(()=>projectPrompt(args),/trusted/);
+  options.allowCancel=false;
+  assert.throws(()=>projectPrompt({...args,candidateKnockoutContinuation:false}),/trusted/);
+  // More Prizes awarded than remaining: choose all occupied slots.
+  options.count=6;
+  const rest=projectPrompt(args).promptProjection;
+  assert.equal(rest.publicMetadata.requiredCount,5);
+  assert.deepEqual(decide(profile,{...req,prompt:rest}),mult(...rest.choices.map(c=>c.token)));
+  // Reject foreign / duplicate worker menu even if fabricated.
+  const corrupted=JSON.parse(JSON.stringify(binding));
+  corrupted.choices[0].publicMetadata.ownerSeat='opponent';
+  assert.equal(decide(profile,{...req,prompt:corrupted}).kind,'abstain');
+  corrupted.choices[0].publicMetadata.ownerSeat='actor';
+  corrupted.choices[0].publicMetadata.selectionIndex=corrupted.choices[1].publicMetadata.selectionIndex;
+  assert.equal(decide(profile,{...req,prompt:corrupted}).kind,'abstain');
 });

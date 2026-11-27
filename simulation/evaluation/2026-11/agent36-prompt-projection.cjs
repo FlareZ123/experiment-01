@@ -257,12 +257,12 @@ function targetChoice(target, state, actorSeat, native) {
   };
 }
 
-function makeSource(prompt, state, actorSeat, provenance, native, candidatePromotion=false) {
+function makeSource(prompt, state, actorSeat, provenance, native, candidateKnockoutContinuation=false) {
   // This opt-in is limited to the successor candidate role. The shape matches
   // the existing native forced-single-Bench promotion witness; multi-Bench
   // selection uses the same native-validated choice frontier.
   const owner=state.players[actorSeat];
-  if(candidatePromotion===true&&state.phase===native.GamePhase?.ATTACK&&
+  if(candidateKnockoutContinuation===true&&state.phase===native.GamePhase?.ATTACK&&
      prompt?.constructor?.name==='ChoosePokemonPrompt'&&
      prompt.message==='CHOOSE_NEW_ACTIVE_POKEMON'&&
      prompt.playerType===native.PlayerType.BOTTOM_PLAYER&&
@@ -273,6 +273,21 @@ function makeSource(prompt, state, actorSeat, provenance, native, candidatePromo
      owner.bench.some(s=>Array.isArray(s?.cards)&&s.cards.length>0)){
     return {classification:'actor-choice',sourceKind:'engine',sourcePrinting:null,
       effectName:'CHOOSE_NEW_ACTIVE_POKEMON'};
+  }
+  // The pinned KO reducer sets destination to the taker's real hand.
+  // Class/message alone also occur in reveal/swap/attach effects. Admit
+  // only this mandatory transfer shape; never inspect physical Prize faces.
+  if(candidateKnockoutContinuation===true&&
+     (state.phase===2||state.phase===native.GamePhase?.ATTACK)&&
+     prompt?.constructor?.name==='ChoosePrizePrompt'&&prompt.message==='CHOOSE_PRIZE_CARD'&&
+     Array.isArray(owner?.hand?.cards)&&prompt.options?.destination===owner.hand&&
+     prompt.options.allowCancel===false&&prompt.options.useOpponentPrizes===false&&
+     Array.isArray(prompt.options.blocked)&&prompt.options.blocked.length===0&&
+     Number.isSafeInteger(prompt.options.count)&&prompt.options.count>=1&&prompt.options.count<=6&&
+     Array.isArray(owner.prizes)&&owner.prizes.length===6&&
+     owner.prizes.some(s=>Array.isArray(s?.cards)&&s.cards.length>0)){
+    return {classification:'actor-choice',sourceKind:'engine',sourcePrinting:null,
+      effectName:'CHOOSE_PRIZE_CARD'};
   }
   if(provenance?.sourceKind==='card-effect') {
     const sourceCard=provenance.sourceCard??null;
@@ -960,7 +975,7 @@ function resolveHostOnlyPrompt({
   };
 }
 
-function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook, candidatePromotion=false } = {}) {
+function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook, candidateKnockoutContinuation=false } = {}) {
   assert.ok(prompt && state && native);
   assert.ok(actorSeat === 0 || actorSeat === 1);
   const actor = state.players[actorSeat];
@@ -973,7 +988,7 @@ function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook
   const hostOnly = hostOnlyPrompt(prompt, provenance);
   if (hostOnly) return { ...hostOnly, choiceByToken: new Map() };
 
-  const source = makeSource(prompt, state, actorSeat, provenance, native, candidatePromotion);
+  const source = makeSource(prompt, state, actorSeat, provenance, native, candidateKnockoutContinuation);
   const choices = [];
   const choiceByToken = new Map();
   let publicMetadata = null;
