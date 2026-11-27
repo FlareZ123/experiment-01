@@ -1,7 +1,7 @@
 'use strict';
 // Development-only actor-visible tactical slice; see accompanying report.
 module.exports = (function build() {
-  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v10';
+  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v11';
   const SOURCE_RANK = 9;
   const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
   const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -787,6 +787,53 @@ function bombPlanner(o,sourceBenchIndex){
     const score=c=>/^Telepathic Psychic Energy\b/i.test(name(c))?0:/^Prism Energy\b/i.test(name(c))?1:3;
     return {kind:'select-choices',tokens:offered.slice().sort((a,b)=>score(a)-score(b)).slice(0,chain.cost).map(x=>x.token)};
   }
+  const ropeCard=c=>/^Escape Rope BST 125\b/i.test(name(c));
+  function ropePlan(o){
+    const own=slots(o.ownPublic).filter(x=>x.zone==='bench'),enemy=slots(o.opponentPublic).filter(x=>x.zone==='bench');
+    const targets=enemy.length?enemy:[{zone:'active',index:0,p:o.opponentPublic?.active}];
+    if(!own.length)return null;
+    const replies=targets.map(t=>({t,a:best(own,x=>bestAttackAgainst(o,x.p,t.p))}));
+    if(replies.some(x=>!x.a))return null;
+    const scores=replies.map(({t,a})=>bestAttackAgainst(o,a.p,t.p));
+    if(scores.some(x=>x<400))return null;
+    return {score:Math.min(...scores),responses:replies.map(({t,a})=>({targetZone:t.zone,targetIndex:t.index,index:a.index,printing:name(a.p)}))};
+  }
+  function defensiveSwitch(o,p){
+    const opponentBench=slots(o.opponentPublic).filter(x=>x.zone==='bench');
+    const threats=opponentBench.length?opponentBench:[{zone:'active',p:o.opponentPublic?.active}];
+    const targetView={...o,ownPublic:{...o.ownPublic,active:p}};
+    const lethal=threats.some(({p:q})=>threatAttacks(targetView,q).length>0);
+    const oppNeeds=Number(o.opponentPublic?.prizeCount);
+    if(lethal&&Number.isFinite(oppNeeds)&&prize(p)>=oppNeeds)return 1;
+    const essential=mega(p)?100:elec(p)?80:isVol(p)?55:cruel(p)?45:0;
+    return lethal?300-70*prize(p)-essential:800+Math.min(200,remaining(p))/4+bestAttackAgainst(o,p,o.opponentPublic?.active)/20-essential/2;
+  }
+  function ropePrompt(r,chain){
+    const o=r.observation,p=r.prompt;
+    if(!ropeCard(p.source?.sourcePrinting)||p.source?.classification!=='actor-choice'||p.source?.sourceKind!=='card-effect'||p.actingSeat!==o.actorSeat||p.promptType!=='ChoosePokemonPrompt')return null;
+    const cs=L(p.choices).filter(c=>ownChoice(o,c)&&name(ownChoice(o,c))===name(c));
+    if(!cs.length)return {kind:'abstain',reasonCode:'NO_VISIBLE_POKEMON_TARGET'};
+    if(chain){
+      if(chain.kind!=='rope'||chain.turn!==o.globalTurn||chain.sequence+1!==r.sequence)return {kind:'abstain',reasonCode:'UNTRUSTED_PROMPT_SOURCE'};
+      const c=best(cs,c=>bestAttackAgainst(o,ownChoice(o,c),o.opponentPublic?.active));
+      return c?select(p,[c],1,'NO_VISIBLE_POKEMON_TARGET'):{kind:'abstain',reasonCode:'NO_VISIBLE_POKEMON_TARGET'};
+    }
+    if(o.turnSeat===undefined||o.turnSeat===o.actorSeat)return {kind:'abstain',reasonCode:'UNTRUSTED_PROMPT_SOURCE'};
+    const c=best(cs,c=>defensiveSwitch(o,ownChoice(o,c)));
+    return c?select(p,[c],1,'NO_VISIBLE_POKEMON_TARGET'):{kind:'abstain',reasonCode:'NO_VISIBLE_POKEMON_TARGET'};
+  }
+  function prospectivePreparation(o,item){
+    if(item.kind!=='play-card')return 0;
+    const x=name(item),own=o.ownPublic,m=M(item),p=targetSlot(o,item);
+    let next=null;
+    const patch=q=>({...o,ownPublic:m.targetZone==='active'?{...own,active:q}:{...own,bench:L(own.bench).map((v,i)=>i===m.targetIndex?q:v)}});
+    if(ePred(x)&&p&&o.ownTurnResources?.energyPlayedTurn===false)next={...patch({...p,energies:[...L(p.energies),x]}),ownTurnResources:{...o.ownTurnResources,energyPlayedTurn:true}};
+    if(p&&(match(x,R.float)||match(x,R.muscle))&&!L(p.tools).length&&!liveStadium(o,/Jamming Tower/i)&&!own?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining)next=patch({...p,tools:[x]});
+    if(stadiumCard(x)&&!activeStadium(o).includes(x))next={...o,ownPublic:{...own,stadium:[x]},opponentPublic:{...o.opponentPublic,stadium:[]}};
+    if(!next)return 0;
+    const previous=bombMobility(o,null)?.score??0,after=bombMobility(next,null)?.score??0;
+    return after>=1000&&previous<1000?1000:after>previous&&after>=400?after:0;
+  }
   function createPolicy({role,seat,policyVersion,config}) {
     if(role!=='opponent'||![0,1].includes(seat)||policyVersion!==POLICY_VERSION||!config||Array.isArray(config)||Object.keys(config).length)throw Error('RANK9_INIT_MISMATCH');
     let chain=null;
@@ -806,6 +853,13 @@ function bombPlanner(o,sourceBenchIndex){
       const pairs=targets.flatMap(t=>ownBench.map(a=>({t,a,score:bestAttackAgainst(o,a.p,t.p)})));
       const pair=best(pairs,x=>x.score);
       const supporterFree=o.ownTurnResources?.supporterPlayedTurn===0&&!o.ownTurnResources?.supporterPlayLocked&&!own?.publicTurnRestrictions?.supporterPlayLocked;
+      const rope=items.find(x=>x.kind==='play-card'&&ropeCard(x)),rp=rope?ropePlan(o):null,ropeScore=rp?.score??0;
+      const prep=best(items,x=>prospectivePreparation(o,x)),prepScore=prep?prospectivePreparation(o,prep):0;
+      if(prepScore>=1000&&Math.max(retScore,ropeScore,supporterFree&&g?pair?.score??0:0)<1000)return {kind:'select-action',token:prep.token};
+      if(rope&&ropeScore>Math.max(directScore,retScore,supporterFree&&g?pair?.score??0:0)){
+        chain={kind:'rope',turn:o.globalTurn,sequence:r.sequence};
+        return {kind:'select-action',token:rope.token};
+      }
       if(supporterFree&&g&&pair&&pair.score>Math.max(directScore,retScore)){
         chain={kind:'guzma',stage:1,turn:o.globalTurn,sequence:r.sequence,target:pair.t.index,attacker:pair.a.index,attackerPrinting:name(pair.a.p)};
         return {kind:'select-action',token:g.token};
@@ -841,6 +895,10 @@ function bombPlanner(o,sourceBenchIndex){
       const o=r.observation,p=r.prompt,source=name(p.source?.sourcePrinting);
       const choices=L(p.choices).filter(x=>typeof x.token==='string');
       const fail=code=>{chain=null;return {kind:'abstain',reasonCode:code};};
+      if(chain?.kind==='rope'||!chain&&ropeCard(source)){
+        const d=ropePrompt(r,chain);chain=null;
+        return d??{kind:'abstain',reasonCode:'UNTRUSTED_PROMPT_SOURCE'};
+      }
       if(chain?.kind==='retreat'){
         const d=retreatPayment(r,chain);chain=null;
         return d??{kind:'abstain',reasonCode:'UNTRUSTED_ENERGY_SELECTION'};
@@ -889,5 +947,5 @@ function bombPlanner(o,sourceBenchIndex){
       return r.prompt===null?root(r):prompt(r);
     }});
   }
-  return {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,createPolicy,printedDamage,payable,rootAttack,denial,prize,safeCosts,bombPlanner,stadiumScore,bombMobility};
+  return {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,createPolicy,printedDamage,payable,rootAttack,denial,prize,safeCosts,bombPlanner,stadiumScore,bombMobility,ropePlan,defensiveSwitch};
 })();

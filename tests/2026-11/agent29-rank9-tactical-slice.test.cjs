@@ -284,3 +284,30 @@ console.log('passed '+(function mobilityBomb(P){
  v=o([Float],[Pr,Pr,Pr]);v.opponentPublic.stadium=['Jamming Tower TWM 153'];a(P.bombPlanner(v,0)===null,'suppressed Float Stone invalidates prospective mobility');
  return n;
 })(P)+' Bomb-to-mobility plan assertions');
+
+console.log('passed '+(function ropeTests(P,protocol){
+ const D='Darkness Energy MEE 15',Pr='Prism Energy ASC 216',Meg='Mega Absol ex MEG 86',Un='Unown AOR 30',Gen='Gengar & Mimikyu-GX TEU 53',Rope='Escape Rope BST 125',Opp='Shadow Rider Calyrex VMAX CRE 75';
+ const mk=(printing,energies=[],extra={})=>({printing,hp:280,damage:0,energies,tools:[],specialConditions:[],publicRestrictions:{},printed:{stage:'Basic',retreatCost:['Colorless'],types:['Darkness'],weakness:[],resistance:[]},...extra});
+ const target=mk(Opp,[],{hp:320,printed:{stage:'VMAX',types:['Psychic'],weakness:[{type:'Darkness',value:'×2'}],resistance:[]}});
+ const cheap=mk(Un,[],{hp:60});
+ const o={actorSeat:0,turnSeat:0,globalTurn:4,ownHand:[Rope],ownTurnResources:{retreatedTurn:false,energyPlayedTurn:false,supporterPlayedTurn:0},ownPublic:{active:cheap,bench:[mk(Meg,[D,Pr,Pr])],prizeCount:3,publicTurnRestrictions:{}},opponentPublic:{active:cheap,bench:[target],prizeCount:6,publicTurnRestrictions:{}}};
+ const item={kind:'play-card',actorPrinting:Rope,token:'rope',publicMetadata:{}},f={schema:protocol.FRONTIER_SCHEMA,items:[item]};
+ const pol=()=>P.createPolicy({role:'opponent',seat:0,policyVersion:P.POLICY_VERSION,config:{}});
+ function root(p,v=o,front=f){const d=p.decide({role:'opponent',seat:0,sequence:1,observation:v,prompt:null,actionFrontier:front});protocol.validateDecision(d,null,protocol.validateFrontier(front));return d;}
+ const ch=(token,printing,index)=>({token,kind:'pokemon',printing,label:printing,publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:index,isOwnerVisible:true}});
+ const p=(cs)=>({schema:protocol.PROMPT_SCHEMA,actingSeat:0,promptType:'ChoosePokemonPrompt',description:'SWITCH_POKEMON',source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:Rope,effectName:'Escape Rope'},choices:cs,publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,allowCancel:false}});
+ function prompt(policy,v,choices){const pr=p(choices);protocol.validatePrompt(pr,0);const d=policy.decide({role:'opponent',seat:0,sequence:2,observation:v,prompt:pr});protocol.validateDecision(d,pr,new Set());return d;}
+ let n=0;function a(v,l){if(!v)throw Error(l);n++}
+ let policy=pol();a(root(policy).token==='rope','minimax Rope secures guaranteed winning target');
+ a(prompt(policy,{...o,opponentPublic:{...o.opponentPublic,active:target,bench:[cheap]}},[ch('m',Meg,0)]).tokens[0]==='m','source-bound actor promotion after opposing switch');
+ a(P.ropePlan({...o,opponentPublic:{...o.opponentPublic,bench:[target,cheap]}}).score<1000,'adversarial choice removes claimed final win');
+ a(prompt(pol(),o,[ch('m',Meg,0)]).kind==='abstain','own unbound Rope prompt rejected');
+ const opAtk={name:'Max Geist',cost:['Colorless','Colorless','Colorless'],damage:'10+'};
+ const opp=mk(Opp,Array(9).fill('Psychic Energy MEE 13'),{hp:320,attacks:[opAtk],printed:{stage:'VMAX',types:['Psychic'],weakness:[],resistance:[]}});
+ const defens={...o,turnSeat:1,ownPublic:{...o.ownPublic,bench:[mk(Gen,[],{hp:240}),cheap]},opponentPublic:{...o.opponentPublic,active:cheap,bench:[opp],prizeCount:3}};
+ a(prompt(pol(),defens,[ch('g',Gen,0),ch('u',Un,1)]).tokens[0]==='u','opponent Rope cannot force three-Prize loss when one-Prize sacrifice exists');
+ const prep={...o,ownHand:[Rope,Pr],ownPublic:{...o.ownPublic,active:cheap,bench:[mk(Meg,[D,Pr])]},opponentPublic:{...o.opponentPublic,active:cheap,bench:[target]}};
+ const attach={kind:'play-card',actorPrinting:Pr,token:'attach',publicMetadata:{targetZone:'bench',targetSeat:'actor',targetIndex:0,isOwnerVisible:true}};
+ a(root(pol(),prep,{schema:protocol.FRONTIER_SCHEMA,items:[item,attach]}).token==='attach','prepare Benched winning Rope line before switch');
+ return n;
+})(P,protocol)+' Rope/one-step winning-line assertions');
