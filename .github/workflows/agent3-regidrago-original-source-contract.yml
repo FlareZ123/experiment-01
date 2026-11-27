@@ -1,0 +1,47 @@
+name: Agent 3 original-source Regidrago V3 contracts
+on:
+  push:
+    branches:
+      - agent3/rank32-regidrago-source-policy-20261127
+    paths:
+      - .github/workflows/agent3-regidrago-original-source-contract.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent3-regidrago-original-source-v3
+  cancel-in-progress: true
+
+jobs:
+  contract-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout source without Twinleaf or credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          submodules: false
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check strict policy and builder syntax
+        run: |
+          node --check simulation/evaluation/2026-11/agent3-rank32-regidrago-opponent-policy.cjs
+          node --check simulation/evaluation/2026-11/agent3-rank14-regidrago-opponent-policy.cjs
+          node --check simulation/evaluation/2026-11/agent3-rank32-worker-build.cjs
+          node --check simulation/evaluation/2026-11/agent3-rank14-worker-build.cjs
+      - name: Verify pinned worker bundles match the exact source graph
+        run: |
+          node simulation/evaluation/2026-11/agent3-rank32-worker-build.cjs --check
+          node simulation/evaluation/2026-11/agent3-rank14-worker-build.cjs --check
+      - name: Run both original source policies and actual V3 schema validators
+        run: |
+          node --test \
+            tests/2026-11/agent3-rank32-regidrago-opponent-policy.test.cjs \
+            tests/2026-11/agent3-rank32-v3-protocol-boundary.test.cjs \
+            tests/2026-11/agent3-rank14-regidrago-opponent-policy.test.cjs \
+            tests/2026-11/agent3-rank14-v3-protocol-boundary.test.cjs
