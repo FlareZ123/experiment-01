@@ -43,7 +43,7 @@ for(const seat of [0,1]) {
       [clef,'Crobat V DAA 104'],'Secret Box TWM 163','hand',
       [[energy,'psy'],[vip,'vip-a'],[vip,'vip-b'],
       ['Telepathic Psychic Energy POR 88','protected']],3,3);
-    assertValid(seat,r,{kind:'select-choices',tokens:['psy','vip-a','vip-b']});
+    assertValid(seat,r,{kind:'select-choices',tokens:['vip-a','vip-b','psy']});
     r.observation.ownHand=['Telepathic Psychic Energy POR 88'];
     r.observation.ownPublic.discard=[energy];
     r.prompt=request(seat,[],[],box,'deck',[
@@ -471,6 +471,7 @@ for(const seat of [0,1]) {
       [['Psychic Energy MEE','psychic-a'],['Psychic Energy MEE','psychic-b']],2,2).prompt;
     r.prompt.source.effectName='Ultra Ball';
     assertValid(seat,r,{kind:'abstain',reasonCode:'NO_LEGAL_CARD_SET'});
+    r.observation.ownPublic.bench=[{printing:'Latias ex SSP'}];
     r.observation.ownHand=['Ultra Ball MEG','Psychic Energy MEE',
       'Psychic Energy MEE','Battle VIP Pass FST'];
     r.prompt=request(seat,r.observation.ownHand,[],'Ultra Ball MEG','hand',
