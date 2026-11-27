@@ -177,7 +177,7 @@ return module.exports;})();
   const VERSION='agent21-rank26-meloetta-opponent-v1';
   const SOURCE_RANK=26, SOURCE_LIST_BLOB_SHA1='ae773f6201d7aa69d31914dbfee66f3fba692200';
   const ENGINE_PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
-  const PROTOCOL_BLOB='468f957b17656f41cf9af8c77e6954bb79ea5695';
+  const PROTOCOL_BLOB='51d447d439e8275979533ffad7a4e87be2b14338';
   // Name matching is limited to the exact rank26 roster, including native Koko name aliases.
   const P={M:/^Meloetta ex\b/i,K:/^Tapu Koko (?:[◇♢♦]|Prism Star)(?:\s|$)/i,U:/^Unown\b/i,E:/^Exeggcute\b/i,B:/^Bunnelby\b/i,S:/^Squawkabilly ex\b/i,C:/^Crobat V\b/i,D:/^Dedenne-GX\b/i,L:/^(?:Basic )?Lightning Energy\b/i,DCE:/^Double Colorless Energy\b/i,TM:/^Technical Machine: Crisis Punch\b/i,R:/^Risky Ruins\b/i, QB:/^Quick Ball\b/i,VIP:/^Battle VIP Pass\b/i,BC:/^Battle Compressor\b/i,DP:/^Damage Pump\b/i,MAIL:/^Trainers' Mail\b/i,PAD:/^Order Pad\b/i,HB:/^Hisuian Heavy Ball\b/i,BI:/^Bicycle\b/i,RC:/^Rescue Carrier\b/i,TK:/^Redeemable Ticket\b/i,COL:/^Canceling Cologne\b/i,NAV:/^Stadium Nav\b/i,ROPE:/^Escape Rope\b/i,DM:/^Dowsing Machine\b/i,CC:/^Counter Catcher\b/i,RED:/^Special Red Card\b/i,FSS:/^Forest Seal Stone\b/i,FLOAT:/^Float Stone\b/i,CAR:/^Carmine\b/i,IONO:/^Iono\b/i};
   const BASIC=new Set(['M','K','U','E','B','S','C','D']);
@@ -326,9 +326,9 @@ return module.exports;})();
     if(a.kind==='use-ability'){
       const ab=m.abilityName, s=source(a,o);
       if(ab==='Dance of the Ancients')return s&&kind(s)==='K'&&m.sourceZone==='bench'&&g?.zone==='bench'&&g.index!==m.sourceIndex&&!has(g.p.energies,'L')&&has(discard(o),'L')&&(has(g.p.energies,'DCE')||has(h,'DCE'))&&!lockLive(o)?1500:0;
-      if(ab==='Propagation'&&k==='E'&&needEgg(o)&&room>0)return 560;
+      if(ab==='Propagation'&&k==='E'&&needEgg(o)&&room>0&&!lockLive(o))return 560;
       if(ab==='Farewell Letter'&&s&&kind(s)==='U'&&m.sourceZone==='bench'&&energy(s)===0&&!arr(s.tools).length&&own(o).deckCount>0&&s.damage===0&&(h.length<=5||room===0))return 350;
-      if(ab==='Squawk and Seize'&&s&&kind(s)==='S'&&h.length<=3&&!h.some(x=>['DCE','K','M','TM'].includes(kind(x))))return 350;
+      if(ab==='Squawk and Seize'&&s&&kind(s)==='S'&&h.length<=3&&!h.some(x=>['DCE','K','M','TM','DP','RC'].includes(kind(x))))return 350;
       if(ab==='Star Alchemy'&&h.length<=5&&!own(o).publicTurnRestrictions?.vstarUsed&&!o.ownTurnResources?.vstarUsed)return 470;
       return 0;
     }
@@ -345,7 +345,7 @@ return module.exports;})();
       if(k==='M'&&!find(o,'M'))return 620;
       if(k==='K'&&!find(o,'K')&&!has(own(o).lostZone,'K')&&find(o,'M')&&find(o,'M').zone==='bench'&&has(discard(o),'L'))return 250;
       if(k==='C'&&!find(o,'C')&&h.length<=5&&room>=2)return 530;
-      if(k==='D'&&!find(o,'D')&&h.length<=3&&room>=2&&!h.some(x=>['DCE','K','M','TM'].includes(kind(x))))return 520;
+      if(k==='D'&&!find(o,'D')&&h.length<=3&&room>=2&&!h.some(x=>['DCE','K','M','TM','DP','RC'].includes(kind(x))))return 520;
       if(k==='S'&&!find(o,'S')&&Number(o.globalTurn)<=2&&h.length<=3&&room>=2)return 420;
       if(k==='E'&&ruins(o)&&countBoard(o,'E')<2&&room>=2)return 190;
       if(k==='U'&&room>=2&&h.length<=5&&(!ruins(o)||countBoard(o,'U')<1))return 220;
@@ -387,7 +387,7 @@ return module.exports;})();
     if(k==='ROPE')return slots(opp(o)).length===1&&g?.zone==='bench'&&readyTarget(o)?.zone==='bench'&&(opp(o).prizeCount===1||Number(o.globalTurn)===1)?1750:0;
     if(k==='CC')return opp(o).prizeCount<own(o).prizeCount&&slots(opp(o)).length>1&&readyTarget(o)?.zone==='active'&&opp(o).prizeCount===1?1400:0;
     if(k==='RED')return opp(o).prizeCount<=3&&opp(o).handCount>3?120:0;
-    if(k==='CAR'||k==='IONO')return h.length<=3&&!h.some(x=>['DCE','K','M','TM'].includes(kind(x)))&&own(o).deckCount>=6?380:0;
+    if(k==='CAR'||k==='IONO')return h.length<=3&&!h.some(x=>['DCE','K','M','TM','DP','RC'].includes(kind(x)))&&own(o).deckCount>=6?380:0;
     return 0;
   }
 
@@ -405,7 +405,8 @@ return module.exports;})();
     if(resistance.some(x=>!x||!Number.isFinite(Number(x.value))))return null;
     const damage=280-Math.max(0,...resistance.map(x=>Math.abs(Number(x.value))));
     if(rem>damage)return null;
-    if(a.zone==='bench'&&!['E','U','B'].includes(kind(own(o).active)))return null;
+    // The host does not yet project mandatory engine promotion after a self-KO.
+    if(a.zone!=='active')return null;
     return {a,damage};
   }
   function donationPlan(o){
@@ -423,7 +424,7 @@ return module.exports;})();
       const k=kind(x.p);
       if(!BASIC.has(k)||!Number.isSafeInteger(x.p.damage)||x.p.damage%10!==0)return null;
       // Don't assume Farewell Letter can discard an attached resource.
-      if(k==='U'&&(arr(x.p.energies).length||arr(x.p.tools).length))return null;
+      if(['U','E','B'].includes(k)&&(arr(x.p.energies).length||arr(x.p.tools).length))return null;
       add(k,coord(x),x.zone==='active'?'A':'B',x.p.damage/10,{...x,k});
     }
     hand(o).forEach((x,i)=>{const k=kind(x);if(['E','U','B','S','C','D','K'].includes(k))add(k,'hand:'+i,'H',0,{zone:'hand',index:i,k});});
@@ -442,7 +443,10 @@ return module.exports;})();
     const step=line.plan.actions[0], loc=line.map.get(step.id);
     const play=k=>rows.find(x=>x.kind==='play-card'&&kind(x.actorPrinting)===k);
     let a=null,intent=null;
-    if(step.kind==='bench')a=rows.find(x=>x.kind==='play-card'&&kind(x.actorPrinting)===loc?.k&&meta(x).handIndex===loc.index);
+    if(step.kind==='bench'){
+      a=rows.find(x=>x.kind==='play-card'&&kind(x.actorPrinting)===loc?.k&&meta(x).handIndex===loc.index);
+      if(['D','C'].includes(loc?.k))intent={type:'donor-entry',role:loc.k};
+    }
     if(step.kind==='propagate'||step.kind==='farewell-letter'){
       const name=step.kind==='propagate'?'Propagation':'Farewell Letter';
       a=rows.find(x=>x.kind==='use-ability'&&meta(x).abilityName===name&&meta(x).sourceZone===loc?.zone&&meta(x).sourceIndex===loc.index);
@@ -547,8 +551,8 @@ return module.exports;})();
       const no=arr(p.choices).find(c=>c.kind==='confirm'&&c.label==='No');
       if(!yes||!no)return abstain('AMBIGUOUS_SIMPLE_PROMPT');
       if(effect==='Dark Asset'&&sk==='C')return chooseChoice(hand(o).length<6?yes.token:no.token);
-      if(effect==='Dedechange'&&sk==='D')return chooseChoice(hand(o).length<=3&&!hand(o).some(x=>['DCE','K','M','TM'].includes(kind(x)))?yes.token:no.token);
-      if(effect==='Squawk and Seize'&&sk==='S')return chooseChoice(hand(o).length<=3&&!hand(o).some(x=>['DCE','K','M','TM'].includes(kind(x)))?yes.token:no.token);
+      if(effect==='Dedechange'&&sk==='D')return chooseChoice(context.intent?.type!=='donor-entry'&&hand(o).length<=3&&!hand(o).some(x=>['DCE','K','M','TM','DP','RC'].includes(kind(x)))?yes.token:no.token);
+      if(effect==='Squawk and Seize'&&sk==='S')return chooseChoice(hand(o).length<=3&&!hand(o).some(x=>['DCE','K','M','TM','DP','RC'].includes(kind(x)))?yes.token:no.token);
       return abstain('UNSUPPORTED_CONFIRMATION_SOURCE');
     }
     if(p.promptType==='ChoosePrizePrompt'&&m.ownerSeat==='actor'&&sk!=='HB'&&sk!=='TK'){
