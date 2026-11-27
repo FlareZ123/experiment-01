@@ -823,7 +823,7 @@ test('Peonia final Prize-order prompt resolves exactly three actor-visible order
   });
 });
 
-test('Guzma & Hala root does not spend Supporter when no affordable two-card payment', () => {
+test('Guzma & Hala root retains free Stadium path with protected hand and skips if unnecessary', () => {
   const items=[
     action('gh','play-card','Guzma & Hala CEC 193',{cardType:'supporter'}),
     {token:'pass',kind:'pass'}
@@ -832,6 +832,13 @@ test('Guzma & Hala root does not spend Supporter when no affordable two-card pay
     "Team Rocket's Handiwork FCO 112",'Double Colorless Energy SUM 136',
     'Megaton Blower SSP 182'];
   assert.deepEqual(checkedDecision(rootRequest({ownHand:protectedHand,items})),
+    {kind:'select-action',token:'gh'});
+  const noStadiumNeed=rootRequest({
+    ownHand:protectedHand,items,
+    ownPublic:player({active:pokemon('Iron Thorns ex TWM 77'),
+      stadium:['Thunder Mountain ♢ LOT 191']})
+  });
+  assert.deepEqual(checkedDecision(noStadiumNeed),
     {kind:'select-action',token:'pass'});
   const disposableHand=['Guzma & Hala CEC 193',"Trainers' Mail ROS 92",
     'Camping Gear BST 122','Double Colorless Energy SUM 136'];
