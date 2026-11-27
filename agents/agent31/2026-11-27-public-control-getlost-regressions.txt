@@ -113,3 +113,41 @@ paired('Agent31: complete public control denial pivot',(seat,profile)=>{
  req.prompt.publicMetadata.ownerSeat='opponent';for(const c of req.prompt.choices)c.publicMetadata.ownerSeat='opponent';
  assert.deepEqual([...decide(profile,req).tokens].sort(),['card-0','card-1']);
 });
+
+
+paired('Agent31: public Moltres and Vileplume resource cuts',(seat,profile)=>{
+ const gir=pokemon({printing:'Girafarig LOT',name:'Girafarig',hp:90,energies:[P],attacks:[attack('Get Lost',['Colorless'],'0')]});
+ const moltres=pokemon({printing:'Galarian Moltres V CRE',name:'Galarian Moltres V',hp:220,types:['Darkness'],subtypes:['Basic','V']});
+ const pidgey=pokemon({printing:'Pidgey FLF',name:'Pidgey',hp:60,types:['Colorless']});
+ const r=observation(seat,{active:gir,bench:[v()],opponentActive:moltres});
+ const get={kind:'attack',token:'get',attackName:'Get Lost'};
+ const D='Darkness Energy MEE';
+ function prompt(want){
+  const req=cardPrompt(seat,r,'Girafarig LOT','Get Lost','discard',r.opponentPublic.discard,2,2);
+  req.prompt.publicMetadata.ownerSeat='opponent';for(const c of req.prompt.choices)c.publicMetadata.ownerSeat='opponent';
+  assert.deepEqual([...decide(profile,req).tokens].sort(),want.sort());
+ }
+ r.opponentPublic.discard=['VS Seeker PHF',D,'Double Dragon Energy ROS',D];
+ assert.deepEqual(decide(profile,root(seat,r,[get])),sel('get'));
+ prompt(['card-1','card-3']);
+ moltres.energies=[D,D];
+ assert.deepEqual(decide(profile,root(seat,r,[get])),sel('pass'));
+ moltres.energies=[];
+ r.opponentPublic.discard=[D,'Double Dragon Energy ROS','VS Seeker PHF'];
+ assert.deepEqual(decide(profile,root(seat,r,[get])),sel('pass'));
+ r.opponentPublic.discard=[D,D];r.ownPublic.bench=[];
+ assert.deepEqual(decide(profile,root(seat,r,[get])),sel('pass'));
+ r.opponentPublic.active=pidgey;r.ownPublic.bench=[v()];
+ r.opponentPublic.discard=['Oddish UNB','Karen XYP','Oddish UNB','Gloom UNB'];
+ assert.deepEqual(decide(profile,root(seat,r,[get])),sel('get'));
+ prompt(['card-0','card-2']);
+ r.opponentPublic.discard=['Gloom UNB','Karen XYP','Gloom UNB','Oddish UNB'];
+ assert.deepEqual(decide(profile,root(seat,r,[get])),sel('get'));
+ prompt(['card-0','card-2']);
+ r.opponentPublic.bench=[pokemon({printing:'Vileplume AOR',name:'Vileplume',hp:130,types:['Grass']})];
+ assert.deepEqual(decide(profile,root(seat,r,[get])),sel('pass'));
+ r.opponentPublic.bench=[];r.opponentPublic.discard=['Oddish UNB','Gloom UNB','Karen XYP'];
+ assert.deepEqual(decide(profile,root(seat,r,[get])),sel('pass'));
+ r.opponentPublic.active=defender();r.opponentPublic.discard=['Oddish UNB','Oddish UNB'];
+ assert.deepEqual(decide(profile,root(seat,r,[get])),sel('pass'));
+});
