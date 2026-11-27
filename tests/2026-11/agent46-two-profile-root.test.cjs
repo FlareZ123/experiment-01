@@ -1173,3 +1173,47 @@ paired('Fairy Zone final-Prize retrieval spends free access first and completes 
   view.ownPublic.bench[3]=pokemon({printing:c,name:"Lillie's Clefairy ex",hp:190,subtypes:['Basic','ex'],types:['Psychic'],abilities:['Fairy Zone'],suppression:false});
   assert.deepEqual(get([play('energy',P,M,target('active',0)),max]).decision,sel('max'));
 });
+
+paired('Final-Prize Field Blower removes the actual Active Hood before Fairy Zone; already lethal attack skips removal',(seat,profile)=>{
+  const c="Lillie's Clefairy ex JTG",fb='Field Blower GRI',hood='Stealthy Hood UNB';
+  const active=vmax([P,P,P,P,P]);active.hp=320;
+  const dragon=defender({abilities:['Legacy Star'],suppression:false,tools:[hood]});
+  const view=observation(seat,{active,bench:[v(),latias(),v()],opponentActive:dragon,
+    opponentBench:[pokemon({printing:'Regidrago V SIT',name:'Regidrago V',types:['Dragon'],subtypes:['Basic','V'],tools:['Float Stone BKT']})],
+    ownHand:[c,fb,R,P],ownStadium:['Dimension Valley PHF']});
+  view.ownPublic.prizeCount=2;
+  const max={token:'max',kind:'attack',attackName:'Max Geist'},items=[play('blower',fb),play('clefairy',c,null,target('bench',3)),play('energy',P,M,target('active',0)),max];
+  const get=()=>worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile}).decideWithAudit(root(seat,view,items));
+  assert.deepEqual(get().decision,sel('blower'));
+  assert.equal(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_FIELD_BLOWER_HOOD');
+  const req={role:'candidate',seat,observation:{...view,decisionKind:'owner-prompt',pendingPromptType:'SelectOptionPrompt'},
+    prompt:{actingSeat:seat,promptType:'SelectOptionPrompt',description:null,source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:fb,effectName:'Field Blower'},
+      choices:[{token:'stadium',kind:'option',label:'Discard a Stadium and a Tool'},{token:'tools',kind:'option',label:'Discard up to 2 Tools'}],
+      publicMetadata:{selectionType:'option'}},publicEventReceipt:null};
+  assert.deepEqual(decide(profile,req),choice('tools'));
+  const choiceReq={...req,observation:{...view,decisionKind:'owner-prompt',pendingPromptType:'ChoosePokemonPrompt'},
+    prompt:{...req.prompt,promptType:'ChoosePokemonPrompt',choices:[
+      {token:'active-hood',kind:'pokemon',printing:dragon.printing,label:'Active',publicMetadata:{ownerSeat:'opponent',isOwnerVisible:true,targetZone:'active',slotIndex:0,selectedCount:1}},
+      {token:'bench-float',kind:'pokemon',printing:view.opponentPublic.bench[0].printing,label:'Bench',publicMetadata:{ownerSeat:'opponent',isOwnerVisible:true,targetZone:'bench',benchIndex:0,selectedCount:1}},
+      {token:'empty',kind:'empty-selection',label:'Choose no items'}],
+      publicMetadata:{selectionType:'pokemon',minimumCount:0,maximumCount:2,allowCancel:false,isSecret:false}}};
+  assert.deepEqual(decide(profile,choiceReq),mult('active-hood','bench-float'));
+  lockItems(view);
+  assert.notEqual(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_FIELD_BLOWER_HOOD');
+  view.ownTurnResources.itemPlayLocked=false;view.ownPublic.publicTurnRestrictions.itemPlayLocked=false;
+  view.ownHand=[fb,R,P];view.ownPublic.handCount=3;
+  assert.notEqual(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_FIELD_BLOWER_HOOD');
+  view.ownPublic.bench[3]=pokemon({printing:c,name:"Lillie's Clefairy ex",hp:190,subtypes:['Basic','ex'],types:['Psychic'],abilities:['Fairy Zone'],suppression:false});
+  assert.deepEqual(get().decision,sel('blower'));
+  dragon.damage=130;
+  assert.deepEqual(get().decision,sel('max')); // 150 remaining: 160 without weakness
+  dragon.damage=0;
+  view.ownPublic.active.energies=[P,P,P];
+  assert.notEqual(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_FIELD_BLOWER_HOOD');
+  view.ownPublic.active.energies=[P,P,P,P,P];
+  view.ownPublic.prizeCount=3;
+  assert.notEqual(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_FIELD_BLOWER_HOOD');
+  view.ownPublic.prizeCount=2;
+  dragon.tools=[];
+  assert.deepEqual(get().decision,sel('max'));
+});

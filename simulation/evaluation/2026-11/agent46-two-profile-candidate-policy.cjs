@@ -3795,7 +3795,8 @@ function cleanPublicTerminalView(view,direct=false){
   (slot.abilities??[]).every(a=>
     (direct&&directTerminalHarmlessAbility(slot,a)) ||
     (a==='Garbotoxin'&&hasName(slot.printing,'Garbodor'))) &&
-  (slot.tools??[]).every(t=>hasName(t,'Float Stone')) &&
+  (slot.tools??[]).every(t=>hasName(t,'Float Stone') ||
+    (direct&&slot===view.opponentPublic.active&&isDragon(slot)&&hasName(t,'Stealthy Hood'))) &&
   (slot.energies??[]).every(p=>
     isBasicEnergyPrinting(p) ||
     (direct&&hasName(p,'Double Dragon Energy')&&isDragon(slot))))&&
@@ -3858,6 +3859,25 @@ function fairyZoneRetrieval(view,items,receipt,profile,attackNames){
     if(paid&&hasDiscardableHand(view,1,paid.actorPrinting,receipt))
       return {item:paid,reason:'ROOT_TRY_FINAL_BY_CLEFAIRY_TUTOR',retrieval:true};
   }
+  return null;
+}
+// An effective opposing Hood is a concrete removable blocker, not a
+// reason to abandon an otherwise terminal Fairy Zone line. Restrict this
+// projection to the Active's single Hood and an unchanged tool-only mode.
+function fieldBlowerHoodFinal(view,items,attackNames){
+  const d=view.opponentPublic.active;
+  if(itemLocked(view)||!d||!isDragon(d)||d.tools?.length!==1||
+     !hasName(d.tools[0],'Stealthy Hood')||
+     hasEffectiveStealthyHood(d,view,'opponent')!==true||
+     hasStadiumRemovalTarget(view))return null;
+  const item=items.find(i=>i.kind==='play-card'&&hasName(i.actorPrinting,'Field Blower')&&
+    view.ownHand.includes(i.actorPrinting));
+  if(!item)return null;
+  const after={...view,opponentPublic:{...view.opponentPublic,active:{...d,tools:[]}}};
+  const holder=view.ownHand.find(p=>hasName(p,"Lillie's Clefairy ex"));
+  if((fairyZoneStatus(after)===true&&publicFinalAttack(after,attackNames))||
+    (holder&&fairyZoneFinalProjection(after,holder,attackNames)))
+    return {item,reason:'ROOT_FINAL_BY_FIELD_BLOWER_HOOD'};
   return null;
 }
 function finalPublicStep(view,items,receipt,profile){
@@ -3932,7 +3952,7 @@ if(item.kind==='play-card'&&hasName(item.actorPrinting,'Float Stone')&&
     }
   }
   return options.sort((a,b)=>b.priority-a.priority||a.item.token.localeCompare(b.item.token))[0]??
-    fairyZoneRetrieval(view,items,receipt,profile,attackNames);
+    fieldBlowerHoodFinal(view,items,attackNames)??fairyZoneRetrieval(view,items,receipt,profile,attackNames);
 }
 function chooseRoot(view, request, profile) {
   const items = request.actionFrontier.items.filter(item =>
