@@ -1058,3 +1058,27 @@ test('K1 known Tropical Beach preserves Stadium-only G&H alternative without Thu
   });
   assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'gh'});
 });
+
+test('Tag Call connector precedes Speed Lightning when it can assemble G&H DCE turbo', () => {
+  const req=rootRequest({
+    ownHand:['Tag Call CEC 206','Speed Lightning Energy RCL 173',
+      "Trainers' Mail ROS 92",'Camping Gear BST 122'],
+    items:[
+      action('tag','play-card','Tag Call CEC 206',{cardType:'item'}),
+      action('speed','play-card','Speed Lightning Energy RCL 173',{cardType:'energy'}),
+      {token:'pass',kind:'pass'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'tag'});
+  const directDce=rootRequest({
+    ownHand:['Tag Call CEC 206','Double Colorless Energy SUM 136',
+      'Thunder Mountain ♢ LOT 191'],
+    items:[
+      action('tag','play-card','Tag Call CEC 206',{cardType:'item'}),
+      action('mountain','play-card','Thunder Mountain ♢ LOT 191',{cardType:'stadium'}),
+      action('dce','play-card','Double Colorless Energy SUM 136',{cardType:'energy'}),
+      {token:'pass',kind:'pass'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(directDce),{kind:'select-action',token:'mountain'});
+});
