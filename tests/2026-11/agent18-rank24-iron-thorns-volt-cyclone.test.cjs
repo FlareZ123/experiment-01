@@ -77,6 +77,63 @@ test('retreat pivots only to a funded bench when the Active cannot attack', () =
   })), { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ROOT_ACTION' });
 });
 
+test('certified final-Prize Volt Cyclone overrides Megaton Blower', () => {
+  const terminalAttack = {
+    token: 'terminal-volt', kind: 'attack',
+    actorPrinting: 'Iron Thorns ex TWM 77',
+    attackName: 'Volt Cyclone',
+    publicMetadata: {
+      prizeLiability: 2,
+      hasPrevention: false,
+      hasUnmodeledModifier: false,
+      attackCostPayable: true,
+      isLegal: true,
+      damage: 140
+    }
+  };
+  const megaton = { token: 'meg', kind: 'play-card', actorPrinting: 'Megaton Blower SSP 182' };
+  const request = root({
+    opponentActive: mon('Target ex ABC 1', {
+      hp: 200, damage: 70,
+      energies: ['Double Colorless Energy SUM 136'],
+      tools: ['Float Stone BKT 137']
+    }),
+    items: [megaton, terminalAttack, pass]
+  });
+  request.observation.ownPublic.prizeCount = 2;
+  assert.deepEqual(policy.decide(request),
+    { kind: 'select-action', token: 'terminal-volt' });
+});
+
+test('terminal attack layer fails closed without liability proof or with prevention/Legacy Energy', () => {
+  const megaton = { token: 'meg', kind: 'play-card', actorPrinting: 'Megaton Blower SSP 182' };
+  const baseMeta = {
+    prizeLiability: 2, hasPrevention: false, hasUnmodeledModifier: false,
+    attackCostPayable: true, isLegal: true, damage: 140
+  };
+  for (const variant of [
+    { meta: { ...baseMeta, prizeLiability: undefined }, energies: ['Double Colorless Energy SUM 136'] },
+    { meta: { ...baseMeta, hasPrevention: true }, energies: ['Double Colorless Energy SUM 136'] },
+    { meta: baseMeta, energies: ['Legacy Energy TWM 167'] }
+  ]) {
+    const attack = {
+      token: 'terminal-volt', kind: 'attack',
+      actorPrinting: 'Iron Thorns ex TWM 77',
+      attackName: 'Volt Cyclone',
+      publicMetadata: variant.meta
+    };
+    const request = root({
+      opponentActive: mon('Target ex ABC 1', {
+        hp: 200, damage: 70, energies: variant.energies,
+        tools: ['Float Stone BKT 137']
+      }),
+      items: [megaton, attack, pass]
+    });
+    request.observation.ownPublic.prizeCount = 2;
+    assert.deepEqual(policy.decide(request), { kind: 'select-action', token: 'meg' });
+  }
+});
+
 test('Volt Cyclone is selected when it is the best remaining executable action', () => {
   assert.deepEqual(policy.decide(root({ items: [attack, pass] })),
     { kind: 'select-action', token: 'volt' });
