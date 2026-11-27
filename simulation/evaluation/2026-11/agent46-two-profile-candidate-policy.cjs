@@ -2011,6 +2011,16 @@ function searchCandidates(view, prompt, choices, receipt = null) {
           : searchNeedScore(view, choice.printing, scoringEffectName, receipt)
     }));
   }
+  // These effects deliver a Basic to the hand, not the discard or directly
+  // to a Bench. Re-evaluate the terminal opportunity on actual revealed
+  // legal choices rather than persisting an intention across the prompt.
+  const clefairyToHand=(sourceZone==='deck'&&hasAnyName(sourcePrinting,['Fog Crystal','Mysterious Treasure','Quick Ball']))||
+    (sourceZone==='discard'&&hasName(sourcePrinting,'Night Stretcher'))||
+    (sourceZone==='prizes'&&hasName(sourcePrinting,'Hisuian Heavy Ball'));
+  if(clefairyToHand&&!handHas(view,"Lillie's Clefairy ex")){
+    for(const row of rows)if(hasName(row.choice.printing,"Lillie's Clefairy ex")&&
+      fairyZoneFinalProjection(view,row.choice.printing))row.score=10000;
+  }
   for (const row of rows) {
     recordPolicyAuditScore(row.choice.token, row.score, 'NO_SEARCH_CANDIDATE_SCORE');
   }
@@ -3446,7 +3456,7 @@ function scoreTrainerPlay(item, view, receipt, profile) {
     !handHasBasicShadowRiderV(view) && hasOpenBench(view);
   if (hasName(name, 'Fog Crystal') &&
       (missingBasicV || needControlGirafarig(view) ||
-       (opponentHasDragon(view) &&
+       (opponentHasDragon(view) && !knownFullyPrized(view,"Lillie's Clefairy ex") &&
         !boardHas(view, "Lillie's Clefairy ex") &&
         !handHas(view, "Lillie's Clefairy ex")) ||
        energyTutorNeed(view,receipt)>0)) return 820;
@@ -3806,6 +3816,50 @@ function publicFinalAttack(view,allowedNames=null){
     .sort((a,b)=>a.damage-b.damage||a.attack.name.localeCompare(b.attack.name));
   return candidates[0]??null;
 }
+// Model one placement, not a search guarantee. Prompt scoring may use the
+// printed active attacks, but root selection must use the supplied frontier.
+function fairyZoneFinalProjection(view,printing,attackNames=null){
+  const defender=view.opponentPublic.active,active=view.ownPublic.active;
+  const empty=view.ownPublic.bench.findIndex(slot=>!slot);
+  if(!defender||!isDragon(defender)||!active?.printed?.types?.includes('Psychic')||
+     fairyZoneStatus(view)!==false||hasEffectiveStealthyHood(defender,view,'opponent')!==false||
+     !hasOpenBench(view)||empty<0||view.ownTurnResources?.pokemonPlayLocked===true||
+     view.ownPublic.publicTurnRestrictions?.pokemonPlayLocked===true)return false;
+  const holder={printing,hp:190,damage:0,
+    printed:{types:['Psychic'],subtypes:['Basic','ex'],weakness:[{type:'Metal',value:'×2'}],resistance:[],retreatCost:['Colorless']},
+    abilities:['Fairy Zone'],abilitySuppressions:[],tools:[],energies:[],specialConditions:[]};
+  const after={...view,ownPublic:{...view.ownPublic,
+    bench:view.ownPublic.bench.map((slot,i)=>i===empty?holder:slot)}};
+  const names=attackNames??new Set((active.attacks??[]).map(a=>a.name));
+  return fairyZoneStatus(after)===true&&!!publicFinalAttack(after,names);
+}
+function fairyZoneRetrieval(view,items,receipt,profile,attackNames){
+  const name="Lillie's Clefairy ex",printing=name+' JTG 56';
+  if(itemLocked(view)||handHas(view,name)||!fairyZoneFinalProjection(view,printing,attackNames))return null;
+  const held=items.filter(i=>i.kind==='play-card'&&view.ownHand.includes(i.actorPrinting));
+  const find=name=>held.find(i=>hasName(i.actorPrinting,name));
+  const recovery=find('Night Stretcher');
+  if(recovery&&discardHas(view,name))return {item:recovery,reason:'ROOT_TRY_FINAL_BY_CLEFAIRY_RECOVERY',retrieval:true};
+  if(knownFullyPrized(view,name)){
+    const heavy=find('Hisuian Heavy Ball');
+    return heavy?{item:heavy,reason:'ROOT_TRY_FINAL_BY_CLEFAIRY_PRIZE',retrieval:true}:null;
+  }
+  // Bound public exhaustion by the two immutable candidate inventories.
+  // An unaccounted copy might still be Prized: a deck tutor is an attempt.
+  const copies=profile?.profileId==='hood-shield-shadow-rider-v1'?2:
+    profile?.profileId==='lockbridge-shadow-rider-v1'?1:0;
+  const outside=[...ownBoard(view).map(s=>s.printing),...view.ownHand,
+    ...view.ownPublic.discard,...view.ownPublic.lostZone].filter(p=>hasName(p,name)).length;
+  if(view.ownPublic.deckCount<=0||outside>=copies)return null;
+  const free=find('Fog Crystal');
+  if(free)return {item:free,reason:'ROOT_TRY_FINAL_BY_CLEFAIRY_TUTOR',retrieval:true};
+  for(const n of ['Mysterious Treasure','Quick Ball']){
+    const paid=find(n);
+    if(paid&&hasDiscardableHand(view,1,paid.actorPrinting,receipt))
+      return {item:paid,reason:'ROOT_TRY_FINAL_BY_CLEFAIRY_TUTOR',retrieval:true};
+  }
+  return null;
+}
 function finalPublicStep(view,items,receipt,profile){
   const current=publicFinalAttack(view,new Set(items.filter(i=>i.kind==='attack').map(i=>i.attackName)));
   if(current){
@@ -3813,28 +3867,13 @@ function finalPublicStep(view,items,receipt,profile){
     return {item,reason:'ROOT_PUBLIC_FINAL_PRIZE_ATTACK'};
   }
   if(!view.ownPublic.active||view.globalTurn<=1)return null;
-  // A hand-held Clefairy can close the game without spending an attachment,
-  // Supporter, or attack for setup. Compare the actual public final-Prize
-  // attack after placing its exact profile card, before reserving Gate slots.
   const attackNames=new Set(items.filter(i=>i.kind==='attack').map(i=>i.attackName));
-  const defender=view.opponentPublic.active;
-  const empty=view.ownPublic.bench.findIndex(slot=>!slot);
-  if(defender&&isDragon(defender)&&view.ownPublic.active.printed?.types?.includes('Psychic')&&
-      fairyZoneStatus(view)===false&&hasEffectiveStealthyHood(defender,view,'opponent')===false&&
-      hasOpenBench(view)&&empty>=0&&view.ownTurnResources?.pokemonPlayLocked!==true&&
-      view.ownPublic.publicTurnRestrictions?.pokemonPlayLocked!==true){
-    for(const item of items){
-      const m=item.publicMetadata??{};
-      if(item.kind!=='play-card'||!hasName(item.actorPrinting,"Lillie's Clefairy ex")||
-        m.targetSeat!=='actor'||m.targetZone!=='bench'||!view.ownHand.includes(item.actorPrinting))continue;
-      const holder={printing:item.actorPrinting,hp:190,damage:0,
-        printed:{types:['Psychic'],subtypes:['Basic','ex'],weakness:[{type:'Metal',value:'×2'}],resistance:[],retreatCost:['Colorless']},
-        abilities:['Fairy Zone'],abilitySuppressions:[],tools:[],energies:[],specialConditions:[]};
-      const after={...view,ownPublic:{...view.ownPublic,
-        bench:view.ownPublic.bench.map((slot,i)=>i===empty?holder:slot)}};
-      if(fairyZoneStatus(after)===true&&publicFinalAttack(after,attackNames))
-        return {item,reason:'ROOT_FINAL_BY_FAIRY_ZONE_BENCH'};
-    }
+  for(const item of items){
+    const m=item.publicMetadata??{};
+    if(item.kind==='play-card'&&hasName(item.actorPrinting,"Lillie's Clefairy ex")&&
+       m.targetSeat==='actor'&&m.targetZone==='bench'&&view.ownHand.includes(item.actorPrinting)&&
+       fairyZoneFinalProjection(view,item.actorPrinting,attackNames))
+      return {item,reason:'ROOT_FINAL_BY_FAIRY_ZONE_BENCH'};
   }
   const options=[];
   const offer=(item,next,priority,reason)=>{
@@ -3892,7 +3931,8 @@ if(item.kind==='play-card'&&hasName(item.actorPrinting,'Float Stone')&&
       }
     }
   }
-  return options.sort((a,b)=>b.priority-a.priority||a.item.token.localeCompare(b.item.token))[0]??null;
+  return options.sort((a,b)=>b.priority-a.priority||a.item.token.localeCompare(b.item.token))[0]??
+    fairyZoneRetrieval(view,items,receipt,profile,attackNames);
 }
 function chooseRoot(view, request, profile) {
   const items = request.actionFrontier.items.filter(item =>
@@ -3902,7 +3942,8 @@ function chooseRoot(view, request, profile) {
   const finalStep=finalPublicStep(view,items,request.publicEventReceipt,profile);
   if(finalStep){
     setPolicyAuditRule(finalStep.reason,'PUBLIC_TERMINAL_PRIORITY');
-    recordPolicyAuditRule(finalStep.item.token,'PUBLIC_DETERMINISTIC_FINAL_PRIZE_LINE');
+    recordPolicyAuditRule(finalStep.item.token,finalStep.retrieval?
+      'PUBLIC_FINAL_PRIZE_RETRIEVAL_ATTEMPT':'PUBLIC_DETERMINISTIC_FINAL_PRIZE_LINE');
     return {kind:'select-action',token:finalStep.item.token};
   }
 

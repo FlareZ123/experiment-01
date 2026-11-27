@@ -1122,3 +1122,54 @@ paired('Final-Prize Fairy Zone placement beats Gate reservation and setup only w
   view.ownPublic.bench[3]=v();view.ownPublic.bench[4]=v();
   assert.notEqual(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_FAIRY_ZONE_BENCH');
 });
+
+paired('Fairy Zone final-Prize retrieval spends free access first and completes the actual revealed choice',(seat,profile,i)=>{
+  const c="Lillie's Clefairy ex JTG",mt='Mysterious Treasure FLI',bc='Battle Compressor PHF';
+  const active=vmax([P,P,P,P,P]);active.hp=320;
+  const dragon=defender({abilities:['Legacy Star'],suppression:false});
+  const view=observation(seat,{active,bench:[v(),latias(),v()],opponentActive:dragon,
+    opponentBench:[v()],ownHand:[FOG,mt,R,P,bc]});
+  view.ownPublic.prizeCount=2;
+  const max={token:'max',kind:'attack',attackName:'Max Geist'};
+  const actions=[play('fog',FOG),play('treasure',mt),play('energy',P,M,target('active',0)),max];
+  const get=(xs=actions)=>worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile}).decideWithAudit(root(seat,view,xs));
+  assert.deepEqual(get().decision,sel('fog'));
+  assert.equal(get().policyAudit.selectionRuleCode,'ROOT_TRY_FINAL_BY_CLEFAIRY_TUTOR');
+  assert.deepEqual(decide(profile,cardPrompt(seat,view,FOG,'Fog Crystal','deck',[V,P,c])),mult('card-2'));
+  assert.deepEqual(decide(profile,cardPrompt(seat,view,mt,'Mysterious Treasure','deck',[R,c,M])),mult('card-1'));
+  view.ownHand=[mt,R,bc];view.ownPublic.handCount=3;
+  assert.deepEqual(get([play('treasure',mt),max]).decision,sel('treasure'));
+  view.ownHand=[mt,R,FSS];view.ownPublic.handCount=3;
+  assert.notEqual(get([play('treasure',mt),max]).policyAudit.selectionRuleCode,'ROOT_TRY_FINAL_BY_CLEFAIRY_TUTOR');
+  view.ownHand=[FOG,NS,HB,R];view.ownPublic.handCount=4;view.ownPublic.discard=[c];
+  const recover=[play('fog',FOG),play('stretcher',NS),play('heavy',HB),max];
+  assert.deepEqual(get(recover).decision,sel('stretcher'));
+  assert.deepEqual(decide(profile,cardPrompt(seat,view,NS,'Night Stretcher','discard',[R,c,P])),mult('card-1'));
+  view.ownPublic.discard=[];view.ownerK1={epoch:1,exactMembershipKnown:false,knownPrintings:null,invalidationReason:null,
+    prizeFacts:{schema:'agent46-owner-fully-prized-v1',actorSeat:seat,epoch:1,turn:view.globalTurn,
+      prizeCount:2,fullyPrized:[{cardName:"Lillie's Clefairy ex",printing:c,copies:i===0?2:1}]}};
+  assert.deepEqual(get(recover).decision,sel('heavy'));
+  assert.deepEqual(decide(profile,cardPrompt(seat,view,HB,'Hisuian Heavy Ball','prizes',[R,c],0,1)),mult('card-1'));
+  assert.notEqual(get([play('fog',FOG),max]).policyAudit.selectionRuleCode,'ROOT_TRY_FINAL_BY_CLEFAIRY_TUTOR');
+  view.ownerK1=null;
+  view.ownPublic.lostZone=Array(i===0?2:1).fill(c);
+  assert.notEqual(get([play('fog',FOG),max]).policyAudit.selectionRuleCode,'ROOT_TRY_FINAL_BY_CLEFAIRY_TUTOR');
+  view.ownPublic.lostZone=[];
+  lockItems(view);
+  assert.notEqual(get(recover).policyAudit.selectionRuleCode,'ROOT_TRY_FINAL_BY_CLEFAIRY_TUTOR');
+  view.ownTurnResources.itemPlayLocked=false;view.ownPublic.publicTurnRestrictions.itemPlayLocked=false;
+  assert.notEqual(get([play('fog',FOG)]).policyAudit.selectionRuleCode,'ROOT_TRY_FINAL_BY_CLEFAIRY_TUTOR');
+  dragon.tools=['Stealthy Hood UNB'];
+  assert.notEqual(get(recover).policyAudit.selectionRuleCode,'ROOT_TRY_FINAL_BY_CLEFAIRY_TUTOR');
+  assert.notEqual(decide(profile,cardPrompt(seat,view,mt,'Mysterious Treasure','deck',[R,c,M])).tokens?.[0],'card-1');
+  dragon.tools=[];
+  view.ownPublic.prizeCount=3;
+  assert.notEqual(get(recover).policyAudit.selectionRuleCode,'ROOT_TRY_FINAL_BY_CLEFAIRY_TUTOR');
+  // Staged sequential root decisions after the retrieval menu has resolved.
+  view.ownPublic.prizeCount=2;
+  view.ownHand=[c,R,P];view.ownPublic.handCount=3;
+  assert.deepEqual(get([play('clefairy',c,null,target('bench',3)),max]).decision,sel('clefairy'));
+  view.ownHand=[R,P];view.ownPublic.handCount=2;
+  view.ownPublic.bench[3]=pokemon({printing:c,name:"Lillie's Clefairy ex",hp:190,subtypes:['Basic','ex'],types:['Psychic'],abilities:['Fairy Zone'],suppression:false});
+  assert.deepEqual(get([play('energy',P,M,target('active',0)),max]).decision,sel('max'));
+});
