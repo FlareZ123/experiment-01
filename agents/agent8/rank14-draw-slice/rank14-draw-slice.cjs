@@ -8,6 +8,9 @@ const ORICORIO = /^Oricorio-GX CEC 95\b/i;
 const DANCE = /^Dance of Tribute$/i;
 const ALTERNATIVE = /^Dedenne-GX UNB 57\b/i;
 const PROTECTED = /^(Double Dragon Energy ROS 97|Regidrago VSTAR SIT 136)\b/i;
+const QUICK_BALL = /^Quick Ball FST 237\b/i;
+const REGIDRAGO_V = /^Regidrago V SIT 135\b/i;
+const DONORS = [/^Dragapult ex TWM 130\b/i,/^Dialga-GX UPR 100\b/i,/^Hisuian Goodra VSTAR LOR 136\b/i,/^Kyurem SFA 47\b/i,/^Noivern ex PAL 153\b/i,/^Mega Dragonite ex ASC 152\b/i];
 const list = v => Array.isArray(v) ? v : [];
 const printing = v => typeof v === 'string' ? v : v?.printing ?? v?.fullName ?? '';
 const actorPrinting = a => a?.actorPrinting ?? a?.publicMetadata?.sourcePrinting ?? a?.publicMetadata?.cardPrinting ?? '';
@@ -19,6 +22,43 @@ const selected = a => ({kind:'select-action',token:a.token});
 const priorKO = r => r?.publicEventReceipt?.priorOpponentTurnKO?.any === true;
 const safeDraw = r => Number.isSafeInteger(r?.observation?.ownPublic?.deckCount) && r.observation.ownPublic.deckCount >= 4;
 
+// Missing payloads are productive Quick Ball payments, not protected setup cards.
+function donorPattern(value, own) {
+  const match = DONORS.find(p => p.test(printing(value)));
+  return match && !list(own.discard).some(c => match.test(printing(c))) ? match : null;
+}
+function visibleOricorio(own, hand) {
+  return [...slots(own), ...list(own.discard), ...list(own.lostZone), ...hand].some(c => ORICORIO.test(printing(c)));
+}
+function wantsOricorio(request) {
+  const o = request.observation;
+  return priorKO(request) && Number.isSafeInteger(o.ownPublic.deckCount) && o.ownPublic.deckCount >= 5 && o.ownHand.length <= 6 &&
+    o.ownHand.some(c => PROTECTED.test(printing(c))) && o.ownHand.some(c => ALTERNATIVE.test(printing(c))) &&
+    !visibleOricorio(o.ownPublic, o.ownHand);
+}
+function quickBallContinuation(request, prompt) {
+  const o = request.observation, m = prompt.publicMetadata ?? {};
+  if (!wantsOricorio(request)) return null;
+  if (prompt.promptType !== 'ChooseCardsPrompt' || m.selectionType !== 'card-combination' || m.ownerSeat !== 'actor' || m.isOwnerVisible !== true || m.maximumCount !== 1) return abstain('RANK14_QUICKBALL_PROMPT_UNSUPPORTED');
+  const choices = list(prompt.choices).filter(token);
+  if (m.sourceZone === 'hand' && m.minimumCount === 1) {
+    const eligible = choices.filter(c => c.kind === 'card' && donorPattern(c,o.ownPublic) && o.ownHand.some(h => printing(h) === printing(c)));
+    // Choose according to the fixed payload order, then the offered-token order.
+    const donor = DONORS.map(p => eligible.find(c => p.test(printing(c)))).find(Boolean);
+    return donor ? {kind:'select-choices',tokens:[donor.token]} : abstain('RANK14_QUICKBALL_NO_DONOR');
+  }
+  if (m.sourceZone === 'deck' && [0,1].includes(m.minimumCount)) {
+    const offered = choices.filter(c => c.kind === 'card');
+    const target = offered.find(c => ORICORIO.test(printing(c))) ??
+      (!slots(o.ownPublic).some(c => REGIDRAGO_V.test(printing(c))) && !o.ownHand.some(c => REGIDRAGO_V.test(printing(c))) ? offered.find(c => REGIDRAGO_V.test(printing(c))) : null);
+    if (target) return {kind:'select-choices',tokens:[target.token]};
+    // The singleton can be Prized. Do not invent a target or expose hidden cards.
+    if (m.minimumCount === 0) return {kind:'select-choices',tokens:[]};
+    return abstain('RANK14_QUICKBALL_NO_TARGET');
+  }
+  return abstain('RANK14_QUICKBALL_PROMPT_UNSUPPORTED');
+}
+
 function rank14DrawDecision(request) {
   const o = request?.observation;
   if (!o || !o.ownPublic || !Array.isArray(o.ownHand)) return null;
@@ -27,6 +67,7 @@ function rank14DrawDecision(request) {
     const src = p.source ?? {};
     const from = src.sourcePrinting ?? src.printing ?? p.publicMetadata?.sourcePrinting ?? '';
     const ability = src.sourceEffect ?? src.effectName ?? p.publicMetadata?.sourceEffect ?? '';
+    if (QUICK_BALL.test(from) && /^Quick Ball$/i.test(ability)) return quickBallContinuation(request,p);
     if (!ORICORIO.test(from) || !DANCE.test(ability)) return null;
     // A native optional confirmation is supported only when the source is exact.
     if (p.promptType !== 'ConfirmPrompt') return abstain('RANK14_DANCE_PROMPT_UNSUPPORTED');
@@ -46,7 +87,12 @@ function rank14DrawDecision(request) {
   // Native frontier, not a five-slot guess, is the authority on placement legality.
   const discardDrawOffered = items.some(a => a.kind === 'play-card' && ALTERNATIVE.test(actorPrinting(a)));
   const protectedHand = o.ownHand.some(c => PROTECTED.test(printing(c)));
-  if (hasOricorio || !protectedHand || !discardDrawOffered || o.ownHand.length > 6 || !o.ownHand.some(c => ORICORIO.test(printing(c)))) return null;
+  if (hasOricorio || !protectedHand || !discardDrawOffered || o.ownHand.length > 6) return null;
+  if (wantsOricorio(request) && o.ownHand.some(c => donorPattern(c,o.ownPublic))) {
+    const balls = items.filter(a => a.kind === 'play-card' && QUICK_BALL.test(actorPrinting(a)));
+    if (balls.length > 0) return selected(balls[0]);
+  }
+  if (!o.ownHand.some(c => ORICORIO.test(printing(c)))) return null;
   const bench = items.filter(a => a.kind === 'play-card' && ORICORIO.test(actorPrinting(a)));
   return bench.length === 1 ? selected(bench[0]) : bench.length > 1 ? abstain('RANK14_ORICORIO_ROOT_AMBIGUOUS') : null;
 }
