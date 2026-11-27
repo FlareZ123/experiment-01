@@ -26,6 +26,24 @@ This is the matchup New Moon v2 was designed to repair.
 
 **Structural winner for the already-established Hooded BUS state: New Moon v2.** This is conditional, not a matchup win claim.
 
+### Rank-15 Prize-capacity ceiling for the deterministic v2 line
+
+The exact deterministic sequence described by New Moon v2 requires three **non-HHB-recoverable** specific cards to be available before natural Prize-taking: singleton Tool Jammer (Trainer) plus **both** Dusclops copies (Stage 1). Hisuian Heavy Ball can recover Basic Duskull, but it cannot recover Tool Jammer or Dusclops.
+
+Ignoring every other prerequisite, the chance that all three specified hard-core cards avoid the six opening Prizes is:
+
+[
+\frac{\binom{57}{6}}{\binom{60}{6}}
+= \frac{6201}{8555}
+\approx 72.4839\%.
+]
+
+So **27.5161%** of six-Prize configurations put at least one of Tool Jammer / Dusclops / Dusclops in the Prizes, making this exact two-Dusclops deterministic lockbreak unavailable before that missing non-Basic/Trainer card is naturally taken from Prizes.
+
+If one also demanded both Duskull be initially outside Prizes, all five named physical prerequisites avoid Prizes only **57.9054%** of the time; that is deliberately *not* the hard ceiling because Duskull are Basic and can be recovered by the list's two Hisuian Heavy Ball before Item lock if sequencing permits.
+
+This is an AMR correction, not a rejection of v2: the swap creates a legal action class the parent lacked, but the exact deterministic two-Dusclops proof is materially more Prize-sensitive than its existence alone suggests.
+
 ## Rank 16 — Budew attack lock + Benched Psychic Garbotoxin
 
 The geometry is reversed:
