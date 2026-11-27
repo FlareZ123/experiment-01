@@ -3,6 +3,9 @@
  * Rank 30 Lillie's Clefairy (Aichi 2026) actor-only prototype, not a game policy
  * qualification. Every selected root must be an offered native action token.
  * Native host retains ownership of hidden cards, prompts, shuffle, and legality.
+ * Native fullName aliases may omit collector numbers. Match only the exact
+ * source card name and set for those aliases; SOURCE_COUNTS remains the original
+ * printed 60 and is not replaced by native surrogate names.
  */
 const POLICY_VERSION = 'agent8-rank30-clefairy-opponent-v1';
 const SOURCE_RANK = 30;
@@ -22,19 +25,19 @@ const SOURCE_COUNTS = Object.freeze([
   ['Psychic Energy MEE 13',5],['Telepathic Psychic Energy POR 88',2]
 ]);
 const P = Object.freeze({
-  clefairy: /^Lillie's Clefairy ex JTG 56\b/i,
-  box: /^Secret Box TWM 163\b/i,
-  basicPsychic: /^(?:Basic )?Psychic Energy MEE 13\b/i,
-  telepathic: /^(?:Telepathic Psychic Energy POR 88|Telepath \[P\] Energy M3)\b/i,
-  sky: /^Sky Field ROS 89\b/i,
-  vip: /^Battle VIP Pass FST 225\b/i,
-  patch: /^(?:Wondrous Patch PFL 94|Wonder Patch MBD)\b/i,
-  fss: /^Forest Seal Stone SIT 156\b/i,
-  float: /^Float Stone BKT 137\b/i,
-  guzma: /^Guzma BUS 115\b/i,
-  marnie: /^Marnie SSH 169\b/i,
-  quickBall: /^Quick Ball FST 237\b/i,
-  blower: /^Field Blower GRI 125\b/i
+  clefairy: /^Lillie's Clefairy ex JTG(?: 56)?\b/i,
+  box: /^Secret Box TWM(?: 163)?\b/i,
+  basicPsychic: /^(?:Basic )?Psychic Energy(?: MEE(?: 13)?)?\b/i,
+  telepathic: /^(?:Telepathic Psychic Energy POR(?: 88)?|Telepath \[P\] Energy M3)\b/i,
+  sky: /^Sky Field ROS(?: 89)?\b/i,
+  vip: /^Battle VIP Pass FST(?: 225)?\b/i,
+  patch: /^(?:Wondrous Patch PFL(?: 94)?|Wonder Patch MBD)\b/i,
+  fss: /^Forest Seal Stone SIT(?: 156)?\b/i,
+  float: /^Float Stone BKT(?: 137)?\b/i,
+  guzma: /^Guzma BUS(?: 115)?\b/i,
+  marnie: /^Marnie SSH(?: 169)?\b/i,
+  quickBall: /^Quick Ball FST(?: 237)?\b/i,
+  blower: /^Field Blower GRI(?: 125)?\b/i
 });
 const arr = value => Array.isArray(value) ? value : [];
 const text = value => typeof value === 'string' ? value : value?.printing ?? value?.fullName ?? value?.label ?? '';
@@ -74,8 +77,8 @@ function copyCount(hand,p) {return arr(hand).filter(c=>has(c,p)).length;}
 function basicDiscard(own) {return arr(own?.discard).some(c=>has(c,P.basicPsychic));}
 function hasBenchedPsychic(own) {
   return arr(own?.bench).some(c=>c&&(
-    has(c,P.clefairy)||/^Tapu Lele-GX GRI 60\b/i.test(text(c))||
-    /^Mimikyu GRI 58\b/i.test(text(c))));
+    has(c,P.clefairy)||/^Tapu Lele-GX GRI(?: 60)?\b/i.test(text(c))||
+    /^Mimikyu GRI(?: 58)?\b/i.test(text(c))));
 }
 function availableCards(request) {return arr(request?.actionFrontier?.items).filter(a=>typeof a?.token==='string'&&a.token.length>0);}
 function isLaterTurn(observation) {
@@ -158,16 +161,16 @@ function telepathPrompt(request) {
   if(clefs===0&&result.length<m.maximumCount){
     const x=get(P.clefairy);if(x)result.push(x);
   }
-  if(result.length<m.maximumCount&&!own.some(x=>/^Latias ex SSP 76\b/i.test(text(x)))&&
-     !ownHand.some(x=>/^Latias ex SSP 76\b/i.test(text(x)))){
-    const x=get(/^Latias ex SSP 76\b/i);if(x)result.push(x);
+  if(result.length<m.maximumCount&&!own.some(x=>/^Latias ex SSP(?: 76)?\b/i.test(text(x)))&&
+     !ownHand.some(x=>/^Latias ex SSP(?: 76)?\b/i.test(text(x)))){
+    const x=get(/^Latias ex SSP(?: 76)?\b/i);if(x)result.push(x);
   }
   if(clefs+result.filter(x=>has(x,P.clefairy)).length<2&&result.length<m.maximumCount){
     const x=get(P.clefairy);if(x)result.push(x);
   }
   if(result.length<m.maximumCount&&result.length===0){
-    const x=get(/^Unown AOR 30\b/i)??get(/^Mimikyu GRI 58\b/i)??
-      get(/^Tapu Lele-GX GRI 60\b/i);
+    const x=get(/^Unown AOR(?: 30)?\b/i)??get(/^Mimikyu GRI(?: 58)?\b/i)??
+      get(/^Tapu Lele-GX GRI(?: 60)?\b/i);
     if(x)result.push(x);
   }
   if(result.length<m.minimumCount)return no('R30_TELEPATH_NO_TARGET');
@@ -195,16 +198,16 @@ function vipPrompt(request) {
     const x=find(P.clefairy);if(x)picked.push(x);
   }
   if(picked.length<m.maximumCount &&
-     !slots(o.ownPublic).some(x=>/^Latias ex SSP 76\b/i.test(text(x))) &&
-     !o.ownHand.some(x=>/^Latias ex SSP 76\b/i.test(text(x)))){
-    const x=find(/^Latias ex SSP 76\b/i);if(x)picked.push(x);
+     !slots(o.ownPublic).some(x=>/^Latias ex SSP(?: 76)?\b/i.test(text(x))) &&
+     !o.ownHand.some(x=>/^Latias ex SSP(?: 76)?\b/i.test(text(x)))){
+    const x=find(/^Latias ex SSP(?: 76)?\b/i);if(x)picked.push(x);
   }
   if(picked.length<m.maximumCount && clefsAlready+
       picked.filter(x=>has(x,P.clefairy)).length<2){
     const x=find(P.clefairy);if(x)picked.push(x);
   }
   if(picked.length===0){
-    const x=find(/^Mimikyu GRI 58\b/i)??find(/^Unown AOR 30\b/i);
+    const x=find(/^Mimikyu GRI(?: 58)?\b/i)??find(/^Unown AOR(?: 30)?\b/i);
     if(x)picked.push(x);
   }
 
@@ -229,8 +232,8 @@ function patchPrompt(request) {
   const best=options.map(c=>{
     const target=o.ownPublic?.bench?.[c.publicMetadata.benchIndex];
     return {c,score:has(target,P.clefairy)?3:
-      /^Tapu Lele-GX GRI 60\b/i.test(text(target))?2:
-      /^Mimikyu GRI 58\b/i.test(text(target))?1:0};
+      /^Tapu Lele-GX GRI(?: 60)?\b/i.test(text(target))?2:
+      /^Mimikyu GRI(?: 58)?\b/i.test(text(target))?1:0};
   }).filter(r=>r.score>0).sort((a,b)=>b.score-a.score)[0];
   return best?{kind:'select-choice',token:best.c.token}:
     no('R30_PATCH_NO_ELIGIBLE_BENCH');
@@ -260,7 +263,7 @@ function quickBallPrompt(request) {
     return choices.length?picks([choices[0].x]):no('R30_QUICKBALL_NO_SAFE_PAYMENT');
   }
   if(m.sourceZone==='deck'){
-    const choice=offered.find(x=>has(x,P.clefairy))??offered.find(x=>/^Latias ex SSP 76\b/i.test(text(x)));
+    const choice=offered.find(x=>has(x,P.clefairy))??offered.find(x=>/^Latias ex SSP(?: 76)?\b/i.test(text(x)));
     if(choice)return picks([choice]);
     const empty=arr(p.choices).find(x=>x.kind==='empty-selection'&&typeof x.token==='string');
     return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
@@ -288,7 +291,7 @@ function projectedRondo(o) {
 function sourcePrizeTarget(p) {return /\b(?:VMAX|VSTAR)\b/i.test(text(p))?3:/\b(?:ex|EX|GX| V)\b/i.test(text(p))?2:1;}
 function terminalRondo(o) {
   const r=projectedRondo(o);
-  return r && /^Shadow Rider Calyrex VMAX CRE 75\b/i.test(text(o.opponentPublic.active)) &&
+  return r && /^Shadow Rider Calyrex VMAX CRE(?: 75)?\b/i.test(text(o.opponentPublic.active)) &&
     r.damage>=r.remaining &&
     safeInt(o.ownPublic?.prizeCount) && o.ownPublic.prizeCount>0 &&
     (o.ownPublic.prizeCount<=sourcePrizeTarget(o.opponentPublic.active)||benchCount(o.opponentPublic)===0);
@@ -334,7 +337,7 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   if(marnie && threatenSecondTarget(o) &&
     !candidateCanUseBoardHeldStarAlchemy(o))return act(marnie);
   const telepath=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.telepathic)&&
-    [P.clefairy,/^Latias ex SSP 76\b/i,/^Tapu Lele-GX GRI 60\b/i,/^Mimikyu GRI 58\b/i]
+    [P.clefairy,/^Latias ex SSP(?: 76)?\b/i,/^Tapu Lele-GX GRI(?: 60)?\b/i,/^Mimikyu GRI(?: 58)?\b/i]
       .some(pattern=>has(a.targetPrinting,pattern)));
   if(telepath)return act(telepath);
   const attach=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.basicPsychic)&&
