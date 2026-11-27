@@ -3,7 +3,7 @@ const test=require('node:test'),assert=require('node:assert/strict');
 const bolt=require('../../simulation/evaluation/2026-11/agent23-rank19-bellowing-thunder-draft.cjs');
 const mod=require('../../simulation/evaluation/2026-11/agent23-rank19-acceleration-draft.cjs');
 const L='Lightning Energy MEE',F='Fighting Energy MEE',D='Darkness Energy MEE',X='Double Dragon Energy ROS';
-const A='Arceus & Dialga & Palkia GX CEC',B='Raging Bolt ex TEF',M='Galarian Moltres V CRE 97',FL='Flutter Mane TEF',S="Professor Sada's Vitality PAR";
+const A='Arceus & Dialga & Palkia GX CEC',B='Raging Bolt ex TEF',M='Galarian Moltres V CRE 97',FL='Flutter Mane TEF',S="Professor Sada's Vitality PAR",SS='Sandy Shocks ex PAR',K='Tapu Koko Prism Star TEU',R='Raihan EVS';
 const mon=(printing,energies=[])=>({printing,energies,hp:320,damage:0,tools:[]});
 const own=(active,bench,discard=[])=>({active,bench,discard,stadium:[],publicTurnRestrictions:{gxUsed:true}});
 const target=()=>mon('Shadow Rider Calyrex VMAX CRE');
@@ -12,7 +12,7 @@ const sada=root('sada','play-card',S),ray=root('ray','attack',A,'Ultimate Ray'),
 const sourceS={sourceKind:'card-effect',sourcePrinting:S,effectName:"Professor Sada's Vitality"},sourceR={sourceKind:'card-effect',sourcePrinting:A,effectName:'Ultimate Ray'};
 const request=(seat,o,items=[])=>({role:'opponent',seat,observation:{actorSeat:seat,ownPublic:o,opponentPublic:{active:target(),stadium:[]}},actionFrontier:{items}});
 function draftPrompt(o,source,energies){
- const sp=mod.spec(source),slots=[{zone:'active',index:0,pokemon:o.active},...o.bench.map((pokemon,index)=>({zone:'bench',index,pokemon}))].filter(s=>s.pokemon&&(sp.id==='ray'||[B,FL].includes(s.pokemon.printing)));
+ const sp=mod.spec(source),slots=[{zone:'active',index:0,pokemon:o.active},...o.bench.map((pokemon,index)=>({zone:'bench',index,pokemon}))].filter(s=>s.pokemon&&(['ray','raihan'].includes(sp.id)||sp.id==='sada'&&[B,FL,SS].includes(s.pokemon.printing)||sp.id==='sandy'&&s.pokemon.printing===SS||sp.id==='koko'&&s.zone==='bench'&&s.pokemon.printing!==K));
  const choices=energies.flatMap((e,i)=>slots.map(s=>({kind:'energy',token:'e'+i+'-'+s.zone+s.index,printing:e,publicMetadata:{ownerSeat:'actor',sourceZone:sp.zone,isOwnerVisible:true,energyType:'BASIC',zone:s.zone,...(s.zone==='bench'?{benchIndex:s.index}:{}),selectionIndex:i,selectedCount:1}})));
  if(sp.min===0)choices.push({kind:'empty-selection',token:'empty'});
  return {promptType:'AttachEnergyPrompt',source,choices,publicMetadata:{selectionType:'energy-attachment-set',minimumCount:sp.min,maximumCount:sp.max,allowCancel:false}};
@@ -56,9 +56,9 @@ for(const seat of [0,1]){
   r.prompt=draftPrompt(o,sourceS,[L,F]);r.prompt.choices.shift();assert.equal(mod.decide(r),null);
  });
 }
-const native={PlayerType:{BOTTOM_PLAYER:0},SlotType:{ACTIVE:0,BENCH:1},SuperType:{ENERGY:1},EnergyType:{BASIC:0},CardTag:{ANCIENT:9},EnergyCard:class EnergyCard{constructor(fullName,energyType=0){Object.assign(this,{fullName,energyType,superType:1});}}};
+const native={PlayerType:{BOTTOM_PLAYER:0},SlotType:{ACTIVE:0,BENCH:1},SuperType:{ENERGY:1},EnergyType:{BASIC:0},CardTag:{ANCIENT:9},EnergyCard:class EnergyCard{constructor(fullName,energyType=0){Object.assign(this,{fullName,name:/^(Lightning|Fighting|Darkness) Energy/.exec(fullName)?.[0]??fullName,energyType,superType:1});}}};
 class AttachEnergyPrompt{
- constructor(actor,sp,blockedTo=[]){Object.assign(this,{playerId:actor.id,playerType:0,message:sp.id==='sada'?'ATTACH_ENERGY_TO_ACTIVE':'ATTACH_ENERGY_TO_BENCH',slots:[1,0],cardList:actor[sp.zone],filter:{superType:1,energyType:0},options:{min:sp.min,max:sp.max,allowCancel:false,differentTargets:sp.distinct,differentTypes:false,sameTarget:false,blocked:[],blockedTo}});}
+ constructor(actor,sp,blockedTo=[]){Object.assign(this,{playerId:actor.id,playerType:0,message:['sada','koko'].includes(sp.id)?'ATTACH_ENERGY_TO_ACTIVE':sp.id==='ray'?'ATTACH_ENERGY_TO_BENCH':'ATTACH_ENERGY_CARDS',slots:sp.benchOnly?[1]:[1,0],cardList:actor[sp.zone],filter:{superType:1,energyType:0,...(sp.onlyType?{name:sp.onlyType+' Energy'}:{})},options:{min:sp.nativeMin??sp.min,max:sp.max,allowCancel:false,differentTargets:sp.distinct,differentTypes:false,sameTarget:false,blocked:[],blockedTo}});}
  getPerspectivePlayerId(){return this.playerId;}
  decode(result){return result.map(t=>({card:this.cardList.cards[t.index],to:t.to}));}
  validate(result){return result.length>=this.options.min&&result.length<=this.options.max&&result.every(x=>x.card?.superType===1);}
@@ -96,3 +96,59 @@ test('immediate five-energy knockout can override the Darkness reserve',()=>{
  const o=own(mon(B,[L,F]),[mon(FL),mon(M,[D])],[F,D]),r=request(0,o,[sada]);r.prompt=draftPrompt(o,sourceS,[F,D]);
  assert.equal(mod.decide(r).tokens.length,2);
 });
+
+const sourceK={sourceKind:'card-effect',sourcePrinting:K,effectName:'Dance of the Ancients'},sourceSS={sourceKind:'card-effect',sourcePrinting:SS,effectName:'Magnetic Absorption'},sourceH={sourceKind:'card-effect',sourcePrinting:R,effectName:'Raihan'};
+const ability=(token,printing,abilityName)=>({kind:'use-ability',token,actorPrinting:printing,publicMetadata:{abilityName}});
+const sandy=ability('sandy',SS,'Magnetic Absorption'),koko=ability('koko',K,'Dance of the Ancients'),raihan=root('raihan','play-card',R);
+for(const seat of [0,1]){
+ test('seat '+seat+' Sada powers Sandy as well as Raging Bolt',()=>{
+  const o=own(mon(B,[F]),[mon(SS,[F,L])],[L,F]),r=request(seat,o,[sada]);
+  r.prompt=draftPrompt(o,sourceS,[L,F]);
+  assert.deepEqual(mod.decide(r),{kind:'select-choices',tokens:['e0-active0','e1-bench0']});
+ });
+ test('seat '+seat+' Sandy attachment only to its own slot',()=>{
+  const o=own(mon(B,[X]),[mon(SS,[F,L])],[F,L]),r=request(seat,o,[sandy]);
+  r.observation.opponentPublic.prizeCount=4;
+  assert.deepEqual(mod.root(r,'rank19-attachment-set-v1'),{kind:'select-action',token:'sandy'});
+  r.observation.opponentPublic.prizeCount=5;assert.equal(mod.root(r,'rank19-attachment-set-v1'),null);
+  r.observation.opponentPublic.prizeCount=4;r.prompt=draftPrompt(o,sourceSS,[F]);
+  assert.deepEqual(mod.decide(r),{kind:'select-choices',tokens:['e0-bench0']});
+  r.prompt.choices[0].publicMetadata.zone='active';assert.equal(mod.decide(r),null);
+ });
+ test('seat '+seat+' Koko powers two other bench recipients and is never a recipient',()=>{
+  const o=own(mon(A,[X,L]),[mon(B,[F]),mon(M,[D,D]),mon(K,[])],[L,L,F]),r=request(seat,o,[koko]);
+  assert.deepEqual(mod.root(r,'rank19-attachment-set-v1'),{kind:'select-action',token:'koko'});
+  r.prompt=draftPrompt(o,sourceK,[L,L]);
+  assert.deepEqual(mod.decide(r),{kind:'select-choices',tokens:['e0-bench0','e1-bench1']});
+  r.observation.ownPublic.discard=[L,F];assert.equal(mod.root(r,'rank19-attachment-set-v1'),null);
+ });
+ test('seat '+seat+' Raihan attachment and mandatory search complete active Moltres',()=>{
+  const o=own(mon(M,[D,L]),[mon(B,[X])],[D,F]),r=request(seat,o,[raihan]);
+  assert.deepEqual(mod.root(r,'rank19-attachment-set-v1'),{kind:'select-action',token:'raihan'});
+  r.prompt=draftPrompt(o,sourceH,[D,F]);
+  assert.deepEqual(mod.decide(r),{kind:'select-choices',tokens:['e0-active0']});
+  // A state where the attached card was used elsewhere and manual Darkness remains.
+  r.observation.ownHand=[];r.observation.globalTurn=7;r.observation.ownTurnResources={energyPlayedTurn:0,retreatedTurn:0};
+  const c=(token,printing)=>({kind:'card',token,printing,publicMetadata:{ownerSeat:'actor',sourceZone:'deck',isOwnerVisible:true}});
+  r.prompt={promptType:'ChooseCardsPrompt',source:sourceH,choices:[c('vs','VS Seeker PHF'),c('d',D),c('f',F)],publicMetadata:{minimumCount:1,maximumCount:1}};
+  assert.deepEqual(mod.raihanSearch(r),{kind:'select-choices',tokens:['d']});
+  r.observation.ownTurnResources.energyPlayedTurn=7;
+  assert.deepEqual(mod.raihanSearch(r),{kind:'select-choices',tokens:['vs']});
+ });
+ test('host seat '+seat+' filters Sandy native overbroad recipient options to itself',()=>{
+  const actor={id:1,active:slot(B,true),bench:[slot(SS,true),slot(M)],discard:{cards:[new native.EnergyCard(F),new native.EnergyCard(L)]}};
+  const other={id:2,active:slot('other'),bench:[]},prompt=new AttachEnergyPrompt(actor,mod.spec(sourceSS)),state={players:seat?[other,actor]:[actor,other],prompts:[prompt]};
+  const p=mod.project({pin:bolt.PIN,native,state,prompt,actorSeat:seat,source:sourceSS});
+  assert.equal(p.prompt.choices.length,1);
+  assert.deepEqual(p.resolve({kind:'select-choices',tokens:['attach-0']}),[{index:0,to:{player:0,slot:1,index:0}}]);
+ });
+ test('host seat '+seat+' Koko paper-legal two distinct other benched targets only',()=>{
+  const actor={id:1,active:slot(A),bench:[slot(K),slot(M),slot(B,true)],discard:{cards:[new native.EnergyCard(L),new native.EnergyCard(F),new native.EnergyCard(L)]}};
+  const other={id:2,active:slot('other'),bench:[]},prompt=new AttachEnergyPrompt(actor,mod.spec(sourceK)),state={players:seat?[other,actor]:[actor,other],prompts:[prompt]};
+  const p=mod.project({pin:bolt.PIN,native,state,prompt,actorSeat:seat,source:sourceK});
+  assert.equal(p.prompt.choices.length,4);assert.equal(p.prompt.publicMetadata.minimumCount,2);
+  assert.equal(p.resolve({kind:'select-choices',tokens:['attach-0']}),null);
+  assert.equal(p.resolve({kind:'select-choices',tokens:['attach-0','attach-2']}),null);
+  assert.deepEqual(p.resolve({kind:'select-choices',tokens:['attach-0','attach-3']}),[{index:0,to:{player:0,slot:1,index:1}},{index:2,to:{player:0,slot:1,index:2}}]);
+ });
+}
