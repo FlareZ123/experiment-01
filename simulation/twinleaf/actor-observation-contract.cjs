@@ -47,21 +47,33 @@ function canonicalPokemonSubtypes(pokemon){
 // a deterministic final KO while one is active; this is a bounded veto only,
 // not a replacement for the Store's damage engine.
 // Source: ptcg-server/src/game/store/state/pokemon-card-list.ts @ a9905a76.
-function hasUnmodeledTerminalModifier(slot){
-  const numeric=[
-    'hpBonus','damageReductionNextTurn','damageReductionBeforeWeaknessNextTurn',
+function nonzeroNativeField(slot,keys){
+  return keys.some(key=>typeof slot[key]==='number'&&slot[key]!==0);
+}
+function presentNativeField(slot,keys){
+  return keys.some(key=>slot[key]!==undefined&&slot[key]!==null);
+}
+// Source-of-damage and recipient-of-damage effects are deliberately separate.
+// A holder's +HP Tool does not weaken its own outgoing attack; a defender's
+// outgoing Growl reduction does not protect it from the current attack.
+function incomingTerminalUncertain(slot){
+  return nonzeroNativeField(slot,[
+    'hpBonus','damageReductionNextTurn','damageReductionBeforeWeaknessNextTurn'
+  ])||['coinFlipPreventAttackDamageNextTurn','noWeaknessNextTurn',
+    'denyPrizesIfKnockedOutNextTurn'].some(key=>slot[key]===true)||
+    presentNativeField(slot,[
+      'preventDamageNextTurn','surviveOnTenHpNextTurn',
+      'retaliateOnDamageNextTurn','weaknessOverrideType'
+    ]);
+}
+function outgoingTerminalUncertain(slot){
+  return nonzeroNativeField(slot,[
     'attackDamageReductionNextTurn','attackDamageReductionAfterWeaknessNextTurn',
     'whileActiveAttackDamageBonus','outgoingAttackDamageBonusNextTurn',
     'coinFlipCancelAttackNextTurn'
-  ];
-  if(numeric.some(key=>typeof slot[key]==='number'&&slot[key]!==0))return true;
-  const flags=['coinFlipPreventAttackDamageNextTurn','noWeaknessNextTurn',
-    'denyPrizesIfKnockedOutNextTurn'];
-  if(flags.some(key=>slot[key]===true))return true;
-  const records=['preventDamageNextTurn','surviveOnTenHpNextTurn',
-    'retaliateOnDamageNextTurn','nextTurnAttackDamageBonus',
-    'nextTurnAttackBaseDamage','weaknessOverrideType'];
-  return records.some(key=>slot[key]!==undefined&&slot[key]!==null);
+  ])||presentNativeField(slot,[
+    'nextTurnAttackDamageBonus','nextTurnAttackBaseDamage'
+  ]);
 }
 
 const printing=card=>{
@@ -126,7 +138,8 @@ function visiblePokemon(slot){
       cannotRetreatNextTurn:slot.cannotRetreatNextTurn===true,
       cannotRetreatWhileActive:slot.cannotRetreatWhileActive===true,
       cannotEvolveNextTurn:slot.cannotEvolveNextTurn===true,
-      terminalOutcomeUncertain:hasUnmodeledTerminalModifier(slot)
+      incomingTerminalUncertain:incomingTerminalUncertain(slot),
+      outgoingTerminalUncertain:outgoingTerminalUncertain(slot)
     },
     evolutionPrintings:slot.cards.map(printing),
     energies:slot.energies.cards.map(printing),
