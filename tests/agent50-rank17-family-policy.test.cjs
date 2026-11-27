@@ -427,6 +427,26 @@ function runCases(policy,protocol) {
     const hidden={...knownHand,opponentPublic:{...knownHand.opponentPublic,publicHand:null}};
     same(policy.directPressure(hidden,polt),null,tag+'hidden hand never becomes exact lethal');
 
+    // A terminal Electro Rain line must not be displaced by a weaker
+    // supported attack merely because the mandatory Rain continuation is
+    // not implemented yet. Preserve a directly terminal supported attack.
+    const rainAttack={kind:'attack',token:'rain-root',actorPrinting:A.raichu,attackName:'Electro Rain'};
+    const ballAttack={kind:'attack',token:'ball-root',actorPrinting:A.raichu,attackName:'Electric Ball'};
+    const terminalRain=view(seat,{globalTurn:4,
+      ownPublic:player({active:slot(A.raichu,{hp:110,energies:[R,R]}),prizeCount:2}),
+      opponentPublic:player({active:slot('Shadow Rider Calyrex V CRE',{hp:210,damage:60}),
+        bench:[slot('Girafarig LOT',{hp:90})],prizeCount:1})});
+    same(runRoot(p,terminalRain,[rainAttack,ballAttack,pass]),abstain('R17_CORE_COMBO_NOT_IMPLEMENTED'),tag+'terminal Rain abstains instead of weaker Ball');
+    const ballLethal={...terminalRain,opponentPublic:player({
+      active:slot('Shadow Rider Calyrex V CRE',{hp:210,damage:120}),
+      bench:[slot('Girafarig LOT',{hp:90})],prizeCount:1})};
+    same(runRoot(p,ballLethal,[rainAttack,ballAttack,pass]),action('ball-root'),tag+'direct terminal Ball beats unsupported Rain');
+    const nonterminalRain={...terminalRain,opponentPublic:player({
+      active:slot('Shadow Rider Calyrex V CRE',{hp:210,damage:0}),
+      bench:[slot('Girafarig LOT',{hp:90})],prizeCount:1})};
+    same(runRoot(p,nonterminalRain,[rainAttack,ballAttack,pass]),action('ball-root'),tag+'nonterminal Rain leaves supported Ball');
+    same(runRoot(p,terminalRain,[ballAttack,pass]),action('ball-root'),tag+'absent Rain root leaves supported Ball');
+
     // Distinct support and setup provenance, never a foreign role.
     same(p.decide({role:'opponent',seat:1-seat,observation:v,prompt:null}),abstain('ROLE_SEAT_BINDING_MISMATCH'),tag+'seat bound');
   }
