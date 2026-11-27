@@ -179,6 +179,15 @@ function turnResources(){
     energyPlayLocked:false,specialEnergyPlayLocked:false
   };
 }
+function checkedActorRequest(request,seat){
+  const init={
+    schema:protocol.INIT_SCHEMA,type:'init',
+    role:'opponent',seat,policyVersion:rank29Policy.POLICY_VERSION,
+    bundleSha256:'a'.repeat(64),config:{}
+  };
+  return protocol.validateRequest(request,init,request.sequence,new Set());
+}
+
 function actorRequest(projected,seat){
   return {
     schema:protocol.REQUEST_SCHEMA,type:'decision',requestId:'reveal-1',
@@ -192,8 +201,8 @@ function actorRequest(projected,seat){
       ownPublic:publicPlayer(),opponentPublic:publicPlayer(),
       ownTurnResources:turnResources(),ownerK1:null
     },
-    actionFrontier:null,prompt:projected.promptProjection,
-    publicEventReceipt:null
+    actionFrontier:{schema:protocol.FRONTIER_SCHEMA,items:[]},
+    prompt:projected.promptProjection,publicEventReceipt:null
   };
 }
 
@@ -202,12 +211,12 @@ test('actual projector → filtered worker request → rank29 decision resolves 
     const f=physical({seat,source:'Eri TEF'});
     const projected=rank29Projection.projectPrompt(f);
     const request=actorRequest(projected,seat);
-    protocol.validateRequest(request);
+    const validated=checkedActorRequest(request,seat);
     const policy=rank29Policy.createPolicy({
       role:'opponent',seat,policyVersion:rank29Policy.POLICY_VERSION,config:{}
     });
     const decision=policy.decide(request);
-    protocol.validateDecision(decision,request);
+    protocol.validateDecision(decision,validated.prompt,validated.actionTokens);
     assert.equal(decision.kind,'select-choices');
     assert.equal(decision.tokens.length,2);
     const selected=decision.tokens.map(token=>
@@ -225,7 +234,7 @@ test('actual projected Sidney and Skull revealed hand triggers rank29 legal choi
     const f=physical({source,hiddenCards:names});
     const projected=rank29Projection.projectPrompt(f);
     const request=actorRequest(projected,0);
-    protocol.validateRequest(request);
+    const validated=checkedActorRequest(request,seat);
     const decision=rank29Policy.createPolicy({
       role:'opponent',seat:0,policyVersion:rank29Policy.POLICY_VERSION,config:{}
     }).decide(request);
