@@ -528,3 +528,42 @@ test('Legacy Star after the native mill accepts valid offers with stale prerecov
   assert.deepEqual(promptDecision(request({ownPublic,prompt:p})),
     {kind:'select-choices',tokens:['dde']});
 });
+
+
+test('Super Rod root is vetoed when discard contains only needed Apex attack donors',()=>{
+  const ownPublic=player({
+    active:pokemon(P.regidrago,{energies:[P.doubleDragon,P.energy]}),
+    discard:[{printing:P.goodra},{printing:P.dragonite}]
+  });
+  const items=[action('rod','play-card','Super Rod PAL 188'),action('pass','pass')];
+  assert.deepEqual(bestAction(request({ownPublic,items})),
+    {kind:'select-action',token:'pass'});
+  ownPublic.discard.push({printing:'Regidrago VSTAR SIT 136'});
+  assert.deepEqual(bestAction(request({ownPublic,items})),
+    {kind:'select-action',token:'rod'});
+});
+
+test('Super Rod chooses Regidrago and Basic Energy, never Goodra or Mega Dragonite',()=>{
+  const ownPublic=player({
+    active:pokemon('Budew ASC 16'),
+    discard:[{printing:P.goodra},{printing:P.dragonite},
+      {printing:P.regidrago},{printing:'Fire Energy MEE 10'}]
+  });
+  const p=prompt('Super Rod PAL 188','Super Rod',[
+    choice('g',P.goodra),choice('m',P.dragonite),
+    choice('vstar',P.regidrago),choice('fire','Fire Energy MEE 10')
+  ],'ChooseCardsPrompt',[0,3]);
+  p.publicMetadata.sourceZone='discard';
+  assert.deepEqual(promptDecision(request({ownPublic,prompt:p})),
+    {kind:'select-choices',tokens:['vstar','fire']});
+});
+
+test('Super Rod up-to-three can recover none rather than shuffle away all attack payloads',()=>{
+  const p=prompt('Super Rod PAL 188','Super Rod',[
+    choice('goodra',P.goodra),choice('mega',P.dragonite),
+    {token:'none',kind:'empty-selection',label:'Select none'}
+  ],'ChooseCardsPrompt',[0,3]);
+  p.publicMetadata.sourceZone='discard';
+  assert.deepEqual(promptDecision(request({prompt:p})),
+    {kind:'select-choice',token:'none'});
+});
