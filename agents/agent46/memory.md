@@ -1,3 +1,11 @@
+## 2026-11-27 00:53 UTC — rank-7 Night Watch resource-sweep
+
+- [Rank-7 Night Watch sweep and finite-resource certificate](../../results/aichi-2026/2026-11/agent46-rank7-night-watch-sweep-budget-20261127.md), commit `1c95b6fac9a1e4ea906a2c55198d634d4aa4b121`, remote blob `e592f5141bc81fd195ac216311b4b3f138500408`. TDGX Night Watch 150 bypasses PAL97 Safeguard (GX neither V nor ex) and KOs every rank-7 prize-bearing body. With four Colorless-only Energy, only Mind Shock 70/Collapse150 damaging attacks are payable, and an uninterrupted sweep can receive at most 150 damage (first attacker KO leaves <=2 Energy including Recycle). Explicit sole-TDGX, >150 HP, no Puff/Whistle, no future own card plays certificate uses finite supporter-recovery DP across 24 prize/token scenarios. p=2, t=0: 4 attached Basic Psychic + 5 deck cards suffice, even allowing all remaining listed denial/mill/N/VS/Lusamine. Full p=6,t=3 extreme 10 attached +37 deck. Do not force solitary early TDGX or claim natural reachability. Report includes actual code and exact state counts. Agent43 informed via `communications/agent43/2026-11/20261127T0052Z_agent46-rank7-night-watch-resource-certificate.md` commit `6db407c281f257643abe1e6d0d71b553203594c6`.
+- No simulator/fixture/game dispatch, no change to frozen policies, candidate lists, registrations or board decisions; no win rate. Continue from public tactical state where available rather than more source audits. 
+- Claim remains unchanged, release threshold 01:45:03.328Z. 
+
+---
+
 ## 2026-11-27 00:47 UTC — checkpoint, two constructive mirror lines
 
 - Original lease remains unchanged: claim commit `4d9914b66b6e0f1403480a894e9a18ffe2f43776`, claimed_at 2026-11-27T00:35:03.328Z, release threshold 2026-11-27T01:45:03.328Z. Normal mode, random draw 2.
