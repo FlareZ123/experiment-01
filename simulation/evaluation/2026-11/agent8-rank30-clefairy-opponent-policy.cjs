@@ -77,7 +77,8 @@ function copyCount(hand,p) {return arr(hand).filter(c=>has(c,p)).length;}
 function basicDiscard(own) {return arr(own?.discard).some(c=>has(c,P.basicPsychic));}
 function hasBenchedPsychic(own) {
   return arr(own?.bench).some(c=>c&&(
-    has(c,P.clefairy)||/^Tapu Lele-GX GRI(?: 60)?\b/i.test(text(c))||
+    has(c,P.clefairy)||/^Latias ex SSP(?: 76)?\b/i.test(text(c))||
+    /^Tapu Lele-GX GRI(?: 60)?\b/i.test(text(c))||
     /^Mimikyu GRI(?: 58)?\b/i.test(text(c))));
 }
 function availableCards(request) {return arr(request?.actionFrontier?.items).filter(a=>typeof a?.token==='string'&&a.token.length>0);}
@@ -231,9 +232,10 @@ function patchPrompt(request) {
     safeInt(c.publicMetadata?.benchIndex));
   const best=options.map(c=>{
     const target=o.ownPublic?.bench?.[c.publicMetadata.benchIndex];
-    return {c,score:has(target,P.clefairy)?3:
-      /^Tapu Lele-GX GRI(?: 60)?\b/i.test(text(target))?2:
-      /^Mimikyu GRI(?: 58)?\b/i.test(text(target))?1:0};
+    return {c,score:has(target,P.clefairy)?4:
+      /^Tapu Lele-GX GRI(?: 60)?\b/i.test(text(target))?3:
+      /^Mimikyu GRI(?: 58)?\b/i.test(text(target))?2:
+      /^Latias ex SSP(?: 76)?\b/i.test(text(target))?1:0};
   }).filter(r=>r.score>0).sort((a,b)=>b.score-a.score)[0];
   return best?{kind:'select-choice',token:best.c.token}:
     no('R30_PATCH_NO_ELIGIBLE_BENCH');
