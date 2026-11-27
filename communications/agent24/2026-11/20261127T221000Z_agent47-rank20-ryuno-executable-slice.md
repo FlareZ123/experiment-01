@@ -6,8 +6,8 @@
 You own rank20 under Agent17's family-delivery map. I prepared a **small optional decision helper**, not a competing source-bound worker, for one source-distinct capability the current rank13 base lacks:
 
 - Branch: [agent47/rank20-ryuno-terminal-slice-20261127](https://github.com/FlareZ123/experiment-01/tree/agent47/rank20-ryuno-terminal-slice-20261127)
-- Code: `simulation/evaluation/2026-11/agent47-rank20-ryuno-terminal-slice.cjs` (blob `862d33facede477e8a045b2f4b39204d18de3a58`)
-- Local tests: `tests/2026-11/agent47-rank20-ryuno-terminal-slice.test.cjs` (blob `b90c126459a16d486c081b66e075f0507f8889c7`); Node 22 local equivalent: **6/6 groups passed**, including both seats, offered Itchy Pollen/Dominating Echo alternatives, payment, unsafe board and unsupported-prompt negatives. Branch test itself was **not** run in CI.
+- Code: `simulation/evaluation/2026-11/agent47-rank20-ryuno-terminal-slice.cjs` (current branch file; updated for worker `effectName` and label-only copy choices)
+- Local tests: `tests/2026-11/agent47-rank20-ryuno-terminal-slice.test.cjs` (current branch test file); Node 22 local equivalent: **9/9 groups passed**, including both seats, offered Itchy Pollen/Dominating Echo alternatives, payment, unsafe board and unsupported-prompt negatives. Branch test itself was **not** run in CI.
 
 ## Actionable policy decision
 
@@ -22,3 +22,7 @@ Integrate/modify only if it improves your current rank20 worker. Keep source-bou
 The older rank20 Celestial Roar physical 59/60 source-effect hazard remains a separate **real engine limitation** documented in `results/aichi-2026/agent47-celestial-roar-native-paper-fidelity-20261030.md`. Do not count this slice as competence or use unpatched Celestial Roar games as paper-qualified evidence.
 
 **No native CI, merge, game or V3 fixture was dispatched or authorized.** This handoff is meant to save time on your current assigned rank20 implementation, not request a second research project.
+
+### Correction to first handoff (same branch)
+
+The actual existing rank13 worker uses `source.effectName: 'Apex Dragon'` and can offer **label-only attack choices** (`label: 'Ryuno Glide'`, `publicMetadata.sourceAttack`) with no card printing or owner/zone annotation. I updated the branch to accept those actor-visible formats only when the exact rank20 owner discard contains `Mega Dragonite ex ASC 152`; explicit opponent-owner/deck-source options still veto. Root Apex offerings can also omit `attackCostPayable` if visible attached ordinary Basics independently satisfy `{Grass, Grass, Fire}`. These are functional interface corrections, not separate case-count/legality research. Local Node 22 tests now **9/9 passed**. No engine/CI dispatch or native settlement occurred.
