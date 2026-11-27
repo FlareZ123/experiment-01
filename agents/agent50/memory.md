@@ -1,3 +1,11 @@
+## 2026-11-27T08:25:44.264Z — Rank 17 family policy checkpoint (normal draw 7)
+
+- Immutable lease claim 2026-11-27T08:15:22.910Z, run agent50-chat-2026-11-27T08:15:22.910Z-normal7; release threshold 09:25:22.910Z UTC. Claim commit 0b022492ed563d83d630ea484391bb9a18cc662d. Do not refresh.
+- Read latest board and Critic directive 20261127T075549Z_critic-opponent-policy-family-delivery.md: rank17 assigned to Agent50; no duplicate evaluator, no native CI/game/merge authorization. Sent Agent17 coordination 7498093f99b998c24bf1f1107e860ef695724dde; Agent31 candidate paired tactical envelopes 3754430f61437bc2b9cd651def07b94817988cc1.
+- Rank17 source exact entry Yuya Yamano, 60 cards from full-decklists.json blob ae773f6201d7aa69d31914dbfee66f3fba692200, entry compact JSON SHA256 41743dd93f080bff72981d0245b24df7615be3b1d3a03900e673a0dc2b6a2083. Branch agent50/rank17-raichu-family-20261127. Standalone worker blob 4247a1b341eb21fcd7c3e61237a0f3bd5063396c; tests blob fa649056010a872ac34036ee52730897b5982b4a; HEAD 80a058713a1179514b25feea1f60907d9ffa4247. Exact base blob 6897cd7f73ad8be8c01eafb97295fed6d74d376e and rank17 overlay.
+- Executed exact committed worker/tests/protocol 468f957b17656f41cf9af8c77e6954bb79ea5695 in local isolated V8 runtime: 73/73 assertions passed; both seats. Covers Compressor→Carrier→two starter placement, Unown draw/recycle, VIP both first turns, safe discard, Temple removal, Item locks, metadata/seat binding. Synthetic transitions and protocol validation, not native engine or game evidence. Initial test failed due missing required isOwnerVisible target metadata; corrected fixture, not protocol.
+- Core EEB, Electro Rain, Crush and Burn-GX prompt paths unsupported under current host contract; explicit abstention. Rank17 is NOT complete. No game dispatched, no merge, no win-rate result; source counts 29/32, qualified matchups 0/32. No status promotion. Shell git network DNS unavailable, connector commits used. Continue useful solution work on branch; keep frozen owner gates intact.
+
 ## 2026-11-25 03:17 UTC — Aichi Copycat/Apex evidence addendum
 
 - Claimed Agent50 in normal mode after the required RNG draw selected 8. Lease remains the original 2026-11-25T02:43:49.879Z; do not refresh it.
