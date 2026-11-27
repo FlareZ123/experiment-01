@@ -581,12 +581,21 @@ function runCases(policy,protocol) {
         stadium:['Jamming Tower TWM 153'],prizeCount:6})});
     same(policy.rainProjection(jammingSight,jammingSight.ownPublic.active)?.hitsRequired,10,
       tag+'Jamming Tower disables Telescopic Sight Rain modifier');
+    const jammingSightAnswer={...jammingSight,
+      ownPublic:{...jammingSight.ownPublic,
+        bench:[...jammingSight.ownPublic.bench,slot(A.marshadow,{hp:80,abilities:['Resetting Hole']})],
+        deckCount:5}};
+    same(runRoot(p,jammingSightAnswer,[ability('reset-jam-sight',A.marshadow,'Resetting Hole',1),pass]),
+      action('reset-jam-sight'),tag+'remove Jamming Tower when it suppresses useful Sight');
     const jammingHood=view(seat,{ownPublic:player({
-        active:slot(A.klefki,{hp:70,abilities:['Mischievous Lock']})}),
+        active:slot(A.klefki,{hp:70,abilities:['Mischievous Lock']}),
+        bench:[slot(A.marshadow,{hp:80,abilities:['Resetting Hole']})],deckCount:5}),
       opponentPublic:player({active:slot('Wobbuffet PHF 36',{hp:110,abilities:['Bide Barricade'],
         tools:['Stealthy Hood UNB 186']}),stadium:['Jamming Tower TWM 153']})});
     same(policy.wobbuffetLive(jammingHood),false,
       tag+'Jamming Tower disables Hood so Klefki suppresses Wobbuffet');
+    same(runRoot(p,jammingHood,[ability('reset-jam-hood',A.marshadow,'Resetting Hole',0),pass]),action('pass'),
+      tag+'preserve Jamming Tower while it disables opposing Hood');
     const noSight={...loading,ownHand:[full.sight],ownPublic:{...loading.ownPublic,active:{...rain,tools:[]},discard:[R,R,R,R,C,C,C,C,U]}};
     same(runRoot(p,noSight,[play('sight',full.sight,{zone:'active',index:0,printing:A.raichu}),pass]),action('sight'),tag+'Sight crosses two-VMAX threshold');
     const manual={...loading,ownHand:[C,U],ownPublic:{...loading.ownPublic,discard:[R,R,R,R,C,C,C,U]}};
