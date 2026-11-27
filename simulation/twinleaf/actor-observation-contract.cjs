@@ -127,6 +127,12 @@ function publicPlayer(player,hidePokemon=false){
     publicTurnRestrictions:{
       gxUsed:player.usedGX===true,
       vstarUsed:player.usedVSTAR===true,
+      // Twinleaf CEC156 Altered Creation-GX stores two public, persistent
+      // attack effects on the player. The +30 damage flag is distinct from
+      // its optional extra-Water +1 Prize flag. Both players can infer these
+      // from the announced GX attack and publicly attached Energy.
+      alteredCreationDamage:player.alteredCreationDamage===true,
+      usedAlteredCreation:player.usedAlteredCreation===true,
       attackLockTurnsRemaining:player.cannotAttackTurnsRemaining??0,
       attackMaxEnergy:player.cannotAttackMaxEnergy??null,
       attackMaxEnergyTurnsRemaining:player.cannotAttackMaxEnergyTurnsRemaining??0,
