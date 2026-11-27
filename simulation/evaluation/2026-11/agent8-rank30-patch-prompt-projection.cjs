@@ -7,7 +7,7 @@
  * This module is NOT installed in the production V3 dispatcher.
  */
 const protocol=require('./agent49-policy-protocol.cjs');
-const projection=require('./agent36-prompt-projection.cjs');
+const baseProjection=require('./agent36-prompt-projection.cjs');
 const PRINT='Wonder Patch MBD';
 const CANONICAL='Wondrous Patch PFL 94';
 const ENERGY=/^(?:Basic )?Psychic Energy\b/i;
@@ -26,6 +26,7 @@ function slotPokemon(slot){return slot?.getPokemonCard?.()??null;}
 function printing(card){return typeof card?.fullName==='string'?card.fullName:card?.name??'';}
 function projectRank30Prompt(options={}) {
   const {prompt,state,actorSeat,native,store,provenanceHook}=options;
+  const projection=options.testProjectionApi??baseProjection;
   const provenance=provenanceHook?.getPromptProvenance?.(prompt)??null;
   if(prompt?.constructor?.name!=='AttachEnergyPrompt'||!provenance ||
      provenance?.sourceCard?.name!=='Wondrous Patch')
