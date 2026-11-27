@@ -86,7 +86,7 @@ for(const seat of [0,1]){
     assert.deepEqual(view.ownPublic.active.attacks[0].cost,['Colorless','Colorless','Colorless']);
     assert.deepEqual(view.opponentPublic.active.printed.types,['Dragon']);
     assert.deepEqual(view.opponentPublic.active.printed.weakness,[{type:'Fairy',value:'×2'}]);
-    assert.doesNotThrow(()=>protocol.validateActorObservation(view));
+    assert.doesNotThrow(()=>protocol.validateActorObservation(view,seat));
     for(const profile of profiles){
       const policy=worker.createPolicy({role:'candidate',seat,
         policyVersion:worker.POLICY_VERSION,config:profile});
