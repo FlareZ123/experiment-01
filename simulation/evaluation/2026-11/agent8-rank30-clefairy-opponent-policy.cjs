@@ -212,11 +212,12 @@ function poweredBenchClefairy(o) {
 function guzmaOpportunity(o) {
   const own=o?.ownPublic,opp=o?.opponentPublic;
   if(!own||!opp||!poweredBenchClefairy(o).length)return null;
-  const damage=20*(1+benchCount(own)+benchCount(opp));
+  const baseDamage=20*(1+benchCount(own)+benchCount(opp));
   const matches=arr(opp.bench).map((pokemon,index)=>({pokemon,index,
-    prizeValue:sourcePrizeTarget(pokemon),remaining:pokemon?.hp-pokemon?.damage}))
+    prizeValue:sourcePrizeTarget(pokemon),remaining:pokemon?.hp-pokemon?.damage,
+    predictedDamage:baseDamage*(isDragonPokemon(pokemon)&&liveFairyZone(o)?2:1)}))
     .filter(t=>t.pokemon && Number.isFinite(t.remaining)&&t.remaining>0&&
-      t.prizeValue>=2 && damage>=t.remaining)
+      t.prizeValue>=2 && t.predictedDamage>=t.remaining)
     .sort((a,b)=>b.prizeValue-a.prizeValue||a.remaining-b.remaining||a.index-b.index);
   return matches[0]??null;
 }
@@ -360,7 +361,7 @@ function trainersMailPriority(name,o,{enablePatchProjection=false}={}) {
     arr(own.discard).some(x=>has(x,P.guzma))?86:25;
   if(has(name,P.box))return canStartBox(o)?83:20;
   if(has(name,P.sky))return !stadium(o)&&remaining&&
-    remaining.damage<remaining.remaining&&remaining.damage+20>=remaining.remaining?82:48;
+    remaining.damage<remaining.remaining&&remaining.damage+rondoIncrement(o)>=remaining.remaining?82:48;
   if(has(name,P.fss))return o.ownTurnResources?.vstarUsed===false&&
     current.some(x=>/\b(?:Crobat V DAA|Empoleon V BST)\b/i.test(text(x)))?80:35;
   if(has(name,P.compressor))return compressorOpportunity(o,{enablePatchProjection}).active?78:20;
@@ -543,6 +544,30 @@ function canStartBox(o) {
   if(!discardPayment(o,tokened))return false;
   return !stadium(o)||!basicDiscard(o.ownPublic);
 }
+function liveFairyZone(o) {
+  const stadiumRows=[...arr(o?.ownPublic?.stadium),...arr(o?.opponentPublic?.stadium)];
+  // Printed Rule Box Pokémon Abilities are stopped by Path to the Peak.
+  if(stadiumRows.some(x=>/^Path to the Peak CRE(?: 148)?\b/i.test(text(x))))return false;
+  // Unknown/suppressed Abilities do not justify a ×2 prediction.
+  return slots(o?.ownPublic).some(p=>has(p,P.clefairy)&&
+    Array.isArray(p?.abilities)&&p.abilities.includes('Fairy Zone')&&
+    Array.isArray(p?.abilitySuppressions)&&p.abilitySuppressions.length===0);
+}
+function isDragonPokemon(p) {
+  return arr(p?.printed?.types).some(x=>String(x).toUpperCase()==='DRAGON')||
+    /^Regidrago V(?:STAR)? SIT(?: \d+)?\b/i.test(text(p));
+}
+function rondoWeaknessMultiplier(o,target) {
+  const active=o?.ownPublic?.active;
+  if(!has(active,P.clefairy)||!target)return 1;
+  const printedPsychicWeak=arr(target?.printed?.weakness).some(w=>
+    String(w?.type).toUpperCase()==='PSYCHIC'&&
+    /(?:×|x|\*)2/i.test(String(w?.value)));
+  if(isDragonPokemon(target)&&liveFairyZone(o))return 2;
+  return printedPsychicWeak?2:1;
+}
+function rondoIncrement(o) {return 20*rondoWeaknessMultiplier(o,o?.opponentPublic?.active);}
+
 function projectedRondo(o) {
   const own=o?.ownPublic, opp=o?.opponentPublic;
   if(!own||!opp||!safeInt(opp.active?.hp)||!safeInt(opp.active?.damage))return null;
@@ -551,7 +576,8 @@ function projectedRondo(o) {
   // certified by this slice. A native attack could still face a protection effect.
   if(opp.active?.effectUnknown===true||opp.active?.damageModifiersUnknown===true)return null;
   const total=benchCount(own)+benchCount(opp);
-  return {damage:20*(1+total),remaining:opp.active.hp-opp.active.damage,total};
+  return {damage:20*(1+total)*rondoWeaknessMultiplier(o,opp.active),
+    remaining:opp.active.hp-opp.active.damage,total};
 }
 function sourcePrizeTarget(p) {
   const v=text(p);
@@ -646,7 +672,7 @@ function selectBasicBenchRoot(items,o) {
   if(!offered.length)return null;
   const clefs=ownBoard.filter(x=>has(x,P.clefairy)).length;
   const ro=projectedRondo(o);
-  const makesKo=ro && ro.damage<ro.remaining && ro.damage+20>=ro.remaining;
+  const makesKo=ro && ro.damage<ro.remaining && ro.damage+rondoIncrement(o)>=ro.remaining;
   const smallHand=arr(o.ownHand).length<=3;
   const priority=({kind})=>{
     if(kind==='clefairy')return clefs===0?115:clefs===1?95:30;
@@ -779,4 +805,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,candidateCanUseBoardHeldStarAlchemy};
+  rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,candidateCanUseBoardHeldStarAlchemy};
