@@ -393,3 +393,38 @@ paired('three-prize Mega KO precedes optional expenditure at three prizes remain
   view.ownPublic.prizeCount=3;
   assert.deepEqual(decide(profile,root(seat,view,[play('attach',P,M,target('active',0)),{kind:'attack',token:'ko',attackName:'Max Geist'}])),sel('ko'));
 });
+
+paired('one-step final prize line chooses extra Door before discretionary hand reset or manual attachment',(seat,profile)=>{
+  const targetSlot=pokemon({printing:'Mega Absol ex M1L',name:'Mega Absol ex',hp:280,damage:150,
+    subtypes:['Basic','ex'],types:['Darkness']});
+  const view=observation(seat,{active:vmax([P,P,P]),bench:[v()],opponentActive:targetSlot,
+    ownHand:[P,"Lillie's Determination MEG"]});
+  view.ownPublic.prizeCount=3;
+  const door={token:'door',kind:'use-ability',actorPrinting:M,publicMetadata:{abilityName:'Underworld Door',sourceSeat:'actor',sourceZone:'active'}};
+  const receipt={version:'agent8-public-event-receipt-v3-turn-stamped',ownerActive:{printing:M,knownAbilityUse:[{name:'Underworld Door',usedThisTurn:false}]}};
+  const items=[door,play('manual',P,V,target('bench',0)),play('draw',"Lillie's Determination MEG"),
+    {kind:'attack',token:'ko',attackName:'Max Geist'}];
+  assert.deepEqual(decide(profile,root(seat,view,items,receipt)),sel('door'));
+  receipt.ownerActive.knownAbilityUse[0].usedThisTurn=true;
+  assert.deepEqual(decide(profile,root(seat,view,items,receipt)),sel('manual'));
+  view.ownPublic.bench[0].energies=[P];
+  assert.deepEqual(decide(profile,root(seat,view,items,receipt)),sel('ko'));
+});
+paired('public one-step retreat enables final attack before optional supporter',(seat,profile)=>{
+  const view=observation(seat,{active:v(),bench:[vmax([P,P,P])],opponentActive:
+    pokemon({printing:'Genesect V FST',name:'Genesect V',hp:190,damage:90,subtypes:['Basic','V'],types:['Metal']}),
+    ownHand:["Lillie's Determination MEG"]});
+  view.ownPublic.prizeCount=2;
+  view.ownPublic.active.printed.retreatCost=[];
+  const retreat={token:'retreat',kind:'retreat',targetPrinting:M,publicMetadata:{benchIndex:0}};
+  assert.deepEqual(decide(profile,root(seat,view,[retreat,play('draw',"Lillie's Determination MEG")])),sel('retreat'));
+});
+paired('attack cost increase blocks projected winning attachment unless cost is actually funded',(seat,profile)=>{
+  const view=observation(seat,{active:vmax([P,P]),bench:[v([P,P])],opponentActive:
+    pokemon({printing:'Genesect V FST',name:'Genesect V',hp:190,damage:30,subtypes:['Basic','V'],types:['Metal']}),
+    ownHand:[P]});
+  view.ownPublic.prizeCount=2;view.ownPublic.active.publicRestrictions.attackCostIncreaseWhileActive=1;
+  // A single attach to Active still leaves a four-Energy cost unpaid.
+  const items=[play('attach',P,M,target('active',0)),{kind:'attack',token:'ko',attackName:'Max Geist'}];
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('attach'));
+});
