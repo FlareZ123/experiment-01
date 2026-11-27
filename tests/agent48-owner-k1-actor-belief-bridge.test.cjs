@@ -131,3 +131,27 @@ test('Prize composition change revokes sampler K1 rather than retaining stale me
   assert.equal(projected.ownerK1Snapshot,null);
   assert.deepEqual(projected.knownPrizePrintings,[]);
 });
+
+test('attached Energy in both native stack and Energy view counts once at K1',()=>{
+  const {state,owner}=fixture();
+  // The native Pokémon stack includes the exact same attached Energy card
+  // object projected a second time through its energies collection.
+  const energy=card('Psychic Energy SET');
+  owner.active.cards.push(energy);
+  owner.active.energies.cards.push(energy);
+  const index=owner.deck.cards.findIndex(c=>c.fullName==='C SET 003');
+  assert.ok(index>=0);
+  owner.deck.cards.splice(index,1);
+  const registered=REGISTERED.slice();
+  registered.splice(registered.lastIndexOf('C SET 003'),1,'Psychic Energy SET');
+
+  const observed=actorObservation(state,1);
+  const outside=require('../simulation/twinleaf/owner-k1-prize-knowledge.cjs')
+    .knownOutsideDeck(observed);
+  assert.equal(outside.filter(x=>x==='Psychic Energy SET').length,1,
+    'same attached physical card cannot be counted twice');
+  const captured=captureOwnerK1(state,1,registered);
+  assert.equal(captured.prizeInferenceCertified,true,
+    'a fully accounted source deck search must remain certified');
+  assert.deepEqual(captured.knownPrized,[{printing:'A SET 001',copies:2}]);
+});

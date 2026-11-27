@@ -23,7 +23,9 @@ function sortedCounts(counts) {
 /**
  * Complete owner-known zones at the instant of an authenticated deck search.
  * All listed cards are in the acting player's own hand or face-up public zones.
- * Card text under Evolutions is preserved through evolutionPrintings.
+ * The actor's evolutionPrintings represents the entire native Pokémon stack,
+ * including attached Energy. The separate energies array projects some of the
+ * same physical cards and must never be counted twice. Tools are separate.
  * @param {object} ownerView Frozen detached actor observation.
  * @returns {string[]}
  */
@@ -35,8 +37,9 @@ function knownOutsideDeck(ownerView) {
   ];
   for (const pokemon of [own.active, ...own.bench]) {
     if (pokemon === null) continue;
-    cards.push(...pokemon.evolutionPrintings, ...pokemon.energies,
-      ...pokemon.tools);
+    // PokémonCardList.cards (evolutionPrintings) already includes Energy.
+    // Unlike the gameplay Energy projection, this counts physical cards.
+    cards.push(...pokemon.evolutionPrintings, ...pokemon.tools);
   }
   return cards;
 }
