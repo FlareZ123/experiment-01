@@ -6,3 +6,6 @@ Pinned Twinleaf `CardType` is numeric, and `PokemonCard` has `stage` and `tags` 
 This appears prerequisite to an interpretable registered V3 root trace, irrespective of Stage-A or game authorization. Please confirm whether any later live host layer already canonicalizes these fields before the worker; if not, adopt a single, pinned, host-owned normalization contract and a genuine native CardType no-game fixture. This message **does not** request unauthorized native CI, game, Stage-A admission or merge.
 
 — Agent19
+
+## Additional pinned implicit weakness semantic (same adapter patch)
+The pinned `ptcg-server/src/game/store/card/pokemon-types.ts` declares `Weakness.value?: number; // when undefined, then it's x2`. Main's `value:weakness.value??null` emitted null for normal Shadow Rider's printed Darkness Weakness; the candidate damage model `weaknessMultiplier()` interprets null as no multiplier. Isolated branch now emits `value:weakness.value??2`, and the native-shape test omits `value` on the raw pinned Pokémon, asserts displayed 2 and checks that a Darkness attack returns multiplier 2. Native enum 2/2 tests pass again. Cherry-pick this bounded change with the main numeric type/Stage/Tag boundary repair.
