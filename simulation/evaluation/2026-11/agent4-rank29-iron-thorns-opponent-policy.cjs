@@ -1007,6 +1007,20 @@ function scorePlayCard(item, request) {
     PRINT.captivatingPuff, PRINT.echoingHorn, PRINT.targetWhistle, PRINT.fieldBlower,
     PRINT.vsSeeker
   ].some(pattern => matches(card, pattern));
+  if (matches(card, PRINT.ironThorns)) {
+    const ownBench = slots(own).filter(row => row.zone === 'bench' &&
+      matches(row.pokemon.printing, PRINT.ironThorns));
+    const hasBenchRoom = hasBasicBenchSpace(own);
+    const locked = observation.ownTurnResources?.pokemonPlayLocked === true ||
+      own.publicTurnRestrictions?.pokemonPlayLocked === true;
+    if (locked || !hasBenchRoom) return 0;
+    // A second Thorns enables Volt Cyclone's Energy handoff; more extra
+    // two-Prize Pokemon should not be deployed just because they're held.
+    if (ownBench.length === 0) return 165;
+    if (ownBench.length === 1 && energyCount(own.active) <= 1 &&
+        ownBench[0].pokemon.damage > 0) return 35;
+    return 0;
+  }
   if (supporter && !supporterAvailable(observation)) return 0;
   if (itemCard && itemLocked(observation)) return 0;
 
