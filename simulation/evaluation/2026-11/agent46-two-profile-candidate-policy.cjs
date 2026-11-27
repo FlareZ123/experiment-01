@@ -2292,12 +2292,14 @@ function choosePokemonRecipient(view, prompt, receipt=null) {
     const target=view.opponentPublic.active;
     ranked=actorChoices.map(row=>{
       const moved=guzmaSwitch(view,'ownPublic',row.target.index);
-      return {...row,score:guzmaPivotScore(view,moved,row.target.index,receipt)};
+      return {...row,terminal:!!guzmaProjectedFinalAttack(moved),score:guzmaPivotScore(view,moved,row.target.index,receipt)};
     });
+    if(ranked.some(row=>row.terminal))ranked=ranked.filter(row=>row.terminal);
   } else if (effectName === 'Guzma' && opponentChoices.length > 0) {
     const plans=guzmaPlans(view,receipt);
-    ranked=opponentChoices.map(row=>({...row,
-      score:Math.max(-Infinity,...plans.filter(p=>p.targetIndex===row.target.index).map(p=>p.score))}));
+    const winning=opponentChoices.filter(row=>plans.some(p=>p.terminal===true&&p.targetIndex===row.target.index));
+    ranked=(winning.length?winning:opponentChoices).map(row=>({...row,
+      score:Math.max(-Infinity,...plans.filter(p=>p.targetIndex===row.target.index&&(!winning.length||p.terminal===true)).map(p=>p.score))}));
   } else {
     ranked = actorChoices.map(row => {
       const slot = row.target.slot;
@@ -3306,6 +3308,13 @@ function guzmaPivotScore(view,after,ownIndex,receipt){
     (guzmaGateOpportunity(after)?1100:0)+(cost===0?150:0)-prizeLiability(slot)*100-
     (exposed&&prizeLiability(slot)>=after.opponentPublic.prizeCount?3500:0);
 }
+// Prompt-time projection, not a native frontier certificate. Recheck on next root.
+function guzmaProjectedFinalAttack(view) {
+  const r=view.ownPublic.publicTurnRestrictions??{};
+  if((r.attackMaxEnergyTurnsRemaining??0)>0)return null;
+  const names=new Set((view.ownPublic.active?.attacks??[]).filter(a=>!a.gxAttack).map(a=>a.name));
+  return publicFinalAttack(view,names);
+}
 function guzmaPlans(view,receipt=null) {
   if(!view.ownPublic.active||!view.opponentPublic.active)return [];
   const ownIndices=view.ownPublic.bench.map((slot,i)=>slot?i:-1).filter(i=>i>=0);
@@ -3319,6 +3328,13 @@ function guzmaPlans(view,receipt=null) {
     for(const ownIndex of ownIndices){
       const moved=ownIndex<0?gusted:guzmaSwitch(gusted,'ownPublic',ownIndex);
       const attacker=moved.ownPublic.active;
+      const terminal=guzmaProjectedFinalAttack(moved);
+      if(terminal){
+        const prizes=prizeLiability(target);
+        const score=prizes*1500+attackScore(attacker,terminal.attack,moved,target,{requirePayable:true})-prizeLiability(attacker)*100;
+        rows.push({targetIndex,ownIndex,prizes,unlock:0,score,terminal:true});
+        continue;
+      }
       const attack=bestAttackForSlot(attacker,moved,moved.opponentPublic.active);
       if(attack&&Number.isFinite(attack.damage)&&attack.damage>=Math.max(0,target.hp-target.damage)){
         const prizes=prizeLiability(target);
@@ -3339,7 +3355,7 @@ function guzmaPlans(view,receipt=null) {
       rows.push({targetIndex,ownIndex,prizes:0,unlock,score:unlock+pivot});
     }
   }
-  return rows.sort((a,b)=>Number(b.prizes>0)-Number(a.prizes>0)||b.score-a.score||a.targetIndex-b.targetIndex||a.ownIndex-b.ownIndex);
+  return rows.sort((a,b)=>Number(b.terminal===true)-Number(a.terminal===true)||Number(b.prizes>0)-Number(a.prizes>0)||b.score-a.score||a.targetIndex-b.targetIndex||a.ownIndex-b.ownIndex);
 }
 function usefulGuzma(view,receipt=null) {
   const plan=guzmaPlans(view,receipt)[0];
@@ -3914,7 +3930,24 @@ function benchTerminalCharge(view,item,items){
   const after=viewAfterPsychicAttachment(view,'bench',m.targetIndex,item.actorPrinting);
   return !!(after&&projectedBenchFinalAttack(after,m.targetIndex));
 }
+// A paper-equivalent, two-target Astral Barrage terminal route.
+function publicAstralFinalAttack(view,items) {
+  const item=items.find(i=>i.kind==='attack'&&i.attackName==='Astral Barrage');
+  const attacker=view.ownPublic.active;
+  if(!item||!isBasicShadowRiderV(attacker)||!cleanPublicTerminalView(view,true)||
+      view.opponentPublic.bench.filter(Boolean).length<2)return null;
+  const attack=attacker.attacks.find(a=>a.name==='Astral Barrage');
+  if(!attack||!canPayAttack(attacker,attack,view)||
+      !Number.isFinite(attackScore(attacker,attack,view,view.opponentPublic.active,{requirePayable:true})))return null;
+  const rows=opponentBoard(view).map(p=>({p,score:astralTargetScore(attacker,p,view)}))
+    .sort((a,b)=>b.score-a.score).slice(0,2);
+  const prizes=rows.reduce((sum,row)=>sum+
+    (row.score>0&&row.p.hp-row.p.damage>0&&row.p.hp-row.p.damage<=50?prizeLiability(row.p):0),0);
+  return prizes>=view.ownPublic.prizeCount?item:null;
+}
 function finalPublicStep(view,items,receipt,profile){
+  const astral=publicAstralFinalAttack(view,items);
+  if(astral)return {item:astral,reason:'ROOT_PUBLIC_FINAL_ASTRAL_BARRAGE'};
   const current=publicFinalAttack(view,new Set(items.filter(i=>i.kind==='attack').map(i=>i.attackName)));
   if(current){
     const item=items.find(i=>i.kind==='attack'&&i.attackName===current.attack.name);
@@ -3984,6 +4017,10 @@ if(item.kind==='play-card'&&hasName(item.actorPrinting,'Float Stone')&&
     if(item.kind==='play-card'&&hasName(item.actorPrinting,'Guzma')&&supporterAvailable(view)&&
       Number.isFinite(usefulGuzma(view,receipt))){
       for(const plan of guzmaPlans(view,receipt).filter(p=>p.prizes>0)){
+        if(plan.terminal===true){
+          options.push({item,priority:200,reason:'ROOT_FINAL_BY_GUZMA'});
+          continue;
+        }
         const gusted=guzmaSwitch(view,'opponentPublic',plan.targetIndex);
         const moved=plan.ownIndex<0?gusted:guzmaSwitch(gusted,'ownPublic',plan.ownIndex);
         offer(item,moved,200,'ROOT_FINAL_BY_GUZMA');
