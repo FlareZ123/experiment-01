@@ -43,7 +43,8 @@ const P = Object.freeze({
   carrier: /^Rescue Carrier EVS(?: 154)?\b/i,
   unown: /^Unown AOR(?: 30)?\b/i,
   mimikyu: /^Mimikyu GRI(?: 58)?\b/i,
-  minior: /^Minior PAR(?: 99)?\b/i
+  minior: /^Minior PAR(?: 99)?\b/i,
+  snorlax: /^Snorlax PGO(?: 55)?\b/i
 });
 const arr = value => Array.isArray(value) ? value : [];
 const text = value => typeof value === 'string' ? value : value?.printing ?? value?.fullName ?? value?.label ?? '';
@@ -80,7 +81,9 @@ const PUBLIC_ABORT = Object.freeze({
   R30_VSSEEKER_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
   R30_VSSEEKER_NO_GUZMA:'NO_LEGAL_CARD_SET',
   R30_CARRIER_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
-  R30_CARRIER_NO_TARGET:'NO_LEGAL_CARD_SET'
+  R30_CARRIER_NO_TARGET:'NO_LEGAL_CARD_SET',
+  R30_MINIOR_PROMPT_UNSUPPORTED:'UNRECOGNIZED_SIMPLE_PROMPT',
+  R30_MINIOR_NO_CONFIRM:'UNRECOGNIZED_SIMPLE_PROMPT'
 });
 const no = reasonCode => ({kind:'abstain',reasonCode:PUBLIC_ABORT[reasonCode]??reasonCode});
 const act = x => ({kind:'select-action',token:x.token});
@@ -389,6 +392,11 @@ function vipPrompt(request) {
   const offered=arr(p.choices).filter(x=>x.kind==='card'&&typeof x.token==='string');
   const picked=[];
   const find=pattern=>offered.find(x=>has(x,pattern)&&!picked.some(y=>y.token===x.token));
+  const stall=miniorStallOpportunity(o);
+  if(stall?.knockout && !slots(o.ownPublic).some(x=>has(x,P.minior))) {
+    const minior=find(P.minior);
+    if(minior)picked.push(minior);
+  }
   const clefsAlready=slots(o.ownPublic).filter(x=>has(x,P.clefairy)).length+
     o.ownHand.filter(x=>has(x,P.clefairy)).length;
   // A first Clefairy and Latias enable attacking + retreat mobility.
@@ -462,7 +470,11 @@ function quickBallPrompt(request) {
     return choices.length?picks([choices[0].x]):no('R30_QUICKBALL_NO_SAFE_PAYMENT');
   }
   if(m.sourceZone==='deck'){
-    const choice=offered.find(x=>has(x,P.clefairy))??offered.find(x=>/^Latias ex SSP(?: 76)?\b/i.test(text(x)));
+    const stall=miniorStallOpportunity(o);
+    const choice=(stall?.knockout&&!slots(o.ownPublic).some(x=>has(x,P.minior))?
+        offered.find(x=>has(x,P.minior)):null)??
+      offered.find(x=>has(x,P.clefairy))??
+      offered.find(x=>/^Latias ex SSP(?: 76)?\b/i.test(text(x)));
     if(choice)return picks([choice]);
     const empty=arr(p.choices).find(x=>x.kind==='empty-selection'&&typeof x.token==='string');
     return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
@@ -512,10 +524,40 @@ function candidateCanUseBoardHeldStarAlchemy(observation) {
   return slots(opponent).some(p=>arr(p.tools).some(t=>has(t,P.fss)));
 }
 
+function miniorStallOpportunity(o) {
+  const active=o?.opponentPublic?.active;
+  if(!has(active,P.snorlax)||!safeInt(active?.hp)||!safeInt(active?.damage))return null;
+  // PGO55 has 150 HP, 4 Colorless Retreat Cost, Fighting x2 Weakness.
+  // Do not silently treat a Float Stone-modified retreat or increased HP as
+  // the same 160-damage knockout. Other continuous damage effects remain a
+  // full native-Store qualification dependency.
+  const tools=arr(active.tools);
+  const retreatModified=tools.some(x=>/^(?:Float Stone BKT|Air Balloon SSH|Escape Board UPR)\b/i.test(text(x)));
+  const hp=active.hp-active.damage;
+  return {hp,projectedDamage:retreatModified?null:160,
+    knockout:!retreatModified&&hp>0&&hp<=160};
+}
+function miniorConfirmPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='ConfirmPrompt'||m.selectionType!=='confirm'||
+      p.source?.effectName!=='Far-Flying Meteor')
+    return no('R30_MINIOR_PROMPT_UNSUPPORTED');
+  const accept=arr(p.choices).find(c=>c.kind==='confirm'&&
+    c.label==='Yes'&&typeof c.token==='string');
+  const decline=arr(p.choices).find(c=>c.kind==='confirm'&&
+    c.label==='No'&&typeof c.token==='string');
+  if(miniorStallOpportunity(o)?.knockout&&
+     arr(o.ownPublic?.bench).some(x=>has(x,P.minior))&&accept)
+    return {kind:'select-choice',token:accept.token};
+  return decline?{kind:'select-choice',token:decline.token}:
+    no('R30_MINIOR_NO_CONFIRM');
+}
+
 const BENCH_BASIC = Object.freeze([
   {pattern:P.clefairy,kind:'clefairy'},
   {pattern:/^Latias ex SSP(?: 76)?\b/i,kind:'latias'},
   {pattern:/^Unown AOR(?: 30)?\b/i,kind:'unown'},
+  {pattern:P.minior,kind:'minior'},
   {pattern:/^Crobat V DAA(?: 104)?\b/i,kind:'crobat'},
   {pattern:/^Dedenne-GX UNB(?: 57)?\b/i,kind:'dedenne'},
   {pattern:/^Squawkabilly ex PAL(?: 169)?\b/i,kind:'squawk'},
@@ -554,6 +596,7 @@ function selectBasicBenchRoot(items,o) {
   const smallHand=arr(o.ownHand).length<=3;
   const priority=({kind})=>{
     if(kind==='clefairy')return clefs===0?115:clefs===1?95:30;
+    if(kind==='minior')return miniorStallOpportunity(o)?.knockout?130:0;
     if(kind==='unown')return makesKo?105:smallHand?85:70;
     if(kind==='latias')return ownBoard.some(x=>/^Latias ex SSP(?: 76)?\b/i.test(text(x)))?0:
       own.active&&arr(own.active.energies).length>=2?88:68;
@@ -571,6 +614,9 @@ function selectBasicBenchRoot(items,o) {
 function rootDecision(request,{enablePatchProjection=false}={}) {
   const o=request.observation, items=availableCards(request);
   if(!items.length)return no('R30_NO_OFFERED_ROOT');
+  const miniorAttack=items.find(a=>a.kind==='attack'&&
+    a.attackName==='Gravitational Tackle'&&has(ownPrinting(a),P.minior));
+  if(miniorAttack&&miniorStallOpportunity(o)?.knockout)return act(miniorAttack);
   const attack=items.find(a=>a.kind==='attack' && a.attackName==='Full Moon Rondo' &&
     has(ownPrinting(a),P.clefairy));
   if(attack && terminalRondo(o))return act(attack);
@@ -620,6 +666,13 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   const marnie=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.marnie));
   if(marnie && threatenSecondTarget(o) &&
     !candidateCanUseBoardHeldStarAlchemy(o))return act(marnie);
+  if(miniorStallOpportunity(o)?.knockout&&
+     arr(o.ownPublic?.bench).some(x=>has(x,P.minior))){
+    const attachMinior=items.find(a=>a.kind==='play-card'&&
+      (has(ownPrinting(a),P.basicPsychic)||has(ownPrinting(a),P.telepathic))&&
+      has(a.targetPrinting,P.minior));
+    if(attachMinior)return act(attachMinior);
+  }
   const telepath=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.telepathic)&&
     [P.clefairy,/^Latias ex SSP(?: 76)?\b/i,/^Tapu Lele-GX GRI(?: 60)?\b/i,/^Mimikyu GRI(?: 58)?\b/i]
       .some(pattern=>has(a.targetPrinting,pattern)));
@@ -652,6 +705,7 @@ function createPolicy({role,seat,policyVersion,config}) {
       if(sameSource(request.prompt,P.quickBall))return quickBallPrompt(request);
       if(sameSource(request.prompt,P.vip))return vipPrompt(request);
       if(sameSource(request.prompt,P.telepathic))return telepathPrompt(request);
+      if(sameSource(request.prompt,P.minior))return miniorConfirmPrompt(request);
       if(sameSource(request.prompt,P.carrier))return rescueCarrierPrompt(request);
       if(sameSource(request.prompt,P.guzma))return guzmaPrompt(request);
       if(sameSource(request.prompt,P.compressor))return battleCompressorPrompt(request,
@@ -667,4 +721,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,candidateCanUseBoardHeldStarAlchemy};
+  rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,candidateCanUseBoardHeldStarAlchemy};
