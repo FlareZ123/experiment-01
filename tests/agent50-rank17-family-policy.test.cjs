@@ -211,6 +211,17 @@ function runCases(policy,protocol) {
     same(runRoot(p,pathNoBomb,[ability('reset',A.marshadow,'Resetting Hole',0),pass]),action('pass'),tag+'do not spend Marshadow on Path without live blocked engine');
     const powerLock={...pathLock,opponentPublic:player({stadium:['Power Plant UNB']})};
     same(runRoot(p,powerLock,[ability('reset',A.marshadow,'Resetting Hole',0),pass]),action('reset'),tag+'Resetting Hole removes Power Plant blocking Electrode');
+    const silentDitto=view(seat,{globalTurn:4,ownHand:[A.pokestop,A.raichu],
+      ownPublic:player({bench:[slot(A.ditto,{abilities:['Almighty Evolution']})],deckCount:5}),
+      opponentPublic:player({stadium:['Silent Lab PRC']})});
+    same(runRoot(p,silentDitto,[play('stop-silent',A.pokestop),
+      ability('ditto-silent',A.ditto,'Almighty Evolution',0),pass]),action('stop-silent'),
+      tag+'Pokestop replaces Silent Lab before funded Ditto evolution');
+    const silentIdle={...silentDitto,ownHand:[A.pokestop],
+      ownPublic:player({bench:[slot(A.marshadow,{abilities:['Resetting Hole']})],deckCount:5})};
+    same(runRoot(p,silentIdle,[play('stop-idle',A.pokestop),
+      ability('reset-silent',A.marshadow,'Resetting Hole',0),pass]),action('pass'),
+      tag+'do not spend Pokestop on Silent Lab without blocked engine line');
     const dittoPath=view(seat,{globalTurn:4,ownHand:[A.raichu],
       ownPublic:player({bench:[slot(A.marshadow),slot(A.ditto,{abilities:['Almighty Evolution']})]}),
       opponentPublic:player({stadium:['Path to the Peak CRE']})});
