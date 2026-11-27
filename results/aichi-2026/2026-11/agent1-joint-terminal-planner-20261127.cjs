@@ -5,17 +5,18 @@
  * A stable model must be certified by the caller for every modeled transition.
  */
 const oracle=require('./agent1-terminal-attack-oracle-20261127.cjs');
-const K=['energy','fog','stretcher','seeker','compressor','guzma','raihan','teammates','arven','stone','float','valley','lillie','stamp','other'];
+const belief=require('./agent1-actor-deck-belief-20261127.cjs');
+const K=['energy','fog','stretcher','seeker','compressor','guzma','raihan','teammates','arven','stone','float','valley','lillie','stamp','iono','other'];
 const I=Object.fromEntries(K.map((k,i)=>[k,i]));
-const E=I.energy, S=[I.guzma,I.raihan,I.teammates,I.arven,I.lillie], ITEMS=[I.fog,I.stretcher,I.seeker,I.compressor,I.stamp],TOOLS=[I.stone,I.float];
-const LIMIT=[11,4,1,2,1,1,1,1,1,1,1,1,2,1,60];
+const E=I.energy, S=[I.guzma,I.raihan,I.teammates,I.arven,I.lillie,I.iono], ITEMS=[I.fog,I.stretcher,I.seeker,I.compressor,I.stamp],TOOLS=[I.stone,I.float];
+const LIMIT=[11,4,1,2,1,1,1,1,1,1,1,1,2,1,1,60];
 const sum=a=>a.reduce((x,y)=>x+y,0), valid=n=>Number.isSafeInteger(n)&&n>=0;
 const gcd=(a,b)=>b===0n?a:gcd(b,a%b);
 function frac(n,d=1n){if(d<=0n||n<0n)throw Error('bad fraction');const g=gcd(n,d);return {n:n/g,d:d/g};}
 const ZERO=frac(0n),ONE=frac(1n),add=(a,b)=>frac(a.n*b.d+b.n*a.d,a.d*b.d),mul=(a,b)=>frac(a.n*b.n,a.d*b.d),cmp=(a,b)=>a.n*b.d-b.n*a.d,str=p=>p.n+'/'+p.d;
 function C(n,k){if(k<0||k>n)return 0n;let r=1n;for(let j=1;j<=Math.min(k,n-k);j++)r=r*BigInt(n-j+1)/BigInt(j);return r;}
 function vector(o){
- if(!o||typeof o!=='object'||Array.isArray(o)||Object.keys(o).some(k=>!(k in I)||!valid(o[k])))throw Error('bad count vector');
+ if(!o||typeof o!=='object'||Array.isArray(o)||Object.keys(o).some(k=>!Object.hasOwn(I,k)||!valid(o[k])))throw Error('bad count vector');
  return K.map(k=>o[k]??0);
 }
 function change(a,i,n){const b=a.slice();b[i]+=n;if(b[i]<0)throw Error('negative count');return b;}
@@ -63,7 +64,7 @@ function inputState(input){
   !['K0','K1'].includes(b.mode)||b.exchangeable!==true||
   !valid(b.unknownPrizes)||b.unknownPrizes!==(b.mode==='K0'?m.remaining:0))
   throw Error('unsupported model/belief');
- for(const k of ['manual','retreat','supporter','items','tools','stadium','vstar','priorKO','safeValley','safeFloat','safeStone','safeRedraw'])
+ for(const k of ['manual','retreat','supporter','items','tools','stadium','vstar','priorKO','safeValley','safeFloat','safeStone','safeRedraw','oppHandNonempty'])
   if(typeof f[k]!=='boolean')throw Error('missing flag '+k);
  for(const x of m.own){
   if(!(x.retreat===null||valid(x.retreat))||!['open','stone','float','other'].includes(x.tool)||
@@ -72,10 +73,18 @@ function inputState(input){
     x.stoneUsable&&!['v','vmax'].includes(x.kind))throw Error('uncertified own slot');
  }
  const h=vector(input.hand),d=vector(b.counts),z=vector(input.discard);
- if(sum(d)<b.unknownPrizes||sum(h)+sum(d)+sum(z)+sum(p.es)>60||
-  K.some((k,i)=>h[i]+d[i]+z[i]+(i===E?sum(p.es):0)>LIMIT[i]))
+ const installed=K.map(k=>k==='stone'||k==='float'?m.own.filter(x=>x.tool===k).length:0);
+ if(sum(d)<b.unknownPrizes||sum(h)+sum(d)+sum(z)+sum(p.es)+sum(installed)+m.own.length>60||
+  K.some((k,i)=>h[i]+d[i]+z[i]+installed[i]+(i===E?sum(p.es):0)>LIMIT[i]))
   throw Error('impossible known counts');
- return {a:p.a,b:p.b,es:p.es.slice(),discount:p.discount,h,d,z,u:b.unknownPrizes,
+ let mix=null;
+ if(b.segments!==undefined){
+  if(b.mode!=='K1'||!Array.isArray(b.segments))throw Error('segments require certified K1');
+  const segments=b.segments.map(vector);
+  if(segments.reduce(plus,K.map(()=>0)).join(',')!==d.join(','))throw Error('segment total mismatch');
+  mix=belief.fromSegments(segments,K.length);
+ }
+ return {a:p.a,b:p.b,es:p.es.slice(),discount:p.discount,h,d:mix?K.map(()=>0):d,z,u:b.unknownPrizes,mix,
   manual:f.manual,retreat:f.retreat,supporter:f.supporter,stadium:f.stadium,vstar:f.vstar,
   doors:mask(m.own,x=>x.door),open:mask(m.own,x=>x.tool==='open'),
   stones:mask(m.own,x=>x.tool==='stone'&&x.stoneUsable),floats:0};
@@ -91,12 +100,14 @@ function solve(input,options={}){
  function take(s,i,discard=true){
   return {...s,h:change(s.h,i,-1),z:discard?change(s.z,i,1):s.z};
  }
- const deckSize=s=>sum(s.d)-s.u;
+ const deckSize=s=>s.mix?s.mix.size:sum(s.d)-s.u;
  function canonical(s){
+  if(s.mix&&s.mix.worlds.length===1&&s.mix.worlds[0].segments.length<=1)
+   return {...s,mix:null,u:0,d:s.mix.worlds[0].segments[0]??K.map(()=>0)};
   if(s.u&&deckSize(s)===0)return {...s,u:0,d:s.d.map(()=>0)};
   return s;
  }
- function key(s){return [s.a,s.b,s.es.join(','),s.discount,s.h.join(','),s.d.join(','),s.z.join(','),s.u,+s.manual,+s.retreat,+s.supporter,+s.stadium,+s.vstar,s.doors,s.open,s.stones,s.floats].join('|');}
+ function key(s){return [s.a,s.b,s.es.join(','),s.discount,s.h.join(','),s.mix?belief.key(s.mix):s.d.join(','),s.z.join(','),s.u,+s.manual,+s.retreat,+s.supporter,+s.stadium,+s.vstar,s.doors,s.open,s.stones,s.floats].join('|');}
  function weighted(counts,n,fn){
   let out=ZERO;const denom=C(sum(counts),n);
   eachDraw(counts,n,(v,w)=>{tick();out=add(out,mul(frac(w,denom),fn(v)));});
@@ -104,6 +115,12 @@ function solve(input,options={}){
  }
  function draw(s,n){
   n=Math.min(n,deckSize(s));
+  if(s.mix){
+   let out=ZERO;
+   for(const row of belief.draw(s.mix,n,tick))
+    out=add(out,mul(row.p,value(canonical({...s,mix:row.posterior,h:plus(s.h,row.drawn)})).p));
+   return out;
+  }
   return weighted(s.d,n,v=>value(canonical({...s,d:minus(s.d,v),h:plus(s.h,v)})).p);
  }
  function chooseKnown(s,spec){
@@ -118,6 +135,12 @@ function solve(input,options={}){
   return {p:best,selection};
  }
  function search(s,spec){
+  if(s.mix){
+   let p=ZERO;
+   for(const row of belief.reveal(s.mix,tick))
+    p=add(p,mul(row.p,chooseKnown({...s,mix:null,u:0,d:row.counts},spec).p));
+   return {p,selection:'observe-own-deck-and-replan'};
+  }
   if(!s.u)return chooseKnown(s,spec);
   // Search reveals the entire own deck before the card-choice action.
   // Enumerate Prize multiset only as a belief; never select using latent
@@ -185,17 +208,24 @@ function solve(input,options={}){
    if(s.h[I.arven]&&deckSize(s)>0)
     consider({kind:'arven'},()=>search({...take(s,I.arven),supporter:false},'arven'));
   }
-  // Shuffle-redraws require exact known deck membership. K0 mixing known
-  // hand cards with unseen deck (but not Prizes) is NOT exchangeable.
+  // Returned known hand cards do NOT become exchangeable with unknown
+  // Prizes. Model the actual deck-composition posterior; Iono appends a
+  // known bottom segment instead of shuffling it into the top deck.
   function redraw(i,n,usesSupporter){
-   const t=take(s,i),h=t.h.map(()=>0);
-   return draw({...t,h,d:plus(t.d,t.h),supporter:usesSupporter?false:t.supporter},n);
+   const t=take(s,i),h=t.h.map(()=>0),supporter=usesSupporter?false:t.supporter;
+   if(i!==I.iono&&!t.u&&!t.mix)
+    return draw({...t,h,d:plus(t.d,t.h),supporter},n);
+   const b=t.mix??(t.u?belief.fromExchangeable(t.d,t.u,tick):belief.fromKnown(t.d));
+   const mix=i===I.iono?belief.appendBottom(b,t.h):belief.shuffleInto(b,t.h);
+   return draw({...t,h,d:K.map(()=>0),u:0,mix,supporter},n);
   }
-  if(!s.u&&f.safeRedraw){
+  if(f.safeRedraw){
    if(s.supporter&&s.h[I.lillie]&&deckSize(s)+sum(s.h)>1)
     consider({kind:'lillie'},()=>redraw(I.lillie,m.remaining===6?8:6,true));
    if(f.items&&f.priorKO&&s.h[I.stamp]&&deckSize(s)+sum(s.h)>1)
     consider({kind:'stamp'},()=>redraw(I.stamp,5,false));
+   if(s.supporter&&s.h[I.iono]&&deckSize(s)+sum(s.h)>1&&(sum(s.h)>1||f.oppHandNonempty))
+    consider({kind:'iono'},()=>redraw(I.iono,m.remaining,true));
   }
   memo.set(k,best);return best;
  }
@@ -212,9 +242,9 @@ function makeInput(own,opp,opts={}){
  const slots=own.map(x=>({kind:x.kind,attacks:oracle.CATALOG[x.kind].map(y=>y[0]),retreat:1,tool:'other',manualOK:true,effectOK:true,psychic:!['dialga','eternatus'].includes(x.kind),door:false,stoneUsable:false,...x}));
  return {model:{stable:true,own:slots,remaining:opts.remaining??2,opp:opp.map(t=>({hp:170,damage:0,award:2,energy:0,weak:1,resist:0,ultra:false,blockDamage:[],blockCounters:[],reduceDamage:Array(own.length).fill(0),...t}))},
   position:{a:opts.a??0,b:opts.b??0,es:own.map(x=>x.energy??0),discount:opts.discount??0},
-  flags:{manual:true,retreat:false,supporter:true,items:true,tools:true,stadium:true,vstar:true,priorKO:false,safeValley:true,safeFloat:true,safeStone:true,safeRedraw:true,...opts.flags},
+  flags:{manual:true,retreat:false,supporter:true,items:true,tools:true,stadium:true,vstar:true,priorKO:false,safeValley:true,safeFloat:true,safeStone:true,safeRedraw:true,oppHandNonempty:true,...opts.flags},
   hand:opts.hand??{},discard:opts.discard??{},
-  belief:{mode:opts.mode??'K1',exchangeable:true,unknownPrizes:opts.mode==='K0'?(opts.remaining??2):0,counts:opts.deck??{}}
+  belief:{mode:opts.mode??'K1',exchangeable:true,unknownPrizes:opts.mode==='K0'?(opts.remaining??2):0,counts:opts.deck??{},...(opts.segments===undefined?{}:{segments:opts.segments})}
  };
 }
 function selfTest(){
@@ -242,7 +272,13 @@ function selfTest(){
   ['Valley not triple Psychic',makeInput([{kind:'trev',energy:2}],[{hp:150},bench],{hand:{valley:1}}),'0/1'],
   ['Lillie K1',makeInput([V(5)],[low,bench],{hand:{lillie:1},deck:{energy:1,other:9}}),'3/5','lillie'],
   ['Stamp K1',makeInput([V(5)],[low,bench],{hand:{stamp:1},deck:{energy:1,other:9},flags:{priorKO:true}}),'1/2','stamp'],
-  ['Lillie K0 excluded',makeInput([V(5)],[low,bench],{hand:{lillie:1},deck:{energy:1,other:9},mode:'K0'}),'0/1'],
+  ['Lillie K0 known return',makeInput([V(5)],[low,bench],{hand:{lillie:1,other:1},deck:{energy:1,other:9},mode:'K0'}),'8/15','lillie'],
+  ['Stamp K0 known return',makeInput([V(5)],[low,bench],{hand:{stamp:1,other:1},deck:{energy:1,other:9},mode:'K0',flags:{priorKO:true}}),'4/9','stamp'],
+  ['Iono K0 bottom',makeInput([V(5)],[low,bench],{hand:{iono:1,other:1},deck:{energy:1,other:9},mode:'K0'}),'1/5','iono'],
+  ['Iono K1 bottom',makeInput([V(5)],[low,bench],{hand:{iono:1,other:1},deck:{energy:1,other:9}}),'1/5','iono'],
+  ['Iono no returned cards',makeInput([V(5)],[low,bench],{hand:{iono:1},deck:{energy:1,other:9},flags:{oppHandNonempty:false}}),'0/1'],
+  ['Known bottom Energy inaccessible to Door',makeInput([V(3,{door:true}),V(1)],[low,bench],{hand:{energy:1},deck:{energy:1,other:2},segments:[{other:2},{energy:1}]}),'0/1'],
+  ['Search breaks known bottom order',makeInput([V(3,{door:true}),V(1)],[low,bench],{hand:{energy:1,fog:1},deck:{energy:1,other:2},segments:[{other:2},{energy:1}]}),'1/1'],
   ['K0 search adaptive',makeInput([V(5,{tool:'stone',stoneUsable:true})],[low,bench],{deck:{energy:1,stretcher:1,other:1},discard:{energy:1},mode:'K0'}),'2/3','star-alchemy'],
   ['paid retreat loses Geist',makeInput([V(5),P(1)],[high,{hp:170}],{hand:{guzma:1},flags:{retreat:true}}),'0/1'],
   ['Fog funds paid retreat',makeInput([V(5),P(1)],[high,{hp:170}],{hand:{guzma:1,fog:1},deck:{energy:1},flags:{retreat:true}}),'1/1'],
