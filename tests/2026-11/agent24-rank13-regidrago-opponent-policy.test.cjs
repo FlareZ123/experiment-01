@@ -649,3 +649,29 @@ test('wrong physical seat is rejected by the policy binding', () => {
     kind: 'abstain', reasonCode: 'ROLE_SEAT_BINDING_MISMATCH'
   });
 });
+
+test('actual v2 worker selects completion-critical manual Energy in either seat', () => {
+ for (const seat of [0,1]) {
+  const D='Double Dragon Energy ROS 97', G='Grass Energy MEE 9', S='Regidrago VSTAR SIT 136';
+  const r=rootRequest({seat,ownHand:[G],ownPlayer:{active:pokemon(S,{subtypes:['VSTAR'],energies:[D]}),discard:['Noivern ex PAL 153']},items:[
+   action('attach','play-card',G,{cardType:'energy',handIndex:0,targetSeat:'actor',targetZone:'active',targetIndex:0,isOwnerVisible:true},{targetPrinting:S,label:'Attach Grass Energy'}),
+   action('pass','pass',null)
+  ]});
+  assert.deepEqual(checkedDecision(r),{kind:'select-action',token:'attach'});
+  r.observation.ownPublic.active.energies.push(G);
+  r.observation.ownHand=[];
+  r.observation.ownTurnResources.energyPlayedTurn=true;
+  r.actionFrontier.items=[{kind:'attack',token:'apex',label:'Apex Dragon',attackName:'Apex Dragon'},action('pass','pass',null)];
+  assert.deepEqual(checkedDecision(r),{kind:'select-action',token:'apex'});
+ }
+});
+test('actual v2 worker uses Silent Lab to break Temple before an otherwise unavailable Apex', () => {
+ for(const seat of [0,1]){
+  const LAB='Silent Lab PRC 140',S='Regidrago VSTAR SIT 136';
+  const r=rootRequest({seat,ownHand:[LAB],ownPlayer:{active:pokemon(S,{subtypes:['VSTAR'],energies:['Double Dragon Energy ROS 97','Grass Energy MEE 9']}),discard:['Noivern ex PAL 153']},opponentPlayer:{stadium:['Temple of Sinnoh ASR 155']},items:[action('lab','play-card',LAB,{cardType:'trainer',handIndex:0}),action('pass','pass',null)]});
+  assert.deepEqual(checkedDecision(r),{kind:'select-action',token:'lab'});
+  r.observation.opponentPublic.stadium=[];r.observation.ownPublic.stadium=[LAB];r.observation.ownHand=[];
+  r.actionFrontier.items=[{kind:'attack',token:'apex',label:'Apex Dragon',attackName:'Apex Dragon'},action('pass','pass',null)];
+  assert.deepEqual(checkedDecision(r),{kind:'select-action',token:'apex'});
+ }
+});
