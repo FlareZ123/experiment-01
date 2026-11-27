@@ -786,11 +786,43 @@ function promptDecision(request) {
     }
 
     if (/trifrost/i.test(context) && meta.selectionType === 'pokemon') {
-      return selectMany(choices, choice => {
-        const pokemon = targetPokemonFromChoice(choice, observation);
-        const hp = remainingHp(pokemon);
-        return hp > 0 ? 220 - hp / 10 + candidateTargetPriority(pokemon, observation) / 10 : 0;
-      }, minimum, maximum, 'NO_SUPPORTED_POKEMON_CHOICE');
+      // Select actual legal positions by guaranteed immediate Prize conversion.
+      // Scoped to visible rank-13/candidate combat geometry; not a full damage engine.
+      const rows = [];
+      const seen = new Set();
+      const player = observation.opponentPublic;
+      const band = list(own.active?.tools).some(t => matches(t, PRINT.muscleBand)) &&
+        ![...list(own.stadium), ...list(player?.stadium)].some(t => /^Jamming Tower\b/i.test(printingValue(t))) &&
+        ![own, player].some(p => Number(p?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining ?? 0) > 0);
+      for (const choice of choices) {
+        if (choice.kind !== 'pokemon') continue;
+        const m = metadata(choice);
+        const zone = m.targetZone;
+        if (m.ownerSeat !== 'opponent' ||
+            !['active', 'bench'].includes(zone) ||
+            (zone === 'bench' && (!Number.isSafeInteger(m.benchIndex) || m.benchIndex < 0))) {
+          return {kind: 'abstain', reasonCode: 'NO_SUPPORTED_POKEMON_CHOICE'};
+        }
+        const key = zone === 'active' ? 'active' : 'bench:' + m.benchIndex;
+        const target = zone === 'active' ? player?.active : list(player?.bench)[m.benchIndex];
+        const hp = remainingHp(target);
+        if (seen.has(key) || !target || hp <= 0 || typeof choice.token !== 'string' ||
+            printingValue(choice) !== printingValue(target)) {
+          return {kind: 'abstain', reasonCode: 'NO_SUPPORTED_POKEMON_CHOICE'};
+        }
+        seen.add(key);
+        const damage = zone === 'active'
+          ? Math.max(0, (110 + (band ? 20 : 0)) * weaknessMultiplier(target, 'Dragon') - resistanceAmount(target, 'Dragon'))
+          : 110;
+        const prizes = /^Trevenant & Dusknoir-GX SMP 217\b/i.test(printingValue(target)) ? 3 : prizeValue(target);
+        rows.push({token: choice.token, prizes: hp <= damage ? prizes : 0, priority: candidateTargetPriority(target, observation), hp});
+      }
+      const required = Math.min(3, rows.length);
+      if (required === 0 || minimum > required || maximum < required) {
+        return {kind: 'abstain', reasonCode: 'NO_SUPPORTED_POKEMON_CHOICE'};
+      }
+      rows.sort((a,b) => b.prizes - a.prizes || b.priority - a.priority || a.hp - b.hp);
+      return {kind: 'select-choices', tokens: rows.slice(0,required).map(r => r.token)};
     }
 
     if (/wonder tag/i.test(context)) {

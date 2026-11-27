@@ -692,3 +692,46 @@ test('Crispin recipient choice reaches the actor Regidrago VSTAR branch', () => 
       pokemonChoice('registar','Regidrago VSTAR SIT 136','actor','bench',1)]});
   assert.deepEqual(checkedDecision(request),{kind:'select-choices',tokens:['registar']});
 });
+
+test('rank13 Trifrost selects actual lethal targets before nonlethal priority, both seats', () => {
+  const tag=pokemon('Trevenant & Dusknoir-GX SMP 217',{hp:270,damage:150,subtypes:['Basic','TAG TEAM','GX'],types:['Psychic']});
+  const low=[pokemon('Mimikyu GRI 58',{hp:70,types:['Psychic']}),pokemon('Girafarig LOT 94',{hp:90,types:['Psychic']}),pokemon('Marshadow UNB 81',{hp:80,types:['Psychic']})];
+  const full=pokemon('Shadow Rider Calyrex VMAX CRE 75',{hp:320,subtypes:['VMAX'],types:['Psychic']});
+  const wounded=pokemon('Shadow Rider Calyrex VMAX CRE 75',{hp:320,damage:220,subtypes:['VMAX'],types:['Psychic']});
+  const lele=pokemon('Tapu Lele-GX GRI 60',{hp:170,damage:70,subtypes:['Basic','GX'],types:['Psychic']});
+  for (const seat of [0,1]) {
+    const cases=[
+      {name:'banded Active TAG',active:tag,bench:[...low,full],band:true,expected:['p0','p1','p3'],prizes:5},
+      {name:'unbanded Active TAG',active:tag,bench:[...low,full],band:false,expected:['p1','p3','p2'],prizes:3},
+      {name:'three Prize and two Prize Bench',active:full,bench:[...low,wounded,lele],band:true,expected:['p4','p5','p1'],prizes:6},
+      {name:'Band does not apply to Bench',active:full,bench:[...low,tag],band:true,expected:['p1','p3','p2'],prizes:3},
+      {name:'two available targets',active:tag,bench:[low[0]],band:true,expected:['p0','p1'],prizes:4},
+      {name:'suppressed Band',active:tag,bench:[...low,full],band:true,noTool:true,expected:['p1','p3','p2'],prizes:3},
+    ];
+    for (const c of cases) {
+      const targets=[c.active,...c.bench];
+      const choices=targets.map((p,i)=>({
+        token:'p'+i,kind:'pokemon',printing:p.printing,label:p.printing,
+        publicMetadata:{selectionIndex:i,selectedCount:1,selectionType:'pokemon',ownerSeat:'opponent',targetZone:i?'bench':'active',...(i?{benchIndex:i-1}:{slotIndex:0}),isOwnerVisible:true}
+      }));
+      const count=Math.min(3,targets.length);
+      const req=promptRequest({seat,promptType:'ChoosePokemonPrompt',
+        source:{...actorChoiceSource('Regidrago VSTAR SIT 136','Trifrost'),copiedSourcePrinting:'Kyurem SFA 47',copiedAttackName:'Trifrost'},
+        publicMetadata:multiMetadata(count,count,'pokemon'),choices,
+        observation:{ownPlayer:{active:pokemon('Regidrago VSTAR SIT 136',{subtypes:['VSTAR'],tools:c.band?['Muscle Band XY 121']:[]}),prizeCount:c.prizes,publicTurnRestrictions:c.noTool?{stadiumAndToolHaveNoEffectTurnsRemaining:1}:{}},
+          opponentPlayer:{active:c.active,bench:c.bench}}});
+      assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:c.expected},c.name+' seat '+seat);
+      // Malformed physical identity must not be converted into another target.
+      const policy=createPolicy({role:'opponent',seat,policyVersion:POLICY_VERSION,config:{}});
+      const malformed=JSON.parse(JSON.stringify(req));
+      malformed.prompt.choices[1].publicMetadata.ownerSeat='actor';
+      assert.deepEqual(policy.decide(malformed),{kind:'abstain',reasonCode:'NO_SUPPORTED_POKEMON_CHOICE'});
+      const mismatch=JSON.parse(JSON.stringify(req));
+      mismatch.prompt.choices[1].printing='Latias ex SSP 76';
+      assert.deepEqual(policy.decide(mismatch),{kind:'abstain',reasonCode:'NO_SUPPORTED_POKEMON_CHOICE'});
+      const duplicate=JSON.parse(JSON.stringify(req));
+      duplicate.prompt.choices.push({...duplicate.prompt.choices[1],token:'duplicate'});
+      assert.deepEqual(policy.decide(duplicate),{kind:'abstain',reasonCode:'NO_SUPPORTED_POKEMON_CHOICE'});
+    }
+  }
+});
