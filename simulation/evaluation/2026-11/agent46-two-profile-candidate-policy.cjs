@@ -3813,6 +3813,29 @@ function finalPublicStep(view,items,receipt,profile){
     return {item,reason:'ROOT_PUBLIC_FINAL_PRIZE_ATTACK'};
   }
   if(!view.ownPublic.active||view.globalTurn<=1)return null;
+  // A hand-held Clefairy can close the game without spending an attachment,
+  // Supporter, or attack for setup. Compare the actual public final-Prize
+  // attack after placing its exact profile card, before reserving Gate slots.
+  const attackNames=new Set(items.filter(i=>i.kind==='attack').map(i=>i.attackName));
+  const defender=view.opponentPublic.active;
+  const empty=view.ownPublic.bench.findIndex(slot=>!slot);
+  if(defender&&isDragon(defender)&&view.ownPublic.active.printed?.types?.includes('Psychic')&&
+      fairyZoneStatus(view)===false&&hasEffectiveStealthyHood(defender,view,'opponent')===false&&
+      hasOpenBench(view)&&empty>=0&&view.ownTurnResources?.pokemonPlayLocked!==true&&
+      view.ownPublic.publicTurnRestrictions?.pokemonPlayLocked!==true){
+    for(const item of items){
+      const m=item.publicMetadata??{};
+      if(item.kind!=='play-card'||!hasName(item.actorPrinting,"Lillie's Clefairy ex")||
+        m.targetSeat!=='actor'||m.targetZone!=='bench'||!view.ownHand.includes(item.actorPrinting))continue;
+      const holder={printing:item.actorPrinting,hp:190,damage:0,
+        printed:{types:['Psychic'],subtypes:['Basic','ex'],weakness:[{type:'Metal',value:'×2'}],resistance:[],retreatCost:['Colorless']},
+        abilities:['Fairy Zone'],abilitySuppressions:[],tools:[],energies:[],specialConditions:[]};
+      const after={...view,ownPublic:{...view.ownPublic,
+        bench:view.ownPublic.bench.map((slot,i)=>i===empty?holder:slot)}};
+      if(fairyZoneStatus(after)===true&&publicFinalAttack(after,attackNames))
+        return {item,reason:'ROOT_FINAL_BY_FAIRY_ZONE_BENCH'};
+    }
+  }
   const options=[];
   const offer=(item,next,priority,reason)=>{
     if(next&&publicFinalAttack(next))options.push({item,priority,reason});

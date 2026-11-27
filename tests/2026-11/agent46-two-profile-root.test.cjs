@@ -1083,3 +1083,42 @@ paired('Fairy Zone replaces weakness with Psychic, and Muk suppresses both sides
   f.tools=['Stealthy Hood UNB'];
   assert.equal(core.fairyZoneStatusForSeat(view,'actor'),false);
 });
+
+paired('Final-Prize Fairy Zone placement beats Gate reservation and setup only with a real lethal attack',(seat,profile)=>{
+  const clefairy="Lillie's Clefairy ex JTG";
+  const active=vmax([P,P,P,P,P]);active.hp=320;
+  const dragon=defender({abilities:['Legacy Star'],suppression:false});
+  const view=observation(seat,{active,bench:[v(),latias(),v()],opponentActive:dragon,
+    opponentBench:[v()],ownHand:[clefairy,R,P]});
+  view.ownPublic.prizeCount=2;
+  const items=[play('clefairy',clefairy,null,target('bench',3)),play('energy',P,M,target('active',0)),
+    {token:'max',kind:'attack',attackName:'Max Geist'}];
+  const get=()=>worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile}).decideWithAudit(root(seat,view,items));
+  assert.deepEqual(get().decision,sel('clefairy'));
+  assert.equal(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_FAIRY_ZONE_BENCH');
+  dragon.tools=['Stealthy Hood UNB'];
+  assert.notEqual(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_FAIRY_ZONE_BENCH');
+  dragon.tools=[];
+  for(const stadium of ['Path to the Peak CRE','Silent Lab PRC']){
+    view.opponentPublic.stadium=[stadium];
+    assert.notEqual(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_FAIRY_ZONE_BENCH');
+  }
+  view.opponentPublic.stadium=[];
+  view.opponentPublic.bench[1]=pokemon({printing:'Alolan Muk SUM',name:'Alolan Muk',subtypes:['Stage 1'],abilities:['Power of Alchemy'],suppression:false});
+  assert.notEqual(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_FAIRY_ZONE_BENCH');
+  view.opponentPublic.bench[1]=null;
+  view.ownPublic.prizeCount=3;
+  assert.notEqual(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_FAIRY_ZONE_BENCH');
+  view.ownPublic.prizeCount=2;
+  view.ownPublic.active.energies=[P,P,P];
+  assert.notEqual(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_FAIRY_ZONE_BENCH');
+  view.ownPublic.active.energies=[P,P,P,P,P];
+  const noAttack=root(seat,view,items.slice(0,2));
+  const policy=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile});
+  assert.notEqual(policy.decideWithAudit(noAttack).policyAudit.selectionRuleCode,'ROOT_FINAL_BY_FAIRY_ZONE_BENCH');
+  view.ownTurnResources.pokemonPlayLocked=true;
+  assert.notEqual(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_FAIRY_ZONE_BENCH');
+  view.ownTurnResources.pokemonPlayLocked=false;
+  view.ownPublic.bench[3]=v();view.ownPublic.bench[4]=v();
+  assert.notEqual(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_FAIRY_ZONE_BENCH');
+});
