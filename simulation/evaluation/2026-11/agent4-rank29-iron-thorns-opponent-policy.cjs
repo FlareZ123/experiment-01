@@ -1228,11 +1228,21 @@ function scorePlayCard(item, request) {
     return hand.length <= 2 && ownDeckCount(observation) > 7 ? 115 : 0;
   }
   if (matches(card, PRINT.tagCall)) {
-    const targetAvailable = ownerK1DeckMayContain(observation, PRINT.guzmaHala) ||
-      ownerK1DeckMayContain(observation, PRINT.cynthiaCaitlin);
-    return targetAvailable &&
-      !hand.some(value => matches(value, PRINT.guzmaHala)) &&
-      ownDeckCount(observation) > 0 ? 105 : 0;
+    const canGetGh = ownerK1DeckMayContain(observation, PRINT.guzmaHala);
+    const canGetCc = ownerK1DeckMayContain(observation, PRINT.cynthiaCaitlin);
+    if (!canGetGh && !canGetCc) return 0;
+    if (hand.some(value => matches(value, PRINT.guzmaHala)) ||
+        ownDeckCount(observation) <= 0) return 0;
+    const canGetThunder = !hasStadium(observation, PRINT.thunderMountain) &&
+      !hand.some(value => matches(value, PRINT.thunderMountain)) &&
+      ownerK1DeckMayContain(observation, PRINT.thunderMountain);
+    // Tag Call is the first connector of the turn-one attack line; playing
+    // Speed first consumes the only attachment and forfeits the DCE attack.
+    const turbo = canGetGh && canGetThunder &&
+      turboDceAttackWindow(request) &&
+      (hand.some(value => matches(value, PRINT.doubleColorless)) ||
+        guzmaHalaPaymentRealism(observation) > 0);
+    return turbo ? 215 : 105;
   }
   if (matches(card, PRINT.trainersMail)) {
     return hand.length <= 5 && ownDeckCount(observation) > 0 ? 85 : 0;
