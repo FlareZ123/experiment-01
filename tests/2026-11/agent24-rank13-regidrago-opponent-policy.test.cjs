@@ -821,3 +821,43 @@ test('rank13 uses the existing no-gust Timeless/Trifrost planner only with paid,
     }
   }
 });
+
+test('rank13 completes both no-gust extra-turn terminal chains after the GX is spent', () => {
+  const S='Regidrago VSTAR SIT 136',DIA='Dialga-GX UPR 100',KYU='Kyurem SFA 47',NO='Noivern ex PAL 153';
+  const actor=pokemon(S,{subtypes:['VSTAR'],abilities:['Legacy Star'],energies:['Double Dragon Energy ROS 97','Grass Energy MEE 9'],tools:['Muscle Band XY 121']});
+  const tag=pokemon('Trevenant & Dusknoir-GX SMP 217',{hp:270,damage:170,types:['Psychic'],subtypes:['Basic','TAG TEAM','GX']});
+  const mimi=pokemon('Mimikyu GRI 58',{hp:70,types:['Psychic']});
+  const gira=pokemon('Girafarig LOT 94',{hp:90,types:['Psychic']});
+  const mar=pokemon('Marshadow UNB 81',{hp:80,types:['Psychic']});
+  const vmax=pokemon('Shadow Rider Calyrex VMAX CRE 75',{hp:320,subtypes:['VMAX'],types:['Psychic']});
+  const latias=pokemon('Latias ex SSP 76',{hp:210,types:['Psychic']});
+  const attack=(token,printing,name)=>({token,kind:'attack',printing,label:printing+' — '+name,publicMetadata:{choiceIndex:0,sourceAttack:name,sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true}});
+  const survivors=[mimi,gira,mar,latias];
+  const continuations=[
+    {active:tag,bench:[mimi,gira,vmax,latias],prizes:5,expected:[tag.printing,mimi.printing,gira.printing]},
+    ...survivors.map((active,i)=>({active,bench:survivors.filter((p,j)=>i!==j),prizes:3,expected:[mimi.printing,gira.printing,mar.printing]}))
+  ];
+  for(const seat of [0,1]) for(const c of continuations) {
+    const ownPlayer={active:actor,discard:[DIA,KYU,NO],prizeCount:c.prizes,deckCount:29,publicTurnRestrictions:{gxUsed:true}};
+    const opponentPlayer={active:c.active,bench:c.bench,stadium:['Sky Field ROS 89']};
+    const root=rootRequest({seat,ownPlayer,opponentPlayer,ownTurnResources:turnResources({extraTurnActive:true}),items:[
+      action('legacy','use-ability',S,{abilityName:'Legacy Star'}),
+      {token:'apex',kind:'attack',label:'Apex Dragon',attackName:'Apex Dragon'},
+      action('pass','pass',null)
+    ]});
+    assert.deepEqual(checkedDecision(root),{kind:'select-action',token:'apex'});
+    const req=promptRequest({seat,promptType:'ChooseAttackPrompt',source:actorChoiceSource(S,'Apex Dragon'),
+      choices:[attack('echo',NO,'Dominating Echo'),attack('trifrost',KYU,'Trifrost'),attack('shred',DIA,'Shred')],
+      observation:{ownPlayer,opponentPlayer,ownTurnResources:turnResources({extraTurnActive:true})}});
+    assert.deepEqual(checkedDecision(req),{kind:'select-choice',token:'trifrost'});
+    const targets=[c.active,...c.bench];
+    const choices=targets.map((p,i)=>({token:'p'+i,kind:'pokemon',printing:p.printing,label:p.printing,
+      publicMetadata:{selectionIndex:i,selectedCount:1,selectionType:'pokemon',ownerSeat:'opponent',targetZone:i?'bench':'active',...(i?{benchIndex:i-1}:{slotIndex:0}),isOwnerVisible:true}}));
+    const select=promptRequest({seat,promptType:'ChoosePokemonPrompt',
+      source:{...actorChoiceSource(S,'Trifrost'),copiedSourcePrinting:KYU,copiedAttackName:'Trifrost'},
+      publicMetadata:multiMetadata(3,3,'pokemon'),choices,observation:{ownPlayer,opponentPlayer}});
+    const result=checkedDecision(select);
+    assert.equal(result.kind,'select-choices');
+    assert.deepEqual(result.tokens.map(t=>choices.find(x=>x.token===t).printing).sort(),c.expected.slice().sort());
+  }
+});

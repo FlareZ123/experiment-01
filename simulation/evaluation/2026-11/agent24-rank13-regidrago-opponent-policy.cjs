@@ -440,7 +440,7 @@ function wideBlastTerminal(observation) {
   return prizes>=needed;
 }
 
-function boundedRank13ExtraTurnPlan(observation) {
+function boundedRank13TerminalPlan(observation) {
   const own=observation?.ownPublic, opp=observation?.opponentPublic;
   const a=own?.active, r=a?.publicRestrictions, t=own?.publicTurnRestrictions;
   // Deliberately conservative Hood-only, zero-gust, ordinary-damage slice.
@@ -449,23 +449,25 @@ function boundedRank13ExtraTurnPlan(observation) {
   if (!matches(a,PRINT.regidragoVstar) || remainingHp(a)<=0 ||
       !list(a?.printed?.types).includes('Dragon') ||
       !Array.isArray(a.specialConditions) || a.specialConditions.length!==0 ||
-      !Number.isSafeInteger(own.deckCount) || own.deckCount<1 ||
-      t?.gxUsed!==false || t?.cannotUseGXAttacks!==false ||
-      opp?.publicTurnRestrictions?.gxUsed!==false ||
-      t?.attackLockTurnsRemaining!==0 || t?.attackMaxEnergyTurnsRemaining!==0 ||
-      t?.ignoreAttackCostTurnsRemaining!==0 ||
-      !r || r.cannotAttackNextTurn!==false ||
-      !Array.isArray(r.cannotUseAttacksNextTurn) || r.cannotUseAttacksNextTurn.length ||
-      r.blockedAttackNameNextTurn!==null || r.blockedAttackNameUntilLeavesActive!==null ||
-      r.onlyAllowedAttackNameNextTurn!==null ||
-      r.attackCostIncreaseNextTurn!==0 || r.attackCostIncreaseWhileActive!==0) return null;
+      opp?.publicTurnRestrictions?.gxUsed!==false) return null;
+  // These conditions are required for the *second* attack, not for a winning
+  // attack offered now. After Timeless the GX is spent; a direct win remains.
+  const gxReady=Number.isSafeInteger(own.deckCount) && own.deckCount>0 &&
+      t?.gxUsed===false && t?.cannotUseGXAttacks===false &&
+      t?.attackLockTurnsRemaining===0 && t?.attackMaxEnergyTurnsRemaining===0 &&
+      t?.ignoreAttackCostTurnsRemaining===0 &&
+      r && r.cannotAttackNextTurn===false &&
+      Array.isArray(r.cannotUseAttacksNextTurn) && r.cannotUseAttacksNextTurn.length===0 &&
+      r.blockedAttackNameNextTurn===null && r.blockedAttackNameUntilLeavesActive===null &&
+      r.onlyAllowedAttackNameNextTurn===null &&
+      r.attackCostIncreaseNextTurn===0 && r.attackCostIncreaseWhileActive===0;
   if (![own,opp].every(p=>Array.isArray(p.stadium)) ||
       [...own.stadium,...opp.stadium].some(s=>!/^(Sky Field|Dimension Valley|Silent Lab|Parallel City)\b/i.test(printingValue(s))) ||
       [own,opp].some(p=>Number(p.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining??0)>0)) return null;
   if (!Array.isArray(a.tools) || a.tools.length>1 ||
       a.tools.some(tool=>!matches(tool,PRINT.muscleBand)) ||
       apexGap(energyUnits(a.energies,false))!==0) return null;
-  if (!discardHas(own,PRINT.dialga) || !discardHas(own,PRINT.kyurem) || !opp?.active) return null;
+  if (!discardHas(own,PRINT.kyurem) || !opp?.active) return null;
   const slots=[{id:'active',p:opp.active},...list(opp.bench).map((p,i)=>({id:'bench:'+i,p}))].filter(x=>x.p);
   // Existing solver binds exact profile HP/Prize counts. Don't silently model
   // attached-Tool damage/HP modifiers, non-profile targets or unknown HP.
@@ -474,13 +476,14 @@ function boundedRank13ExtraTurnPlan(observation) {
     return !known || known[2]===0 || p.hp!==known[0] ||
       !Array.isArray(p.tools) || p.tools.length!==0 || remainingHp(p)<=0;
   })) return null;
-  const discard=['Dialga-GX UPR 100','Kyurem SFA 47'];
+  const discard=['Kyurem SFA 47'];
+  if (discardHas(own,PRINT.dialga)) discard.push('Dialga-GX UPR 100');
   if (discardHas(own,PRINT.noivern)) discard.push('Noivern ex PAL 153');
   let out;
   try {
     out=planExtraTurn({
       profile:'hood',apexPayable:true,noOtherCombatModifiers:true,
-      bandLive:a.tools.length===1,gxUnused:true,nextApexPayable:true,
+      bandLive:a.tools.length===1,gxUnused:gxReady===true,nextApexPayable:gxReady===true,
       prizesToWin:own.prizeCount,gustBudget:0,firstGustReady:false,secondGustReady:false,
       discard,active:'active',targets:slots.map(({id,p})=>({id,printing:printingValue(p),remainingHP:remainingHp(p)}))
     });
@@ -562,7 +565,7 @@ function chooseRank13ApexAttack(choices, observation) {
   // A verified immediate Wide Blast beats even a winning extra-turn line.
   const directWide=ranked.find(row=>row.score===400 && attackName(row.choice)==='Wide Blast');
   if(directWide) return {kind:'select-choice',token:directWide.choice.token};
-  const plan=boundedRank13ExtraTurnPlan(observation);
+  const plan=boundedRank13TerminalPlan(observation);
   if(plan) {
     const offered=boundRank13PayloadChoice(choices,plan.attack,observation);
     // The planner predicts the second attack from the retained discard. Require
@@ -609,7 +612,7 @@ function scoreAttack(item, observation) {
   const opponent = observation?.opponentPublic ?? {};
   if (name === 'Apex Dragon') {
     if (discardHas(own,PRINT.salamence) && wideBlastTerminal(observation)) return 400;
-    if (boundedRank13ExtraTurnPlan(observation)) return 390;
+    if (boundedRank13TerminalPlan(observation)) return 390;
     return hasDragonPayload(observation) ? 235 : 0;
   }
   if (name === 'Itchy Pollen') return Number(opponent.handCount ?? 0) > 0 ? 225 : 190;
