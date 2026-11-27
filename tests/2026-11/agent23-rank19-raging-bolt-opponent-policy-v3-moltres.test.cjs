@@ -79,3 +79,49 @@ test('wrong owner role fails closed before fallback',()=>{
  const policy=mod.createPolicy({role:'opponent',seat:0,policyVersion:mod.POLICY_VERSION,config:{}});
  assert.deepEqual(policy.decide({role:'candidate',seat:0,observation:{actorSeat:0}}),{kind:'abstain',reasonCode:'ROLE_SEAT_BINDING_MISMATCH'});
 });
+
+for(const seat of [0,1]){
+ test('seat '+seat+' prioritize terminal gust over free pivot to a two-Prize target',()=>{
+   const r=request(seat,adp(),benchSlot(molt(),latias()),v(),benchSlot(vmax()),[retreat(seat),gust,pass]);
+   r.observation.ownPublic.prizeCount=3;
+   assert.deepEqual(mod.tacticalRoot(r),sel('guzma'));
+   r.observation.ownPublic.prizeCount=2;
+   assert.deepEqual(mod.tacticalRoot(r),sel('pivot'));
+ });
+ test('seat '+seat+' active Moltres gust and return wins three-Prize target if retreat remains',()=>{
+   const r=request(seat,molt(),benchSlot(latias()),v(),benchSlot(vmax()),[burn,gust,pass]);
+   r.observation.ownPublic.prizeCount=3;
+   r.observation.globalTurn=7;
+   r.observation.ownTurnResources={retreatedTurn:0};
+   assert.deepEqual(mod.tacticalRoot(r),sel('guzma'));
+   r.prompt=prompt('ChoosePokemonPrompt','Guzma','Guzma BUS',[pick('max',MAX,'opponent',0)]);
+   assert.deepEqual(mod.tacticalPrompt(r),choices('max'));
+   r.observation.opponentPublic.active=vmax();
+   r.prompt=prompt('ChoosePokemonPrompt','Guzma','Guzma BUS',[pick('latias','Latias ex SSP','actor',0)]);
+   assert.deepEqual(mod.tacticalPrompt(r),choices('latias'));
+   delete r.prompt;
+   r.observation.ownPublic.active=latias();
+   r.observation.ownPublic.bench=benchSlot(molt());
+   r.actionFrontier.items=[retreat(seat),pass];
+   assert.deepEqual(mod.tacticalRoot(r),sel('pivot'));
+ });
+ test('seat '+seat+' no terminal gust-return when retreat has already been used',()=>{
+   const r=request(seat,molt(),benchSlot(latias()),v(),benchSlot(vmax()),[burn,gust,pass]);
+   r.observation.ownPublic.prizeCount=3;
+   r.observation.globalTurn=7;
+   r.observation.ownTurnResources={retreatedTurn:7};
+   assert.deepEqual(mod.tacticalRoot(r),sel('burn'));
+ });
+ test('seat '+seat+' fixed-source set-only printing adapter activates historical roots without mutating request',()=>{
+   const r=request(seat,adp(),[],v(),[],[root('dde','play-card',{actorPrinting:'Double Dragon Energy ROS',targetPrinting:'Arceus & Dialga & Palkia-GX CEC',publicMetadata:{targetSeat:seat,targetZone:'active',targetIndex:0}}),pass]);
+   const snapshot=JSON.stringify(r);
+   const mapped=mod.v2Request(r);
+   assert.equal(mapped.actionFrontier.items[0].actorPrinting,'Double Dragon Energy ROS 97');
+   assert.equal(mapped.actionFrontier.items[0].publicMetadata.targetPrinting,'Arceus & Dialga & Palkia-GX CEC 156');
+   assert.equal(mapped.observation.ownPublic.active.printing,'Arceus & Dialga & Palkia-GX CEC 156');
+   assert.equal(mapped.actionFrontier.items[0].token,'dde');
+   assert.equal(JSON.stringify(r),snapshot);
+   const policy=mod.createPolicy({role:'opponent',seat,policyVersion:mod.POLICY_VERSION,config:{}});
+   assert.deepEqual(policy.decide(r),sel('dde'));
+ });
+}
