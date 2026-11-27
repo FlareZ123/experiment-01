@@ -89,14 +89,25 @@ function planDonationResources(input) {
     const sources=['eggs','unown','fixed','handDonors'].flatMap(field=>s[field].map((x,j)=>({field,j,x})))
       .filter(t=>['A','B'].includes(t.x.zone)&&t.x.counters>0);
     for(const from of sources){
-      const targets=s.eggs.map((x,j)=>({x,j})).filter(t=>t.x.zone==='B'&&!(from.field==='eggs'&&from.j===t.j));
-      for(let a=0;a<=2;a++)for(let b=0;b<=2;b++){
-        if(!targets.length||(targets.length===1&&b)||a+b<1||a+b>2||a+b>from.x.counters)continue;
-        const n=copy(s);n.pumps--;n[from.field][from.j].counters-=a+b;
-        const alloc=[a,b],moves=[],knocked=[];
-        for(let t=0;t<targets.length;t++)if(alloc[t]){
-          const egg=n.eggs[targets[t].j];egg.counters+=alloc[t];moves.push({id:egg.id,counters:alloc[t]});
-          if(egg.counters>=3){knocked.push(egg.id);egg.zone='D';egg.counters=0;}
+      const targetFields=input.allowUnownKO===true?['eggs','unown']:['eggs'];
+      const targets=targetFields.flatMap(field=>s[field].map((x,j)=>({field,x,j})))
+        .filter(t=>t.x.zone==='B'&&!(from.field===t.field&&from.j===t.j));
+      const distributions=[];
+      for(let i=0;i<targets.length;i++){
+        distributions.push([[i,1]]);
+        if(from.x.counters>=2){
+          distributions.push([[i,2]]);
+          for(let j=i+1;j<targets.length;j++)distributions.push([[i,1],[j,1]]);
+        }
+      }
+      for(const distribution of distributions){
+        const cost=distribution.reduce((a,[,count])=>a+count,0);
+        const n=copy(s);n.pumps--;n[from.field][from.j].counters-=cost;
+        const moves=[],knocked=[];
+        for(const [i,count] of distribution){
+          const t=targets[i], card=n[t.field][t.j];
+          card.counters+=count;moves.push({id:card.id,counters:count});
+          if(card.counters>=(t.field==='eggs'?3:6)){knocked.push(card.id);card.zone='D';card.counters=0;}
         }
         n.prizes-=knocked.length;
         enqueue(n,{kind:'damage-pump',from:from.x.id,moves,knocked});
