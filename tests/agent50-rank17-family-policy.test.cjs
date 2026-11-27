@@ -141,6 +141,16 @@ function runCases(policy,protocol) {
     same(runRoot(p,withKlefki,[ability('letter',A.unown,'Farewell Letter',0),play('bench-unown',A.unown),pass]),action('pass'),tag+'Klefki self-lock');
     const nearDeckout={...v,ownPublic:player({deckCount:1,bench:[slot(A.unown)]})};
     same(runRoot(p,nearDeckout,[ability('letter',A.unown,'Farewell Letter',0),pass]),action('pass'),tag+'preserve next mandatory draw');
+    const useStop={kind:'use-stadium',token:'use-stop',actorPrinting:A.pokestop,
+      publicMetadata:{stadiumEffectLive:true}};
+    let stopDitto=exact(seat,{h:[A.raichu],lost:[A.pikachu]});
+    stopDitto={...stopDitto,ownPublic:{...stopDitto.ownPublic,stadium:[A.pokestop]}};
+    same(runRoot(p,stopDitto,[useStop,pass]),action('pass'),
+      tag+'Pokestop preserves only compatible Ditto evolution path');
+    let stopNatural=exact(seat,{h:[A.raichu]});
+    stopNatural={...stopNatural,ownPublic:{...stopNatural.ownPublic,stadium:[A.pokestop]}};
+    same(runRoot(p,stopNatural,[useStop,pass]),action('use-stop'),
+      tag+'Pokestop remains usable while natural base remains in deck');
     const wrongActor={...ability('letter',A.unown,'Farewell Letter',2),publicMetadata:{abilityName:'Farewell Letter',sourceSeat:'opponent',sourceZone:'bench',sourceIndex:2}};
     same(runRoot(p,v,[wrongActor,pass]),action('pass'),tag+'reject wrong actor source');
     const wrongPrint={...ability('letter','Unown AOR 31','Farewell Letter',2)};
