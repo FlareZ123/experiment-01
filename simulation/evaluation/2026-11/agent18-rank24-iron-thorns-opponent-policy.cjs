@@ -426,11 +426,28 @@ function terminalWindow(request) {
     supporterAvailable(observation) && terminalEndTurnSafety(request);
 }
 
+function retreatScore(item, request) {
+  if (item?.kind !== 'retreat') return 0;
+  const observation = request?.observation;
+  if (hasVoltCycloneFrontier(request)) return 0;
+  const index = item?.publicMetadata?.benchIndex ?? item?.publicMetadata?.targetIndex;
+  if (!Number.isSafeInteger(index)) return 0;
+  const target = list(observation?.ownPublic?.bench)[index];
+  if (!target || !voltCycloneFunded(target, observation)) return 0;
+  const active = ownActive(observation);
+  const activeDamagingCondition = list(active?.specialConditions).some(damagingSpecialCondition);
+  const activeHp = remainingHp(active);
+  if (activeDamagingCondition && Number.isFinite(activeHp) && activeHp <= 40) return 282;
+  return 242;
+}
+
 function fundingScore(item, request) {
   const observation = request?.observation;
   const active = ownActive(observation);
   const card = item?.actorPrinting ?? '';
   if (!IRON_THORNS.test(active?.printing ?? '')) return 0;
+  const retreat = retreatScore(item, request);
+  if (retreat > 0) return retreat;
 
   if (item.kind === 'attack' && VOLT_CYCLONE.test(item?.attackName ?? '')) {
     const hp = remainingHp(opponentActive(observation));
@@ -1172,5 +1189,6 @@ module.exports = {
   cynthiaCaitlinPromptDecision,
   guzmaPromptDecision,
   handHeldFanPromptDecision,
-  nGeneralScore
+  nGeneralScore,
+  retreatScore
 };
