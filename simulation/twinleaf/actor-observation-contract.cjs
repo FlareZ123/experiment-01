@@ -40,6 +40,30 @@ function canonicalPokemonSubtypes(pokemon){
   return items;
 }
 
+// The following pinned PokemonCardList fields are public state derived from
+// face-up attacks, Stadiums, Tools or other visible effects. Several modify
+// current attack damage, effective HP, KO behavior or Prize awards but are
+// not individually represented in this narrow policy schema. Do not certify
+// a deterministic final KO while one is active; this is a bounded veto only,
+// not a replacement for the Store's damage engine.
+// Source: ptcg-server/src/game/store/state/pokemon-card-list.ts @ a9905a76.
+function hasUnmodeledTerminalModifier(slot){
+  const numeric=[
+    'hpBonus','damageReductionNextTurn','damageReductionBeforeWeaknessNextTurn',
+    'attackDamageReductionNextTurn','attackDamageReductionAfterWeaknessNextTurn',
+    'whileActiveAttackDamageBonus','outgoingAttackDamageBonusNextTurn',
+    'coinFlipCancelAttackNextTurn'
+  ];
+  if(numeric.some(key=>typeof slot[key]==='number'&&slot[key]!==0))return true;
+  const flags=['coinFlipPreventAttackDamageNextTurn','noWeaknessNextTurn',
+    'denyPrizesIfKnockedOutNextTurn'];
+  if(flags.some(key=>slot[key]===true))return true;
+  const records=['preventDamageNextTurn','surviveOnTenHpNextTurn',
+    'retaliateOnDamageNextTurn','nextTurnAttackDamageBonus',
+    'nextTurnAttackBaseDamage','weaknessOverrideType'];
+  return records.some(key=>slot[key]!==undefined&&slot[key]!==null);
+}
+
 const printing=card=>{
   assert.ok(typeof card?.fullName==='string'&&card.fullName.length>0);
   return card.fullName;
@@ -101,7 +125,8 @@ function visiblePokemon(slot){
       cannotRetreat:slot.cannotRetreat===true,
       cannotRetreatNextTurn:slot.cannotRetreatNextTurn===true,
       cannotRetreatWhileActive:slot.cannotRetreatWhileActive===true,
-      cannotEvolveNextTurn:slot.cannotEvolveNextTurn===true
+      cannotEvolveNextTurn:slot.cannotEvolveNextTurn===true,
+      terminalOutcomeUncertain:hasUnmodeledTerminalModifier(slot)
     },
     evolutionPrintings:slot.cards.map(printing),
     energies:slot.energies.cards.map(printing),
