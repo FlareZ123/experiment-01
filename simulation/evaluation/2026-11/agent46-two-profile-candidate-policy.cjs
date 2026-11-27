@@ -3734,49 +3734,105 @@ function freeRetreatKnown(view) {
 // Stoutland Sentinel long enough to make a held Guzma legal. Project only
 // Bide Barricade's public Ability suppression; the existing Guzma planner
 // must then certify a final-Prize KO before the retreat gets terminal priority.
-function projectWobbuffetSentinelUnlock(view,movedView,target) {
+function projectWobbuffetBideBoard(movedView,target) {
   if(!hasName(target?.printing,'Wobbuffet') ||
-      effectiveAbilityStatus(target,'Bide Barricade','actor',movedView)!==true ||
-      view.ownTurnResources?.supporterPlayLocked!==true ||
-      view.ownPublic.publicTurnRestrictions?.supporterPlayLocked!==true)return null;
-  const sentinel=view.opponentPublic.active;
-  if(!hasName(sentinel?.printing,'Stoutland') ||
-      !(sentinel.abilities??[]).includes('Sentinel') ||
-      effectiveAbilityStatus(sentinel,'Sentinel','opponent',view)!==true ||
-      (sentinel.printed?.types??[]).includes('Psychic'))return null;
-  // Evaluate protection after the retreat. An outgoing Tool Jammer can make
-  // Hood look inactive in the pre-retreat state but cease suppressing it once
-  // Wobbuffet becomes Active.
-  if(hasEffectiveStealthyHood(sentinel,movedView,'opponent')!==false)return null;
-  const suppress=slot=>{
+      effectiveAbilityStatus(target,'Bide Barricade','actor',movedView)!==true)return null;
+  let uncertain=false;
+  const suppress=(slot,seat)=>{
     if(!slot||(slot.printed?.types??[]).includes('Psychic')||!(slot.abilities??[]).length)return slot;
+    if(seat==='opponent'){
+      // Hood protection is evaluated on the post-retreat board. This catches
+      // an outgoing Tool Jammer ceasing to suppress Hood as Wobbuffet enters.
+      const hood=hasEffectiveStealthyHood(slot,movedView,'opponent');
+      if(hood===true)return slot;
+      if(hood===null){uncertain=true;return slot;}
+    }
     const prior=new Map((slot.abilitySuppressions??[]).map(row=>[row.abilityName,row]));
     return {...slot,abilitySuppressions:slot.abilities.map(abilityName=>({
       ...(prior.get(abilityName)??{abilityName}),abilityName,suppressed:true,
       reasonCode:'PROJECTED_BIDE_BARRICADE',sourcePrinting:target.printing
     }))};
   };
-  const player=p=>({...p,active:suppress(p.active),bench:p.bench.map(suppress)});
-  let projected={...movedView,ownPublic:player(movedView.ownPublic),
-    opponentPublic:player(movedView.opponentPublic)};
+  const player=(p,seat)=>({...p,active:suppress(p.active,seat),
+    bench:p.bench.map(slot=>suppress(slot,seat))});
+  const projected={...movedView,ownPublic:player(movedView.ownPublic,'actor'),
+    opponentPublic:player(movedView.opponentPublic,'opponent')};
+  return uncertain?null:projected;
+}
+function stoutlandSentinelCandidate(view) {
+  const sentinel=view.opponentPublic.active;
+  return hasName(sentinel?.printing,'Stoutland') &&
+    (sentinel.abilities??[]).includes('Sentinel') &&
+    effectiveAbilityStatus(sentinel,'Sentinel','opponent',view)===true &&
+    !(sentinel.printed?.types??[]).includes('Psychic') ? sentinel : null;
+}
+function clearProjectedSentinelSupporterLock(projected) {
   if(effectiveAbilityStatus(projected.opponentPublic.active,'Sentinel','opponent',projected)!==false)return null;
-  projected={...projected,
+  return {...projected,
     ownTurnResources:{...projected.ownTurnResources,supporterPlayLocked:false},
     ownPublic:{...projected.ownPublic,publicTurnRestrictions:{
       ...projected.ownPublic.publicTurnRestrictions,supporterPlayLocked:false}}};
-  return projected;
 }
-function terminalWobbuffetRetreatScore(view,movedView,target,cost) {
+function projectWobbuffetSentinelUnlock(view,movedView,target) {
+  if(view.ownTurnResources?.supporterPlayLocked!==true ||
+      view.ownPublic.publicTurnRestrictions?.supporterPlayLocked!==true ||
+      !stoutlandSentinelCandidate(view))return null;
+  const projected=projectWobbuffetBideBoard(movedView,target);
+  return projected?clearProjectedSentinelSupporterLock(projected):null;
+}
+function projectWobbuffetFieldBlowerSentinelUnlock(view,movedView,target,profile) {
+  const sentinel=stoutlandSentinelCandidate(view);
+  if(!sentinel||view.ownTurnResources?.supporterPlayLocked!==true ||
+      view.ownPublic.publicTurnRestrictions?.supporterPlayLocked!==true ||
+      !handHas(view,'Field Blower')||itemLocked(view)||
+      !Array.isArray(sentinel.tools)||sentinel.tools.length!==1||
+      !hasName(sentinel.tools[0],'Stealthy Hood')||
+      hasEffectiveStealthyHood(sentinel,movedView,'opponent')!==true)return null;
+
+  // This longer certificate is only for the exact continuous Vileplume lock
+  // that Wobbuffet demonstrably turns off. A separate raw Item-lock flag is
+  // deliberately not cleared by projection.
+  const plume=view.opponentPublic.bench.find(slot=>hasName(slot?.printing,'Vileplume AOR')&&
+    (slot.abilities??[]).includes('Irritating Pollen')&&
+    effectiveAbilityStatus(slot,'Irritating Pollen','opponent',view)===true);
+  if(!plume)return null;
+  const afterWob=projectWobbuffetBideBoard(movedView,target);
+  if(!afterWob||effectiveAbilityStatus(
+      afterWob.opponentPublic.bench.find(slot=>slot?.printing===plume.printing),
+      'Irritating Pollen','opponent',afterWob)!==false ||
+      hasContinuousItemLock(afterWob))return null;
+  const fieldBlower=view.ownHand.find(printing=>hasName(printing,'Field Blower'));
+  if(!fieldBlower||!Number.isFinite(scoreTrainerPlay(
+      {actorPrinting:fieldBlower,publicMetadata:{}},afterWob,null,profile)))return null;
+
+  const hand=view.ownHand.slice();
+  const blowerIndex=hand.indexOf(fieldBlower);
+  if(blowerIndex<0)return null;
+  hand.splice(blowerIndex,1);
+  const unhooded={...afterWob.opponentPublic.active,tools:[]};
+  const afterBlower={...afterWob,ownHand:hand,
+    ownPublic:{...afterWob.ownPublic,handCount:hand.length,
+      discard:[...afterWob.ownPublic.discard,fieldBlower]},
+    opponentPublic:{...afterWob.opponentPublic,active:unhooded}};
+  const afterBide=projectWobbuffetBideBoard(afterBlower,target);
+  return afterBide?clearProjectedSentinelSupporterLock(afterBide):null;
+}
+function terminalWobbuffetRetreatScore(view,movedView,target,cost,profile) {
   if(!handHas(view,'Guzma')||view.ownTurnResources?.supporterPlayedTurn!==0)return -Infinity;
   const current=bestAttackForSlot(view.ownPublic.active,view,view.opponentPublic.active);
   if(current&&Number.isFinite(current.damage)&&
       current.damage>=Math.max(0,view.opponentPublic.active.hp-view.opponentPublic.active.damage)&&
       prizeLiability(view.opponentPublic.active)>=view.ownPublic.prizeCount)return -Infinity;
-  const projected=projectWobbuffetSentinelUnlock(view,movedView,target);
-  if(!projected||!supporterAvailable(projected))return -Infinity;
-  const plan=guzmaPlans(projected)[0];
-  if(!plan||plan.prizes<projected.ownPublic.prizeCount)return -Infinity;
-  return 3200-cost*100;
+  const direct=projectWobbuffetSentinelUnlock(view,movedView,target);
+  if(direct&&supporterAvailable(direct)){
+    const plan=guzmaPlans(direct)[0];
+    if(plan&&plan.prizes>=direct.ownPublic.prizeCount)return 3200-cost*100;
+  }
+  const viaBlower=projectWobbuffetFieldBlowerSentinelUnlock(view,movedView,target,profile);
+  if(!viaBlower||!supporterAvailable(viaBlower))return -Infinity;
+  const plan=guzmaPlans(viaBlower)[0];
+  if(!plan||plan.prizes<viaBlower.ownPublic.prizeCount)return -Infinity;
+  return 3000-cost*100;
 }
 
 function chooseRetreat(view, items, profile) {
@@ -3798,7 +3854,7 @@ function chooseRetreat(view, items, profile) {
       bench:view.ownPublic.bench.map((p,i)=>i===index?moved:p)}};
     const attack=bestAttackForSlot(target,movedView,view.opponentPublic.active);
     let score=(attack?.score??0)-(current?.score??0)-cost*350;
-    score=Math.max(score,terminalWobbuffetRetreatScore(view,movedView,target,cost));
+    score=Math.max(score,terminalWobbuffetRetreatScore(view,movedView,target,cost,profile));
     if (profile?.profileId==='lockbridge-shadow-rider-v1') {
       const gate=hasName(old.printing,'Wobbuffet') && handHas(view,'Radiant Eternatus') &&
         !hasName(target.printing,'Wobbuffet') && canPlayRadiantForGate(invalidateDepartedWobbuffet(movedView,old));
