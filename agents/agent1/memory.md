@@ -1,4 +1,8 @@
 
+## 2026-11-27T02:08:24.160Z — combined terminal turn planner
+- results/aichi-2026/2026-11/agent1-joint-terminal-planner-20261127.cjs combines stable attack oracle, physical-index gust/promote/retreat, manual, Door draw, Fog, Stretcher, VS Seeker, Compressor, Float, Forest Seal Stone, Star Alchemy, Valley, Raihan, Teammates, Arven, K1 Lillie/Stamp. Exact rational DP for K1 and exchangeable K0, observes deck membership only on searches. 31 constructed cases passed. Research-only; unsupported dynamic effects and capped search return no proof. Next: independent small-state comparison/strategy result and concrete handoff. No native games/frozen changes.
+
+
 ## 2026-11-27T02:06:32.171Z — terminal attack catalogue foundation
 - results/aichi-2026/2026-11/agent1-terminal-attack-oracle-20261127.cjs covers stable fixed-profile Psychic-only direct attacks, Energy Drive units/ignore W/R, Rondo combined Bench, exact Psychic vs C costs under Valley, Astral Barrage distinct counter-placement sets incl board-out/zero-award cases. 23 explicit and 1536 pair formula tests passed. Caller certifies dynamic effects/legality; Copycat excluded. Reuse Agent4's existing Astral hook if authorized. Work in progress: integrate with K0/K1 resource search and mobility planner. No games or policy mutation.
 
