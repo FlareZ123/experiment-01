@@ -9,12 +9,12 @@ Parent policy core:
 `results/strategy/2026-11/agent1-newmoon-policy-core-v1.md`
 
 Parent acceptance surface:
-`results/aichi-2026/2026-11/agent1-newmoon-candidate-policy-acceptance-v2.json` (133 cases at v2 fork point)
+`results/aichi-2026/2026-11/agent1-newmoon-candidate-policy-acceptance-v2.json` (135 cases after K1/HHB correction)
 
 v2 acceptance delta:
 `results/aichi-2026/2026-11/agent1-newmoon-tool-jammer-v2-acceptance-delta-v1.json` (6 cases)
 
-**Combined paper acceptance target: 139 cases.**
+**Combined paper acceptance target: 141 cases.**
 
 All parent decision layers remain applicable. Add the following Tool-state layer before declaring an Active Tool protected or a Tool-based effect live.
 
