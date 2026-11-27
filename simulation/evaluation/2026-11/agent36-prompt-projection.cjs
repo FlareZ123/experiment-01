@@ -635,6 +635,38 @@ function projectAttachEnergyPrompt({
   prompt,state,actorSeat,native,store,source,choices,choiceByToken
 }={}){
   const actor=state.players[actorSeat];
+  if(native?.candidateSuccessorSeat===actorSeat &&
+      source?.sourceKind==='card-effect' && source.sourcePrinting==='Raihan EVS' &&
+      source.effectName==='Raihan') {
+    assert.ok(prompt.message==='ATTACH_ENERGY_CARDS' && prompt.cardList===actor.discard &&
+      prompt.playerType===native.PlayerType.BOTTOM_PLAYER &&
+      prompt.slots?.length===2 && prompt.slots.includes(native.SlotType.ACTIVE) &&
+      prompt.slots.includes(native.SlotType.BENCH) &&
+      prompt.filter?.superType===native.SuperType.ENERGY &&
+      prompt.filter?.energyType===native.EnergyType.BASIC &&
+      prompt.options?.min===1 && prompt.options?.max===1 && prompt.options?.allowCancel===false,
+      'Raihan prompt must be the exact owner discard attachment');
+    const slots=[{slot:actor.active,index:0,zone:'active',type:native.SlotType.ACTIVE},
+      ...actor.bench.map((slot,index)=>({slot,index,zone:'bench',type:native.SlotType.BENCH}))];
+    for(const target of slots) {
+      const pokemon=target.slot?.getPokemonCard?.();
+      if(!pokemon)continue;
+      for(const [index,energy] of cardListCards(actor.discard).entries()) {
+        if(!(energy instanceof native.EnergyCard) || energy.energyType!==native.EnergyType.BASIC ||
+          energy.name!=='Psychic Energy')continue;
+        addChoice(choices,choiceByToken,[{to:{player:native.PlayerType.BOTTOM_PLAYER,
+          slot:target.type,index:target.index},index}],{
+          kind:'energy',printing:printing(energy),label:'Attach '+printing(energy)+' to '+printing(pokemon),
+          publicMetadata:{sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true,energyType:'BASIC',
+            zone:target.zone,...(target.zone==='bench'?{benchIndex:target.index}:{slotIndex:0}),
+            choiceIndex:choices.length,selectedCount:1}
+        },prompt,state);
+      }
+    }
+    assert.ok(choices.length>0,'Raihan has no legal owner attachment');
+    return {selectionType:'energy-attachment',count:choices.length,minimumCount:1,maximumCount:1,
+      allowCancel:false,sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true,energyType:'BASIC',zone:'active,bench'};
+  }
   const supportedSource=source?.sourceKind==='card-effect'&&
     source.effectName==='Underworld Door'&&
     typeof source.sourcePrinting==='string'&&

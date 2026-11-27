@@ -1265,8 +1265,7 @@ function supporterNeedScore(view, printing, receipt) {
   const priorOpponentKO = receipt?.priorOpponentTurnKO?.any === true;
   if (hasName(printing, 'Teammates')) return priorOpponentKO ? 100 : -5;
   if (hasName(printing, 'Raihan')) {
-    return priorOpponentKO && discardHas(view, 'Psychic Energy') &&
-      view.ownTurnResources.energyPlayedTurn === false ? 96 : -5;
+    return priorOpponentKO && discardHas(view, 'Psychic Energy') && view.ownPublic.deckCount>0 ? 96 : -5;
   }
   if (hasName(printing, 'Guzma')) return canGuzmaForAttack(view) ? 92 : -5;
   if (hasName(printing, 'Arven')) {
@@ -1375,10 +1374,10 @@ function discardValue(view, printing) {
     return psychicEnergyCount(view) >= 5 ? 2 : 80;
   }
   if (hasName(printing, 'Dialga-GX')) {
-    return opponentHasRegidrago(view) && !discardHas(view, 'Dialga-GX') ? 1000 : 35;
+    return 10; // no executable copied-attack path in this release
   }
   if (hasName(printing, 'Mimikyu')) {
-    return opponentHasRegidrago(view) && !boardHas(view, 'Mimikyu') ? 1000 : 30;
+    return 30; // Filch remains a fallback, not a reason to preserve Copycat resources
   }
   if (hasName(printing, 'Shadow Rider Calyrex VMAX') &&
       ownBoard(view).filter(slot => hasName(slot.printing, 'Shadow Rider Calyrex VMAX')).length < 2) return 900;
@@ -1668,8 +1667,7 @@ function choosePokemonRecipient(view, prompt) {
     ranked = actorChoices.map(row => {
       const slot = row.target.slot;
       let score = 100 - slotEnergyCount(slot) * 5;
-      if (opponentHasRegidrago(view) && hasName(slot.printing, 'Mimikyu') &&
-          slotEnergyCount(slot) < 2) score += 1000;
+      // Unadmitted Copycat must not consume the primary acceleration route.
       if (isShadowRiderVmax(slot) && psychicEnergyCount(view) < 5) score += 700;
       if (opponentHasDragon(view) && hasName(slot.printing, "Lillie's Clefairy ex") &&
           slotEnergyCount(slot) < 2) score += 600;
@@ -1731,6 +1729,29 @@ function chooseEnergyPayment(view, prompt) {
 function chooseEnergyAttachment(view, prompt) {
   setPolicyAuditRule('UNDERWORLD_DOOR_ENERGY_TARGET_SCORE', 'SCORE_DESC_BENCH_INDEX_TOKEN_ASC');
   const metadata = prompt.publicMetadata;
+  if(prompt.source?.effectName==='Raihan'&&hasName(prompt.source.sourcePrinting,'Raihan')) {
+    if(!metadata||metadata.selectionType!=='energy-attachment'||metadata.sourceZone!=='discard'||
+      metadata.ownerSeat!=='actor'||metadata.minimumCount!==1||metadata.maximumCount!==1||
+      metadata.isOwnerVisible!==true||metadata.energyType!=='BASIC'||metadata.allowCancel!==false)
+      return abstain('UNTRUSTED_ENERGY_SELECTION');
+    const candidateView={...view,ownTurnResources:{...view.ownTurnResources,
+      energyPlayedTurn:false,energyPlayLocked:false},ownPublic:{...view.ownPublic,
+      publicTurnRestrictions:{...view.ownPublic.publicTurnRestrictions,energyPlayLocked:false}}};
+    const ranked=prompt.choices.map(choice=>{
+      const m=choice.publicMetadata;
+      const zone=m?.zone,index=zone==='active'?0:m?.benchIndex;
+      const target=zone==='active'?view.ownPublic.active:
+        zone==='bench'&&Number.isInteger(index)?view.ownPublic.bench[index]:null;
+      const score=choice.kind==='energy'&&hasName(choice.printing,'Psychic Energy')&&target&&
+        m.sourceZone==='discard'&&m.ownerSeat==='actor'&&m.isOwnerVisible===true&&m.energyType==='BASIC'?
+        scoreEnergyPlay({actorPrinting:choice.printing,targetPrinting:target.printing,
+          publicMetadata:{targetSeat:'actor',targetZone:zone,targetIndex:index}},candidateView):-Infinity;
+      recordPolicyAuditScore(choice.token,score,'INVALID_RAIHAN_ASSIGNMENT');
+      return {choice,score};
+    }).filter(row=>Number.isFinite(row.score)).sort((a,b)=>b.score-a.score||a.choice.token.localeCompare(b.choice.token));
+    setPolicyAuditRule('RAIHAN_ACCELERATION_THEN_SEARCH','SCORE_DESC_TOKEN_ASC');
+    return ranked.length?{kind:'select-choice',token:ranked[0].choice.token}:abstain('NO_VISIBLE_ENERGY_CHOICE');
+  }
   if (!metadata || metadata.selectionType !== 'energy-attachment' ||
       metadata.minimumCount !== 1 || metadata.maximumCount !== 1 ||
       metadata.sourceZone !== 'hand' || metadata.ownerSeat !== 'actor' ||
@@ -2557,8 +2578,7 @@ function scoreTrainerPlay(item, view, receipt, profile) {
       receipt?.priorOpponentTurnKO?.any === true) return 900;
   if (hasName(name, 'Raihan') && !supporterUsed &&
       receipt?.priorOpponentTurnKO?.any === true &&
-      discardHas(view, 'Psychic Energy') &&
-      view.ownTurnResources.energyPlayedTurn === false) return 880;
+      discardHas(view, 'Psychic Energy') && view.ownPublic.deckCount>0) return 880;
   if (hasName(name, 'Acerola') && !supporterUsed &&
       ownBoard(view).some(slot =>
         slot.damage > 0 && slot.hp - slot.damage <= 120)) return 850;
