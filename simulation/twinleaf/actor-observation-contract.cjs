@@ -3,6 +3,17 @@
 const assert=require('node:assert/strict');
 
 /** @param {object} card @returns {string} */
+// Pinned Twinleaf CardType is numeric (ANY=0, PSYCHIC=5, COLORLESS=9,
+// DRAGON=11). The actor policy compares readable names, not enum ordinals.
+// Leave unknown future enum members unchanged to fail closed in policies.
+// Source: ptcg-server/src/game/store/card/card-types.ts @ a9905a76.
+const PINNED_CARD_TYPE_NAMES = Object.freeze([
+  'Any','Grass','Fire','Water','Lightning','Psychic','Fighting',
+  'Darkness','Metal','Colorless','Fairy','Dragon','None'
+]);
+const canonicalCardType=type=>Number.isSafeInteger(type)&&type>=0&&
+  type<PINNED_CARD_TYPE_NAMES.length?PINNED_CARD_TYPE_NAMES[type]:type;
+
 const printing=card=>{
   assert.ok(typeof card?.fullName==='string'&&card.fullName.length>0);
   return card.fullName;
@@ -37,13 +48,13 @@ function visiblePokemon(slot){
     printed:{
       stage:pokemon.stage??null,
       subtypes:[...(pokemon.subtypes??[])],
-      types:[...(pokemon.cardType??[])],
-      retreatCost:[...(pokemon.retreat??[])],
+      types:(pokemon.cardType??[]).map(canonicalCardType),
+      retreatCost:(pokemon.retreat??[]).map(canonicalCardType),
       weakness:(pokemon.weakness??[]).map(weakness=>({
-        type:weakness.type,value:weakness.value??null
+        type:canonicalCardType(weakness.type),value:weakness.value??null
       })),
       resistance:(pokemon.resistance??[]).map(resistance=>({
-        type:resistance.type,value:resistance.value
+        type:canonicalCardType(resistance.type),value:resistance.value
       }))
     },
     // Public temporary restrictions must be visible to an attack/retreat
@@ -68,7 +79,7 @@ function visiblePokemon(slot){
     energies:slot.energies.cards.map(printing),
     tools:slot.tools.map(printing),
     attacks:pokemon.attacks.map(attack=>({
-      name:attack.name,cost:[...attack.cost],
+      name:attack.name,cost:attack.cost.map(canonicalCardType),
       damage:attack.damage??null,
       damageCalculation:attack.damageCalculation??null,
       text:attack.text??null,
@@ -140,7 +151,7 @@ function publicPlayer(player,hidePokemon=false){
       attackLockTurnsRemaining:player.cannotAttackTurnsRemaining??0,
       attackMaxEnergy:player.cannotAttackMaxEnergy??null,
       attackMaxEnergyTurnsRemaining:player.cannotAttackMaxEnergyTurnsRemaining??0,
-      ignoreAttackCostCardTypes:[...(player.ignoreAttackCostCardTypes??[])],
+      ignoreAttackCostCardTypes:(player.ignoreAttackCostCardTypes??[]).map(canonicalCardType),
       ignoreAttackCostTurnsRemaining:player.ignoreAttackCostTurnsRemaining??0,
       cannotUseGXAttacks:player.cannotUseGXAttacks===true,
       pokemonPlayLocked:player.cannotPlayPokemonCards===true,
