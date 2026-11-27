@@ -1,3 +1,7 @@
+## 2026-11-27T08:49:06.592Z checkpoint — proactive Roadblock
+- Branch advanced 51ebd4b166f438ba03a664aab0c44f75a368d87e, source v3/v4 early Roadblock before opponent fifth slot (third under Sky Field), preserving source attacker and spare slot; 13/13 V8 helper tests. Report results/aichi-2026/2026-11/agent23-rank19-roadblock-20261127.md.
+- Ordinary KO prize/promotion prompt remains host-provenance blocked; existing projectChoosePrize/Pokemon projection is not trusted source authorization for engine KO. Do not alter shared host contract or open duplicative audit. Native execution still owner-gated.
+
 ## 2026-11-27T08:46:53.467Z checkpoint — ADP tempo
 - Branch advanced to b5544483d77e2a693cc85096cef9e1b878549125; one-DDE GX when Ray absent, visible ADP reply comparison, unified within-ADP mobility/acceleration ordering, legal-root fallback. 18/18 constructed V8 regressions passed after correction of duplicate-identity fixtures. Report results/aichi-2026/2026-11/agent23-rank19-adp-tempo-20261127.md. No native game/CI/deck change.
 - Next: substantive source prize-pressure choice and multi-prize exposure. Lease immutable.
