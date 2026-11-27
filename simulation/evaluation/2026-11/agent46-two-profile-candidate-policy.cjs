@@ -1211,8 +1211,8 @@ function hazardCombinations(rows,max){
 }
 function hazardModifier(view,row){
   const tools=view.opponentPublic.active?.tools??[];
-  if(stadiumAndToolEffectsLive(view)!==true)return 0;
-  let damage=0;
+  let damage=view.opponentPublic.publicTurnRestrictions?.alteredCreationDamage===true?30:0;
+  if(stadiumAndToolEffectsLive(view)!==true)return damage;
   if(tools.some(p=>hasName(p,'Muscle Band')))damage+=20;
   if(tools.some(p=>hasName(p,'Choice Belt'))&&row.isV)damage+=30;
   if(tools.some(p=>hasName(p,'Defiance Band'))&&view.opponentPublic.prizeCount>view.ownPublic.prizeCount)damage+=30;
@@ -1796,6 +1796,7 @@ function visibleCounterattackThreat(view,slot){
         base=10+30*supplies.flat().filter(unit=>unit.includes('Psychic')).length;
     }
     if(base===null)return 0;
+    if(view.opponentPublic.publicTurnRestrictions?.alteredCreationDamage===true)base+=30;
     if(!temple)base=Math.max(0,base-20*opponent.energies.filter(e=>hasName(e,'Double Turbo Energy')).length);
     const bypass=a.name==='Energy Drive'||a.name==='Mind Shock';
     return Math.max(0,base*(bypass?1:weaknessMultiplier(opponent,slot,view,'opponent'))-(bypass?0:resistancePenalty(opponent,slot)));
@@ -1825,8 +1826,11 @@ function acerolaTargetScore(view,slot){
     if(currentKO&&follow.damage<Math.max(1,view.opponentPublic.active.hp-view.opponentPublic.active.damage)&&
       prizeLiability(slot)<view.opponentPublic.prizeCount)return -Infinity;
   }
-  let score=prizeLiability(slot)*650+slot.damage*3+(active?350:0);
-  if(prizeLiability(slot)>=view.opponentPublic.prizeCount)score+=1500;
+  const attackExposed=remaining<=threat;
+  const liability=prizeLiability(slot)+
+    (attackExposed&&view.opponentPublic.publicTurnRestrictions?.usedAlteredCreation===true?1:0);
+  let score=liability*650+slot.damage*3+(active?350:0);
+  if(liability>=view.opponentPublic.prizeCount)score+=1500;
   score-=slotEnergyCount(slot)*180+(isShadowRiderVmax(slot)?500:0);
   if(others.every(p=>!isShadowRiderVmax(p))&&isShadowRiderVmax(slot))score-=500;
   if(!active&&ownBoard(view).length<=2)score-=300;
