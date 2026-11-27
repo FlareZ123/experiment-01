@@ -66,7 +66,9 @@ const PUBLIC_ABORT = Object.freeze({
   R30_TELEPATH_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
   R30_TELEPATH_NO_TARGET:'NO_LEGAL_CARD_SET',
   R30_STAR_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
-  R30_STAR_NO_CARD:'NO_LEGAL_CARD_SET'
+  R30_STAR_NO_CARD:'NO_LEGAL_CARD_SET',
+  R30_GUZMA_PROMPT_UNSUPPORTED:'UNSUPPORTED_POKEMON_PROMPT',
+  R30_GUZMA_NO_LEGAL_TARGET:'NO_VISIBLE_POKEMON_TARGET'
 });
 const no = reasonCode => ({kind:'abstain',reasonCode:PUBLIC_ABORT[reasonCode]??reasonCode});
 const act = x => ({kind:'select-action',token:x.token});
@@ -183,6 +185,45 @@ function telepathPrompt(request) {
       no('R30_TELEPATH_NO_TARGET');
   }
   return picks(result);
+}
+
+function poweredBenchClefairy(o) {
+  return arr(o?.ownPublic?.bench).map((pokemon,index)=>({pokemon,index})).
+    filter(x=>has(x.pokemon,P.clefairy)&&arr(x.pokemon?.energies).length>=2);
+}
+function guzmaOpportunity(o) {
+  const own=o?.ownPublic,opp=o?.opponentPublic;
+  if(!own||!opp||!poweredBenchClefairy(o).length)return null;
+  const damage=20*(1+benchCount(own)+benchCount(opp));
+  const matches=arr(opp.bench).map((pokemon,index)=>({pokemon,index,
+    prizeValue:sourcePrizeTarget(pokemon),remaining:pokemon?.hp-pokemon?.damage}))
+    .filter(t=>t.pokemon && Number.isFinite(t.remaining)&&t.remaining>0&&
+      t.prizeValue>=2 && damage>=t.remaining)
+    .sort((a,b)=>b.prizeValue-a.prizeValue||a.remaining-b.remaining||a.index-b.index);
+  return matches[0]??null;
+}
+function guzmaPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='ChoosePokemonPrompt'||m.selectionType!=='pokemon'||
+    m.targetZone!=='bench'||!safeInt(m.minimumCount)||
+    !safeInt(m.maximumCount)||m.minimumCount!==1||m.maximumCount!==1)
+    return no('R30_GUZMA_PROMPT_UNSUPPORTED');
+  const choices=arr(p.choices).filter(c=>c.kind==='pokemon'&&
+    typeof c.token==='string'&&c.publicMetadata?.targetZone==='bench'&&
+    safeInt(c.publicMetadata?.benchIndex));
+  const opponentChoices=choices.filter(c=>c.publicMetadata.ownerSeat==='opponent');
+  if(opponentChoices.length){
+    const victim=guzmaOpportunity(o);
+    const target=opponentChoices.find(c=>c.publicMetadata.benchIndex===victim?.index);
+    return target?picks([target]):no('R30_GUZMA_NO_LEGAL_TARGET');
+  }
+  const ownChoices=choices.filter(c=>c.publicMetadata.ownerSeat==='actor');
+  if(ownChoices.length) {
+    const powered=new Set(poweredBenchClefairy(o).map(x=>x.index));
+    const target=ownChoices.find(c=>powered.has(c.publicMetadata.benchIndex));
+    return target?picks([target]):no('R30_GUZMA_NO_LEGAL_TARGET');
+  }
+  return no('R30_GUZMA_NO_LEGAL_TARGET');
 }
 
 function starNeedsResource(o,{enablePatchProjection=false}={}) {
@@ -340,7 +381,12 @@ function projectedRondo(o) {
   const total=benchCount(own)+benchCount(opp);
   return {damage:20*(1+total),remaining:opp.active.hp-opp.active.damage,total};
 }
-function sourcePrizeTarget(p) {return /\b(?:VMAX|VSTAR)\b/i.test(text(p))?3:/\b(?:ex|EX|GX| V)\b/i.test(text(p))?2:1;}
+function sourcePrizeTarget(p) {
+  const v=text(p);
+  if(/\bVMAX\b/i.test(v)||/^Mega\b.*\bex\b/i.test(v)||/\&.*-GX\b/i.test(v))return 3;
+  if(/\b(?:VSTAR|ex|EX|GX|V)\b/i.test(v)||/-GX\b/i.test(v))return 2;
+  return 1;
+}
 function terminalRondo(o) {
   const r=projectedRondo(o);
   return r && /^Shadow Rider Calyrex VMAX CRE(?: 75)?\b/i.test(text(o.opponentPublic.active)) &&
@@ -397,6 +443,8 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   const star=items.find(a=>a.kind==='use-ability'&&
     a.publicMetadata?.abilityName==='Star Alchemy');
   if(star && starNeedsResource(o,{enablePatchProjection}))return act(star);
+  const guzma=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.guzma));
+  if(guzma&&guzmaOpportunity(o))return act(guzma);
   const marnie=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.marnie));
   if(marnie && threatenSecondTarget(o) &&
     !candidateCanUseBoardHeldStarAlchemy(o))return act(marnie);
@@ -429,6 +477,7 @@ function createPolicy({role,seat,policyVersion,config}) {
       if(sameSource(request.prompt,P.quickBall))return quickBallPrompt(request);
       if(sameSource(request.prompt,P.vip))return vipPrompt(request);
       if(sameSource(request.prompt,P.telepathic))return telepathPrompt(request);
+      if(sameSource(request.prompt,P.guzma))return guzmaPrompt(request);
       if(sameSource(request.prompt,P.fss))return starAlchemyPrompt(request,
         {enablePatchProjection:config.enablePatchProjection===true});
       if(sameSource(request.prompt,P.patch)&&config.enablePatchProjection===true)
@@ -439,4 +488,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,patchPrompt,projectedRondo,discardScore,candidateCanUseBoardHeldStarAlchemy};
+  rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,candidateCanUseBoardHeldStarAlchemy};
