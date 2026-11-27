@@ -88,8 +88,11 @@ function r17BasicLock(view) {
   return false;
 }
 function r17UnownUseful(view) { return r17Deck(view)>=2&&!r17BasicLock(view); }
+function r17StadiumToolLive(view) {
+  return ![own(view),opponent(view)].some(p=>Number(p.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining)>0);
+}
 function r17NeedTempleRemoval(view) {
-  return /^Temple of Sinnoh\b/i.test(r17Stadium(view));
+  return r17StadiumToolLive(view)&&/^Temple of Sinnoh\b/i.test(r17Stadium(view));
 }
 function r17CarrierValue(key,view) {
   if (key==='voltorb'&&r17Missing(view,'voltorb','electrode')) return 300;
@@ -127,10 +130,12 @@ function r17Multi(prompt,rows,limit=Infinity) {
   const m=metadata(prompt);
   if(m.selectionType!=='card-combination'&&m.selectionType!=='pokemon'&&m.selectionType!=='energy-payment'&&m.selectionType!=='prize-slots')
     return r17Abstain('R17_BAD_MULTI_PROMPT');
-  if(!Number.isSafeInteger(m.minimumCount)||!Number.isSafeInteger(m.maximumCount)||
-      m.minimumCount<0||m.maximumCount<m.minimumCount) return r17Abstain('R17_BAD_MULTI_BOUNDS');
-  const selected=rows.slice(0,Math.min(m.maximumCount,limit));
-  if(selected.length<m.minimumCount) return r17Abstain('R17_INSUFFICIENT_SUPPORTED_CHOICES');
+  const minimum=m.selectionType==='prize-slots'?m.requiredCount:m.minimumCount;
+  const maximum=m.selectionType==='prize-slots'?m.requiredCount:m.maximumCount;
+  if(!Number.isSafeInteger(minimum)||!Number.isSafeInteger(maximum)||
+      minimum<0||maximum<minimum) return r17Abstain('R17_BAD_MULTI_BOUNDS');
+  const selected=rows.slice(0,Math.min(maximum,limit));
+  if(selected.length<minimum) return r17Abstain('R17_INSUFFICIENT_SUPPORTED_CHOICES');
   if(selected.length===0) {
     const empty=list(prompt.choices).find(c=>c.kind==='empty-selection');
     return empty?{kind:'select-choice',token:empty.token}:r17Abstain('R17_NO_EMPTY_TOKEN');
@@ -155,11 +160,34 @@ function r17CarrierChoices(prompt,view,zone='discard') {
   const rows=r17UniqueCore(r17Rank(r17ChoiceCards(prompt,zone),c=>r17CarrierValue(r17Key(c),view)));
   return r17Multi(prompt,rows,2);
 }
+function r17MissingCore(view) {
+  return [['voltorb','electrode'],['pikachu','raichu']].filter(([b,e])=>r17Missing(view,b,e)).map(([b])=>b);
+}
+function r17CompressorGain(view) {
+  if(!itemAvailable(view)||!r17Hand(view,'carrier')||r17Space(view)===0)return 0;
+  const missing=r17MissingCore(view),available=new Set(r17Discard(view).map(r17Key));
+  const needed=Math.min(2,r17Space(view),missing.length);
+  const already=missing.filter(k=>available.has(k)).length;
+  return Math.max(0,needed-already);
+}
 function r17CompressorUseful(view) {
-  if(!itemAvailable(view)||!r17Hand(view,'carrier')||r17Space(view)===0) return false;
-  if(r17Discard(view).some(c=>r17CarrierValue(r17Key(c),view)>0)) return false;
-  return r17Missing(view,'voltorb','electrode')||r17Missing(view,'pikachu','raichu')||
-    (r17UnownUseful(view)&&!r17Hand(view,'unown')&&!r17Board(view,'unown'));
+  if(!itemAvailable(view)||!r17Hand(view,'carrier')||r17Space(view)===0)return false;
+  if(r17CompressorGain(view)>0)return true;
+  if(r17Discard(view).some(c=>r17CarrierValue(r17Key(c),view)>0))return false;
+  return r17UnownUseful(view)&&!r17Hand(view,'unown')&&!r17Board(view,'unown');
+}
+function r17CompressorChoices(prompt,view) {
+  const discardKeys=new Set(r17Discard(view).map(r17Key)),gain=r17CompressorGain(view);
+  if(gain>0){
+    const missing=new Set(r17MissingCore(view));
+    const rows=r17UniqueCore(r17Rank(r17ChoiceCards(prompt,'deck'),c=>{
+      const k=r17Key(c);
+      return missing.has(k)&&!discardKeys.has(k)?r17CarrierValue(k,view):0;
+    }));
+    return r17Multi(prompt,rows,gain);
+  }
+  return r17Multi(prompt,r17Rank(r17ChoiceCards(prompt,'deck'),c=>
+    r17Key(c)==='unown'&&r17UnownUseful(view)?150:0),2);
 }
 function r17VipValue(key,view) {
   if(key==='voltorb'&&!r17Board(view,'voltorb')&&!r17Board(view,'electrode')&&!r17Hand(view,'voltorb'))return 300;
@@ -228,11 +256,72 @@ function r17Slot(view,zone,index) {
   if(zone==='bench'&&Number.isSafeInteger(index)&&index>=0)return list(own(view).bench)[index];
   return null;
 }
-function r17OwnAbilitySlot(item,view) {
+function r17OwnAbilitySlot(item,view,benchOnly=true) {
   const m=metadata(item);
-  if(m.sourceSeat!=='actor'||m.sourceZone!=='bench')return null;
+  if(m.sourceSeat!=='actor'||benchOnly&&m.sourceZone!=='bench')return null;
   const slot=r17Slot(view,m.sourceZone,m.sourceIndex);
   return slot&&r17Key(slot)===r17Key(item)?slot:null;
+}
+function r17GengarReady(view,p) {
+  if(r17Key(p)!=='gengar'||gxUsed(view)||r17NeedTempleRemoval(view)||
+     Number(opponent(view).prizeCount)<=3||!list(p?.energies).some(e=>r17Key(e)==='unit')||
+     view.globalTurn===1||own(view).publicTurnRestrictions?.cannotUseGXAttacks===true||
+     Number(own(view).publicTurnRestrictions?.attackLockTurnsRemaining)>0||
+     p.publicRestrictions?.cannotAttackNextTurn===true||
+     list(p.publicRestrictions?.cannotUseAttacksNextTurn).includes('Horror House-GX')||
+     p.publicRestrictions?.attackCostIncreaseWhileActive>0||p.publicRestrictions?.attackCostIncreaseNextTurn>0)
+     return false;
+  return true;
+}
+function r17FreeRetreat(item,view) {
+  const m=metadata(item);
+  if(m.freeRetreat===true||m.isFreeRetreat===true||m.retreatEnergyCost===0)return true;
+  if(m.freeRetreat===false||m.isFreeRetreat===false||Number(m.retreatEnergyCost)>0)return false;
+  const a=active(own(view)),cost=a?.printed?.retreatCost;
+  if(!Array.isArray(cost))return false;
+  if(cost.length===0)return true;
+  return cost.length===1&&r17StadiumToolLive(view)&&list(a.tools).some(t=>r17Key(t)==='uturn');
+}
+function r17RopeScore(request) {
+  const v=request.observation;
+  if(!itemAvailable(v)||v.globalTurn===1||!r17First(v)||r17GengarReady(v,active(own(v))))return 0;
+  // Horror House locks cards from hand, not attacks/Abilities. Avoid
+  // exposing a new three-Prize Active if the opposing public board is
+  // already heavily energized. This is a conservative tempo heuristic.
+  if(slots(opponent(v)).reduce((n,p)=>n+list(p.energies).length,0)>1)return 0;
+  if(!list(own(v).bench).some(p=>r17GengarReady(v,p)))return 0;
+  // Free retreat to the ready attacker dominates spending Rope and giving
+  // the opponent a choice. Paid-retreat prompts are not allowlisted by the
+  // current engine provenance projection; use Rope instead if needed.
+  const hasFree=list(request.actionFrontier?.items).some(a=>
+    a.kind==='retreat'&&metadata(a).targetSeat==='actor'&&
+    r17GengarReady(v,r17Slot(v,'bench',metadata(a).targetIndex??metadata(a).benchIndex))&&r17FreeRetreat(a,v));
+  return hasFree?0:230;
+}
+function r17SwitchValue(p,v) {
+  if(r17GengarReady(v,p))return 300;
+  const key=r17Key(p);
+  const energies=list(p?.energies),units=energies.reduce((n,e)=>n+(r17EnergyProvision(e,own(v).prizeCount,opponent(v).prizeCount,r17NeedTempleRemoval(v))?.total||0),0);
+  const lightning=energies.some(e=>(r17EnergyProvision(e,own(v).prizeCount,opponent(v).prizeCount,r17NeedTempleRemoval(v))?.lightning||0)>0);
+  if(key==='raichu'&&units>=3&&lightning)return 240;
+  if(key==='klefki'&&!r17Board(v,'unown')&&!r17NeedTempleRemoval(v)&&!r17Suppressed(p,'Mischievous Lock'))return 150;
+  if(key==='unown')return 110;
+  if(key==='marshadow'&&!r17NeedTempleRemoval(v))return 90;
+  if(key==='voltorb')return r17Board(v,'electrode')?75:30;
+  if(key==='pikachu')return r17Board(v,'raichu')?75:25;
+  if(key==='ditto')return 20;
+  if(key==='squawk')return 15;
+  if(key==='electrode'||key==='raichu'||key==='gengar')return 5;
+  return 0;
+}
+function r17SwitchChoices(prompt,view) {
+  const rows=r17Rank(list(prompt.choices).filter(c=>{
+    const m=metadata(c);
+    if(c.kind!=='pokemon'||m.ownerSeat!=='actor'||m.targetZone!=='bench'||m.isOwnerVisible!==true)return false;
+    const p=r17Slot(view,'bench',m.benchIndex);
+    return p&&r17Key(p)!==null&&r17Key(p)===r17Key(c);
+  }),c=>r17SwitchValue(r17Slot(view,'bench',metadata(c).benchIndex),view));
+  return r17Multi(prompt,rows,1);
 }
 function r17ScoreAbility(item,view) {
   const key=r17Key(item),name=metadata(item).abilityName||'';
@@ -247,10 +336,15 @@ function r17ScoreAbility(item,view) {
     return slot&&r17NeedTempleRemoval(view)&&!r17Suppressed(slot,name)&&
       list(slot.energies).length===0&&list(slot.tools).length===0?410:0;
   }
-  if(key==='squawk'&&name==='Squawk and Seize')return r17First(view)&&r17Deck(view)>=7&&
-    handCount(view)<=2&&!r17ProtectedHand(view)&&!r17BasicLock(view)?210:0;
+  if(key==='squawk'&&name==='Squawk and Seize'){
+    const p=r17OwnAbilitySlot(item,view,false);
+    return p&&!r17Suppressed(p,name)&&r17First(view)&&r17Deck(view)>=7&&
+      handCount(view)<=2&&!r17ProtectedHand(view)&&!r17BasicLock(view)?210:0;
+  }
   if(key==='ditto'&&name==='Almighty Evolution') {
-    return (r17Hand(view,'electrode')&&!r17Board(view,'electrode')||
+    const p=r17OwnAbilitySlot(item,view,false);
+    return p&&!r17Suppressed(p,name)&&!r17BasicLock(view)&&
+      (r17Hand(view,'electrode')&&!r17Board(view,'electrode')||
       r17Hand(view,'raichu')&&!r17Board(view,'raichu'))?220:0;
   }
   return 0;
@@ -273,7 +367,7 @@ function r17ScorePlay(item,view) {
   if(k==='gengar')return r17Space(view)>0&&!r17Board(view,k)&&!gxUsed(view)&&r17Hand(view,'unit')?145:0;
   if(k==='vip')return r17First(view)&&r17Space(view)>0?350:0;
   if(k==='carrier')return r17Discard(view).some(c=>r17CarrierValue(r17Key(c),view)>0)?290:0;
-  if(k==='compressor')return r17CompressorUseful(view)?250:0;
+  if(k==='compressor')return r17CompressorUseful(view)?(r17CompressorGain(view)>0?305:250):0;
   if(k==='stretcher')return r17Discard(view).some(c=>r17RecoveryValue(r17Key(c),view)>0)?275:0;
   if(k==='mail')return r17Deck(view)>=2?175:0;
   if(k==='heavy')return r17Missing(view,'voltorb','electrode')||r17Missing(view,'pikachu','raichu')?160:0;
@@ -284,6 +378,7 @@ function r17ScorePlay(item,view) {
   if(k==='pokestop')return r17Deck(view)>=12&&!r17NeedTempleRemoval(view)&&
     !/^Pok[eé]Stop\b/i.test(r17Stadium(view))?110:r17NeedTempleRemoval(view)?300:0;
   if(k==='uturn') {
+    if(!r17StadiumToolLive(view)||own(view).publicTurnRestrictions?.toolPlayLocked===true||view.ownTurnResources?.toolPlayLocked===true)return 0;
     const s=r17Slot(view,m.targetZone,m.targetIndex);
     return m.targetSeat==='actor'&&m.targetZone==='active'&&s&&list(s.tools).length===0&&
       list(s.printed?.retreatCost).length===1&&benchCount(own(view))>0?130:0;
@@ -301,7 +396,7 @@ function r17ScorePlay(item,view) {
 function r17Score(item,request) {
   const view=request.observation,m=metadata(item);
   if(item.kind==='use-ability')return r17ScoreAbility(item,view);
-  if(item.kind==='play-card')return r17ScorePlay(item,view);
+  if(item.kind==='play-card')return r17Key(item)==='rope'?r17RopeScore(request):r17ScorePlay(item,view);
   if(item.kind==='use-stadium'&&r17Key(item)==='pokestop')return r17Deck(view)>=12&&m.stadiumEffectLive===true?125:0;
   if(item.kind==='attack') {
     const attack=item.attackName||'';
@@ -313,10 +408,10 @@ function r17Score(item,request) {
       return attack==='Big Explosion'?0:35;
     return 0;
   }
-  if(item.kind==='retreat'&&m.targetSeat==='actor'&&m.targetZone==='bench') {
-    const s=r17Slot(view,'bench',m.targetIndex);
-    if(s&&r17Key(s)==='raichu'&&list(s.energies).length>=1)return 115;
-    if(s&&r17Key(s)==='gengar'&&list(s.energies).some(e=>r17Key(e)==='unit')&&!gxUsed(view))return 150;
+  if(item.kind==='retreat'&&m.targetSeat==='actor'&&m.targetZone==='bench'&&r17FreeRetreat(item,view)) {
+    const s=r17Slot(view,'bench',m.targetIndex??m.benchIndex);
+    if(r17GengarReady(view,s)&&!r17GengarReady(view,active(own(view))))return 240;
+    if(s&&r17Key(s)==='raichu'&&r17SwitchValue(s,view)>=240&&r17SwitchValue(active(own(view)),view)<240)return 115;
   }
   return 0;
 }
@@ -364,7 +459,7 @@ function r17Prompt(request) {
   if(type==='ChooseCardsPrompt') {
     if(key==='carrier')return r17CarrierChoices(p,v);
     if(key==='compressor')return r17CompressorUseful(v)?
-      r17CarrierChoices(p,v,'deck'):r17Abstain('R17_COMPRESSOR_NO_CARRIER_PLAN');
+      r17CompressorChoices(p,v):r17Abstain('R17_COMPRESSOR_NO_CARRIER_PLAN');
     if(key==='vip')return r17VipChoices(p,v);
     if(key==='stretcher')return r17Multi(p,r17Rank(r17ChoiceCards(p,'discard'),c=>r17RecoveryValue(r17Key(c),v)),1);
     if(key==='mail')return r17Multi(p,r17Rank(r17ChoiceCards(p,'deck'),c=>r17TrainerNeed(r17Key(c),v)),1);
@@ -384,6 +479,7 @@ function r17Prompt(request) {
     }
     if(key==='heavy')return r17Multi(p,r17Rank(r17ChoiceCards(p,'prizes'),c=>r17VipValue(r17Key(c),v)),1);
   }
+  if(key==='rope'&&type==='ChoosePokemonPrompt')return r17SwitchChoices(p,v);
   if(key==='stretcher'&&(type==='SelectOptionPrompt'||type==='SelectPrompt')) {
     // Exact printed option 0 is recover one to hand; shuffle-three mode
     // is deliberately unimplemented rather than guessed at its continuation.
@@ -402,7 +498,7 @@ function r17Prompt(request) {
   if(type==='ChoosePrizePrompt'&&key!=='heavy'&&key!=='ticket') {
     const choices=list(p.choices).filter(x=>x.kind==='prize'&&metadata(x).ownerSeat==='actor');
     if(choices.length&&metadata(p).selectionType==='prize-slots'&&R17_POKEMON.has(key))
-      return r17Multi(p,choices,metadata(p).minimumCount);
+      return r17Multi(p,choices,metadata(p).requiredCount);
   }
   return r17Abstain('R17_UNSUPPORTED_PROMPT');
 }
