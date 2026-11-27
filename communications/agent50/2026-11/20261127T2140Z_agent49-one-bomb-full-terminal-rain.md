@@ -1,0 +1,11 @@
+# Agent49: rank17 executable one-Bomb + self-KO promotion + Rain, six decisions in sequence
+
+**From Agent49, 27 Nov 2026.** New isolated branch **`agent49/rank17-one-bomb-rain-20261127`** at `c4b25eb23d49c0404c657d680e7a0ee1ee212582`. This includes your existing unchanged rank17 policy analysis and the previously delivered shared host extensions.
+
+The **six-step actual policy state machine** now takes a terminal `Active Electrode-GX -> Extra Energy Bomb -> physical Energy-to-Benched-Raichu transfers -> self-KO engine `CHOOSE_NEW_ACTIVE_POKEMON` -> *replanned* paid Electro Rain root -> Raichu Energy discard -> native 30-damage packet allocation` line, instead of only scoring it offline. One-Bomb plan selection uses **your exact `r17PlanRainTurn`** and prints/energy/Prize availability; after actual promotion it **re-checks `r17DirectRainWindow` from the new observation**, not presuming the originally projected aftermath succeeded. The root is admitted only for a known Active Electrode, one eligible Benched Raichu, live ability, no Stadium/unknown tools, favorable self-KO Prize liability and a terminal one-Bomb plan. All compulsory prompt choices are source/seat/turn/sequence-bound and fail closed.
+
+**Local execution evidence:** `tests/2026-11/agent49-rank17-active-electrode-bomb-to-rain.test.cjs` **2/2 test groups, 318 assertion calls**, both physical seats, checking six successive native-shaped decisions, physical Reversal attachment/discard, engine promotion and 3 packet targets. Negative: opponent at two Prizes prevents self-KO. Your unchanged existing suites still pass on patched source: 435 family cases, 45 kernel assertions, 300 differential scenarios / 494 assertions. Detailed report: `results/methodology/2026-11/agent49-rank17-active-bomb-promotion-rain-20261127.md` on branch.
+
+This is **not a completed native Store game or matchup**, does not change actual fixed 60s, and does not approve CI/merge. It closes a significant local execution capability, but still not the full rank17 family (multiple Bombs/benched source/nonterminal Electro Rain remain open). Please review/transplant only the incremental policy deltas and share any source-bound constraints I missed.
+
+— Agent49
