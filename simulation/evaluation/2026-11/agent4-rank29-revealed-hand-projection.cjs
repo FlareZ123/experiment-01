@@ -65,6 +65,56 @@ function ephemeralRevealedState(state,actorSeat) {
   return projectedState;
 }
 
+function nativeLegalRevealedIndices({prompt,state,actorSeat}={}){
+  const opponent=state.players[1-actorSeat];
+  if(typeof prompt.validate!=='function')throw Error('REVEALED_PROMPT_VALIDATOR_MISSING');
+  const blocked=new Set(prompt.options?.blocked??[]);
+  const valid=new Set();
+  for(let i=0;i<opponent.hand.cards.length;i++){
+    if(blocked.has(i))continue;
+    const card=opponent.hand.cards[i];
+    let accepted=false;
+    try{accepted=prompt.validate([card],state)===true;}
+    catch {accepted=false;}
+    if(accepted)valid.add(i);
+  }
+  return valid;
+}
+
+function filterRevealedProjection(output,valid,witness){
+  const raw=output?.promptProjection;
+  if(!raw || raw.promptType!=='ChooseCardsPrompt' ||
+     raw.source?.classification!=='actor-choice' ||
+     raw.source?.sourceKind!=='card-effect' ||
+     raw.source?.sourcePrinting!==witness.source ||
+     raw.publicMetadata?.selectionType!=='card-combination' ||
+     raw.publicMetadata?.ownerSeat!=='opponent' ||
+     raw.publicMetadata?.sourceZone!=='hand' ||
+     raw.publicMetadata?.isOwnerVisible!==true ||
+     !Array.isArray(raw.choices) ||
+     !(output.choiceByToken instanceof Map))
+    throw Error('REVEALED_PROJECTION_SHAPE_MISMATCH');
+  const selected=raw.choices.filter(choice=>
+    choice.kind==='empty-selection' ||
+    (choice.kind==='card' && valid.has(choice.publicMetadata?.selectionIndex) &&
+      choice.publicMetadata?.ownerSeat==='opponent' &&
+      choice.publicMetadata?.sourceZone==='hand' &&
+      choice.publicMetadata?.isOwnerVisible===true));
+  if(!selected.length)throw Error('NO_LEGAL_REVEALED_CHOICE');
+  const max=Math.min(raw.publicMetadata.maximumCount,valid.size);
+  if(!Number.isSafeInteger(max)||max<raw.publicMetadata.minimumCount)
+    throw Error('REVEALED_SELECTION_BOUNDS_INCONSISTENT');
+  const updated=Object.freeze({...raw,
+    publicMetadata:Object.freeze({...raw.publicMetadata,maximumCount:max}),
+    choices:Object.freeze(selected)});
+  const tokenSet=new Set(selected.map(choice=>choice.token));
+  const filtered=new Map([...output.choiceByToken].filter(([token])=>tokenSet.has(token)));
+  if(filtered.size!==selected.length)
+    throw Error('REVEALED_CHOICE_TOKEN_MAP_INCONSISTENT');
+  return {...output,promptProjection:updated,choiceByToken:filtered,
+    diagnostics:Object.freeze({...output.diagnostics,choiceCount:selected.length})};
+}
+
 function projectRank29RevealedHandPrompt(args={}) {
   const base=args.baseProjectPrompt ?? require('./agent36-prompt-projection.cjs').projectPrompt;
   if(typeof base!=='function')throw Error('NO_BASE_PROJECTION');
@@ -72,11 +122,13 @@ function projectRank29RevealedHandPrompt(args={}) {
   if(!witness) return base(args); // normal physical privacy gate untouched
   const originalOpponent=args.state.players[1-args.actorSeat];
   const originalPublic=originalOpponent.hand.isPublic;
+  const legal=nativeLegalRevealedIndices(args);
   const clone=ephemeralRevealedState(args.state,args.actorSeat);
-  const output=base({...args,state:clone});
-  // The real Store and the actual opponent hand remain private and
-  // unchanged after projection. The worker only sees that one native
-  // source-triggered typed prompt's enumerated legal Item/Energy/Tool choices.
+  const projected=base({...args,state:clone});
+  const output=filterRevealedProjection(projected,legal,witness);
+  // Physical source validation prunes all non-selectable cards (including
+  // ordinary Supporters/Pokémon). Source was physically revealed; no other
+  // private hand identity may enter the worker. Live Store remains unchanged.
   if(originalOpponent.hand.isPublic!==originalPublic ||
      args.state.players[1-args.actorSeat]!==originalOpponent ||
      args.state.players[1-args.actorSeat].hand!==originalOpponent.hand)
@@ -86,8 +138,10 @@ function projectRank29RevealedHandPrompt(args={}) {
       version:VERSION,actorSeat:witness.actorSeat,
       sourcePrinting:witness.source,
       physicalOpponentHandPrompt:true,
+      eligibleNativeCards:legal.size,
       liveHandWasNotMutated:true
     }};
 }
 module.exports={VERSION,SOURCES,physicalSupporterSource,
-  ephemeralRevealedState,projectRank29RevealedHandPrompt};
+  ephemeralRevealedState,nativeLegalRevealedIndices,filterRevealedProjection,
+  projectRank29RevealedHandPrompt};
