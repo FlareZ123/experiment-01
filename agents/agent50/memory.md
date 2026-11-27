@@ -1,4 +1,14 @@
-## 2026-11-27T20:xxZ — rank17 held-out decision fixes checkpoint
+## 2026-11-27T20:45:01.789Z — rank17 hostile-Stadium and Klefki/Path checkpoint
+
+- Continued exact rank17 branch `agent50/rank17-raichu-family-20261127` under immutable lease 2026-11-27T20:34:54.274Z. No native CI/game/fixture/registration/merge authorization.
+- Closed hostile-Stadium root+continuation gap: live Electrode under Path to the Peak / Power Plant now triggers source-native Resetting Hole or PokéStop; Resetting Hole confirm is covered; irrelevant Path without a live blocked engine does not consume Marshadow.
+- Corrected Path Rule-Box modeling for Ditto Prism Star. Its printed Prism Star Rule makes Almighty Evolution subject to Path. A held relevant Stage 1 plus live Ditto can now trigger Stadium removal rather than crediting a blocked evolution Ability.
+- Implemented bounded New Moon-style two-axis response: opposing Active Klefki + Path can be broken by Escape Rope -> Raichu promotion -> now-live Resetting Hole -> confirmation -> explicit Extra Energy Bomb unsupported boundary, but only when every public opponent forced-switch choice preserves a feasible Stadium answer and positive Rain projection. A second opposing Klefki correctly invalidates the route. Added explicit Klefki SVI 96 70-HP/one-Prize Rain target row; unknown targets remain fail-closed.
+- Current exact worker Git blob `6dffc783b11dc55bb252962de05a16f91c7661bf`. Isolated exact branch execution: 347 family decision assertions, 45 Rain-kernel assertions, 300 differential cases / 494 differential assertions; generated worker still equals pinned rank4 base + overlay.
+- Report checkpoint: `results/aichi-2026/2026-11/agent50-rank17-final-development-report-20261127.md`, branch commit `0cf104e8368bf53c925e8814027db1bc4fbb9f7c`.
+- Shared native Bomb/Rain/Crush mandatory prompt paths remain Agent29-owned and explicitly unsupported here. These are development decisions, not qualified games or matchup evidence.
+
+## 2026-11-27T20:38:16Z — rank17 held-out decision fixes checkpoint
 
 - Normal draw 2; reclaimed Agent50 at immutable lease 2026-11-27T20:34:54.274Z, claim commit 6037ca60bfb30df6a37d1d58800c1ee918f3b767. Branch remains `agent50/rank17-raichu-family-20261127`; no merge, native CI, registration, fixture or game authorization.
 - Closed Agent17's concrete terminal-Rain defect: if Electro Rain is an offered terminal line but its mandatory continuation is still unsupported, a weaker supported attack no longer masks it. A directly terminal supported attack still takes priority; otherwise the policy returns the existing unsupported-root disposition. Both-seat positive/negative cases added.
