@@ -414,3 +414,40 @@ test('two-Bomb window refuses to initiate if opponent would win from double self
     assert.notDeepEqual(f.decide(1,null,xs),{kind:'select-action',token:'bomb-1'});
   }
 });
+
+
+
+test('second self-KO is refused when new public protection invalidates the first forecast',()=>{
+  const T='Shadow Rider Calyrex VMAX CRE',C='Counter Energy CIN';
+  for(const seat of [0,1]){
+    const f=setup(seat,6);
+    f.view.ownPublic.active=viewSlot(R);
+    f.view.ownPublic.bench=[viewSlot(E),viewSlot(E),null,null,null];
+    f.view.ownPublic.discard=[...Array(4).fill(P),...Array(4).fill(C)];
+    const vmax=()=>({...viewSlot(T,[],'VMAX'),hp:320,damage:60});
+    f.view.opponentPublic.active=vmax();
+    f.view.opponentPublic.bench=[vmax()];
+    const src=i=>({kind:'use-ability',token:'bomb-'+i,actorPrinting:E,
+      publicMetadata:{abilityName:'Extra Energy Bomb',
+        sourceZone:'bench',sourceIndex:i,abilityLive:true}});
+    assert.deepEqual(f.decide(1,null,[src(0),src(1)]),
+      {kind:'select-action',token:'bomb-0'});
+    const native=bombPrompt(f,'bench',0);
+    const decision=f.decide(2,native.projection.promptProjection);
+    assert.equal(decision.kind,'select-choices');
+    assert.equal(decision.tokens.length,5);
+    // A first transfer has settled, its Electrode self-KO gives two Prizes.
+    f.view.ownPublic.active.energies=[...Array(4).fill(P),C];
+    f.view.ownPublic.discard=[C,C,C];
+    f.view.ownPublic.bench[0]=null;
+    f.view.opponentPublic.prizeCount=4;
+    // A public protection event means the original two-Bomb terminal
+    // forecast must not force the second self-KO without re-evaluation.
+    f.view.opponentPublic.active.publicDamageEffects={
+      prevention:'all',effectsPrevention:'none',reduction:0
+    };
+    const next=f.decide(3,null,[src(1)]);
+    assert.equal(next.kind,'abstain');
+    assert.notDeepEqual(next,{kind:'select-action',token:'bomb-1'});
+  }
+});
