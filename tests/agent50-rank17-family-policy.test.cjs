@@ -457,6 +457,18 @@ function runCases(policy,protocol) {
         stadium:['Path to the Peak CRE']})});
     same(policy.rainProjection(fundedPath,fundedPath.ownPublic.active)?.terminalProjection,true,
       tag+'Path is safe for already-funded zero-Bomb Rain evaluation');
+
+    const sunbeamBoard=view(seat,{globalTurn:4,
+      ownPublic:player({active:slot(A.raichu,{hp:110}),bench:[elec],discard:[R,R,R,R,C],prizeCount:6}),
+      opponentPublic:player({active:slot('Lunatone OBF 92',{hp:90,abilities:['New Moon']}),
+        bench:[slot('Solrock CES 62',{hp:90,abilities:['Sunbeam']})],prizeCount:6})});
+    same(policy.rainProjection(sunbeamBoard,sunbeamBoard.ownPublic.active)?.hitsRequired,8,
+      tag+'Sunbeam raises observed printed-HP Lunatone to 130 for Rain packets');
+    const suppressedSolrock={...sunbeamBoard,opponentPublic:{...sunbeamBoard.opponentPublic,
+      bench:[slot('Solrock CES 62',{hp:90,abilities:['Sunbeam'],abilitySuppressions:[
+        {abilityName:'Sunbeam',suppressed:true,reasonCode:'ABILITY_LOCK',sourcePrinting:'Klefki SVI 96'}]})]}};
+    same(policy.rainProjection(suppressedSolrock,suppressedSolrock.ownPublic.active)?.hitsRequired,6,
+      tag+'explicit Sunbeam suppression restores printed Lunatone packet count');
     const noSight={...loading,ownHand:[full.sight],ownPublic:{...loading.ownPublic,active:{...rain,tools:[]},discard:[R,R,R,R,C,C,C,C,U]}};
     same(runRoot(p,noSight,[play('sight',full.sight,{zone:'active',index:0,printing:A.raichu}),pass]),action('sight'),tag+'Sight crosses two-VMAX threshold');
     const manual={...loading,ownHand:[C,U],ownPublic:{...loading.ownPublic,discard:[R,R,R,R,C,C,C,U]}};
