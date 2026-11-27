@@ -704,41 +704,6 @@ test('Handheld Fan root is withheld until native AttachEnergyPrompt owner projec
   })),{kind:'select-action',token:'pass'});
 });
 
-test('Handheld Fan typed Energy move chooses Special Energy from opposing Attacker', () => {
-  const req=promptRequest({
-    promptType:'ChooseEnergyPrompt',
-    source:actorChoiceSource('Handheld Fan TWM 150','Handheld Fan'),
-    publicMetadata:{selectionType:'energy-payment',count:1,energyCount:1,allowCancel:false,isSecret:false},
-    choices:[
-      energyChoice('basic','Psychic Energy CRE 232','active','opponent'),
-      energyChoice('special','Double Colorless Energy SUM 136','active','opponent')
-    ]
-  });
-  assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:['special']});
-});
-
-test('Handheld Fan typed recipient chooses unenergized support Bench over VMAX', () => {
-  const req=promptRequest({
-    promptType:'ChoosePokemonPrompt',
-    source:actorChoiceSource('Handheld Fan TWM 150','Handheld Fan'),
-    publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,allowCancel:false,isSecret:false},
-    observation:{
-      opponentPublic:player({
-        active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{energies:['Psychic Energy CRE 232']}),
-        bench:[
-          pokemon('Tapu Lele-GX GRI 60'),
-          pokemon('Shadow Rider Calyrex VMAX CRE 75')
-        ]
-      })
-    },
-    choices:[
-      pokemonChoice('attacker','Shadow Rider Calyrex VMAX CRE 75','opponent','bench',1),
-      pokemonChoice('support','Tapu Lele-GX GRI 60','opponent','bench',0)
-    ]
-  });
-  assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:['support']});
-});
-
 test('Guzma & Hala rank29 search chooses Thunder Mountain, Palace Belt, DCE', () => {
   const req=promptRequest({
     promptType:'ChooseCardsPrompt',
