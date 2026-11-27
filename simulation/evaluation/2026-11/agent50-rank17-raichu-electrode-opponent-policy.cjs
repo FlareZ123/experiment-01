@@ -2847,14 +2847,133 @@ function r17RainPacketsDecision(req,chain){
      new Set(tokens).size!==tokens.length)return null;
   return {kind:'select-choices',tokens};
 }
+
+/**
+ * A strictly game-terminal GX option only. The corrected paper GX attack
+ * discards n PHYSICAL attached Energy cards from any of our Pokémon and
+ * deals 30+50*n damage to the opponent's Active. The actor must see its
+ * exact paid source attack in the native action frontier. Unlike Rain,
+ * Special Energy with several provided units still counts as ONE card.
+ */
+function r17CrushBurnTerminalWindow(request){
+  const v=request?.observation,a=active(own(v)),q=active(opponent(v));
+  if(!v||r17Key(a)!=='electrode'||!q||v.globalTurn<2||
+     own(v).publicTurnRestrictions?.gxUsed!==false||
+     gxUsed(v)||r17NeedTempleRemoval(v)||
+     list(own(v).stadium).length||list(opponent(v).stadium).length||
+     own(v).publicTurnRestrictions?.attackLockTurnsRemaining>0||
+     list(a.specialConditions).length||
+     a.publicRestrictions?.cannotAttackNextTurn||
+     a.publicRestrictions?.attackCostIncreaseNextTurn>0||
+     a.publicRestrictions?.attackCostIncreaseWhileActive>0||
+     list(a.publicRestrictions?.cannotUseAttacksNextTurn).includes('Crush and Burn-GX')||
+     a.publicRestrictions?.blockedAttackNameNextTurn==='Crush and Burn-GX'||
+     a.publicRestrictions?.blockedAttackNameUntilLeavesActive==='Crush and Burn-GX'||
+     a.publicRestrictions?.onlyAllowedAttackNameNextTurn&&
+      a.publicRestrictions.onlyAllowedAttackNameNextTurn!=='Crush and Burn-GX'||
+     !Number.isSafeInteger(own(v).prizeCount)||own(v).prizeCount<1)return null;
+  const items=list(request.actionFrontier?.items);
+  const action=items.find(i=>i.kind==='attack'&&
+    r17Key(i)==='electrode'&&
+    i.attackName==='Crush and Burn-GX'&&
+    metadata(i).gxAttack===true&&
+    metadata(i).attackCostPayable===true);
+  if(!action)return null;
+  const targets=r17VisibleRainTargets(v,a);
+  if(!targets||targets.length>9||targets.some(t=>{
+    const p=t.zone==='active'?q:opponent(v).bench?.[t.index];
+    return !p||list(p.tools).length>0||
+      p.publicDamageEffects!==undefined&&(
+        p.publicDamageEffects.prevention!=='none'||
+        p.publicDamageEffects.effectsPrevention!=='none'||
+        p.publicDamageEffects.reduction!==0);
+  }))return null;
+  const target=targets.find(t=>t.zone==='active');
+  if(!target)return null;
+  const terminal=target.prizes>=own(v).prizeCount||
+    !list(opponent(v).bench).some(Boolean);
+  if(!terminal)return null;
+  // One active Lunatone may have +40 HP from a live Solrock's Sunbeam;
+  // elsewhere the exact target whitelist has no Lightning Resistance.
+  const maxHp=/^Lunatone OBF(?: 92)?$/i.test(printingValue(q))&&
+    r17NewMoonSunbeamLive(v)?Math.max(q.hp,130):q.hp;
+  const remaining=maxHp-q.damage;
+  if(!Number.isSafeInteger(remaining)||remaining<=0)return null;
+  const needed=Math.max(1,Math.ceil((remaining-30)/50));
+  const inventory=new Map(),all=[];
+  const append=(p,zone,slotIndex)=>{
+    if(!p)return;
+    for(const energy of list(p.energies)){
+      const name=printingValue(energy);
+      if(!name)return false;
+      all.push({zone,slotIndex,printing:name});
+      const key=zone+':'+slotIndex+':'+name;
+      inventory.set(key,(inventory.get(key)||0)+1);
+    }
+    return true;
+  };
+  if(!append(a,'active',0))return null;
+  const bench=list(own(v).bench);
+  for(let i=0;i<bench.length;i++)if(!append(bench[i],'bench',i))return null;
+  if(all.length<needed||all.length>32)return null;
+  return {action,requiredDiscard:needed,inventory,
+    targetPrinting:target.printing,sourcePrinting:printingValue(a),
+    opponentPrizes:opponent(v).prizeCount,ownPrizes:own(v).prizeCount};
+}
+
+function r17CrushBurnEnergyDecision(request,chain){
+  const p=request.prompt,s=p?.source,m=metadata(p),v=request.observation;
+  if(request.sequence!==chain.sequence+1||
+     request.observation.globalTurn!==chain.turn||
+     p?.promptType!=='DiscardEnergyPrompt'||
+     s?.sourceKind!=='card-effect'||
+     s.sourcePrinting!=='Electrode-GX CES'||
+     s.effectName!=='Crush and Burn-GX'||
+     m.selectionType!=='energy-payment'||
+     m.ownerSeat!=='actor'||m.isOwnerVisible!==true||
+     m.sourceZone!=='energy'||m.allowCancel!==false||
+     m.minimumCount!==1||m.maximumCount!==m.energyCount||
+     !Number.isSafeInteger(m.energyCount)||
+     m.energyCount<chain.requiredDiscard||
+     printingValue(active(own(v)))!==chain.sourcePrinting||
+     printingValue(active(opponent(v)))!==chain.targetPrinting||
+     own(v).prizeCount!==chain.ownPrizes||
+     opponent(v).prizeCount!==chain.opponentPrizes)return null;
+  const remaining=new Map(chain.inventory),tokens=[];
+  for(const choice of list(p.choices)){
+    if(tokens.length===chain.requiredDiscard)break;
+    const cm=metadata(choice),name=printingValue(choice);
+    if(choice.kind!=='energy'||!name||
+       cm.ownerSeat!=='actor'||cm.isOwnerVisible!==true||
+       cm.sourceZone!=='energy'||
+       !['active','bench'].includes(cm.zone)||
+       !Number.isSafeInteger(cm.slotIndex)||cm.slotIndex<0||
+       !Number.isSafeInteger(cm.selectionIndex)||
+       cm.selectionIndex<0||!choice.token)continue;
+    const key=cm.zone+':'+cm.slotIndex+':'+name;
+    if((remaining.get(key)||0)<=0)continue;
+    remaining.set(key,remaining.get(key)-1);
+    tokens.push(choice.token);
+  }
+  return tokens.length===chain.requiredDiscard&&
+    new Set(tokens).size===tokens.length?
+    {kind:'select-choices',tokens}:null;
+}
+
 function r17CreatePolicy({role,seat,policyVersion,config}) {
   if(role!=='opponent'||![0,1].includes(seat)||policyVersion!==R17_VERSION||
      !config||typeof config!=='object'||Array.isArray(config)||Object.keys(config).length)
     throw Error('AGENT50_RANK17_POLICY_INIT_MISMATCH');
-  let rain=null;
+  let rain=null,gx=null;
   return Object.freeze({decide(request){
     if(!request||request.role!==role||request.seat!==seat||request.observation?.actorSeat!==seat)
       return r17Abstain('ROLE_SEAT_BINDING_MISMATCH');
+    if(gx){
+      const decision=request.prompt&&
+        r17CrushBurnEnergyDecision(request,gx);
+      gx=null;
+      return decision||r17Abstain('R17_UNTRUSTED_PROMPT');
+    }
     if(rain){
       const bad=rain.turn!==request.observation.globalTurn||
         !Number.isSafeInteger(request.sequence)||request.sequence!==rain.sequence+1||
@@ -2904,6 +3023,12 @@ function r17CreatePolicy({role,seat,policyVersion,config}) {
       rain={stage:'discard',turn:request.observation.globalTurn,
         sequence:request.sequence,...candidate};
       return {kind:'select-action',token:candidate.action.token};
+    }
+    const gxCandidate=r17CrushBurnTerminalWindow(request);
+    if(gxCandidate){
+      gx={...gxCandidate,turn:request.observation.globalTurn,
+        sequence:request.sequence};
+      return {kind:'select-action',token:gxCandidate.action.token};
     }
     const bomb=r17OneBombRainWindow(request);
     if(bomb){
