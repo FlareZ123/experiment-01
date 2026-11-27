@@ -173,6 +173,80 @@ function planDonationResources(input) {
 module.exports={planDonationResources};
 
 return module.exports;})();
+// Agent16 power/mobility helper blob d158e854b7e8d79b0b029c00f29aca69d2ef4535.
+const __power=(()=>{const module={exports:{}};
+'use strict';
+/* Exact known-resource power/mobility search for rank 26. No deck/prize identities,
+ * no inferred draws; caller supplies publicly/legal-known resources. Not a native
+ * game policy. `fodder` denotes separately reserved legally discardable cards.
+ * `ropeSafe` certifies opponent's switch cannot defeat the intended terminal.
+ * Damage donation is not modeled here; use the resource planner on returned board.
+ */
+const TYPES={M:{r:1,hp:20},K:{r:1,hp:13},U:{r:1,hp:6},E:{r:1,hp:3},B:{r:2,hp:6},S:{r:1,hp:16},C:{r:1,hp:18},D:{r:1,hp:16}};
+const CARDS=['rope','float','tm','col'];
+const energyUnits=p=>p.energy.reduce((a,e)=>a+(e==='DCE'?2:1),0);
+const copy=x=>JSON.parse(JSON.stringify(x));
+function planPowerMobility(input){
+ const bad=reason=>({status:'invalid',reason});
+ const int=(x,min,max)=>Number.isSafeInteger(x)&&x>=min&&x<=max;
+ if(!input||typeof input.firstTurnGoingFirst!=='boolean'||typeof input.ropeSafe!=='boolean'||typeof input.wobLocked!=='boolean'||typeof input.itemsPlayable!=='boolean'||typeof input.toolsPlayable!=='boolean'||typeof input.ruins!=='boolean'||typeof input.manualAvailable!=='boolean'||typeof input.retreatAvailable!=='boolean'||typeof input.dowsingAvailable!=='boolean'||typeof input.debutEffective!=='boolean'||!Array.isArray(input.board)||!Array.isArray(input.handBasics)||!int(input.fodder,0,60)||!int(input.lightningHand,0,2)||!int(input.lightningDiscard,0,2)||!int(input.dceHand,0,1))return bad('SHAPE');
+ if(input.board.some(p=>!p||!Array.isArray(p.energy))||input.handBasics.some(p=>!p||typeof p!=='object'))return bad('BOARD');
+ const board=input.board.map(p=>({...p,energy:[...p.energy]})),handBasics=copy(input.handBasics);
+ const all=[...board,...handBasics];const ids=all.map(p=>p.id);
+ if(all.length>12||ids.some(id=>typeof id!=='string'||!id)||new Set(ids).size!==ids.length||all.some(p=>!Object.hasOwn(TYPES,p.kind))||board.length<1||board.length>6||board.filter(p=>p.active===true).length!==1||board.some(p=>typeof p.active!=='boolean'||!Array.isArray(p.energy)||p.energy.some(e=>e!=='L'&&e!=='DCE')||!['','float','tm','fss'].includes(p.tool)||!int(p.counters,0,TYPES[p.kind].hp-1)))return bad('BOARD');
+ for(const [kind,max] of Object.entries({M:1,K:1,U:4,E:2,B:1,S:1,C:1,D:1}))if(all.filter(p=>p.kind===kind).length>max)return bad('PRINT_COUNT');
+ const mode=input.finishMode??'active';if(!['active','sacrificial-bench'].includes(mode))return bad('FINISH_MODE');
+ const target=all.find(p=>p.id===input.attackerId);
+ if(!target||!['M','B'].includes(target.kind))return bad('ATTACKER');
+ if(input.firstTurnGoingFirst&&(target.kind!=='M'||!input.debutEffective))return {status:'unreachable-under-model',reason:'FIRST_TURN_ATTACK_PROHIBITED'};
+ if(board.flatMap(p=>p.energy).filter(e=>e==='DCE').length+input.dceHand>1||board.flatMap(p=>p.energy).filter(e=>e==='L').length+input.lightningHand+input.lightningDiscard>2)return bad('ENERGY_COUNT');
+ const h={},d={};for(const c of CARDS){h[c]=input.trainersHand?.[c]??0;d[c]=input.trainersDiscard?.[c]??0;
+  const attached=board.filter(p=>p.tool===c).length;
+  if(!int(h[c],0,c==='tm'?2:1)||!int(d[c],0,c==='tm'?2:1)||h[c]+d[c]+attached>(c==='tm'?2:1))return bad('TRAINER_COUNT');}
+ const initial={board,handBasics,h,d,lightningHand:input.lightningHand,lightningDiscard:input.lightningDiscard,dceHand:input.dceHand,fodder:input.fodder,manual:input.manualAvailable,retreat:input.retreatAvailable,dowsing:input.dowsingAvailable,locked:input.wobLocked,kokoUsed:false};
+ const maxStates=input.maxStates??100000;if(!int(maxStates,1,1000000))return bad('LIMIT');
+ const key=s=>JSON.stringify({...s,board:s.board.map(p=>({...p,energy:[...p.energy].sort()})).sort((a,b)=>a.id.localeCompare(b.id)),handBasics:[...s.handBasics].sort((a,b)=>a.id.localeCompare(b.id))});
+ const q=[{s:initial,parent:-1,action:null}],seen=new Set([key(initial)]);let capped=false;
+ const finish=s=>{const a=s.board.find(p=>p.id===input.attackerId);const active=s.board.find(p=>p.active);return !!a&&a.tool==='tm'&&energyUnits(a)>=3&&(mode==='active'?a.active:!a.active&&['E','U','B'].includes(active.kind));};
+ for(let pos=0;pos<q.length;pos++){
+  const s=q[pos].s;
+  if(finish(s)){const actions=[];for(let j=pos;j>0;j=q[j].parent)actions.push(q[j].action);actions.reverse();return {status:'solved',actions,explored:pos+1,dowsingUsed:initial.dowsing&&!s.dowsing,requiresPromotion:mode==='sacrificial-bench',final:s};}
+  const add=(n,action)=>{const k=key(n);if(seen.has(k))return;if(q.length>=maxStates){capped=true;return;}seen.add(k);q.push({s:n,parent:pos,action});};
+  const edit=(action,fn)=>{const n=copy(s);fn(n);add(n,action);};
+  const a=s.board.find(p=>p.active),t=s.board.find(p=>p.id===input.attackerId),k=s.board.find(p=>p.kind==='K');
+  if(s.board.length<6)for(const p of s.handBasics)edit({kind:'bench',id:p.id},n=>{n.handBasics=n.handBasics.filter(b=>b.id!==p.id);n.board.push({id:p.id,kind:p.kind,active:false,energy:[],tool:'',counters:input.ruins&&p.kind!=='C'?2:0});});
+  if(input.toolsPlayable){
+   if(s.h.tm&&t&&!t.tool)edit({kind:'attach-tm',id:t.id},n=>{n.h.tm--;n.board.find(p=>p.id===t.id).tool='tm';});
+   if(s.h.float)for(const p of s.board)if(p.id!==input.attackerId&&!p.tool)edit({kind:'attach-float',id:p.id},n=>{n.h.float--;n.board.find(b=>b.id===p.id).tool='float';});
+  }
+  if(s.manual)for(const p of s.board){
+   // DCE is indispensable at finish: do not attach it to an irrelevant host.
+   if(s.dceHand&&p.id===input.attackerId)edit({kind:'attach-energy',id:p.id,energy:'DCE'},n=>{n.dceHand--;n.manual=false;n.board.find(b=>b.id===p.id).energy.push('DCE');});
+   if(s.lightningHand)edit({kind:'attach-energy',id:p.id,energy:'L'},n=>{n.lightningHand--;n.manual=false;n.board.find(b=>b.id===p.id).energy.push('L');});
+  }
+  if(input.itemsPlayable&&s.locked&&s.h.col)edit({kind:'cologne'},n=>{n.h.col--;n.d.col++;n.locked=false;});
+  if(input.itemsPlayable&&s.h.rope&&input.ropeSafe)for(const p of s.board)if(!p.active)edit({kind:'escape-rope',to:p.id},n=>{n.h.rope--;n.d.rope++;n.board.forEach(b=>b.active=b.id===p.id);});
+  if(input.itemsPlayable&&s.dowsing&&s.fodder>=2)for(const c of CARDS)if(s.d[c])edit({kind:'dowsing',trainer:c},n=>{n.dowsing=false;n.fodder-=2;n.d[c]--;n.h[c]++;});
+  if(s.retreat){const cost=a.tool==='float'?0:TYPES[a.kind].r;
+   const payment=[];for(let mask=0;mask<(1<<a.energy.length);mask++){const idx=a.energy.map((_,i)=>i).filter(i=>mask>>i&1),units=idx.reduce((u,i)=>u+(a.energy[i]==='DCE'?2:1),0);if(units>=cost&&idx.every(i=>units-(a.energy[i]==='DCE'?2:1)<cost)&&!idx.some(i=>a.energy[i]==='DCE'))payment.push(idx);}
+   for(const idx of payment)for(const p of s.board)if(!p.active)edit({kind:'retreat',to:p.id,discard:idx.map(i=>a.energy[i])},n=>{n.retreat=false;n.board.forEach(b=>b.active=b.id===p.id);const x=n.board.find(b=>b.id===a.id);x.energy=x.energy.filter((_,i)=>!idx.includes(i));n.lightningDiscard+=idx.length;});
+  }
+  if(k&&!k.active&&!s.locked&&!s.kokoUsed&&s.lightningDiscard>=1&&t&&!t.active){
+   // Choose attacker and any other Benched Pokemon, including Koko itself.
+   // With one Lightning, choose its recipient as attacker. With two, both get one.
+   for(const p of s.board)if(!p.active&&p.id!==t.id)edit({kind:'dance',targets:[t.id,p.id],lightning:s.lightningDiscard>=2?2:1},n=>{
+    n.board.find(b=>b.id===t.id).energy.push('L');n.lightningDiscard--;
+    if(n.lightningDiscard>0){n.board.find(b=>b.id===p.id).energy.push('L');n.lightningDiscard--;}
+    const gone=n.board.find(b=>b.id===k.id);n.lightningDiscard+=gone.energy.filter(e=>e==='L').length;if(CARDS.includes(gone.tool))n.d[gone.tool]++;
+    n.board=n.board.filter(b=>b.id!==k.id);n.kokoUsed=true;
+   });
+  }
+ }
+ return {status:capped?'limit':'unreachable-under-model',explored:q.length};
+}
+module.exports={planPowerMobility};
+
+return module.exports;})();
 (function rank26(module){
   const VERSION='agent21-rank26-meloetta-opponent-v1';
   const SOURCE_RANK=26, SOURCE_LIST_BLOB_SHA1='ae773f6201d7aa69d31914dbfee66f3fba692200';
@@ -472,14 +546,74 @@ return module.exports;})();
     });
     return match?chooseChoice(match.token):abstain('NO_LEGAL_CARD_SET');
   }
-  function kokoChoice(p,o){
+  function kokoChoice(p,o,intent){
     const a=find(o,'M')??find(o,'B'), k=find(o,'K');
     if(!a||a.zone!=='bench'||!k||k.zone!=='bench'||has(a.p.energies,'L'))return abstain('NO_LEGAL_CARD_SET');
     const rows=arr(p.choices).map(x=>{
       const m=meta(x),indices=[m.benchIndex,m.secondTargetIndex];
-      return {x,s:m.sourceZone==='discard'&&m.ownerSeat==='actor'&&indices.includes(a.index)?100+(indices.includes(k.index)?10:0):0};
+      const actual=indices.filter(Number.isSafeInteger).sort((a,b)=>a-b);
+      const matches=intent?.type!=='koko'||JSON.stringify(actual)===JSON.stringify(intent.indices);
+      return {x,s:matches&&m.sourceZone==='discard'&&m.ownerSeat==='actor'&&indices.includes(a.index)?100+(indices.includes(k.index)?10:0):0};
     }).filter(x=>x.s>0).sort((a,b)=>b.s-a.s);
     return rows.length?chooseChoice(rows[0].x.token):abstain('NO_LEGAL_CARD_SET');
+  }
+
+  function powerPlan(o){
+    // First vertical slice: do not force a switch against an opposing Bench,
+    // and do not spend Dowsing resources needed for the donation search.
+    if(Number(o.globalTurn)!==1||slots(opp(o)).length!==1||!itemOpen(o))return null;
+    const t=opp(o).active;
+    if(!/^(Shadow Rider Calyrex V CRE|Wobbuffet PHF|Girafarig LOT|Tapu Lele-GX GRI|Radiant Eternatus CRZ|Marshadow UNB)(?:\s\d+)?$/.test(printing(t)))return null;
+    const h=hand(o),tr=o.ownTurnResources??{}, map=new Map(), bs=[],hs=[];
+    const toolCode={TM:'tm',FLOAT:'float',FSS:'fss'};
+    for(const x of board(o)){
+      const k=kind(x.p),id=coord(x),tools=arr(x.p.tools),en=arr(x.p.energies).map(kind);
+      if(!BASIC.has(k)||tools.length>1||(tools.length&&!toolCode[kind(tools[0])])||en.some(e=>!['L','DCE'].includes(e))||!Number.isSafeInteger(x.p.damage)||x.p.damage%10!==0)return null;
+      map.set(id,{...x,k});bs.push({id,kind:k,active:x.zone==='active',energy:en,tool:tools.length?toolCode[kind(tools[0])]:'',counters:x.p.damage/10});
+    }
+    h.forEach((x,i)=>{const k=kind(x);if(BASIC.has(k)){let id='hand:'+i;hs.push({id,kind:k});map.set(id,{zone:'hand',index:i,k});}});
+    const target=bs.find(x=>x.kind==='M')??hs.find(x=>x.kind==='M');
+    if(!target||!Number.isSafeInteger(tr.energyPlayedTurn)||!Number.isSafeInteger(tr.retreatedTurn))return null;
+    const observed=find(o,'M');
+    const debut=observed?suppression(observed.p,'Debut Performance')===false:!lockLive(o)||/^Wobbuffet PHF/.test(printing(t));
+    const ct=(list)=>({rope:n(list,'ROPE'),float:n(list,'FLOAT'),tm:n(list,'TM'),col:n(list,'COL')});
+    const result=__power.planPowerMobility({firstTurnGoingFirst:true,debutEffective:debut,ropeSafe:true,
+      wobLocked:lockLive(o),itemsPlayable:true,toolsPlayable:toolLive(o)&&!tr.toolPlayLocked,
+      ruins:ruins(o),manualAvailable:tr.energyPlayedTurn!==o.globalTurn&&!tr.energyPlayLocked&&!tr.specialEnergyPlayLocked,
+      retreatAvailable:tr.retreatedTurn!==o.globalTurn&&!own(o).active?.publicRestrictions?.cannotRetreat&&!own(o).active?.publicRestrictions?.cannotRetreatWhileActive,
+      dowsingAvailable:false,fodder:0,board:bs,handBasics:hs,attackerId:target.id,
+      lightningHand:n(h,'L'),lightningDiscard:n(discard(o),'L'),dceHand:n(h,'DCE'),
+      trainersHand:ct(h),trainersDiscard:ct(discard(o)),maxStates:15000});
+    return result.status==='solved'?{result,map}:null;
+  }
+  function powerAction(o,rows){
+    const line=powerPlan(o);
+    if(!line||!line.result.actions.length)return null;
+    const step=line.result.actions[0],loc=line.map.get(step.id),to=line.map.get(step.to);
+    const play=(k,t)=>rows.find(a=>a.kind==='play-card'&&kind(a.actorPrinting)===k&&(!t||(meta(a).targetSeat==='actor'&&meta(a).targetZone===t.zone&&meta(a).targetIndex===t.index)));
+    let a=null,intent=null;
+    if(step.kind==='bench'){
+      a=rows.find(a=>a.kind==='play-card'&&kind(a.actorPrinting)===loc?.k&&meta(a).handIndex===loc.index);
+      if(['D','C'].includes(loc?.k))intent={type:'donor-entry',role:loc.k};
+    }
+    if(step.kind==='attach-tm'||step.kind==='attach-float')a=play(step.kind==='attach-tm'?'TM':'FLOAT',loc);
+    if(step.kind==='attach-energy')a=play(step.energy,loc);
+    if(step.kind==='cologne')a=play('COL');
+    if(step.kind==='dance'){
+      const k=find(o,'K');a=rows.find(a=>a.kind==='use-ability'&&meta(a).abilityName==='Dance of the Ancients'&&meta(a).sourceZone==='bench'&&meta(a).sourceIndex===k?.index);
+      const indices=step.targets.map(id=>line.map.get(id)).map(x=>x?.index);
+      if(indices.some(x=>!Number.isSafeInteger(x)))return null;
+      intent={type:'koko',indices:step.lightning===1?[indices[0]]:indices.slice().sort((a,b)=>a-b)};
+    }
+    if(step.kind==='escape-rope'){
+      a=play('ROPE');if(to?.zone!=='bench')return null;intent={type:'rope',index:to.index};
+    }
+    if(step.kind==='retreat'){
+      if(to?.zone!=='bench')return null;
+      a=rows.find(a=>a.kind==='retreat'&&meta(a).targetSeat==='actor'&&meta(a).targetZone==='bench'&&meta(a).targetIndex===to.index);
+      if(step.discard.length){intent={type:'retreat',energy:step.discard};}
+    }
+    return a?{action:a,intent}:null;
   }
   function root(req,context={}){
     const o=req.observation;
@@ -489,6 +623,8 @@ return module.exports;})();
     if(direct)return chooseAction(direct.token);
     const donation=donationAction(o,rows);
     if(donation){context.intent=donation.intent;return chooseAction(donation.action.token);}
+    const power=powerAction(o,rows);
+    if(power){context.intent=power.intent;return chooseAction(power.action.token);}
     const ranked=rows.map((a,i)=>({a,i,s:scoreRoot(a,o)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s||a.i-b.i);
     if(ranked.length)return chooseAction(ranked[0].a.token);
     // Do not mislabel a blocked archetype-critical action as a deliberate pass.
@@ -501,7 +637,7 @@ return module.exports;})();
     if(p.source?.sourceKind==='engine')return setup(p,o);
     if(p.source?.sourceKind!=='card-effect')return abstain('UNTRUSTED_PROMPT_SOURCE');
     if(p.promptType==='MoveDamagePrompt'&&sk==='DP')return pumpChoice(p,o,context.intent);
-    if(p.promptType==='AttachEnergyPrompt'&&sk==='K'&&effect==='Dance of the Ancients')return kokoChoice(p,o);
+    if(p.promptType==='AttachEnergyPrompt'&&sk==='K'&&effect==='Dance of the Ancients')return kokoChoice(p,o,context.intent);
     if(p.promptType==='ChooseCardsPrompt'){
       const z=m.sourceZone;
       if(m.ownerSeat!=='actor'||m.isOwnerVisible!==true)return abstain('UNTRUSTED_CARD_SELECTION');
@@ -534,6 +670,11 @@ return module.exports;})();
       if(effect==='Rototiller'&&z==='discard')return pick(p,c=>visible(c,'discard')?(['DCE','L','DP','TM','RC','R'].includes(kind(c))?200:0):0,{want:1});
       return abstain('UNSUPPORTED_CARD_COMBINATION_SOURCE');
     }
+    if(p.promptType==='ChooseEnergyPrompt'&&context.intent?.type==='retreat'){
+      const wanted=context.intent.energy.slice();
+      const selected=arr(p.choices).filter(c=>{const i=wanted.indexOf(kind(c));if(i<0||meta(c).ownerSeat!=='actor'||meta(c).isOwnerVisible!==true)return false;wanted.splice(i,1);return true;});
+      return !wanted.length&&selected.length>=m.minimumCount&&selected.length<=m.maximumCount?chooseChoices(selected.map(c=>c.token)):abstain('NO_LEGAL_CARD_SET');
+    }
     if(p.promptType==='ChoosePokemonPrompt'){
       if(sk!=='ROPE'&&sk!=='CC')return abstain('UNSUPPORTED_POKEMON_PROMPT');
       const oppChoice=arr(p.choices).some(c=>meta(c).ownerSeat==='opponent');
@@ -542,6 +683,7 @@ return module.exports;})();
         const i=Number.isSafeInteger(cm.benchIndex)?cm.benchIndex:Number((/bench (\d+)/i.exec(c.label??'')??[])[1])-1;
         const t=slot(oppChoice?opp(o):own(o),'bench',i);
         if(!t||printing(t)!==c.printing||cm.ownerSeat!==(oppChoice?'opponent':'actor'))return 0;
+        if(!oppChoice&&sk==='ROPE'&&context.intent?.type==='rope')return i===context.intent.index?500:0;
         if(!oppChoice)return kind(t)==='M'&&has(t.tools,'TM')&&energy(t)>=3?300:0;
         return publicRemaining(t)!==null&&publicRemaining(t)<=280?400-publicRemaining(t):0;
       },{want:1});
@@ -571,5 +713,5 @@ return module.exports;})();
       return req.prompt?prompt(req,context):root(req,context);
     }});
   }
-  module.exports={POLICY_VERSION:VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,WORKER_PROTOCOL_BLOB_SHA1:PROTOCOL_BLOB,createPolicy,scoreRoot,scoreAttack,kind,root,prompt,donationPlan,terminalReady};
+  module.exports={POLICY_VERSION:VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,WORKER_PROTOCOL_BLOB_SHA1:PROTOCOL_BLOB,createPolicy,scoreRoot,scoreAttack,kind,root,prompt,donationPlan,terminalReady,powerPlan};
 })(module);
