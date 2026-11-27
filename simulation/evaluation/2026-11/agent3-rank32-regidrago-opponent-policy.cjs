@@ -219,14 +219,24 @@ function promptDecision(request) {
     return chooseMany(choices,c=>safeBallCost(c,obs), min,max,
       'RANK32_BALL_NO_SAFE_DISCARD');
   }
-  if (/ryuno glide/.test(source) && p.promptType === 'DiscardEnergyPrompt') {
-    if (meta.selectionType !== 'energy-payment' || !Number.isSafeInteger(meta.minimumCount) ||
-        !Number.isSafeInteger(meta.maximumCount)) {
+  if (/ryuno glide/.test(source) && p.promptType === 'ChooseEnergyPrompt') {
+    // V3 protocol represents energy-payment as ChooseEnergyPrompt, not
+    // DiscardEnergyPrompt. Its cardinality is 1..energyCount, NOT min/max.
+    if (meta.selectionType !== 'energy-payment' ||
+        !Number.isSafeInteger(meta.energyCount) || meta.energyCount < 1 ||
+        meta.energyCount > choices.length ||
+        choices.some(c=>c.kind !== 'energy' || typeof c.token !== 'string')) {
       return {kind:'abstain',reasonCode:'RANK32_RYUNO_ENERGY_PROMPT_UNPROJECTED'};
     }
-    return chooseMany(choices, c => /Grass Energy|Fire Energy/i.test(print(c)) ? 110 :
-      (/Double Dragon Energy/i.test(print(c)) ? 50 : 0), min,max,
-      'RANK32_RYUNO_NO_SUPPORTED_ENERGY_PAYMENT');
+    const basic = choices.filter(c=>/^Grass Energy|^Fire Energy/i.test(print(c)));
+    const dde = choices.filter(c=>/^Double Dragon Energy/i.test(print(c)));
+    // Two separate Basic Energy cards pay a two-Energy discard without
+    // sacrificing DDE; one DDE may provide two Energy if needed.
+    if (basic.length >= 2) {
+      return {kind:'select-choices',tokens:basic.slice(0,2).map(c=>c.token)};
+    }
+    if (dde.length) return {kind:'select-choices',tokens:[dde[0].token]};
+    return {kind:'abstain',reasonCode:'RANK32_RYUNO_NO_SUPPORTED_ENERGY_PAYMENT'};
   }
   if (/stealthy hood/.test(source) && meta.selectionType === 'pokemon') {
     const enemyWobbuffet = /^Wobbuffet PHF 36\b/i.test(print(obs?.opponentPublic?.active));
