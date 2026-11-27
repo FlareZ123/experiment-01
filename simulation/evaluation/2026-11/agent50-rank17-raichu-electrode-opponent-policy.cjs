@@ -1802,6 +1802,15 @@ function r17RainCapacity(view,p,{extraDiscard=[],extraAttached=[],ignoreTemple=f
   }
   return result;
 }
+function r17NewMoonSunbeamLive(view) {
+  const solrock=slots(opponent(view)).find(q=>/^Solrock CES(?: 62)?$/i.test(printingValue(q))&&
+    list(q.abilities).includes('Sunbeam'));
+  if(!solrock)return false;
+  // Actor projection carries printed HP, not effect-modified max HP. Treat
+  // an unresolved suppression state conservatively as live; only an
+  // explicit source-attributed suppression can lower Lunatone back to 90.
+  return !r17Suppressed(solrock,'Sunbeam');
+}
 function r17VisibleRainTargets(view,p,forceSight=false) {
   const stad=r17Stadium(view);
   if(stad&&!/^(Sky Field ROS|Dimension Valley PHF|Temple of Sinnoh ASR|Pok[eé]Stop PGO|Path to the Peak CRE|Power Plant UNB)(?: \d+)?$/i.test(stad))return null;
@@ -1815,8 +1824,10 @@ function r17VisibleRainTargets(view,p,forceSight=false) {
          q.hp<=0||q.damage<0||q.damage>=q.hp||
          list(q.tools).some(t=>!/^(Stealthy Hood UNB|Forest Seal Stone SIT|Float Stone BKT|Powerglass SFA)(?: \d+)?$/i.test(printingValue(t))))return null;
       const modifier=zone==='bench'&&sight&&row[2]?30:0;
+      const maxHp=/^Lunatone OBF(?: 92)?$/i.test(printingValue(q))&&r17NewMoonSunbeamLive(view)?
+        Math.max(q.hp,130):q.hp;
       targets.push({zone,index,printing:printingValue(q),prizes:row[1],
-        hits:Math.max(1,Math.ceil((q.hp-q.damage-modifier)/30))});
+        hits:Math.max(1,Math.ceil((maxHp-q.damage-modifier)/30))});
     }
   }
   return targets.length?targets:null;
