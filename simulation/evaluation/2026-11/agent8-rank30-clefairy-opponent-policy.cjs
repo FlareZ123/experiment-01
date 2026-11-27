@@ -587,10 +587,10 @@ function sourcePrizeTarget(p) {
 }
 function terminalRondo(o) {
   const r=projectedRondo(o);
-  return r && /^Shadow Rider Calyrex VMAX CRE(?: 75)?\b/i.test(text(o.opponentPublic.active)) &&
-    r.damage>=r.remaining &&
+  return Boolean(r && r.damage>=r.remaining &&
     safeInt(o.ownPublic?.prizeCount) && o.ownPublic.prizeCount>0 &&
-    (o.ownPublic.prizeCount<=sourcePrizeTarget(o.opponentPublic.active)||benchCount(o.opponentPublic)===0);
+    (o.ownPublic.prizeCount<=sourcePrizeTarget(o.opponentPublic.active)||
+      benchCount(o.opponentPublic)===0));
 }
 function threatenSecondTarget(o) {
   return safeInt(o.opponentPublic?.prizeCount)&&o.opponentPublic.prizeCount<=2&&
