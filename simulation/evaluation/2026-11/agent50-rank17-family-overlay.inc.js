@@ -880,6 +880,7 @@ const R17_TARGET_ROWS=Object.freeze([
   [/^Mimikyu GRI(?: 58)?$/i,1,false],
   [/^Girafarig LOT(?: 94)?$/i,1,false],
   [/^Marshadow UNB(?: 81)?$/i,1,false],
+  [/^Klefki SVI(?: 96)?$/i,1,false],
   [/^Radiant Eternatus CRZ(?: 105)?$/i,1,false],
   [/^Wobbuffet PHF(?: 36)?$/i,1,false]
 ]);
