@@ -378,8 +378,29 @@ function r17CarrierChoices(prompt,view,zone='discard') {
     c=>r17CarrierValue(r17Key(c),view));
   return r17Multi(prompt,[...rows,...fill],2);
 }
+function r17StretcherShuffleValue(key,view) {
+  if(key==='raichu')return 500;
+  if(key==='electrode')return 480;
+  if(key==='pikachu')return 420;
+  if(key==='voltorb')return 410;
+  if(key==='gengar')return gxUsed(view)?160:360;
+  if(key==='marshadow')return 300;
+  if(key==='unown')return 260;
+  if(key==='klefki')return 220;
+  if(key==='squawk')return 200;
+  return 0;
+}
+function r17StretcherShufflePlan(view,cards=r17Discard(view)) {
+  if(r17Deck(view)>2)return [];
+  const rows=cards.filter(c=>R17_POKEMON.has(r17Key(c))&&r17Key(c)!=='ditto');
+  if(rows.length<3)return [];
+  return r17Rank(rows,c=>r17StretcherShuffleValue(r17Key(c),view)).slice(0,3);
+}
 function r17StretcherChoices(prompt,view) {
-  const cards=r17ChoiceCards(prompt,'discard'),counts=r17CardCounts(cards)||{},discardCounts={};
+  const cards=r17ChoiceCards(prompt,'discard'),m=metadata(prompt);
+  const shuffleMode=(m.requiredCount===3)||(m.minimumCount===3&&m.maximumCount===3);
+  if(shuffleMode)return r17Multi(prompt,r17StretcherShufflePlan(view,cards),3);
+  const counts=r17CardCounts(cards)||{},discardCounts={};
   for(const key of R17_CORE_KEYS)discardCounts[key]=counts[key]||0;
   const plan=r17CoreAccess(view,{}, {stretcher:1,discardCounts});
   const rows=r17TakeKeys(cards,plan.stretcherKeys,1);
@@ -1282,8 +1303,12 @@ function r17ScorePlay(item,view) {
   if(k==='carrier')return r17CoreAccess(view).carrierKeys.length||
     r17Discard(view).some(c=>!R17_CORE_KEYS.includes(r17Key(c))&&r17CarrierValue(r17Key(c),view)>0)?290:0;
   if(k==='compressor')return r17ActiveLoadPlan(view)?395:r17CompressorUseful(view)?(r17CompressorGain(view)>0?305:250):0;
-  if(k==='stretcher')return r17CoreAccess(view).stretcherKeys.length||
-    r17Discard(view).some(c=>!R17_CORE_KEYS.includes(r17Key(c))&&r17RecoveryValue(r17Key(c),view)>0)?275:0;
+  if(k==='stretcher'){
+    const shuffle=r17StretcherShufflePlan(view);
+    if(shuffle.length===3)return 360-20*r17Deck(view);
+    return r17CoreAccess(view).stretcherKeys.length||
+      r17Discard(view).some(c=>!R17_CORE_KEYS.includes(r17Key(c))&&r17RecoveryValue(r17Key(c),view)>0)?275:0;
+  }
   if(k==='mail')return r17Deck(view)>=2?175:0;
   if(k==='heavy')return r17Missing(view,'voltorb','electrode')||r17Missing(view,'pikachu','raichu')?160:0;
   if(k==='secret'){
@@ -1492,9 +1517,10 @@ function r17Prompt(request) {
   }
   if(key==='rope'&&type==='ChoosePokemonPrompt')return r17SwitchChoices(p,v);
   if(key==='stretcher'&&(type==='SelectOptionPrompt'||type==='SelectPrompt')) {
-    // Exact printed option 0 is recover one to hand; shuffle-three mode
-    // is deliberately unimplemented rather than guessed at its continuation.
-    if(r17CoreAccess(v,{}, {stretcher:1}).stretcherKeys.length||r17Discard(v).some(c=>!R17_CORE_KEYS.includes(r17Key(c))&&r17RecoveryValue(r17Key(c),v)>0))return r17Option(p,0);
+    if(r17StretcherShufflePlan(v).length===3)return r17Option(p,1);
+    if(r17CoreAccess(v,{}, {stretcher:1}).stretcherKeys.length||
+      r17Discard(v).some(c=>!R17_CORE_KEYS.includes(r17Key(c))&&r17RecoveryValue(r17Key(c),v)>0))
+      return r17Option(p,0);
   }
   if((key==='unown'&&effect==='Farewell Letter'||key==='marshadow'&&effect==='Resetting Hole'||
       key==='squawk'&&effect==='Squawk and Seize')&&type==='ConfirmPrompt') {
