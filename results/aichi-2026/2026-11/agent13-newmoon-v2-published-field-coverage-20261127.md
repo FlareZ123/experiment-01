@@ -42,6 +42,6 @@ The repository still lacks exact published lists for ranks **23, 25, and 28**. T
 
 ## Implementation consequence
 
-The next New Moon policy worker should begin from the fixed v2 hash and the 64-case contract, not from archetype-name heuristics. The contract now has a named state transition for every authenticated rank; failures should therefore be reported as **case-level policy failures or genuinely new mechanisms**, rather than another broad statement that a matchup is 'uncovered'.
+The next New Moon policy worker should begin from the fixed v2 hash and the 65-case contract, not from archetype-name heuristics. The contract now has a named state transition for every authenticated rank; failures should therefore be reported as **case-level policy failures or genuinely new mechanisms**, rather than another broad statement that a matchup is 'uncovered'.
 
 Full-field competitive qualification remains **0 / 32** and the 99.5% target remains unproven.
