@@ -545,3 +545,53 @@ test('V3 Counter Catcher chooses a visible game-winning bench KO through real sl
   req.actionFrontier.items=[];
   assert.deepEqual(checked(req),{kind:'select-choices',tokens:['den']});
 });
+
+
+test('V3 evolution frontier chooses the Bench Regidrago with usable attack Energy',()=>{
+  const own=player({
+    active:pokemon('Budew ASC 16',{subtypes:['Basic'],stage:'BASIC'}),
+    bench:[
+      pokemon('Regidrago V SIT 135',{subtypes:['Basic','V'],energies:[]}),
+      pokemon('Regidrago V SIT 135',{subtypes:['Basic','V'],
+        energies:['Double Dragon Energy ROS 97','Grass Energy MEE 9']})
+    ],discard:['Hisuian Goodra VSTAR LOR 136']
+  });
+  const item=(token,index)=>({
+    token,kind:'play-card',actorPrinting:'Regidrago VSTAR SIT 136',
+    targetPrinting:'Regidrago V SIT 135',
+    publicMetadata:{targetSeat:'actor',targetZone:'bench',
+      targetIndex:index,isOwnerVisible:true}
+  });
+  const req=root(1,{own,items:[item('empty',0),item('funded',1),
+    {token:'pass',kind:'pass'}],requestId:'rank32-v3-funded-evolution'});
+  assert.deepEqual(checked(req),{kind:'select-action',token:'funded'});
+});
+
+test('V3 Muscle Band target must convert a real 200-damage Goodra attack into KO',()=>{
+  const own=player({
+    active:pokemon('Regidrago VSTAR SIT 136',{stage:'STAGE_1',
+      subtypes:['VSTAR'],energies:['Double Dragon Energy ROS 97','Grass Energy MEE 9']}),
+    bench:[pokemon('Dedenne-GX UNB 57',{subtypes:['Basic','GX']})],
+    discard:['Hisuian Goodra VSTAR LOR 136']
+  });
+  const opponent=player({active:pokemon('Wobbuffet PHF 36',{
+    hp:210,damage:0,subtypes:['Basic']})});
+  const item=(token,targetPrinting,targetZone,targetIndex)=>({
+    token,kind:'play-card',actorPrinting:'Muscle Band XY 121',
+    targetPrinting,publicMetadata:{
+      targetSeat:'actor',targetZone,
+      ...(Number.isSafeInteger(targetIndex)?{targetIndex}:{}),
+      isOwnerVisible:true
+    }
+  });
+  const req=root(0,{own,opponent,
+    items:[
+      item('wrong','Dedenne-GX UNB 57','bench',0),
+      item('band','Regidrago VSTAR SIT 136','active'),
+      {token:'apex',kind:'attack',actorPrinting:'Regidrago VSTAR SIT 136',
+        attackName:'Apex Dragon'}
+    ],requestId:'rank32-v3-muscle-cross'});
+  assert.deepEqual(checked(req),{kind:'select-action',token:'band'});
+  opponent.active.hp=180;
+  assert.deepEqual(checked(req),{kind:'select-action',token:'apex'});
+});
