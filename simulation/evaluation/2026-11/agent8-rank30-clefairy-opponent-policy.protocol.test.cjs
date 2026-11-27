@@ -281,3 +281,46 @@ test('Compressor does not bury an essential Guzma without a VS Seeker or alterna
     actorPrinting:'Battle Compressor PHF',token:'compressor'}];
   assert.deepEqual(p(0).decide(r),{kind:'abstain',reasonCode:'NO_SUPPORTED_ROOT_ACTION'});
 });
+
+
+for(const seat of [0,1]){
+  test('seat '+seat+' Rescue Carrier returns real distinct discarded 60HP Unowns then benches one to restore Rondo',()=>{
+    const r=request(seat,['Rescue Carrier EVS'],[],'Rescue Carrier EVS','discard',
+      [['Unown AOR','unown-a'],['Unown AOR','unown-b'],['Crobat V DAA','illegal-high-hp']],0,2);
+    r.observation.ownPublic.active={printing:clef,hp:190,damage:0};
+    r.observation.ownPublic.bench=[{printing:'Latias ex SSP'}];
+    r.observation.ownPublic.discard=['Unown AOR','Unown AOR','Crobat V DAA'];
+    r.actionFrontier.items=[{kind:'play-card',actorPrinting:'Rescue Carrier EVS',token:'carrier'}];
+    r.prompt=null;
+    assert.deepEqual(p(seat).decide(r),{kind:'select-action',token:'carrier'});
+    r.prompt=request(seat,['Rescue Carrier EVS'],[],
+      'Rescue Carrier EVS','discard',
+      [['Unown AOR','unown-a'],['Unown AOR','unown-b']],0,2).prompt;
+    r.prompt.source.effectName='Rescue Carrier';
+    assertValid(seat,r,{kind:'select-choices',tokens:['unown-a','unown-b']});
+    r.observation.ownPublic.discard=['Crobat V DAA'];
+    r.observation.ownHand=['Unown AOR','Unown AOR'];
+    r.prompt=null;
+    r.actionFrontier.items=[{kind:'play-card',actorPrinting:'Unown AOR',token:'bench-unown'}];
+    assert.deepEqual(p(seat).decide(r),{kind:'select-action',token:'bench-unown'});
+  });
+  test('seat '+seat+' Rescue Carrier fails closed on opponent-discard and optional no-target',()=>{
+    const r=request(seat,[],[],'Rescue Carrier EVS','discard',
+      [['Unown AOR','unown']],0,2);
+    r.prompt.publicMetadata.sourceZone='opponentDiscard';
+    assertValid(seat,r,{kind:'abstain',reasonCode:'UNSUPPORTED_CARD_COMBINATION_SOURCE'});
+    r.prompt=request(seat,[],[],'Rescue Carrier EVS','discard',[],0,2).prompt;
+    assertValid(seat,r,{kind:'select-choice',token:'none'});
+  });
+}
+test('Rescue Carrier never sacrifices existing immediate lethal Rondo to spend Item',()=>{
+  const r=request(0,['Rescue Carrier EVS'],[],'Rescue Carrier EVS','discard',[],0,2);
+  r.observation.ownPublic.active={printing:clef,hp:190,damage:0};
+  r.observation.ownPublic.bench=[{printing:'Latias ex SSP'}];
+  r.observation.ownPublic.discard=['Unown AOR'];
+  r.observation.opponentPublic.active={printing:'Shadow Rider Calyrex VMAX CRE',hp:320,damage:280};
+  r.prompt=null;r.actionFrontier.items=[
+    {kind:'play-card',actorPrinting:'Rescue Carrier EVS',token:'carrier'},
+    {kind:'attack',actorPrinting:clef,attackName:'Full Moon Rondo',token:'rondo'}];
+  assert.deepEqual(p(0).decide(r),{kind:'select-action',token:'rondo'});
+});
