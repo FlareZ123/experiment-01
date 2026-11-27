@@ -1,7 +1,7 @@
 'use strict';
 // Development-only actor-visible tactical slice; see accompanying report.
 module.exports = (function build() {
-  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v3';
+  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v4';
   const SOURCE_RANK = 9;
   const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
   const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -226,6 +226,92 @@ function bombPlanner(o,sourceBenchIndex){
   }
   visit(0,0);return bestPlan;
 }
+
+  const isVol=x=>/^Voltorb ROS 21\b/i.test(name(x));
+  const isToed=x=>/^Toedscool PAR 16\b/i.test(name(x));
+  const isUn=x=>/^Unown AOR 30\b/i.test(name(x));
+  const isDedenne=x=>/^Dedenne-GX UNB 57\b/i.test(name(x));
+  const isGengar=x=>/^Gengar & Mimikyu-GX TEU 53\b/i.test(name(x));
+  const isSquawk=x=>/^Squawkabilly ex PAL 169\b/i.test(name(x));
+  const basic=x=>mega(x)||sableye(x)||[isVol,isToed,isUn,isDedenne,isGengar,isSquawk].some(f=>f(x));
+  const benchCount=o=>L(o.ownPublic?.bench).filter(x=>x!==null&&x!==undefined).length;
+  function chooseSetup(r){
+    const p=r.prompt,o=r.observation,m=M(p),cs=L(p.choices);
+    if(p.source?.sourceKind!=='engine'||p.source.sourcePrinting!==null||p.source.classification!=='actor-choice'||p.actingSeat!==o.actorSeat)return null;
+    const no=reasonCode=>({kind:'abstain',reasonCode});
+    if(o.phase===1&&p.source.effectName===p.description&&p.promptType==='ConfirmPrompt'&&p.description==='GO_FIRST'){
+      // Earlier Voltorb evolution is our current source-pilot hypothesis.
+      const y=cs.filter(c=>c.kind==='confirm'&&/^yes$/i.test(c.label??'')),n=cs.filter(c=>c.kind==='confirm'&&/^no$/i.test(c.label??''));
+      return m.selectionType==='confirm'&&y.length===1&&n.length===1?{kind:'select-choice',token:y[0].token}:no('BAD_GO_FIRST_CONFIRM_CHOICES');
+    }
+    if(o.phase===1&&p.source.effectName===p.description&&p.promptType==='SelectPrompt'&&p.description==='WANT_TO_DRAW_CARDS'){
+      const opts=cs.filter(c=>c.kind==='option'&&Number.isSafeInteger(M(c).choiceIndex)&&M(c).choiceIndex>=0&&M(c).choiceIndex<m.count&&c.label==='Draw '+(m.count-1-M(c).choiceIndex)+' card(s)');
+      if(m.selectionType!=='option'||!Number.isSafeInteger(m.count)||m.count<1||opts.length!==m.count||new Set(opts.map(c=>M(c).choiceIndex)).size!==m.count)return no('BAD_MULLIGAN_DRAW_SETUP_PROMPT');
+      return {kind:'select-choice',token:opts.find(c=>M(c).choiceIndex===0).token};
+    }
+    if(o.phase===1&&p.source.effectName===p.description&&p.promptType==='ChooseCardsPrompt'&&p.description==='CHOOSE_STARTING_POKEMONS'){
+      const min=m.minimumCount,max=m.maximumCount;
+      if(m.selectionType!=='card-combination'||m.sourceZone!=='hand'||m.ownerSeat!=='actor'||m.isOwnerVisible!==true||m.allowCancel!==false||![0,1].includes(min)||!Number.isSafeInteger(max)||max<min)return no('BAD_STARTING_POKEMON_SETUP_PROMPT');
+      const candidates=cs.filter(c=>c.kind==='card'&&M(c).sourceZone==='hand'&&M(c).ownerSeat==='actor'&&M(c).isOwnerVisible===true&&basic(c));
+      const board=slots(o.ownPublic).map(x=>x.p),out=[];
+      if(min===1){
+        if(o.ownPublic?.active!==null)return no('INVALID_STARTING_POKEMON_PROMPT');
+        const a=best(candidates,c=>mega(c)?100:isUn(c)?80:isGengar(c)?70:sableye(c)?60:isToed(c)?40:isSquawk(c)?30:isDedenne(c)?20:isVol(c)?10:0);
+        if(!a)return no('NO_VISIBLE_STARTING_POKEMON');
+        out.push(a);board.push(a);
+      }else if(!o.ownPublic?.active)return no('MISSING_ACTIVE_FOR_EXTRA_BENCH');
+      const limit=Math.min(max-out.length,Math.max(0,4-benchCount(o)));
+      let added=0;
+      // Preserve hand-play draw engines, reserve a free Bench slot.
+      for(const f of [mega,isVol,isToed,isUn,isUn]){
+        const already=board.filter(f).length,cap=f===isUn?2:1;
+        if(already>=cap||added>=limit)continue;
+        const c=candidates.find(x=>!out.includes(x)&&f(x));
+        if(c){out.push(c);board.push(c);added++;}
+      }
+      if(out.length)return select(p,out,out.length,'NO_STARTING_POKEMON_CHOICE');
+      const empty=cs.find(c=>c.kind==='empty-selection');
+      return min===0&&empty?{kind:'select-choice',token:empty.token}:no('NO_EMPTY_BENCH_SELECTION');
+    }
+    if(p.promptType==='ChoosePrizePrompt'&&m.selectionType==='prize-slots'){
+      const n=m.requiredCount,c=cs.filter(c=>c.kind==='prize'&&M(c).ownerSeat==='actor');
+      if(!Number.isSafeInteger(n)||n<1||c.length<n)return no('NO_LEGAL_PRIZE_SELECTION');
+      // Deliberately blind; no assumption of Prize-location knowledge.
+      return {kind:'select-choices',tokens:c.slice(0,n).map(x=>x.token)};
+    }
+    if(p.promptType==='ChoosePokemonPrompt'&&m.selectionType==='pokemon'&&o.ownPublic?.active===null){
+      const c=best(cs,c=>{
+        const q=ownChoice(o,c);if(!q)return 0;
+        const ko=bestAttackAgainst(o,q,o.opponentPublic?.active);
+        if(ko)return 1000+ko;
+        if(mega(q)&&usable(q,'Claw of Darkness'))return 400;
+        if(isUn(q)&&!L(q.energies).length)return 150;
+        if(isVol(q))return 10;
+        return 60/prize(q);
+      });
+      return c?select(p,[c],1,'NO_SUPPORTED_POKEMON_CHOICE'):no('NO_VISIBLE_POKEMON_TARGET');
+    }
+    return no('UNSUPPORTED_ENGINE_SETUP_PROMPT');
+  }
+  function chooseClaw(r){
+    const p=r.prompt,o=r.observation,cs=L(p.choices),src=p.source;
+    if(p.actingSeat!==o.actorSeat||src?.classification!=='actor-choice'||src.sourceKind!=='card-effect'||!mega(src.sourcePrinting)||src.effectName!=='Claw of Darkness'||p.promptType!=='ChooseCardsPrompt')return null;
+    const seen=cs.filter(c=>c.kind==='card'&&M(c).ownerSeat==='opponent'&&M(c).sourceZone==='hand'&&M(c).isOwnerVisible===true);
+    if(seen.length!==cs.length)return {kind:'abstain',reasonCode:'UNTRUSTED_CARD_SELECTION'};
+    const c=best(seen,c=>{
+      const x=name(c),duplicates=seen.filter(y=>name(y)===x).length;
+      let v=30;
+      if(/Guzma|Boss's Orders|Counter Catcher|Prime Catcher/i.test(x))v=250;
+      if(/Shadow Rider Calyrex VMAX/i.test(x)&&slots(o.opponentPublic).some(y=>/Shadow Rider Calyrex V\b/i.test(name(y.p))&&!/VMAX/i.test(name(y.p))))v=360;
+      if(/Field Blower|Lost Vacuum|Tool Scrapper|Stealthy Hood/i.test(x)&&activeStadium(o).some(s=>/Silent Lab|Path to the Peak/i.test(s)))v=310;
+      if(/Iono|Professor's Research|Lillie's Determination|Cynthia|Carmine|Colress/i.test(x))v=seen.length<=3?300:190;
+      if(/Mysterious Treasure|Ultra Ball|Fog Crystal|Quick Ball|Computer Search|Secret Box/i.test(x))v=220;
+      if(/\bEnergy\b/i.test(x))v=seen.filter(y=>/\bEnergy\b/i.test(name(y))).length===1&&L(o.opponentPublic?.active?.energies).length<2?240:65;
+      return Math.max(1,v-45*(duplicates-1));
+    });
+    return c?select(p,[c],1,'NO_USEFUL_CARD_CHOICE'):{kind:'abstain',reasonCode:'NO_USEFUL_CARD_CHOICE'};
+  }
+
   function createPolicy({role,seat,policyVersion,config}) {
     if(role!=='opponent'||![0,1].includes(seat)||policyVersion!==POLICY_VERSION||!config||Array.isArray(config)||Object.keys(config).length)throw Error('RANK9_INIT_MISMATCH');
     let chain=null;
@@ -273,6 +359,7 @@ function bombPlanner(o,sourceBenchIndex){
       const o=r.observation,p=r.prompt,source=name(p.source?.sourcePrinting);
       const choices=L(p.choices).filter(x=>typeof x.token==='string');
       const fail=code=>{chain=null;return {kind:'abstain',reasonCode:code};};
+      if(!chain){const setup=chooseSetup(r);if(setup)return setup;const claw=chooseClaw(r);if(claw)return claw;}
       if(!chain||chain.turn!==o.globalTurn||r.sequence!==chain.sequence+1||
          !(chain.kind==='guzma'?guzma(source):plumeria(source)))return fail('UNTRUSTED_PROMPT_SOURCE');
       chain.sequence=r.sequence;

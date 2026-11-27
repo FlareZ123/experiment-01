@@ -95,3 +95,32 @@ const bombCount=(function tests(P){
  return n;
 })(P);
 console.log('passed '+bombCount+' Bomb planner assertions');
+
+const setupCount=(function setupTests(P,protocol){
+ const mk=(token,printing,zone='hand',owner='actor')=>({token,kind:'card',printing,label:printing,publicMetadata:{sourceZone:zone,ownerSeat:owner,isOwnerVisible:true}});
+ const Meg='Mega Absol ex MEG 86',Un='Unown AOR 30',Vol='Voltorb ROS 21',To='Toedscool PAR 16',De='Dedenne-GX UNB 57';
+ const policy=P.createPolicy({role:'opponent',seat:0,policyVersion:P.POLICY_VERSION,config:{}});
+ const obs={actorSeat:0,phase:1,ownPublic:{active:null,bench:[null,null,null,null,null]},opponentPublic:{active:null,bench:[]}};
+ const pr=(kind,desc,choices,metadata,source=null)=>({schema:protocol.PROMPT_SCHEMA,actingSeat:0,promptType:kind,description:desc,source:{classification:'actor-choice',sourceKind:source?'card-effect':'engine',sourcePrinting:source,effectName:desc},choices,publicMetadata:metadata});
+ const md=(minimumCount,maximumCount)=>({selectionType:'card-combination',minimumCount,maximumCount,sourceZone:'hand',ownerSeat:'actor',isOwnerVisible:true,allowCancel:false,isSecret:false});
+ let n=0;
+ function check(o,p,expected,label){
+   protocol.validatePrompt(p,0);
+   const d=policy.decide({role:'opponent',seat:0,sequence:1,observation:o,prompt:p});
+   protocol.validateDecision(d,p,new Set());
+   if(JSON.stringify(d)!==JSON.stringify(expected))throw Error(label+': '+JSON.stringify(d));
+   n++;
+ }
+ check(obs,pr('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[mk('d',De),mk('v',Vol),mk('m',Meg),mk('u',Un),mk('t',To)],md(1,5)),{kind:'select-choices',tokens:['m','v','t','u']},'setup preserves Dedechange');
+ const post={...obs,ownPublic:{active:{printing:Meg},bench:[{printing:Vol},null,null,null,null]}};
+ const empty={token:'empty',kind:'empty-selection',label:'Choose no items'};
+ check(post,pr('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[mk('d',De),mk('u',Un),empty],md(0,4)),{kind:'select-choices',tokens:['u']},'bonus basics');
+ check(post,pr('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[mk('d',De),empty],md(0,4)),{kind:'select-choice',token:'empty'},'keep Dedenne');
+ check(obs,pr('ConfirmPrompt','GO_FIRST',[{token:'yes',kind:'confirm',label:'Yes'},{token:'no',kind:'confirm',label:'No'}],{selectionType:'confirm',allowCancel:false}),{kind:'select-choice',token:'yes'},'choose first');
+ const opts=[0,1,2].map(i=>({token:'opt'+i,kind:'option',label:'Draw '+(2-i)+' card(s)',publicMetadata:{choiceIndex:i}}));
+ check(obs,pr('SelectPrompt','WANT_TO_DRAW_CARDS',opts,{selectionType:'option',allowCancel:false,count:3}),{kind:'select-choice',token:'opt0'},'bonus max');
+ const claw={...post,phase:2,opponentPublic:{active:{printing:'Shadow Rider Calyrex V CRE 74'},bench:[]}};
+ check(claw,pr('ChooseCardsPrompt','Claw of Darkness',[mk('e','Psychic Energy MEE 13','hand','opponent'),mk('vmax','Shadow Rider Calyrex VMAX CRE 75','hand','opponent')],{...md(1,1),ownerSeat:'opponent'},Meg),{kind:'select-choices',tokens:['vmax']},'remove evolution');
+ return n;
+})(P,protocol);
+console.log('passed '+setupCount+' protocol-validated setup/Claw assertions');
