@@ -135,6 +135,13 @@ function opponentHasVisibleItem(observation) {
   );
 }
 
+// Target Whistle targets a visible Basic in the two registered fixed 60s.
+// Unrecognized printings remain unsupported rather than accepted by default.
+function isRegisteredCandidateBasic(value) {
+  const printing = valueText(value);
+  return /^(?:Shadow Rider Calyrex V(?!MAX)\b|Lillie'?s Clefairy ex\b|Tapu Lele-GX\b|Trevenant & Dusknoir-GX\b|Latias ex\b|Dialga-GX\b|Mimikyu\b|Girafarig\b|Marshadow\b|Radiant Eternatus\b|Wobbuffet\b)/i.test(printing);
+}
+
 function opponentHasVisibleEnergy(observation) {
   return list(observation?.opponentPublic?.publicHand).some(card => /Energy/i.test(valueText(card)));
 }
@@ -332,9 +339,10 @@ function cardChoiceScore(choice, observation, context) {
   if (context === 'target-whistle') {
     if (choiceOwner(choice) !== 'opponent' ||
         (choiceZone(choice) !== 'discard' && choice?.publicMetadata?.sourceZone !== 'discard')) return 0;
+    if (!isRegisteredCandidateBasic(printing)) return 0;
     if (/Radiant Eternatus|Tapu Lele-GX|Latias ex/i.test(printing)) return 180;
     if (/Shadow Rider Calyrex V(?!MAX)|Regidrago V(?!STAR)/i.test(printing)) return 160;
-    return choice.kind === 'pokemon' || /\\b(?:V|ex|GX)\\b/i.test(printing) ? 120 : 30;
+    return 120;
   }
   if (context === 'faba') {
     if (/Stealthy Hood/i.test(printing)) return 280;
@@ -961,7 +969,7 @@ function scorePlayCard(item, request) {
        PRINT.sidney,PRINT.teamSkull].some(pattern => matches(supporter,pattern)));
     // VS Seeker is itself an Item: value derives from a visible Supporter
     // resource in public discard, not an unconstrained generic connector.
-    return inDiscard && ownDeckCount(observation) > 0 ? 95 : 0;
+    return inDiscard ? 95 : 0;
   }
   if (matches(card, PRINT.fieldBlower)) {
     const opponentHood = slots(opponent).some(row =>
@@ -971,7 +979,8 @@ function scorePlayCard(item, request) {
       list(opponent.stadium).length > 0 ? 95 : 0;
   }
   if (matches(card, PRINT.targetWhistle)) {
-    return hasBasicBenchSpace(opponent) && list(opponent.discard).length > 0 ? 75 : 0;
+    return hasBasicBenchSpace(opponent) &&
+      list(opponent.discard).some(isRegisteredCandidateBasic) ? 75 : 0;
   }
   if (matches(card, PRINT.megatonBlower)) {
     return opponentHasTool(observation) || opponentSpecialEnergyCount(observation) > 0 ? 185 : 0;
