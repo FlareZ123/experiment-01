@@ -22,8 +22,12 @@ const profiles=[
 const card=fullName=>({fullName});
 function nativeSlot({fullName,name,types,hp,subtypes,damage=0,
   energies=[],attacks=[],powers=[],weakness=[],resistance=[]}){
+  // Faithful pinned shape: Card exposes `tags`, PokemonCard exposes numeric
+  // `stage`; there is no trustworthy native `subtypes` field.
+  const stage=subtypes.includes('VMAX')?5:subtypes.includes('VSTAR')?6:2;
+  const tags=subtypes.filter(t=>!['Basic','Stage 1','Stage 2'].includes(t));
   const pokemon={fullName,name,cardType:types,hp,
-    stage:subtypes.includes('VMAX')?5:0,subtypes,retreat:[COLORLESS],
+    stage,tags,retreat:[COLORLESS],
     weakness,resistance,attacks,powers};
   return {cards:[pokemon],getPokemonCard(){return pokemon;},damage,
     pokemonPlayedTurn:1,abilityLockActivationOrder:0,energies:{cards:energies.map(card)},
@@ -81,6 +85,10 @@ for(const seat of [0,1]){
       activePlayer:seat,turn:4,phase:2,prompts:[]};
     const view=contract.actorObservation(state,seat);
     assert.deepEqual(view.ownPublic.active.printed.types,['Psychic']);
+    assert.ok(view.ownPublic.active.printed.subtypes.includes('VMAX'));
+    assert.ok(view.ownPublic.active.printed.subtypes.includes('V'));
+    assert.ok(view.opponentPublic.active.printed.subtypes.includes('VSTAR'));
+    assert.ok(view.opponentPublic.bench[0].printed.subtypes.includes('Basic'));
     assert.deepEqual(view.ownPublic.active.printed.retreatCost,['Colorless']);
     assert.deepEqual(view.ownPublic.active.printed.weakness,[{type:'Darkness',value:'×2'}]);
     assert.deepEqual(view.ownPublic.active.attacks[0].cost,['Colorless','Colorless','Colorless']);
