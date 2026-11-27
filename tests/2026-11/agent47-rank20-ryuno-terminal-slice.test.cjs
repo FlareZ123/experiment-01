@@ -126,7 +126,7 @@ test('unsupported native prompt families and non-Apex origins remain delegated',
 
 test('actual V3 validator accepts root→copied donor→one DDE card for two Ryuno units',()=>{
   const s=state(0);
-  s.observation.ownPublic.active.energies=['Double Dragon Energy ROS 97','Grass Energy MEE 9'];
+  s.observation.ownPublic.active.energies=['Double Dragon Energy ROS','Grass Energy MEE'];
   s.observation.ownPublic.discard=['Mega Dragonite ex M2a'];
   s.actionFrontier.schema=protocol.FRONTIER_SCHEMA;
   const root=decide(s);
@@ -137,7 +137,7 @@ test('actual V3 validator accepts root→copied donor→one DDE card for two Ryu
     schema:protocol.PROMPT_SCHEMA,actingSeat:0,promptType:'ChooseAttackPrompt',
     description:'Choose an attack for Apex Dragon',
     source:{classification:'actor-choice',sourceKind:'card-effect',
-      sourcePrinting:'Regidrago VSTAR SIT 136',effectName:'Apex Dragon'},
+      sourcePrinting:'Regidrago VSTAR SIT',effectName:'Apex Dragon'},
     publicMetadata:{selectionType:'attack',count:2,allowCancel:false},
     choices:[
       {token:'echo',kind:'attack',printing:'Noivern ex PAL 153',
@@ -162,13 +162,13 @@ test('actual V3 validator accepts root→copied donor→one DDE card for two Ryu
     publicMetadata:{selectionType:'energy-payment',count:2,energyCount:2,
       energyType:'9,9',allowCancel:false},
     choices:[
-      {token:'dde',kind:'energy',printing:'Double Dragon Energy ROS 97',
-        label:'Double Dragon Energy ROS 97 (1/1)',
-        publicMetadata:{selectionIndex:0,selectedCount:1,sourceZone:'active',
+      {token:'dde',kind:'energy',printing:'Double Dragon Energy ROS',
+        label:'Double Dragon Energy ROS (1/1)',
+        publicMetadata:{selectionIndex:0,selectedCount:1,sourceZone:'board',
           ownerSeat:'actor',isOwnerVisible:true,energyType:'1/1'}},
-      {token:'grass',kind:'energy',printing:'Grass Energy MEE 9',
-        label:'Grass Energy MEE 9 (2)',
-        publicMetadata:{selectionIndex:1,selectedCount:1,sourceZone:'active',
+      {token:'grass',kind:'energy',printing:'Grass Energy MEE',
+        label:'Grass Energy MEE (2)',
+        publicMetadata:{selectionIndex:1,selectedCount:1,sourceZone:'board',
           ownerSeat:'actor',isOwnerVisible:true,energyType:'2'}}
     ]
   };
