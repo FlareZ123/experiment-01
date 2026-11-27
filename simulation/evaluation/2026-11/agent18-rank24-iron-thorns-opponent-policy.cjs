@@ -349,6 +349,22 @@ function nForcesOpponentDeckZero(observation) {
   if (deck < 0 || hand < 0 || prizes < 0) return false;
   return deck + hand > 0 && deck + hand <= prizes;
 }
+function nGeneralScore(observation) {
+  const ownHand = list(observation?.ownHand).length;
+  const oppHand = opponentHandCount(observation);
+  const ownPrizes = ownPrizeCount(observation);
+  const oppPrizes = observation?.opponentPublic?.prizeCount;
+  if (![oppHand, ownPrizes, oppPrizes].every(Number.isSafeInteger)) return 0;
+  // N itself leaves the hand before the shuffle; compare the remaining hand to
+  // the deterministic post-N draw counts.
+  const ownBeforeShuffle = Math.max(0, ownHand - 1);
+  const ownGain = ownPrizes - ownBeforeShuffle;
+  const oppLoss = oppHand - oppPrizes;
+  if (ownGain >= 3 && oppLoss >= 0) return 214;
+  if (oppLoss >= 3 && ownGain >= 0) return 210;
+  if (ownGain >= 2 && oppLoss >= 2) return 208;
+  return 0;
+}
 
 function hasCard(collection, pattern) {
   return list(collection).some(card => matches(card, pattern));
@@ -444,6 +460,9 @@ function fundingScore(item, request) {
        stadiumVisible) ? 240 : 0;
   }
 
+  if (item.kind === 'play-card' && matches(card, N_SUPPORTER)) {
+    return supporterAvailable(observation) ? nGeneralScore(observation) : 0;
+  }
   if (item.kind === 'play-card' && matches(card, GLADION)) {
     return supporterAvailable(observation) && prizedImportantCard(observation) ? 255 : 0;
   }
@@ -1152,5 +1171,6 @@ module.exports = {
   recoveryPromptDecision,
   cynthiaCaitlinPromptDecision,
   guzmaPromptDecision,
-  handHeldFanPromptDecision
+  handHeldFanPromptDecision,
+  nGeneralScore
 };
