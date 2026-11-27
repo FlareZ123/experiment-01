@@ -1599,7 +1599,7 @@ function gateWantedIgnoringPrize(view) {
   return !boardHas(view, 'Radiant Eternatus') && !handHas(view, 'Radiant Eternatus') &&
     !discardHas(view, 'Radiant Eternatus') &&
     !(view.ownPublic.lostZone ?? []).some(p => hasName(p, 'Radiant Eternatus')) &&
-    view.ownPublic.deckCount > 0 && openBenchSlots(view) >= 3 &&
+    view.ownPublic.deckCount > 0 &&
     (canPlayRadiantForGate(view) || gatePivotView(view)!==null);
 }
 function forestSealAccessNeed(view) {
@@ -1852,7 +1852,11 @@ function searchNeedScore(view, printing, effectName = '', receipt = null) {
   }
   if(hasName(printing,'Girafarig')&&needControlGirafarig(view))return 106;
   if(preserveStallSoloNightWatch(view)&&hasAnyName(printing,['Radiant Eternatus','Latias ex','Tapu Lele-GX','Shadow Rider Calyrex V','Girafarig','Wobbuffet','Marshadow',"Lillie's Clefairy ex",'Mimikyu','Dialga-GX']))return -5;
-  if (hasName(printing, 'Radiant Eternatus')) return gateAccessNeed(view) ? 120 : -5;
+  if (hasName(printing, 'Radiant Eternatus')) {
+    if (!gateAccessNeed(view)) return -5;
+    const open = openBenchSlots(view);
+    return open !== null && open >= 3 ? 120 : 100;
+  }
   if (hasName(printing, 'Forest Seal Stone')) return forestSealAccessNeed(view) ? 115 : 0;
   if (hasName(printing,'Temple of Sinnoh')) return !knownFullyPrized(view,'Temple of Sinnoh') && Number.isFinite(usefulTemple(view)) ? 105 : 0;
   if (hasName(printing,'Wobbuffet')) return !boardHas(view,'Wobbuffet') && !handHas(view,'Wobbuffet') && hasOpenBench(view) && opponentHasRegidrago(view) ? 70 : 0;
