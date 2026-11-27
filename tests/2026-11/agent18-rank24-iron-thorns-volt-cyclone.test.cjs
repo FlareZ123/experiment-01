@@ -7,9 +7,9 @@ const {
   createPolicy
 } = require('../../simulation/evaluation/2026-11/agent18-rank24-iron-thorns-opponent-policy.cjs');
 
-function mon(printing, { hp = 230, damage = 0, energies = [] } = {}) {
+function mon(printing, { hp = 230, damage = 0, energies = [], tools = [] } = {}) {
   return {
-    printing, hp, damage, energies, tools: [],
+    printing, hp, damage, energies, tools,
     printed: { types: /Iron Thorns/.test(printing) ? ['Lightning'] : ['Colorless'] },
     specialConditions: []
   };
@@ -103,6 +103,49 @@ test('certified final-Prize Volt Cyclone overrides Megaton Blower', () => {
   request.observation.ownPublic.prizeCount = 2;
   assert.deepEqual(policy.decide(request),
     { kind: 'select-action', token: 'terminal-volt' });
+});
+
+test('Shadow Rider fixed-profile fallback proves a final-Prize KO without frontier liability metadata', () => {
+  const attack = {
+    token: 'volt-fallback', kind: 'attack',
+    actorPrinting: 'Iron Thorns ex TWM 77',
+    attackName: 'Volt Cyclone',
+    publicMetadata: { attackCostPayable: true, isLegal: true }
+  };
+  const megaton = { token: 'meg', kind: 'play-card', actorPrinting: 'Megaton Blower SSP 182' };
+  const request = root({
+    opponentActive: mon('Shadow Rider Calyrex VMAX CRE 75', {
+      hp: 320, damage: 190,
+      energies: ['Psychic Energy'],
+      tools: ['Stealthy Hood UNB 186']
+    }),
+    items: [megaton, attack, pass]
+  });
+  request.observation.ownPublic.prizeCount = 3;
+  assert.deepEqual(policy.decide(request),
+    { kind: 'select-action', token: 'volt-fallback' });
+});
+
+test('Shadow Rider fallback fails closed on an unknown public Tool or unknown Active', () => {
+  const attack = {
+    token: 'volt-fallback', kind: 'attack',
+    actorPrinting: 'Iron Thorns ex TWM 77',
+    attackName: 'Volt Cyclone',
+    publicMetadata: { attackCostPayable: true, isLegal: true }
+  };
+  const megaton = { token: 'meg', kind: 'play-card', actorPrinting: 'Megaton Blower SSP 182' };
+  for (const active of [
+    mon('Shadow Rider Calyrex VMAX CRE 75', {
+      hp: 320, damage: 190, tools: ['Unknown Shield ABC 1']
+    }),
+    mon('Unknown VMAX ABC 1', {
+      hp: 320, damage: 190, tools: ['Stealthy Hood UNB 186']
+    })
+  ]) {
+    const request = root({ opponentActive: active, items: [megaton, attack, pass] });
+    request.observation.ownPublic.prizeCount = 3;
+    assert.deepEqual(policy.decide(request), { kind: 'select-action', token: 'meg' });
+  }
 });
 
 test('terminal attack layer fails closed without liability proof or with prevention/Legacy Energy', () => {
