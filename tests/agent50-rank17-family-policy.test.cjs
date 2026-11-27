@@ -302,6 +302,18 @@ function runCases(policy,protocol) {
     same(policy.ticketPlan(v)?.followup,'compressor-carrier',tag+'singleton Pikachu rescue with funded Carrier');
     v=exact(seat,{h:[ticket,A.compressor,A.carrier,A.heavy],lost:[A.ditto],prizes:[A.pikachu]});
     same(policy.ticketPlan(v),null,tag+'Heavy Ball cheaper than rerolling Prizes');
+
+    let heavyTemple=exact(seat,{h:[A.heavy],bench:[A.voltorb,A.pikachu],prizes:[A.marshadow]});
+    heavyTemple={...heavyTemple,opponentPublic:player({active:slot('Shadow Rider Calyrex VMAX CRE',{hp:320}),
+      stadium:['Temple of Sinnoh ASR']})};
+    same(runRoot(p,heavyTemple,[play('heavy-temple',A.heavy),pass]),action('heavy-temple'),
+      tag+'K1 Heavy Ball recovers Prized singleton Temple answer');
+    same(runPrompt(p,heavyTemple,cards(heavyTemple,A.heavy,'Hisuian Heavy Ball','prizes',
+      [A.unown,A.marshadow],0,1)),choose('c1'),tag+'Heavy Ball selects Marshadow over generic Basic under Temple');
+    const heavyNoTemple={...heavyTemple,opponentPublic:player({active:slot('Shadow Rider Calyrex VMAX CRE',{hp:320})})};
+    same(runRoot(p,heavyNoTemple,[play('heavy-idle',A.heavy),pass]),action('pass'),
+      tag+'do not spend Heavy Ball on Prized Marshadow without Stadium need');
+
     v=exact(seat,{h:[ticket,A.compressor,A.stretcher,A.raichu],lost:[A.ditto],prizes:[A.pikachu]});
     same(policy.ticketPlan(v)?.followup,'compressor-stretcher',tag+'single Stretcher can fund held Stage 1 base');
     v=view(seat,{ownHand:[A.compressor,A.stretcher,A.raichu]});
