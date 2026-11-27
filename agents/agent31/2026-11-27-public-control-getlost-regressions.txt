@@ -56,3 +56,28 @@ assert.deepEqual(decide(profile,root(seat,view,[bench])),sel('pass'));
 active.publicRestrictions.cannotRetreat=false;view.opponentPublic.discard=['Lusamine CIN','Secret Box TWM'];
 assert.deepEqual(decide(profile,root(seat,view,[bench])),sel('pass'));
 });
+
+paired('Agent31: public Rain denial unit priority',(seat,profile)=>{
+ const gir=pokemon({printing:'Girafarig LOT',name:'Girafarig',hp:90,energies:[P],attacks:[attack('Get Lost',['Colorless'],'0')]});
+ const raichu=pokemon({printing:'Alolan Raichu UNM',name:'Alolan Raichu',hp:110,types:['Lightning'],energies:['Unit Energy LPM UPR'],attacks:[attack('Electro Rain',['Lightning'],'0')]});
+ const elec=pokemon({printing:'Electrode-GX CES',name:'Electrode-GX',hp:190,types:['Lightning'],subtypes:['Stage 1','GX'],abilities:['Extra Energy Bomb']});
+ const get={kind:'attack',token:'get',attackName:'Get Lost'};
+ const view=observation(seat,{active:gir,opponentActive:raichu,opponentBench:[elec]});
+ view.opponentPublic.discard=['Unit Energy LPM UPR','Counter Energy CIN','Reversal Energy PAL','Unit Energy LPM UPR','Reversal Energy PAL','Counter Energy CIN'];
+ function prompt(want){
+  const req=cardPrompt(seat,view,'Girafarig LOT','Get Lost','discard',view.opponentPublic.discard,2,2);
+  req.prompt.publicMetadata.ownerSeat='opponent';for(const c of req.prompt.choices)c.publicMetadata.ownerSeat='opponent';
+  const got=decide(profile,req);assert.deepEqual([...(got.tokens??[])].sort(),want.sort());
+ }
+ assert.deepEqual(decide(profile,root(seat,view,[get])),sel('get'));
+ prompt(['card-2','card-4']);
+ view.opponentPublic.bench=[];view.opponentPublic.prizeCount=6;view.ownPublic.prizeCount=5;
+ prompt(['card-2','card-4']);
+ view.opponentPublic.prizeCount=3;view.ownPublic.prizeCount=6;
+ prompt(['card-0','card-3']);
+ view.opponentPublic.prizeCount=6;view.ownPublic.prizeCount=5;
+ view.ownPublic.stadium=[TEMPLE];view.opponentPublic.discard=['Reversal Energy PAL','Reversal Energy PAL','Marshadow UNB','Secret Box TWM'];
+ prompt(['card-2','card-3']);
+ view.opponentPublic.active=defender();view.ownPublic.stadium=[];view.opponentPublic.discard=['Reversal Energy PAL','Reversal Energy PAL','Counter Energy CIN'];
+ assert.deepEqual(decide(profile,root(seat,view,[get])),sel('pass'));
+});
