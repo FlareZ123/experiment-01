@@ -615,7 +615,7 @@ function promptDecision(request) {
   if (matches(sourcePrinting, PRINT.peonia)) {
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PRIZE_SELECTION' };
   }
-  if (/player'?s ceremony|palace book|handheld fan|gladion/i.test(source) ||
+  if (/palace book|handheld fan|gladion/i.test(source) ||
       selectionType === 'prize-slots') {
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
   }
@@ -847,6 +847,13 @@ function promptDecision(request) {
       prompt.promptType === 'SelectOptionPrompt') {
     const yes = choices.find(choice => /^(yes|true|confirm)$/i.test(choice.label ?? ''));
     const no = choices.find(choice => /^(no|false|decline|cancel)$/i.test(choice.label ?? ''));
+    if (matches(sourcePrinting, PRINT.playersCeremony)) {
+      const ownDeck = ownDeckCount(observation);
+      const wantDraw = ownHand(observation).length <= 3 && ownDeck !== null && ownDeck >= 4;
+      if (wantDraw && yes) return { kind: 'select-choice', token: yes.token };
+      if (!wantDraw && no) return { kind: 'select-choice', token: no.token };
+      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CONFIRMATION_SOURCE' };
+    }
     if (/tropical beach/i.test(source) &&
         ownHand(observation).length < 7 && ownDeckCount(observation) > 0 && yes) {
       return { kind: 'select-choice', token: yes.token };
@@ -866,6 +873,14 @@ function hasUsefulDiscardForLusamine(observation) {
      discard.some(card => matches(card, PRINT.teamFlare)) ||
      discard.some(card => matches(card, PRINT.guzma)) ||
      discard.some(card => matches(card, PRINT.faba)));
+}
+
+function canUsePlayerCeremony(request) {
+  const observation = request.observation;
+  if (ownHand(observation).length > 3 || ownDeckCount(observation) < 4) return false;
+  // Never end a turn to draw two when the offered attack is a direct KO.
+  return !list(request.actionFrontier?.items).some(item =>
+    item.kind === 'attack' && scoreAttack(item, request) >= 150);
 }
 
 function hasUrgentEnergyPressure(observation) {
@@ -912,7 +927,6 @@ function scorePlayCard(item, request) {
   if (itemCard && itemLocked(observation)) return 0;
 
   if (matches(card, PRINT.peonia) || matches(card, PRINT.gladion) ||
-      matches(card, PRINT.playersCeremony) ||
       matches(card, PRINT.palaceBook) || matches(card, PRINT.handheldFan)) return 0;
 
   if (matches(card, PRINT.speedLightning)) {
@@ -941,6 +955,11 @@ function scorePlayCard(item, request) {
     return !toolLocked(observation) && !boardHasTool(own, PRINT.toolJammer) &&
       matches(target || own.active?.printing, PRINT.ironThorns) &&
       (opponentHasTool(observation) || opponentActiveEnergy(observation) > 0) ? 135 : 0;
+  }
+  if (matches(card, PRINT.playersCeremony)) {
+    return !stadiumLocked(observation) &&
+      !hasStadium(observation, PRINT.playersCeremony) &&
+      ownHand(observation).length <= 3 && ownDeckCount(observation) >= 6 ? 85 : 0;
   }
   if (matches(card, PRINT.thunderMountain)) {
     const activeEnergy = energyCount(own.active);
@@ -1075,7 +1094,9 @@ function scorePlayCard(item, request) {
 function scoreStadiumUse(item, request) {
   const observation = request.observation;
   const card = item.actorPrinting ?? item.publicMetadata?.stadiumPrinting ?? '';
-  if (matches(card, PRINT.playersCeremony)) return 0;
+  if (matches(card, PRINT.playersCeremony)) {
+    return canUsePlayerCeremony(request) ? 120 : 0;
+  }
   if (matches(card, PRINT.tropicalBeach)) {
     return ownHand(observation).length <= 4 && ownDeckCount(observation) > 0 &&
       (observation.ownTurnResources?.supporterPlayedTurn === 1 ||
