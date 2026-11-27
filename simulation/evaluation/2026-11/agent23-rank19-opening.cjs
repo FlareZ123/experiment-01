@@ -13,7 +13,7 @@ const P={
  latias:/^Latias ex SSP(?: 76)?$/,
  sudo:/^Sudowoodo GRI(?: 66)?$/,
  koko:/^Tapu Koko (?:Prism Star|◇|♢) TEU(?: 51)?$/,
- bird:/^Ho-Oh-EX DRX(?: 22)?$/,
+ bird:/^Ho-Oh-? ?EX DRX(?: 22)?$/,
  marsh:/^Marshadow UNB(?: 81)?$/,
  lele:/^Tapu Lele-GX GRI(?: 60)?$/,
  dedenne:/^Dedenne-GX UNB(?: 57)?$/,
