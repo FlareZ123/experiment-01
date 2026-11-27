@@ -33,3 +33,66 @@ Parent fbe007ec1f587160a26968873d5293c66d11ffb2. Preserve the prior compulsory o
 ### Target-specific Hood and paper weakness correction
 
 Root and prompt now share recipient scoring: only a live Tool effect on a relevant recipient, with named opposing source departure and remaining lock veto, earns engine value. Existing own-source and Stadium suppression is not cleared by Hood. Corrected Fairy Zone to replace Dragon weakness with Psychic x2, not double every attacking type, and apply reverse-seat exposure estimate. Alolan Muk Power of Alchemy affects both players' Basics, per sm1-58; Fairy Zone sv9-56 and Hood sm10-186 exact uploaded English card text. Paired synthetic tests select the useful engine target over lexically earlier irrelevant legal attachment, veto Path/Jamming Tower, and exercise the weakness replacement and same-side Muk. V8 regression 55/55, 1141 assertions; not native or competitive evidence.
+
+
+## 2026-11-27 normal-mode continuation
+
+This continuation stayed within the existing two-profile Shadow Rider successor scope and did **not** run or claim a qualified native/full-game matchup. The objective remains unproven: no fixed 60-card list has demonstrated the target 99.5% Aichi Top 32 win rate, and these results are policy/runtime regression evidence only.
+
+### Public terminal and Prize semantics
+
+- Added separate terminal classifications for Prize wins and board-empty wins.
+- Corrected Prize liability for zero-Prize Trainer dolls: Robo Substitute, Robo Substitute Team Flare Gear, Lillie's Poké Doll, and Snorlax Doll.
+- Preserved board-empty wins when the final opposing Pokémon is zero-Prize.
+- Corrected Astral Barrage terminal target accounting so an unhooked pinned CRE74 reducer scores only Bench targets, while the exact paper hook may score Active + Bench or the sole Active.
+- Added Astral-specific benign Ability handling for Mimikyu PAL Safeguard (damage-only prevention) and Snorlax PGO Block (retreat-only), while keeping effect immunity such as Skeledirge SSP Unaware as a hard veto.
+- Exposed and consumed public Altered Creation state:
+  - `alteredCreationDamage` adds the public +30 attack damage to counterattack/hazard math.
+  - `usedAlteredCreation` adds the conditional +1 Prize only for an Active Pokémon actually Knocked Out by attack damage, not damage-counter/effect KOs.
+- Extended Apex Dragon hazard resolution with the same Altered Creation Prize scope. A Phantom Dive Active attack-damage KO increased the Get Lost hazard cut by 2200 under the existing objective (1800 maximum + 400 gust-potential), while a Trifrost optimum consisting entirely of three Benched VMAX KOs produced zero extra-Prize delta.
+- Exposed pinned Twinleaf's public `legacyEnergyUsed` state and added a side-aware direct-attack Prize helper. An unused attached Legacy Energy suppresses a false two-Prize direct terminal unless Temple of Sinnoh is publicly live; once the Legacy effect has been used, ordinary liability returns. This helper is intentionally not applied to Astral damage-counter KOs.
+
+Latest combined regression evidence after the Altered Creation work was 72 root groups / 1,695 assertions / 0 failures. After adding Legacy Energy public state and direct-attack liability, the full root suite plus public-state contract tests passed **76 groups / 1,772 assertions / 0 failures** in the isolated V8 harness.
+
+### Rank-2 Vileplume/Stoutland continuation
+
+The paid-retreat lookahead now uses physical/public board facts instead of a blanket source allowlist:
+
+- Direct line: paid retreat to live Wobbuffet -> Bide Barricade suppresses unhooded Stoutland Sentinel -> held Guzma becomes legal -> existing `guzmaPlans` must certify the final Prize attack.
+- Hooded line: when Stoutland has an effective Stealthy Hood, the direct line is rejected. A longer line is admitted only with held Field Blower, a demonstrably live/unhooded Vileplume AOR Irritating Pollen that Wobbuffet suppresses, no independent raw Item lock, exactly the removable Hood, and an existing funded terminal Guzma plan after projected Hood removal.
+- An outgoing Tool Jammer cannot manufacture a false Hood bypass because Hood status is evaluated on the post-retreat board.
+- Negative tests cover missing Blower, Hooded Vileplume, independent Item lock, extra Tool ambiguity, insufficient retreat Energy, unfunded attacker, and suppressed Wobbuffet.
+
+The four-step Hood/Blower certificate passed the full root suite at 67 groups / 1,547 assertions / 0 failures when introduced.
+
+### Setup and K1 continuity
+
+- K1 Prize knowledge now follows physical Prize custody, not a hardcoded safe-source allowlist. Certified Prize facts survive ordinary actions and opponent actions while the same opaque Prize objects remain, and revoke on same-count physical Prize composition swaps without reading hidden Prize faces.
+- The K1 wrapper regression passed 3 groups / 3,772 assertions / 0 failures.
+- Initial setup now avoids entering with a lone Shadow Rider V when the only legal backup Basic is otherwise a sacrificed trigger: fallback order Dialga-GX -> Tapu Lele-GX -> Radiant Eternatus, only after all positive-score safer Bench choices have failed.
+- The non-host setup slice passed 7 groups / 105 assertions / 0 failures; one Node-host identity test was deliberately not claimed as executed in the V8 shim.
+
+### Paper Astral runtime capability
+
+The existing Agent4 CRE74 correction was made a reversible install/restore hook and converted from dynamic path-joined requires to static vendor imports so runtime closure can hash its actual native dependencies. The successor binder now installs this exact hook for the whole fixture lifetime, composes cleanup with prompt provenance, and advertises only:
+
+`paperAstralBarrageTargets: "agent4-cre74-hook-v1"`
+
+The worker and protocol accept that exact optional capability and reject unknown values. Base three-key configs remain engine-conservative. Runtime preparation also binds the hook into the candidate common-runtime manifest. Host-level identity/closure tests were committed, but this invocation did not claim Node-host execution.
+
+### Shared public-state handoffs
+
+Generic findings were sent to the active New Moon/rank-26 owner and to the actor-observation specialist:
+
+- Altered Creation damage vs conditional extra-Prize semantics.
+- Zero-Prize Doll liability vs board-empty wins.
+- Terminal planners must score only their actual runtime target surface.
+- `legacyEnergyUsed` is public in pinned Twinleaf and should be lifted into shared observation/protocol state; Legacy's Prize reduction is attack-damage-only and is blocked by special-energy blocking such as Temple of Sinnoh.
+
+### Remaining limitations
+
+- No qualified native game was executed; no Aichi matchup is promoted by this work.
+- No fixed 60 is established as the final deck.
+- The branch is a policy/runtime successor and should not be merged or used for headline win-rate claims without the repository's evidence gate.
+- Rank-13 Temple/Get Lost counterclock evidence depends on opponent remaining counter inventory not available to the live actor, so no hidden-list exception was encoded.
+- An older rank-5 two-attack handoff cited a branch/commit no longer recoverable from live repository state; it was not reconstructed from memory.
