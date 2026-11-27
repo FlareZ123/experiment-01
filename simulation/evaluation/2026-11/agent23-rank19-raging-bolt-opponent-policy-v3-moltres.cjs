@@ -171,6 +171,13 @@ const vip=x=>/^Battle VIP Pass FST(?: 225)?$/.test(p(x));
 const latias=x=>/^Latias ex SSP(?: 76)?$/.test(p(x));
 const bolt=x=>/^Raging Bolt ex TEF(?: 123)?$/.test(p(x));
 const adp=x=>/^Arceus & Dialga & Palkia-? ?GX CEC(?: 156)?$/.test(p(x));
+const ho=x=>/^Ho-Oh-EX DRX(?: 22)?$/.test(p(x));
+const typ=x=>/^(?:Basic )?(Lightning|Fighting|Darkness) Energy/.exec(p(x))?.[1]??null;
+function discardTypes(r){return new Set(list(own(r).discard).map(typ).filter(Boolean));}
+function hoSetup(r){
+  const onBoard=slots(own(r)).some(s=>ho(s.pokemon)),inHand=list(view(r).ownHand).some(ho),inDiscard=list(own(r).discard).some(ho),types=discardTypes(r);
+  return {onBoard,inHand,inDiscard,types,needed:!onBoard&&benchRoom(r)&&(!inDiscard||types.size<3)};
+}
 function boardMol(r){return slots(own(r)).find(s=>mol(s.pokemon))?.pokemon??null;}
 function handMol(r){return list(view(r).ownHand).some(mol);}
 function darkFuelNeeded(r){const m=boardMol(r);return (!m||needs(m))&&!list(own(r).discard).some(dark);}
@@ -181,9 +188,14 @@ function benchRoom(r){
 }
 function setupRoot(r,items){
   const m=boardMol(r),fuel=darkFuelNeeded(r),h=list(view(r).ownHand);
-  if(fuel&&(m||handMol(r))){
+  const hs=hoSetup(r);
+  if((fuel&&(m||handMol(r)))||(hs.needed&&(!hs.inHand||hs.types.size<3))){
     const comp=items.find(x=>x.kind==='play-card'&&compressor(x.actorPrinting));
     if(comp)return root(comp);
+  }
+  if(hs.inHand&&hs.types.size===3&&!hs.onBoard&&benchRoom(r)){
+    const qb=items.find(x=>x.kind==='play-card'&&quick(x.actorPrinting));
+    if(qb)return root(qb);
   }
   if(fuel&&h.some(dark)&&benchRoom(r)){
     const qb=items.find(x=>x.kind==='play-card'&&quick(x.actorPrinting));
@@ -208,19 +220,23 @@ function setupPrompt(r,prompt,options,m){
     const d=hand.find(dark);
     if(d&&(molt||handMol(r)||benchRoom(r)))return choice(d);
   }
-  if(sourceIs(prompt,'Battle Compressor',compressor)&&max<=3&&m.minimumCount===0&&fuel&&(molt||handMol(r))){
-    const d=deck.find(dark);
-    if(!d)return null;
-    // Preserve the other copies of Darkness for manual payment. Fill distinct
-    // missing types for Ho-Oh, never a second copy of the same energy type.
-    const typ=x=>/^(?:Basic )?(Lightning|Fighting|Darkness) Energy/.exec(p(x))?.[1]??null;
-    const seen=new Set(list(own(r).discard).map(typ).filter(Boolean));seen.add('Darkness');
-    const chosen=[d];
+  const hs=hoSetup(r);
+  if(sourceIs(prompt,'Quick Ball',quick)&&max===1&&m.minimumCount===1&&hs.inHand&&hs.types.size===3&&!hs.onBoard&&benchRoom(r)){
+    const bird=hand.find(ho);if(bird)return choice(bird);
+  }
+  if(sourceIs(prompt,'Battle Compressor',compressor)&&max<=3&&m.minimumCount===0&&((fuel&&(molt||handMol(r)))||hs.needed)){
+    const chosen=[],seen=new Set(hs.types),d=deck.find(dark);
+    if(fuel&&(molt||handMol(r))&&d){chosen.push(d);seen.add('Darkness');}
+    const bird=deck.find(ho);
+    // When a Ho-Oh is available, seed the Pokémon now if missing types
+    // fit in remaining slots. Otherwise seed it with two types for the next
+    // discard effect, instead of discarding three types then ignoring Ho-Oh.
+    if(bird&&hs.needed&&!hs.inDiscard&&!hs.inHand&&chosen.length<max)chosen.push(bird);
     for(const x of deck){
       const t=typ(x);
       if(chosen.length<max&&t&&!seen.has(t)){chosen.push(x);seen.add(t);}
     }
-    return {kind:'select-choices',tokens:chosen.map(x=>x.token)};
+    if(chosen.length)return {kind:'select-choices',tokens:chosen.map(x=>x.token)};
   }
   if((sourceIs(prompt,'Quick Ball',quick)||sourceIs(prompt,'Battle VIP Pass',vip))&&m.minimumCount===0&&!molt&&!handMol(r)&&benchRoom(r)&&deck.length){
     const d=deck.find(mol);
