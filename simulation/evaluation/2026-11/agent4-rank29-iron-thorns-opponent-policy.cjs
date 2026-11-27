@@ -311,6 +311,10 @@ function cardChoiceScore(choice, observation, context) {
     const priority = discardPriority(printing, observation);
     return priority < 0 ? -100 : priority;
   }
+  if (context === 'fan-energy') {
+    if (choiceOwner(choice) !== 'opponent' || !/Energy/i.test(printing)) return 0;
+    return isSpecialEnergy(printing) ? 220 : /Psychic Energy/i.test(printing) ? 170 : 150;
+  }
   if (context === 'vs-seeker') {
     if (choiceOwner(choice) !== 'actor' ||
         (choiceZone(choice) !== 'discard' && choice?.publicMetadata?.sourceZone !== 'discard')) return 0;
@@ -479,6 +483,21 @@ function opponentPokemonScore(choice, observation, context) {
   return 80 + energies * 35 + (zone === 'active' ? 15 : 0);
 }
 
+function fanBenchRecipientScore(choice, observation) {
+  if (choiceOwner(choice) !== 'opponent' || choiceZone(choice) !== 'bench') return 0;
+  const printing = choicePrinting(choice);
+  const slotIndex = choice?.publicMetadata?.selectionIndex ?? choice?.publicMetadata?.benchIndex;
+  const row = slots(observation.opponentPublic).find(row =>
+    row.zone === 'bench' && (Number.isSafeInteger(slotIndex) ?
+      row.index === slotIndex : row.pokemon.printing === printing));
+  if (!row) return 0;
+  const target = row.pokemon;
+  const support = /Tapu Lele-GX|Radiant Eternatus|Latias ex|Girafarig|Marshadow|Mimikyu\b/i.test(target.printing);
+  const highValueAttacker = /Shadow Rider Calyrex VMAX|Regidrago VSTAR|Dialga-GX/i.test(target.printing);
+  return (support ? 280 : highValueAttacker ? 90 : 175) -
+    energyCount(target) * 28;
+}
+
 function ownSwitchScore(choice, observation) {
   if (choiceOwner(choice) !== 'actor' || choiceZone(choice) !== 'bench') return 0;
   const slotIndex = choice?.publicMetadata?.selectionIndex ?? choice?.publicMetadata?.benchIndex;
@@ -615,7 +634,7 @@ function promptDecision(request) {
   if (matches(sourcePrinting, PRINT.peonia)) {
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PRIZE_SELECTION' };
   }
-  if (/palace book|handheld fan|gladion/i.test(source) ||
+  if (/palace book|gladion/i.test(source) ||
       selectionType === 'prize-slots') {
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
   }
@@ -785,6 +804,11 @@ function promptDecision(request) {
   }
 
   if (prompt.promptType === 'ChoosePokemonPrompt') {
+    if (matches(sourcePrinting, PRINT.handheldFan)) {
+      return singleChoice(choices,
+        choice => fanBenchRecipientScore(choice, observation),
+        'NO_VISIBLE_POKEMON_TARGET');
+    }
     if (source.includes('guzma')) {
       const opponentChoices = choices.filter(choice =>
         choiceOwner(choice) === 'opponent' && choiceZone(choice) === 'bench');
@@ -826,8 +850,10 @@ function promptDecision(request) {
   }
 
   if (prompt.promptType === 'ChooseEnergyPrompt') {
-    if (source.includes('handheld fan')) {
-      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
+    if (matches(sourcePrinting, PRINT.handheldFan)) {
+      return singleChoice(choices,
+        choice => cardChoiceScore(choice, observation, 'fan-energy'),
+        'NO_VISIBLE_ENERGY_CHOICE');
     }
     const context = source.includes('enhanced hammer') ? 'enhanced-hammer' :
       source.includes('team flare') ? 'team-flare-energy' :
@@ -927,7 +953,7 @@ function scorePlayCard(item, request) {
   if (itemCard && itemLocked(observation)) return 0;
 
   if (matches(card, PRINT.peonia) || matches(card, PRINT.gladion) ||
-      matches(card, PRINT.palaceBook) || matches(card, PRINT.handheldFan)) return 0;
+      matches(card, PRINT.palaceBook)) return 0;
 
   if (matches(card, PRINT.speedLightning)) {
     return energyAvailable(observation) && !specialEnergyLocked(observation) &&
@@ -944,6 +970,13 @@ function scorePlayCard(item, request) {
   if (matches(card, PRINT.spikyEnergy) || matches(card, PRINT.captureEnergy)) {
     return energyAvailable(observation) && !specialEnergyLocked(observation) &&
       matches(target || own.active?.printing, PRINT.ironThorns) ? 75 : 0;
+  }
+  if (matches(card, PRINT.handheldFan)) {
+    return !toolLocked(observation) &&
+      matches(target || own.active?.printing, PRINT.ironThorns) &&
+      list(own.active?.tools).length === 0 &&
+      opponentActiveEnergy(observation) > 0 &&
+      slots(opponent).some(row => row.zone === 'bench') ? 100 : 0;
   }
   if (matches(card, PRINT.palaceBelt)) {
     const destination = target || own.active?.printing;
