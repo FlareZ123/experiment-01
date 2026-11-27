@@ -2620,22 +2620,32 @@ function r17OneBombRainWindow(request){
   };
 }
 
-// Strict two-Bomb extension: Active Raichu and two *Benched* Electrode-GX.
-// Spend the first five physical discards, then replan from the actual public
-// post-KO state before ever committing the second self-KO. The second Bomb
-// must independently be a terminal one-Bomb plan; a projected future turn
-// is never a substitute for another actor-visible root decision.
+// Strict two-Bomb extension. Either Raichu is already Active and both
+// Electrode-GX sources are Benched, or an Active Electrode first self-KOs and
+// promotes a known Benched Raichu before the second Benched Electrode acts.
+// Spend the first five physical discards, then independently replan the
+// second self-KO against the real post-first-KO actor-visible root.
 function r17TwoBombRainWindow(request){
-  const v=request?.observation,q=active(own(v));
-  if(!v||r17Key(q)!=='raichu'||!r17RainWindow(v,q)||
-     r17NeedTempleRemoval(v)||list(own(v).stadium).length||
+  const v=request?.observation,a=active(own(v));
+  if(!v||r17NeedTempleRemoval(v)||list(own(v).stadium).length||
      list(opponent(v).stadium).length||
      !Number.isSafeInteger(own(v).prizeCount)||
      !Number.isSafeInteger(opponent(v).prizeCount)||
      opponent(v).prizeCount<=4)return null;
   const bench=list(own(v).bench),live=r17LiveBombs(v);
-  const sources=bench.map((source,index)=>({source,index}))
-    .filter(row=>r17Key(row.source)==='electrode');
+  const activeRaichu=r17Key(a)==='raichu';
+  const activeElectrode=r17Key(a)==='electrode';
+  if(!activeRaichu&&!activeElectrode)return null;
+  const benchRows=bench.map((source,index)=>({source,index,zone:'bench'}));
+  const benchedElectrodes=benchRows.filter(row=>r17Key(row.source)==='electrode');
+  const raichuTargets=activeRaichu?[{q:a,index:0,zone:'active'}]:
+    benchRows.filter(row=>r17Key(row.source)==='raichu')
+      .map(row=>({q:row.source,index:row.index,zone:'bench'}));
+  if(raichuTargets.length!==1)return null;
+  const {q,index:targetIndex,zone:targetZone}=raichuTargets[0];
+  if(!r17RainWindow(v,q))return null;
+  const sources=activeRaichu?benchedElectrodes:
+    [{source:a,index:0,zone:'active'},...benchedElectrodes];
   if(live.length!==2||sources.length!==2||
      sources.some(row=>!live.includes(row.source)))return null;
   const items=list(request.actionFrontier?.items);
@@ -2643,8 +2653,8 @@ function r17TwoBombRainWindow(request){
      r17DirectPressure(v,x)?.terminalProjection===true))return null;
   const actions=sources.map(row=>items.find(x=>x.kind==='use-ability'&&
     r17Key(x)==='electrode'&&metadata(x).abilityName==='Extra Energy Bomb'&&
-    metadata(x).sourceZone==='bench'&&
-    metadata(x).sourceIndex===row.index&&
+    metadata(x).sourceZone===row.zone&&
+    (row.zone==='active'||metadata(x).sourceIndex===row.index)&&
     metadata(x).abilityLive!==false&&metadata(x).abilitySuppressed!==true));
   if(actions.some(x=>!x)||new Set(actions.map(x=>x.token)).size!==2)return null;
   const discard=list(own(v).discard).map((c,i)=>({
@@ -2684,8 +2694,8 @@ function r17TwoBombRainWindow(request){
   const firstTokens=plan.attachTokens.slice(0,5);
   if(firstTokens.length!==5)return null;
   return {
-    action:actions[0],benchIndex:0,benchPrinting:printingValue(q),
-    targetZone:'active',requiresPromotion:false,
+    action:actions[0],benchIndex:targetIndex,benchPrinting:printingValue(q),
+    targetZone,requiresPromotion:activeElectrode,
     twoBombPending:true,
     expectedOpponentPrizesAfterFirst:opponent(v).prizeCount-2,
     // The first native prompt may attach only five. The remaining mandatory
@@ -2851,7 +2861,8 @@ function r17CreatePolicy({role,seat,policyVersion,config}) {
           rain.twoBombPending?'bomb-second-root':'bomb-rain-root',
           sequence:request.sequence};
       else if(rain.stage==='bomb-promotion')
-        rain={...rain,stage:'bomb-rain-root',sequence:request.sequence};
+        rain={...rain,stage:rain.twoBombPending?'bomb-second-root':'bomb-rain-root',
+          sequence:request.sequence};
       else if(rain.stage==='discard')
         rain={...rain,stage:'damage',sequence:request.sequence};
       else rain=null;
