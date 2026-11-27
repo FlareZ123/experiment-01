@@ -90,7 +90,10 @@ for(const seat of [0,1]){
     assert.ok(view.opponentPublic.active.printed.subtypes.includes('VSTAR'));
     assert.ok(view.opponentPublic.bench[0].printed.subtypes.includes('Basic'));
     assert.deepEqual(view.ownPublic.active.printed.retreatCost,['Colorless']);
-    assert.deepEqual(view.ownPublic.active.printed.weakness,[{type:'Darkness',value:'×2'}]);
+    assert.deepEqual(view.ownPublic.active.printed.weakness,[{type:'Darkness',value:2}]);
+    assert.equal(worker.__test.weaknessMultiplier(
+      {printed:{types:['Darkness']}},view.ownPublic.active,view,'opponent'),2,
+      'Pinned absent Weakness.value means x2 rather than no Weakness');
     assert.deepEqual(view.ownPublic.active.attacks[0].cost,['Colorless','Colorless','Colorless']);
     assert.deepEqual(view.opponentPublic.active.printed.types,['Dragon']);
     assert.deepEqual(view.opponentPublic.active.printed.weakness,[{type:'Fairy',value:'×2'}]);
