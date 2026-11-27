@@ -704,3 +704,26 @@ test('nonterminal three-Prize Bomb pressure is suppressed at opponent four Prize
       'a merely positive 3-Prize swing is not admitted with opponent near the win threshold');
   }
 });
+
+
+
+test('nonterminal three-Prize conversion preserves attached Electrode Energy or Tool',()=>{
+  const T='Shadow Rider Calyrex VMAX CRE',C='Counter Energy CIN';
+  for(const seat of [0,1])for(const resource of ['energy','tool']){
+    const f=setup(seat,6),e=viewSlot(E);
+    if(resource==='energy')e.energies=[P];
+    else e.tools=['Stealthy Hood UNB'];
+    f.view.ownPublic.active=e;
+    f.view.ownPublic.bench=[viewSlot(R),null,null,null,null];
+    f.view.ownPublic.discard=[P,P,P,P,C];
+    const vmax=()=>({...viewSlot(T,[],'VMAX'),hp:320,damage:60});
+    f.view.opponentPublic.active=vmax();f.view.opponentPublic.bench=[vmax()];
+    const bomb={kind:'use-ability',token:'bomb',actorPrinting:E,
+      publicMetadata:{abilityName:'Extra Energy Bomb',
+        sourceZone:'active',sourceIndex:0,abilityLive:true}};
+    const decision=f.decide(1,null,[bomb,{kind:'pass',token:'pass'}]);
+    assert.notDeepEqual(decision,{kind:'select-action',token:'bomb'},
+      'a nonterminal self-KO must account for loss of attached Active Electrode resources');
+    assert.equal(decision.kind,'abstain');
+  }
+});
