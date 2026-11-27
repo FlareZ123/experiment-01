@@ -34,6 +34,8 @@ function deficit(s,remove,temple){
   if(MOL.test(n))return Math.max(0,2-d,3-e.length);
   if(ADP.test(n))return temple||!dde?2:Math.max(0,3-2*dde-(e.length-dde));
   if(SANDY.test(n))return Math.max(0,2-f,3-e.length);
+  if(/^Ho-Oh-? ?EX DRX(?: 22)?$/.test(n))return Math.max(0,3-l-f-d);
+  if(/^Tapu Lele-GX GRI(?: 60)?$/.test(n))return Math.max(0,2-l-f-d);
   return null;
 }
 function score(o,remove,temple,policy={}){
