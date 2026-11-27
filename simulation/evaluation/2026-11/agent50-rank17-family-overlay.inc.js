@@ -659,7 +659,7 @@ function r17RainCapacity(view,p,{extraDiscard=[],extraAttached=[],ignoreTemple=f
   for(let bombs=0;bombs<=r17LiveBombs(view).length;bombs++){
     const post=oppP-2*bombs;if(post<=0)continue;
     if(bombs>0&&discard.length<=5*(bombs-1))continue;
-    const supply=c=>r17EnergyProvision(r17Key(c),ownP,post,false)?.lightning||0;
+    const supply=c=>r17EnergyProvision(c,ownP,post,false)?.lightning||0;
     const loaded=discard.map(supply).sort((a,b)=>b-a).slice(0,5*bombs);
     const units=attached.reduce((n,c)=>n+supply(c),0)+loaded.reduce((n,c)=>n+c,0);
     if(units>0)result.push({bombs,units});
