@@ -859,6 +859,8 @@ function damageProtection(attacker, target, view) {
   return 'none';
 }
 function attackEffectsBlocked(attacker,target,view){
+  if(hasName(target?.printing,'Skeledirge SSP')&&
+      effectiveAbilityStatus(target,'Unaware','opponent',view)!==false)return true;
   const d=target.publicDamageEffects;
   if(d&&filterMatchesAttacker(d.effectsPrevention,attacker)!==false)return true;
   if((target.energies??[]).some(e=>hasName(e,'Mist Energy')) &&
@@ -3954,11 +3956,16 @@ function directTerminalHarmlessAbility(slot,name){
     (name==='Underworld Door'&&isShadowRiderVmax(slot)) ||
     (name==='Climactic Gate'&&hasName(slot.printing,'Radiant Eternatus'));
 }
-function cleanPublicTerminalView(view,direct=false){
+function astralTerminalHarmlessAbility(slot,name){
+  return (name==='Safeguard'&&hasName(slot.printing,'Mimikyu PAL')) ||
+    (name==='Block'&&hasName(slot.printing,'Snorlax PGO'));
+}
+function cleanPublicTerminalView(view,direct=false,extraHarmlessAbility=null){
   return view.globalTurn>1&&view.ownPublic.active&&view.opponentPublic.active&&
     opponentBoard(view).every(slot=>
   (slot.abilities??[]).every(a=>
     (direct&&directTerminalHarmlessAbility(slot,a)) ||
+    (typeof extraHarmlessAbility==='function'&&extraHarmlessAbility(slot,a)) ||
     (a==='Garbotoxin'&&hasName(slot.printing,'Garbodor'))) &&
   (slot.tools??[]).every(t=>hasName(t,'Float Stone') ||
     (direct&&slot===view.opponentPublic.active&&isDragon(slot)&&hasName(t,'Stealthy Hood'))) &&
@@ -4088,7 +4095,8 @@ function publicAstralFinalAttack(view,items,profile=null) {
   const item=items.find(i=>i.kind==='attack'&&i.attackName==='Astral Barrage');
   const attacker=view.ownPublic.active;
   const benchCount=view.opponentPublic.bench.filter(Boolean).length;
-  if(!item||!isBasicShadowRiderV(attacker)||!cleanPublicTerminalView(view,true)||
+  if(!item||!isBasicShadowRiderV(attacker)||
+      !cleanPublicTerminalView(view,true,astralTerminalHarmlessAbility)||
       (paperAstralBarrageTargetsEnabled(profile) ? opponentBoard(view).length<1 : benchCount<2))return null;
   const attack=attacker.attacks.find(a=>a.name==='Astral Barrage');
   if(!attack||!canPayAttack(attacker,attack,view)||
