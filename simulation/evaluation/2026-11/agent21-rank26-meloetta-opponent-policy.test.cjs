@@ -7,7 +7,7 @@ const V=require('./agent49-policy-protocol.cjs');
 const P=require('./agent36-prompt-projection.cjs');
 const card=(printing,damage=0,hp=60,extra={})=>({printing,damage,hp,energies:[],tools:[],abilities:[],abilitySuppressions:[],printed:{resistance:[]},...extra});
 function funded(){
- return {actorSeat:0,globalTurn:1,ownHand:["Damage Pump LOR","Damage Pump LOR","Damage Pump LOR"],ownPublic:{active:card("Meloetta ex BLK",0,200,{energies:["Double Colorless Energy SUM","Lightning Energy"],tools:["Technical Machine: Crisis Punch PAF"],abilitySuppressions:[{abilityName:"Debut Performance",suppressed:false}]}),bench:[card("Exeggcute PLF",20,30),card("Exeggcute PLF",20,30),card("Unown AOR",20),card("Dedenne-GX UNB",20,160)],stadium:["Risky Ruins MEG"],discard:[],deckCount:30,publicTurnRestrictions:{}},opponentPublic:{active:card("Shadow Rider Calyrex V CRE",0,210),bench:[],prizeCount:6,stadium:[]},ownTurnResources:{energyPlayedTurn:1,retreatedTurn:1}};
+ return {actorSeat:0,globalTurn:1,ownHand:["Damage Pump LOR","Damage Pump LOR","Damage Pump LOR"],ownPublic:{active:card("Meloetta ex BLK",0,200,{energies:["Double Colorless Energy SUM","Lightning Energy"],tools:["Technical Machine: Crisis Punch PAF"],abilitySuppressions:[{abilityName:"Debut Performance",suppressed:false}]}),bench:[card("Exeggcute PLF",20,30),card("Exeggcute PLF",20,30),card("Unown AOR",20),card("Dedenne-GX UNB",20,160)],stadium:["Risky Ruins MEG"],discard:[],deckCount:30,prizeCount:6,publicTurnRestrictions:{}},opponentPublic:{active:card("Shadow Rider Calyrex V CRE",0,210),bench:[],prizeCount:6,stadium:[]},ownTurnResources:{energyPlayedTurn:1,retreatedTurn:1}};
 }
 function policy(){return A.createPolicy({role:'opponent',seat:0,policyVersion:A.POLICY_VERSION,config:{}})}
 const req=(o,rows,prompt)=>({role:'opponent',seat:0,observation:o,actionFrontier:{items:rows},...(prompt?{prompt}:{})});
@@ -75,3 +75,10 @@ test('A pending Damage Pump choice cannot be used without matching root context'
  const w=policy();w.decide(req(o,rootRows(o)));o.ownPublic.bench[2].damage=10;assert.equal(w.decide(req(o,[],q.promptProjection)).kind,'abstain');
 });
 test('Funded Crisis Punch beats more setup when opponent has one Prize',()=>{const o=funded();o.opponentPublic.prizeCount=1;assert.equal(policy().decide(req(o,rootRows(o))).token,'finish');});
+
+test('Exact candidate singleton Trevenant survives Fighting resistance only, not Psychic Crisis Punch',()=>{
+ const o=funded();o.opponentPublic.active=card('Trevenant & Dusknoir-GX SMP',0,270,{printed:{resistance:[{type:'FIGHTING',value:-20}]}});const proof=A.terminalReady(o);assert.ok(proof);assert.equal(proof.damage,280);assert.equal(proof.certificate.terminal,true);
+});
+test('Iron Thorns requires actual Debut restoration, not a discarded Cologne',()=>{
+ const o=funded();o.opponentPublic.active=card('Iron Thorns ex TWM',0,230,{abilities:['Initialization']});o.ownPublic.active.abilitySuppressions=[{abilityName:'Debut Performance',suppressed:true}];o.ownPublic.discard=['Canceling Cologne ASR'];assert.equal(A.terminalReady(o),null);o.ownHand.push('Canceling Cologne ASR');const d=policy().decide(req(o,rootRows(o)));assert.equal(d.token,'h3');
+});
