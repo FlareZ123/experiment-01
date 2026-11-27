@@ -481,6 +481,13 @@ paired('Energy payment selects the cost count, not every offered Energy card',(s
  assert.deepEqual(decide(profile,energyPaymentPrompt(seat,view,'Colorless',3)),mult('energy-0'));
  assert.deepEqual(decide(profile,energyPaymentPrompt(seat,view,'Psychic,Colorless',3)),mult('energy-0','energy-1'));
  assert.deepEqual(decide(profile,energyPaymentPrompt(seat,view,'Fire',3)),{kind:'abstain',reasonCode:'NO_SUPPORTED_ENERGY_PAYMENT'});
+ const insufficient=energyPaymentPrompt(seat,view,'Psychic,Colorless',3);
+ insufficient.prompt.publicMetadata.energyCount=1;
+ assert.deepEqual(decide(profile,insufficient),{kind:'abstain',reasonCode:'NO_VISIBLE_ENERGY_CHOICE'});
+ const nonBasic=energyPaymentPrompt(seat,view,'Colorless',3);
+ nonBasic.prompt.choices[0].printing='Double Colorless Energy';
+ nonBasic.prompt.choices[0].publicMetadata.energyType='Colorless';
+ assert.deepEqual(decide(profile,nonBasic),{kind:'abstain',reasonCode:'NO_SUPPORTED_ENERGY_PAYMENT'});
 });
 test('projected Stadium replaces the shared Stadium on both sides without mutating the source view',()=>{
  const view=observation(0,{active:v(),opponentStadium:['Dimension Valley PHF']});
