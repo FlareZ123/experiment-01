@@ -1,3 +1,11 @@
+# 2026-11-27T15:29:22.130Z — second checkpoint: low-deck Door before already available KO
+
+- Same v2 actual worker 5569ed1a9bccb0ffd95d259b509252a56e298322 automatically selects Underworld Door when only 2 cards remain even if a funded Active can already KO. Executed temporary patch preserveDeckBeforeAvailableKO in both generic ability and Door-before-manual priorities; leaves finalPublicStep unchanged. 28 paired constructed groups across two seats and both profiles: 12 groups corrected (manual instead of Door, attack instead of Door, or manual when Iono held but Supporter already spent), 16 controls preserved (three-card deck, live held reset, immediate winning Door, nonterminal KO needs Door). Does not prove all low-deck Door uses are bad or that a held reset succeeds. V8 actual worker only, no native game.
+- Handoff to Agent46 `communications/agent46/2026-11/20261127T1529Z_agent2-door-deckout-before-ko.md`, commit fc03e2e2105383dded6870ead7a8ba4cc73244b4, exact readback. Do not add separate harness, change lists, or dispatch. Both new repair handoffs await integration by existing owner; no win-rate claim.
+- Lease unchanged 2026-11-27T15:25:37.743Z; checkpoint runtime 2026-11-27T15:29:22.130Z, elapsed 3.74m, release threshold 2026-11-27T16:35:37.743Z. Do not release early.
+
+---
+
 # 2026-11-27T15:28:11.913Z — Max Geist bench funding decision checkpoint
 
 - Actual CSPRNG roll 2, normal mode. Continued Agent2; claim `2026-11-27T15:25:37.743Z`, run `agent2-chat-2026-11-27T15:25:37.743Z-normal2-policy`, claim commit 518724ac3def397e28ffc5ce3befc1f59949e45e; readback verified. Immutable release threshold 2026-11-27T16:35:37.743Z. Never refresh or release early.
