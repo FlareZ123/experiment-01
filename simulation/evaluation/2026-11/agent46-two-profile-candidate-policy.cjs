@@ -1304,11 +1304,67 @@ function recoveryNeedScore(view, printing, receipt) {
   return hasAnyName(printing, ['Shadow Rider Calyrex V','Mimikyu',"Lillie's Clefairy ex",'Latias ex','Trevenant & Dusknoir-GX','Girafarig','Marshadow','Wobbuffet'])
     ? searchNeedScore(view, printing, 'recovery', receipt) : -Infinity;
 }
+// Marginal Energy demand, rather than an arbitrary board-energy threshold.
+// A held Energy satisfies one attachment; additional copies are useful only
+// when a live Door or further manual attachment can consume them.
+function energyDemand(view, receipt=null) {
+  const manual=view.ownTurnResources?.energyPlayedTurn===false &&
+    view.ownTurnResources?.energyPlayLocked!==true &&
+    view.ownPublic.publicTurnRestrictions?.energyPlayLocked!==true;
+  const recipient=view.ownPublic.bench.some(slot=>slot?.printed?.types?.includes('Psychic'));
+  let doors=0;
+  if(recipient) {
+    for(const [zone,index,slot] of [
+      ['active',0,view.ownPublic.active],...view.ownPublic.bench.map((slot,index)=>['bench',index,slot])]) {
+      if(!slot||!isShadowRiderVmax(slot)||effectiveAbilityStatus(slot,'Underworld Door','actor',view)!==true)continue;
+      if(receipt===null || underworldDoorSourceIsUnspent(receipt,{sourceZone:zone,sourceIndex:index},slot))doors++;
+    }
+  }
+  const current=(manual?1:0)+doors;
+  const held=view.ownHand.filter(p=>hasName(p,'Psychic Energy')).length;
+  return {held,current,shortfall:Math.max(0,current-held)};
+}
+function energyTutorNeed(view,receipt=null) {
+  const d=energyDemand(view,receipt);
+  if(d.shortfall>0)return 85+Math.min(15,5*d.shortfall);
+  if(d.held===0&&psychicEnergyCount(view)<3)return 40;
+  return -5;
+}
+function handResetNeed(view, printing) {
+  const remaining=view.ownHand.filter(p=>p!==printing);
+  const count=Math.max(0,view.ownPublic.handCount-1);
+  const draw=hasName(printing,"Lillie's Determination")?(view.ownPublic.prizeCount===6?8:6):
+    hasName(printing,'Unfair Stamp')?5:Math.max(0,view.ownPublic.prizeCount);
+  // Never voluntarily empty the accessible deck for speculative draw.
+  if(view.ownPublic.deckCount+count<=draw)return -Infinity;
+  let protectedPieces=0;
+  if(remaining.some(p=>hasName(p,'Radiant Eternatus')) &&
+    (canPlayRadiantForGate(view)||gatePivotView(view)!==null))protectedPieces+=3;
+  if(remaining.some(p=>hasName(p,'Forest Seal Stone')) &&
+    !view.ownTurnResources?.vstarUsed && !view.ownPublic.publicTurnRestrictions?.vstarUsed)protectedPieces+=2;
+  if(remaining.some(p=>hasName(p,'Shadow Rider Calyrex VMAX'))&&hasUnevolvedShadowRiderV(view))protectedPieces+=2;
+  if(remaining.some(p=>hasName(p,'Psychic Energy'))&&energyDemand(view).current>0)protectedPieces++;
+  const disruption=hasName(printing,'Unfair Stamp')?Math.max(0,view.opponentPublic.handCount-2):
+    hasName(printing,'Iono')?Math.max(0,view.opponentPublic.handCount-view.opponentPublic.prizeCount):0;
+  const value=draw-count+disruption*0.8-protectedPieces*1.8;
+  return value>=2?Math.min(115,55+value*7):-Infinity;
+}
+function raihanNeed(view,receipt) {
+  if(receipt?.priorOpponentTurnKO?.any!==true||!discardHas(view,'Psychic Energy')||view.ownPublic.deckCount<=0)return -Infinity;
+  const funded={...view,ownTurnResources:{...view.ownTurnResources,energyPlayedTurn:false,energyPlayLocked:false},
+    ownPublic:{...view.ownPublic,publicTurnRestrictions:{...view.ownPublic.publicTurnRestrictions,energyPlayLocked:false}}};
+  const energy=view.ownPublic.discard.find(p=>hasName(p,'Psychic Energy'));
+  const scores=[['active',0,view.ownPublic.active],...view.ownPublic.bench.map((slot,index)=>['bench',index,slot])]
+    .filter(row=>row[2]).map(([zone,index,slot])=>scoreEnergyPlay({actorPrinting:energy,targetPrinting:slot.printing,
+      publicMetadata:{targetSeat:'actor',targetZone:zone,targetIndex:index}},funded));
+  const best=Math.max(-Infinity,...scores);
+  return best>=2200?160:best>=800?108:best>=400?75:-Infinity;
+}
 function supporterNeedScore(view, printing, receipt) {
   const priorOpponentKO = receipt?.priorOpponentTurnKO?.any === true;
   if (hasName(printing, 'Teammates')) return priorOpponentKO ? 100 : -5;
   if (hasName(printing, 'Raihan')) {
-    return priorOpponentKO && discardHas(view, 'Psychic Energy') && view.ownPublic.deckCount>0 ? 96 : -5;
+    return raihanNeed(view,receipt);
   }
   if (hasName(printing, 'Guzma')) return canGuzmaForAttack(view) ? 92 : -5;
   if (hasName(printing, 'Arven')) {
@@ -1321,10 +1377,10 @@ function supporterNeedScore(view, printing, receipt) {
       slot.damage > 0 && slot.hp - slot.damage <= 120) ? 88 : -5;
   }
   if (hasName(printing, "Lillie's Determination")) {
-    return view.ownPublic.handCount <= 3 || view.ownPublic.deckCount <= 10 ? 85 : 35;
+    return handResetNeed(view,printing);
   }
   if (hasName(printing, 'Iono')) {
-    return view.opponentPublic.handCount >= 5 && view.ownPublic.handCount >= 4 ? 80 : 25;
+    return handResetNeed(view,printing);
   }
   if (hasName(printing, 'Pokémon Ranger')) return usefulRanger(view) ? 110 : -5;
   return -5;
@@ -1385,12 +1441,12 @@ function searchNeedScore(view, printing, effectName = '', receipt = null) {
     return -5;
   }
   if (hasName(printing, 'Psychic Energy')) {
-    return psychicEnergyCount(view) < 5 ? 45 : 5;
+    return energyTutorNeed(view,receipt);
   }
   if (hasName(printing, 'Fog Crystal')) {
     const missingBasicV = !hasShadowV &&
       !handHas(view, 'Shadow Rider Calyrex V') && hasOpenBench(view);
-    return missingBasicV || psychicEnergyCount(view) < 3 ? 60 : 10;
+    return missingBasicV || energyTutorNeed(view,receipt)>0 ? 60 : 0;
   }
   if (hasName(printing, 'Stealthy Hood')) {
     return hasStealthyHoodSearchNeed(view) ? 85 : 0;
@@ -1406,7 +1462,7 @@ function searchNeedScore(view, printing, effectName = '', receipt = null) {
   }
   if (hasName(printing, 'Night Stretcher')) return !itemLocked(view) && view.ownPublic.discard.some(p=>recoveryNeedScore(view,p,receipt)>=70) ? 75 : 0;
   if (hasName(printing, 'Unfair Stamp')) {
-    return receipt?.priorOpponentTurnKO?.any === true ? 80 : 0;
+    return receipt?.priorOpponentTurnKO?.any === true && Number.isFinite(handResetNeed(view,printing)) ? 80 : 0;
   }
   if (effectName === 'Arven' && hasAnyName(printing, TOOL_NAMES)) return 70;
   return 0;
@@ -1595,6 +1651,22 @@ function chooseCardCombination(view, prompt, receipt = null) {
     const pair = [item,tool].filter(Boolean).sort((a,b)=>b.score-a.score);
     selected = pair.filter((row,index)=>row.score>0 || index<minimum)
       .slice(0,maximum).map(row=>row.choice);
+  } else if(metadata.sourceZone==='deck' && hasName(prompt.source?.sourcePrinting,'Teammates')) {
+    // Re-evaluate remaining needs with the first tutor choice in hand.
+    // Two copies of one name are not two resolved access bottlenecks.
+    let projected=view;
+    const available=[...ranked];
+    for(let index=0;index<maximum&&available.length;index++){
+      const reranked=available.map(row=>({...row,score:searchNeedScore(projected,row.choice.printing,'Teammates',receipt)}))
+        .sort((a,b)=>b.score-a.score||String(a.choice.printing).localeCompare(String(b.choice.printing)));
+      const row=reranked[0];
+      if(index>=minimum&&row.score<=0)break;
+      selected.push(row.choice);
+      available.splice(available.findIndex(x=>x.choice.token===row.choice.token),1);
+      projected={...projected,ownHand:[...projected.ownHand,row.choice.printing],
+        ownPublic:{...projected.ownPublic,handCount:projected.ownPublic.handCount+1,
+          deckCount:Math.max(0,projected.ownPublic.deckCount-1)}};
+    }
   } else if (metadata.sourceZone === 'hand' ||
       (metadata.sourceZone === 'deck' && prompt.source?.effectName === 'Battle Compressor')) {
     selected = ranked.slice(0, minimum).filter(row => Number.isFinite(row.score))
@@ -2634,7 +2706,7 @@ function scoreTrainerPlay(item, view, receipt, profile) {
     if (value>=70) return 770+value;
   }
   if (hasName(name,'Hisuian Heavy Ball') && heavyBallNeed(view)>0) return heavyBallNeed(view);
-  if (hasName(name, 'Unfair Stamp') && receipt?.priorOpponentTurnKO?.any === true) return 980;
+  if (hasName(name, 'Unfair Stamp') && receipt?.priorOpponentTurnKO?.any === true && Number.isFinite(handResetNeed(view,name))) return 980;
   if (hasName(name, 'Forest Seal Stone')) {
     const target = actionTargetSlot(view, item.publicMetadata);
     if (target && isShadowRiderVTarget(target) &&
@@ -2652,8 +2724,7 @@ function scoreTrainerPlay(item, view, receipt, profile) {
   if (hasName(name, 'Teammates') && !supporterUsed &&
       receipt?.priorOpponentTurnKO?.any === true) return 900;
   if (hasName(name, 'Raihan') && !supporterUsed &&
-      receipt?.priorOpponentTurnKO?.any === true &&
-      discardHas(view, 'Psychic Energy') && view.ownPublic.deckCount>0) return 880;
+      Number.isFinite(raihanNeed(view,receipt))) return raihanNeed(view,receipt)>=160?2400:raihanNeed(view,receipt)>=100?960:880;
   if (hasName(name, 'Acerola') && !supporterUsed &&
       ownBoard(view).some(slot =>
         slot.damage > 0 && slot.hp - slot.damage <= 120)) return 850;
@@ -2665,7 +2736,7 @@ function scoreTrainerPlay(item, view, receipt, profile) {
        (opponentHasDragon(view) &&
         !boardHas(view, "Lillie's Clefairy ex") &&
         !handHas(view, "Lillie's Clefairy ex")) ||
-       psychicEnergyCount(view) < 3)) return 820;
+       energyTutorNeed(view,receipt)>0)) return 820;
   const needNightWatch = view.opponentPublic.handCount >= 4 &&
     !boardHas(view, 'Trevenant & Dusknoir-GX') &&
     !handHas(view, 'Trevenant & Dusknoir-GX') && canFuelNightWatch(view);
@@ -2681,12 +2752,10 @@ function scoreTrainerPlay(item, view, receipt, profile) {
       (missingBasicV || hasStealthyHoodSearchNeed(view) || forestSealAccessNeed(view)))
     return forestSealAccessNeed(view) ? 925 : 760;
   if (hasName(name, 'Guzma') && !supporterUsed) return usefulGuzma(view);
-  if (hasName(name, 'Iono') && !supporterUsed &&
-      view.opponentPublic.handCount >= 5 && view.ownPublic.handCount >= 4) {
-    return 740 + Math.min(40, (view.opponentPublic.handCount - 5) * 10);
+  if (hasAnyName(name,['Iono',"Lillie's Determination"]) && !supporterUsed) {
+    const need=handResetNeed(view,name);
+    if(Number.isFinite(need))return 650+need;
   }
-  if (hasName(name, "Lillie's Determination") && !supporterUsed &&
-      (view.ownPublic.handCount <= 3 || view.ownPublic.deckCount <= 10)) return 700;
   if (hasName(name, 'Sky Field') && !view.ownPublic.stadium.some(s => hasName(s, 'Sky Field')) &&
       countBench(view.ownPublic) + countBench(view.opponentPublic) < 6 &&
       boardHas(view, "Lillie's Clefairy ex")) return 620;

@@ -291,3 +291,27 @@ paired('Girafarig targets public Regidrago payloads but not hidden hand or arbit
   view.opponentPublic.discard=['Psychic Energy SVE'];
   assert.deepEqual(decide(profile,root(seat,view,[move])),sel('pass'));
 });
+
+paired('Fog Crystal does not spend a tutor on energy already held for the current attachment',(seat,profile)=>{
+  const view=observation(seat,{active:v(),bench:[v()],opponentActive:pokemon({printing:'Pikachu',name:'Pikachu',types:['Lightning']}),ownHand:[P,P,FOG]});
+  assert.deepEqual(decide(profile,root(seat,view,[play('fog',FOG)])),sel('pass'));
+  view.ownHand=[FOG];view.ownPublic.handCount=1;
+  assert.deepEqual(decide(profile,root(seat,view,[play('fog',FOG)])),sel('fog'));
+});
+paired('Teammates obtains distinct complementary bottlenecks rather than duplicate VMAX',(seat,profile)=>{
+  const view=observation(seat,{active:v(),bench:[v(),v(),v(),v()],opponentActive:defender()});
+  const req=cardPrompt(seat,view,'Teammates PRC','Teammates','deck',[M,M,P],2,2);
+  assert.deepEqual(decide(profile,req),mult('card-0','card-2'));
+});
+paired('Raihan beats Teammates when acceleration unlocks a knockout now',(seat,profile)=>{
+  const view=observation(seat,{active:vmax([P,P]),bench:[v([P,P,P])],opponentActive:defender({hp:180}),ownHand:['Raihan EVS','Teammates PRC'],ownDiscard:[P]});
+  view.ownTurnResources.energyPlayedTurn=true;
+  const receipt={priorOpponentTurnKO:{any:true}};
+  assert.deepEqual(decide(profile,root(seat,view,[play('team','Teammates PRC'),play('raihan','Raihan EVS')],receipt)),sel('raihan'));
+});
+paired('Do not reset a nearly empty deck or throw away a live Gate hand for no gain',(seat,profile)=>{
+  const name="Lillie's Determination MEG";
+  const view=observation(seat,{active:v(),opponentActive:defender(),ownHand:[name,R,FSS,P]});
+  view.ownPublic.deckCount=3;
+  assert.deepEqual(decide(profile,root(seat,view,[play('draw',name)])),sel('pass'));
+});
