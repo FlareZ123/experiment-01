@@ -428,3 +428,38 @@ paired('attack cost increase blocks projected winning attachment unless cost is 
   const items=[play('attach',P,M,target('active',0)),{kind:'attack',token:'ko',attackName:'Max Geist'}];
   assert.deepEqual(decide(profile,root(seat,view,items)),sel('attach'));
 });
+
+paired('Acerola refuses the only functioning attacker and saves exposed prize liability with a funded continuation',(seat,profile)=>{
+  const victim=vmax([P,P,P]);victim.hp=320;victim.damage=260;
+  const threat=pokemon({printing:'Mega Absol ex M1L',name:'Mega Absol ex',hp:280,
+    subtypes:['Basic','ex'],types:['Darkness'],energies:['Darkness Energy SVE','Darkness Energy SVE','Darkness Energy SVE'],
+    attacks:[attack('Claw of Darkness',['Darkness','Darkness','Colorless'],'200')]});
+  const ace='Acerola BUS';
+  const view=observation(seat,{active:victim,bench:[v()],opponentActive:threat,ownHand:[ace]});
+  const items=[play('acerola',ace),{kind:'attack',token:'hit',attackName:'Max Geist'}];
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('hit'));
+  view.ownPublic.bench[0]=vmax([P,P,P]);view.ownPublic.bench[0].hp=320;
+  view.opponentPublic.prizeCount=3;
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('acerola'));
+});
+paired('Tapu Cure spends GX only for useful two-Bench healing and never selects damaged Active',(seat,profile)=>{
+  const lele=pokemon({printing:L,name:'Tapu Lele-GX',subtypes:['Basic','GX'],damage:30,energies:[P],
+    attacks:[attack('Tapu Cure-GX',['Psychic'],'0',{gxAttack:true})]});
+  const one=vmax([P]);one.hp=320;one.damage=260;
+  const two=vmax([P]);two.hp=320;two.damage=240;
+  const targetSlot=pokemon({printing:'Mega Absol ex M1L',name:'Mega Absol ex',hp:280,
+    subtypes:['Basic','ex'],types:['Darkness'],energies:['Darkness Energy SVE','Darkness Energy SVE','Darkness Energy SVE'],
+    attacks:[attack('Claw of Darkness',['Darkness','Darkness','Colorless'],'200')]});
+  const view=observation(seat,{active:lele,bench:[one,two],opponentActive:targetSlot});
+  const cure={kind:'attack',token:'cure',attackName:'Tapu Cure-GX'};
+  assert.deepEqual(decide(profile,root(seat,view,[cure])),sel('cure'));
+  const prompt={actingSeat:seat,promptType:'ChoosePokemonPrompt',
+    source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:L,effectName:'Tapu Cure-GX'},
+    publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:2,allowCancel:false},
+    choices:[{token:'active',kind:'pokemon',printing:L,publicMetadata:{ownerSeat:'actor',targetZone:'active',isOwnerVisible:true}},
+      {token:'one',kind:'pokemon',printing:M,publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0,isOwnerVisible:true}},
+      {token:'two',kind:'pokemon',printing:M,publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:1,isOwnerVisible:true}}]};
+  assert.deepEqual(decide(profile,{role:'candidate',seat,observation:{...view,decisionKind:'owner-prompt',pendingPromptType:'ChoosePokemonPrompt'},prompt,publicEventReceipt:null}),mult('one','two'));
+  view.ownPublic.bench[1].damage=0;
+  assert.deepEqual(decide(profile,root(seat,view,[cure])),sel('pass'));
+});
