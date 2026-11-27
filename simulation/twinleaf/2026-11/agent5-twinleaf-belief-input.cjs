@@ -136,8 +136,18 @@ function buildTwinleafBeliefInput({
     'Public Prize-slot indexes must be unique');
 
   const knowledge=beliefKnowledgeBySeat?.[seat];
+  // A K1 ledger is physical-seat-owned even when delivered through a shared
+  // sampler sidecar. Never silently apply the other player's owner knowledge.
+  if(knowledge?.ownerSeat!==undefined){
+    assert.equal(knowledge.ownerSeat,seat,
+      'Belief K1 ledger belongs to a different physical seat');
+  }
   const exactPrizeSnapshot=seat===actorSeat?
     observation.ownerK1:(knowledge?.exactPrizeSnapshot??null);
+  if(exactPrizeSnapshot?.ownerSeat!==undefined){
+    assert.equal(exactPrizeSnapshot.ownerSeat,seat,
+      'Belief exact-Prize snapshot belongs to a different physical seat');
+  }
   const normalized=normalizeKnowledge(knowledge,exactPrizeSnapshot,view.prizeCount);
   return {
     registered60:registered60.slice(),
