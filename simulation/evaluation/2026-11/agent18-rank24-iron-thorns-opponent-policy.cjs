@@ -246,6 +246,14 @@ function importantPrizeScore(value, observation) {
   if (matches(value, VS_SEEKER)) return 195;
   return 0;
 }
+function isRank24Supporter(value) {
+  return [
+    BELLELBA, N_SUPPORTER, GUZMA, PLUMERIA, TEAM_FLARE_GRUNT, FABA,
+    XEROSIC_MACHINATIONS, LILLIE_DETERMINATION, GUZMA_HALA,
+    CYNTHIA_CAITLIN, ERI, SIDNEY, TEAM_SKULL_GRUNT, GLADION, LUSAMINE
+  ].some(pattern => matches(value, pattern));
+}
+
 function recoveryScore(value, observation) {
   if (matches(value, BELLELBA)) return (opponentDeckCount(observation) ?? 99) <= 6 ? 310 : 175;
   if (matches(value, N_SUPPORTER)) return nForcesOpponentDeckZero(observation) ? 305 : 205;
@@ -480,6 +488,14 @@ function fundingScore(item, request) {
     return hand <= 2 && deck >= Math.min(targetDraw, 4) ? 218 :
       hand <= 3 && deck >= Math.min(targetDraw, 4) ? 178 : 0;
   }
+  if (item.kind === 'play-card' && matches(card, VS_SEEKER)) {
+    if (!itemAvailable(observation)) return 0;
+    const best = list(observation?.ownPublic?.discard)
+      .filter(isRank24Supporter)
+      .map(value => recoveryScore(value, observation))
+      .sort((a, b) => b - a)[0] ?? 0;
+    return best >= 280 ? 232 : best >= 220 ? 205 : best >= 170 ? 182 : 0;
+  }
   if (item.kind === 'play-card' && matches(card, TRAINERS_MAIL)) {
     return itemAvailable(observation) && (ownDeckCount(observation) ?? 0) > 0 ? 172 : 0;
   }
@@ -647,22 +663,22 @@ function bellelbaPromptDecision(prompt) {
   return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
 }
 
-function vsSeekerPromptDecision(prompt) {
+function vsSeekerPromptDecision(request) {
+  const prompt = request?.prompt;
   if (prompt?.promptType !== 'ChooseCardsPrompt') {
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
   }
-  const choices = list(prompt.choices);
-  const bellelba = choices.find(choice =>
-    matches(choice, BELLELBA) &&
-    (choice?.publicMetadata?.ownerSeat === undefined || choice.publicMetadata.ownerSeat === 'actor') &&
-    (choice?.publicMetadata?.sourceZone === undefined || choice.publicMetadata.sourceZone === 'discard'));
-  if (!bellelba) return { kind: 'abstain', reasonCode: 'NO_USEFUL_CARD_CHOICE' };
-
-  const selectionType = prompt?.publicMetadata?.selectionType;
-  if (selectionType === 'card-combination') {
-    return { kind: 'select-choices', tokens: [bellelba.token] };
+  const rows = list(prompt.choices)
+    .filter(choice =>
+      (choice?.publicMetadata?.ownerSeat === undefined || choice.publicMetadata.ownerSeat === 'actor') &&
+      (choice?.publicMetadata?.sourceZone === undefined || choice.publicMetadata.sourceZone === 'discard'))
+    .map(choice => ({ choice, score: recoveryScore(choice, request.observation) }))
+    .sort((a, b) => b.score - a.score ||
+      String(a.choice.token).localeCompare(String(b.choice.token)));
+  if (!rows.length || rows[0].score <= 0) {
+    return { kind: 'abstain', reasonCode: 'NO_USEFUL_CARD_CHOICE' };
   }
-  return { kind: 'select-choice', token: bellelba.token };
+  return { kind: 'select-choices', tokens: [rows[0].choice.token] };
 }
 
 function choiceOwner(choice) { return choice?.publicMetadata?.ownerSeat ?? null; }
@@ -1051,7 +1067,7 @@ function promptDecision(request) {
   const prompt = request?.prompt;
   const source = sourceText(prompt);
   if (BELLELBA.test(source)) return bellelbaPromptDecision(prompt);
-  if (VS_SEEKER.test(source)) return vsSeekerPromptDecision(prompt);
+  if (VS_SEEKER.test(source)) return vsSeekerPromptDecision(request);
   if (GUZMA_HALA.test(source)) return guzmaHalaPromptDecision(request);
   if (TAG_CALL.test(source)) return tagCallPromptDecision(prompt);
   if (PLUMERIA.test(source)) return plumeriaPromptDecision(request);
