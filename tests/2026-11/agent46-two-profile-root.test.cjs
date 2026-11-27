@@ -1352,3 +1352,46 @@ paired('one-VMAX Gate access remains reachable with two free Bench slots but bel
   assert.deepEqual(got.decision,mult('card-1'));
   assert.equal(got.policyAudit.evaluations.find(row=>row.token==='card-0').score,-5);
 });
+
+
+test('paid retreat to Wobbuffet unlocks a held Guzma final-two-Prize line against Stoutland Sentinel',()=>{
+  for(const seat of [0,1]){
+    const profile=profiles[1],guzma='Guzma BUS';
+    const active=v([P,P]);active.printed.retreatCost=['Colorless','Colorless'];
+    const w=wob();
+    const attacker=vmax([P,P,P,P,P]);
+    const stout=pokemon({printing:'Stoutland BCR',name:'Stoutland',hp:140,types:['Colorless'],
+      subtypes:['Stage 2'],abilities:['Sentinel'],suppression:false});
+    const pollen=pokemon({printing:'Vileplume AOR',name:'Vileplume',hp:130,types:['Grass'],
+      subtypes:['Stage 2'],abilities:['Irritating Pollen'],suppression:false});
+    const gx=pokemon({printing:'Vileplume-GX CEC',name:'Vileplume-GX',hp:240,damage:90,types:['Grass'],
+      subtypes:['Stage 2','GX'],abilities:['Fragrant Flower Garden'],suppression:false});
+    const view=observation(seat,{active,bench:[w,attacker],opponentActive:stout,opponentBench:[pollen,gx],
+      ownHand:[guzma],globalTurn:15});
+    view.ownPublic.prizeCount=2;
+    view.ownTurnResources.supporterPlayLocked=true;
+    view.ownPublic.publicTurnRestrictions.supporterPlayLocked=true;
+    const retreat={token:'retreat-w',kind:'retreat',targetPrinting:W,publicMetadata:{benchIndex:0}};
+    const mist={token:'mist',kind:'attack',attackName:'Shadow Mist'};
+    assert.deepEqual(decide(profile,root(seat,view,[retreat,mist])),sel('retreat-w'));
+
+    const noGuzma=JSON.parse(JSON.stringify(view));noGuzma.ownHand=[];
+    assert.deepEqual(decide(profile,root(seat,noGuzma,[retreat,mist])),sel('mist'));
+    const spent=JSON.parse(JSON.stringify(view));spent.ownTurnResources.supporterPlayedTurn=1;
+    assert.deepEqual(decide(profile,root(seat,spent,[retreat,mist])),sel('mist'));
+    const short=JSON.parse(JSON.stringify(view));short.ownPublic.active.energies=[P];
+    assert.deepEqual(decide(profile,root(seat,short,[retreat,mist])),sel('mist'));
+    const unfunded=JSON.parse(JSON.stringify(view));unfunded.ownPublic.bench[1].energies=[P,P,P,P];
+    assert.deepEqual(decide(profile,root(seat,unfunded,[retreat,mist])),sel('mist'));
+    const blocked=JSON.parse(JSON.stringify(view));
+    blocked.ownPublic.bench[0].abilitySuppressions[0].suppressed=true;
+    blocked.ownPublic.bench[0].abilitySuppressions[0].reasonCode='TEST_SUPPRESSION';
+    assert.deepEqual(decide(profile,root(seat,blocked,[retreat,mist])),sel('mist'));
+    const tooMany=JSON.parse(JSON.stringify(view));tooMany.ownPublic.prizeCount=3;
+    assert.deepEqual(decide(profile,root(seat,tooMany,[retreat,mist])),sel('mist'));
+
+    const direct=JSON.parse(JSON.stringify(view));
+    direct.ownPublic.prizeCount=1;direct.opponentPublic.active.damage=130;
+    assert.deepEqual(decide(profile,root(seat,direct,[retreat,mist])),sel('mist'));
+  }
+});
