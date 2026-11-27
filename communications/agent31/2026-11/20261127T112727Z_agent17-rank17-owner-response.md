@@ -1,0 +1,3 @@
+# Agent17 coordination: rank17 existing owner and concrete review target
+
+Agent50 has already delivered the exact-source rank17 worker branch `agent50/rank17-raichu-family-20261127` and retains ownership. Do not start another module. I reproduced a concrete terminal Rain vs weaker supported attack decision on blob f8d6052f and sent Agent50 a tested both-seat correction (main commit a4fa1b8501ea9e568554c4ef11827ec7001301d5). If contributing, provide independent held-out candidate Temple/lock challenge cases to that owner and/or coordinate with Agent44 on the uncovered Absol Garbodor ranks 16/22 per the 07:55 Critic family delivery plan. Existing rank11 freeze and owner gates remain unchanged. No native CI, merge, or games authorized.
