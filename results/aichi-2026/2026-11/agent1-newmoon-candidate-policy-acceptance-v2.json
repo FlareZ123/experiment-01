@@ -13,8 +13,8 @@
     "note": "Agent13 v1 already integrates Agent1's Raichu/Electrode delta. V2 adds uncovered rank2/rank5/rank9/rank19/rank30/rank31 families without changing the fixed 60."
   },
   "status": "actor-visible paper acceptance consolidation; no policy implementation, native game, competitive qualification, or win-rate claim",
-  "addedCaseCount": 76,
-  "totalCaseCount": 115,
+  "addedCaseCount": 78,
+  "totalCaseCount": 117,
   "addedCases": [
     {
       "id": "R2-DUAL-LOCK-RONDO",
@@ -740,6 +740,26 @@
       "state": "Candidate has already played a Supporter this turn and Secret Box is being evaluated.",
       "must": "Treat the Box Supporter category as unplayable this turn and value only categories/continuations that remain live.",
       "forbids": "Counting a fetched Supporter as same-turn value after the Supporter quota is spent."
+    },
+    {
+      "id": "R26-LONE-FIRSTTURN-RESCUE",
+      "family": "rank26 Meloetta donk",
+      "sourceRanks": [
+        26
+      ],
+      "state": "After setup/mulligan bonus resolution candidate has only one Basic in play, but the first normal turn has a legal Battle VIP Pass, Fog Crystal, TPE, Mysterious Treasure or directly drawn second Basic route.",
+      "must": "Spend sufficient setup resources to establish at least one Benched survivor before passing.",
+      "forbids": "Preserving ordinary setup efficiency while leaving an immediate no-Pokémon loss exposure."
+    },
+    {
+      "id": "R26-KLEFKI-ONLY",
+      "family": "rank26 Meloetta donk",
+      "sourceRanks": [
+        26
+      ],
+      "state": "Klefki is the candidate's only Basic at initial setup; no second Basic is yet available.",
+      "must": "Use Klefki as the required Active and prioritize creating a Benched survivor on the first normal turn; do not treat Mischievous Lock alone as immunity to a donk.",
+      "forbids": "Assuming a lone Klefki makes the no-Pokémon loss condition irrelevant."
     }
   ],
   "authenticatedFamilyCoverage": {
@@ -799,7 +819,8 @@
     "Attack effects persist only while their target remains in the relevant state: explicitly score retreat/switch/evolution before treating copied Techno Blast, Eon Blade or Pale Moon as future-turn guarantees.",
     "At K1, exact Prize knowledge must recompute continuation viability and DCI; do not preserve singleton/pair pieces for lines whose prerequisite is Prized or discard the only surviving redundancy.",
     "Discard-paying connectors are continuation transactions, not raw access: select the line first, classify payments dynamically, then compare the whole post-payment continuation against not using the connector.",
-    "Supporter value is continuation-specific: settle Prize legality first, preserve deterministic hands, exploit disappearing Supporter windows, and score Ace Trainer's opponent reset together with Night Watch rather than as draw volume."
+    "Supporter value is continuation-specific: settle Prize legality first, preserve deterministic hands, exploit disappearing Supporter windows, and score Ace Trainer's opponent reset together with Night Watch rather than as draw volume.",
+    "New Moon has 17 Basics (not 19 Pokémon-as-Basics); rank26 setup policy must distinguish lone-Active exposure from actual donk exposure and spend first-turn Bench access aggressively before returning to ordinary Bench-liability minimization."
   ],
   "implementationGate": {
     "required": [
@@ -824,7 +845,8 @@
     "results/strategy/2026-11/agent1-attack-effect-mobility-policy-v1.md",
     "results/strategy/2026-11/agent1-k1-continuation-viability-dci-v1.md",
     "results/strategy/2026-11/agent1-newmoon-discard-connector-policy-v1.md",
-    "results/strategy/2026-11/agent1-newmoon-supporter-contention-policy-v1.md"
+    "results/strategy/2026-11/agent1-newmoon-supporter-contention-policy-v1.md",
+    "results/statistics/agent1-newmoon-rank26-opening-resilience-20261127.md"
   ],
   "competitiveQualified": false,
   "claim99Point5": false
