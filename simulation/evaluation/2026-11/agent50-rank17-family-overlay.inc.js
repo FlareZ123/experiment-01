@@ -193,12 +193,11 @@ function r17Stadium(view) {
   return [...list(own(view).stadium),...list(opponent(view).stadium)].map(printingValue).find(Boolean)||'';
 }
 function r17BasicLock(view) {
-  if (r17StadiumToolLive(view)&&/^Silent Lab\b/i.test(r17Stadium(view))) return true;
-  for (const player of [own(view),opponent(view)]) {
-    if (r17Key(active(player))==='klefki'&&!r17Suppressed(active(player),'Mischievous Lock')) return true;
-    if (slots(player).some(p=>/^Garbodor\b/i.test(printingValue(p))&&
-      list(p.tools).length>0&&list(p.abilities).includes('Garbotoxin')&&!r17Suppressed(p,'Garbotoxin'))) return true;
-  }
+  if(r17StadiumToolLive(view)&&/^Silent Lab\b/i.test(r17Stadium(view)))return true;
+  if(r17Garbotoxin(view))return true;
+  if([own(view),opponent(view)].some(player=>r17LiveKlefki(view,active(player))))return true;
+  if(slots(opponent(view)).some(p=>/^Alolan Muk\b/i.test(printingValue(p))&&
+    list(p.abilities).includes('Power of Alchemy')&&!r17Suppressed(p,'Power of Alchemy')))return true;
   return false;
 }
 function r17IsWob(p) {return /^Wobbuffet PHF(?: 36)?$/i.test(printingValue(p));}
@@ -615,8 +614,160 @@ function r17FreeRetreat(item,view) {
   if(cost.length===0)return true;
   return cost.length===1&&r17StadiumToolLive(view)&&list(a.tools).some(t=>r17Key(t)==='uturn');
 }
+// Narrow public-board tactical pressure model. It deliberately does not
+// certify terminal wins: printed HP and visible Tools/Stadium do not prove
+// every transient native damage modifier. Only exact known visible
+// printings receive a price/hit estimate; other targets fail closed.
+const R17_TARGET_ROWS=Object.freeze([
+  [/^Shadow Rider Calyrex VMAX CRE(?: 75)?$/i,3,true],
+  [/^Shadow Rider Calyrex V CRE(?: 74)?$/i,2,true],
+  [/^Lillie['’]s Clefairy ex JTG(?: 56)?$/i,2,false],
+  [/^Tapu Lele-GX GRI(?: 60)?$/i,2,true],
+  [/^Trevenant & Dusknoir-GX SMP(?: 217)?$/i,3,true],
+  [/^Latias ex SSP(?: 76)?$/i,2,false],
+  [/^Dialga-GX UPR(?: 100)?$/i,2,true],
+  [/^Mimikyu GRI(?: 58)?$/i,1,false],
+  [/^Girafarig LOT(?: 94)?$/i,1,false],
+  [/^Marshadow UNB(?: 81)?$/i,1,false],
+  [/^Radiant Eternatus CRZ(?: 105)?$/i,1,false],
+  [/^Wobbuffet PHF(?: 36)?$/i,1,false]
+]);
+function r17RainWindow(view,p) {
+  if(r17Key(p)!=='raichu'||view.globalTurn<2||
+     own(view).publicTurnRestrictions?.attackLockTurnsRemaining>0||
+     own(view).publicTurnRestrictions?.attackMaxEnergyTurnsRemaining>0||
+     p.publicRestrictions?.cannotAttackNextTurn||
+     p.publicRestrictions?.attackCostIncreaseNextTurn>0||
+     p.publicRestrictions?.attackCostIncreaseWhileActive>0||
+     list(p.publicRestrictions?.cannotUseAttacksNextTurn).includes('Electro Rain')||
+     p.publicRestrictions?.blockedAttackNameNextTurn==='Electro Rain'||
+     p.publicRestrictions?.blockedAttackNameUntilLeavesActive==='Electro Rain'||
+     p.publicRestrictions?.onlyAllowedAttackNameNextTurn&&
+       p.publicRestrictions.onlyAllowedAttackNameNextTurn!=='Electro Rain'||
+     list(p.specialConditions).length>0)return false;
+  return true;
+}
+function r17RainCapacity(view,p,{extraDiscard=[],extraAttached=[],ignoreTemple=false}={}) {
+  if(!r17RainWindow(view,p)||r17NeedTempleRemoval(view)&&!ignoreTemple)return [];
+  const ownP=own(view).prizeCount,oppP=opponent(view).prizeCount;
+  if(!Number.isSafeInteger(ownP)||!Number.isSafeInteger(oppP)||ownP<1||oppP<1)return [];
+  const attached=[...list(p.energies),...extraAttached];
+  if(attached.some(c=>!R17_ENERGY.has(r17Key(c))))return [];
+  const discard=[...r17Discard(view).filter(c=>R17_ENERGY.has(r17Key(c))),...extraDiscard];
+  if(discard.some(c=>!R17_ENERGY.has(r17Key(c))))return [];
+  const result=[];
+  for(let bombs=0;bombs<=r17LiveBombs(view).length;bombs++){
+    const post=oppP-2*bombs;if(post<=0)continue;
+    if(bombs>0&&discard.length<=5*(bombs-1))continue;
+    const supply=c=>r17EnergyProvision(r17Key(c),ownP,post,false)?.lightning||0;
+    const loaded=discard.map(supply).sort((a,b)=>b-a).slice(0,5*bombs);
+    const units=attached.reduce((n,c)=>n+supply(c),0)+loaded.reduce((n,c)=>n+c,0);
+    if(units>0)result.push({bombs,units});
+  }
+  return result;
+}
+function r17VisibleRainTargets(view,p,forceSight=false) {
+  const stad=r17Stadium(view);
+  if(stad&&!/^(Sky Field ROS|Dimension Valley PHF|Temple of Sinnoh ASR|Pok[eé]Stop PGO)(?: \d+)?$/i.test(stad))return null;
+  const sight=r17StadiumToolLive(view)&&(forceSight||list(p?.tools).some(c=>r17Key(c)==='sight'));
+  const targets=[];
+  for(const [zone,rows] of [['active',[active(opponent(view))]],['bench',list(opponent(view).bench)]]){
+    for(let index=0;index<rows.length;index++){
+      const q=rows[index];if(!q)continue;
+      const row=R17_TARGET_ROWS.find(x=>x[0].test(printingValue(q)));
+      if(!row||!Number.isSafeInteger(q.hp)||!Number.isSafeInteger(q.damage)||
+         q.hp<=0||q.damage<0||q.damage>=q.hp||
+         list(q.tools).some(t=>!/^(Stealthy Hood UNB|Forest Seal Stone SIT|Float Stone BKT)(?: \d+)?$/i.test(printingValue(t))))return null;
+      const modifier=zone==='bench'&&sight&&row[2]?30:0;
+      targets.push({zone,index,printing:printingValue(q),prizes:row[1],
+        hits:Math.max(1,Math.ceil((q.hp-q.damage-modifier)/30))});
+    }
+  }
+  return targets.length?targets:null;
+}
+function r17CompareProjection(a,b){
+  if(!a)return -1;if(!b)return 1;
+  const av=[Number(a.terminalProjection),a.netPrizeSwing,a.prizes,-a.bombs,-a.hitsRequired];
+  const bv=[Number(b.terminalProjection),b.netPrizeSwing,b.prizes,-b.bombs,-b.hitsRequired];
+  for(let i=0;i<av.length;i++)if(av[i]!==bv[i])return av[i]>bv[i]?1:-1;
+  return 0;
+}
+function r17RainProjection(view,p,options={}) {
+  const targets=r17VisibleRainTargets(view,p,options.forceSight===true);
+  if(!targets||targets.length>9)return null;
+  let best=null;
+  for(const {bombs,units} of r17RainCapacity(view,p,options)){
+    for(let mask=1;mask<(1<<targets.length);mask++){
+      let prizes=0,hitsRequired=0,koCount=0;
+      for(let i=0;i<targets.length;i++)if(mask&(1<<i)){
+        prizes+=targets[i].prizes;hitsRequired+=targets[i].hits;koCount++;
+      }
+      if(hitsRequired>units)continue;
+      const terminalProjection=prizes>=own(view).prizeCount||koCount===targets.length;
+      const netPrizeSwing=Math.min(prizes,own(view).prizeCount)-2*bombs;
+      if(!terminalProjection&&netPrizeSwing<=0)continue;
+      const plan={terminalProjection,prizes:Math.min(prizes,own(view).prizeCount),
+        netPrizeSwing,bombs,units,hitsRequired,assumption:'printed-HP-and-visible-tools-only'};
+      if(r17CompareProjection(plan,best)>0)best=plan;
+    }
+  }
+  return best;
+}
+function r17TempleAnswerPossible(view) {
+  if(!r17NeedTempleRemoval(view))return true;
+  const p=own(view),turn=view.ownTurnResources||{};
+  if(r17Hand(view,'pokestop')&&!p.publicTurnRestrictions?.stadiumPlayLocked&&
+     turn.stadiumPlayedTurn!==view.globalTurn)return true;
+  if(!r17AbilityBlocked(view,'marshadow')&&
+     (list(p.bench).some(q=>r17Key(q)==='marshadow'&&!r17AbilityBlocked(view,'marshadow',q,'Resetting Hole')&&
+       list(q.energies).length===0&&list(q.tools).length===0)||
+       r17Hand(view,'marshadow')&&r17Space(view)>0))return true;
+  return false;
+}
+function r17ClearDepartedLock(slot,departed) {
+  if(!slot||!Array.isArray(slot.abilitySuppressions))return slot;
+  const names=new Set(departed.map(printingValue));
+  return {...slot,abilitySuppressions:slot.abilitySuppressions.map(row=>
+    row.suppressed===true&&names.has(row.sourcePrinting)?
+      {...row,suppressed:null,reasonCode:null,sourcePrinting:null}:row)};
+}
+function r17SwitchProjection(view,nextOwn,nextOpponent) {
+  const p=own(view),o=opponent(view),oldP=active(p),oldO=active(o);
+  const departed=[oldP,oldO].filter((q,i)=>q&&q!==(i===0?nextOwn:nextOpponent));
+  const moved=(player,next,old)=>{
+    const bench=list(player.bench).map(q=>q===next?old:q);
+    return {...player,active:r17ClearDepartedLock(next,departed),
+      bench:bench.map(q=>r17ClearDepartedLock(q,departed))};
+  };
+  return {...view,ownPublic:moved(p,nextOwn,oldP),opponentPublic:moved(o,nextOpponent,oldO)};
+}
+function r17RopeRainPlan(request) {
+  const v=request.observation,p=own(v),o=opponent(v),old=active(p);
+  if(!itemAvailable(v)||v.globalTurn<2||r17Key(old)==='raichu'||
+     !r17IsWob(active(o))||!list(o.bench).some(Boolean))return null;
+  // If current Klefki is the only thing keeping Bomb live and a direct
+  // free retreat is already available, preserve the lock until Bomb.
+  if(r17DepartingKlefkiRelocks(v)&&list(request.actionFrontier?.items).some(a=>
+    a.kind==='retreat'&&r17FreeRetreat(a,v)&&r17Key(a.targetPrinting)==='raichu'))return null;
+  let best=null;
+  for(const raichu of list(p.bench).filter(q=>r17Key(q)==='raichu')){
+    let worst=null,valid=true;
+    // Opponent chooses their own replacement. Do not assume they choose
+    // the convenient one: every visible legal bench alternative must work.
+    for(const next of list(o.bench).filter(Boolean)){
+      const projected=r17SwitchProjection(v,raichu,next),nextR=active(own(projected));
+      if(!r17LiveBombs(projected).length||!r17TempleAnswerPossible(projected)){valid=false;break;}
+      const plan=r17RainProjection(projected,nextR,{ignoreTemple:r17NeedTempleRemoval(projected)});
+      if(!plan){valid=false;break;}
+      if(!worst||r17CompareProjection(plan,worst)<0)worst=plan;
+    }
+    if(valid&&worst&&(!best||r17CompareProjection(worst,best.plan)>0))best={raichu,plan:worst};
+  }
+  return best;
+}
 function r17RopeScore(request) {
   const v=request.observation;
+  const rain=r17RopeRainPlan(request);if(rain)return 315;
   if(!itemAvailable(v)||v.globalTurn===1||!r17First(v)||r17GengarReady(v,active(own(v))))return 0;
   // Horror House locks cards from hand, not attacks/Abilities. Avoid
   // exposing a new three-Prize Active if the opposing public board is
@@ -636,6 +787,7 @@ function r17SwitchValue(p,v) {
   const key=r17Key(p);
   const energies=list(p?.energies),units=energies.reduce((n,e)=>n+(r17EnergyProvision(e,own(v).prizeCount,opponent(v).prizeCount,r17NeedTempleRemoval(v))?.total||0),0);
   const lightning=energies.some(e=>(r17EnergyProvision(e,own(v).prizeCount,opponent(v).prizeCount,r17NeedTempleRemoval(v))?.lightning||0)>0);
+  if(key==='raichu'&&r17RainProjection(v,p,{ignoreTemple:r17NeedTempleRemoval(v)&&r17TempleAnswerPossible(v)}))return 360;
   if(key==='raichu'&&units>=3&&lightning)return 240;
   if(key==='klefki'&&!r17Board(v,'unown')&&!r17NeedTempleRemoval(v)&&!r17Suppressed(p,'Mischievous Lock'))return 150;
   if(key==='unown')return 110;
@@ -761,7 +913,12 @@ function r17Score(item,request) {
   if(item.kind==='retreat'&&m.targetSeat==='actor'&&m.targetZone==='bench'&&r17FreeRetreat(item,view)) {
     const s=r17Slot(view,'bench',m.targetIndex??m.benchIndex);
     if(r17GengarReady(view,s)&&!r17GengarReady(view,active(own(view))))return 240;
-    if(s&&r17Key(s)==='raichu'&&r17SwitchValue(s,view)>=240&&r17SwitchValue(active(own(view)),view)<240)return 115;
+    if(s&&r17Key(s)==='raichu'&&r17SwitchValue(s,view)>=240&&r17SwitchValue(active(own(view)),view)<240){
+      // Departing Klefki would reactivate opposing Wob before Bomb.
+      // Preserve the live connector if it can supply additional Energy.
+      if(r17DepartingKlefkiRelocks(view)&&r17Discard(view).some(c=>R17_ENERGY.has(r17Key(c))))return 0;
+      return 115;
+    }
   }
   return 0;
 }
@@ -1049,5 +1206,5 @@ module.exports = Object.freeze({
   SOURCE_ENTRY_JSON_SHA256:R17_PROFILE.sourceEntryJsonSha256,
   ENGINE_PIN:R17_PROFILE.enginePin,PROFILE:R17_PROFILE,createPolicy:r17CreatePolicy,
   scoreAction:r17Score,promptDecision:r17Prompt,bestAction:r17Best,
-  planRainTurn:r17PlanRainTurn,knownOwnZones:r17KnownOwnZones,ticketPlan:r17TicketPlan,planCoreAccess:r17CoreAccess,wobbuffetLive:r17WobLive,abilityBlocked:r17AbilityBlocked,liveBombs:r17LiveBombs,energyProvision:r17EnergyProvision
+  planRainTurn:r17PlanRainTurn,knownOwnZones:r17KnownOwnZones,ticketPlan:r17TicketPlan,planCoreAccess:r17CoreAccess,wobbuffetLive:r17WobLive,abilityBlocked:r17AbilityBlocked,liveBombs:r17LiveBombs,rainProjection:r17RainProjection,ropeRainPlan:r17RopeRainPlan,energyProvision:r17EnergyProvision
 });
