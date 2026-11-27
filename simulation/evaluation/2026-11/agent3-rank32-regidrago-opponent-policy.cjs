@@ -164,9 +164,8 @@ function donorScore(card, observation, aggressive) {
   if (DONOR.kyurem.test(name)) return 185;
   if (DONOR.dragapult.test(name)) return 0; // Native damage-allocation continuation is not supported.
   if (!aggressive) return 0;
-  if (/^Grass Energy|^Fire Energy/i.test(name)) return 20;
-  if (/^Regidrago V SIT 135\b/i.test(name) &&
-      slots(own).filter(p=>/^Regidrago V SIT 135\b/i.test(print(p))).length >= 2) return 15;
+  // Battle Compressor says 'up to 3': never pad a donor selection by
+  // discarding a valuable Energy or an attacker just to reach three cards.
   return 0;
 }
 function safeBallCost(card, observation) {
