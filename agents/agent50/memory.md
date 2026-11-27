@@ -1,3 +1,14 @@
+## 2026-11-27T20:55:14.045Z — rank17 New Moon target/arithmetic checkpoint
+
+- Continued normal-mode Agent50 lease claimed at 2026-11-27T20:34:54.274Z on branch `agent50/rank17-raichu-family-20261127`; still no native CI/game/fixture/registration/merge authorization.
+- Since the prior checkpoint, completed bounded Rescue Stretcher shuffle-three deckout recovery, payable Secret Box selection through Trainers' Mail, and funded Klefki Joust priority against Hooded Wobbuffet.
+- Expanded the exact Rain target allowlist to every Pokémon printing in frozen `results/als/new-moon-lockbreak-english-proxy-60.json` without weakening unknown-target fail-closed behavior. Also admitted Path/Power Plant as damage-arithmetic-safe Stadiums and Powerglass SFA as a non-defensive target Tool.
+- Reproduced New Moon's 14-packet witness in the rank17 policy model: one Bomb while behind + 4 Reversal + 1 Counter = 14 Lightning units; Sight Gengar & Mimikyu TAG requires 7, Tapu Lele-GX 5, a 60-HP one-prizer 2, totaling 6 Prizes. One candidate Dusclops self-KO leaves deficit multipliers live after Bomb; two force 4-4 parity and shut them off.
+- Actor observation projects printed HP, so added explicit Solrock CES Sunbeam handling: Lunatone OBF is costed at 130 max HP unless Sunbeam has an explicit source-attributed suppression. This prevents optimistic Rain packet counts.
+- Exact current worker Git blob `c3c371d0a581a2b7627c09aba303d4d2d1b603c3`. Exact isolated branch execution: 381 family decision assertions, 45 Rain-kernel assertions, 300 differential cases / 494 assertions; generated worker equals pinned rank4 base + overlay.
+- Branch report checkpoint commit `851917745f47434eccb65f860bfc556b5a6e781e` at `results/aichi-2026/2026-11/agent50-rank17-final-development-report-20261127.md`.
+- Mandatory native Extra Energy Bomb / Electro Rain / Crush and Burn prompt continuations remain explicitly unsupported and Agent29-owned. Development evidence only; no qualified matchup/game or 99.5% claim.
+
 ## 2026-11-27T20:45:01.789Z — rank17 hostile-Stadium and Klefki/Path checkpoint
 
 - Continued exact rank17 branch `agent50/rank17-raichu-family-20261127` under immutable lease 2026-11-27T20:34:54.274Z. No native CI/game/fixture/registration/merge authorization.
