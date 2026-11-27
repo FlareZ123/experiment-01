@@ -29,10 +29,10 @@ function attackPrompt(s) {
 }
 function energyPrompt(s){
   s.prompt={promptType:'ChooseEnergyPrompt',source:{sourceAttack:'Ryuno Glide'},
-    publicMetadata:{selectionType:'energy-payment',minimumCount:2,maximumCount:2},choices:[
-      {kind:'card',token:'dde',printing:'Double Dragon Energy ROS 97',publicMetadata:{sourceZone:'active',ownerSeat:'actor',eligible:true}},
-      {kind:'card',token:'grass',printing:'Grass Energy MEE 9',publicMetadata:{sourceZone:'active',ownerSeat:'actor',eligible:true}},
-      {kind:'card',token:'fire',printing:'Fire Energy MEE 10',publicMetadata:{sourceZone:'active',ownerSeat:'actor',eligible:true}}
+    publicMetadata:{selectionType:'energy-payment',energyCount:2,allowCancel:false},choices:[
+      {kind:'energy',token:'dde',printing:'Double Dragon Energy ROS 97',publicMetadata:{sourceZone:'active',ownerSeat:'actor',eligible:true}},
+      {kind:'energy',token:'grass',printing:'Grass Energy MEE 9',publicMetadata:{sourceZone:'active',ownerSeat:'actor',eligible:true}},
+      {kind:'energy',token:'fire',printing:'Fire Energy MEE 10',publicMetadata:{sourceZone:'active',ownerSeat:'actor',eligible:true}}
     ]};return s;
 }
 test('both actor seats: select payable Apex over offered alternative',()=>{
@@ -62,6 +62,14 @@ test('existing worker Apex effectName and source-unannotated choice remain execu
   assert.deepEqual(decide(s),{kind:'select-choice',token:'ryuno'});
   s.prompt.choices[1].publicMetadata.ownerSeat='opponent';assert.equal(decide(s),null);
 });
+test('pinned native-receipt DDE+Grass attack, one-DDE payment, Temple negative',()=>{
+  const s=state();s.observation.ownPublic.active.energies=['Double Dragon Energy ROS 97','Grass Energy MEE 9'];
+  assert.deepEqual(decide(s),{kind:'select-action',token:'apex'});
+  attackPrompt(s);assert.deepEqual(decide(s),{kind:'select-choice',token:'ryuno'});
+  energyPrompt(s);s.prompt.choices=s.prompt.choices.filter(c=>c.token!=='fire');
+  assert.deepEqual(decide(s),{kind:'select-choices',tokens:['dde']});
+  s.observation.opponentPublic.stadium=['Temple of Sinnoh ASR 155'];assert.equal(decide(s),null);
+});
 test('actual existing Regidrago worker label-only attack-choice offers Ryuno',()=>{
   const s=attackPrompt(state());
   s.prompt.source={classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:'Regidrago VSTAR SIT 136',effectName:'Apex Dragon'};
@@ -75,11 +83,17 @@ test('copy exact source Mega Dragonite Ryuno over Dominating Echo; reject wrong 
   bad.prompt.choices[1].publicMetadata.sourceZone='discard';bad.prompt.choices[1].printing='Mega Dragonite ex WRONG 152';assert.equal(decide(bad),null);
   bad.prompt.choices[1].printing='Mega Dragonite ex ASC 152';bad.prompt.choices[1].publicMetadata.eligible=false;assert.equal(decide(bad),null);
 });
-test('prompt continuation pays two distinct attached Basics, not a Double Dragon; underpayment fails closed',()=>{
+test('V3 energy-payment token counts allow one 2-unit DDE or two Basics',()=>{
   const s=energyPrompt(state());assert.deepEqual(decide(s),{kind:'select-choices',tokens:['grass','fire']});
-  const missing=copy(s);missing.prompt.choices=missing.prompt.choices.filter(c=>c.token!=='fire');assert.equal(decide(missing),null);
-  const foreign=copy(s);foreign.prompt.choices[2].publicMetadata.ownerSeat='opponent';assert.equal(decide(foreign),null);
-  const uncertain=copy(s);uncertain.prompt.publicMetadata.minimumCount=1;assert.equal(decide(uncertain),null);
+  const missing=copy(s);missing.prompt.choices=missing.prompt.choices.filter(c=>c.token!=='fire');
+  assert.deepEqual(decide(missing),{kind:'select-choices',tokens:['dde']});
+  const neither=copy(missing);neither.prompt.choices=neither.prompt.choices.filter(c=>c.token!=='dde');
+  assert.equal(decide(neither),null);
+  const foreign=copy(s);foreign.prompt.choices[2].publicMetadata.ownerSeat='opponent';
+  assert.deepEqual(decide(foreign),{kind:'select-choices',tokens:['dde']});
+  const reduced=copy(s);reduced.prompt.publicMetadata.energyCount=1;
+  assert.deepEqual(decide(reduced),{kind:'select-choices',tokens:['dde']});
+  reduced.prompt.publicMetadata.energyCount=0;assert.equal(decide(reduced),null);
 });
 test('ten negative-control states: no invented terminal conversion',()=>{
   const s=state();const cases=[
@@ -98,6 +112,6 @@ test('ten negative-control states: no invented terminal conversion',()=>{
 });
 test('unsupported native prompt families and non-Apex origins remain delegated',()=>{
   const s=state();s.prompt={promptType:'PutDamagePrompt',choices:[]};assert.equal(decide(s),null);
-  s.prompt={promptType:'ChooseEnergyPrompt',source:{sourceAttack:'Other'},publicMetadata:{selectionType:'energy-payment',minimumCount:2,maximumCount:2},choices:[]};assert.equal(decide(s),null);
+  s.prompt={promptType:'ChooseEnergyPrompt',source:{sourceAttack:'Other'},publicMetadata:{selectionType:'energy-payment',energyCount:2,allowCancel:false},choices:[]};assert.equal(decide(s),null);
   s.prompt={promptType:'ChooseAttackPrompt',source:{sourceAttack:'Copycat'},choices:attackPrompt(state()).prompt.choices};assert.equal(decide(s),null);
 });
