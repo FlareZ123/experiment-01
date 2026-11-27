@@ -1,0 +1,54 @@
+# Six-Prize Eon relay: existing slots can form a complete conditional prize route
+
+**Agent15 — 2026-11-27. Constructed three-attack sequences, not game or matchup win rates.** Follows [the Eon Blade frontier](agent15-eon-blade-frontier-20261127.md). The previous conditional T2 model stopped after its first return attack; this develops a later-turn objective, not another opening-access screen.
+
+## Route A: one Latias, two Energy, three KOs
+
+Both Hood Shield and Deoxys Gate v0 already contain Latias ex, Acerola, Pokémon Ranger, Dimension Valley, Fairy Zone, and two VS Seeker. No new deck slot. Let A1/A2/A3 be the candidate's **attack turns**, not necessarily game turns 1–3. Suppose six own Prizes remain, a live Fairy Zone, three successive fresh opposing Regidrago VSTAR attackers, two Psychic on Latias, Valley in play, an enabled Rider Door and a real surviving Basic pivot. Assume no other disruption, no opponent victory before the next action, and the relevant Supporter actually available on each turn.
+
+1. A1: Eon Blade takes two Prizes: 400 against Dragon, 320 through Rolling Iron. Latias is now attack-restricted for its next turn.
+2. Opponent replies with a VSTAR attack that damages Latias but leaves it alive. With Protective DNA live, Band Phantom Dive or Band Rolling Iron deals 190; a previously fresh 210 HP Latias survives at 20 HP. With no Band, Hood Latias survives the ordinary 200 at 10 HP.
+3. A2: **Acerola** the damaged Active Latias, return it and its two attached Energy to hand. Promote a surviving Basic, bench Latias from hand; Skyliner re-enables free Basic retreat. Use one Rider Door to attach one of the returned Energy to the now-Benched Latias (draw two if available), manual-attach the second; retreat the Basic to Latias for zero. Replaying Latias clears previous effects and damage, so Eon Blade can take two more. This uses two of the same physical Energy, one Supporter, one Door, one manual and one real retreat, not two manual attachments or a fictional free retreat from a VMAX.
+4. Opponent replies again. If Latias survives, A3 **Pokémon Ranger** removes Eon Blade's next-turn attack restriction and any opposing attack effects on players/Pokémon, including Rolling Iron or Covert Flight. Attack with the already attached Energy for the remaining two Prizes. No requirement to protect Latias after a game-ending attack.
+
+Without Valley, the Acerola reset requires three returned Psychic attachments in the turn, so one Door + manual is insufficient; two enabled Doors + manual can do it. Acerola itself needs at least one damage counter and an available promotion; it cannot heal an already KO'd Pokémon. The restriction does not disappear just because a new own turn started. The Advanced Player's Rulebook II.C-02 explicitly removes damage and effects when a Pokémon returns to hand/deck; I.A-03 and II.C-03 remove attack effects on moving to Bench; II.A gives current card text priority. Ranger and Acerola use separate turns, never both in one turn.
+
+Two fresh Phantom replies that each place all six counters on the same initially undamaged Clefairy leave it at 120 damage (<190 HP). Starting at 70 damage, that same sequence KOs Clefairy on the second reply and removes the assumed sole weakness source. A healthy Latias with 190 damage cannot survive even another 20; healing or alternate attacker is essential unless the next attack ends the game. If the source uses Timeless-GX then Phantom on the same Active, or copies Ryuno Glide, Latias is KO'd before Acerola can be used. If Covert Flight is the first reply, A2 Acerola does not remove its Basic-only immunity. This is the reason for route B.
+
+## Route B: Eon → Max Drain → Eon versus Covert Flight
+
+After the first Eon KO, if the next source Regidrago uses Noivern's Covert Flight, don't spend Ranger prematurely if a payable VMAX answer exists. With Valley, healthy Benched Deoxys VMAX and two held Psychic Energy, one live Door plus manual funds Deoxys. Latias retreats for free to it, clears its own attack restriction, and retains its attached two Energy. **Max Drain** does 320 to the next Dragon through Covert Flight because a VMAX is not Basic. The next source attacker and attack are not known when making this A2 choice.
+
+- If the next source attack damages but does not KO Deoxys, and does not establish Covert Flight, Acerola the damaged Deoxys and promote already funded Latias. Returning the mitigation host is acceptable when the final KO is already available. Even Band Ryuno Glide's 320 damage leaves a previously healthy 330 HP Deoxys alive at 10 HP under DNA.
+- If the next attack establishes Covert Flight, the A3 Supporter must be Ranger (unless a different legal counter clears/bypasses that effect). Do not spend that Supporter on Acerola. Float Stone on a free Tool slot can retreat Deoxys; alternatively attach a third held Psychic to its two, pay the three-Energy retreat cost, and promote Latias. That burns three Energy, justified only by the final two-Prize KO. No Float or third Energy means the exact route fails. Do not attach Float Stone if the only Tool slot is already occupied by Hood/FSS; do not assume a live Tool under Tool lock.
+- If the second source reply is Band Timeless + Phantom on Deoxys, it is KO'd at 330. If the source had already taken three or more Prizes before that KO, the source wins before our A3. If it had taken at most two, and no other simultaneous KOs occur, it still has at least one Prize remaining. Promote the pre-funded Latias and take the final two Prizes if Fairy Zone and the attack remain live. This is a conditional sacrificial line, not an instruction to expose a three-Prize host blindly.
+
+This route needs four attached/held Psychic in total before A2 (Latias two, Deoxys two after funding) and sometimes a fifth for a paid final retreat. Compare that to reaching five or six **attached** for Geist's Dragon KO or nine to eleven for neutral high-HP KOs. It is a precise use of the alternative VMAX rather than treating it as a universal attacker.
+
+## Executed conditional regression
+
+[Python](agent15-eon-relay-20261127.py), locally executed with standard Python, local blob 7640ee0f00e75511d2336cfc60ac07b615bbf2c9. The 16 single-attacker cases and 9 alternating-attacker cases are deliberately selected witnesses/counterexamples. The state model conserves the explicitly allocated Energy, enforces one Door per live Rider, one manual, one real retreat and distinct Supporter turns; no random draws, opponent search or actual Twinleaf games. A3 is final only under the stipulated two-Prize target, intact Fairy Zone and no other game-ending event. It is not an autonomous complete play policy or a probability sample. For the alternating branch a fresh Clefairy survives the single modeled Phantom counter placement; arbitrary Gust, pre-existing damage, lock, multi-KO, extra source attack options and alternate targets are omitted.
+
+| Case | Own Prizes taken | Source Prizes newly taken | Result of this exact route |
+|---|---:|---:|---|
+| Gate, two Band Rolling Iron replies | 6 | 0 | completes with Acerola then Ranger |
+| Gate, two Band Phantom replies | 6 | 0 | completes with 120 on fresh Clefairy |
+| Hood, two unboosted Rolling replies | 6 | 0 | completes at 10 HP before Acerola |
+| Hood, Band Rolling reply | 2 | 2 | Latias KO |
+| Gate, first Ryuno or Timeless + Phantom reply | 2 | 2 | Latias KO |
+| Gate, no Valley and one Door | 2 | 0 | reset cannot recharge |
+| Gate, no Ranger | 4 | 0 | final restriction not removed |
+| Gate, Covert first reply, insist on Latias | 2 | 0 | Basic immunity |
+| Gate, Covert first reply, alternate D, next Band Ryuno | 6 | 0 | Acerola D and promote Latias |
+| Gate, alternate D, next Covert, 3rd Energy or Float + Ranger | 6 | 0 | paid/free real pivot |
+| Gate, alternate D, next Covert, no pivot or no Ranger | 4 | 0 | route blocked |
+| Gate, alternate D, next Band Timeless + Phantom, prior source ≤2 | 6 | 3 | conditional sacrifice then final Eon |
+| Same with prior source ≥3 | 4 | 3 | source takes final Prizes before A3 |
+
+Twenty-two explicit scenario assertions plus attachment conservation assertions passed locally. These rows are not wins/losses against an actual list. They identify actionable full-game policy branches rather than another deck-access statistic.
+
+## Preparation priorities
+
+Acerola and Ranger are distinct singleton Supporter resources. They are not interchangeable, and one VS Seeker cannot recover both on one turn. Both candidates already have Battle Compressor plus two VS Seeker. When these Supporters are in the deck and no Item/discard-recovery lock applies, one Compressor can put both in discard and the two VS can recover each for its separate needed turn; if one is already held or discarded don't redundantly discard it. Reserve the VS when the route is live. Forest Seal Stone or Tapu Lele can reach a missing piece subject to real host/Bench/one-use cost. Arven on the same turn cannot coexist with Acerola or Ranger, so use connector prefetch on an earlier turn if actually needed. If the needed singleton remains Prized, the route is not guaranteed: K1 identifies membership, not position, and neither Heavy Ball nor VS recovers a Prized Supporter.
+
+**Policy selection, not deck nomination.** Prioritize Eon only where it improves actual KO and resource continuation; Rondo may be cheaper, particularly on wide boards, and using Latias can expose the sole free-retreat source. When an alternate VMAX is healthy and required to bypass Covert, allocate its Energy while it is still Benched. After taking four Prizes, evaluate actual remaining Prizes and legal attacks before protecting an engine host; a terminal KO can justify a Supporter or three-Energy retreat that would otherwise be poor AMR. Opponent can gust, remove Fairy Zone, suppress DNA/Skyliner/Door, remove Valley, disrupt hand, or take faster Prizes; no coverage of these natural state frequencies. Neither deck list changed. No game/CI/workflow/policy integration, no new admission gate. Current benchmark remains 29/32 authenticated, zero qualified matchups, no selected final 60. The first-trace owner authorization remains required.
