@@ -48,8 +48,8 @@
         15
       ],
       "state": "The Tool-Jammer Dusclops line has placed 100 total on BUS Vileplume, and source can legally retreat/switch BUS away before final Cursed Blast.",
-      "must": "Recognize that moving BUS from Active already removes Disgusting Pollen Basic-attack lock; re-plan from the unlocked Active state rather than scoring the line as a failure.",
-      "forbids": "Treating only a KO as successful lockbreak."
+      "must": "Recognize a temporary unlocked candidate turn when BUS leaves Active, then score the source's strongest re-lock route (including later BUS promotion) before calling the line solved.",
+      "forbids": "Treating only a KO as successful interaction or treating a one-turn unlock as permanent removal of Disgusting Pollen."
     },
     {
       "id": "V15-FSS-JAMMER",
@@ -108,12 +108,33 @@
       "state": "K1 shows Tool Jammer itself Prized while Forest Seal Stone/Star Alchemy is live.",
       "must": "Do not let Star Alchemy search the Trainer from Prizes; remove Jammer continuation until Tool Jammer is naturally recovered.",
       "forbids": "Confusing deck search with Prize search."
+    },
+    {
+      "id": "V15-JAMMER-TEMP-ACTIVE-KO",
+      "family": "rank15 Lopunny Vileplume",
+      "sourceRanks": [
+        15
+      ],
+      "state": "Source moved BUS Vileplume to Bench to evade the final Jammer/Cursed Blast, leaving another Active that candidate can Knock Out; BUS can be promoted after that KO.",
+      "must": "Compare immediate BUS re-promotion/re-lock after the temporary Active KO before taking a low-value Prize; final-Prize wins still dominate.",
+      "forbids": "Treating the temporary Active KO as automatically breaking the lock cycle."
+    },
+    {
+      "id": "V15-JAMMER-GUZMA-POSITION",
+      "family": "rank15 Lopunny Vileplume",
+      "sourceRanks": [
+        15
+      ],
+      "state": "Source uses Guzma to move BUS Vileplume off Active and replace candidate Tool-Jammer Dusclops with a chosen Benched Pokémon.",
+      "must": "Recompute candidate Active, Latias/free-retreat or normal-retreat options, newly legal Basic attacks, and the source's future BUS re-lock.",
+      "forbids": "Keeping Tool Jammer suppression active after its holder leaves Active or ignoring the one-turn unlock."
     }
   ],
-  "totalCaseCountWithParent": 145,
+  "totalCaseCountWithParent": 147,
   "competitiveQualified": false,
   "claim99Point5": false,
   "supportingResults": [
-    "results/strategy/2026-11/agent1-tool-jammer-v2-dci-access-policy.md"
+    "results/strategy/2026-11/agent1-tool-jammer-v2-dci-access-policy.md",
+    "results/aichi-2026/2026-11/agent1-tool-jammer-v2-rank15-counterplay-stress-20261127.md"
   ]
 }
