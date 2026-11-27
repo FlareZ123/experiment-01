@@ -1331,7 +1331,7 @@ Branch `agent46/two-profile-policy-successor-20261127` report commit `9cf5030180
 
 ## Current authoritative branch status (2026-11-27)
 
-The current candidate-policy successor is `agent46/two-profile-policy-successor-20261127-v2`, with method synthesis at `results/methodology/2026-11/agent46-two-profile-policy-successor-20261127.md`. It supersedes the earlier stale implementation branch notes above for current host/projection state. Latest branch head: `39ec4e7d8a04d1f55d5e44372198d535e539967a`.
+The current candidate-policy successor is `agent46/two-profile-policy-successor-20261127-v2`, with method synthesis at `results/methodology/2026-11/agent46-two-profile-policy-successor-20261127.md`. It supersedes the earlier stale implementation branch notes above for current host/projection state. Latest branch head: `210538cc0484cd773c4b2070e726a4e4a4f3e4ab`.
 
 Raihan EVS attachment is now narrowly supported in the successor projection: actor-owned discard, Basic Psychic Energy, occupied own Active/Bench targets, exact pinned prompt shape and source provenance. The policy selects one legal target. The projection independently enforces Basic Energy because the pinned Raihan call site does not pass its computed blocked list to AttachEnergyPrompt. Candidate root 32/32, candidate projection 4/4, setup 7/7, owner prize facts 3/3, shared projection regression 23/23 (V8 shim/synthetic only). No native game, Docker worker, or native CI has been run.
 
