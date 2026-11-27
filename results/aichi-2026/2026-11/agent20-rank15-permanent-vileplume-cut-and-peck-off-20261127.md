@@ -39,27 +39,25 @@ There is a precise opportunity cost to Peck Off: the attacking Pidgey occupies A
 
 ## Computational check
 
-Local Python enumerated every possible rank-15 component count in Lost Zone, remaining discard counts and Get Lost selection of up to two relevant components (irrelevant discard cards may fill the remaining required choices). 1,323 component-only combinations tested, with zero failed assertions. Reproduce the exact count with:
+Local Python first checked 1,323 maximum-relevant selections, then extended the enumeration to all **2,970** combinations of prior Lost Zone, public component discard and zero-to-two relevant selections (the latter may be padded by other discard cards, if available). The second check independently enumerates every possible board allocation of surviving AOR and BUS chains, rather than checking the capacity formula against itself. Zero failed assertions. Reproduce with:
 
 ```python
 from itertools import product
-N = (2,2,2,1)
-def caps(v):
-    o,g,a,b=v; n=min(o,g)
-    return min(n,a),min(n,b),int(n>=2 and a>0 and b>0)
-checked=0
+N=(2,2,2,1); checked=0
 for l in product(*(range(v+1) for v in N)):
     rem=tuple(n-x for n,x in zip(N,l))
     for d in product(*(range(v+1) for v in rem)):
         for x in product(*(range(v+1) for v in d)):
-            if sum(x)!=min(2,sum(d)): continue
-            r=tuple(n-y for n,y in zip(rem,x))
-            a,b,dual=caps(r)
-            assert dual==int(r[0]>=2 and r[1]>=2 and r[2]>=1 and r[3]>=1)
-            assert (a==b==0)==(r[0]==0 or r[1]==0 or r[2]+r[3]==0)
-            if r[0]<2 or r[1]<2: assert dual==0
+            if sum(x)>2: continue
+            o,g,a,b=tuple(n-y for n,y in zip(rem,x))
+            n=min(o,g)
+            boards=[(i,j) for i in range(a+1) for j in range(b+1)
+                    if i+j<=o and i+j<=g]
+            assert max(i for i,j in boards)==min(n,a)
+            assert max(j for i,j in boards)==min(n,b)
+            assert any(i>=1 and j>=1 for i,j in boards)==(n>=2 and a>=1 and b>=1)
             checked+=1
-assert checked==1323
+assert checked==2970
 ```
 
 This is finite inventory arithmetic only. It does not test legal native action tokens, establish reachability, simulate draws or opponent policy, or compare matchup rates. The six selection examples above are direct outputs of the same count calculation. No newly registered scenario, workflow, fixture, game, or gate.
