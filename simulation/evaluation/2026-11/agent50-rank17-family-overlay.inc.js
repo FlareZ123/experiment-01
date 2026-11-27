@@ -1084,7 +1084,7 @@ function r17Prompt(request) {
   if(/Extra Energy Bomb|Electro Rain|Crush and Burn/i.test(effect))return r17Abstain('R17_UNSUPPORTED_PROMPT');
   if(type==='ChooseCardsPrompt') {
     if(key==='carrier')return r17CarrierChoices(p,v);
-    if(key==='compressor')return r17CompressorUseful(v)?
+    if(key==='compressor')return (r17ActiveLoadPlan(v,r17CardCounts(r17ChoiceCards(p,'deck'))||{},true)||r17CompressorUseful(v))?
       r17CompressorChoices(p,v):r17Abstain('R17_COMPRESSOR_NO_CARRIER_PLAN');
     if(key==='vip')return r17VipChoices(p,v);
     if(key==='stretcher')return r17StretcherChoices(p,v);
