@@ -1,7 +1,7 @@
 "use strict";
 
 // Agent21 advisory for approved common two-profile successor; detached verified actor resources only.
-function acerolaMaxGeist(input, maxStates = 40000, firstActionAllowed = () => true) {
+function acerolaMaxGeist(input, maxStates = 40000, firstActionAllowed = () => true, options = {}) {
   // Positive known-resource certificates only. Public permissions and damage modifiers
   // must be valid across all enumerated switches/removals; Ranger is the one explicit
   // attack-effect Item-lock transition. Unverified or dynamic effects require abstention.
@@ -55,7 +55,7 @@ function acerolaMaxGeist(input, maxStates = 40000, firstActionAllowed = () => tr
   const key=s=>[s.live,s.a,s.o,s.e.join(","),s.h,+s.m,+s.r,s.d,s.sup,s.b,s.deck,s.draws,
      s.dp,s.kp,s.vs,s.fog,s.ns,+s.ha,+s.hg,+s.hr,+s.da,+s.dg,+s.dr,+s.item].join("|");
   const queue=[initial],seen=new Set([key(initial)]),best=new Map();
-  let capped=false,head=0;
+  let capped=false,head=0,stoppedEarly=false,foundWitness=false;
   function push(s,changes,action){
     if(!s.path.length&&!firstActionAllowed(action))return;
     const next={...s,...changes,path:[...s.path,action]},k=key(next);
@@ -78,6 +78,7 @@ function acerolaMaxGeist(input, maxStates = 40000, firstActionAllowed = () => tr
     const previous=best.get(branch);
     const better=!previous||score.some((x,j)=>x!==previous.score[j]&&
       score.slice(0,j).every((v,k)=>v===previous.score[k])&&x>previous.score[j]);
+    if(wins)foundWitness=true;
     if(better)best.set(branch,{score,branch,supporter:s.sup||null,attacker:ids[s.a],target:t.id,damage,prizes,wins,
       boardPsychic:total,handPsychic:s.h,actions:[...s.path,attack],
       unknownDrawsIgnored:s.draws});
@@ -85,6 +86,7 @@ function acerolaMaxGeist(input, maxStates = 40000, firstActionAllowed = () => tr
   while(head<queue.length){
     const s=queue[head++],own=living(s),bench=own.filter(i=>i!==s.a);
     record(s);
+    if(options.witnessOnly===true&&foundWitness){stoppedEarly=true;break;}
     if(s.h>0&&!s.m&&input.manualAttachmentAllowed){
       for(const i of own)push(s,{e:setEnergy(s,i,s.e[i]+1),h:s.h-1,m:true},
         {kind:"manual-attach",target:ids[i]});
@@ -147,7 +149,7 @@ function acerolaMaxGeist(input, maxStates = 40000, firstActionAllowed = () => tr
   const supportWin=plans.filter(x=>x.supporter&&x.wins).sort((a,b)=>a.actions.length-b.actions.length||
     b.boardPsychic-a.boardPsychic||a.branch.localeCompare(b.branch))[0];
   const winner=baseline||supportWin;
-  return {advisory:true,states:seen.size,completeWithinModel:!capped,
+  return {advisory:true,states:seen.size,completeWithinModel:!capped&&!stoppedEarly,witnessSearchStopped:stoppedEarly,
     decision:winner?{kind:"immediate-win-certificate",firstAction:winner.actions[0],plan:winner}:null,plans,
     boundary:"Positive known-resource certificate only. No opponent turn, other Trainers/attacks, returned Pokémon/Tools replay, new draw identities, or dynamic lock/status/cost changes beyond certified Ranger Item unlock. Revalidate every actual native root/prompt and replan after draws. Absence of a certificate does not prove absence of a winning line."};
 }
