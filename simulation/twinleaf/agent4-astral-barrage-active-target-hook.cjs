@@ -1,10 +1,15 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const path=require('node:path');
-const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
-/** @param {string} modulePath @returns {any} */
-const native=modulePath=>require(path.join(output,modulePath));
+const {ShadowRiderCalyrexV}=require('../../vendor/twinleaf/ptcg-server/output/sets/09-sword-and-shield/set-chilling-reign/shadow-rider-calyrex-v');
+const {WAS_ATTACK_USED}=require('../../vendor/twinleaf/ptcg-server/output/game/store/prefabs/prefabs');
+const {StateUtils}=require('../../vendor/twinleaf/ptcg-server/output/game/store/state-utils');
+const {ChoosePokemonPrompt}=require('../../vendor/twinleaf/ptcg-server/output/game/store/prompts/choose-pokemon-prompt');
+const {PlayerType,SlotType}=require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/play-card-action');
+const {PutCountersEffect}=require('../../vendor/twinleaf/ptcg-server/output/game/store/effects/attack-effects');
+const {GameMessage}=require('../../vendor/twinleaf/ptcg-server/output/game/game-message');
+const {Store}=require('../../vendor/twinleaf/ptcg-server/output/game/store/store');
+const {ResolvePromptAction}=require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
 
 /**
  * Original rank-1 Shadow Rider Calyrex V CRE74 has Astral Barrage:
@@ -21,19 +26,6 @@ const native=modulePath=>require(path.join(output,modulePath));
  * @returns {T}
  */
 function installPaperAstralBarrageTargets(){
-  const {ShadowRiderCalyrexV}=
-    native('sets/09-sword-and-shield/set-chilling-reign/shadow-rider-calyrex-v');
-  const {WAS_ATTACK_USED}=native('game/store/prefabs/prefabs');
-  const {StateUtils}=native('game/store/state-utils');
-  const {ChoosePokemonPrompt}=
-    native('game/store/prompts/choose-pokemon-prompt');
-  const {PlayerType,SlotType}=
-    native('game/store/actions/play-card-action');
-  const {PutCountersEffect}=native('game/store/effects/attack-effects');
-  const {GameMessage}=native('game/game-message');
-  const {Store}=native('game/store/store');
-  const {ResolvePromptAction}=
-    native('game/store/actions/resolve-prompt-action');
   const previousDispatch=Object.getOwnPropertyDescriptor(
     Store.prototype,'dispatch');
   assert.equal(typeof previousDispatch?.value,'function');
