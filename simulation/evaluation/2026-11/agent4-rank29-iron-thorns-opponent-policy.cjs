@@ -442,6 +442,30 @@ function cardChoiceScore(choice, observation, context) {
   }
   if (context === 'team-skull') return /Energy/i.test(printing) ? 200 : 0;
   if (context === 'trainers-mail' || context === 'camping-gear') {
+    // Mail may select one Trainer from the observed top four. Camping Gear
+    // may select any one owner-deck card but ends the turn. In both cases,
+    // preserve the source's multi-axis first-attack connector when feasible.
+    const turbo = ownActiveIsThorns(observation) &&
+      energyAvailable(observation) && !specialEnergyLocked(observation) &&
+      energyCount(observation.ownPublic?.active) === 0 &&
+      !hasStadium(observation, PRINT.thunderMountain);
+    const ghHeld=ownHand(observation).some(card=>matches(card,PRINT.guzmaHala));
+    const dceHeld=ownHand(observation).some(card=>matches(card,PRINT.doubleColorless));
+    const thunderHeld=ownHand(observation).some(card=>matches(card,PRINT.thunderMountain));
+    if (turbo && context==='trainers-mail') {
+      if (matches(printing,PRINT.guzmaHala) &&
+          (dceHeld || guzmaHalaPaymentRealism(observation)>0)) return 370;
+      if (matches(printing,PRINT.tagCall) && !ghHeld &&
+          ownerK1DeckMayContain(observation,PRINT.guzmaHala)) return 330;
+      if (matches(printing,PRINT.thunderMountain) && dceHeld) return 350;
+    }
+    if (context==='camping-gear' && turbo) {
+      if (matches(printing,PRINT.guzmaHala) && !ghHeld) return 360;
+      if (matches(printing,PRINT.doubleColorless) && ghHeld && thunderHeld) return 355;
+      if (matches(printing,PRINT.thunderMountain) && ghHeld && dceHeld) return 350;
+      if (matches(printing,PRINT.doubleColorless) && dceHeld===false) return 285;
+      if (matches(printing,PRINT.thunderMountain) && thunderHeld===false) return 275;
+    }
     if (matches(printing, PRINT.plumeria) || matches(printing, PRINT.teamFlare) ||
         matches(printing, PRINT.guzma) || matches(printing, PRINT.lusamine) ||
         matches(printing, PRINT.handiwork) || matches(printing, PRINT.guzmaHala)) return 240;
@@ -748,6 +772,35 @@ function promptDecision(request) {
         return multiSelectDecision(prompt, rankedChoices(opponentHand,
           choice => cardChoiceScore(choice, observation, context), maximum),
         minimum, maximum);
+      }
+
+      if (matches(sourcePrinting, PRINT.trainersMail) ||
+          matches(sourcePrinting, PRINT.campingGear)) {
+        const context = matches(sourcePrinting, PRINT.trainersMail) ?
+          'trainers-mail' : 'camping-gear';
+        const candidateChoices=choices.filter(choice =>
+          choiceOwner(choice)==='actor' &&
+          (choiceZone(choice)==='deck' ||
+            choice?.publicMetadata?.sourceZone==='deck'));
+        return multiSelectDecision(prompt, rankedChoices(candidateChoices,
+          choice => cardChoiceScore(choice, observation, context), maximum),
+        minimum, maximum);
+      }
+
+      if (matches(sourcePrinting, PRINT.faba)) {
+        const targets=choices.filter(choice=>
+          choiceOwner(choice)==='opponent' || choiceZone(choice)==='stadium' ||
+          choice.kind==='stadium');
+        return multiSelectDecision(prompt,rankedChoices(targets,
+          choice=>cardChoiceScore(choice,observation,'faba'),maximum),
+        minimum,maximum);
+      }
+
+      if (matches(sourcePrinting, PRINT.enhancedHammer)) {
+        return multiSelectDecision(prompt,rankedChoices(choices.filter(choice=>
+          choiceOwner(choice)==='opponent'),
+          choice=>cardChoiceScore(choice,observation,'enhanced-hammer'),maximum),
+        minimum,maximum);
       }
 
       if (matches(sourcePrinting, PRINT.vsSeeker)) {
