@@ -540,6 +540,7 @@ function hasOwnFairyZoneHolderLockThreat(view) {
 }
 
 function hasStealthyHoodSearchNeed(view) {
+  if(knownFullyPrized(view,'Stealthy Hood'))return false;
   const openShadowRider = ownBoard(view).some(slot =>
     (isShadowRiderVmax(slot) || isBasicShadowRiderV(slot)) &&
     Array.isArray(slot.tools) && slot.tools.length === 0
@@ -1197,17 +1198,40 @@ function gateAccessNeed(view) {
 function heavyBallNeed(view) {
   if (itemLocked(view) || view.ownPublic.prizeCount <= 0) return 0;
   if (knownFullyPrized(view, 'Radiant Eternatus') && gateWantedIgnoringPrize(view)) return 1050;
+  if (knownFullyPrized(view,'Wobbuffet') && !boardHas(view,'Wobbuffet') && !handHas(view,'Wobbuffet') && opponentHasRegidrago(view)&&hasOpenBench(view))return 870;
+  if (knownFullyPrized(view,"Lillie's Clefairy ex") && opponentHasDragon(view)&&!boardHas(view,"Lillie's Clefairy ex")&&hasOpenBench(view))return 880;
   if (knownFullyPrized(view, 'Shadow Rider Calyrex V') && !hasBasicShadowRiderV(view) &&
       !handHasBasicShadowRiderV(view) && hasOpenBench(view)) return 1000;
   if ((!hasBasicShadowRiderV(view) && !handHasBasicShadowRiderV(view) && hasOpenBench(view)) ||
       gateAccessNeed(view)) return 675;
   return 0;
 }
+// Evaluate the actual post-pivot state: leaving Bide Barricade can also
+// reactivate the opponent's Initialization, so a pivot is not sufficient.
+function gatePivotView(view) {
+  if(!hasName(view.ownPublic.active?.printing,'Wobbuffet') ||
+      view.ownTurnResources?.retreatedTurn>0) return null;
+  const cost=ownRetreatCost(view);
+  if(cost===null) return null;
+  const active=view.ownPublic.active;
+  const heldStone=handHas(view,'Float Stone') && active.tools?.length===0 &&
+      !view.ownTurnResources?.toolPlayLocked &&
+      toolsEffectiveForRetreat(view,active,'actor')===true;
+  if(slotEnergyCount(active)<cost&&!heldStone)return null;
+  for(const [index,slot] of view.ownPublic.bench.entries()){
+    if(!slot)continue;
+    const moved={...view,ownPublic:{...view.ownPublic,active:slot,
+      bench:view.ownPublic.bench.map((p,i)=>i===index?active:p)}};
+    if(canPlayRadiantForGate(moved))return moved;
+  }
+  return null;
+}
 function gateWantedIgnoringPrize(view) {
   return !boardHas(view, 'Radiant Eternatus') && !handHas(view, 'Radiant Eternatus') &&
     !discardHas(view, 'Radiant Eternatus') &&
     !(view.ownPublic.lostZone ?? []).some(p => hasName(p, 'Radiant Eternatus')) &&
-    view.ownPublic.deckCount > 0 && openBenchSlots(view) >= 3 && canPlayRadiantForGate(view);
+    view.ownPublic.deckCount > 0 && openBenchSlots(view) >= 3 &&
+    (canPlayRadiantForGate(view) || gatePivotView(view)!==null);
 }
 function forestSealAccessNeed(view) {
   return (gateAccessNeed(view) || (heavyBallNeed(view) >= 1000 &&
@@ -1298,6 +1322,9 @@ function searchNeedScore(view, printing, effectName = '', receipt = null) {
   }
   if (hasName(printing, 'Radiant Eternatus')) return gateAccessNeed(view) ? 120 : -5;
   if (hasName(printing, 'Forest Seal Stone')) return forestSealAccessNeed(view) ? 115 : 0;
+  if (hasName(printing,'Temple of Sinnoh')) return !knownFullyPrized(view,'Temple of Sinnoh') && Number.isFinite(usefulTemple(view)) ? 105 : 0;
+  if (hasName(printing,'Wobbuffet')) return !boardHas(view,'Wobbuffet') && !handHas(view,'Wobbuffet') && hasOpenBench(view) && opponentHasRegidrago(view) ? 70 : 0;
+  if (hasName(printing,'Tapu Lele-GX')) return supporterAvailable(view)&&!hasWonderTagLock(view)&&!boardHas(view,'Tapu Lele-GX')&&!handHas(view,'Tapu Lele-GX')&&openBenchSlots(view)>=4&&forestSealAccessNeed(view)?110:0;
   const regidrago = opponentHasRegidrago(view);
   const dragon = opponentHasDragon(view);
   const board = ownBoard(view);
@@ -1356,7 +1383,7 @@ function searchNeedScore(view, printing, effectName = '', receipt = null) {
     return !itemLocked(view) && Number.isFinite(bestRecoverableSupporter(view,receipt)) ? 85 : 0;
   }
   if (hasName(printing, 'Hisuian Heavy Ball')) {
-    return heavyBallNeed(view) >= 1000 ? 125 : 25;
+    return knownFullyPrized(view,'Hisuian Heavy Ball')?-5:heavyBallNeed(view) >= 1000 ? 125 : 25;
   }
   if (hasName(printing, 'Night Stretcher')) return !itemLocked(view) && view.ownPublic.discard.some(p=>recoveryNeedScore(view,p,receipt)>=70) ? 75 : 0;
   if (hasName(printing, 'Unfair Stamp')) {
@@ -2198,7 +2225,11 @@ function scoreBasicPlay(item, view, profile) {
   // Mimikyu Copycat is not an admitted attack path.
   if (hasName(printing, "Lillie's Clefairy ex") && opponentHasDragon(view) &&
       !boardHas(view, "Lillie's Clefairy ex")) return 900;
-  if (hasName(printing, 'Latias ex') && !boardHas(view, 'Latias ex')) return 650;
+  if (hasName(printing, 'Latias ex') && !boardHas(view, 'Latias ex')) {
+    if(reserveGate && !hasName(view.ownPublic.active?.printing,'Wobbuffet')) return -Infinity;
+    if(reserveGate && openBenchSlots(view)<4) return -Infinity;
+    return 650;
+  }
   if (hasName(printing, 'Girafarig') && opponentHasRegidrago(view) &&
       !boardHas(view, 'Girafarig')) return 450;
   if (hasName(printing, 'Marshadow') &&
@@ -2255,7 +2286,7 @@ function expectedClimacticGateTargets(view, maxTargets = 2) {
   const remaining = 4 - knownShadowRiderVmaxCount(view);
   const hidden = deck + prizes;
   if (remaining < 0 || remaining > hidden || hidden === 0) return null;
-  if (remaining === 0 || deck === 0) return 0;
+  if (remaining === 0 || deck === 0 || knownFullyPrized(view,'Shadow Rider Calyrex VMAX')) return 0;
   const denominator = binomialCoefficient(hidden, remaining);
   if (denominator <= 0) return null;
   const probabilityZero = binomialCoefficient(prizes, remaining) / denominator;
@@ -2505,17 +2536,19 @@ function hasStarAlchemyLock(view, target) {
   return false;
 }
 
-function hasStarAlchemyBottleneck(view, receipt) {
+function hasStarAlchemyBottleneck(view, receipt, profile) {
+  if(profile?.profileId==='lockbridge-shadow-rider-v1' && Number.isFinite(usefulTemple(view)) &&
+    !handHas(view,'Temple of Sinnoh') && !knownFullyPrized(view,'Temple of Sinnoh')) return true;
   const missingBasicV = !knownFullyPrized(view,'Shadow Rider Calyrex V') && !hasBasicShadowRiderV(view) &&
     !handHasBasicShadowRiderV(view) && hasOpenBench(view);
-  const missingVmax = hasUnevolvedShadowRiderV(view) &&
+  const missingVmax = !knownFullyPrized(view,'Shadow Rider Calyrex VMAX') && hasUnevolvedShadowRiderV(view) &&
     !handHas(view, 'Shadow Rider Calyrex VMAX');
   const missingDialga = opponentHasRegidrago(view) &&
     !boardHas(view, 'Dialga-GX') && !handHas(view, 'Dialga-GX') &&
     !discardHas(view, 'Dialga-GX');
   const missingMimikyu = opponentHasRegidrago(view) &&
     !boardHas(view, 'Mimikyu') && !handHas(view, 'Mimikyu');
-  const missingClefairy = opponentHasDragon(view) &&
+  const missingClefairy = !knownFullyPrized(view,"Lillie's Clefairy ex") && opponentHasDragon(view) &&
     !boardHas(view, "Lillie's Clefairy ex") &&
     !handHas(view, "Lillie's Clefairy ex");
   const missingStadiumAnswer = hasStadiumRemovalTarget(view) &&
@@ -2547,7 +2580,7 @@ function scoreTrainerPlay(item, view, receipt, profile) {
         !view.ownPublic.bench.some(Boolean) || hasStealthyHoodSearchNeed(view)) return -Infinity;
     if (target.printed?.subtypes?.includes('Basic') && skylinerStatus(view)===true) return -Infinity;
     if (target===view.ownPublic.active && (ownRetreatCost(view)??0)>0 &&
-        (handHas(view,'Radiant Eternatus') && hasName(target.printing,'Wobbuffet') ||
+        ((handHas(view,'Radiant Eternatus') || gateAccessNeed(view)) && hasName(target.printing,'Wobbuffet') ||
          view.ownPublic.bench.some(slot=>slot && bestAttackForSlot(slot,view,view.opponentPublic.active)?.score>
            (bestAttackForSlot(target,view,view.opponentPublic.active)?.score??0)))) return 870;
     return -Infinity;
@@ -2568,7 +2601,7 @@ function scoreTrainerPlay(item, view, receipt, profile) {
         view.ownTurnResources.vstarUsed !== true &&
         view.ownPublic.publicTurnRestrictions?.vstarUsed !== true &&
         !hasStarAlchemyLock(view, target) &&
-        hasStarAlchemyBottleneck(view, receipt)) return gateAccessNeed(view) ? 930 : 550;
+        hasStarAlchemyBottleneck(view, receipt,profile)) return gateAccessNeed(view) ? 930 : 550;
   }
   if (hasName(name, 'Field Blower')) {
     if (hasStadiumRemovalTarget(view)) return 950;
@@ -2595,7 +2628,8 @@ function scoreTrainerPlay(item, view, receipt, profile) {
     !boardHas(view, 'Trevenant & Dusknoir-GX') &&
     !handHas(view, 'Trevenant & Dusknoir-GX') && canFuelNightWatch(view);
   if (hasName(name, 'Mysterious Treasure') && hasDiscardableHand(view, 1, name) &&
-      (gateAccessNeed(view) || missingBasicV || needNightWatch)) return 800;
+      (gateAccessNeed(view) || missingBasicV || needNightWatch ||
+       (hasUnevolvedShadowRiderV(view)&&!handHas(view,'Shadow Rider Calyrex VMAX')&&!knownFullyPrized(view,'Shadow Rider Calyrex VMAX')))) return 800;
   if (hasName(name, 'Quick Ball') && hasDiscardableHand(view, 1, name) &&
       (missingBasicV || needNightWatch || gateAccessNeed(view))) return 790;
   if (hasName(name, 'Ultra Ball') && hasDiscardableHand(view, 2, name) &&
@@ -2641,7 +2675,7 @@ function usefulTemple(view) {
   if (countBench(view.ownPublic)>5) return -Infinity;
   let pressure=templePressure(view);
   if (opponentBoard(view).some(slot=>hasName(slot.printing,'Marshadow') &&
-      abilityStatus(slot,'Resetting Hole')===true)) pressure-=250;
+      effectiveAbilityStatus(slot,'Resetting Hole','opponent',view)===true)) pressure-=250;
   if (view.ownPublic.stadium.some(p=>hasName(p,'Dimension Valley')) &&
       ownBoard(view).some(slot=>slot.printed?.types?.includes('Psychic') &&
         (slot.attacks??[]).some(a=>a.cost?.includes('Colorless') &&
@@ -2751,7 +2785,7 @@ function canUseUnderworldDoor(view, item, receipt) {
       slot && slot.printed?.types?.includes('Psychic'));
 }
 
-function canUseStarAlchemy(view, item, receipt) {
+function canUseStarAlchemy(view, item, receipt, profile) {
   const metadata = item.publicMetadata ?? {};
   const source = abilitySourceSlot(view, item);
   return metadata.abilityName === 'Star Alchemy' &&
@@ -2761,7 +2795,7 @@ function canUseStarAlchemy(view, item, receipt) {
     view.ownTurnResources.vstarUsed !== true &&
     view.ownPublic.publicTurnRestrictions?.vstarUsed !== true &&
     !hasStarAlchemyLock(view, source) &&
-    hasStarAlchemyBottleneck(view, receipt);
+    hasStarAlchemyBottleneck(view, receipt,profile);
 }
 
 function chooseRoot(view, request, profile) {
@@ -2820,7 +2854,7 @@ function chooseRoot(view, request, profile) {
     hasStadiumRemovalTarget(view));
   const underworldDoor = abilities.find(item => canUseUnderworldDoor(view, item, request.publicEventReceipt));
   const starAlchemy = abilities.find(item =>
-    canUseStarAlchemy(view, item, request.publicEventReceipt));
+    canUseStarAlchemy(view, item, request.publicEventReceipt,profile));
   const usefulAbility = resettingHole ?? underworldDoor ?? starAlchemy;
   for (const item of abilities) {
     if (usefulAbility && item.token === usefulAbility.token) {
