@@ -1054,7 +1054,7 @@ function r17BasicLock(view) {
   return false;
 }
 function r17IsWob(p) {return /^Wobbuffet PHF(?: 36)?$/i.test(printingValue(p));}
-function r17LiveHood(view,p) {return r17StadiumToolLive(view)&&list(p?.tools).some(t=>/^Stealthy Hood UNB(?: 186)?$/i.test(printingValue(t)));}
+function r17LiveHood(view,p) {return r17ToolEffectsLive(view)&&list(p?.tools).some(t=>/^Stealthy Hood UNB(?: 186)?$/i.test(printingValue(t)));}
 function r17Garbotoxin(view) {
   return r17StadiumToolLive(view)&&[own(view),opponent(view)].some(player=>slots(player).some(p=>
     /^Garbodor\b/i.test(printingValue(p))&&list(p.tools).length>0&&
@@ -1108,6 +1108,9 @@ function r17JoustUnlocksBomb(view) {
 function r17UnownUseful(view) { return r17Deck(view)>=2&&!r17AbilityBlocked(view,'unown'); }
 function r17StadiumToolLive(view) {
   return ![own(view),opponent(view)].some(p=>Number(p.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining)>0);
+}
+function r17ToolEffectsLive(view) {
+  return r17StadiumToolLive(view)&&!/^Jamming Tower\b/i.test(r17Stadium(view));
 }
 function r17NeedTempleRemoval(view) {
   return r17StadiumToolLive(view)&&/^Temple of Sinnoh\b/i.test(r17Stadium(view));
@@ -1413,7 +1416,7 @@ function r17PublicFreePivot(view) {
     list(a.specialConditions).length)return false;
   const cost=a.printed?.retreatCost;
   if(!Array.isArray(cost))return false;
-  return cost.length===0||cost.length===1&&r17StadiumToolLive(view)&&list(a.tools).some(t=>r17Key(t)==='uturn');
+  return cost.length===0||cost.length===1&&r17ToolEffectsLive(view)&&list(a.tools).some(t=>r17Key(t)==='uturn');
 }
 function r17ReadyRainAttackers(view) {
   const a=active(own(view));
@@ -1429,7 +1432,7 @@ function r17FundedRainProjection(view,p,options={}) {
   let best=null;
   const held=hand(view),bounds=r17EnergyDeckBounds(view),copies=r17HandCount(view,'compressor');
   const manual=[null,...(r17ManualAvailable(view)?[...new Set(held.map(r17Key).filter(k=>R17_ENERGY.has(k)))]:[])];
-  const sight=[false,...(r17Hand(view,'sight')&&list(p.tools).length===0&&r17StadiumToolLive(view)&&
+  const sight=[false,...(r17Hand(view,'sight')&&list(p.tools).length===0&&r17ToolEffectsLive(view)&&
     !own(view).publicTurnRestrictions?.toolPlayLocked&&!view.ownTurnResources?.toolPlayLocked?[true]:[])];
   for(const energy of manual)for(const forceSight of sight){
     const opts={...options,forceSight:options.forceSight||forceSight,
@@ -1737,7 +1740,7 @@ function r17SecretChoices(prompt,view) {
       for(const supporter of lists[2].length?lists[2]:[null])
         for(const stadium of lists[3].length?lists[3]:[null]){
           const rows=[item,tool,supporter,stadium].filter(Boolean);
-          const forceSight=r17Key(tool)==='sight'&&list(p.tools).length===0&&r17StadiumToolLive(view)&&
+          const forceSight=r17Key(tool)==='sight'&&list(p.tools).length===0&&r17ToolEffectsLive(view)&&
             !own(view).publicTurnRestrictions?.toolPlayLocked&&!view.ownTurnResources?.toolPlayLocked;
           const removeTemple=ignoreTemple||r17NeedTempleRemoval(view)&&r17Key(stadium)==='pokestop'&&
             !own(view).publicTurnRestrictions?.stadiumPlayLocked&&view.ownTurnResources?.stadiumPlayedTurn!==view.globalTurn;
@@ -1782,7 +1785,7 @@ function r17FreeRetreat(item,view) {
   const a=active(own(view)),cost=a?.printed?.retreatCost;
   if(!Array.isArray(cost))return false;
   if(cost.length===0)return true;
-  return cost.length===1&&r17StadiumToolLive(view)&&list(a.tools).some(t=>r17Key(t)==='uturn');
+  return cost.length===1&&r17ToolEffectsLive(view)&&list(a.tools).some(t=>r17Key(t)==='uturn');
 }
 // Narrow public-board tactical pressure model. It deliberately does not
 // certify terminal wins: printed HP and visible Tools/Stadium do not prove
@@ -1858,8 +1861,8 @@ function r17NewMoonSunbeamLive(view) {
 }
 function r17VisibleRainTargets(view,p,forceSight=false) {
   const stad=r17Stadium(view);
-  if(stad&&!/^(Sky Field ROS|Dimension Valley PHF|Temple of Sinnoh ASR|Pok[eé]Stop PGO|Path to the Peak CRE|Power Plant UNB)(?: \d+)?$/i.test(stad))return null;
-  const sight=r17StadiumToolLive(view)&&(forceSight||list(p?.tools).some(c=>r17Key(c)==='sight'));
+  if(stad&&!/^(Sky Field ROS|Dimension Valley PHF|Temple of Sinnoh ASR|Pok[eé]Stop PGO|Path to the Peak CRE|Power Plant UNB|Jamming Tower TWM)(?: \d+)?$/i.test(stad))return null;
+  const sight=r17ToolEffectsLive(view)&&(forceSight||list(p?.tools).some(c=>r17Key(c)==='sight'));
   const targets=[];
   for(const [zone,rows] of [['active',[active(opponent(view))]],['bench',list(opponent(view).bench)]]){
     for(let index=0;index<rows.length;index++){
@@ -1950,7 +1953,7 @@ function r17KlefkiFreeAfter(view,p) {
   const cost=p?.printed?.retreatCost;
   if(!Array.isArray(cost))return false;
   if(cost.length===0)return true;
-  if(cost.length!==1||!r17StadiumToolLive(view))return false;
+  if(cost.length!==1||!r17ToolEffectsLive(view))return false;
   if(list(p.tools).some(t=>r17Key(t)==='uturn'))return true;
   return !list(p.tools).length&&r17Hand(view,'uturn')&&
     !own(view).publicTurnRestrictions?.toolPlayLocked&&!view.ownTurnResources?.toolPlayLocked;
@@ -2246,7 +2249,7 @@ function r17ScorePlay(item,view) {
   if(k==='pokestop')return r17Deck(view)>=12&&!r17NeedStadiumRemoval(view)&&
     !/^Pok[eé]Stop\b/i.test(r17Stadium(view))?110:r17NeedStadiumRemoval(view)?300:0;
   if(k==='uturn') {
-    if(!r17StadiumToolLive(view)||own(view).publicTurnRestrictions?.toolPlayLocked===true||view.ownTurnResources?.toolPlayLocked===true)return 0;
+    if(!r17ToolEffectsLive(view)||own(view).publicTurnRestrictions?.toolPlayLocked===true||view.ownTurnResources?.toolPlayLocked===true)return 0;
     const s=r17Slot(view,m.targetZone,m.targetIndex);
     if(m.targetSeat==='actor'&&m.targetZone==='bench'&&r17Key(s)==='klefki'&&!list(s.tools).length&&r17KlefkiPivotPlan(view,false))return 340;
     return m.targetSeat==='actor'&&m.targetZone==='active'&&s&&list(s.tools).length===0&&
@@ -2255,7 +2258,7 @@ function r17ScorePlay(item,view) {
   if(k==='ticket')return r17TicketPlan(view)?390:0;
   if(k==='sight'){
     const p=r17Slot(view,m.targetZone,m.targetIndex);
-    if(m.targetSeat!=='actor'||r17Key(p)!=='raichu'||list(p.tools).length||!r17StadiumToolLive(view)||own(view).publicTurnRestrictions?.toolPlayLocked||view.ownTurnResources?.toolPlayLocked)return 0;
+    if(m.targetSeat!=='actor'||r17Key(p)!=='raichu'||list(p.tools).length||!r17ToolEffectsLive(view)||own(view).publicTurnRestrictions?.toolPlayLocked||view.ownTurnResources?.toolPlayLocked)return 0;
     const baseline=r17RainProjection(view,p),boosted=r17RainProjection(view,p,{forceSight:true});
     if(boosted&&r17CompareProjection(boosted,baseline)>0)return 400;
     const bounds=r17EnergyDeckBounds(view),capacity=Math.min(12,3*r17HandCount(view,'compressor'));
