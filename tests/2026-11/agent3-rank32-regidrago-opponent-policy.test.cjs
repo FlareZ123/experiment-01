@@ -205,3 +205,53 @@ test('unknown prompts abstain, never fabricate a choice token',()=>{
     source:{effectName:'unknown'},choices:[{token:'first',label:'go'}]}})),
     {kind:'abstain',reasonCode:'UNSUPPORTED_RANK32_PROMPT_TYPE'});
 });
+
+
+test('Lockbridge Temple on DDE funds a regular Stadium response before burning Megaton',()=>{
+  const req=request({items:[
+    action('parallel','play-card','Parallel City BKT 145'),
+    action('megaton','play-card','Megaton Blower SSP 182'),
+    action('pass','pass')
+  ],active:pokemon(P.regidrago,{energies:[P.doubleDragon,P.doubleDragon,P.energy]})});
+  req.observation.opponentPublic.stadium=[{printing:'Temple of Sinnoh ASR 155'}];
+  assert.deepEqual(bestAction(req),{kind:'select-action',token:'parallel'});
+});
+
+test('no Temple threat means rank-32 does not waste a singleton Stadium',()=>{
+  const req=request({hand:[P.energy],items:[
+    action('parallel','play-card','Parallel City BKT 145'),
+    action('lillie','play-card',"Lillie's Determination MEG 119"),
+    action('pass','pass')
+  ]});
+  assert.deepEqual(bestAction(req),{kind:'select-action',token:'lillie'});
+});
+
+test('Active Wobbuffet lock merits Hood on unused Regidrago VSTAR',()=>{
+  const items=[
+    action('hood','play-card','Stealthy Hood UNB 186'),
+    action('lillie','play-card',"Lillie's Determination MEG 119"),
+    action('pass','pass')
+  ];
+  const req=request({hand:[P.energy],items,
+    opponentActive:pokemon('Wobbuffet PHF 36',
+      {printed:{subtypes:['Basic']},abilityDetails:[{name:'Bide Barricade'}]})});
+  assert.deepEqual(bestAction(req),{kind:'select-action',token:'hood'});
+  const used=request({hand:[P.energy],items,opponentActive:req.observation.opponentPublic.active});
+  used.observation.ownPublic.publicTurnRestrictions.vstarUsed=true;
+  assert.deepEqual(bestAction(used),{kind:'select-action',token:'lillie'});
+  const noLock=request({hand:[P.energy],items});
+  assert.deepEqual(bestAction(noLock),{kind:'select-action',token:'lillie'});
+});
+
+test('Stealthy Hood attachment targets the VSTAR only within active Wobbuffet lock window',()=>{
+  const p=prompt('Stealthy Hood UNB 186','Stealthy Hood',[
+    choice('vstar',P.regidrago),choice('support','Dedenne-GX UNB 57')
+  ],'ChoosePokemonPrompt',[1,1]);
+  p.publicMetadata.selectionType='pokemon';
+  const req=request({prompt:p,opponentActive:pokemon('Wobbuffet PHF 36',
+    {printed:{subtypes:['Basic']},abilityDetails:[{name:'Bide Barricade'}]})});
+  assert.deepEqual(promptDecision(req),{kind:'select-choices',tokens:['vstar']});
+  const noLock=request({prompt:p});
+  assert.deepEqual(promptDecision(noLock),
+    {kind:'abstain',reasonCode:'RANK32_HOOD_LOCK_WINDOW_ABSENT'});
+});
