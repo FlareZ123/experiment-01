@@ -149,18 +149,26 @@ function r17TicketPlan(view) {
      p.prizeCount===0||p.deckCount<p.prizeCount)return null;
   const isolated=key=>zones.prizes[key]>0&&(zones.deck[key]||0)===0&&
     (zones.publicCounts[key]||0)===0;
-  const compressor=r17Hand(view,'compressor'),stretcher=r17Hand(view,'stretcher'),
-    carrier=r17Hand(view,'carrier'),vip=r17First(view)&&r17Hand(view,'vip');
+  const compressor=r17Hand(view,'compressor'),stretcher=r17HandCount(view,'stretcher'),
+    carrier=r17HandCount(view,'carrier'),vip=r17First(view)&&r17Hand(view,'vip');
   // Ticket puts old Prizes at the bottom, NOT into hand. Require an
   // already-funded subsequent whole-deck search/recovery route.
-  for(const key of r17EvolutionDemand(view)){
-    if(isolated(key)&&compressor&&stretcher)return {target:key,followup:'compressor-stretcher',epoch:zones.epoch};
+  const evos=r17EvolutionDemand(view),discard=new Set(r17Discard(view).map(r17Key));
+  const existingEvos=evos.filter(k=>discard.has(k)).length;
+  for(const key of evos){
+    if(isolated(key)&&compressor&&stretcher>existingEvos)
+      return {target:key,followup:'compressor-stretcher',epoch:zones.epoch};
   }
-  if(r17Space(view)>0&&!r17Hand(view,'heavy')&&
-     !r17CoreBaseReady(view,'ditto')&&(zones.deck.ditto||0)===0){
-    for(const key of r17MissingCore(view)){
-      if(isolated(key)&&(vip||compressor&&(carrier||stretcher)))
-        return {target:key,followup:vip?'vip':carrier?'compressor-carrier':'compressor-stretcher',epoch:zones.epoch};
+  const missing=r17MissingCore(view),existingBases=missing.filter(k=>discard.has(k)).length;
+  if(r17Space(view)>existingBases&&!r17Hand(view,'heavy')&&
+     (!r17CoreBaseReady(view,'ditto')||r17BasicLock(view))&&
+     !(vip&&(zones.deck.ditto||0)>0&&!r17BasicLock(view))){
+    for(const key of missing){
+      const carrierSlot=2*carrier>existingBases;
+      const stretcherSlot=carrier===0&&stretcher>existingEvos+existingBases&&
+        r17Hand(view,key==='pikachu'?'raichu':'electrode');
+      if(isolated(key)&&(vip||compressor&&(carrierSlot||stretcherSlot)))
+        return {target:key,followup:vip?'vip':carrierSlot?'compressor-carrier':'compressor-stretcher',epoch:zones.epoch};
     }
   }
   return null;
@@ -221,6 +229,10 @@ function r17EvolutionDemand(view,plannedBasics=[]) {
     if(r17Board(view,e)||r17Hand(view,e))continue;
     if(r17CoreBaseReady(view,b)||plannedBasics.includes(b))demand.push(e);
   }
+  // If a held evolution already needs the single Ditto, reserve it.
+  // A second evolution is not a second independent compatible base.
+  if(ditto)dittoUsed=[['raichu','pikachu'],['electrode','voltorb']].some(([e,b])=>
+    !r17Board(view,e)&&r17Hand(view,e)&&!r17CoreBaseReady(view,b)&&!plannedBasics.includes(b));
   for(const [e,b] of [['raichu','pikachu'],['electrode','voltorb']]) {
     if(!ditto||dittoUsed||r17Board(view,e)||r17Hand(view,e)||demand.includes(e))continue;
     demand.push(e);dittoUsed=true;
@@ -311,17 +323,27 @@ function r17CompressorPlan(view,deckKeys=null) {
   const demand=r17EvolutionDemand(view,plannedBases);
   const recoveredEvos=demand.filter(k=>discard.has(k)).slice(0,stretcher);
   const searchEvos=demand.filter(k=>!discard.has(k)&&canSearch(k)).slice(0,stretcher-recoveredEvos.length);
+  // With no Carrier, surplus Stretcher uses may also retrieve a Basic.
+  // Prioritize a missing Basic for an evolution already held. Do not count
+  // the same Stretcher for both an evolution and its Basic.
+  const otherBases=bases.filter(k=>!plannedBases.includes(k)&&!discard.has(k)&&canSearch(k))
+    .sort((a,b)=>Number(r17Hand(view,b==='pikachu'?'raichu':'electrode'))-
+      Number(r17Hand(view,a==='pikachu'?'raichu':'electrode')));
+  const availableStretcher=carrier===0?Math.max(0,stretcher-recoveredEvos.length-searchEvos.length-
+    bases.filter(k=>discard.has(k)).length):0;
+  const extraBases=otherBases.slice(0,Math.min(availableStretcher,Math.max(0,r17Space(view)-plannedBases.length)));
   // The card searches up to three. Prioritize funded missing Basics, then
-  // funded Stage 1s. The prompt can restrict the actual deck card identities.
-  return [...searchBases,...searchEvos].slice(0,3);
+  // funded Stage 1s, then genuinely surplus Stretcher Basic recovery.
+  return [...searchBases,...searchEvos,...extraBases].slice(0,3);
 }
-function r17CompressorGain(view) {return r17CompressorPlan(view).length;}
+function r17CompressorGain(view) {const z=r17KnownOwnZones(view);return r17CompressorPlan(view,z?new Set(Object.keys(z.deck)):null).length;}
 function r17CompressorUseful(view) {
   if(!itemAvailable(view))return false;
   if(r17CompressorGain(view)>0)return true;
   if(!r17Hand(view,'carrier')||r17Space(view)===0)return false;
   if(r17Discard(view).some(c=>r17CarrierValue(r17Key(c),view)>0))return false;
-  return r17UnownUseful(view)&&!r17Hand(view,'unown')&&!r17Board(view,'unown');
+  const z=r17KnownOwnZones(view);
+  return r17UnownUseful(view)&&!r17Hand(view,'unown')&&!r17Board(view,'unown')&&(!z||(z.deck.unown||0)>0);
 }
 function r17CompressorChoices(prompt,view) {
   const cards=r17ChoiceCards(prompt,'deck');
@@ -338,8 +360,8 @@ function r17CompressorChoices(prompt,view) {
 function r17VipValue(key,view) {
   if(key==='voltorb'&&!r17Board(view,'voltorb')&&!r17Board(view,'electrode')&&!r17Hand(view,'voltorb'))return 300;
   if(key==='pikachu'&&!r17Board(view,'pikachu')&&!r17Board(view,'raichu')&&!r17Hand(view,'pikachu'))return 290;
-  if(key==='ditto'&&!r17Board(view,'ditto')&&!r17Hand(view,'ditto')&&
-    (!r17Board(view,'electrode')||!r17Board(view,'raichu')))return 190;
+  if(key==='ditto'&&!r17Board(view,'ditto')&&!r17Hand(view,'ditto')&&!r17BasicLock(view)&&
+    r17MissingCore(view).length>0)return 190;
   if(key==='unown'&&r17UnownUseful(view))return 150;
   if(key==='marshadow'&&r17NeedTempleRemoval(view)&&!r17Board(view,key))return 210;
   // Squawk and Seize is usable from play on own first turn, not a hand-play trigger.
@@ -503,15 +525,15 @@ function r17ScorePlay(item,view) {
   if(k==='unown')return r17Space(view)>0&&r17UnownUseful(view)?240:0;
   if(k==='voltorb')return r17Space(view)>0&&!r17Board(view,'voltorb')&&!r17Board(view,'electrode')?320:0;
   if(k==='pikachu')return r17Space(view)>0&&!r17Board(view,'pikachu')&&!r17Board(view,'raichu')?310:0;
-  if(k==='ditto')return r17Space(view)>0&&!r17Board(view,k)&&
-    (!r17Board(view,'electrode')||!r17Board(view,'raichu'))?190:0;
+  if(k==='ditto')return r17Space(view)>0&&!r17Board(view,k)&&!r17BasicLock(view)&&
+    r17MissingCore(view).length>0?190:0;
   if(k==='electrode'||k==='raichu')return m.targetSeat==='actor'&&
     (k==='electrode'?t==='voltorb':t==='pikachu')?340:0;
   if(k==='marshadow')return r17Space(view)>0&&r17NeedTempleRemoval(view)&&!r17BasicLock(view)?300:0;
   if(k==='squawk')return r17Space(view)>0&&r17First(view)&&r17Deck(view)>=7&&
     handCount(view)<=3&&!r17ProtectedHand(view)&&!r17BasicLock(view)?190:0;
   if(k==='gengar')return r17Space(view)>0&&!r17Board(view,k)&&!gxUsed(view)&&r17Hand(view,'unit')?145:0;
-  if(k==='vip')return r17First(view)&&r17Space(view)>0?350:0;
+  if(k==='vip'){const z=r17KnownOwnZones(view);return r17First(view)&&r17Space(view)>0&&(!z||Object.keys(z.deck).some(k=>r17VipValue(k,view)>0))?350:0;}
   if(k==='carrier')return r17Discard(view).some(c=>r17CarrierValue(r17Key(c),view)>0)?290:0;
   if(k==='compressor')return r17CompressorUseful(view)?(r17CompressorGain(view)>0?305:250):0;
   if(k==='stretcher')return r17Discard(view).some(c=>r17RecoveryValue(r17Key(c),view)>0)?275:0;
