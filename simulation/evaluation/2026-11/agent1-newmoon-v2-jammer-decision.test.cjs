@@ -43,6 +43,21 @@ check('Jammer root attach before Item-locked BUS',()=>{
  const r=root(view(),[play(),pass()]);assert.equal(sel(r),'play-jammer');
  assert.equal(r.policyAudit.selectedTokens[0],'play-jammer');
 });
+check('native root chooses Active target over Benched Tool action',()=>{
+ const active=action('play-card','active-jammer',{targetZone:'active',targetSeat:'actor'},
+  {actorPrinting:'Tool Jammer BST 136',targetPrinting:'Dusclops SFA 019'});
+ const bench=action('play-card','bench-jammer',{targetZone:'bench',targetSeat:'actor',targetIndex:0},
+  {actorPrinting:'Tool Jammer BST 136',targetPrinting:'Dusclops SFA 019'});
+ assert.equal(sel(root(view(),[bench,active,pass()])),'active-jammer');
+ assert.equal(sel(root(view(),[bench,pass()])),'abstain');
+});
+check('cannot place Tool on opponent Active or stale own Active',()=>{
+ const foe=action('play-card','opponent-jammer',{targetZone:'active',targetSeat:'opponent'},
+  {actorPrinting:'Tool Jammer BST 136'});
+ const stale=action('play-card','stale-jammer',{targetZone:'active',targetSeat:'actor'},
+  {actorPrinting:'Tool Jammer BST 136',targetPrinting:'Galarian Articuno V CRE 058'});
+ assert.equal(sel(root(view(),[foe,stale,pass()])),'abstain');
+});
 check('Jammer attachment prompt chooses own Active Dusclops',()=>{
  const v=view();const r=prompt(v,'Tool Jammer','ChoosePokemonPrompt',
   {selectionType:'pokemon',minimumCount:1,maximumCount:1},

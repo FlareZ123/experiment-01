@@ -58,9 +58,12 @@ function chooseRoot(view,frontier) {
   if (p.activeDus && !hasTool(p.active,'Tool Jammer') &&
       Array.isArray(p.active.tools) && p.active.tools.length===0 &&
       p.benchDus.length>0 && psychic(p.active)>=2) {
-    const attach=items.find(x=>cardAction(x,'Tool Jammer') &&
-       (x.publicMetadata?.targetZone==='active' ||
-        x.publicMetadata?.targetZone===undefined));
+    const attach=items.find(x=>cardAction(x,'Tool Jammer') && (
+       (x.publicMetadata?.targetZone==='active' &&
+        x.publicMetadata?.targetSeat==='actor' &&
+        (x.targetPrinting===undefined || x.targetPrinting===p.active.printing)) ||
+       (x.publicMetadata?.targetZone===undefined &&
+        x.publicMetadata?.targetSeat===undefined))); // unresolved Tool targeting must be mediated by a later prompt
     if (attach) return choose(attach,'ATTACH_JAMMER_THROUGH_ITEM_LOCK');
     // Forest Seal Stone is not proof the power is live. Only the native frontier is.
     const art=slots(p.own).some(x=>has(x.printing,'Galarian Articuno V') &&
