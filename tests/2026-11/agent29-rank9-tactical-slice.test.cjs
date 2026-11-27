@@ -193,3 +193,29 @@ console.log('passed '+(function templeTests(P,protocol){
  protocol.validateDecision(dec,null,tokens);a(dec.token==='dark','manual Dark restores Claw under Temple');
  return n;
 })(P,protocol)+' Temple/payment/Max Geist threat assertions');
+
+console.log('passed '+(function mobility(P,protocol){
+ const D='Darkness Energy MEE 15',Pr='Prism Energy ASC 216',T='Telepathic Psychic Energy POR 88',Meg='Mega Absol ex MEG 86',Vol='Voltorb ROS 21',Un='Unown AOR 30',Opp='Shadow Rider Calyrex VMAX CRE 75';
+ const mk=(printing,energies=[],extra={})=>({printing,energies,hp:280,damage:0,tools:[],printed:{stage:'Basic',retreatCost:['Colorless'],weakness:[],resistance:[]},specialConditions:[],publicRestrictions:{},...extra});
+ const all=[D,D,Pr,Pr,Pr,Pr,T],ev=mk('Electrode-GX CES 48',all,{printed:{stage:'Stage 1'}}),tc=mk('Toedscruel PAR 17',all,{printed:{stage:'Stage 1'}});
+ let n=0;function a(v,l){if(!v)throw Error(l);n++}
+ a(P.payable(ev,['lightning','colorless'])===false,'all source Energy cannot power Electrode attacks');
+ a(P.payable(tc,['grass','colorless','colorless'])===false,'all source Energy cannot power Toedscruel');
+ a(P.payable(mk('Dedenne-GX UNB 57',[Pr,T]),['lightning','colorless'])===true,'Prism Basic can pay lightning');
+ const o={actorSeat:0,globalTurn:5,ownHand:[],ownPublic:{active:mk(Un,[D,Pr,T]),bench:[mk(Meg,[D,Pr,Pr])],prizeCount:3,publicTurnRestrictions:{}},opponentPublic:{active:mk(Opp,[],{hp:320,printed:{weakness:[{type:'Darkness',value:'×2'}],resistance:[]}}),bench:[],prizeCount:6},ownTurnResources:{supporterPlayedTurn:0}};
+ const item={token:'r',kind:'retreat',actorPrinting:Un,targetPrinting:Meg,publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:0,benchIndex:0,isOwnerVisible:true}};
+ const fr={schema:protocol.FRONTIER_SCHEMA,items:[item]},tokens=protocol.validateFrontier(fr);
+ const policy=()=>P.createPolicy({role:'opponent',seat:0,policyVersion:P.POLICY_VERSION,config:{}});
+ const root=(p,v=o)=>{const d=p.decide({role:'opponent',seat:0,sequence:1,observation:v,prompt:null,actionFrontier:fr});protocol.validateDecision(d,null,tokens);return d};
+ const c=(printing,index,ownerSeat='actor')=>({token:'e'+index,kind:'energy',printing,label:printing,publicMetadata:{selectionIndex:index,selectedCount:1,sourceZone:'energy',ownerSeat,isOwnerVisible:true,energyType:'C'}});
+ const p={schema:protocol.PROMPT_SCHEMA,actingSeat:0,promptType:'ChooseEnergyPrompt',description:'RETREAT',source:{classification:'actor-choice',sourceKind:'engine',sourcePrinting:null,effectName:'RETREAT'},choices:[c(D,0),c(Pr,1),c(T,2)],publicMetadata:{selectionType:'energy-payment',count:3,energyCount:3,energyType:'C',allowCancel:false}};
+ function payment(pol,prompt){protocol.validatePrompt(prompt,0);const d=pol.decide({role:'opponent',seat:0,sequence:2,observation:o,prompt});protocol.validateDecision(d,prompt,new Set());return d;}
+ let pol=policy();a(root(pol).token==='r','paid retreat without fictional metadata');
+ a(JSON.stringify(payment(pol,p).tokens)===JSON.stringify(['e2']),'only pay actual one colorless, not all three offered');
+ pol=policy();root(pol);a(payment(pol,{...p,publicMetadata:{...p.publicMetadata,energyType:'C,C'}}).kind==='abstain','reject wrong required cost');
+ pol=policy();root(pol);a(payment(pol,{...p,choices:[c(D,0,'opponent'),c(Pr,1),c(T,2)]}).kind==='abstain','opponent Energy forbidden');
+ const free={...o,ownPublic:{...o.ownPublic,active:mk(Un,[],{tools:['Float Stone BKT 137']})}};
+ a(root(policy(),free).token==='r','Float Stone authorizes free retreat');
+ a(root(policy(),{...free,opponentPublic:{...free.opponentPublic,stadium:['Jamming Tower TWM 153']}}).kind==='abstain','suppressed Float Stone not free');
+ return n;
+})(P,protocol)+' mobility/source-inventory assertions');

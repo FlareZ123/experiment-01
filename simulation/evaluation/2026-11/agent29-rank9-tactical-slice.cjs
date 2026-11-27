@@ -1,7 +1,7 @@
 'use strict';
 // Development-only actor-visible tactical slice; see accompanying report.
 module.exports = (function build() {
-  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v6';
+  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v7';
   const SOURCE_RANK = 9;
   const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
   const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -574,6 +574,48 @@ function bombPlanner(o,sourceBenchIndex){
     return null;
   }
 
+  function retreatCost(o,item){
+    const a=o.ownPublic?.active,m=M(item);
+    if(!a||L(a.specialConditions).some(x=>/asleep|paralyzed|unknown/i.test(condition(x))))return null;
+    if(a.publicRestrictions?.cannotRetreat||a.publicRestrictions?.cannotRetreatNextTurn)return null;
+    const toolsLive=!liveStadium(o,/Jamming Tower/i)&&!o.ownPublic?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining&&!o.opponentPublic?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
+    let cost=Array.isArray(a.printed?.retreatCost)?a.printed.retreatCost.length:null;
+    if(toolsLive&&L(a.tools).some(x=>match(x,R.float)))cost=0;
+    if(cost===null&&(m.freeRetreat===true||m.isFreeRetreat===true))cost=0;
+    if(cost===null)return null;
+    if(liveStadium(o,/Galar Mine/i))cost+=2;
+    if(liveStadium(o,/Skyarrow Bridge/i)&&basic(a))cost=Math.max(0,cost-1);
+    if(L(a.energies).some(e=>!ePred(e)))return null;
+    return cost<=L(a.energies).length?cost:null;
+  }
+  function retreatPlan(o,item){
+    const m=M(item),i=m.targetIndex??m.benchIndex,p=o.ownPublic?.bench?.[i],cost=retreatCost(o,item);
+    if(!Number.isSafeInteger(i)||!p||cost===null||m.targetSeat!==undefined&&m.targetSeat!=='actor'||m.targetZone!==undefined&&m.targetZone!=='bench')return null;
+    const ko=bestAttackAgainst(o,p,o.opponentPublic?.active);
+    if(!ko)return null;
+    return {cost,score:ko>=1000?ko:Math.max(0,ko-35*cost),index:i};
+  }
+  function retreatPayment(r,chain){
+    const p=r.prompt,m=M(p),o=r.observation;
+    if(chain.turn!==o.globalTurn||r.sequence!==chain.sequence+1||p.actingSeat!==o.actorSeat||p.source?.classification!=='actor-choice'||p.source?.sourceKind!=='engine'||p.source?.sourcePrinting!==null||p.promptType!=='ChooseEnergyPrompt'||m.selectionType!=='energy-payment')return null;
+    const cost=String(m.energyType??'').split(',').map(type);
+    if(cost.length!==chain.cost||cost.some(x=>x!=='colorless'))return null;
+    const a=o.ownPublic?.active;
+    if(name(a)!==chain.printing)return null;
+    const offered=L(p.choices).filter(x=>x.kind==='energy');
+    if(offered.length!==m.energyCount||m.count!==offered.length||offered.length<chain.cost)return null;
+    const available=chain.energies.slice(),indexed=new Set();
+    for(const c of offered){
+      const cm=M(c),i=available.indexOf(name(c));
+      if(cm.ownerSeat!=='actor'||cm.sourceZone!=='energy'||cm.isOwnerVisible!==true||!Number.isSafeInteger(cm.selectionIndex)||indexed.has(cm.selectionIndex)||i<0)return null;
+      indexed.add(cm.selectionIndex);available.splice(i,1);
+    }
+    if(available.length!==0)return null;
+    // One card per unit in this exact source list. Protect both real Darkness
+    // and flexible Prism; prefer Telepathic after its hand-attach trigger.
+    const score=c=>/^Telepathic Psychic Energy\b/i.test(name(c))?0:/^Prism Energy\b/i.test(name(c))?1:3;
+    return {kind:'select-choices',tokens:offered.slice().sort((a,b)=>score(a)-score(b)).slice(0,chain.cost).map(x=>x.token)};
+  }
   function createPolicy({role,seat,policyVersion,config}) {
     if(role!=='opponent'||![0,1].includes(seat)||policyVersion!==POLICY_VERSION||!config||Array.isArray(config)||Object.keys(config).length)throw Error('RANK9_INIT_MISMATCH');
     let chain=null;
@@ -583,14 +625,8 @@ function bombPlanner(o,sourceBenchIndex){
       const direct=best(items,x=>rootAttack(x,o)), directScore=direct?rootAttack(direct,o):0;
       // A direct final-Prize KO beats spending any connector.
       if(directScore>=1000)return {kind:'select-action',token:direct.token};
-      const ret=best(items.filter(x=>x.kind==='retreat'),x=>{
-        const m=M(x), i=m.targetIndex??m.benchIndex;
-        if(!Number.isSafeInteger(i))return 0;
-        const p=own?.bench?.[i];
-        if(!p||m.freeRetreat!==true&&m.isFreeRetreat!==true)return 0;
-        return bestAttackAgainst(o,p,opp?.active);
-      });
-      const retScore=ret?bestAttackAgainst(o,own.bench[M(ret).targetIndex??M(ret).benchIndex],opp?.active):0;
+      const ret=best(items.filter(x=>x.kind==='retreat'),x=>retreatPlan(o,x)?.score??0);
+      const retPlan=ret?retreatPlan(o,ret):null,retScore=retPlan?.score??0;
       // Guzma forces an own switch if a Bench exists. Only evaluate a powered
       // Benched attacker, never assume the current Active can stay in place.
       const g=items.find(x=>x.kind==='play-card'&&guzma(x));
@@ -603,7 +639,10 @@ function bombPlanner(o,sourceBenchIndex){
         chain={kind:'guzma',stage:1,turn:o.globalTurn,sequence:r.sequence,target:pair.t.index,attacker:pair.a.index,attackerPrinting:name(pair.a.p)};
         return {kind:'select-action',token:g.token};
       }
-      if(retScore>directScore&&ret)return {kind:'select-action',token:ret.token};
+      if(retScore>directScore&&ret){
+        if(retPlan.cost>0)chain={kind:'retreat',turn:o.globalTurn,sequence:r.sequence,cost:retPlan.cost,printing:name(own.active),energies:L(own.active.energies).map(name)};
+        return {kind:'select-action',token:ret.token};
+      }
       const development=best(items,x=>devScore(x,o)),developmentScore=development?devScore(development,o):0;
       // Non-turn-ending setup is valuable before a non-final attack, but
       // never trade away a known final-Prize action or choose a speculative
@@ -631,6 +670,10 @@ function bombPlanner(o,sourceBenchIndex){
       const o=r.observation,p=r.prompt,source=name(p.source?.sourcePrinting);
       const choices=L(p.choices).filter(x=>typeof x.token==='string');
       const fail=code=>{chain=null;return {kind:'abstain',reasonCode:code};};
+      if(chain?.kind==='retreat'){
+        const d=retreatPayment(r,chain);chain=null;
+        return d??{kind:'abstain',reasonCode:'UNTRUSTED_ENERGY_SELECTION'};
+      }
       if(!chain){const setup=chooseSetup(r);if(setup)return setup;const claw=chooseClaw(r);if(claw)return claw;const d=chooseDevelopment(r);if(d)return d;}
       if(!chain||chain.turn!==o.globalTurn||r.sequence!==chain.sequence+1||
          !(chain.kind==='guzma'?guzma(source):plumeria(source)))return fail('UNTRUSTED_PROMPT_SOURCE');
