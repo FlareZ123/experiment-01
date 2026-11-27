@@ -291,7 +291,7 @@ function r17CarrierValue(key,view) {
   if (key==='voltorb'&&r17Missing(view,'voltorb','electrode')) return 300;
   if (key==='pikachu'&&r17Missing(view,'pikachu','raichu')) return 290;
   if (key==='unown'&&r17UnownUseful(view)&&r17Space(view)>0) return 150;
-  if (key==='marshadow'&&r17NeedStadiumRemoval(view)&&!r17Board(view,key)&&!r17Hand(view,key)) return 210;
+  if (key==='marshadow'&&r17NeedStadiumRemoval(view)&&!r17Board(view,key)&&!r17Hand(view,key)) return 500;
   return 0; // Ditto is Lost Zone on discard; never assume it is recoverable.
 }
 function r17HandCount(view,key) { return hand(view).filter(c=>r17Key(c)===key).length; }
@@ -390,10 +390,17 @@ function r17TakeKeys(cards,keys,limit=Infinity) {
 function r17CarrierChoices(prompt,view,zone='discard') {
   const cards=r17ChoiceCards(prompt,zone),counts=r17CardCounts(cards)||{};
   const plan=r17CoreAccess(view,{}, {carrier:1,discardCounts:{voltorb:counts.voltorb||0,pikachu:counts.pikachu||0}});
-  const rows=r17TakeKeys(cards,plan.carrierKeys,2),used=new Set(rows.map(c=>c.token));
+  const urgent=r17Rank(cards.filter(c=>r17Key(c)==='marshadow'),
+    c=>r17CarrierValue('marshadow',view))[0]||null;
+  // A hostile Stadium makes Marshadow a prerequisite rather than a filler.
+  // Reserve one of Carrier's two physical recovery slots before selecting
+  // core starters; otherwise two missing basics can crowd out the answer.
+  const seed=urgent?[urgent]:[],used=new Set(seed.map(c=>c.token));
+  const core=r17TakeKeys(cards.filter(c=>!used.has(c.token)),plan.carrierKeys,2-seed.length);
+  core.forEach(c=>used.add(c.token));
   const fill=r17Rank(cards.filter(c=>!used.has(c.token)&&!R17_CORE_KEYS.includes(r17Key(c))),
     c=>r17CarrierValue(r17Key(c),view));
-  return r17Multi(prompt,[...rows,...fill],2);
+  return r17Multi(prompt,[...seed,...core,...fill],2);
 }
 function r17StretcherShuffleValue(key,view) {
   if(key==='raichu')return 500;
