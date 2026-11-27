@@ -457,12 +457,9 @@ function promptDecision(request) {
     return chooseRank32Apex(choices, obs);
   }
   if (/legacy star/.test(source)) {
-    if (!canUseLegacyStar(obs) && obs.ownPublic?.publicTurnRestrictions?.vstarUsed===true) {
-      // The VSTAR-use flag can become true before the recovery continuation;
-      // do not re-apply the root gate inside a legitimately ongoing prompt.
-    } else if (!list(obs.ownPublic?.discard).length) {
-      return {kind:'abstain',reasonCode:'RANK32_LEGACY_NO_VISIBLE_RECOVERY'};
-    }
+    // The native seven-card mill has already resolved before this prompt;
+    // its offered tokens are authoritative even if the observation's earlier
+    // discard snapshot or VSTAR-used flag has not yet been updated.
     if (p.promptType==='ChooseCardsPrompt' &&
         meta.selectionType==='card-combination'&&
         meta.sourceZone==='discard') {
