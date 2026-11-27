@@ -1,0 +1,245 @@
+{
+  "schema": "agent13-newmoon-candidate-policy-acceptance-v1",
+  "dateUTC": "2026-11-27",
+  "candidate": {
+    "name": "New Moon Lockbreaker v1",
+    "manifest": "results/als/new-moon-lockbreak-english-proxy-60.json",
+    "identityCountSha256": "a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4",
+    "fixed60": true
+  },
+  "status": "pure actor-visible acceptance contract; no implementation branch, no native games, no competitive qualification",
+  "informationBoundary": {
+    "mayUse": [
+      "own hand, board, discard, attached cards, used-GX/VSTAR state",
+      "public opponent board, discard, attached cards, revealed cards and known exact source list",
+      "K1 own Prize inference after a legitimate own-deck search",
+      "turn, starting orientation, Prize counts, current legal-action surface"
+    ],
+    "mustNotUse": [
+      "opponent hidden hand identities unless revealed by a legal effect",
+      "opponent face-down Prize identities",
+      "future random draws",
+      "simulator-only hidden zones unavailable to a paper player"
+    ]
+  },
+  "lexicographicDecisionLayers": [
+    "take an immediate legal game win; avoid an immediate forced loss when a survival action exists",
+    "reject mechanically illegal or currently inaccessible actions/lines",
+    "preserve or exploit a disappearing action window (Item/Ability/hand-play/evolution window)",
+    "score the opponent's strongest immediate reply, including promotion caused by a KO",
+    "preserve the selected continuation's required cards/Bench/Energy before paying discard/search costs",
+    "compare discrete tactical value and Prize map before raw damage or graph connectivity",
+    "only then optimize ordinary setup, draw and damage"
+  ],
+  "cases": [
+    {
+      "id": "UNIV-FINAL-PRIZE",
+      "family": "universal",
+      "state": "A legal action takes the final Prize now.",
+      "must": "Prefer the immediate game-winning action over future lock/setup value.",
+      "forbids": "Passing a forced win to preserve resources."
+    },
+    {
+      "id": "REG-TPE-SPREAD",
+      "family": "Regidrago",
+      "sourceRanks": [
+        10,
+        12,
+        13,
+        14,
+        18,
+        20,
+        21,
+        27,
+        32
+      ],
+      "state": "TPE trigger is resolving; Dragapult ex is a known accessible Apex Dragon payload; candidate target choices include 60-HP Unown/Duskull and nonessential extra Basics.",
+      "must": "Allow 0, 1, or 2 TPE targets; do not add a second 60-HP Basic without a concrete immediate purpose.",
+      "forbids": "Always maximizing an 'up to 2' search."
+    },
+    {
+      "id": "REG-DUSKULL-EXCEPTION",
+      "family": "Regidrago",
+      "state": "Same spread threat, but Duskull is required for a near-term Dusclops response and the evolution/energy continuation is actor-visible.",
+      "must": "Permit fetching Duskull when the non-Basic continuation outweighs its spread liability.",
+      "forbids": "A hard-coded never-fetch-60HP rule."
+    },
+    {
+      "id": "REG-COVERT-FLIGHT",
+      "family": "Regidrago",
+      "state": "Active Regidrago is protected by a copied Covert Flight effect; candidate has a nominal high-damage Basic attack plus one or more legal non-Basic/effect/switch alternatives.",
+      "must": "Recognize that Basic attack damage is prevented and compare Horror House effect, Dusclops, Escape Rope/Counter Catcher, or another legal target.",
+      "forbids": "Selecting the Basic damage attack solely by printed damage."
+    },
+    {
+      "id": "VIL-BUNNELBY-PROMOTION",
+      "family": "rank15 Lopunny Vileplume",
+      "sourceRanks": [
+        15
+      ],
+      "state": "AOR and BUS Vileplume are Benched; low-HP Bunnelby is Active; GX unused; a Bunnelby KO and Horror House are both legal.",
+      "must": "Score BUS Vileplume's immediate promotion after the KO; compare Horror House hand lock before taking the one-Prize KO.",
+      "forbids": "Treating the KO as pure positive value without the promotion consequence."
+    },
+    {
+      "id": "VIL-HOOD",
+      "family": "rank15 Lopunny Vileplume",
+      "state": "BUS Vileplume is or will be Active and already has Stealthy Hood attached.",
+      "must": "Do not credit Cursed Blast as an effective Ability effect on the Hooded BUS target; evaluate non-Ability/non-Basic alternatives.",
+      "forbids": "Assuming Horror House can retroactively prevent an already attached Hood."
+    },
+    {
+      "id": "VIL-WINNING-KO",
+      "family": "rank15 Lopunny Vileplume",
+      "state": "The Bunnelby KO takes the candidate's final Prize.",
+      "must": "Take the win.",
+      "forbids": "Overriding a final-Prize KO with the promotion-trap heuristic."
+    },
+    {
+      "id": "THR-NATIVE-GENGAR-SECOND",
+      "family": "Iron Thorns",
+      "sourceRanks": [
+        6,
+        24,
+        29
+      ],
+      "state": "Candidate goes second; fresh native Gengar & Mimikyu-GX is Active with one Psychic; GX unused; Active Thorns is powered enough to threaten at most one 140-damage hit before candidate's next turn.",
+      "must": "Recognize Horror House -> survive one hit -> second Psychic -> Poltergeist as a coherent non-Perfection line, subject to actual legality/public state.",
+      "forbids": "Declaring the matchup locked merely because Perfection is suppressed."
+    },
+    {
+      "id": "THR-DAMAGED-GENGAR-FIRST",
+      "family": "Iron Thorns",
+      "state": "Candidate goes first and Gengar has already taken 140 before the candidate's Horror House turn; opponent can attack again from board without hand play.",
+      "must": "Price the second 140 as lethal before valuing a future Poltergeist turn.",
+      "forbids": "Assuming Horror House skips the opponent's attack."
+    },
+    {
+      "id": "THR-KLEFKI-BUFFER",
+      "family": "Iron Thorns",
+      "state": "Klefki is Active, fresh native Gengar is Benched/powered for the next attack, and opponent threatens a 140 attack but no actor-visible gust bypass is currently established.",
+      "must": "Value the one-Prize buffer and fresh post-KO Gengar promotion as a possible survival line.",
+      "forbids": "Treating the buffer as unconditional if a legal gust counter is public/available."
+    },
+    {
+      "id": "GAR-TWO-TOOLS",
+      "family": "Absol Garbodor",
+      "sourceRanks": [
+        8,
+        11,
+        16,
+        22
+      ],
+      "state": "Two opposing Garbodor are each Tool-enabled and suppressing Abilities; one Field Blower is playable; a Stadium is also a desirable target.",
+      "must": "If choosing the Perfection-restoration line, target both Garbodor Tools before the optional Stadium.",
+      "forbids": "Removing Stadium + one Tool and then assuming Perfection is restored."
+    },
+    {
+      "id": "GAR-BLOWER-HORROR",
+      "family": "Absol Garbodor",
+      "state": "All live Garbotoxin Tools can be removed now; Mewtwo/Gengar Horror House is legal after removal; opponent has future hand-based retool capacity.",
+      "must": "Compare Field Blower -> Horror House against immediate damage, crediting the protected no-retool hand-lock turn.",
+      "forbids": "Scoring Field Blower only as an instantaneous Tool removal."
+    },
+    {
+      "id": "GAR-THREE-LIVE",
+      "family": "Absol Garbodor",
+      "state": "Three Garbodor are simultaneously Tool-enabled; only one Field Blower is available.",
+      "must": "Reject a Perfection line that depends on one Blower disabling all three.",
+      "forbids": "Treating partial Tool removal as full Garbotoxin release."
+    },
+    {
+      "id": "R26-PREGAME-TWO-BASICS",
+      "family": "rank26 Meloetta donk",
+      "sourceRanks": [
+        26
+      ],
+      "state": "Before game start, candidate has at least two Basics available for Active/Bench setup.",
+      "must": "Put at least one Basic on the Bench; avoid a voluntary lone-Active loss exposure.",
+      "forbids": "Keeping every extra Basic in hand for ordinary resource efficiency."
+    },
+    {
+      "id": "R26-KLEFKI",
+      "family": "rank26 Meloetta donk",
+      "state": "Klefki and at least one other Basic are available during setup.",
+      "must": "Strongly prefer Klefki Active plus a Benched survivor unless a concrete stronger exception exists; recognize Cologne as opponent counter.",
+      "forbids": "Treating Mischievous Lock as an absolute donk prevention."
+    },
+    {
+      "id": "R26-SETUP-TURN",
+      "family": "rank26 Meloetta donk",
+      "state": "New Moon receives a normal setup turn before rank26's first attack and would otherwise end with no Bench; TPE or Basic search is legal.",
+      "must": "Spend sufficient setup resources to create a Bench before passing.",
+      "forbids": "Saving search/TPE for later while leaving an immediate no-Pokémon loss condition."
+    },
+    {
+      "id": "R1-LATE-KLEFKI",
+      "family": "rank1 Shadow Rider",
+      "sourceRanks": [
+        1
+      ],
+      "state": "One or more Shadow Rider VMAX are evolved and operating; candidate can promote Klefki; Mewtwo & Mew-GX Perfection is relevant.",
+      "must": "Recognize Klefki does not suppress Evolution VMAX Underworld Door and does suppress own Basic Perfection.",
+      "forbids": "Scoring Klefki as universal Ability lock."
+    },
+    {
+      "id": "R1-ASYMMETRIC-PATH",
+      "family": "rank1 Shadow Rider",
+      "state": "Candidate has Solrock + Lunatone OBF in play and can play Path to the Peak.",
+      "must": "Recognize Path suppresses opponent Rule-Box Abilities while Lunatone's New Moon protects candidate Pokémon from Stadium effects.",
+      "forbids": "Treating Path as symmetric self-lock in this exact candidate board."
+    },
+    {
+      "id": "R1-MARSHADOW-BENCHED",
+      "family": "rank1 Shadow Rider",
+      "state": "Path is active, Horror House hand lock is available/applied, and opponent Marshadow UNB is already on the Bench.",
+      "must": "Expect Resetting Hole to remain a board Ability that can discard Path; do not credit Horror House with stopping it.",
+      "forbids": "Conflating hand lock with in-play Ability lock."
+    },
+    {
+      "id": "R1-MARSHADOW-NOT-IN-PLAY",
+      "family": "rank1 Shadow Rider",
+      "state": "Candidate has asymmetric Path setup; opponent Marshadow is not publicly in play; Horror House is legal.",
+      "must": "Credit Horror House with blocking hand-played Marshadow, Field Blower and replacement Stadium during the locked turn, without assuming those hidden cards are actually in hand.",
+      "forbids": "Using hidden-hand knowledge to claim a specific out was denied."
+    },
+    {
+      "id": "BOX-PROTECTED-ENERGY",
+      "family": "Secret Box / self-contention",
+      "state": "Secret Box is mechanically legal and only three other hand cards exist, but one is the only Energy required for the chosen attack continuation.",
+      "must": "Reject Secret Box for that intended continuation unless another coherent line justifies changing plans.",
+      "forbids": "Treating three physical cards as three acceptable discards."
+    },
+    {
+      "id": "BOX-DEAD-CARDS",
+      "family": "Secret Box / self-contention",
+      "state": "Secret Box is legal; at least three actor-visible cards are genuinely dead/redundant for the selected horizon (for example post-turn-one VIP Pass with no remaining role); fetched bundle advances the selected continuation.",
+      "must": "Permit the Box line and record why each discard is acceptable.",
+      "forbids": "Permanent card-name 'never discard' rules detached from state."
+    },
+    {
+      "id": "BOX-GARBODOR-DONOR",
+      "family": "Secret Box / Garbodor",
+      "state": "Secret Box can fetch Field Blower but paying the cost would discard the only accessible Gengar donor required for the intended Blower -> Horror House line.",
+      "must": "Reject that Box route or explicitly select a different continuation.",
+      "forbids": "Counting Box->Blower access as success after destroying its follow-up."
+    }
+  ],
+  "implementationGate": {
+    "requiredBeforeNativeInvestment": [
+      "pure or synthetic tests covering every case above",
+      "trace exposes selected continuation, strongest competing action, protected resources and reason for any Secret Box discards",
+      "TPE target resolver can legally return 0, 1 or 2 targets",
+      "policy explicitly conditions on opponent Ability source stage/type and public board position",
+      "no case relies on opponent hidden-hand or face-down-Prize identities"
+    ],
+    "notRequired": [
+      "winning every acceptance state",
+      "a new workflow",
+      "a third live V3 branch",
+      "new deck-card changes"
+    ]
+  },
+  "competitiveQualified": false,
+  "claim99Point5": false
+}
