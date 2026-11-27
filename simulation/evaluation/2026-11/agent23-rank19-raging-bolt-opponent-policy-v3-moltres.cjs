@@ -2,6 +2,7 @@
 // Rank 19 development-only Moltres tactical extension. No fixture/registration changes.
 // Use only native-frontier roots and actor-visible public slots. Rank19 v2 remains fallback.
 const v2 = require('./agent23-rank19-raging-bolt-opponent-policy-v2.cjs');
+const targets=require('./agent23-rank19-candidate-targets.cjs');
 const POLICY_VERSION = 'agent23-rank19-raging-bolt-opponent-v3-moltres';
 const list = x => Array.isArray(x) ? x : [];
 const p = x => typeof x === 'string' ? x : x?.printing ?? x?.fullName ?? '';
@@ -114,13 +115,7 @@ const choice = x => ({kind:'select-choices',tokens:[x.token]});
 const one = x => ({kind:'select-choice',token:x.token});
 const slots = player => [{zone:'active',index:0,pokemon:player?.active},...list(player?.bench).map((pokemon,index)=>({zone:'bench',index,pokemon}))].filter(s=>s.pokemon);
 const abilityLive = (x,name) => list(x?.abilitySuppressions).some(a=>a.abilityName===name && a.suppressed===false);
-function targetValue(x) {
-  const hp=hpLeft(x);
-  if (!(hp>0 && hp<=380) || !(srcV(x)||srcMax(x))) return 0;
-  // Only fixed-candidate non-damage-modifying Tool identities. Unknown state abstains.
-  if (!Array.isArray(x.tools) || x.tools.some(t=>! /^(Stealthy Hood UNB(?: 186)?|Float Stone BKT(?: 137)?|Forest Seal Stone SIT(?: 156)?)$/i.test(p(t)))) return 0;
-  return srcMax(x)?3:2;
-}
+function targetValue(x) {return targets.auraPrizeValue(x);}
 function energy(x) {
   if (!mol(x) || !Array.isArray(x.energies) || x.energies.some(e=>!basic(e))) return null;
   return {total:x.energies.length,dark:x.energies.filter(dark).length};
@@ -265,10 +260,14 @@ function tacticalRoot(r) {
   const pivot=items.find(a=>a.kind==='retreat'&&ready(resolveRootSlot(r,a)));
   // First take a direct, payable win. If one gust can instead take the final
   // Prizes, prioritize it over a non-terminal direct knockout.
-  if(burn&&ready(active)&&direct&&prizes!==null&&direct>=prizes)return root(burn);
+  const e=energy(active), hp=hpLeft(active);
+  const opponentPrizes=Number(opp(r).prizeCount);
+  const safeTerminalSelfKO=e&&e.total>=3&&e.dark>=2&&hp!==null&&hp>0&&hp<=30&&Number.isSafeInteger(opponentPrizes)&&opponentPrizes>2&&list(own(r).bench).some(Boolean);
+  if(burn&&(ready(active)||safeTerminalSelfKO)&&direct&&prizes!==null&&direct>=prizes)return root(burn);
   if(pivot&&direct&&freeRetreatFor(r,active)&&prizes!==null&&direct>=prizes)return root(pivot);
   const freeReturn=ready(active)&&retreatUnused(r)&&slots(own(r)).some(s=>s.zone==='bench'&&freeRetreatFor(r,s.pokemon));
   if(gust&&prizes!==null&&direct<prizes&&benchTarget>=prizes&&((!mol(active)&&benchReady)||freeReturn))return root(gust);
+  if(gust&&benchTarget>direct&&((!mol(active)&&benchReady)||freeReturn))return root(gust);
   if(burn && ready(active)&&direct)return root(burn);
   // Targeted retreat only when no unsupported energy-payment prompt is expected.
   if(pivot&&direct&&freeRetreatFor(r,active))return root(pivot);
