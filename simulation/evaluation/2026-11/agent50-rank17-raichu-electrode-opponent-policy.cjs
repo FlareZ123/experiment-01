@@ -1689,7 +1689,12 @@ function r17TrainerNeed(key,view) {
   if(key==='heavy')return r17Missing(view,'voltorb','electrode')||r17Missing(view,'pikachu','raichu')?160:40;
   if(key==='research')return supporterAvailable(view)&&!r17Hand(view,'research')&&r17Deck(view)>=8?190:45;
   if(key==='carmine')return supporterAvailable(view)&&!r17Hand(view,'research')&&r17Deck(view)>=6?145:30;
-  if(key==='rope')return r17Space(view)<5?90:45;
+  if(key==='rope'){
+    if(r17Hand(view,'rope'))return 0;
+    const line=r17RopeRainPlan({observation:view});
+    if(line?.plan)return line.plan.terminalProjection?440:300;
+    return r17Space(view)<5?90:45;
+  }
   if(key==='uturn')return 120;
   if(key==='sight'){
     const p=active(own(view));
