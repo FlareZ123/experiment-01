@@ -113,7 +113,7 @@ function discardPrompt(f){
   const prompt=new ChooseCardsPrompt();f.state.prompts=[prompt];
   return {prompt,projection:f.project(prompt,f.owner.active.getPokemonCard(),'Electro Rain')};
 }
-function rainPrompt(f){
+function rainPrompt(f,configure=()=>{}){
   class PutDamagePrompt{
     constructor(){
       this.id=1;this.playerId=f.owner.id;this.result=undefined;
@@ -130,7 +130,7 @@ function rainPrompt(f){
     decode(r){return r}
     validate(rows){return rows.reduce((n,x)=>n+x.damage,0)===90}
   }
-  const prompt=new PutDamagePrompt();f.state.prompts=[prompt];
+  const prompt=new PutDamagePrompt();configure(prompt);f.state.prompts=[prompt];
   return {prompt,projection:f.project(prompt,f.owner.active.getPokemonCard(),'Electro Rain')};
 }
 test('one active Electrode Bomb -> Raichu promotion -> terminal Rain, both seats',()=>{
@@ -379,12 +379,14 @@ test('two distinct Benched Electrode Bombs replan after first self-KO and delive
     f.owner.active.cards=f.owner.active.cards.filter((_,i)=>!used.has(i));
     f.owner.active.energies.cards=f.owner.active.cards.slice(1);
     f.view.ownPublic.active.energies=f.owner.active.energies.cards.map(c=>c.fullName);
-    const d=rainPrompt(f);d.prompt.damage=540;
-    d.prompt.maxAllowedDamage=[
-      {target:{player:1,slot:0,index:0},damage:540},
-      {target:{player:1,slot:1,index:0},damage:540}
-    ];
-    const dp=f.project(d.prompt,f.owner.active.getPokemonCard(),'Electro Rain');
+    const d=rainPrompt(f,p=>{
+      p.damage=540;
+      p.maxAllowedDamage=[
+        {target:{player:1,slot:0,index:0},damage:540},
+        {target:{player:1,slot:1,index:0},damage:540}
+      ];
+    });
+    const dp=d.projection;
     const ds=f.decide(7,dp.promptProjection);
     assert.equal(ds.kind,'select-choices');
     assert.equal(ds.tokens.length,18);
