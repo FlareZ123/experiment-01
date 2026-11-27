@@ -307,6 +307,64 @@ function runCases(policy,protocol) {
         publicMetadata:{selectionIndex:i,selectedCount:1,sourceZone:'prizes',ownerSeat:'actor',isOwnerVisible:false,requiredCount:2}}))};
     same(runPrompt(p,firstSecond,prizes),choose('p0','p1'),tag+'opaque Prize taking exact required count');
 
+    // Visible board lock and load pressure; no rank-labelled opponent.
+    const W='Wobbuffet PHF',H='Stealthy Hood UNB',T='Temple of Sinnoh ASR',
+      V='Shadow Rider Calyrex VMAX CRE',D='Trevenant & Dusknoir-GX SMP',
+      L='Tapu Lele-GX GRI',R=full.reversal,C=full.counter,U=A.unit;
+    const wob=slot(W,{hp:110,abilities:['Bide Barricade']}),
+      elec=slot(A.electrode,{hp:190,abilities:['Extra Energy Bomb']}),
+      rain=slot(A.raichu,{hp:110,tools:[full.sight]}),
+      klef=slot(A.klefki,{hp:70,abilities:['Mischievous Lock'],tools:[A.uturn]});
+    const opp=player({active:wob,bench:[slot(D,{hp:270}),slot(L,{hp:170})]});
+    const rainV=view(seat,{globalTurn:4,ownHand:[rope],
+      ownPublic:player({active:pivot,bench:[rain,elec],discard:[R,R,R,R,C]}),opponentPublic:opp});
+    same(policy.wobbuffetLive(rainV),true,tag+'opposing Wob live');
+    same(policy.liveBombs(rainV).length,0,tag+'Wob blocks Electrode');
+    same(policy.abilityBlocked(rainV,'unown'),false,tag+'Wob permits Psychic Unown');
+    same(policy.abilityBlocked(rainV,'marshadow'),false,tag+'Wob permits Psychic Marshadow');
+    same(policy.abilityBlocked(rainV,'squawk'),true,tag+'Wob blocks Squawk');
+    same(policy.abilityBlocked(rainV,'ditto'),true,tag+'Wob blocks Ditto');
+    const kView={...rainV,ownPublic:{...rainV.ownPublic,active:klef}};
+    same(policy.wobbuffetLive(kView),false,tag+'Psychic Klefki suppresses opposing Wob');
+    same(policy.liveBombs(kView).length,1,tag+'Klefki leaves evolved Electrode live');
+    same(policy.abilityBlocked(kView,'unown'),true,tag+'Klefki also blocks own Unown');
+    const hooded={...kView,opponentPublic:{...opp,active:{...wob,tools:[H]}}};
+    same(policy.wobbuffetLive(hooded),true,tag+'Hood shields Wob');
+    same(policy.liveBombs(hooded).length,0,tag+'Hood restores Bomb lock');
+    const garb={...rainV,opponentPublic:{...opp,bench:[...opp.bench,slot('Garbodor BKP',{tools:['Float Stone BKT'],abilities:['Garbotoxin']})]}};
+    same(policy.liveBombs(garb).length,0,tag+'live Garbotoxin blocks Bomb');
+    same(policy.ropeRainPlan({observation:rainV})?.plan.prizes,5,tag+'Rope worst-case five Prize projection');
+    same(runRoot(p,rainV,[play('rope',rope),pass]),action('rope'),tag+'Rope unlocks Bomb against every visible switch');
+    same(policy.ropeRainPlan({observation:{...rainV,opponentPublic:{...opp,bench:[...opp.bench,wob]}}}),null,tag+'second Wob invalidates switch plan');
+    same(policy.ropeRainPlan({observation:{...rainV,opponentPublic:{...opp,bench:[]}}}),null,tag+'no opposing bench cannot remove Wob');
+    const temple={...rainV,opponentPublic:{...opp,stadium:[T]}};
+    same(policy.ropeRainPlan({observation:temple}),null,tag+'Temple requires distinct answer');
+    same(policy.ropeRainPlan({observation:{...temple,ownHand:[rope,A.pokestop]}})?.plan.prizes,5,tag+'Temple with stadium answer');
+    const rainRetreat={...free,targetPrinting:A.raichu,publicMetadata:{...free.publicMetadata,targetIndex:0}};
+    same(runRoot(p,kView,[rainRetreat,ability('bomb',A.electrode,'Extra Energy Bomb',1),pass]),abstain('NO_SUPPORTED_ROOT_ACTION'),tag+'keep Klefki active until Bomb resolves');
+    const switched={...rainV,opponentPublic:{...opp,active:opp.bench[0],bench:[wob,opp.bench[1]]}};
+    const rainPrompt={...switchPrompt,choices:[{...switchPrompt.choices[0],token:'rain',printing:A.raichu},{...switchPrompt.choices[1],token:'elec',printing:A.electrode}]};
+    same(runPrompt(p,switched,rainPrompt),choose('rain'),tag+'Rope continuation chooses Raichu after Wob leaves');
+    const double=player({active:slot(V,{hp:320}),bench:[slot(V,{hp:320})]});
+    const loading=view(seat,{globalTurn:4,ownHand:[A.compressor],
+      ownPublic:player({active:rain,bench:[elec,elec],discard:[R,R,R,R,C,C,C]}),opponentPublic:double});
+    same(policy.rainProjection(loading,rain)?.terminalProjection,false,tag+'18 existing units cannot hit two VMAX');
+    same(policy.activeLoadPlan(loading)?.now,['counter','unit'],tag+'minimal two-card 21-hit load');
+    same(runRoot(p,loading,[play('compress',A.compressor),pass]),action('compress'),tag+'same-turn loader root');
+    same(runPrompt(p,{...loading,ownHand:[]},cards(loading,A.compressor,'Battle Compressor','deck',
+      [U,C,U,A.unown],0,3)),choose('c1','c0'),tag+'loader chooses exact two physical cards');
+    same(policy.activeLoadPlan({...loading,ownPublic:{...loading.ownPublic,bench:[]}}),null,tag+'do not dump before live Bomb');
+    same(policy.activeLoadPlan({...loading,globalTurn:1}),null,tag+'do not expose turn-one Energy');
+    same(policy.activeLoadPlan({...loading,opponentPublic:{...double,bench:[slot('Unknown Pokemon XYZ',{hp:320})]}}),null,tag+'unknown target fails closed');
+    const noSight={...loading,ownHand:[full.sight],ownPublic:{...loading.ownPublic,active:{...rain,tools:[]},discard:[R,R,R,R,C,C,C,C,U]}};
+    same(runRoot(p,noSight,[play('sight',full.sight,{zone:'active',index:0,printing:A.raichu}),pass]),action('sight'),tag+'Sight crosses two-VMAX threshold');
+    const manual={...loading,ownHand:[C,U],ownPublic:{...loading.ownPublic,discard:[R,R,R,R,C,C,C,U]}};
+    const attachC=play('counter',C,{zone:'active',index:0,printing:A.raichu}),attachU=play('unit',U,{zone:'active',index:0,printing:A.raichu});
+    same(runRoot(p,manual,[attachU,attachC,pass]),action('counter'),tag+'Counter attachment activates after Bomb');
+    const joust={...hooded,ownHand:[R,C,U]};
+    const toK=(token,energy)=>play(token,energy,{zone:'active',index:0,printing:A.klefki});
+    same(runRoot(p,joust,[toK('reversal',R),toK('counter',C),toK('unit',U),pass]),action('unit'),tag+'cheap Unit funds Hood-removing Joust');
+
     // Distinct support and setup provenance, never a foreign role.
     same(p.decide({role:'opponent',seat:1-seat,observation:v,prompt:null}),abstain('ROLE_SEAT_BINDING_MISMATCH'),tag+'seat bound');
   }
