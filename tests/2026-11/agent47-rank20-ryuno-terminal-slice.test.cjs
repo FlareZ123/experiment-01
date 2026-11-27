@@ -1,6 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
+const protocol=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const {decideRank20RyunoSlice:decide,canTerminalRyuno}=require('../../simulation/evaluation/2026-11/agent47-rank20-ryuno-terminal-slice.cjs');
 const copy=x=>JSON.parse(JSON.stringify(x));
 function state(seat=0){
@@ -120,4 +121,60 @@ test('unsupported native prompt families and non-Apex origins remain delegated',
   const s=state();s.prompt={promptType:'PutDamagePrompt',choices:[]};assert.equal(decide(s),null);
   s.prompt={promptType:'ChooseEnergyPrompt',source:{sourceAttack:'Other'},publicMetadata:{selectionType:'energy-payment',energyCount:2,allowCancel:false},choices:[]};assert.equal(decide(s),null);
   s.prompt={promptType:'ChooseAttackPrompt',source:{sourceAttack:'Copycat'},choices:attackPrompt(state()).prompt.choices};assert.equal(decide(s),null);
+});
+
+
+test('actual V3 validator accepts root→copied donor→one DDE card for two Ryuno units',()=>{
+  const s=state(0);
+  s.observation.ownPublic.active.energies=['Double Dragon Energy ROS 97','Grass Energy MEE 9'];
+  s.observation.ownPublic.discard=['Mega Dragonite ex M2a'];
+  s.actionFrontier.schema=protocol.FRONTIER_SCHEMA;
+  const root=decide(s);
+  assert.deepEqual(root,{kind:'select-action',token:'apex'});
+  assert.deepEqual(protocol.validateDecision(root,null,protocol.validateFrontier(s.actionFrontier)),root);
+
+  const apex={
+    schema:protocol.PROMPT_SCHEMA,actingSeat:0,promptType:'ChooseAttackPrompt',
+    description:'Choose an attack for Apex Dragon',
+    source:{classification:'actor-choice',sourceKind:'card-effect',
+      sourcePrinting:'Regidrago VSTAR SIT 136',effectName:'Apex Dragon'},
+    publicMetadata:{selectionType:'attack',count:2,allowCancel:false},
+    choices:[
+      {token:'echo',kind:'attack',printing:'Noivern ex PAL 153',
+        label:'Noivern ex PAL 153 — Dominating Echo',
+        publicMetadata:{sourceAttack:'Dominating Echo',sourceZone:'discard',ownerSeat:'actor'}},
+      {token:'ryuno',kind:'attack',printing:'Mega Dragonite ex M2a',
+        label:'Mega Dragonite ex M2a — Ryuno Glide',
+        publicMetadata:{sourceAttack:'Ryuno Glide',sourceZone:'discard',ownerSeat:'actor'}}
+    ]
+  };
+  s.prompt=apex;
+  protocol.validatePrompt(apex,0);
+  const copyChoice=decide(s);
+  assert.deepEqual(copyChoice,{kind:'select-choice',token:'ryuno'});
+  assert.deepEqual(protocol.validateDecision(copyChoice,apex,new Set()),copyChoice);
+
+  const energy={
+    schema:protocol.PROMPT_SCHEMA,actingSeat:0,promptType:'ChooseEnergyPrompt',
+    description:'Discard 2 Energy from this Pokémon',
+    source:{classification:'actor-choice',sourceKind:'card-effect',
+      sourcePrinting:'Mega Dragonite ex M2a',effectName:'Ryuno Glide'},
+    publicMetadata:{selectionType:'energy-payment',count:2,energyCount:2,
+      energyType:'9,9',allowCancel:false},
+    choices:[
+      {token:'dde',kind:'energy',printing:'Double Dragon Energy ROS 97',
+        label:'Double Dragon Energy ROS 97 (1/1)',
+        publicMetadata:{selectionIndex:0,selectedCount:1,sourceZone:'active',
+          ownerSeat:'actor',isOwnerVisible:true,energyType:'1/1'}},
+      {token:'grass',kind:'energy',printing:'Grass Energy MEE 9',
+        label:'Grass Energy MEE 9 (2)',
+        publicMetadata:{selectionIndex:1,selectedCount:1,sourceZone:'active',
+          ownerSeat:'actor',isOwnerVisible:true,energyType:'2'}}
+    ]
+  };
+  s.prompt=energy;
+  protocol.validatePrompt(energy,0);
+  const paid=decide(s);
+  assert.deepEqual(paid,{kind:'select-choices',tokens:['dde']});
+  assert.deepEqual(protocol.validateDecision(paid,energy,new Set()),paid);
 });
