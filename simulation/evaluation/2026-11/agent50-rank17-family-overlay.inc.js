@@ -296,6 +296,14 @@ function r17NeedStadiumRemoval(view) {
       if(k==='squawk')return r17AbilityBlocked(view,k,p)&&r17First(view)&&r17DrawDiscardScore(view,6)>0;
       return false;
     });
+  if(/^Jamming Tower\b/i.test(stadium)){
+    const cleared=r17ProjectStadiumRemoved(view);
+    return slots(own(view)).some((p,index)=>{
+      if(r17Key(p)!=='raichu'||!list(p.tools).some(t=>r17Key(t)==='sight'))return false;
+      const q=index===0?active(own(cleared)):own(cleared).bench[index-1];
+      return r17CompareProjection(r17RainProjection(cleared,q),r17RainProjection(view,p))>0;
+    });
+  }
   return false;
 }
 function r17CarrierValue(key,view) {
