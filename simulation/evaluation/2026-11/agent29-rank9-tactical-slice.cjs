@@ -1,7 +1,7 @@
 'use strict';
 // Development-only actor-visible tactical slice; see accompanying report.
 module.exports = (function build() {
-  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v12';
+  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v13';
   const SOURCE_RANK = 9;
   const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
   const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -96,11 +96,15 @@ module.exports = (function build() {
     const cost=attack==='Terminal Period'?['darkness','colorless']:attack==='Claw of Darkness'?['darkness','darkness','colorless']:attack==='Crazy Claws'?['darkness','darkness']:null;
     return cost!==null&&payable(p,cost,-1,o)===true;
   }
+  function finishesGame(o,target){
+    const need=o.ownPublic?.prizeCount;
+    return !!target&&(num(need)&&prize(target)>=need||target===o.opponentPublic?.active&&Array.isArray(o.opponentPublic?.bench)&&o.opponentPublic.bench.every(x=>x==null));
+  }
   function knockoutScore(o,attacker,target,attack) {
     const d=printedDamage(o,attacker,target,attack);
     if(d===null||d<remaining(target))return 0;
     const p=prize(target), need=o.ownPublic?.prizeCount;
-    return num(need)&&p>=need?1000:400+70*p;
+    return finishesGame(o,target)?1000:400+70*p;
   }
   function bestAttackAgainst(o,attacker,target) {
     const names=mega(attacker)?['Terminal Period','Claw of Darkness']:sableye(attacker)?['Crazy Claws']:[];
@@ -112,11 +116,11 @@ module.exports = (function build() {
     const own=o.ownPublic?.active, opp=o.opponentPublic?.active;
     if(L(own?.specialConditions).some(x=>/asleep|paralyzed|unknown/i.test(condition(x))))return 0;
     const confused=L(own?.specialConditions).some(x=>condition(x)==='confused');
-    if(!(mega(own)&&['Terminal Period','Claw of Darkness'].includes(a)||sableye(own)&&a==='Crazy Claws'))return secondaryAttackScore(o,item)*(confused?.5:1);
+    if(!(mega(own)&&['Terminal Period','Claw of Darkness'].includes(a)||sableye(own)&&a==='Crazy Claws'))return confused?Math.min(399,secondaryAttackScore(o,item)*.5):secondaryAttackScore(o,item);
     if(a==='Terminal Period'&&opp?.damage!==60)return 0;
     if(a!=='Terminal Period'&&(M(item).hasPrevention===true||Number(M(item).damagePrevented)>0))return 0;
     const ko=knockoutScore(o,own,opp,a);
-    if(ko)return (ko+(a==='Claw of Darkness'?2:a==='Terminal Period'?1:0))*(confused?.5:1);
+    if(ko){const value=ko+(a==='Claw of Darkness'?2:a==='Terminal Period'?1:0);return confused?Math.min(399,value*.5):value;}
     const d=printedDamage(o,own,opp,a);
     return a!=='Terminal Period'&&d>0?(100+Math.min(d,300)/10)*(confused?.5:1):0;
   }
@@ -256,13 +260,14 @@ function bombPlanner(o,sourceBenchIndex){
     const next={...o,ownPublic:{...own,active:upgraded.find(x=>x.zone==='active')?.p??active,bench:L(own.bench).map((p,j)=>j===sourceBenchIndex?null:upgraded.find(x=>x.zone==='bench'&&x.index===j)?.p??p)}};
     const move=bombMobility(next,sourceBenchIndex);
     if(!move||move.score<400||move.score<=baseline)return;
-    if(move.score<1000&&(move.minPrizes<3||opp.prizeCount===3))return;
+    const denialLine=move.score<1000&&twoPrizeEngineDenial(next,move);
+    if(move.score<1000&&(!denialLine&&(move.minPrizes<3||opp.prizeCount===3)||lethalBombReply(next,move)))return;
     const backup=upgraded.filter(x=>!(x.zone===move.zone&&x.index===move.index)).reduce((sum,x)=>sum+(mega(x.p)&&usable(x.p,'Claw of Darkness',o)||sableye(x.p)&&usable(x.p,'Crazy Claws',o)?25:0),0);
     const activeCount=assignments.filter(x=>x.zone===move.zone&&x.index===move.index).length;
     // A successful direct KO is preferred to an equivalent paid switch. The
     // worst-case Prize return, not a favorable opponent Rope choice, drives
     // the mobility decision.
-    const plan={sourceBenchIndex,required:n,score:move.score+backup,activeCount,immediateWin:move.score>=1000,mobility:move,assignments:assignments.map(x=>({...x}))};
+    const plan={sourceBenchIndex,required:n,score:move.score+backup,activeCount,immediateWin:move.score>=1000,tempoDenial:denialLine,mobility:move,assignments:assignments.map(x=>({...x}))};
     if(compare(plan,bestPlan))bestPlan=plan;
   }
   function visit(i,used){
@@ -278,6 +283,33 @@ function bombPlanner(o,sourceBenchIndex){
   visit(0,0);return bestPlan;
 }
 
+  function moveTarget(o,move){
+    return move.targetZone==='bench'?o.opponentPublic?.bench?.[move.targetIndex]:o.opponentPublic?.active;
+  }
+  function replyBoard(o,move){
+    if(move.kind==='rope')return null;
+    const target=moveTarget(o,move),enemy=slots(o.opponentPublic).filter(x=>move.targetZone==='bench'?!(x.zone==='bench'&&x.index===move.targetIndex):x.zone!=='active').map(x=>x.p);
+    const attacker=move.zone==='bench'?o.ownPublic?.bench?.[move.index]:o.ownPublic?.active;
+    if(!target||!attacker)return null;
+    return {target,enemy,attacker};
+  }
+  function currentLethalReply(o,move){
+    const b=replyBoard(o,move);
+    if(!b)return true;
+    return b.enemy.some((p,i)=>threatAttacks({...o,ownPublic:{...o.ownPublic,active:b.attacker},opponentPublic:{...o.opponentPublic,active:p,bench:b.enemy.filter((_,j)=>j!==i)}},p).length>0);
+  }
+  function lethalBombReply(o,move){
+    if(move.score>=1000)return false;
+    const attacker=move.zone==='bench'?o.ownPublic?.bench?.[move.index]:o.ownPublic?.active;
+    return Number(o.opponentPublic?.prizeCount)-2<=prize(attacker)&&currentLethalReply(o,move);
+  }
+  function twoPrizeEngineDenial(o,move){
+    if(move.minPrizes!==2||Number(o.opponentPublic?.prizeCount)!==6||move.kind==='rope')return false;
+    const b=replyBoard(o,move);
+    if(!b||!/^Shadow Rider Calyrex V CRE 74\b/i.test(name(b.target)))return false;
+    if(b.enemy.some(p=>/^Shadow Rider Calyrex V(?:MAX)?\b/i.test(name(p))))return false;
+    return !currentLethalReply(o,move);
+  }
   function bombMobility(o,excludedBenchIndex){
     const own=o.ownPublic,opp=o.opponentPublic,active=own?.active,target=opp?.active;
     const activeScore=bestAttackAgainst(o,active,target);
@@ -487,7 +519,7 @@ function bombPlanner(o,sourceBenchIndex){
         for(const r of L(target.printed?.resistance).filter(x=>type(x.type)===pt[0])){if(!/^-\d+$/.test(r.value))return Math.max(0,bonus);raw+=Number(r.value);}
       }
       if(raw>=remaining(target)){
-        const final=prize(target)>=Number(o.ownPublic?.prizeCount);
+        const final=finishesGame(o,target);
         if(a==='Big Explosion'&&!final)return 0;
         return final?1000:400+70*prize(target)+Math.max(0,bonus);
       }

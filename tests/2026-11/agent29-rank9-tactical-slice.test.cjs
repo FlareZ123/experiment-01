@@ -84,14 +84,14 @@ const bombCount=(function tests(P){
  assert(P.bombPlanner(obs([Pr,Pr],6,6),0)===null,'no immediate KO');
  assert(P.bombPlanner(obs([Pr,Pr,Pr],2,3),0)===null,'self-KO immediate loss veto');
  assert(P.bombPlanner(obs([Pr,Pr,Pr],3,3),0)?.immediateWin,'win after self-KO');
- assert(P.bombPlanner(obs([Pr,Pr,Pr],3,6),0)===null,'opponent one Prize left veto');
+ {const v=obs([Pr,Pr,Pr],3,6);v.opponentPublic.bench=[mk('Unown AOR 30',[],60)];assert(P.bombPlanner(v,0)===null,'opponent one Prize left veto when no board-out');}
  o=obs([Pr,Pr,Pr]);o.ownPublic.active.energies=[D,D,Pr];
  assert(P.bombPlanner(o,0)===null,'already funded KO');
  o=obs([Pr,Pr,T]);o.ownPublic.stadium=['Temple of Sinnoh ASR 155'];
  assert(P.bombPlanner(o,0)===null,'unknown special energy modifier veto');
  o=obs([Pr,Pr,Pr,Pr,Pr]);assert(P.bombPlanner(o,0)===null,'source inventory cap');
  o=obs([Pr,Pr,Pr]);o.ownPublic.bench[0].abilitySuppressions=[{abilityName:'Extra Energy Bomb',suppressed:true}];assert(P.bombPlanner(o,0)===null,'ability suppressed');
- o=obs([Pr,Pr,T]);o.opponentPublic.active=mk('Pikachu TST 1',[],60);assert(P.bombPlanner(o,0)===null,'two prizes for one not chosen');
+ o=obs([Pr,Pr,T]);o.opponentPublic.active=mk('Pikachu TST 1',[],60);o.opponentPublic.bench=[mk('Unown AOR 30',[],60)];assert(P.bombPlanner(o,0)===null,'two prizes for one not chosen without board-out');
  return n;
 })(P);
 console.log('passed '+bombCount+' Bomb planner assertions');
@@ -345,3 +345,25 @@ console.log('passed '+(function horrorOpening(P,protocol){
  a(!P.horrorDesired({...before,ownTurnResources:{...before.ownTurnResources,energyPlayedTurn:true}}),'spent manual attachment prevents false route');
  return n;
 })(P,protocol)+' first-turn Horror House route assertions');
+
+console.log('passed '+(function boardout(P){
+ const Meg='Mega Absol ex MEG 86',El='Electrode-GX CES 48',Un='Unown AOR 30',V='Shadow Rider Calyrex V CRE 74',VM='Shadow Rider Calyrex VMAX CRE 75',D='Darkness Energy MEE 15',Pr='Prism Energy ASC 216',Psy='Psychic Energy MEE 13';
+ const mk=(printing,energies=[],hp=280,extra={})=>({printing,energies,hp,damage:0,tools:[],specialConditions:[],publicRestrictions:{},printed:{stage:'Basic',types:['Darkness'],weakness:[],resistance:[]},...extra});
+ const v=mk(V,[],210,{printed:{stage:'Basic',types:['Psychic'],weakness:[{type:'Darkness',value:'×2'}],resistance:[]}});
+ const vmax=mk(VM,[],320,{printed:{stage:'VMAX',types:['Psychic'],weakness:[{type:'Darkness',value:'×2'}],resistance:[]}});
+ const o=(target=v,bench=[],oppNeeds=6)=>({globalTurn:4,ownHand:[],ownPublic:{active:mk(Meg),bench:[mk(El)],prizeCount:6,discard:[Pr,Pr,Pr],publicTurnRestrictions:{}},opponentPublic:{active:target,bench,prizeCount:oppNeeds,publicTurnRestrictions:{}},ownTurnResources:{supporterPlayedTurn:0,retreatedTurn:false}});
+ let n=0;function a(v,l){if(!v)throw Error(l);n++}
+ let z=o();z.ownPublic.active.energies=[D,Pr,Pr];
+ const atk={kind:'attack',attackName:'Claw of Darkness',actorPrinting:Meg,publicMetadata:{attackCostPayable:true}};
+ a(P.rootAttack(atk,z)>=1000,'sole opponent Pokémon board-out is win despite six prizes');
+ z.opponentPublic.bench=[mk(Un,[],60)];a(P.rootAttack(atk,z)<1000,'bench prevents board-out win');
+ z.opponentPublic.bench=[{concealed:true}];a(P.rootAttack(atk,z)<1000,'concealed bench also prevents board-out claim');
+ a(P.bombPlanner(o(v,[],3),0)?.immediateWin===true,'Bomb board-out allowed even opponent would reach one prize');
+ a(P.bombPlanner(o(v,[],2),0)===null,'self-KO takes last Prizes before attack');
+ a(P.bombPlanner(o(v,[mk(Un,[],60)]),0)?.tempoDenial===true,'two-for-two eliminates only visible Shadow Rider engine');
+ a(P.bombPlanner(o(v,[v]),0)===null,'backup V prevents engine-denial heuristic');
+ const reply={...vmax,energies:Array(9).fill(Psy),attacks:[{name:'Max Geist',cost:['Colorless','Colorless','Colorless'],damage:'10+'}]};
+ a(P.bombPlanner(o(vmax,[reply],4),0)===null,'nonfinal Bomb cannot offer known last-prize reply');
+ a(P.bombPlanner(o(vmax,[mk(Un,[],60)],4),0)!==null,'nonfinal three-prize Bomb when no known reply');
+ return n;
+})(P)+' board-out and Prize-trade assertions');
