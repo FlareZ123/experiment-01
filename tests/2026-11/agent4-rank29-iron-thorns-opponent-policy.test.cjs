@@ -857,3 +857,19 @@ test('Peonia final Prize-order prompt resolves exactly three actor-visible order
     kind:'select-choices',tokens:['order0','order1','order2']
   });
 });
+
+test('Guzma & Hala root does not spend Supporter when no affordable two-card payment', () => {
+  const items=[
+    action('gh','play-card','Guzma & Hala CEC 193',{cardType:'supporter'}),
+    {token:'pass',kind:'pass'}
+  ];
+  const protectedHand=['Guzma & Hala CEC 193','Lusamine CIN 96',
+    "Team Rocket's Handiwork FCO 112",'Double Colorless Energy SUM 136',
+    'Megaton Blower SSP 182'];
+  assert.deepEqual(checkedDecision(rootRequest({ownHand:protectedHand,items})),
+    {kind:'select-action',token:'pass'});
+  const disposableHand=['Guzma & Hala CEC 193',"Trainers' Mail ROS 92",
+    'Camping Gear BST 122','Double Colorless Energy SUM 136'];
+  assert.deepEqual(checkedDecision(rootRequest({ownHand:disposableHand,items})),
+    {kind:'select-action',token:'gh'});
+});
