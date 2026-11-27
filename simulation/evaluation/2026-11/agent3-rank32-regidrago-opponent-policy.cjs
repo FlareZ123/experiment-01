@@ -255,12 +255,128 @@ function safeBallCost(card, observation) {
     return 20;
   return 0;
 }
+function setupActiveScore(printing) {
+  if (/^Regidrago V SIT 135\b/i.test(printing)) return 100;
+  if (/^Budew ASC 16\b/i.test(printing)) return 82;
+  if (/^Latias ex SSP 76\b/i.test(printing)) return 62;
+  if (/^Fezandipiti ex ASC 142\b/i.test(printing)) return 42;
+  if (/^Marshadow UNB 81\b/i.test(printing)) return 32;
+  if (/^Crobat V DAA 104\b/i.test(printing)) return 25;
+  if (/^Dedenne-GX UNB 57\b/i.test(printing)) return 20;
+  if (/^Tapu Lele-GX GRI 60\b/i.test(printing)) return 15;
+  return 1;
+}
+function setupBenchScore(printing, alreadyPicked) {
+  // Setup benching is not equivalent to playing a Basic from hand during
+  // the turn: it cannot trigger Dedechange, Dark Asset, Wonder Tag, or Let Loose.
+  if (/^Regidrago V SIT 135\b/i.test(printing))
+    return alreadyPicked.filter(x=>/^Regidrago V SIT 135\b/i.test(x)).length < 3 ? 100 : 0;
+  if (/^Latias ex SSP 76\b/i.test(printing)) return 75;
+  if (/^Budew ASC 16\b/i.test(printing))
+    return alreadyPicked.some(x=>/^Budew ASC 16\b/i.test(x)) ? 0 : 60;
+  return 0;
+}
+function engineSetupDecision(prompt, observation, choices) {
+  const meta=prompt?.publicMetadata ?? {};
+  if (observation?.phase !== 1 || prompt?.source?.sourceKind !== 'engine' ||
+      prompt?.source?.sourcePrinting !== null ||
+      prompt?.source?.classification !== 'actor-choice') return null;
+  const name=prompt.description;
+  if (name === 'CHOOSE_STARTING_POKEMONS' && prompt.promptType === 'ChooseCardsPrompt') {
+    const min=meta.minimumCount,max=meta.maximumCount;
+    if (meta.selectionType!=='card-combination' || meta.sourceZone!=='hand' ||
+        meta.ownerSeat!=='actor' || meta.isOwnerVisible!==true ||
+        meta.allowCancel!==false || meta.isSecret!==false ||
+        !Number.isSafeInteger(min) || !Number.isSafeInteger(max) ||
+        min < 0 || max < min)
+      return {kind:'abstain',reasonCode:'INVALID_STARTING_POKEMON_PROMPT'};
+    const bench=list(observation?.ownPublic?.bench);
+    if (!Array.isArray(observation?.ownPublic?.bench))
+      return {kind:'abstain',reasonCode:'MISSING_PUBLIC_BENCH_FOR_SETUP'};
+    const capacity=bench.filter(x=>x===null).length;
+    const handChoices=choices.filter(c=>c.kind==='card' &&
+      typeof c.token==='string' && typeof c.printing==='string' &&
+      c.publicMetadata?.sourceZone==='hand' &&
+      c.publicMetadata?.ownerSeat==='actor' &&
+      c.publicMetadata?.isOwnerVisible===true);
+    const picks=[];
+    if (min === 1) {
+      if (observation.ownPublic.active!==null || handChoices.length===0)
+        return {kind:'abstain',reasonCode:'NO_VISIBLE_STARTING_POKEMON'};
+      const selected=handChoices.slice().sort((a,b)=>
+        setupActiveScore(b.printing)-setupActiveScore(a.printing));
+      picks.push(selected[0]);
+      const remainder=selected.slice(1);
+      while (picks.length < Math.min(max,1+capacity)) {
+        let index=-1,best=0;
+        for(let i=0;i<remainder.length;i++) {
+          const score=setupBenchScore(remainder[i].printing,picks.map(x=>x.printing));
+          if(score>best){best=score;index=i;}
+        }
+        if(index<0)break;
+        picks.push(remainder.splice(index,1)[0]);
+      }
+    } else if (min === 0) {
+      if (observation.ownPublic.active===null)
+        return {kind:'abstain',reasonCode:'MISSING_ACTIVE_FOR_EXTRA_BENCH'};
+      const remainder=handChoices.slice(),onBoard=[observation.ownPublic.active.printing];
+      while(picks.length < Math.min(max,capacity)) {
+        let index=-1,best=0;
+        for(let i=0;i<remainder.length;i++){
+          const score=setupBenchScore(remainder[i].printing,
+            [...onBoard,...picks.map(x=>x.printing)]);
+          if(score>best){best=score;index=i;}
+        }
+        if(index<0)break;
+        picks.push(remainder.splice(index,1)[0]);
+      }
+    } else return {kind:'abstain',reasonCode:'UNSUPPORTED_STARTING_POKEMON_CARDINALITY'};
+    if(picks.length>=Math.max(min,1))
+      return {kind:'select-choices',tokens:picks.map(c=>c.token)};
+    const empty=choices.find(c=>c.kind==='empty-selection'&&typeof c.token==='string');
+    return min===0 && empty ?
+      {kind:'select-choice',token:empty.token} :
+      {kind:'abstain',reasonCode:'NO_EMPTY_BENCH_SELECTION'};
+  }
+  if (name === 'GO_FIRST' && prompt.promptType === 'ConfirmPrompt') {
+    if (meta.selectionType!=='confirm')
+      return {kind:'abstain',reasonCode:'INVALID_GO_FIRST_CONFIRMATION'};
+    const yes=choices.find(c=>c.kind==='confirm'&&/^Yes$/i.test(c.label??''));
+    const no=choices.find(c=>c.kind==='confirm'&&/^No$/i.test(c.label??''));
+    if (!yes||!no) return {kind:'abstain',reasonCode:'UNRECOGNIZED_GO_FIRST_CHOICES'};
+    // Regidrago has a meaningful first turn going second: Supporter,
+    // Celestial Roar and Budew's Item-lock attack. This is a policy
+    // assumption; choosing second is not a demonstrated win-rate result.
+    return {kind:'select-choice',token:no.token};
+  }
+  if (name === 'WANT_TO_DRAW_CARDS' && prompt.promptType === 'SelectPrompt') {
+    const count=meta.count;
+    if(meta.selectionType!=='option'||!Number.isSafeInteger(count)||count<1)
+      return {kind:'abstain',reasonCode:'INVALID_MULLIGAN_DRAW_OPTIONS'};
+    const options=choices.filter(c=>c.kind==='option');
+    if(options.length!==count)return {kind:'abstain',reasonCode:'INCOMPLETE_MULLIGAN_DRAW_OPTIONS'};
+    const seen=new Set(),ranked=[];
+    for(const c of options) {
+      const index=c.publicMetadata?.choiceIndex;
+      const match=String(c.label??'').match(/^Draw (\d+) card\(s\)$/i);
+      if(!Number.isSafeInteger(index)||index<0||index>=count||seen.has(index)||
+          !match||Number(match[1])!==count-1-index)
+        return {kind:'abstain',reasonCode:'INVALID_MULLIGAN_DRAW_INDEX'};
+      seen.add(index);
+      ranked.push({choice:c,count:count-1-index});
+    }
+    return {kind:'select-choice',token:ranked.sort((a,b)=>b.count-a.count)[0].choice.token};
+  }
+  return null;
+}
 function promptDecision(request) {
   const p = request?.prompt ?? {};
   const choices = list(p.choices);
   const source = context(p);
   const obs = request?.observation ?? {};
   const meta = p.publicMetadata ?? {};
+  const engine = engineSetupDecision(p,obs,choices);
+  if (engine !== null) return engine;
   const min = Number.isSafeInteger(meta.minimumCount) ? meta.minimumCount : 1;
   const max = Number.isSafeInteger(meta.maximumCount) ? meta.maximumCount :
     (Number.isSafeInteger(meta.count) ? meta.count : Math.max(1,min));
@@ -374,4 +490,5 @@ function createPolicy({role,seat,policyVersion,config,rng}) {
 }
 module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
   createPolicy,scoreAction,promptDecision,bestAction,chooseRank32Apex,donorScore,
-  protocolSafeDecision,apexTypedDeficit,scoreEnergyAttachment,nativeOwnerTarget};
+  protocolSafeDecision,apexTypedDeficit,scoreEnergyAttachment,nativeOwnerTarget,
+  engineSetupDecision,setupActiveScore,setupBenchScore};
