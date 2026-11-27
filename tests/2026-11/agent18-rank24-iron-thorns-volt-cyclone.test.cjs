@@ -56,6 +56,27 @@ const attack = {
 };
 const pass = { token: 'pass', kind: 'pass' };
 
+test('retreat pivots only to a funded bench when the Active cannot attack', () => {
+  const retreat = {
+    token: 'retreat1', kind: 'retreat',
+    actorPrinting: 'Iron Thorns ex TWM 77',
+    targetPrinting: 'Iron Thorns ex TWM 77',
+    publicMetadata: { benchIndex: 0, targetIndex: 0 }
+  };
+  const funded = mon('Iron Thorns ex TWM 77', {
+    energies: ['Speed Lightning Energy RCL 173', 'Double Colorless Energy SUM 136']
+  });
+  assert.deepEqual(policy.decide(root({
+    ownBench: [funded],
+    items: [retreat, pass]
+  })), { kind: 'select-action', token: 'retreat1' });
+
+  assert.deepEqual(policy.decide(root({
+    ownBench: [mon('Iron Thorns ex TWM 77')],
+    items: [retreat, pass]
+  })), { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ROOT_ACTION' });
+});
+
 test('Volt Cyclone is selected when it is the best remaining executable action', () => {
   assert.deepEqual(policy.decide(root({ items: [attack, pass] })),
     { kind: 'select-action', token: 'volt' });
