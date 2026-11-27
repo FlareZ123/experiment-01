@@ -219,7 +219,9 @@ const PLAYER_RESTRICTION_KEYS = [
   'energyPlayLocked', 'specialEnergyPlayLocked',
   'stadiumAndToolHaveNoEffectTurnsRemaining'
 ];
-const PLAYER_RESTRICTION_OPTIONAL_KEYS = [];
+const PLAYER_RESTRICTION_OPTIONAL_KEYS = [
+  'alteredCreationDamage', 'usedAlteredCreation'
+];
 const TURN_RESOURCE_KEYS = [
   'supporterPlayedTurn', 'retreatedTurn', 'extraTurnActive', 'energyPlayedTurn',
   'stadiumPlayedTurn', 'stadiumUsedTurn', 'vstarUsed', 'pokemonPlayLocked',
@@ -550,6 +552,11 @@ function validatePublicPlayer(player, allowConcealed) {
     'abilityPokemonPlayLocked', 'evolutionPlayLocked', 'itemPlayLocked', 'supporterPlayLocked',
     'stadiumPlayLocked', 'toolPlayLocked', 'energyPlayLocked', 'specialEnergyPlayLocked']) {
     if (typeof player.publicTurnRestrictions[key] !== 'boolean') fail('BAD_PLAYER_RESTRICTION');
+  }
+  for (const key of PLAYER_RESTRICTION_OPTIONAL_KEYS) {
+    if (player.publicTurnRestrictions[key] !== undefined &&
+        typeof player.publicTurnRestrictions[key] !== 'boolean')
+      fail('BAD_PLAYER_RESTRICTION');
   }
   for (const key of ['attackLockTurnsRemaining', 'attackMaxEnergyTurnsRemaining', 'ignoreAttackCostTurnsRemaining']) {
     if (!Number.isSafeInteger(player.publicTurnRestrictions[key]) || player.publicTurnRestrictions[key] < 0) fail('BAD_PLAYER_RESTRICTION');
