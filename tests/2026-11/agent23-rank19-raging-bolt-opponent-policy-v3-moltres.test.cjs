@@ -163,3 +163,29 @@ for(const seat of [0,1]){
    assert.equal(mod.tacticalPrompt(r),null);
  });
 }
+
+for(const seat of [0,1]){
+ const bird='Ho-Oh-EX DRX';
+ const bc=root('bc','play-card',{actorPrinting:'Battle Compressor PHF'});
+ const qb=root('qb','play-card',{actorPrinting:'Quick Ball FST'});
+ const card=(token,printing,sourceZone='deck')=>({kind:'card',token,printing,publicMetadata:{sourceZone,ownerSeat:'actor',isOwnerVisible:true}});
+ test('seat '+seat+' second Compressor completes Ho-Oh route even with three types already discarded',()=>{
+  const r=request(seat,adp(),benchSlot(molt([D,D,L])),vmax(),[],[bc,pass],{discard:[D,L,F]});
+  assert.deepEqual(mod.tacticalRoot(r),sel('bc'));
+  r.prompt=prompt('ChooseCardsPrompt','Battle Compressor','Battle Compressor PHF',[card('bird',bird),card('d',D),card('l',L)]);
+  r.prompt.publicMetadata={minimumCount:0,maximumCount:3};
+  assert.deepEqual(mod.tacticalPrompt(r),choices('bird'));
+ });
+ test('seat '+seat+' Compressor puts Ho-Oh and two distinct Basic types in discard from empty',()=>{
+  const r=request(seat,adp(),benchSlot(molt([D])),vmax(),[],[bc,pass]);
+  r.prompt=prompt('ChooseCardsPrompt','Battle Compressor','Battle Compressor PHF',[card('l',L),card('d',D),card('f',F),card('bird',bird)]);
+  r.prompt.publicMetadata={minimumCount:0,maximumCount:3};
+  assert.deepEqual(mod.tacticalPrompt(r),{kind:'select-choices',tokens:['d','bird','l']});
+ });
+ test('seat '+seat+' Quick Ball discards Ho-Oh when all three types are already present',()=>{
+  const r=request(seat,adp(),benchSlot(molt([D,D,L])),vmax(),[],[qb,pass],{hand:[bird,D],discard:[D,L,F]});
+  assert.deepEqual(mod.tacticalRoot(r),sel('qb'));
+  r.prompt=prompt('ChooseCardsPrompt','Quick Ball','Quick Ball FST',[card('d',D,'hand'),card('bird',bird,'hand')]);
+  assert.deepEqual(mod.tacticalPrompt(r),choices('bird'));
+ });
+}
