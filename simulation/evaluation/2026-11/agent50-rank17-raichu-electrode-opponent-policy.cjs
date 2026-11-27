@@ -2495,7 +2495,7 @@ function r17Prompt(request) {
 // already have a paid, legal Electro Rain attack and a fully printed public
 // target board with no attached opponent Tools or live Stadium. A one-turn
 // board-out/Prize-terminal plan is favored over a zero-benefit fallback.
-function r17DirectRainWindow(request){
+function r17DirectRainWindow(request,{allowThreePrizePressure=false}={}){
   const v=request?.observation,p=active(own(v));
   if(!v||!p||r17Key(p)!=='raichu'||!r17RainWindow(v,p)||
      r17NeedTempleRemoval(v)||list(own(v).stadium).length||
@@ -2537,7 +2537,9 @@ function r17DirectRainWindow(request){
     }))
   };
   const plan=r17PlanRainTurn(input);
-  if(plan?.status!=='immediate-ko-plan'||plan.win!==true||
+  const threePrizePressure=allowThreePrizePressure&&plan?.win!==true&&
+    plan?.prizesTaken>=3&&plan?.netPrizeSwing>=3;
+  if(plan?.status!=='immediate-ko-plan'||(!plan.win&&!threePrizePressure)||
      plan.bombsUsed!==0||plan.discardTokens.length===0||
      plan.lightningUnits<=0||plan.lightningUnits>512)return null;
   return {action:attack,plan,targets,
@@ -2546,7 +2548,7 @@ function r17DirectRainWindow(request){
 // One bounded *Active Electrode -> Benched Raichu* route. This resolves the
 // actual self-KO and re-plans the Rain attack after real promotion; projected
 // energy/protection are not treated as a future game-state oracle.
-function r17OneBombRainWindow(request){
+function r17OneBombRainWindow(request,{allowThreePrizePressure=false}={}){
   const v=request?.observation,a=active(own(v));
   if(!v||r17NeedTempleRemoval(v)||list(own(v).stadium).length||
      list(opponent(v).stadium).length||
@@ -2610,12 +2612,20 @@ function r17OneBombRainWindow(request){
       minRemainingEnergy:0
     }))
   });
-  if(plan?.status!=='immediate-ko-plan'||!plan.win||plan.bombsUsed!==1||
+  // A narrowly profitable nonterminal option: Active Electrode must self-KO
+  // to promote an already evolved Raichu; its funded attack must remove at
+  // least one three-Prize threat. Never treat this as a terminal projection.
+  const threePrizePressure=allowThreePrizePressure&&requiresPromotion&&
+    plan?.win!==true&&plan?.prizesTaken>=3&&plan?.netPrizeSwing>=1&&
+    own(v).prizeCount>=4&&opponent(v).prizeCount>=5;
+  if(plan?.status!=='immediate-ko-plan'||(!plan.win&&!threePrizePressure)||
+     plan.bombsUsed!==1||
      plan.attachTokens.length!==Math.min(5,discard.length)||plan.lightningUnits<1||
      plan.opponentPrizesAfterBomb!==opponent(v).prizeCount-2)return null;
   return {
     action:src,benchIndex:index,benchPrinting:printingValue(q),
     targetZone,requiresPromotion,plan,
+    allowThreePrizePressure:threePrizePressure,
     discardPrintings:new Map(discard.map(d=>[d.token,d.printing]))
   };
 }
@@ -2846,7 +2856,9 @@ function r17CreatePolicy({role,seat,policyVersion,config}) {
         return {kind:'select-action',token:actual.action.token};
       }
       if(rain.stage==='bomb-rain-root'){
-        const actual=r17DirectRainWindow(request);
+        const actual=r17DirectRainWindow(request,{
+          allowThreePrizePressure:rain.allowThreePrizePressure===true
+        });
         if(!actual){rain=null;return r17Abstain('R17_UNTRUSTED_PROMPT');}
         rain={stage:'discard',turn:rain.turn,sequence:request.sequence,...actual};
         return {kind:'select-action',token:actual.action.token};
@@ -2886,6 +2898,13 @@ function r17CreatePolicy({role,seat,policyVersion,config}) {
       rain={stage:'bomb-transfer',turn:request.observation.globalTurn,
         sequence:request.sequence,...two};
       return {kind:'select-action',token:two.action.token};
+    }
+    // Lower priority than any terminal one-/two-Bomb window.
+    const pressure=r17OneBombRainWindow(request,{allowThreePrizePressure:true});
+    if(pressure?.allowThreePrizePressure===true){
+      rain={stage:'bomb-transfer',turn:request.observation.globalTurn,
+        sequence:request.sequence,...pressure};
+      return {kind:'select-action',token:pressure.action.token};
     }
     return r17Best(request);
   }});
