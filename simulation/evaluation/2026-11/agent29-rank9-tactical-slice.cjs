@@ -1,7 +1,7 @@
 'use strict';
 // Development-only actor-visible tactical slice; see accompanying report.
 module.exports = (function build() {
-  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v14';
+  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v15';
   const SOURCE_RANK = 9;
   const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
   const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -236,13 +236,13 @@ module.exports = (function build() {
 function bombPlanner(o,sourceBenchIndex){
   // A recommendation over publicly identified discard occurrences, NOT an
   // executable native prompt decision. Never select this via root().
-  const own=o?.ownPublic,opp=o?.opponentPublic,source=own?.bench?.[sourceBenchIndex];
+  const own=o?.ownPublic,opp=o?.opponentPublic,activeSource=sourceBenchIndex===-1,source=activeSource?own?.active:own?.bench?.[sourceBenchIndex];
   if(!Number.isInteger(sourceBenchIndex)||!/^Electrode-GX CES 48\b/i.test(name(source)))return null;
   if(!Number.isSafeInteger(opp?.prizeCount)||opp.prizeCount<=2||!Number.isSafeInteger(own?.prizeCount)||own.prizeCount<1)return null;
   if(L(source.abilitySuppressions).some(x=>x.abilityName==='Extra Energy Bomb'&&x.suppressed===true))return null;
   if(liveStadium(o,/Path to the Peak/i))return null;
   const active=own.active,target=opp.active;
-  if(!active||!target)return null;
+  if(!active||!target||activeSource&&!L(own.bench).some(p=>p&&!p.concealed))return null;
   const recipients=slots(own).filter(({p})=>mega(p)||sableye(p)||isUn(p)||isVol(p)||isToed(p)||cruel(p)||isSquawk(p));
   if(!recipients.some(r=>mega(r.p)||sableye(r.p)))return null;
   const available=L(own.discard).map((printing,index)=>({printing:name(printing),index})).filter(x=>/^(?:Prism Energy ASC 216|Darkness Energy MEE 15|Telepathic Psychic Energy POR 88)\b/i.test(x.printing));
@@ -257,17 +257,29 @@ function bombPlanner(o,sourceBenchIndex){
   const compare=(a,b)=>!b||a.score>b.score||a.score===b.score&&a.activeCount<b.activeCount;
   function examine(){
     const upgraded=recipients.map((r,i)=>({...r,p:{...r.p,energies:[...L(r.p.energies),...byRecipient[i].map(x=>x.printing)]}}));
-    const next={...o,ownPublic:{...own,active:upgraded.find(x=>x.zone==='active')?.p??active,bench:L(own.bench).map((p,j)=>j===sourceBenchIndex?null:upgraded.find(x=>x.zone==='bench'&&x.index===j)?.p??p)}};
-    const move=bombMobility(next,sourceBenchIndex);
+    const upgradedBoard={...o,ownPublic:{...own,active:activeSource?null:upgraded.find(x=>x.zone==='active')?.p??active,bench:L(own.bench).map((p,j)=>j===sourceBenchIndex?null:upgraded.find(x=>x.zone==='bench'&&x.index===j)?.p??p)}};
+    let next=upgradedBoard,move;
+    if(activeSource){
+      const promotions=slots(upgradedBoard.ownPublic).filter(x=>x.zone==='bench'&&(mega(x.p)||sableye(x.p)));
+      const plans=promotions.map(p=>{
+        const board={...upgradedBoard,ownPublic:{...upgradedBoard.ownPublic,active:p.p,bench:upgradedBoard.ownPublic.bench.map((q,i)=>i===p.index?null:q)}};
+        const m=bombMobility(board,null);
+        return m?{board,move:{...m,promotionIndex:p.index,promotionPrinting:name(p.p)}}:null;
+      }).filter(Boolean);
+      const selected=best(plans,p=>p.move.score);
+      if(!selected)return;
+      next=selected.board;move=selected.move;
+    }else move=bombMobility(next,sourceBenchIndex);
     if(!move||move.score<400||move.score<=baseline)return;
     const denialLine=move.score<1000&&twoPrizeEngineDenial(next,move);
     if(move.score<1000&&(!denialLine&&(move.minPrizes<3||opp.prizeCount===3)||lethalBombReply(next,move)))return;
-    const backup=upgraded.filter(x=>!(x.zone===move.zone&&x.index===move.index)).reduce((sum,x)=>sum+(mega(x.p)&&usable(x.p,'Claw of Darkness',o)||sableye(x.p)&&usable(x.p,'Crazy Claws',o)?25:0),0);
-    const activeCount=assignments.filter(x=>x.zone===move.zone&&x.index===move.index).length;
+    const attackOriginal=activeSource&&move.zone==='active'?{zone:'bench',index:move.promotionIndex}:move;
+    const backup=upgraded.filter(x=>!(x.zone===attackOriginal.zone&&x.index===attackOriginal.index)).reduce((sum,x)=>sum+(mega(x.p)&&usable(x.p,'Claw of Darkness',o)||sableye(x.p)&&usable(x.p,'Crazy Claws',o)?25:0),0);
+    const activeCount=assignments.filter(x=>x.zone===attackOriginal.zone&&x.index===attackOriginal.index).length;
     // A successful direct KO is preferred to an equivalent paid switch. The
     // worst-case Prize return, not a favorable opponent Rope choice, drives
     // the mobility decision.
-    const plan={sourceBenchIndex,required:n,score:move.score+backup,activeCount,immediateWin:move.score>=1000,tempoDenial:denialLine,mobility:move,assignments:assignments.map(x=>({...x}))};
+    const plan={sourceBenchIndex,sourceZone:activeSource?'active':'bench',required:n,score:move.score+backup,activeCount,immediateWin:move.score>=1000,tempoDenial:denialLine,mobility:move,assignments:assignments.map(x=>({...x}))};
     if(compare(plan,bestPlan))bestPlan=plan;
   }
   function visit(i,used){
@@ -948,7 +960,8 @@ function bombPlanner(o,sourceBenchIndex){
       if(elec(n)&&m.abilityName==='Extra Energy Bomb'){
         // Never relabel a feasible but unsupported native transfer as a
         // strategic pass. Active Electrode's Bomb is not modeled either.
-        if(m.sourceZone==='active'||!Number.isInteger(m.sourceIndex))return false;
+        if(m.sourceZone==='active')return bombPlanner(o,-1)===null;
+        if(!Number.isInteger(m.sourceIndex))return false;
         return bombPlanner(o,m.sourceIndex)===null;
       }
       return false;

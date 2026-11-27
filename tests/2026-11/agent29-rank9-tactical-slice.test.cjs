@@ -393,3 +393,23 @@ console.log('passed '+(function drawAndDecline(P,protocol){
  const thin=o();thin.ownPublic.deckCount=4;a(decide(thin,[pass,stop]).token==='pass','avoid near-deckout PokéStop');
  return n;
 })(P,protocol)+' draw-reset, disruption, and intentional-decline assertions');
+
+console.log('passed '+(function activeBomb(P,protocol){
+ const Meg='Mega Absol ex MEG 86',El='Electrode-GX CES 48',Un='Unown AOR 30',VM='Shadow Rider Calyrex VMAX CRE 75',Pr='Prism Energy ASC 216',D='Darkness Energy MEE 15';
+ const mk=(printing,energies=[],hp=280,extra={})=>({printing,energies,hp,damage:0,tools:[],specialConditions:[],publicRestrictions:{},printed:{stage:'Basic',retreatCost:['Colorless'],types:['Darkness'],weakness:[],resistance:[]},...extra});
+ const o=(bench=[mk(Meg)],oppPrize=6)=>({actorSeat:0,globalTurn:3,ownHand:[],ownPublic:{active:mk(El,[],190),bench,discard:[Pr,Pr,Pr],prizeCount:6,publicTurnRestrictions:{}},opponentPublic:{active:mk(VM,[],320,{printed:{weakness:[{type:'Darkness',value:'×2'}]}}),bench:[],prizeCount:oppPrize,publicTurnRestrictions:{}},ownTurnResources:{supporterPlayedTurn:0,energyPlayedTurn:false,retreatedTurn:false}});
+ let n=0;function a(v,l){if(!v)throw Error(l);n++}
+ const p=P.bombPlanner(o(),-1);
+ a(p?.immediateWin===true,'Active Electrode may self-KO then promote funded Mega');
+ a(p.sourceZone==='active'&&p.sourceBenchIndex===-1,'explicit active source');
+ a(p.mobility.promotionIndex===0&&p.mobility.promotionPrinting===Meg,'physical promotion after KO');
+ a(p.required===3&&p.assignments.every(x=>x.zone==='bench'&&x.index===0),'never allocate to self-KO source');
+ a(P.bombPlanner(o([],6),-1)===null,'no survivor means board-out loss');
+ a(P.bombPlanner(o([mk(Meg)],2),-1)===null,'self-KO gives final two prizes');
+ a(P.bombPlanner(o([mk(Un,[],60),mk(Meg)],3),-1)?.mobility.promotionIndex===1,'choose actual bench location with funded attacker');
+ const non=o([mk(Meg,[D,Pr,Pr])]);non.ownPublic.active.energies=[D];a(P.bombPlanner(non,-1)===null,'ordinary paid retreat win dominates self-KO');
+ const pcy=P.createPolicy({role:'opponent',seat:0,policyVersion:P.POLICY_VERSION,config:{}});
+ const f={schema:protocol.FRONTIER_SCHEMA,items:[{kind:'pass',token:'pass'},{kind:'use-ability',token:'bomb',actorPrinting:El,publicMetadata:{sourceSeat:'actor',sourceZone:'active',sourceIndex:0,abilityName:'Extra Energy Bomb'}}]};
+ const d=pcy.decide({role:'opponent',seat:0,sequence:1,observation:o(),prompt:null,actionFrontier:f});protocol.validateDecision(d,null,protocol.validateFrontier(f));a(d.kind==='abstain','actual root still exposes missing transfer adapter');
+ return n;
+})(P,protocol)+' active-source Bomb and promotion assertions');
