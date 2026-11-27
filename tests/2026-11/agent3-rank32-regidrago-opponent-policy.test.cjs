@@ -471,3 +471,69 @@ test('Cynthia optional confirmation defers card discard if no donor is in hand',
   assert.deepEqual(promptDecision(request({prompt:p,hand:[P.goodra]})),
     {kind:'select-choice',token:'yes'});
 });
+
+
+test('Legacy Star root consumes VSTAR only with deck safety and real payload',()=>{
+  const items=[
+    action('star','use-ability',P.regidrago,
+      {publicMetadata:{abilityName:'Legacy Star'}}),
+    action('pass','pass')
+  ];
+  const ownPublic=player({
+    active:pokemon(P.regidrago),
+    discard:[{printing:P.doubleDragon}]
+  });
+  ownPublic.deckCount=29;
+  assert.deepEqual(bestAction(request({ownPublic,items,hand:[P.energy]})),
+    {kind:'select-action',token:'star'});
+  ownPublic.deckCount=7;
+  assert.deepEqual(bestAction(request({ownPublic,items,hand:[P.energy]})),
+    {kind:'select-action',token:'pass'});
+  ownPublic.deckCount=29;
+  ownPublic.publicTurnRestrictions.vstarUsed=true;
+  assert.deepEqual(bestAction(request({ownPublic,items,hand:[P.energy]})),
+    {kind:'select-action',token:'pass'});
+});
+
+test('Legacy Star chooses funding Energy, then future gust, not copyable Dragon donors',()=>{
+  const ownPublic=player({
+    active:pokemon(P.regidrago),
+    discard:[{printing:P.doubleDragon},{printing:P.goodra},{printing:P.dragonite},
+      {printing:'Guzma BUS 115'}]
+  });
+  const opponentPublic=player({
+    active:pokemon('Shadow Rider Calyrex VMAX CRE 75'),
+    bench:[pokemon('Shadow Rider Calyrex V CRE 74')]
+  });
+  const p=prompt(P.regidrago,'Legacy Star',[
+    choice('goodra',P.goodra),choice('dragonite',P.dragonite),
+    choice('dde',P.doubleDragon),choice('guzma','Guzma BUS 115')
+  ],'ChooseCardsPrompt',[0,2]);
+  p.publicMetadata.sourceZone='discard';
+  assert.deepEqual(promptDecision(request({ownPublic,opponentPublic,prompt:p})),
+    {kind:'select-choices',tokens:['dde','guzma']});
+});
+
+test('Legacy Star up-to-two allows selecting none instead of damaging Apex discard',()=>{
+  const ownPublic=player({
+    active:pokemon(P.regidrago),
+    discard:[{printing:P.goodra},{printing:P.dragonite}]
+  });
+  const p=prompt(P.regidrago,'Legacy Star',[
+    choice('g',P.goodra),choice('m',P.dragonite),
+    {token:'none',kind:'empty-selection',label:'Select none'}
+  ],'ChooseCardsPrompt',[0,2]);
+  p.publicMetadata.sourceZone='discard';
+  assert.deepEqual(promptDecision(request({ownPublic,prompt:p})),
+    {kind:'select-choice',token:'none'});
+});
+
+test('Legacy Star after the native mill accepts valid offers with stale prerecovery discard',()=>{
+  const ownPublic=player({active:pokemon(P.regidrago),discard:[]});
+  ownPublic.publicTurnRestrictions.vstarUsed=true;
+  const p=prompt(P.regidrago,'Legacy Star',
+    [choice('dde',P.doubleDragon)],'ChooseCardsPrompt',[0,2]);
+  p.publicMetadata.sourceZone='discard';
+  assert.deepEqual(promptDecision(request({ownPublic,prompt:p})),
+    {kind:'select-choices',tokens:['dde']});
+});
