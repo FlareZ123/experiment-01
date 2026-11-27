@@ -165,6 +165,79 @@ function canUseLegacyStar(observation) {
       own.publicTurnRestrictions?.vstarUsed!==false)return false;
   return slots(own).some(p=>/^Regidrago VSTAR SIT 136\b/i.test(print(p)));
 }
+function prizeValue(pokemon) {
+  const types=list(pokemon?.printed?.subtypes);
+  if(types.some(x=>['VMAX','TAG TEAM','V-UNION'].includes(x))) return 3;
+  if(types.some(x=>['V','VSTAR','GX','ex'].includes(x))) return 2;
+  return 1;
+}
+function remainingHP(pokemon) {
+  return Number.isFinite(pokemon?.hp)&&Number.isFinite(pokemon?.damage)?
+    Math.max(0,pokemon.hp-pokemon.damage):Infinity;
+}
+function strongestCopiedDamage(observation,target) {
+  const own=observation?.ownPublic??{};
+  if(countDonors(own)===0)return 0;
+  const discard=list(own.discard);
+  let best=0;
+  if(discard.some(x=>DONOR.dragonite.test(print(x))))
+    best=Math.max(best,estimatedDragonDamage(330,observation,target));
+  if(discard.some(x=>DONOR.goodra.test(print(x))))
+    best=Math.max(best,estimatedDragonDamage(200,observation,target));
+  if(own.publicTurnRestrictions?.gxUsed===false &&
+      discard.some(x=>DONOR.dialga.test(print(x))))
+    best=Math.max(best,estimatedDragonDamage(150,observation,target));
+  return best;
+}
+function canAttackNow(pokemon,observation) {
+  return /^Regidrago VSTAR SIT 136\b/i.test(print(pokemon)) &&
+    apexTypedDeficit(pokemon,observation)===0 &&
+    countDonors(observation?.ownPublic??{})>0;
+}
+function gustTargetPriority(pokemon,observation,attacker) {
+  if(!pokemon||!attacker||!canAttackNow(attacker,observation))return 0;
+  const targetHP=remainingHP(pokemon);
+  const damage=strongestCopiedDamage({...observation,
+    ownPublic:{...observation.ownPublic,active:attacker}},pokemon);
+  if(!Number.isFinite(targetHP)||targetHP<=0||targetHP>damage)return 0;
+  const prizes=prizeValue(pokemon), ownPrizes=observation?.ownPublic?.prizeCount;
+  return (Number.isSafeInteger(ownPrizes)&&prizes>=ownPrizes?400:260)+prizes*12;
+}
+function tacticalGustScore(action,observation) {
+  const own=observation?.ownPublic??{},opp=observation?.opponentPublic??{};
+  const actorActive=own.active, opponentActive=opp.active;
+  const name=print(action);
+  const isCounter=/^Counter Catcher PAR 160\b/i.test(name);
+  const isGuzma=/^Guzma BUS 115\b/i.test(name);
+  if(!isCounter&&!isGuzma)return null;
+  const attacker = isCounter ? actorActive :
+    list(own.bench).find(p=>canAttackNow(p,observation));
+  // Guzma necessarily switches your own Active. If it already attacks and
+  // there is no independently ready benched attacker, do not sacrifice it.
+  if(isGuzma && canAttackNow(actorActive,observation)&&!attacker)return 0;
+  if(!attacker)return isCounter?0:null;
+  const bestBench=list(opp.bench).reduce((best,p)=>
+    Math.max(best,gustTargetPriority(p,observation,attacker)),0);
+  if(bestBench<=0)return isCounter?0:20;
+  const currentCanKO=gustTargetPriority(opponentActive,observation,attacker)>0;
+  if(currentCanKO&&bestBench<400)return isCounter?0:20;
+  return isCounter?Math.min(410,bestBench+30):
+    Math.min(395,bestBench+10);
+}
+function targetFromGustChoice(choice,observation) {
+  const meta=choice?.publicMetadata??{};
+  const player=meta.ownerSeat==='opponent'?observation?.opponentPublic:
+    (meta.ownerSeat==='actor'?observation?.ownPublic:null);
+  const index=Number.isSafeInteger(meta.selectionIndex)?meta.selectionIndex:
+    (Number.isSafeInteger(meta.targetIndex)?meta.targetIndex:null);
+  const zone=meta.sourceZone??meta.targetZone;
+  if(player&&zone==='bench'&&index!==null)
+    return list(player.bench)[index]??null;
+  if(player&&zone==='active')return player.active;
+  const printing=print(choice);
+  if(!player||typeof printing!=='string')return null;
+  return slots(player).find(p=>print(p)===printing)??null;
+}
 function scoreAction(action, request) {
   const obs = request?.observation ?? {};
   const own = obs.ownPublic ?? {};
@@ -173,6 +246,8 @@ function scoreAction(action, request) {
   const hand = list(obs.ownHand).length;
   const active = own.active;
   const enabledVstar = slots(own).some(p => /^Regidrago VSTAR SIT 136\b/i.test(print(p)));
+  const gustScore=tacticalGustScore(action,obs);
+  if(gustScore !== null) return gustScore;
   const enabledV = slots(own).some(p => /^Regidrago V SIT 135\b/i.test(print(p)));
   if (action.kind === 'attack' && /^(Apex Dragon)$/i.test(action.attackName ?? action.label ?? '')) {
     return countDonors(own) ? 230 : 0;
@@ -265,10 +340,10 @@ function scoreAction(action, request) {
   }
   return family.scoreAction(action, request);
 }
-function estimatedDragonDamage(base, observation) {
+function estimatedDragonDamage(base, observation, chosenTarget=null) {
   // Approximation with printed Weakness/Resistance and a known Muscle Band;
   // native engine remains authoritative for effects, prevention and modifiers.
-  const target=observation?.opponentPublic?.active ?? {};
+  const target=chosenTarget??observation?.opponentPublic?.active ?? {};
   const attacker=observation?.ownPublic?.active ?? {};
   const band=list(attacker.tools).some(x=>/^Muscle Band XY 121\b/i.test(print(x)))?20:0;
   let damage=base+band;
@@ -529,6 +604,20 @@ function promptDecision(request) {
     }
     return {kind:'abstain',reasonCode:'RANK32_LEGACY_PROMPT_UNPROJECTED'};
   }
+  if (/counter catcher|guzma/.test(source) && meta.selectionType==='pokemon') {
+    const own=obs.ownPublic??{};
+    const isGuzma=/guzma/.test(source);
+    const attacker=isGuzma?
+      list(own.bench).find(p=>canAttackNow(p,obs)):
+      own.active;
+    return chooseMany(choices,c=>{
+      const target=targetFromGustChoice(c,obs);
+      if(c?.publicMetadata?.ownerSeat==='actor') {
+        return isGuzma&&canAttackNow(target,obs)?300:0;
+      }
+      return gustTargetPriority(target,obs,attacker);
+    },min,Math.min(max,1),'RANK32_GUST_NO_LETHAL_TARGET');
+  }
   if (/cynthia\s*&\s*caitlin/.test(source)) {
     if (p.promptType === 'ChooseCardsPrompt' &&
         meta.selectionType === 'card-combination') {
@@ -657,4 +746,5 @@ module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
   protocolSafeDecision,apexTypedDeficit,scoreEnergyAttachment,nativeOwnerTarget,
   engineSetupDecision,setupActiveScore,setupBenchScore,
   isSourceSupporter,cynthiaRecoverPriority,
-  legacyRecoverPriority,canUseLegacyStar,superRodRecoverPriority,estimatedDragonDamage};
+  legacyRecoverPriority,canUseLegacyStar,superRodRecoverPriority,estimatedDragonDamage,
+  strongestCopiedDamage,canAttackNow,tacticalGustScore,gustTargetPriority,targetFromGustChoice};
