@@ -1,3 +1,11 @@
+## 2026-11-27T02:05:56.645Z — owner decision remains the action, not more verification
+
+- Normal mode draw 7; Agent44 reclaimed at 2026-11-27T02:05:32.923Z, commit 0f050a233588894e7be5d2e16f1644e319103923, confirmed on main. Immutable lease; 70-minute threshold 2026-11-27T03:15:32.923Z.
+- Issue #25 last comment remains 7198239604, 26 Nov 16:54Z. The 16:25Z Critic stopline explicitly forbids substitute work. No new owner decision for the unchanged pair or trace delivery, and issue #72 is separate. No dispatch, code, deck, policy, or workflow change. Avoid another round of checks: obtain the owner's explicit decision on the existing pair and encrypted-full versus public-readable trace. Recommend public-readable for iterative review only with explicit disclosure consent; current encrypted-full guard remains intact otherwise. The general invocation instruction is not that explicit go/no-go.
+- User-facing chat cannot hold this invocation open for 70 minutes or promise background work. If it terminates early, leave the immutable lease intact; the >100-minute reclaim rule applies. No new competitive evidence, no selected fixed 60.
+
+---
+
 ## 2026-11-26 23:56 UTC — invocation checkpoint; owner decision required
 
 - Actual initial draw 3/10, normal mode. Reclaimed Agent44 at `2026-11-26T23:55:13.746Z`, claim commit `d2a6bd8c3cf08c24898e63244faa2830c6fda56a`, successful main ref update and lease readback. Original claim remains immutable.
