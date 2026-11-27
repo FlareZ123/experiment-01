@@ -21,7 +21,7 @@ The model is a bounded counterfactual tree **conditional on** a first successful
 
 ## Six explicit source reply classes; exact constructed-board coverage
 
-The source reply classes are **Covert Flight**, **Phantom Dive**, **Trifrost**, **Ryuno Glide**, **Rolling Iron**, and **Timeless-GX followed by Phantom Dive**. Damage to the Active under Muscle Band and live Deoxys Protective DNA is 60, 190, 100, 320, 190, and 140+190 respectively. Non-damage Phantom counters and Trifrost Bench damage have distinct effects; the model applies them to the sole full-HP Clefairy. The D line retains Ranger for Rolling; its Timeless sacrifice route is counted only with fewer than three previously lost Prizes. A/G require VS Seeker and source targets; R requires VS Seeker; A requires Racer's other Supporter in a later turn.
+The source reply classes are **Covert Flight**, **Phantom Dive**, **Trifrost**, **Ryuno Glide**, **Rolling Iron**, and **Timeless-GX followed by Phantom Dive**. Damage to the Active under Muscle Band and live Deoxys Protective DNA is 60, 190, 100, 320, 190, and 140+190 respectively. Non-damage Phantom counters and Trifrost Bench damage have distinct effects; the model applies them to the sole full-HP Clefairy. The D line retains Ranger for Rolling; its Timeless sacrifice route is counted only with fewer than three previously lost Prizes. A/G require VS Seeker and source targets; R requires VS Seeker; A requires the Ranger Supporter in a later turn.
 
 | Resource scenario | Deoxys D | Ranger R | Acerola A | Guzma G |
 |---|---:|---:|---:|---:|
