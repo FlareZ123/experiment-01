@@ -13,8 +13,8 @@
     "note": "Agent13 v1 already integrates Agent1's Raichu/Electrode delta. V2 adds uncovered rank2/rank5/rank9/rank19/rank30/rank31 families without changing the fixed 60."
   },
   "status": "actor-visible paper acceptance consolidation; no policy implementation, native game, competitive qualification, or win-rate claim",
-  "addedCaseCount": 66,
-  "totalCaseCount": 105,
+  "addedCaseCount": 71,
+  "totalCaseCount": 110,
   "addedCases": [
     {
       "id": "R2-DUAL-LOCK-RONDO",
@@ -655,6 +655,49 @@
       "state": "K1 shows both Duskull copies are Prized while Dusclops remains outside Prizes.",
       "must": "Mark ordinary Dusclops evolution/Cursed-Blast line unavailable and raise DCI of stranded Dusclops unless another legal deployment route exists.",
       "forbids": "Treating Stage-1 copies as live with no Basic stage available."
+    },
+    {
+      "id": "DISCARD-NATIVE-GENGAR",
+      "family": "discard / connector",
+      "sourceRanks": [],
+      "state": "Perfection is suppressed and native Gengar & Mimikyu-GX is the selected attack/lock continuation; a discard-paying action can use Gengar as payment.",
+      "must": "Protect native Gengar unless explicitly abandoning that continuation for a stronger line.",
+      "forbids": "Treating donor-in-discard value as dominant while the native attacker is the actual recovery channel."
+    },
+    {
+      "id": "DISCARD-BASIC-PSYCHIC-POWERGLASS",
+      "family": "discard / connector",
+      "sourceRanks": [],
+      "state": "Current attack is already funded; Powerglass is the selected future Energy engine; a Basic Psychic can be discarded without breaking another prerequisite.",
+      "must": "Allow the Basic Psychic as productive discard because it seeds a legal Powerglass target.",
+      "forbids": "Applying a permanent 'never discard Energy' rule."
+    },
+    {
+      "id": "DISCARD-LAST-BASIC-PSYCHIC",
+      "family": "discard / connector",
+      "sourceRanks": [],
+      "state": "Powerglass continuation needs Basic Psychic and only one accessible Basic Psychic remains; a discard/search cost competes for it.",
+      "must": "Protect the last Basic Psychic unless the action explicitly changes to a stronger continuation.",
+      "forbids": "Treating TPE in discard as an equivalent Powerglass target."
+    },
+    {
+      "id": "BOX-LOCKED-CATEGORY",
+      "family": "Secret Box / lock interaction",
+      "sourceRanks": [
+        2,
+        15
+      ],
+      "state": "Secret Box is mechanically playable or being evaluated, but one or more fetched categories are currently unusable because AOR Vileplume Item lock or Stoutland Supporter lock is active.",
+      "must": "Do not count a currently unplayable fetched category as immediate bundle value; compare the whole Box line against legal non-Box continuations.",
+      "forbids": "Rewarding theoretical four-category connectivity when the lock removes one or more categories."
+    },
+    {
+      "id": "RECONSTITUTE-NET-LOSS",
+      "family": "Galarian Articuno V",
+      "sourceRanks": [],
+      "state": "Reconstitute is available but its only two discard candidates are protected continuation resources and the draw is not guaranteed to repair the line.",
+      "must": "Reject discard-2/draw-1 smoothing unless intentionally abandoning the continuation.",
+      "forbids": "Treating Reconstitute as generic positive draw regardless of payment."
     }
   ],
   "authenticatedFamilyCoverage": {
@@ -712,7 +755,8 @@
     "Lock-resilient search is multi-channel: TPE Energy, Forest Seal Stone Tool/VSTAR search, Powerglass Basic-Energy recursion and Stadium replacement survive different card-type locks; track Tool and Basic-Energy custody explicitly.",
     "Before passing into Bench-punishment, compress/harden existing liabilities: Farewell unneeded Unown when legal and evolve Duskull when the HP/Stage change alters opponent reply thresholds.",
     "Attack effects persist only while their target remains in the relevant state: explicitly score retreat/switch/evolution before treating copied Techno Blast, Eon Blade or Pale Moon as future-turn guarantees.",
-    "At K1, exact Prize knowledge must recompute continuation viability and DCI; do not preserve singleton/pair pieces for lines whose prerequisite is Prized or discard the only surviving redundancy."
+    "At K1, exact Prize knowledge must recompute continuation viability and DCI; do not preserve singleton/pair pieces for lines whose prerequisite is Prized or discard the only surviving redundancy.",
+    "Discard-paying connectors are continuation transactions, not raw access: select the line first, classify payments dynamically, then compare the whole post-payment continuation against not using the connector."
   ],
   "implementationGate": {
     "required": [
@@ -735,7 +779,8 @@
     "results/strategy/2026-11/agent1-lock-resilient-resource-ladder-v1.md",
     "results/strategy/2026-11/agent1-bench-compression-hardening-policy-v1.md",
     "results/strategy/2026-11/agent1-attack-effect-mobility-policy-v1.md",
-    "results/strategy/2026-11/agent1-k1-continuation-viability-dci-v1.md"
+    "results/strategy/2026-11/agent1-k1-continuation-viability-dci-v1.md",
+    "results/strategy/2026-11/agent1-newmoon-discard-connector-policy-v1.md"
   ],
   "competitiveQualified": false,
   "claim99Point5": false
