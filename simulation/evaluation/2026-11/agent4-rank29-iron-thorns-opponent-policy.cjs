@@ -805,9 +805,12 @@ function promptDecision(request) {
 
   if (prompt.promptType === 'ChoosePokemonPrompt') {
     if (matches(sourcePrinting, PRINT.handheldFan)) {
-      return singleChoice(choices,
-        choice => fanBenchRecipientScore(choice, observation),
-        'NO_VISIBLE_POKEMON_TARGET');
+      const meta = prompt.publicMetadata ?? {};
+      const minimum = Number.isSafeInteger(meta.minimumCount) ? meta.minimumCount : 1;
+      const maximum = Number.isSafeInteger(meta.maximumCount) ? meta.maximumCount : minimum;
+      return multiSelectDecision(prompt, rankedChoices(choices,
+        choice => fanBenchRecipientScore(choice, observation), maximum),
+      minimum, maximum);
     }
     if (source.includes('guzma')) {
       const opponentChoices = choices.filter(choice =>
@@ -851,9 +854,12 @@ function promptDecision(request) {
 
   if (prompt.promptType === 'ChooseEnergyPrompt') {
     if (matches(sourcePrinting, PRINT.handheldFan)) {
-      return singleChoice(choices,
-        choice => cardChoiceScore(choice, observation, 'fan-energy'),
-        'NO_VISIBLE_ENERGY_CHOICE');
+      const meta = prompt.publicMetadata ?? {};
+      const minimum = Number.isSafeInteger(meta.count) ? meta.count : 1;
+      const maximum = Number.isSafeInteger(meta.energyCount) ? meta.energyCount : minimum;
+      return multiSelectDecision(prompt, rankedChoices(choices,
+        choice => cardChoiceScore(choice, observation, 'fan-energy'), maximum),
+      minimum, maximum);
     }
     const context = source.includes('enhanced hammer') ? 'enhanced-hammer' :
       source.includes('team flare') ? 'team-flare-energy' :
