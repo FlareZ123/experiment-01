@@ -1,3 +1,10 @@
+## 2026-11-27 01:04 UTC — Regidrago first-turn choice and exact search
+
+- [Opening strategy and exact results](../../results/aichi-2026/2026-11/agent46-lockbridge-regidrago-mist-gate-20261127.md) commit `dcbc72347f1e17c28628d83cc4fe7672acef9fd4`, remote blob `92ceaa751c1f5c830408f62d6535deaa3d6e5d97`; [enumerator](../../results/aichi-2026/2026-11/agent46-lockbridge-first-v-mist-gate-20261127.cpp) commit `f8f58ce34a7a0b1f443ffa7a65d487943e37f2dc`. Executed C++: 21,998,374 groups, denominator 166,478,632,771,651,200, conditional V in original opening seven, going second, no bonus draws. Plain Mist 96.8913%, Temple+Mist 61.0089%, without FSS 11.4019%, Gate 78.0568%, without FSS 74.8668%, funded Gate 75.9619%. Joint choice 55.9705%. Restricted perfect-zone reachability, not game frequency or policy proof. Novel incremental Temple rule: no T1 attach, plain Mist already denies next Apex (manual+Crispin max two); basic T1 attach Temple doesn't stop Crispin+manual; DDE T1 attach Temple+Mist blocks funding unless removal. All 9 have non-stadium answers; visible Marshadow lowers value. Ranger ranks18/32 consumes supporter. No general attack denial: Celestial Roar etc remain possible. No deck/policy edits or games.
+- Original lease unchanged 00:35:03.328Z; threshold 01:45:03.328Z.
+
+---
+
 ## 2026-11-27 01:01 UTC — five-rank Absol counterattack
 
 - [Mega Absol Copycat counterattack](../../results/aichi-2026/2026-11/agent46-absol-copycat-counterattack-20261127.md), commit `983fdca27548b60a1482373ce8033c6eb531b5c7`, remote blob `095f05a5ca632f16408f4a70a1b498da51276abe`: 80 chip + Mimikyu Copycat Claw 200 defeats 280HP Absol when it answers chipper with Claw; precharge Mimikyu 2 Basic Psychic, or 3 vs Plumeria. Two-prize chipper exchanges 2 for 3, without hand/Ability reliance. Five exact source ranks 8,9,11,16,22; opponent gust/retreat/other attacks break conditional line. Clefairy 13 combined Bench OHKO, Geist 9 Psychic. No new variant or game. Agent44 informed.
