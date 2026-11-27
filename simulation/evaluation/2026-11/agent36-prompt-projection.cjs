@@ -607,9 +607,73 @@ function projectSimplePrompt(prompt, state, choices, choiceByToken) {
   return null;
 }
 
+
+function projectKokoAttachment({prompt,state,actorSeat,native,source,choices,choiceByToken}){
+  const actor=state.players[actorSeat], player=native.PlayerType.BOTTOM_PLAYER, slot=native.SlotType.BENCH;
+  assert.ok(source.sourceKind==='card-effect'&&source.sourcePrinting==='Tapu Koko Prism Star TEU'&&source.effectName==='Dance of the Ancients');
+  assert.ok(prompt.message==='ATTACH_ENERGY_TO_ACTIVE'&&prompt.cardList===actor.discard&&prompt.playerType===player&&
+    prompt.slots.length===1&&prompt.slots[0]===slot&&prompt.filter?.superType===native.SuperType.ENERGY&&
+    prompt.filter?.energyType===native.EnergyType.BASIC&&prompt.filter?.name==='Lightning Energy'&&
+    prompt.options?.min===1&&prompt.options?.max===2&&prompt.options?.allowCancel===false&&prompt.options?.differentTargets===true);
+  const energies=cardListCards(actor.discard).map((card,index)=>({card,index})).filter(({card,index})=>
+    !(prompt.options.blocked??[]).includes(index)&&card instanceof native.EnergyCard&&
+    card.energyType===native.EnergyType.BASIC&&card.name==='Lightning Energy'&&card.provides?.includes(native.CardType.LIGHTNING));
+  const targets=actor.bench.map((s,index)=>({pokemon:s?.getPokemonCard?.(),index})).filter(x=>x.pokemon);
+  assert.ok(targets.length>=2&&targets.some(x=>printing(x.pokemon)===source.sourcePrinting)&&energies.length>0);
+  assert.ok(!(prompt.options.blockedTo??[]).length);
+  const amount=Math.min(energies.length,2);
+  const add=(e,t,e2,t2)=>{
+    const raw=[{to:{player,slot,index:t.index},index:e.index}];
+    if(t2)raw.push({to:{player,slot,index:t2.index},index:e2.index});
+    addChoice(choices,choiceByToken,raw,{kind:'energy',printing:printing(e.card)??e.card.name,
+      label:'Attach Lightning to bench '+(t.index+1)+(t2?' and '+(t2.index+1):''),
+      publicMetadata:{sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true,energyType:'BASIC',
+        zone:'bench',benchIndex:t.index,amount,selectedCount:amount,choiceIndex:choices.length,
+        ...(t2?{secondTargetIndex:t2.index}:{})}},prompt,state);
+  };
+  for(const t of targets){
+    if(amount===1){add(energies[0],t);continue;}
+    for(const t2 of targets)if(t.index<t2.index)add(energies[0],t,energies[1],t2);
+  }
+  return {selectionType:'energy-attachment',count:choices.length,minimumCount:1,maximumCount:1,
+    allowCancel:false,sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true,energyType:'BASIC',zone:'bench'};
+}
+function projectDamagePump({prompt,state,actorSeat,native,source,choices,choiceByToken}){
+  const actor=state.players[actorSeat], player=native.PlayerType.BOTTOM_PLAYER;
+  assert.ok(source.sourceKind==='card-effect'&&source.sourcePrinting==='Damage Pump LOR');
+  assert.ok(prompt.message==='MOVE_DAMAGE'&&prompt.playerType===player&&prompt.slots.length===2&&
+    prompt.slots.includes(native.SlotType.ACTIVE)&&prompt.slots.includes(native.SlotType.BENCH)&&
+    prompt.options?.min===1&&prompt.options?.max===2&&prompt.options?.allowCancel===false&&
+    !(prompt.options.blockedFrom??[]).length&&!(prompt.options.blockedTo??[]).length);
+  const slots=[{s:actor.active,zone:'active',index:0,slot:native.SlotType.ACTIVE},
+    ...actor.bench.map((s,index)=>({s,zone:'bench',index,slot:native.SlotType.BENCH}))].filter(x=>x.s?.getPokemonCard?.());
+  const nativeTarget=x=>({player,slot:x.slot,index:x.index});
+  const add=(from,to,to2)=>{
+    const raw=[{from:nativeTarget(from),to:nativeTarget(to)}];
+    if(to2)raw.push({from:nativeTarget(from),to:nativeTarget(to2)});
+    addChoice(choices,choiceByToken,raw,{kind:'option',label:'Move '+raw.length+' from '+from.zone+' '+from.index+' to '+to.zone+' '+to.index+(to2?' and '+to2.zone+' '+to2.index:''),
+      publicMetadata:{ownerSeat:'actor',isOwnerVisible:true,amount:raw.length,sourceZone:from.zone,sourceIndex:from.index,
+        targetZone:to.zone,targetIndex:to.index,choiceIndex:choices.length,
+        ...(to2?{secondTargetZone:to2.zone,secondTargetIndex:to2.index}:{})}},prompt,state);
+  };
+  for(const from of slots){
+    const damage=from.s.damage;
+    if(!Number.isFinite(damage)||damage<10)continue;
+    const destinations=slots.filter(x=>x!==from);
+    for(let i=0;i<destinations.length;i++){
+      add(from,destinations[i]);
+      if(damage>=20)for(let j=i;j<destinations.length;j++)add(from,destinations[i],destinations[j]);
+    }
+  }
+  return {selectionType:'damage-move',count:choices.length,minimumCount:1,maximumCount:1,allowCancel:false,
+    ownerSeat:'actor',isOwnerVisible:true};
+}
+
 function projectAttachEnergyPrompt({
   prompt,state,actorSeat,native,store,source,choices,choiceByToken
 }={}){
+  if(source?.sourcePrinting==='Tapu Koko Prism Star TEU'&&source.effectName==='Dance of the Ancients')
+    return projectKokoAttachment({prompt,state,actorSeat,native,source,choices,choiceByToken});
   const actor=state.players[actorSeat];
   const supportedSource=source?.sourceKind==='card-effect'&&
     source.effectName==='Underworld Door'&&
@@ -880,6 +944,9 @@ function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook
       break;
     case 'ChoosePrizePrompt':
       publicMetadata = projectChoosePrize(prompt, state, actorSeat, choices, choiceByToken);
+      break;
+    case 'MoveDamagePrompt':
+      publicMetadata=projectDamagePump({prompt,state,actorSeat,native,source,choices,choiceByToken});
       break;
     case 'AttachEnergyPrompt':
       publicMetadata=projectAttachEnergyPrompt({
