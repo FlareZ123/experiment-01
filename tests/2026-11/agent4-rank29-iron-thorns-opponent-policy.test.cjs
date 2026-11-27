@@ -614,16 +614,17 @@ test('VS Seeker continuation prefers accessible Active Energy denial over generi
   assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:['flare']});
 });
 
-test('VS Seeker single-choice continuation respects original discard source zone', () => {
+test('VS Seeker multiselect continuation preserves discard source with hand destination', () => {
   const req=promptRequest({
     promptType:'ChooseCardsPrompt',
     source:actorChoiceSource('VS Seeker PHF 109','VS Seeker'),
+    publicMetadata:multiMetadata(1,1),
     choices:[
       cardChoice('mill',"Team Rocket's Handiwork FCO 112",'discard','actor','card','hand'),
       cardChoice('energy','Speed Lightning Energy RCL 173','discard','actor','card','hand')
     ]
   });
-  assert.deepEqual(checkedDecision(req),{kind:'select-choice',token:'mill'});
+  assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:['mill']});
 });
 
 test('Target Whistle does not spend itself on a discard containing only Trainers', () => {
