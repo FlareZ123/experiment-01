@@ -334,10 +334,6 @@ function cardChoiceScore(choice, observation, context) {
     const priority = discardPriority(printing, observation);
     return priority < 0 ? -100 : priority;
   }
-  if (context === 'fan-energy') {
-    if (choiceOwner(choice) !== 'opponent' || !/Energy/i.test(printing)) return 0;
-    return isSpecialEnergy(printing) ? 220 : /Psychic Energy/i.test(printing) ? 170 : 150;
-  }
   if (context === 'vs-seeker') {
     if (choiceOwner(choice) !== 'actor' ||
         (choiceZone(choice) !== 'discard' && choice?.publicMetadata?.sourceZone !== 'discard')) return 0;
@@ -510,21 +506,6 @@ function opponentPokemonScore(choice, observation, context) {
   if (context === 'guzma') return 100 + retreat * 30 - energies * 35 +
     (pokemon.printed?.stage === 'BASIC' ? 8 : 0) + (hp > 0 && hp <= 100 ? 12 : 0);
   return 80 + energies * 35 + (zone === 'active' ? 15 : 0);
-}
-
-function fanBenchRecipientScore(choice, observation) {
-  if (choiceOwner(choice) !== 'opponent' || choiceZone(choice) !== 'bench') return 0;
-  const printing = choicePrinting(choice);
-  const slotIndex = choice?.publicMetadata?.selectionIndex ?? choice?.publicMetadata?.benchIndex;
-  const row = slots(observation.opponentPublic).find(row =>
-    row.zone === 'bench' && (Number.isSafeInteger(slotIndex) ?
-      row.index === slotIndex : row.pokemon.printing === printing));
-  if (!row) return 0;
-  const target = row.pokemon;
-  const support = /Tapu Lele-GX|Radiant Eternatus|Latias ex|Girafarig|Marshadow|Mimikyu\b/i.test(target.printing);
-  const highValueAttacker = /Shadow Rider Calyrex VMAX|Regidrago VSTAR|Dialga-GX/i.test(target.printing);
-  return (support ? 280 : highValueAttacker ? 90 : 175) -
-    energyCount(target) * 28;
 }
 
 function ownSwitchScore(choice, observation) {
@@ -844,14 +825,6 @@ function promptDecision(request) {
   }
 
   if (prompt.promptType === 'ChoosePokemonPrompt') {
-    if (matches(sourcePrinting, PRINT.handheldFan)) {
-      const meta = prompt.publicMetadata ?? {};
-      const minimum = Number.isSafeInteger(meta.minimumCount) ? meta.minimumCount : 1;
-      const maximum = Number.isSafeInteger(meta.maximumCount) ? meta.maximumCount : minimum;
-      return multiSelectDecision(prompt, rankedChoices(choices,
-        choice => fanBenchRecipientScore(choice, observation), maximum),
-      minimum, maximum);
-    }
     if (source.includes('guzma')) {
       const opponentChoices = choices.filter(choice =>
         choiceOwner(choice) === 'opponent' && choiceZone(choice) === 'bench');
@@ -893,14 +866,6 @@ function promptDecision(request) {
   }
 
   if (prompt.promptType === 'ChooseEnergyPrompt') {
-    if (matches(sourcePrinting, PRINT.handheldFan)) {
-      const meta = prompt.publicMetadata ?? {};
-      const minimum = Number.isSafeInteger(meta.count) ? meta.count : 1;
-      const maximum = Number.isSafeInteger(meta.energyCount) ? meta.energyCount : minimum;
-      return multiSelectDecision(prompt, rankedChoices(choices,
-        choice => cardChoiceScore(choice, observation, 'fan-energy'), maximum),
-      minimum, maximum);
-    }
     const context = source.includes('enhanced hammer') ? 'enhanced-hammer' :
       source.includes('team flare') ? 'team-flare-energy' :
       source.includes('crushing hammer') ? 'crushing-hammer' : 'plumeria-energy';
