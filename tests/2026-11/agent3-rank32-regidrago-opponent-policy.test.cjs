@@ -1,0 +1,193 @@
+'use strict';
+
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const list = require('../../results/aichi-2026/full-decklists.json');
+const {
+  POLICY_VERSION, SOURCE_RANK, SOURCE_LIST_BLOB_SHA1, ENGINE_PIN,
+  createPolicy, bestAction, promptDecision
+} = require('../../simulation/evaluation/2026-11/agent3-rank32-regidrago-opponent-policy.cjs');
+
+const P = Object.freeze({
+  regidrago: 'Regidrago VSTAR SIT 136',
+  regidragoV: 'Regidrago V SIT 135',
+  goodra: 'Hisuian Goodra VSTAR LOR 136',
+  dragonite: 'Mega Dragonite ex ASC 152',
+  dragapult: 'Dragapult ex TWM 130',
+  dialga: 'Dialga-GX UPR 100',
+  noivern: 'Noivern ex PAL 153',
+  energy: 'Grass Energy MEE 9',
+  doubleDragon: 'Double Dragon Energy ROS 97'
+});
+function pokemon(printing, options = {}) {
+  return { printing, hp: 280, damage: 0, energies: [], tools: [],
+    abilityDetails: [], printed: {subtypes:['VSTAR']}, ...options };
+}
+function request({seat=0,active=pokemon(P.regidrago,{energies:[P.energy,P.doubleDragon]}),
+  bench=[],discard=[],hand=[],opponentActive=pokemon('Shadow Rider Calyrex VMAX CRE 75',
+    {hp:320,printed:{subtypes:['VMAX']}}),opponentBench=[],items=[],prompt=null,
+  ownPrizes=6,gxUsed=false}={}) {
+  return {
+    role:'opponent',seat,prompt,
+    observation:{
+      actorSeat:seat,ownHand:hand,ownPublic:{
+        active,bench,discard:discard.map(printing=>({printing})),stadium:[],
+        prizeCount:ownPrizes,publicTurnRestrictions:{gxUsed,vstarUsed:false}
+      },opponentPublic:{active:opponentActive,bench:opponentBench,stadium:[],
+        prizeCount:6}
+    },actionFrontier:{items}
+  };
+}
+function action(token, kind, actorPrinting, other={}) {
+  return {token,kind,actorPrinting,...other};
+}
+function prompt(sourcePrinting,effectName,choices,kind='ChooseCardsPrompt',count=[1,3]) {
+  return {promptType:kind,source:{sourcePrinting,effectName},
+    description: 'Select from offered native tokens',choices,
+    publicMetadata:{selectionType:'card-combination',minimumCount:count[0],
+      maximumCount:count[1]}};
+}
+function choice(token,printing) { return {token,kind:'card',printing,label:printing}; }
+
+test('exact published rank 32 source contains 60 and the distinct Goodra/Dragonite/Compressor core', () => {
+  const source = list.decks.find(x=>x.rank===32);
+  assert.equal(POLICY_VERSION,'agent3-rank32-regidrago-opponent-v1');
+  assert.equal(SOURCE_RANK,32);
+  assert.match(SOURCE_LIST_BLOB_SHA1,/^[0-9a-f]{40}$/);
+  assert.equal(ENGINE_PIN,'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05');
+  assert.equal(source.cards.reduce((n,x)=>n+x.count,0),60);
+  for(const [name,count] of [['Mega Dragonite ex',1],['Hisuian Goodra VSTAR',1],
+    ['Battle Compressor',1],['Regidrago VSTAR',3]]) {
+    assert.equal(source.cards.find(x=>x.name===name)?.count,count);
+  }
+  for (const name of ['Koraidon ex','Echoing Horn','Path to the Peak']) {
+    assert.equal(source.cards.some(x=>x.name===name),false);
+  }
+});
+
+test('factory binds role and seat, with no RNG draw for either physical seat', () => {
+  for (const seat of [0,1]) {
+    let draws=0;
+    const p=createPolicy({role:'opponent',seat,policyVersion:POLICY_VERSION,
+      config:{},rng:()=>{draws++;return 0.5;}});
+    const root=request({seat,items:[action('pass','pass')]});
+    assert.deepEqual(p.decide(root),{kind:'select-action',token:'pass'});
+    assert.equal(draws,0);
+    assert.deepEqual(p.decide(request({seat:1-seat,items:[action('pass','pass')]})),
+      {kind:'abstain',reasonCode:'ROLE_SEAT_BINDING_MISMATCH'});
+  }
+  assert.throws(()=>createPolicy({role:'candidate',seat:0,policyVersion:POLICY_VERSION,
+    config:{},rng:()=>0.5}),/INIT_MISMATCH/);
+});
+
+test('a Goodra-only donor permits Regidrago to attack',()=>{
+  assert.deepEqual(bestAction(request({discard:[P.goodra],
+    items:[action('apex','attack',P.regidrago,{attackName:'Apex Dragon'}),
+      action('pass','pass')]})),{kind:'select-action',token:'apex'});
+});
+
+test('Phantom Dive alone is NOT a complete Apex line; root passes instead',()=>{
+  for(const discard of [[],[P.dragapult]]) {
+    assert.deepEqual(bestAction(request({discard,
+      items:[action('apex','attack',P.regidrago,{attackName:'Apex Dragon'}),
+        action('pass','pass')]})),{kind:'select-action',token:'pass'});
+  }
+});
+
+test('rank-32 Compressor wins a VSTAR no-donor root over premature redraw',()=>{
+  const items=[action('compressor','play-card','Battle Compressor PHF 92'),
+    action('lillie','play-card',"Lillie's Determination MEG 119"),
+    action('pass','pass')];
+  assert.deepEqual(bestAction(request({hand:[P.energy],items})),
+    {kind:'select-action',token:'compressor'});
+  const noAttacker=request({active:pokemon('Budew ASC 16'),hand:[P.energy],items});
+  assert.deepEqual(bestAction(noAttacker),{kind:'select-action',token:'lillie'});
+});
+
+test('Compressor chooses native donor tokens; avoids incomplete Phantom-only donor',()=>{
+  const req=request({prompt:prompt('Battle Compressor PHF 92','Battle Compressor',
+    [choice('ph',P.dragapult),choice('g',P.goodra),
+     choice('m',P.dragonite),choice('e',P.energy)],'ChooseCardsPrompt',[1,3])});
+  assert.deepEqual(promptDecision(req),{kind:'select-choices',tokens:['m','g','e']});
+});
+
+test('Compressor does not waste a singleton already present in discard',()=>{
+  const req=request({discard:[P.dragonite],prompt:prompt('Battle Compressor PHF 92',
+    'Battle Compressor',[choice('m',P.dragonite),choice('g',P.goodra)],
+    'ChooseCardsPrompt',[1,2])});
+  assert.deepEqual(promptDecision(req),{kind:'select-choices',tokens:['g']});
+});
+
+test('Ultra Ball discards a copy payload rather than protected Double Dragon Energy',()=>{
+  const req=request({prompt:{...prompt('Ultra Ball MEG 131','Ultra Ball discard 2 cards',
+    [choice('dde',P.doubleDragon),choice('g',P.goodra),
+     choice('fire','Fire Energy MEE 10')],'ChooseCardsPrompt',[1,2])}});
+  assert.deepEqual(promptDecision(req),{kind:'select-choices',tokens:['g','fire']});
+});
+
+test('Ryuno Glide becomes the strongest available copied active KO in the offered choice',()=>{
+  const req=request({opponentActive:pokemon('Shadow Rider Calyrex VMAX CRE 75',
+    {hp:320,damage:10,printed:{subtypes:['VMAX']}}),prompt:prompt(
+    P.regidrago,'Apex Dragon',[
+      {token:'iron',publicMetadata:{sourceAttack:'Rolling Iron'}},
+      {token:'ryuno',publicMetadata:{sourceAttack:'Ryuno Glide'}}],
+    'ChooseAttackPrompt')});
+  assert.deepEqual(promptDecision(req),{kind:'select-choice',token:'ryuno'});
+});
+
+test('when available, unspent Timeless-GX extra turn beats nonlethal copied attack',()=>{
+  const req=request({opponentActive:pokemon('Shadow Rider Calyrex VMAX CRE 75',
+    {hp:400,printed:{subtypes:['VMAX']}}),prompt:prompt(
+    P.regidrago,'Apex Dragon',[
+      {token:'ryuno',publicMetadata:{sourceAttack:'Ryuno Glide'}},
+      {token:'timeless',publicMetadata:{sourceAttack:'Timeless-GX'}}],
+    'ChooseAttackPrompt')});
+  assert.deepEqual(promptDecision(req),{kind:'select-choice',token:'timeless'});
+});
+
+test('Phantom Dive allocation remains an explicitly unsupported native continuation',()=>{
+  const req=request({prompt:prompt(P.regidrago,'Apex Dragon',[
+    {token:'phantom',publicMetadata:{sourceAttack:'Phantom Dive'}}],
+    'ChooseAttackPrompt')});
+  assert.deepEqual(promptDecision(req),
+    {kind:'abstain',reasonCode:'RANK32_APEX_NO_COMPLETE_SUPPORTED_ATTACK'});
+});
+
+test('Ryuno Glide energy discard prompt retains Double Dragon if basic alternatives exist',()=>{
+  const p=prompt(P.dragonite,'Ryuno Glide',[
+    choice('dde',P.doubleDragon),choice('g',P.energy),
+    choice('f','Fire Energy MEE 10')],'DiscardEnergyPrompt',[2,2]);
+  p.publicMetadata.selectionType='energy-payment';
+  assert.deepEqual(promptDecision(request({prompt:p})),
+    {kind:'select-choices',tokens:['g','f']});
+  delete p.publicMetadata.minimumCount;
+  assert.deepEqual(promptDecision(request({prompt:p})),
+    {kind:'abstain',reasonCode:'RANK32_RYUNO_ENERGY_PROMPT_UNPROJECTED'});
+});
+
+test('Sky Transport selects own Regidrago rather than an opposing Pokemon',()=>{
+  const req=request({active:pokemon('Mega Dragonite ex ASC 152'),
+    prompt:{...prompt(P.dragonite,'Sky Transport',[
+      choice('attacker',P.regidrago),choice('random','Dedenne-GX UNB 57')],
+      'ChoosePokemonPrompt',[1,1]),
+      publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1}}});
+  assert.deepEqual(promptDecision(req),{kind:'select-choices',tokens:['attacker']});
+});
+
+test('Silent Lab is not played to disable own unused Basic-Ability draw support',()=>{
+  const items=[action('lab','play-card','Silent Lab PRC 140'),action('pass','pass')];
+  const opponentActive=pokemon('Dedenne-GX UNB 57',
+    {abilityDetails:[{name:'Dedechange'}],printed:{subtypes:['Basic','GX']}});
+  const selfSupport=pokemon('Crobat V DAA 104',
+    {abilityDetails:[{name:'Dark Asset'}],printed:{subtypes:['Basic','V']}});
+  assert.deepEqual(bestAction(request({opponentActive,bench:[selfSupport],items})),
+    {kind:'select-action',token:'pass'});
+  assert.deepEqual(bestAction(request({opponentActive,items})),
+    {kind:'select-action',token:'lab'});
+});
+
+test('unknown prompts abstain, never fabricate a choice token',()=>{
+  assert.deepEqual(promptDecision(request({prompt:{promptType:'MysteryPrompt',
+    source:{effectName:'unknown'},choices:[{token:'first',label:'go'}]}})),
+    {kind:'abstain',reasonCode:'UNSUPPORTED_RANK32_PROMPT_TYPE'});
+});
