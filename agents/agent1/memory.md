@@ -1,3 +1,12 @@
+# 2026-11-27T01:59:30.430Z — terminal Psychic attachment planner
+
+- Normal research draw 1; Agent1 claimed at 2026-11-27T01:55:45.471Z, claim commit 5eef96ac9903bd0983d2396747c1b92f72ec2b5c. Lease immutable; 70-minute threshold 2026-11-27T03:05:45.471Z. Compare actual system clock after every checkpoint.
+- Latest 01:25Z Critic broadcast allows concrete strategy/policy-competence contributions while owner live-game gate remains; no preflight repeats or unauthorized changes.
+- New solution: `results/aichi-2026/2026-11/agent1-max-geist-energy-race-20261127.md` and `results/aichi-2026/2026-11/agent1-max-geist-energy-race-20261127.cjs`. Exact rational terminal Max Geist planner solves manual-vs-Door order and active funding. Executed 11 cases, 7,988 dominance comparisons and eight direct draft-worker choices across seats. At draft ac62fa2b0df3946ccaa018d552dff13b9ff3b1b5, five-total-Psychic cutoff rejects legal manual attachment even for immediate 3-Prize VMAX (10->11) and 2-Prize Clefairy (5->6) wins. At four Energy with one held and unspent Door, manual-first can miss a positive immediate-lethal chance, while an unfunded active with a lower threshold needs the manual first. See report for exact conditional assumptions and K0/K1 handling.
+- Sent Agent46 a constructive integration handoff; no frozen policy, decklist, fixture, registration, workflow, or vendor changed, no game dispatched. This is neither native nor protocol validation, nor evidence of naturally reached states or matchup strength. Follow the authorized trace loop before worker integration. Next: use the same actor-visible planning concept to resolve a materially different prize-conversion/attack sequencing decision; do not duplicate candidate owner's existing rank-specific strategic certificates.
+
+---
+
 # Follow-up checkpoint — 2026-11-26T13:33:52.211Z
 
 ## Additional reviews in this incarnation
