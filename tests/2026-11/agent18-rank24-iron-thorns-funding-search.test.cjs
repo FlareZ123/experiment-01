@@ -241,6 +241,44 @@ test('G&H payment protects N and spends expendable Handheld Fan plus duplicate M
     { kind: 'select-choices', tokens: ['fan', 'mail'] });
 });
 
+test('zero-Energy G&H ALS searches Thunder plus DCE for first-turn Volt Cyclone funding', () => {
+  const rootRequest = root({
+    ownHand: [
+      'Guzma & Hala CEC 193',
+      'Handheld Fan TWM 150',
+      "Trainers' Mail ROS 92",
+      "Trainers' Mail ROS 92"
+    ],
+    items: [gh, pass]
+  });
+  assert.deepEqual(policy.decide(rootRequest), { kind: 'select-action', token: 'gh' });
+
+  const searchRequest = prompt({
+    sourcePrinting: 'Guzma & Hala CEC 193',
+    promptType: 'ChooseCardsPrompt',
+    choices: [
+      {
+        token: 'thunder', kind: 'card', printing: 'Thunder Mountain ♢ LOT 191',
+        publicMetadata: { ownerSeat: 'actor', sourceZone: 'deck' }
+      },
+      {
+        token: 'dce', kind: 'card', printing: 'Double Colorless Energy SUM 136',
+        publicMetadata: { ownerSeat: 'actor', sourceZone: 'deck' }
+      },
+      {
+        token: 'wondrous', kind: 'card', printing: 'Wondrous Labyrinth ♢ TEU 158',
+        publicMetadata: { ownerSeat: 'actor', sourceZone: 'deck' }
+      }
+    ],
+    publicMetadata: {
+      selectionType: 'card-combination', minimumCount: 0, maximumCount: 3
+    },
+    observationOptions: { ownEnergies: [] }
+  });
+  assert.deepEqual(policy.decide(searchRequest),
+    { kind: 'select-choices', tokens: ['thunder', 'dce'] });
+});
+
 test('G&H search chooses needed Thunder and Jammer, not redundant attached DCE', () => {
   const opponentActive = mon({
     printing: 'Target ex ABC 1',
