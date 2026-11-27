@@ -59,6 +59,7 @@ const IRON_THORNS = /^Iron Thorns ex\b/i;
 const SPEED_LIGHTNING = /^Speed Lightning Energy\b/i;
 const DOUBLE_COLORLESS = /^Double Colorless Energy\b/i;
 const CAPTURE_ENERGY = /^Capture Energy\b/i;
+const LEGACY_ENERGY = /^Legacy Energy\b/i;
 const THUNDER_MOUNTAIN = /^Thunder Mountain(?: ♢| Prism Star)?\b/i;
 const WONDROUS_LABYRINTH = /^Wondrous Labyrinth(?: ♢| Prism Star)?\b/i;
 const TOOL_JAMMER = /^Tool Jammer\b/i;
@@ -444,6 +445,35 @@ function retreatScore(item, request) {
   return 242;
 }
 
+function terminalAttackDecision(request) {
+  const observation = request?.observation;
+  const ownPrizes = ownPrizeCount(observation);
+  const target = opponentActive(observation);
+  const hp = remainingHp(target);
+  if (!Number.isSafeInteger(ownPrizes) || ownPrizes <= 0 || !Number.isFinite(hp)) return null;
+
+  for (const item of list(request?.actionFrontier?.items)) {
+    if (item?.kind !== 'attack' || !VOLT_CYCLONE.test(item?.attackName ?? '')) continue;
+    const meta = item?.publicMetadata ?? {};
+
+    // A terminal override is stronger than ordinary heuristics, so require the
+    // frontier to certify the otherwise-hard-to-model pieces. Missing proof
+    // fails closed rather than guessing from a Rule Box name.
+    if (!Number.isSafeInteger(meta.prizeLiability) || meta.prizeLiability < 1) continue;
+    if (meta.hasPrevention !== false || meta.hasUnmodeledModifier !== false) continue;
+    if (meta.attackCostPayable === false || meta.isLegal === false) continue;
+    if (list(target?.energies).some(card => matches(card, LEGACY_ENERGY))) continue;
+
+    const damage = Number.isFinite(meta.damageAfterResistance) ? meta.damageAfterResistance :
+      Number.isFinite(meta.damageAfterWeakness) ? meta.damageAfterWeakness :
+      Number.isFinite(meta.damage) ? meta.damage : 140;
+    if (damage < hp) continue;
+    if (ownPrizes > meta.prizeLiability) continue;
+    return { kind: 'select-action', token: item.token };
+  }
+  return null;
+}
+
 function fundingScore(item, request) {
   const observation = request?.observation;
   const active = ownActive(observation);
@@ -670,6 +700,9 @@ function rootDecision(request) {
       return { kind: 'select-action', token: n.token };
     }
   }
+
+  const terminalAttack = terminalAttackDecision(request);
+  if (terminalAttack) return terminalAttack;
 
   const funding = fundingDecision(request);
   if (funding) return funding;
@@ -1204,5 +1237,6 @@ module.exports = {
   guzmaPromptDecision,
   handHeldFanPromptDecision,
   nGeneralScore,
-  retreatScore
+  retreatScore,
+  terminalAttackDecision
 };
