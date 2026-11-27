@@ -445,7 +445,12 @@ function r17CompressorChoices(prompt,view) {
     r17Key(c)==='unown'&&r17UnownUseful(view)?150:0),2);
 }
 function r17VipValue(key,view) {
-  if(key==='voltorb'&&!r17Board(view,'voltorb')&&!r17Board(view,'electrode')&&!r17Hand(view,'voltorb'))return 300;
+  if(key==='voltorb'){
+    const n=r17BoardCount(view,'voltorb')+r17BoardCount(view,'electrode')+r17HandCount(view,'voltorb');
+    if(n===0)return 300;
+    if(n===1&&r17SecondBombUseful(view)&&
+       (r17CoreBaseReady(view,'pikachu')||r17Board(view,'raichu')||r17CoreBaseReady(view,'ditto')))return 180;
+  }
   if(key==='pikachu'&&!r17Board(view,'pikachu')&&!r17Board(view,'raichu')&&!r17Hand(view,'pikachu'))return 290;
   if(key==='ditto'&&!r17Board(view,'ditto')&&!r17Hand(view,'ditto')&&!r17BasicLock(view)&&
     r17MissingCore(view).length>0)return 190;
@@ -457,8 +462,30 @@ function r17VipValue(key,view) {
   return 0;
 }
 function r17VipChoices(prompt,view) {
-  const rows=r17UniqueCore(r17Rank(r17ChoiceCards(prompt,'deck'),c=>r17VipValue(r17Key(c),view)));
-  return r17Multi(prompt,rows,Math.min(2,r17Space(view)));
+  const cards=r17ChoiceCards(prompt,'deck'),rows=[],used=new Set();
+  const heldV=r17HandCount(view,'voltorb'),heldP=r17HandCount(view,'pikachu');
+  // Reserve room for already-held missing natural bases. A directly
+  // Benched search target must not crowd out the other core line.
+  const reserve=Number(heldV>0&&!r17Board(view,'voltorb')&&!r17Board(view,'electrode'))+
+    Number(heldP>0&&!r17Board(view,'pikachu')&&!r17Board(view,'raichu'));
+  const limit=Math.min(2,Math.max(0,r17Space(view)-reserve));
+  const picked=k=>rows.filter(c=>r17Key(c)===k).length;
+  const score=c=>{
+    const key=r17Key(c);
+    const v=r17BoardCount(view,'voltorb')+r17BoardCount(view,'electrode')+heldV+picked('voltorb');
+    const p=r17BoardCount(view,'pikachu')+r17BoardCount(view,'raichu')+heldP+picked('pikachu');
+    if(key==='voltorb')return v===0?300:v===1&&r17SecondBombUseful(view)&&(p>0||picked('ditto')>0||r17Board(view,'ditto'))?180:0;
+    if(key==='pikachu')return p===0?290:0;
+    if(key==='ditto')return !picked(key)&&!r17Board(view,key)&&!r17Hand(view,key)&&!r17BasicLock(view)&&(p===0||v===0)?190:0;
+    if(key!=='unown'&&picked(key))return 0;
+    return r17VipValue(key,view);
+  };
+  while(rows.length<limit){
+    const c=r17Rank(cards.filter(c=>!used.has(c.token)),score)[0];
+    if(!c)break;
+    rows.push(c);used.add(c.token);
+  }
+  return r17Multi(prompt,rows,limit);
 }
 function r17ProtectedHand(view) {
   return hand(view).some(c=>{
@@ -580,6 +607,15 @@ function r17SwitchChoices(prompt,view) {
   }),c=>r17SwitchValue(r17Slot(view,'bench',metadata(c).benchIndex),view));
   return r17Multi(prompt,rows,1);
 }
+function r17DittoEvolutionScore(key,view) {
+  if(key==='raichu'&&!r17Board(view,'raichu')&&!r17CoreBaseReady(view,'pikachu'))return 340;
+  if(key==='electrode'){
+    const need=(r17SecondBombUseful(view)?2:1)-r17BoardCount(view,'electrode');
+    const natural=r17BoardCount(view,'voltorb')+r17HandCount(view,'voltorb');
+    if(need>natural&&need>0)return r17Board(view,'electrode')?220:330;
+  }
+  return 0;
+}
 function r17ScoreAbility(item,view) {
   const key=r17Key(item),name=metadata(item).abilityName||'';
   if(name==='Extra Energy Bomb')return -1000;
@@ -601,8 +637,7 @@ function r17ScoreAbility(item,view) {
   if(key==='ditto'&&name==='Almighty Evolution') {
     const p=r17OwnAbilitySlot(item,view,false);
     return p&&!r17Suppressed(p,name)&&!r17BasicLock(view)&&
-      (r17Hand(view,'electrode')&&!r17Board(view,'electrode')||
-      r17Hand(view,'raichu')&&!r17Board(view,'raichu'))?220:0;
+      ['raichu','electrode'].some(k=>r17Hand(view,k)&&r17DittoEvolutionScore(k,view)>0)?220:0;
   }
   return 0;
 }
@@ -612,12 +647,18 @@ function r17ScorePlay(item,view) {
   if(R17_ITEM.has(k)&&!itemAvailable(view))return 0;
   if(R17_SUPPORTER.has(k)&&!supporterAvailable(view))return 0;
   if(k==='unown')return r17Space(view)>0&&r17UnownUseful(view)?240:0;
-  if(k==='voltorb')return r17Space(view)>0&&!r17Board(view,'voltorb')&&!r17Board(view,'electrode')?320:0;
+  if(k==='voltorb'){
+    const n=r17BoardCount(view,'voltorb')+r17BoardCount(view,'electrode');
+    if(r17Space(view)>0&&n===0)return 320;
+    const missingP=Number(!r17Board(view,'pikachu')&&!r17Board(view,'raichu')&&!r17Board(view,'ditto'));
+    return n===1&&r17SecondBombUseful(view)&&r17Space(view)>missingP?185:0;
+  }
   if(k==='pikachu')return r17Space(view)>0&&!r17Board(view,'pikachu')&&!r17Board(view,'raichu')?310:0;
   if(k==='ditto')return r17Space(view)>0&&!r17Board(view,k)&&!r17BasicLock(view)&&
     r17MissingCore(view).length>0?190:0;
   if(k==='electrode'||k==='raichu')return m.targetSeat==='actor'&&
-    (k==='electrode'?t==='voltorb':t==='pikachu')?340:0;
+    (k==='electrode'?t==='voltorb'&&r17BoardCount(view,'electrode')<(r17SecondBombUseful(view)?2:1):
+      t==='pikachu'&&!r17Board(view,'raichu'))?340:0;
   if(k==='marshadow')return r17Space(view)>0&&r17NeedTempleRemoval(view)&&!r17BasicLock(view)?300:0;
   if(k==='squawk')return r17Space(view)>0&&r17First(view)&&r17Deck(view)>=7&&
     handCount(view)<=3&&!r17ProtectedHand(view)&&!r17BasicLock(view)?190:0;
@@ -732,9 +773,7 @@ function r17Prompt(request) {
     if(key==='ditto'&&effect==='Almighty Evolution') {
       return r17Multi(p,r17Rank(r17ChoiceCards(p,'hand'),c=>{
         const k=r17Key(c);
-        if(k==='raichu'&&!r17Board(v,'raichu'))return r17Board(v,'electrode')||r17Board(v,'voltorb')?240:180;
-        if(k==='electrode'&&!r17Board(v,'electrode'))return r17Board(v,'raichu')||r17Board(v,'pikachu')?240:190;
-        return 0;
+        return r17DittoEvolutionScore(k,v);
       }),1);
     }
     if(key==='heavy')return r17Multi(p,r17Rank(r17ChoiceCards(p,'prizes'),c=>r17VipValue(r17Key(c),v)),1);
