@@ -69,15 +69,15 @@ function root(r,capability){
  if(!Array.isArray(o?.discard))return null;
  const sada=items.find(a=>a.kind==='play-card'&&SADA.test(name(a.actorPrinting)));
  if(sada&&o.discard.some(basic)&&slots(o).some(s=>eligible(s,{id:'sada'}))){
-  const currentBolt=bolt.root(r,'rank19-bellowing-discard-v1');
-  // When the attack wins the game directly, don't consume the supporter.
-  const prizes=o.prizeCount,remaining=bolt.knockoutCost(p);
-  if(currentBolt&&Number.isSafeInteger(prizes)&&prizes<=1&&remaining)return currentBolt;
+  // A caller with the independently approved discard capability can check a
+  // terminal Bellowing Thunder first. Never enable that capability here.
   return {kind:'select-action',token:sada.token};
  }
  const ray=items.find(a=>a.kind==='attack'&&a.attackName==='Ultimate Ray'&&ADP.test(name(a.actorPrinting))&&a.publicMetadata?.attackCostPayable===true);
  if(ray&&ADP.test(name(o.active))){
   const gx=items.find(a=>a.kind==='attack'&&a.attackName==='Altered Creation-GX'&&a.publicMetadata?.attackCostPayable===true);
+  const prizeValue=/VMAX|Trevenant & Dusknoir-GX/.test(name(p))?3:/\b(?:ex|V|GX)\b/.test(name(p))?2:1;
+  if(bolt.knockoutCost(p)&&p.hp-p.damage<=150&&Number.isSafeInteger(o.prizeCount)&&o.prizeCount<=prizeValue)return {kind:'select-action',token:ray.token};
   if(gx&&o.publicTurnRestrictions?.gxUsed===false)return {kind:'select-action',token:gx.token};
   return {kind:'select-action',token:ray.token};
  }
@@ -112,7 +112,7 @@ function project({pin,native,state,prompt,actorSeat,source}){
  const sp=spec(source);
  if(pin!==bolt.PIN||!sp||source?.sourceKind!=='card-effect'||!native||!state||![0,1].includes(actorSeat)||prompt?.constructor?.name!=='AttachEnergyPrompt'||!state.prompts?.includes(prompt)||prompt.result!==undefined)return null;
  const actor=state.players?.[actorSeat],p=prompt.options;
- if(!actor||prompt.playerId!==actor.id||prompt.getPerspectivePlayerId()!==actor.id||prompt.cardList!==actor[sp.zone]||prompt.playerType!==native.PlayerType.BOTTOM_PLAYER||prompt.slots?.length!==2||!prompt.slots.includes(native.SlotType.ACTIVE)||!prompt.slots.includes(native.SlotType.BENCH)||prompt.filter?.superType!==native.SuperType.ENERGY||prompt.filter?.energyType!==native.EnergyType.BASIC||p?.min!==sp.min||p.max!==sp.max||p.allowCancel!==false||p.differentTargets!==sp.distinct||p.sameTarget!==false||p.differentTypes!==false||p.blocked?.length!==0||p.validCardTypes!==undefined||p.maxPerType!==undefined)return null;
+ if(!actor||prompt.playerId!==actor.id||prompt.getPerspectivePlayerId()!==actor.id||prompt.cardList!==actor[sp.zone]||prompt.playerType!==native.PlayerType.BOTTOM_PLAYER||prompt.slots?.length!==2||!prompt.slots.includes(native.SlotType.ACTIVE)||!prompt.slots.includes(native.SlotType.BENCH)||prompt.filter?.superType!==native.SuperType.ENERGY||prompt.filter?.energyType!==native.EnergyType.BASIC||p?.min!==sp.min||p.max!==sp.max||p.allowCancel!==false||p.differentTargets!==sp.distinct||p.sameTarget!==false||p.differentTypes!==false||p.blocked?.length!==0||!Array.isArray(p.blockedTo)||p.validCardTypes!==undefined||p.maxPerType!==undefined)return null;
  if(sp.id==='ray'&&(!ADP.test(name(actor.active?.getPokemonCard?.()))||prompt.message!=='ATTACH_ENERGY_TO_BENCH'))return null;
  if(sp.id==='sada'&&prompt.message!=='ATTACH_ENERGY_TO_ACTIVE')return null;
  const targets=[];
