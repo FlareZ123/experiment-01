@@ -133,6 +133,10 @@ function publicPlayer(player,hidePokemon=false){
       // from the announced GX attack and publicly attached Energy.
       alteredCreationDamage:player.alteredCreationDamage===true,
       usedAlteredCreation:player.usedAlteredCreation===true,
+      // Public once-per-game Legacy Energy reduction: omit rather than infer
+      // a false unused marker if a future engine revision lacks the field.
+      ...(typeof player.legacyEnergyUsed === 'boolean' ?
+        {legacyEnergyUsed:player.legacyEnergyUsed}:{}),
       attackLockTurnsRemaining:player.cannotAttackTurnsRemaining??0,
       attackMaxEnergy:player.cannotAttackMaxEnergy??null,
       attackMaxEnergyTurnsRemaining:player.cannotAttackMaxEnergyTurnsRemaining??0,
