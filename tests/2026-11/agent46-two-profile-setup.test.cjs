@@ -109,3 +109,13 @@ test('Lockbridge opening recognizes a paid tutor Gate without a held pivot',()=>
     assert.deepEqual(choose(profiles[1],setup(seat,[W,V],{ownHand:[W,V,'Mysterious Treasure FLI','Psychic Energy SVE','Float Stone BKT']})),multi('card-0','card-1'));
   }
 });
+
+test('paper Astral target capability is exact, optional at worker boundary, and protocol-bound when present',()=>{
+  for(const profile of profiles)for(const seat of [0,1]){
+    const hooked={...profile,paperAstralBarrageTargets:'agent4-cre74-hook-v1'};
+    protocol.validateInit(init(hooked,seat));
+    factory(hooked,seat);
+    const wrong={...profile,paperAstralBarrageTargets:'agent4-cre74-hook-v2'};
+    assert.throws(()=>factory(wrong,seat));
+  }
+});
