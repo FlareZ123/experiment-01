@@ -173,7 +173,7 @@ function lockPlanReady(o){return hasTrubbish(o)&&!hasGarbodor(o)&&held(o,PRINT.b
 function safeBeforeAttack(i,o){
  if(i.kind!=='play-card')return false;
  const c=i.actorPrinting??'';
- if(matches(c,PRINT.garbodor)&&!hasGarbodor(o))return lockHolder(o).some(r=>matches(r.pokemon.printing,PRINT.trubbish)&&list(r.pokemon.tools).length>0)&&!i.targetPrinting?.includes('Mega Absol');
+ if(matches(c,PRINT.garbodor)&&!hasGarbodor(o)){const row=targetRow(i,o);return !!row&&matches(row.pokemon.printing,PRINT.trubbish)&&list(row.pokemon.tools).length>0}
  if([PRINT.float,PRINT.forest,PRINT.muscle].some(p=>matches(c,p))){
   const row=targetRow(i,o);return !!row&&matches(row.pokemon.printing,PRINT.garbodor)&&list(row.pokemon.tools).length===0&&toolLive(o)
  }
@@ -286,6 +286,8 @@ function rootV2(i,req){
   if(matches(c,PRINT.quick)||matches(c,PRINT.secret)){
    const h=withoutPlayed(list(o.ownHand),i),n=matches(c,PRINT.secret)?3:1;
    if(!jointPayment(h,{...o,ownHand:h},n))return 0;
+   if(matches(c,PRINT.secret))return deckCount(o)>0&&(!hasGarbodor(o)||benchedMegaNeed(o)||handCount(o)<=5)?210:0;
+   return benchCount(p)<5&&deckCount(o)>0&&(!hasTrubbish(o)&&!hasGarbodor(o)||!hasMegaAbsol(o)||!liveV(o)||handCount(o)<=3&&!liveLock(o))?185:0;
   }
   if(matches(c,PRINT.dark)){const r=targetRow(i,o);if(!r)return 0;return matches(r.pokemon.printing,PRINT.mega)&&darkCount(r.pokemon)<3?260:matches(r.pokemon.printing,PRINT.squawk)&&darkCount(r.pokemon)===0?180:matches(r.pokemon.printing,PRINT.trubbish)&&r.zone==='active'&&darkCount(r.pokemon)===0?125:0}
  }
