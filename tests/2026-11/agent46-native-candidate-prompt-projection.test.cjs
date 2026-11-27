@@ -81,12 +81,21 @@ class AttachEnergyPrompt {
 class EnergyCard {
   constructor(fullName,name,energyType){Object.assign(this,{fullName,name,energyType});}
 }
-test('Raihan AttachEnergyPrompt remains explicitly unsupported by the pinned Underworld Door projection',()=>{
+test('Raihan EVS projects only owner-discard Basic Psychic Energy to occupied own Active/Bench targets',()=>{
   for(const seat of [0,1]){
     const f=fixture(seat,'Raihan EVS',AttachEnergyPrompt);
-    Object.assign(f.prompt,{message:'ATTACH_ENERGY_CARDS',cardList:f.actor.discard,playerType:0,slots:[0,1],filter:{superType:2,energyType:0},options:{min:1,max:1,allowCancel:false}});
+    Object.assign(f.native,{EnergyCard,EnergyType:{BASIC:0},SuperType:{ENERGY:2},PlayerType:{BOTTOM_PLAYER:0},SlotType:{ACTIVE:0,BENCH:1}});
+    f.actor.active.getPokemonCard=()=>M;
+    f.actor.bench=[{getPokemonCard:()=>R},{getPokemonCard:()=>null}];
+    f.actor.discard.cards=[new EnergyCard(P.fullName,'Psychic Energy',0),new EnergyCard('Double Dragon Energy ROS','Double Dragon Energy',1)];
+    Object.assign(f.prompt,{message:'ATTACH_ENERGY_CARDS',cardList:f.actor.discard,playerType:0,slots:[1,0],
+      filter:{superType:2,energyType:0},options:{min:1,max:1,allowCancel:false,blocked:[]}});
     const hook={getPromptProvenance:()=>({sourceKind:'card-effect',sourceCard:f.actor.supporter.cards[0],effectName:'Raihan'})};
-    let error=null;try{f.project({provenanceHook:hook});}catch(e){error=e;}
-    assert.equal(error?.code,'UNSUPPORTED_ATTACH_ENERGY_PROMPT_SOURCE');
+    const projected=f.project({provenanceHook:hook});
+    assert.deepEqual(projected.choices.map(c=>[c.printing,c.publicMetadata.zone]),[[P.fullName,'active'],[P.fullName,'bench']]);
+    assert.equal(projected.publicMetadata.sourceZone,'discard');
+    assert.equal(projected.publicMetadata.allowCancel,false);
+    f.prompt.cardList=f.opponent.discard;
+    assert.throws(()=>f.project({provenanceHook:hook}));
   }
 });
