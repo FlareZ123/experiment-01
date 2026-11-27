@@ -150,6 +150,13 @@ function runCases(policy,protocol) {
       opponentPublic:player({stadium:['Path to the Peak CRE']})});
     same(policy.abilityBlocked(pathLock,'electrode',pathLock.ownPublic.bench[1],'Extra Energy Bomb'),true,tag+'Path visibly blocks Electrode');
     same(runRoot(p,pathLock,[ability('reset',A.marshadow,'Resetting Hole',0),play('pokestop',A.pokestop),pass]),action('reset'),tag+'Resetting Hole removes Path before Bomb');
+    const resetConfirm={schema:protocol.PROMPT_SCHEMA,actingSeat:seat,promptType:'ConfirmPrompt',
+      description:'Resetting Hole',source:{classification:'actor-choice',sourceKind:'card-effect',
+        sourcePrinting:A.marshadow,effectName:'Resetting Hole'},
+      publicMetadata:{selectionType:'confirm',allowCancel:false,isSecret:false},
+      choices:[{token:'yes',kind:'confirm',label:'Yes',publicMetadata:{choiceIndex:0}},
+        {token:'no',kind:'confirm',label:'No',publicMetadata:{choiceIndex:1}}]};
+    same(runPrompt(p,pathLock,resetConfirm),single('yes'),tag+'Resetting Hole Path continuation confirms removal');
     const noMarshadowPath={...pathLock,ownPublic:player({bench:[slot(A.electrode,{hp:190,abilities:['Extra Energy Bomb']})]})};
     same(runRoot(p,noMarshadowPath,[play('pokestop',A.pokestop),pass]),action('pokestop'),tag+'Pokestop replaces Path blocking live Electrode');
     const pathNoBomb={...pathLock,ownPublic:player({bench:[slot(A.marshadow)]})};
