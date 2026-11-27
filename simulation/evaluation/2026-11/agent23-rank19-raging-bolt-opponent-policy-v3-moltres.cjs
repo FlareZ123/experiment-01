@@ -179,7 +179,8 @@ function hoSetup(r){
 }
 function boardMol(r){return slots(own(r)).find(s=>mol(s.pokemon))?.pokemon??null;}
 function handMol(r){return list(view(r).ownHand).some(mol);}
-function darkFuelNeeded(r){const m=boardMol(r);return (!m||needs(m))&&!list(own(r).discard).some(dark);}
+function moltresViable(r){return list(own(r).lostZone).filter(dark).length<2&&!list(own(r).lostZone).some(mol);}
+function darkFuelNeeded(r){const m=boardMol(r);return moltresViable(r)&&(!m||needs(m))&&!list(own(r).discard).some(dark);}
 function benchRoom(r){
   const count=list(own(r).bench).filter(Boolean).length;
   const sky=[...list(own(r).stadium),...list(opp(r).stadium)].some(x=>/^Sky Field ROS(?: 89)?$/.test(p(x)));
@@ -200,7 +201,7 @@ function setupRoot(r,items){
     const qb=items.find(x=>x.kind==='play-card'&&quick(x.actorPrinting));
     if(qb)return root(qb);
   }
-  if(!m&&!handMol(r)&&benchRoom(r)&&list(own(r).discard).some(dark)){
+  if(moltresViable(r)&&!m&&!handMol(r)&&benchRoom(r)&&list(own(r).discard).some(dark)){
     const search=items.find(x=>x.kind==='play-card'&&(vip(x.actorPrinting)||quick(x.actorPrinting)));
     if(search)return root(search);
   }
@@ -237,7 +238,7 @@ function setupPrompt(r,prompt,options,m){
     }
     if(chosen.length)return {kind:'select-choices',tokens:chosen.map(x=>x.token)};
   }
-  if((sourceIs(prompt,'Quick Ball',quick)||sourceIs(prompt,'Battle VIP Pass',vip))&&m.minimumCount===0&&!molt&&!handMol(r)&&benchRoom(r)&&deck.length){
+  if((sourceIs(prompt,'Quick Ball',quick)||sourceIs(prompt,'Battle VIP Pass',vip))&&m.minimumCount===0&&moltresViable(r)&&!molt&&!handMol(r)&&benchRoom(r)&&deck.length){
     const d=deck.find(mol);
     if(d&&(list(own(r).discard).some(dark)||list(view(r).ownHand).some(dark))){
       const chosen=[d];
@@ -278,15 +279,15 @@ function tacticalRoot(r) {
   if(gust&&!mol(active)&&benchReady&&benchTarget)return root(gust);
   // Develop the same attacker over successive turns, with an explicit source,
   // actual legal root and available discard material.
-  const wing=items.find(a=>a.kind==='use-ability'&&md(a).abilityName==='Direflame Wings'&&needs(resolveRootSlot(r,a,true)));
+  const wing=items.find(a=>a.kind==='use-ability'&&md(a).abilityName==='Direflame Wings'&&moltresViable(r)&&needs(resolveRootSlot(r,a,true)));
   if(wing&&list(own(r).discard).some(dark))return root(wing);
   const setup=setupRoot(r,items);if(setup)return setup;
-  const payments=items.filter(a=>a.kind==='play-card'&&basic(a.actorPrinting)&&needs(resolveRootSlot(r,a)));
+  const payments=items.filter(a=>a.kind==='play-card'&&basic(a.actorPrinting)&&moltresViable(r)&&needs(resolveRootSlot(r,a)));
   // Prioritize missing Darkness, then preserve Darkness when filling Colorless.
   const ranked=payments.map(a=>{const e=energy(resolveRootSlot(r,a));return {a,s:e.dark<2?(dark(a.actorPrinting)?4:0):(e.total<3?(dark(a.actorPrinting)?1:3):0)};}).filter(a=>a.s>0).sort((a,b)=>b.s-a.s);
   if(ranked.length)return root(ranked[0].a);
   const benchMol=items.find(a=>a.kind==='play-card'&&mol(a.actorPrinting)&&md(a).targetZone==='bench');
-  if(benchMol&&!slots(own(r)).some(s=>mol(s.pokemon))&&(list(own(r).discard).some(dark)||list(view(r).ownHand).some(dark)))return root(benchMol);
+  if(benchMol&&moltresViable(r)&&!slots(own(r)).some(s=>mol(s.pokemon))&&(list(own(r).discard).some(dark)||list(view(r).ownHand).some(dark)))return root(benchMol);
   return null;
 }
 function sourceIs(prompt,name,pattern) {
@@ -331,7 +332,11 @@ function createPolicy({role,seat,policyVersion,config}){
   const fallback=v2.createPolicy({role,seat,policyVersion:v2.POLICY_VERSION,config});
   return Object.freeze({decide(r){
     if(!r||r.role!==role||r.seat!==seat||r.observation?.actorSeat!==seat)return {kind:'abstain',reasonCode:'ROLE_SEAT_BINDING_MISMATCH'};
-    return (r.prompt?(opening.decide(r)??tacticalPrompt(r)??mobility.prompt(r)):(mobility.root(r)??tacticalRoot(r)))??fallback.decide(v2Request(r));
+    if(r.prompt)return opening.decide(r)??tacticalPrompt(r)??mobility.prompt(r)??fallback.decide(v2Request(r));
+    const chosen=mobility.attackRoot(r,undefined,true)??mobility.root(r)??tacticalRoot(r);if(chosen)return chosen;
+    const next=fallback.decide(v2Request(r)),item=list(r.actionFrontier?.items).find(x=>x.token===next?.token);
+    if(!item||item.kind==='pass'||item.kind==='attack')return mobility.attackRoot(r)??next;
+    return next;
   }});
 }
 module.exports={POLICY_VERSION,createPolicy,tacticalRoot,tacticalPrompt,targetValue,ready,v2Request};
