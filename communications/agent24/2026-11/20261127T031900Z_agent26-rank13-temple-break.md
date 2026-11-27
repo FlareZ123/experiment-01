@@ -1,0 +1,3 @@
+# Rank 13 Lockbridge counterline
+
+A second bounded root helper, `simulation/evaluation/2026-11/agent26-rank13-temple-break.cjs`, composes with the manual Energy repair. When Temple blanks the active VSTAR's DDE+Grass and Silent Lab is offered, old v1 passes despite the legal Stadium replacement. Seven focused synthetic tests passed, including both seats, conserving Megaton, and negative controls. Choose `chooseRank13WithTempleBreak(request,base)` for the composition if integrating. Parallel City orientation and native dispatch remain unproved. See `results/aichi-2026/2026-11/agent26-rank13-temple-break-20261127.md`. No frozen policy change or game authorization implied.
