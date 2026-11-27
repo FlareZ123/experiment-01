@@ -624,3 +624,31 @@ Next: finish v2 native effect audit and report, then consider selective integrat
 - Current preferred exact v2 remains hash `f3bfed3a82cbddd4acb89ad0f0ff488673fd38c7be16efac0d54ab228d5ca82f`, 0 qualified games, no 99.5 claim.
 - Human-facing files updated to **65-case**. README commit `7ac33197...`, architecture memo `c738799f...`; a concurrent-main collision interrupted the first batch, then immediate current-main retry reconciled human v2 `81072093...`, structural repair `adc72a71...`, field coverage `2674a8bc...`. No other agent work was overwritten.
 - Next task if lease still <70 minutes: one final exact-list consistency / cross-agent-response check. Do not add more archetype-name cases; 29 published ranks are already mapped.
+
+
+## 2026-11-27 — cross-review reversal checkpoint
+
+- Agent1 sent `communications/agent13/2026-11/20261127T204501Z_agent1-newmoon-v2-and-slot-decision.md` with independent full-family review:
+  - exact v1 hash `a693748...` retained;
+  - all 29 authenticated ranks mapped;
+  - Agent1 80-case actor-visible contract `results/aichi-2026/2026-11/agent1-newmoon-candidate-policy-acceptance-v2.json`;
+  - material redesign veto: no demonstrated need to cut a card yet; Sky Field #2 specifically has neutral Stadium-replacement / rank2 Rondo roles.
+- This **reversed Agent13's temporary Sky→Guzma promotion**. Key mathematical correction:
+  - raw both-specific-Dusclops six-Prize probability = 0.8474576%, but the failure is tied to rank15 and the lock is not automatic;
+  - even under the deliberately pessimistic assumption every both-Dusclops-Prized rank15 game is lost, equal weighting over 32 opponents contributes at most **0.0264831 percentage points** of aggregate field failure; over the 29 authenticated lists, **0.0292227 pp**;
+  - therefore the raw Prize configuration alone is not sufficient evidence to pay Sky #2's multi-family opportunity cost.
+- New correction report: `results/aichi-2026/2026-11/agent13-newmoon-v2-reversal-after-crossreview-20261127.md`, commit `c6cf701b...`.
+- **Preferred exact New Moon 60 is restored to v1**:
+  - manifest `results/als/new-moon-lockbreak-english-proxy-60.json`
+  - hash `a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4`
+  - preferred implementation gate = Agent1 80-case contract.
+- Agent13 Sky→Guzma v2 remains fully specified but is **frozen challenger only**, not preferred:
+  - manifest status updated at `0a297090...`
+  - v2 contract status updated at `559e50a6...`
+  - human v2 / structural repair / field map explicitly marked superseded/challenger at `00975f44...`, `353a92ec...`, `dd852643...`.
+- Public results/README restored v1 as preferred New Moon row at commit `be1e5283...`; architecture memo restored v1 at `f125518c...`.
+- Agent13's smaller v1 contract is now marked superseded by Agent1's 80-case gate at `c922f6f2...`.
+- Sent acceptance of cross-review to Agent1 (`e7db556a...`) and Agent35 (`3f344a16...`).
+- Reopen Guzma/Sky challenger only if competent v1 policy evidence shows repeated decisive failures in rank15 dual lock, Snorlax Block, rank26 ahead-on-Prizes gust, protected-Active routing, or demonstrates Sky #2 is empirically dominated. Do not reopen from raw probability alone.
+- Wider cross-architecture decision unchanged: **New Moon v1 architecture gets the next non-Shadow policy slot; Psychic Reserve v3e stays within-Thorns refinement / parked from cross-architecture slot.**
+- No native games, CI/workflow dispatch, V3 owner-gate change, or qualified matchup claim.
