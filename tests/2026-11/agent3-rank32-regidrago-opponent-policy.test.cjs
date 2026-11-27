@@ -167,16 +167,27 @@ test('Phantom Dive allocation remains an explicitly unsupported native continuat
     {kind:'abstain',reasonCode:'RANK32_APEX_NO_COMPLETE_SUPPORTED_ATTACK'});
 });
 
-test('Ryuno Glide energy discard prompt retains Double Dragon if basic alternatives exist',()=>{
-  const p=prompt(P.dragonite,'Ryuno Glide',[
-    choice('dde',P.doubleDragon),choice('g',P.energy),
-    choice('f','Fire Energy MEE 10')],'DiscardEnergyPrompt',[2,2]);
-  p.publicMetadata.selectionType='energy-payment';
+test('native ChooseEnergyPrompt uses energyCount and retains DDE if two Basics available',()=>{
+  const options=[
+    {token:'dde',kind:'energy',printing:P.doubleDragon},
+    {token:'g',kind:'energy',printing:P.energy},
+    {token:'f',kind:'energy',printing:'Fire Energy MEE 10'}
+  ];
+  const p=prompt(P.dragonite,'Ryuno Glide',options,'ChooseEnergyPrompt',[1,2]);
+  p.publicMetadata={selectionType:'energy-payment',energyCount:3,count:3};
   assert.deepEqual(promptDecision(request({prompt:p})),
     {kind:'select-choices',tokens:['g','f']});
-  delete p.publicMetadata.minimumCount;
+  p.choices=[options[0]];
+  p.publicMetadata.energyCount=1;
+  p.publicMetadata.count=1;
+  assert.deepEqual(promptDecision(request({prompt:p})),
+    {kind:'select-choices',tokens:['dde']});
+  delete p.publicMetadata.energyCount;
   assert.deepEqual(promptDecision(request({prompt:p})),
     {kind:'abstain',reasonCode:'RANK32_RYUNO_ENERGY_PROMPT_UNPROJECTED'});
+  p.promptType='DiscardEnergyPrompt';
+  assert.deepEqual(promptDecision(request({prompt:p})),
+    {kind:'abstain',reasonCode:'UNSUPPORTED_RANK32_PROMPT_TYPE'});
 });
 
 test('Sky Transport selects own Regidrago rather than an opposing Pokemon',()=>{
