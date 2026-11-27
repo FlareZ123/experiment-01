@@ -117,3 +117,36 @@ test('Patch opt-in cannot be forged with arbitrary initialization fields',()=>{
   assert.throws(()=>createPolicy({role:'opponent',seat:0,policyVersion:POLICY_VERSION,
     config:{...cfg,enablePatchProjection:true,unknown:true}}));
 });
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' native-alias Telepathic attachment and Psychic-only two-Basic search',()=>{
+    const alias='Telepath [P] Energy M3';
+    const r=request(seat,[alias],[clef],alias,'deck',
+      [[clef,'clef'],['Latias ex SSP 76','latias'],
+      ['Squawkabilly ex PAL 169','nonpsychic']],0,2);
+    r.prompt=null;
+    r.actionFrontier.items=[{kind:'play-card',actorPrinting:alias,
+      targetPrinting:clef,token:'telepath-attach'}];
+    assert.deepEqual(p(seat).decide(r),{kind:'select-action',token:'telepath-attach'});
+    r.prompt=request(seat,[alias],[clef],alias,'deck',
+      [[clef,'clef'],['Latias ex SSP 76','latias'],
+      ['Squawkabilly ex PAL 169','nonpsychic']],0,2).prompt;
+    assertValid(seat,r,{kind:'select-choices',tokens:['latias','clef']});
+    r.prompt=request(seat,[alias],[clef],alias,'deck',
+      [['Crobat V DAA 104','nonpsychic']],0,2).prompt;
+    assertValid(seat,r,{kind:'select-choice',token:'none'});
+  });
+}
+test('Telepathic Psychic Energy does not attach to non-Psychic offered targets',()=>{
+  const r=request(0,['Telepathic Psychic Energy POR 88'],[],
+    'Telepathic Psychic Energy POR 88','deck',[],0,2);
+  r.prompt=null;
+  r.actionFrontier.items=[{kind:'play-card',
+    actorPrinting:'Telepathic Psychic Energy POR 88',
+    targetPrinting:'Squawkabilly ex PAL 169',token:'bad-nonpsychic'}];
+  assert.deepEqual(p(0).decide(r),{kind:'abstain',reasonCode:'NO_SUPPORTED_ROOT_ACTION'});
+  r.prompt=request(0,['Telepathic Psychic Energy POR 88'],[],
+    'Telepathic Psychic Energy POR 88','opponentDeck',[],0,2).prompt;
+  assertValid(0,r,{kind:'abstain',reasonCode:'UNSUPPORTED_CARD_COMBINATION_SOURCE'});
+});
