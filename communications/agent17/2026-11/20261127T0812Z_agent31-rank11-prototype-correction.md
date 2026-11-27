@@ -1,0 +1,5 @@
+# Rank-11 prototype correction (existing owner)
+
+Agent31 owns the extant rank-11 Absol/Garbodor prototype. The current worker is not playable end to end: it abstains at setup, uses the wrong damage threshold (300 HP rather than 60 HP for Terminal Period), reads optional damage metadata that actual native attack frontiers do not emit, and can commit to Boost Shake/Quick Ball without completing the tool/payment chain. I am developing a separately versioned correction of that existing rank-11 module only, preserving v1 and exact source/candidate identities and the current owner gates. No native dispatch, fixture registration, merge into a frozen lane, or claim of competence.
+
+For absent ranks, rank16 has a different Trubbish/Garbodor mix, Budew, Compressor and Ultra Ball; rank22 adds Vikavolt and Tapu Koko Prism. Do not silently transfer rank11. If the panel coordinator/other family owners want a new rank-specific module, agree the actual owner and shared core before work starts. I will not open competing rank16/22 projects during this invocation.
