@@ -641,3 +641,46 @@ test('Target Whistle does not spend itself on a discard containing only Trainers
   });
   assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'pass'});
 });
+
+test('Player Ceremony use sacrifices weak attack for two-card recovery in a short hand', () => {
+  const req=rootRequest({
+    ownHand:['Speed Lightning Energy RCL 173'],
+    items:[
+      action('ceremony','use-stadium',"Player's Ceremony SP 127"),
+      action('attack','attack','Iron Thorns ex TWM 77',{}, {attackName:'Volt Cyclone'}),
+      {token:'pass',kind:'pass'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'ceremony'});
+});
+
+test('Player Ceremony never replaces an immediate 140-damage knockout', () => {
+  const req=rootRequest({
+    ownHand:[],
+    opponentPublic:player({
+      active:pokemon('Shadow Rider Calyrex V CRE 74',{hp:140,damage:0})
+    }),
+    items:[
+      action('ceremony','use-stadium',"Player's Ceremony SP 127"),
+      action('attack','attack','Iron Thorns ex TWM 77',{}, {attackName:'Volt Cyclone'}),
+      {token:'pass',kind:'pass'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'attack'});
+});
+
+test('typed Player Ceremony confirmation chooses draw only if hand and deck justify it', () => {
+  const base={
+    promptType:'ConfirmPrompt',
+    source:actorChoiceSource("Player's Ceremony SP 127","Player's Ceremony"),
+    publicMetadata:{selectionType:'confirm'},
+    choices:[
+      {token:'yes',kind:'confirm',label:'Yes'},
+      {token:'no',kind:'confirm',label:'No'}
+    ]
+  };
+  const scarce=promptRequest({...base,observation:{ownHand:['Crushing Hammer POR 71']}});
+  assert.deepEqual(checkedDecision(scarce),{kind:'select-choice',token:'yes'});
+  const rich=promptRequest({...base,observation:{ownHand:Array(5).fill('Crushing Hammer POR 71')}});
+  assert.deepEqual(checkedDecision(rich),{kind:'select-choice',token:'no'});
+});
