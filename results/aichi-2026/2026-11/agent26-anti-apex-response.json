@@ -1,0 +1,491 @@
+{
+  "assertions": 32,
+  "reset": {
+    "actions": [
+      "Resetting Hole: s"
+    ],
+    "payable": true,
+    "safe": true,
+    "pair": [
+      "Salamence ex JTG 114",
+      "Dialga-GX UPR 100"
+    ],
+    "reply": {
+      "win": false,
+      "potentialPrizes": 2,
+      "selected": "single-attack",
+      "attack": "Trifrost",
+      "target": "g",
+      "targets": [
+        "g",
+        "m",
+        "v"
+      ],
+      "gust": false
+    },
+    "all": [
+      {
+        "actions": [
+          "Resetting Hole: s"
+        ],
+        "safe": true,
+        "payable": true,
+        "pair": [
+          "Salamence ex JTG 114",
+          "Dialga-GX UPR 100"
+        ],
+        "replyPrizes": 2
+      },
+      {
+        "actions": [],
+        "safe": false,
+        "payable": true,
+        "pair": [
+          "Salamence ex JTG 114",
+          "Dragapult ex TWM 130"
+        ],
+        "replyPrizes": 3
+      }
+    ]
+  },
+  "noEnergy": {
+    "actions": [],
+    "payable": true,
+    "safe": false,
+    "pair": [
+      "Salamence ex JTG 114",
+      "Dragapult ex TWM 130"
+    ],
+    "reply": {
+      "win": true,
+      "potentialPrizes": 3,
+      "selected": "single-attack",
+      "attack": "Trifrost",
+      "target": "g",
+      "targets": [
+        "g",
+        "m",
+        "s"
+      ],
+      "gust": false
+    },
+    "all": [
+      {
+        "actions": [],
+        "safe": false,
+        "payable": true,
+        "pair": [
+          "Salamence ex JTG 114",
+          "Dragapult ex TWM 130"
+        ],
+        "replyPrizes": 3
+      },
+      {
+        "actions": [
+          "Resetting Hole: s"
+        ],
+        "safe": false,
+        "payable": false,
+        "pair": null
+      }
+    ]
+  },
+  "bandExhausted": {
+    "actions": [
+      "Field Blower: Muscle Band"
+    ],
+    "payable": true,
+    "safe": true,
+    "pair": [
+      "Dialga-GX UPR 100",
+      "Kyurem SFA 47"
+    ],
+    "reply": {
+      "win": false,
+      "potentialPrizes": 2,
+      "selected": "single-attack",
+      "attack": "Dragon Impact",
+      "target": "l",
+      "targets": [
+        "l"
+      ],
+      "gust": true
+    },
+    "all": [
+      {
+        "actions": [
+          "Field Blower: Muscle Band"
+        ],
+        "safe": true,
+        "payable": true,
+        "pair": [
+          "Dialga-GX UPR 100",
+          "Kyurem SFA 47"
+        ],
+        "replyPrizes": 2
+      },
+      {
+        "actions": [
+          "Field Blower: Stadium + Muscle Band"
+        ],
+        "safe": true,
+        "payable": true,
+        "pair": [
+          "Dialga-GX UPR 100",
+          "Kyurem SFA 47"
+        ],
+        "replyPrizes": 2
+      },
+      {
+        "actions": [],
+        "safe": false,
+        "payable": true,
+        "pair": [
+          "Salamence ex JTG 114",
+          "Dragapult ex TWM 130"
+        ],
+        "replyPrizes": 3
+      },
+      {
+        "actions": [
+          "Field Blower: Stadium"
+        ],
+        "safe": false,
+        "payable": true,
+        "pair": [
+          "Salamence ex JTG 114",
+          "Dragapult ex TWM 130"
+        ],
+        "replyPrizes": 3
+      }
+    ]
+  },
+  "bandCanReturn": {
+    "actions": [],
+    "payable": true,
+    "safe": false,
+    "pair": [
+      "Salamence ex JTG 114",
+      "Dragapult ex TWM 130"
+    ],
+    "reply": {
+      "win": true,
+      "potentialPrizes": 3,
+      "selected": "single-attack",
+      "attack": "Trifrost",
+      "target": "g",
+      "targets": [
+        "g",
+        "m",
+        "s"
+      ],
+      "gust": false
+    },
+    "all": [
+      {
+        "actions": [],
+        "safe": false,
+        "payable": true,
+        "pair": [
+          "Salamence ex JTG 114",
+          "Dragapult ex TWM 130"
+        ],
+        "replyPrizes": 3
+      },
+      {
+        "actions": [
+          "Field Blower: Muscle Band"
+        ],
+        "safe": false,
+        "payable": true,
+        "pair": [
+          "Salamence ex JTG 114",
+          "Dragapult ex TWM 130"
+        ],
+        "replyPrizes": 3
+      },
+      {
+        "actions": [
+          "Field Blower: Stadium"
+        ],
+        "safe": false,
+        "payable": true,
+        "pair": [
+          "Salamence ex JTG 114",
+          "Dragapult ex TWM 130"
+        ],
+        "replyPrizes": 3
+      },
+      {
+        "actions": [
+          "Field Blower: Stadium + Muscle Band"
+        ],
+        "safe": false,
+        "payable": true,
+        "pair": [
+          "Salamence ex JTG 114",
+          "Dragapult ex TWM 130"
+        ],
+        "replyPrizes": 3
+      }
+    ]
+  },
+  "skyFieldCollapse": {
+    "actions": [
+      "Play Temple of Sinnoh / collapse m"
+    ],
+    "payable": true,
+    "safe": true,
+    "pair": [
+      "Salamence ex JTG 114",
+      "Dialga-GX UPR 100"
+    ],
+    "reply": {
+      "win": false,
+      "potentialPrizes": 2,
+      "selected": "single-attack",
+      "attack": "Trifrost",
+      "target": "g",
+      "targets": [
+        "g",
+        "w",
+        "v"
+      ],
+      "gust": false
+    },
+    "all": [
+      {
+        "actions": [
+          "Play Temple of Sinnoh / collapse m"
+        ],
+        "safe": true,
+        "payable": true,
+        "pair": [
+          "Salamence ex JTG 114",
+          "Dialga-GX UPR 100"
+        ],
+        "replyPrizes": 2
+      },
+      {
+        "actions": [
+          "Play Temple of Sinnoh / collapse w"
+        ],
+        "safe": true,
+        "payable": true,
+        "pair": [
+          "Salamence ex JTG 114",
+          "Dialga-GX UPR 100"
+        ],
+        "replyPrizes": 2
+      },
+      {
+        "actions": [],
+        "safe": false,
+        "payable": true,
+        "pair": [
+          "Salamence ex JTG 114",
+          "Dragapult ex TWM 130"
+        ],
+        "replyPrizes": 3
+      },
+      {
+        "actions": [
+          "Play Temple of Sinnoh / collapse v"
+        ],
+        "safe": false,
+        "payable": true,
+        "pair": [
+          "Salamence ex JTG 114",
+          "Dragapult ex TWM 130"
+        ],
+        "replyPrizes": 3
+      },
+      {
+        "actions": [
+          "Play Temple of Sinnoh / collapse l"
+        ],
+        "safe": false,
+        "payable": true,
+        "pair": [
+          "Salamence ex JTG 114",
+          "Dragapult ex TWM 130"
+        ],
+        "replyPrizes": 3
+      },
+      {
+        "actions": [
+          "Play Temple of Sinnoh / collapse c"
+        ],
+        "safe": false,
+        "payable": true,
+        "pair": [
+          "Salamence ex JTG 114",
+          "Dragapult ex TWM 130"
+        ],
+        "replyPrizes": 3
+      },
+      {
+        "actions": [
+          "Play Temple of Sinnoh / collapse v2"
+        ],
+        "safe": false,
+        "payable": true,
+        "pair": [
+          "Salamence ex JTG 114",
+          "Dragapult ex TWM 130"
+        ],
+        "replyPrizes": 3
+      }
+    ]
+  },
+  "acerola": {
+    "actions": [
+      "Acerola: w"
+    ],
+    "payable": true,
+    "safe": true,
+    "pair": [
+      "Salamence ex JTG 114",
+      "Dialga-GX UPR 100"
+    ],
+    "reply": {
+      "win": false,
+      "potentialPrizes": 2,
+      "selected": "single-attack",
+      "attack": "Trifrost",
+      "target": "g",
+      "targets": [
+        "g",
+        "m",
+        "v"
+      ],
+      "gust": false
+    },
+    "all": [
+      {
+        "actions": [
+          "Acerola: w"
+        ],
+        "safe": true,
+        "payable": true,
+        "pair": [
+          "Salamence ex JTG 114",
+          "Dialga-GX UPR 100"
+        ],
+        "replyPrizes": 2
+      },
+      {
+        "actions": [],
+        "safe": false,
+        "payable": true,
+        "pair": [
+          "Salamence ex JTG 114",
+          "Dragapult ex TWM 130"
+        ],
+        "replyPrizes": 3
+      }
+    ]
+  },
+  "directExamples": [
+    {
+      "input": {
+        "profile": "hood",
+        "attacker": "Shadow Rider Calyrex VMAX CRE 75",
+        "ownBench": 4,
+        "opponentBench": 3,
+        "totalPsychic": 5,
+        "attackerPsychic": 2,
+        "targetHP": 280,
+        "valley": true,
+        "fairyZone": true,
+        "rollingIron": false,
+        "covertFlight": false,
+        "ranger": false,
+        "readyPosition": true
+      },
+      "result": {
+        "attack": "Max Geist",
+        "cost": 2,
+        "payable": true,
+        "damage": 320,
+        "knockout": true,
+        "candidatePrizes": 2
+      }
+    },
+    {
+      "input": {
+        "profile": "hood",
+        "attacker": "Shadow Rider Calyrex VMAX CRE 75",
+        "ownBench": 4,
+        "opponentBench": 3,
+        "totalPsychic": 5,
+        "attackerPsychic": 2,
+        "targetHP": 280,
+        "valley": true,
+        "fairyZone": true,
+        "rollingIron": true,
+        "covertFlight": false,
+        "ranger": false,
+        "readyPosition": true
+      },
+      "result": {
+        "attack": "Max Geist",
+        "cost": 2,
+        "payable": true,
+        "damage": 240,
+        "knockout": false,
+        "candidatePrizes": 0
+      }
+    },
+    {
+      "input": {
+        "profile": "hood",
+        "attacker": "Shadow Rider Calyrex VMAX CRE 75",
+        "ownBench": 4,
+        "opponentBench": 3,
+        "totalPsychic": 6,
+        "attackerPsychic": 2,
+        "targetHP": 280,
+        "valley": true,
+        "fairyZone": true,
+        "rollingIron": true,
+        "covertFlight": false,
+        "ranger": false,
+        "readyPosition": true
+      },
+      "result": {
+        "attack": "Max Geist",
+        "cost": 2,
+        "payable": true,
+        "damage": 300,
+        "knockout": true,
+        "candidatePrizes": 2
+      }
+    },
+    {
+      "input": {
+        "profile": "hood",
+        "attacker": "Lillie's Clefairy ex JTG 56",
+        "ownBench": 3,
+        "opponentBench": 3,
+        "totalPsychic": 5,
+        "attackerPsychic": 1,
+        "targetHP": 280,
+        "valley": true,
+        "fairyZone": true,
+        "rollingIron": false,
+        "covertFlight": false,
+        "ranger": false,
+        "readyPosition": true
+      },
+      "result": {
+        "attack": "Full Moon Rondo",
+        "cost": 1,
+        "payable": true,
+        "damage": 280,
+        "knockout": true,
+        "candidatePrizes": 2
+      }
+    }
+  ]
+}
