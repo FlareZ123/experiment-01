@@ -69,6 +69,25 @@ The optional `--extended no-bench` / `--extended bench` modes keep the same orig
 
 Thus expanded routes narrow the gap but do not erase it. Across all overlapping sevens, positive all-budget parity is 10.19683% with no opposing Bench and 10.56197% with one. The V-starter probability rises slightly because fetching Guzma as designated discard fodder is permitted in this scenario; this is resource availability, not a recommendation to discard an important Supporter. The model excludes draw Supporters, opponent Ability/Tool/Stadium suppression, actual gust target value and full-game outcomes; in particular, a field of only Iron Thorns cannot be escaped by gusting another Iron Thorns and then playing Eternatus. Actor-only conditional route queries should check actual visible locks before using these no-interference probabilities. The executable source and focused CLI examples are committed; no frozen policy, fixture, deck or workflow is changed.
 
+**Draw-Supporter fallback as an executable decision, not a general opening metric.** The solver's `--draw-plan` mode compares Lillie's Determination (shuffle held cards back, draw eight at six Prizes) against Iono (put held cards on the bottom; draw six from the existing deck) and every legal modeled combination of banking held Float, Latias, FSS, Sky Field and Psychic before the draw. It takes only own-zone composition legitimately known after a prior search, actual in-play flags, unused Supporter, visible opposing Bench and budget. It never sees the new draw before deciding what to bank. The probability is exact hypergeometric enumeration over the randomized deck; it checks the number of VMAX still left in deck after drawing, then selects a legal continuation in the newly observed hand. `--known-plan` emits that continuation from the resulting legitimately known state, respecting the spent Supporter and banked cards.
+
+Concrete reproduction: Wobbuffet Active, V Benched, one Fog already used, 6 cards held (Float, Psychic, two designated Other, Lillie, Iono), 45 in deck, six Other Prizes identified by prior legal inspection, all four VMAX in deck. No deterministic route in the modeled searches. With the opponent's Bench nonempty and no opposing interference, the funded two-VMAX Gate objective has these alternatives:
+
+| Draw Supporter and pre-bank | Exact probability |
+|---|---:|
+| Lillie, Float + Psychic | 275,732,234 / 377,348,994 = 73.07088% |
+| Lillie, Float only | 68.66011% |
+| Iono, Float + Psychic | 61.75206% |
+| Lillie, Psychic only | 55.57733% |
+| Lillie, neither | 49.96400% |
+| Iono, neither | 28.30475% |
+
+Reproduce from repo root after compiling the same solver:
+```sh
+./active-choice --extended bench --draw-plan 0,0,0,0,0,0,1,0,0,0,0,0,0,1,2,1,1 3,4,1,1,1,1,0,1,1,1,1,3,5,10,11,1,0 0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0 0 WF 0,0,0,0,0,0,0,0
+```
+Banking Float to Wob and manual Psychic to V before refreshing produces a **23.1069 percentage-point** improvement versus immediately playing Lillie in this particular state. This example is not an aggregate opening rate, matchup result or policy performance test. The fallback only enumerates held draw Supporters and banking already-held cards; additional pre-draw tutor sequences and K0 draw-Supporter decisions are not modeled. It assumes no other occupied Tool/Bench slots beyond the declared bank flags and no opposing interference. Tie-break preferences (preserve Stone, fewer discards, avoid Lele, fewer actions) are illustrative resource priorities, not win-rate-calibrated. A tested known-zone continuation avoids reattaching an already-banked Psychic and refuses Gate if banked Lele plus Latias overfill the Bench without Sky. Preserve this implementation for future authorized strategy work; no frozen production policy or game changed.
+
 ## What a fair whole-game comparison must answer
 
 The current reviewed candidate policy cannot rank these lists fairly: it lacks Wobbuffet/Temple root decisions and complete Bide Barricade hand/discard scope, while it also does not fully realize Hood's Ranger/Item-lock response. It would under-measure both packages. PR #69 and PR #71 remain frozen at their reviewed scopes; this synthesis does not authorize a policy patch, fixture, or game.
