@@ -565,7 +565,29 @@ function validatePublicPlayer(player, allowConcealed) {
     if (!Number.isSafeInteger(player[key]) || player[key] < 0) fail('BAD_PUBLIC_COUNT');
   }
 }
-function validateActorObservation(view, seat) {
+function validatePrizeFacts(k, view, profile) {
+  const f=k.prizeFacts;
+  if (!profile || k.exactMembershipKnown !== false || k.knownPrintings !== null || k.invalidationReason !== null) fail('BAD_PRIZE_FACTS');
+  exactKeys(f,['schema','actorSeat','epoch','turn','prizeCount','fullyPrized']);
+  if (f.schema!=='agent46-owner-fully-prized-v1' || f.actorSeat!==view.actorSeat ||
+      f.epoch!==k.epoch || f.turn!==view.globalTurn || f.prizeCount!==view.ownPublic.prizeCount ||
+      !Array.isArray(f.fullyPrized) || f.fullyPrized.length>f.prizeCount) fail('BAD_PRIZE_FACTS');
+  const hood=profile.profileId==='hood-shield-shadow-rider-v1';
+  const counts={'Radiant Eternatus':1,'Shadow Rider Calyrex V':4,'Shadow Rider Calyrex VMAX':4,
+    'Forest Seal Stone':1,'Hisuian Heavy Ball':1,'Tapu Lele-GX':1,'Latias ex':1,
+    "Lillie's Clefairy ex":hood?2:1,'Stealthy Hood':2,
+    ...(hood?{'Pokémon Ranger':1}:{'Wobbuffet':1,'Temple of Sinnoh':1})};
+  const seen=new Set();let total=0;
+  for (const row of f.fullyPrized) {
+    exactKeys(row,['cardName','printing','copies']);
+    if (!Object.hasOwn(counts,row.cardName) || counts[row.cardName]!==row.copies ||
+        !boundedString(row.printing,null,256) || !row.printing.startsWith(row.cardName+' ') ||
+        seen.has(row.cardName) || view.ownHand.includes(row.printing)) fail('BAD_PRIZE_FACT_ROW');
+    seen.add(row.cardName);total+=row.copies;
+  }
+  if(total>f.prizeCount) fail('BAD_PRIZE_FACT_COUNT');
+}
+function validateActorObservation(view, seat, profile = null) {
   exactKeys(view, ACTOR_KEYS, ACTOR_OPTIONAL_KEYS);
   if (view.turnSeat !== undefined &&
       !(view.turnSeat === null || view.turnSeat === 0 || view.turnSeat === 1)) {
@@ -584,7 +606,8 @@ function validateActorObservation(view, seat) {
   exactKeys(view.ownTurnResources, TURN_RESOURCE_KEYS);
   assertBoundedJson(view.ownTurnResources);
   if (view.ownerK1 !== null) {
-    exactKeys(view.ownerK1, ['epoch', 'exactMembershipKnown', 'knownPrintings', 'invalidationReason']);
+    exactKeys(view.ownerK1, ['epoch', 'exactMembershipKnown', 'knownPrintings', 'invalidationReason'], profile?['prizeFacts']:[]);
+    if(Object.hasOwn(view.ownerK1,'prizeFacts')) validatePrizeFacts(view.ownerK1,view,profile);
     if (!Number.isSafeInteger(view.ownerK1.epoch) || view.ownerK1.epoch < 0 ||
         typeof view.ownerK1.exactMembershipKnown !== 'boolean' ||
         !(view.ownerK1.invalidationReason === null || typeof view.ownerK1.invalidationReason === 'string')) fail('BAD_OWNER_K1');
@@ -930,7 +953,8 @@ function validateRequest(message, init, expectedSequence, seenRequestIds) {
   if (!Number.isSafeInteger(message.sequence) || message.sequence !== expectedSequence) fail('BAD_SEQUENCE');
   if (message.role !== init.role || message.seat !== init.seat) fail('ROLE_SEAT_CHANGED');
   if (message.observationSchema !== OBSERVATION_SCHEMA) fail('BAD_OBSERVATION_SCHEMA');
-  validateActorObservation(message.observation, init.seat);
+  validateActorObservation(message.observation, init.seat,
+    init.role==='candidate' && init.policyVersion==='agent46-two-profile-v1'?init.config:null);
   if (message.prompt !== null && message.observation.decisionKind !== 'owner-prompt') fail('PROMPT_ROOT_MISMATCH');
   if (message.prompt === null && message.observation.decisionKind === 'owner-prompt') fail('MISSING_PROMPT_PROJECTION');
   const prompt = validatePrompt(message.prompt, init.seat);
