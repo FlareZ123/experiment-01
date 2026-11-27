@@ -1,0 +1,15 @@
+'use strict';
+const test=require('node:test');const assert=require('node:assert/strict');
+const {planPrizeDonation}=require('./donk_pump_plan.cjs');
+function fixture(o={}) {return {finishReady:true,itemsPlayable:true,opponentBenchCount:0,opponentPrizes:6,riskyRuinsActive:true,propagationAvailable:true,pumps:3,carriers:0,eggs:[{id:'egg1',zone:'B',counters:2},{id:'egg2',zone:'B',counters:2}],donors:[{id:'meloetta',zone:'A',counters:2},{id:'squawk',zone:'B',counters:2},{id:'unown',zone:'B',counters:2}],...o};}
+test('five Prizes in three pumps, no overshoot',()=>{const p=planPrizeDonation(fixture());assert.equal(p.pumpsUsed,3);assert.equal(p.donated,5);assert.deepEqual(p.actions.filter(a=>a.kind==='damage-pump').map(a=>a.knocked.length).sort(),[1,2,2]);});
+test('two pumps cannot donate five',()=>assert.equal(planPrizeDonation(fixture({pumps:2})),null));
+test('one egg unavailable cannot donate five with only three pumps',()=>assert.equal(planPrizeDonation(fixture({eggs:[{id:'egg1',zone:'B',counters:2},{id:'egg2',zone:'X',counters:0}]})),null));
+test('one egg can be reused five times with five pumps and five donor counters',()=>{const p=planPrizeDonation(fixture({pumps:5,eggs:[{id:'egg1',zone:'B',counters:2},{id:'egg2',zone:'X',counters:0}]}));assert.equal(p.pumpsUsed,5);assert.equal(p.donated,5);});
+test('exactly one Prize needed: never dual KO',()=>{const p=planPrizeDonation(fixture({opponentPrizes:2,pumps:1}));assert.equal(p.donated,1);assert.equal(p.actions.at(-1).knocked.length,1);});
+test('locked Propagation: two Carriers recover eggs, one Carrier insufficient',()=>{const p=planPrizeDonation(fixture({propagationAvailable:false,carriers:2}));assert.equal(p.carriersUsed,2);assert.equal(p.donated,5);assert.equal(planPrizeDonation(fixture({propagationAvailable:false,carriers:1})),null);});
+test('precondition: no sacrifice without actual finish and opponent singleton',()=>{for(const o of [{finishReady:false},{itemsPlayable:false},{opponentBenchCount:1},{riskyRuinsActive:false}])assert.equal(planPrizeDonation(fixture(o)),null);});
+test('bench full with eggs in hand fails closed',()=>assert.equal(planPrizeDonation(fixture({eggs:[{id:'egg1',zone:'H',counters:0},{id:'egg2',zone:'H',counters:0}],donors:[{id:'meloetta',zone:'A',counters:2},...Array.from({length:5},(_,i)=>({id:'b'+i,zone:'B',counters:2}))]})),null));
+test('four external donor counters suffice: one Egg donates to the other for final single KO',()=>{const p=planPrizeDonation(fixture({donors:[{id:'meloetta',zone:'A',counters:2},{id:'squawk',zone:'B',counters:2}]}));assert.equal(p.pumpsUsed,3);assert.ok(p.actions.some(a=>a.kind==='damage-pump'&&a.from.startsWith('egg')));});
+test('three external donor counters cannot provide two dual KOs',()=>assert.equal(planPrizeDonation(fixture({donors:[{id:'meloetta',zone:'A',counters:2},{id:'squawk',zone:'B',counters:1}]})),null));
+test('invalid duplicate identities fail closed',()=>assert.equal(planPrizeDonation(fixture({eggs:[{id:'egg1',zone:'B',counters:2},{id:'egg1',zone:'B',counters:2}]})),null));
