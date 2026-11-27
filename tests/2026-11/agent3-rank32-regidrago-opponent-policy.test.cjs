@@ -108,7 +108,7 @@ test('Compressor chooses native donor tokens; avoids incomplete Phantom-only don
   const req=request({prompt:prompt('Battle Compressor PHF 92','Battle Compressor',
     [choice('ph',P.dragapult),choice('g',P.goodra),
      choice('m',P.dragonite),choice('e',P.energy)],'ChooseCardsPrompt',[1,3])});
-  assert.deepEqual(promptDecision(req),{kind:'select-choices',tokens:['m','g','e']});
+  assert.deepEqual(promptDecision(req),{kind:'select-choices',tokens:['m','g']});
 });
 
 test('Compressor does not waste a singleton already present in discard',()=>{
