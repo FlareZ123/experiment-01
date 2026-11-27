@@ -1,7 +1,8 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {withDeterministicCelestialRoar,VERSION}=
+const {withDeterministicCelestialRoar,withDeterministicCelestialRoarAsync,
+  installDeterministicCelestialRoar,VERSION}=
   require('../../simulation/twinleaf/agent47-celestial-roar-deterministic-hook-v2.cjs');
 class EnergyCard{constructor(printing,energyType){this.printing=printing;this.energyType=energyType;}}
 class CardList{constructor(cards=[]){this.cards=[...cards];}}
@@ -68,4 +69,26 @@ test('unverified Special Energy restrictions fail closed rather than auto-attach
   /UNVERIFIED_CELESTIAL_SPECIAL_ENERGY_ATTACHABILITY/);
  assert.strictEqual(RegidragoV.prototype.reduceEffect,original);
  assert.equal(x.player.active.cards.length,0);
+});
+
+test('bounded async owner scope remains patched across awaits, rejects overlap, and restores',async()=>{
+ const grass=new EnergyCard('Grass Energy MEE',EnergyType.BASIC),x=create([grass,'trainer']);
+ const card=new RegidragoV();
+ const task=withDeterministicCelestialRoarAsync(async()=>{
+  await Promise.resolve();
+  assert.notStrictEqual(RegidragoV.prototype.reduceEffect,original);
+  return card.reduceEffect(x.store,x.state,{player:x.player,attack:'Celestial Roar',card});
+ },x.deps);
+ assert.throws(()=>installDeterministicCelestialRoar(x.deps),/CELESTIAL_HOOK_ALREADY_INSTALLED/);
+ const {result,audit}=await task;
+ assert.strictEqual(result,x.state);assert.equal(audit.attachedBasic,1);
+ assert.deepEqual(x.player.active.cards,[grass]);
+ assert.strictEqual(RegidragoV.prototype.reduceEffect,original);
+});
+test('rejected async callback also restores global native prototype',async()=>{
+ const x=create([]);
+ await assert.rejects(withDeterministicCelestialRoarAsync(async()=>{
+  await Promise.resolve();throw new Error('remote policy lost connection');
+ },x.deps),/remote policy lost connection/);
+ assert.strictEqual(RegidragoV.prototype.reduceEffect,original);
 });
