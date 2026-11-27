@@ -1179,14 +1179,40 @@ function supporterAvailable(view) {
     view.ownTurnResources?.supporterPlayLocked !== true &&
     view.ownPublic.publicTurnRestrictions?.supporterPlayLocked !== true;
 }
+// Only a host-certified, current, complete prize inference can veto deck search.
+function knownFullyPrized(view, name) {
+  const k = view.ownerK1, f = k?.prizeFacts;
+  if (!f || k.invalidationReason !== null || f.schema !== 'agent46-owner-fully-prized-v1' ||
+      f.actorSeat !== view.actorSeat || f.epoch !== k.epoch ||
+      f.turn !== view.globalTurn || f.prizeCount !== view.ownPublic.prizeCount ||
+      !Array.isArray(f.fullyPrized)) return false;
+  const matches = f.fullyPrized.filter(row => row.cardName === name &&
+    typeof row.printing === 'string' && row.printing.startsWith(name + ' ') &&
+    Number.isInteger(row.copies) && row.copies > 0);
+  return matches.length === 1;
+}
 function gateAccessNeed(view) {
+  return !knownFullyPrized(view, 'Radiant Eternatus') && gateWantedIgnoringPrize(view);
+}
+function heavyBallNeed(view) {
+  if (itemLocked(view) || view.ownPublic.prizeCount <= 0) return 0;
+  if (knownFullyPrized(view, 'Radiant Eternatus') && gateWantedIgnoringPrize(view)) return 1050;
+  if (knownFullyPrized(view, 'Shadow Rider Calyrex V') && !hasBasicShadowRiderV(view) &&
+      !handHasBasicShadowRiderV(view) && hasOpenBench(view)) return 1000;
+  if ((!hasBasicShadowRiderV(view) && !handHasBasicShadowRiderV(view) && hasOpenBench(view)) ||
+      gateAccessNeed(view)) return 675;
+  return 0;
+}
+function gateWantedIgnoringPrize(view) {
   return !boardHas(view, 'Radiant Eternatus') && !handHas(view, 'Radiant Eternatus') &&
     !discardHas(view, 'Radiant Eternatus') &&
     !(view.ownPublic.lostZone ?? []).some(p => hasName(p, 'Radiant Eternatus')) &&
     view.ownPublic.deckCount > 0 && openBenchSlots(view) >= 3 && canPlayRadiantForGate(view);
 }
 function forestSealAccessNeed(view) {
-  return gateAccessNeed(view) && !handHas(view, 'Forest Seal Stone') &&
+  return (gateAccessNeed(view) || (heavyBallNeed(view) >= 1000 &&
+    !handHas(view,'Hisuian Heavy Ball') && !knownFullyPrized(view,'Hisuian Heavy Ball'))) &&
+    !knownFullyPrized(view,'Forest Seal Stone') && !handHas(view, 'Forest Seal Stone') &&
     !ownBoard(view).some(slot => (slot.tools ?? []).some(p => hasName(p, 'Forest Seal Stone'))) &&
     view.ownTurnResources?.vstarUsed !== true &&
     view.ownPublic.publicTurnRestrictions?.vstarUsed !== true &&
@@ -1331,7 +1357,7 @@ function searchNeedScore(view, printing, effectName = '', receipt = null) {
     return !itemLocked(view) && Number.isFinite(bestRecoverableSupporter(view,receipt)) ? 85 : 0;
   }
   if (hasName(printing, 'Hisuian Heavy Ball')) {
-    return 25;
+    return heavyBallNeed(view) >= 1000 ? 125 : 25;
   }
   if (hasName(printing, 'Night Stretcher')) return !itemLocked(view) && view.ownPublic.discard.some(p=>recoveryNeedScore(view,p,receipt)>=70) ? 75 : 0;
   if (hasName(printing, 'Unfair Stamp')) {
@@ -2459,7 +2485,7 @@ function hasStarAlchemyLock(view, target) {
 }
 
 function hasStarAlchemyBottleneck(view, receipt) {
-  const missingBasicV = !hasBasicShadowRiderV(view) &&
+  const missingBasicV = !knownFullyPrized(view,'Shadow Rider Calyrex V') && !hasBasicShadowRiderV(view) &&
     !handHasBasicShadowRiderV(view) && hasOpenBench(view);
   const missingVmax = hasUnevolvedShadowRiderV(view) &&
     !handHas(view, 'Shadow Rider Calyrex VMAX');
@@ -2476,7 +2502,7 @@ function hasStarAlchemyBottleneck(view, receipt) {
   const missingStamp = receipt?.priorOpponentTurnKO?.any === true &&
     !handHas(view, 'Unfair Stamp') && !discardHas(view, 'Unfair Stamp');
   const lowHand = view.ownPublic.handCount <= 1 && view.ownPublic.deckCount > 0;
-  if (gateAccessNeed(view)) return true;
+  if (gateAccessNeed(view) || (heavyBallNeed(view)>=1000 && !handHas(view,'Hisuian Heavy Ball') && !knownFullyPrized(view,'Hisuian Heavy Ball'))) return true;
   const critical = missingBasicV || missingVmax ||
     missingClefairy || missingStadiumAnswer || missingStamp || lowHand;
   if (!critical) return false;
@@ -2511,8 +2537,7 @@ function scoreTrainerPlay(item, view, receipt, profile) {
     const value = Math.max(-Infinity,...view.ownPublic.discard.map(p=>recoveryNeedScore(view,p,receipt)));
     if (value>=70) return 770+value;
   }
-  if (hasName(name,'Hisuian Heavy Ball') && view.ownPublic.prizeCount > 0 &&
-      (!hasBasicShadowRiderV(view) && !handHasBasicShadowRiderV(view) && hasOpenBench(view) || gateAccessNeed(view))) return 675;
+  if (hasName(name,'Hisuian Heavy Ball') && heavyBallNeed(view)>0) return heavyBallNeed(view);
   if (hasName(name, 'Unfair Stamp') && receipt?.priorOpponentTurnKO?.any === true) return 980;
   if (hasName(name, 'Forest Seal Stone')) {
     const target = actionTargetSlot(view, item.publicMetadata);
@@ -2538,7 +2563,7 @@ function scoreTrainerPlay(item, view, receipt, profile) {
       ownBoard(view).some(slot =>
         slot.damage > 0 && slot.hp - slot.damage <= 120)) return 850;
   // Battle Compressor's copied-attack setup is deliberately unsupported.
-  const missingBasicV = !hasBasicShadowRiderV(view) &&
+  const missingBasicV = !knownFullyPrized(view,'Shadow Rider Calyrex V') && !hasBasicShadowRiderV(view) &&
     !handHasBasicShadowRiderV(view) && hasOpenBench(view);
   if (hasName(name, 'Fog Crystal') &&
       (missingBasicV ||
