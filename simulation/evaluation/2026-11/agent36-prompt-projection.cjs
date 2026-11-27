@@ -779,6 +779,82 @@ function projectElectrodeBombTransfers({
   };
 }
 
+
+/**
+ * Source-specific physical discard frontier for the paper-corrected CES48
+ * Crush and Burn-GX. The pinned native DiscardEnergyPrompt enumerates
+ * attached Energy cards by actual CardTarget + index within slot.cards;
+ * each token must identify one concrete physical occurrence, not a
+ * theoretical Lightning unit or a chosen Pokémon.
+ */
+function projectElectrodeCrushBurnDiscard({
+  prompt,state,actorSeat,native,source,choices,choiceByToken
+}={}){
+  const actor=state.players[actorSeat],opt=prompt.options;
+  if(source?.sourceKind!=='card-effect'||
+     source.sourcePrinting!=='Electrode-GX CES'||
+     source.effectName!=='Crush and Burn-GX')
+    throw Object.assign(
+      new Error('DiscardEnergyPrompt source is not printed CES48 Crush and Burn-GX'),
+      {code:'UNSUPPORTED_GX_DISCARD_PROMPT_SOURCE'});
+  const shape=prompt.message==='CHOOSE_ENERGIES_TO_DISCARD'&&
+    prompt.playerType===native.PlayerType.BOTTOM_PLAYER&&
+    Array.isArray(prompt.slots)&&prompt.slots.length===2&&
+    prompt.slots[0]===native.SlotType.ACTIVE&&
+    prompt.slots[1]===native.SlotType.BENCH&&
+    prompt.filter?.superType===native.SuperType.ENERGY&&
+    opt?.allowCancel===false&&opt?.min===1&&
+    Number.isSafeInteger(opt.max)&&opt.max>=1&&
+    Array.isArray(opt.blockedFrom)&&opt.blockedFrom.length===0&&
+    Array.isArray(opt.blockedMap)&&opt.blockedMap.length===0&&
+    typeof native.EnergyCard==='function'&&
+    Array.isArray(actor.bench);
+  if(!shape)throw Object.assign(
+    new Error('Pinned CES48 DiscardEnergyPrompt shape changed'),
+    {code:'UNSUPPORTED_GX_DISCARD_PROMPT_SHAPE'});
+  const list=[];
+  const append=(slot,zone,slotType,slotIndex)=>{
+    if(!slot?.getPokemonCard?.())return;
+    for(let index=0;index<cardListCards(slot).length;index++){
+      const card=slot.cards[index];
+      if(card instanceof native.EnergyCard&&
+         card.superType===native.SuperType.ENERGY)
+        list.push({card,index,zone,slotIndex,slotType});
+    }
+  };
+  append(actor.active,'active',native.SlotType.ACTIVE,0);
+  actor.bench.forEach((slot,i)=>append(slot,'bench',native.SlotType.BENCH,i));
+  if(list.length!==opt.max||list.length<1||list.length>MAX_PROMPT_CHOICES)
+    throw Object.assign(
+      new Error('CES48 board physical Energy differs from native discard maximum'),
+      {code:'GX_DISCARD_PHYSICAL_COUNT_MISMATCH'});
+  for(const row of list){
+    const name=printing(row.card);
+    if(!name)throw Object.assign(
+      new Error('CES48 attached Energy printing not public'),
+      {code:'GX_DISCARD_ENERGY_PRINTING_MISSING'});
+    addSelectableItem(choices,choiceByToken,{
+      from:{player:native.PlayerType.BOTTOM_PLAYER,slot:row.slotType,index:row.slotIndex},
+      index:row.index
+    },{
+      kind:'energy',printing:name,
+      label:'Discard '+name+' from '+row.zone+
+        (row.zone==='bench'?' '+(row.slotIndex+1):''),
+      publicMetadata:{
+        selectionIndex:row.index,selectedCount:1,
+        sourceZone:'energy',zone:row.zone,slotIndex:row.slotIndex,
+        ownerSeat:'actor',isOwnerVisible:true
+      }
+    });
+  }
+  return {
+    selectionType:'energy-payment',
+    count:list.length,energyCount:list.length,
+    minimumCount:1,maximumCount:list.length,allowCancel:false,
+    ownerSeat:'actor',isOwnerVisible:true,sourceZone:'energy'
+  };
+}
+
 function projectAttachEnergyPrompt({
   prompt,state,actorSeat,native,store,source,choices,choiceByToken
 }={}){
@@ -1057,6 +1133,11 @@ function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook
     case 'ChoosePrizePrompt':
       publicMetadata = projectChoosePrize(prompt, state, actorSeat, choices, choiceByToken);
       break;
+    case 'DiscardEnergyPrompt':
+      publicMetadata=projectElectrodeCrushBurnDiscard({
+        prompt,state,actorSeat,native,source,choices,choiceByToken
+      });
+      break;
     case 'AttachEnergyPrompt':
       publicMetadata=projectAttachEnergyPrompt({
         prompt,state,actorSeat,native,store,source,choices,choiceByToken
@@ -1218,6 +1299,42 @@ function dispatchPromptChoice({
     throw Object.assign(new Error('Unsupported typed worker prompt decision'), {
       code: 'UNSUPPORTED_WORKER_PROMPT_DECISION'
     });
+  }
+
+  // Pinned DiscardEnergyPrompt.decode() checks duplicate card target/index
+  // but validate() only checks length. Reject malformed or re-used physical
+  // attached Energy references before live Store dispatch.
+  if(projection.promptProjection?.promptType==='DiscardEnergyPrompt'){
+    const src=projection.promptProjection.source;
+    const meta=projection.promptProjection.publicMetadata;
+    assert.equal(src.sourceKind,'card-effect');
+    assert.equal(src.sourcePrinting,'Electrode-GX CES');
+    assert.equal(src.effectName,'Crush and Burn-GX');
+    assert.equal(meta.selectionType,'energy-payment');
+    const actor=state.players[actorSeat];
+    assert.equal(prompt.message,'CHOOSE_ENERGIES_TO_DISCARD');
+    assert.equal(prompt.options.allowCancel,false);
+    assert.ok(Array.isArray(rawResult)&&rawResult.length>=1);
+    assert.ok(rawResult.length<=prompt.options.max);
+    const seen=new Set();
+    for(const selection of rawResult){
+      const from=selection?.from,index=selection?.index;
+      assert.equal(from?.player,native.PlayerType.BOTTOM_PLAYER);
+      assert.ok(from.slot===native.SlotType.ACTIVE||
+        from.slot===native.SlotType.BENCH);
+      assert.ok(Number.isSafeInteger(from.index)&&from.index>=0);
+      assert.ok(Number.isSafeInteger(index)&&index>=0);
+      const slot=from.slot===native.SlotType.ACTIVE?
+        actor.active:actor.bench[from.index];
+      assert.ok(slot?.getPokemonCard?.());
+      const card=slot?.cards?.[index];
+      assert.ok(card instanceof native.EnergyCard);
+      assert.equal(card.superType,native.SuperType.ENERGY);
+      const key=[from.player,from.slot,from.index,index].join('|');
+      assert.equal(seen.has(key),false,
+        'CES48 GX discard cannot spend one physical Energy twice');
+      seen.add(key);
+    }
   }
 
   // The pinned native AttachEnergyPrompt.validate() neither checks duplicate
