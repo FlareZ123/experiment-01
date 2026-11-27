@@ -99,9 +99,21 @@ function scoreAction(action, request) {
     if (/^Stealthy Hood UNB 186\b/i.test(name)) {
       const enemyWobbuffet = /^Wobbuffet PHF 36\b/i.test(print(opp.active));
       const unusedVstar = own.publicTurnRestrictions?.vstarUsed === false;
-      const target = slots(own).find(p=>/^Regidrago VSTAR SIT 136\b/i.test(print(p)) &&
-        list(p.tools).length===0);
-      return enemyWobbuffet && unusedVstar && target ? 265 : 0;
+      // Play-card root items carry their actual targetPrinting and targetSeat.
+      // An otherwise strong Hood line must never choose a token that attaches
+      // the Tool to a utility Basic instead of the threatened Regidrago VSTAR.
+      const targetPrinting = action?.targetPrinting ?? '';
+      const targetSeat = action?.publicMetadata?.targetSeat;
+      const targetZone = action?.publicMetadata?.targetZone;
+      const targetIndex = action?.publicMetadata?.targetIndex;
+      const exactTarget = targetZone === 'active' ? own.active :
+        (targetZone === 'bench' && Number.isSafeInteger(targetIndex) ?
+          list(own.bench)[targetIndex] : null);
+      const aligned = exactTarget &&
+        /^Regidrago VSTAR SIT 136\b/i.test(targetPrinting) &&
+        targetSeat === 'actor' && print(exactTarget) === targetPrinting &&
+        list(exactTarget.tools).length === 0;
+      return enemyWobbuffet && unusedVstar && aligned ? 265 : 0;
     }
     // Stage-2 Mega Dragonite has no evolution chain in the original 60:
     // it is an Apex donor, never proactively benched/evolved by this policy.
