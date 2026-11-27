@@ -75,6 +75,7 @@ const TEAM_FLARE_GRUNT = /^Team Flare Grunt\b/i;
 const PLUMERIA = /^Plumeria\b/i;
 const FABA = /^Faba\b/i;
 const MEGATON_BLOWER = /^Megaton Blower\b/i;
+const VOLT_CYCLONE = /^Volt Cyclone$/i;
 
 function list(value) {
   return Array.isArray(value) ? value : [];
@@ -191,6 +192,11 @@ function canPayPlumeria(observation) {
   const hand = list(observation?.ownHand).filter(card => !matches(card, PLUMERIA));
   return hand.filter(card => discardPriority(card, observation) >= 60).length >= 2;
 }
+function remainingHp(pokemon) {
+  const hp = pokemon?.hp;
+  const damage = pokemon?.damage;
+  return Number.isFinite(hp) && Number.isFinite(damage) ? hp - damage : null;
+}
 function hasVoltCycloneFrontier(request) {
   return list(request?.actionFrontier?.items).some(item =>
     item?.kind === 'attack' && /Volt Cyclone/i.test(item.attackName ?? ''));
@@ -304,6 +310,11 @@ function fundingScore(item, request) {
   const active = ownActive(observation);
   const card = item?.actorPrinting ?? '';
   if (!IRON_THORNS.test(active?.printing ?? '')) return 0;
+
+  if (item.kind === 'attack' && VOLT_CYCLONE.test(item?.attackName ?? '')) {
+    const hp = remainingHp(opponentActive(observation));
+    return Number.isFinite(hp) && hp <= 140 ? 290 : 120;
+  }
 
   if (item.kind === 'play-card' && matches(card, MEGATON_BLOWER)) {
     return itemAvailable(observation) &&
@@ -639,6 +650,30 @@ function fabaPromptDecision(request) {
   return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
 }
 
+function voltCyclonePromptDecision(request) {
+  const prompt = request.prompt;
+  if (prompt?.promptType !== 'AttachEnergyPrompt') {
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
+  }
+  const bench = list(request?.observation?.ownPublic?.bench);
+  let best = null;
+  let bestScore = -1;
+  for (const choice of list(prompt.choices)) {
+    if (choice?.kind !== 'energy') continue;
+    let score = matches(choice, CAPTURE_ENERGY) ? 100 :
+      matches(choice, SPEED_LIGHTNING) ? 90 :
+      matches(choice, DOUBLE_COLORLESS) ? 60 : 80;
+    const index = choice?.publicMetadata?.targetIndex ??
+      choice?.publicMetadata?.selectionIndex;
+    if (Number.isSafeInteger(index)) {
+      score -= list(bench[index]?.energies).length * 5;
+    }
+    if (score > bestScore) { best = choice; bestScore = score; }
+  }
+  return best ? { kind: 'select-choice', token: best.token } :
+    { kind: 'abstain', reasonCode: 'NO_USEFUL_CARD_CHOICE' };
+}
+
 function ironThornsSearchPromptDecision(prompt) {
   if (prompt?.promptType !== 'ChooseCardsPrompt') {
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
@@ -680,6 +715,9 @@ function promptDecision(request) {
   if (ENHANCED_HAMMER.test(source)) return enhancedHammerPromptDecision(request);
   if (TEAM_FLARE_GRUNT.test(source)) return teamFlarePromptDecision(request);
   if (FABA.test(source)) return fabaPromptDecision(request);
+  if (VOLT_CYCLONE.test(prompt?.source?.sourceAttack ?? '') || VOLT_CYCLONE.test(source)) {
+    return voltCyclonePromptDecision(request);
+  }
   if (NEST_BALL.test(source) || HEAVY_BALL.test(source) || CAPTURE_ENERGY.test(source)) {
     return ironThornsSearchPromptDecision(prompt);
   }
@@ -732,5 +770,7 @@ module.exports = {
   plumeriaPromptDecision,
   enhancedHammerPromptDecision,
   teamFlarePromptDecision,
-  fabaPromptDecision
+  fabaPromptDecision,
+  voltCyclonePromptDecision,
+  remainingHp
 };
