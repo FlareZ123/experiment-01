@@ -677,6 +677,19 @@ function prizeLiability(slot) {
   return 1;
 }
 
+// Legacy Energy changes Prize awards only for a Knock Out caused by attack damage.
+// The once-per-game use marker is a public player fact; an absent marker is
+// unknown, not evidence that the effect remains unused or has been consumed.
+function directAttackPrizeLiability(view, target) {
+  const base = prizeLiability(target);
+  if (!target || !(target.energies ?? []).some(energy => hasName(energy, 'Legacy Energy')) || base === 0) return base;
+  if (templeLive(view)) return base;
+  const used = view.opponentPublic?.publicTurnRestrictions?.legacyEnergyUsed;
+  if (used === true) return base;
+  if (used === false) return Math.max(0, base - 1);
+  return null;
+}
+
 function parseDamage(value) {
   if (typeof value === 'number' && Number.isFinite(value)) return value;
   if (typeof value !== 'string') return null;
@@ -3982,7 +3995,8 @@ function cleanPublicTerminalView(view,direct=false,extraHarmlessAbility=null){
     (direct&&slot===view.opponentPublic.active&&isDragon(slot)&&hasName(t,'Stealthy Hood'))) &&
   (slot.energies??[]).every(p=>
     isBasicEnergyPrinting(p) ||
-    (direct&&hasName(p,'Double Dragon Energy')&&isDragon(slot))))&&
+    (direct&&hasName(p,'Double Dragon Energy')&&isDragon(slot)) ||
+    hasName(p,'Legacy Energy')))&&
     !(view.ownPublic.active.specialConditions??[]).length&&
     !(view.opponentPublic.active.specialConditions??[]).length&&
     [...view.ownPublic.stadium,...view.opponentPublic.stadium].every(p=>hasAnyName(p,['Sky Field','Dimension Valley','Temple of Sinnoh']));
@@ -3991,8 +4005,8 @@ function publicFinalAttack(view,allowedNames=null){
   if(!cleanPublicTerminalView(view,allowedNames!==null))return null;
   const attacker=view.ownPublic.active,target=view.opponentPublic.active;
   const remaining=Math.max(0,target.hp-target.damage);
-  const liability=prizeLiability(target);
-  const prizeWin=liability>=view.ownPublic.prizeCount;
+  const liability=directAttackPrizeLiability(view,target);
+  const prizeWin=liability!==null&&liability>=view.ownPublic.prizeCount;
   const boardEmptyWin=!view.opponentPublic.bench.some(Boolean);
   if((!prizeWin&&!boardEmptyWin)||remaining<=0)return null;
   const candidates=(attacker.attacks??[]).filter(a=>
@@ -4385,6 +4399,7 @@ Object.defineProperty(module.exports, '__test', {
     hasOpponentAbilityLockOnFairyZoneHolder, hasOwnFairyZoneHolderLockThreat,
     viewAfterRemovingAbilityStadiums, fieldBlowerHoodBlocksFairyZone,
     paleMoonExtraPsychicAvailable, paleMoonRetreatStatus, paleMoonScore,
-    projectedStadium, usefulCandidateStadium, chooseEnergyPayment, weaknessMultiplier, stealthyHoodTargetScore
+    projectedStadium, usefulCandidateStadium, chooseEnergyPayment, weaknessMultiplier, stealthyHoodTargetScore,
+    directAttackPrizeLiability
   })
 });
