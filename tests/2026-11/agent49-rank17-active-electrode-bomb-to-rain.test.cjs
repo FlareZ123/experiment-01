@@ -252,3 +252,56 @@ test('one Benched Electrode Bomb -> funded Active Raichu -> Rain, no promotion r
       x.target.slot===0));
   }
 });
+
+test('CES48 native min:0 and reversible paper-hook min:mandatory both project identically',()=>{
+  for(const seat of [0,1]){
+    const f=setup(seat);
+    const b=bombPrompt(f),p=b.prompt;
+    const first=b.projection.promptProjection;
+    assert.equal(first.publicMetadata.minimumCount,1);
+    assert.equal(first.publicMetadata.maximumCount,1);
+    // simulation/twinleaf/electrode-gx-energy-hook.cjs mutates this exact
+    // native prompt options.min to the available-energy mandatory count.
+    p.options.min=1;
+    const patched=f.project(p,f.owner.active.getPokemonCard(),'Extra Energy Bomb');
+    const projected=patched.promptProjection;
+    assert.equal(projected.publicMetadata.minimumCount,1);
+    assert.equal(projected.publicMetadata.maximumCount,1);
+    assert.deepEqual(projected.choices.map(x=>x.publicMetadata),
+      first.choices.map(x=>x.publicMetadata));
+    // Extra Energy Bomb allows *neither* an arbitrary smaller positive
+    // minimum nor one larger than the live eligible discard.
+    p.options.min=2;
+    assert.throws(()=>f.project(p,f.owner.active.getPokemonCard(),'Extra Energy Bomb'),
+      /Unsupported pinned Electrode-GX Extra Energy Bomb prompt shape/);
+  }
+});
+test('Electro Rain packet output is compatible with existing target aggregation paper hook',()=>{
+  const {aggregateDamageTargets}=require('../../simulation/twinleaf/electro-rain-damage-hook.cjs');
+  for(const seat of [0,1]){
+    const f=setup(seat);
+    f.owner.active=slot(R,[new EnergyCard()]);
+    f.enemy.bench[0]=slot('Dedenne-GX UNB');
+    const d=rainPrompt(f);
+    d.prompt.maxAllowedDamage.push({
+      target:{player:1,slot:1,index:0},damage:200
+    });
+    const projection=f.project(d.prompt,f.owner.active.getPokemonCard(),'Electro Rain');
+    const p=projection.promptProjection;
+    assert.equal(p.choices.length,6);
+    const token=(ordinal,zone)=>p.choices.find(c=>
+      c.publicMetadata.selectionIndex===ordinal&&
+      c.publicMetadata.targetZone===zone)?.token;
+    const decision={kind:'select-choices',tokens:[
+      token(0,'active'),token(1,'bench'),token(2,'bench')
+    ]};
+    const settled=f.settle(d.prompt,projection,decision);
+    assert.equal(settled.rawResult.length,3);
+    const grouped=aggregateDamageTargets(settled.rawResult);
+    assert.deepEqual(grouped,[
+      {target:{player:1,slot:0,index:0},damage:30},
+      {target:{player:1,slot:1,index:0},damage:60}
+    ]);
+    assert.equal(grouped.reduce((n,x)=>n+x.damage,0),90);
+  }
+});
