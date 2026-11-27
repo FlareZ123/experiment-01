@@ -1395,3 +1395,38 @@ test('paid retreat to Wobbuffet unlocks a held Guzma final-two-Prize line agains
     assert.deepEqual(decide(profile,root(seat,direct,[retreat,mist])),sel('mist'));
   }
 });
+
+
+test('Agent4 CRE74 capability enables Active plus one Bench Astral final only when explicitly bound',()=>{
+  for(const base of profiles)for(const seat of [0,1]){
+    const hooked={...base,paperAstralBarrageTargets:'agent4-cre74-hook-v1'};
+    const regidrago=pokemon({printing:'Regidrago V SIT',name:'Regidrago V',hp:220,damage:180,
+      subtypes:['Basic','V'],types:['Dragon']});
+    const budew=pokemon({printing:'Budew ASC',name:'Budew',hp:30,damage:0,
+      subtypes:['Basic'],types:['Grass']});
+    const view=observation(seat,{active:v([P,P,P]),opponentActive:regidrago,opponentBench:[budew]});
+    view.globalTurn=15;view.ownPublic.prizeCount=3;
+    const barrage={token:'barrage',kind:'attack',attackName:'Astral Barrage'};
+    const mist={token:'mist',kind:'attack',attackName:'Shadow Mist'};
+    const hookedPolicy=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:hooked});
+    const hookedRoot=hookedPolicy.decideWithAudit(root(seat,view,[barrage,mist]));
+    assert.deepEqual(hookedRoot.decision,sel('barrage'));
+    assert.equal(hookedRoot.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_ASTRAL_BARRAGE');
+    const basePolicy=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:base});
+    const unhookedRoot=basePolicy.decideWithAudit(root(seat,view,[barrage,mist]));
+    assert.notEqual(unhookedRoot.decision.token,'barrage');
+    assert.notEqual(unhookedRoot.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_ASTRAL_BARRAGE');
+    const prompt={actingSeat:seat,promptType:'ChoosePokemonPrompt',
+      source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:V,effectName:'Astral Barrage'},
+      publicMetadata:{selectionType:'pokemon',minimumCount:2,maximumCount:2,allowCancel:false},
+      choices:[
+        {token:'active',kind:'pokemon',printing:regidrago.printing,publicMetadata:{ownerSeat:'opponent',targetZone:'active',isOwnerVisible:true}},
+        {token:'budew',kind:'pokemon',printing:budew.printing,publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:0,isOwnerVisible:true}}
+      ]};
+    const req={role:'candidate',seat,observation:{...view,decisionKind:'owner-prompt',pendingPromptType:'ChoosePokemonPrompt'},prompt,publicEventReceipt:null};
+    assert.deepEqual(hookedPolicy.decide(req),mult('active','budew'));
+    assert.equal(basePolicy.decide(req).kind,'abstain');
+    assert.throws(()=>worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,
+      config:{...base,paperAstralBarrageTargets:'untrusted-hook'}}));
+  }
+});
