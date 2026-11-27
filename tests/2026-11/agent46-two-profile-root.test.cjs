@@ -573,7 +573,7 @@ paired('Agent31: public direct win outranks Get Lost hazard denial',(seat,profil
   assert.deepEqual(decide(profile,root(seat,view,actions)),sel('mind'));
   assert.equal(rule(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
   view.ownPublic.prizeCount=3;view.opponentPublic.bench=[null,null,null,null,null];
-  assert.equal(rule(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+  assert.equal(rule(),'ROOT_PUBLIC_FINAL_BOARD_EMPTY_ATTACK');
   opp.damage=200;
   assert.ok(rule()!=='ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
 });
@@ -1530,5 +1530,53 @@ test('hooded Stoutland terminal line is certified only through held Field Blower
     const unfunded=JSON.parse(JSON.stringify(view));
     unfunded.ownPublic.bench[1].energies=[P,P,P,P];
     assert.deepEqual(decide(profile,root(seat,unfunded,[retreat,mist])),sel('mist'));
+  }
+});
+
+
+test('zero-Prize Trainer dolls never masquerade as final Prize KOs while sole-doll board wipe stays terminal',()=>{
+  for(const profile of profiles)for(const seat of [0,1]){
+    for(const spec of [
+      ['Robo Substitute PHF','Robo Substitute'],
+      ['Robo Substitute Team Flare Gear PHF','Robo Substitute Team Flare Gear'],
+      ["Lillie's Poké Doll CEC","Lillie's Poké Doll"],
+      ['Snorlax Doll PAR','Snorlax Doll']
+    ]){
+      const doll=pokemon({printing:spec[0],name:spec[1],hp:30,types:['Colorless'],subtypes:['Basic']});
+      const snorlax=pokemon({printing:'Snorlax PGO',name:'Snorlax',hp:150,damage:0,types:['Colorless'],subtypes:['Basic']});
+      const view=observation(seat,{active:vmax([P,P,P,P]),opponentActive:doll,opponentBench:[snorlax],globalTurn:15});
+      view.ownPublic.prizeCount=1;
+      const max={token:'max',kind:'attack',attackName:'Max Geist'};
+      const got=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile})
+        .decideWithAudit(root(seat,view,[max]));
+      assert.notEqual(got.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+      assert.notEqual(got.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_BOARD_EMPTY_ATTACK');
+
+      const sole=JSON.parse(JSON.stringify(view));
+      sole.opponentPublic.bench=Array(5).fill(null);
+      const soleGot=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile})
+        .decideWithAudit(root(seat,sole,[max]));
+      assert.deepEqual(soleGot.decision,sel('max'));
+      assert.equal(soleGot.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_BOARD_EMPTY_ATTACK');
+    }
+
+    const ordinary=pokemon({printing:'Snorlax PGO',name:'Snorlax',hp:150,damage:120,types:['Colorless'],subtypes:['Basic']});
+    const ordinaryView=observation(seat,{active:vmax([P,P,P,P]),opponentActive:ordinary,
+      opponentBench:[pokemon({printing:'Pidgey MEW',name:'Pidgey',hp:60,types:['Colorless'],subtypes:['Basic']})],globalTurn:15});
+    ordinaryView.ownPublic.prizeCount=1;
+    const max={token:'max',kind:'attack',attackName:'Max Geist'};
+    const ordinaryGot=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile})
+      .decideWithAudit(root(seat,ordinaryView,[max]));
+    assert.deepEqual(ordinaryGot.decision,sel('max'));
+    assert.equal(ordinaryGot.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+
+    const two=defender({hp:220,damage:200,subtypes:['Basic','V']});
+    const twoView=observation(seat,{active:vmax([P,P,P,P]),opponentActive:two,
+      opponentBench:[ordinary],globalTurn:15});
+    twoView.ownPublic.prizeCount=2;
+    const twoGot=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile})
+      .decideWithAudit(root(seat,twoView,[max]));
+    assert.deepEqual(twoGot.decision,sel('max'));
+    assert.equal(twoGot.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
   }
 });
