@@ -1,7 +1,7 @@
 'use strict';
 // Development-only actor-visible tactical slice; see accompanying report.
 module.exports = (function build() {
-  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v2';
+  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v3';
   const SOURCE_RANK = 9;
   const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
   const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -181,6 +181,51 @@ module.exports = (function build() {
     for(const row of rows){const s=score(row);if(s>v){win=row;v=s;}}
     return win;
   }
+function bombPlanner(o,sourceBenchIndex){
+  // A recommendation over publicly identified discard occurrences, NOT an
+  // executable native prompt decision. Never select this via root().
+  const own=o?.ownPublic,opp=o?.opponentPublic,source=own?.bench?.[sourceBenchIndex];
+  if(!Number.isInteger(sourceBenchIndex)||!/^Electrode-GX CES 48\b/i.test(name(source)))return null;
+  if(!Number.isSafeInteger(opp?.prizeCount)||opp.prizeCount<=2||!Number.isSafeInteger(own?.prizeCount)||own.prizeCount<1)return null;
+  if(L(source.abilitySuppressions).some(x=>x.abilityName==='Extra Energy Bomb'&&x.suppressed===true))return null;
+  if(activeStadium(o).some(x=>/Path to the Peak|Temple of Sinnoh/i.test(x)))return null;
+  const active=own.active,target=opp.active;
+  if(!(mega(active)||sableye(active))||!target)return null;
+  const recipients=slots(own).filter(({p})=>mega(p)||sableye(p));
+  const available=L(own.discard).map((printing,index)=>({printing:name(printing),index})).filter(x=>/^(?:Prism Energy ASC 216|Darkness Energy MEE 15|Telepathic Psychic Energy POR 88)\b/i.test(x.printing));
+  // Source-bound deck has at most seven Energy cards. An unexpected public
+  // Energy printing, or excess copies, invalidates this model's count.
+  if(L(own.discard).some(x=>/\bEnergy\b/i.test(name(x))&&!available.some(y=>y.printing===name(x))&&!/Energy (?:Switch|Retrieval|Recycler|Search|Loto|Spinner|Stadium|Reset|Recycle|Restore)\b/i.test(name(x))))return null;
+  if(available.length<1||available.length>7)return null;
+  for(const [pattern,cap] of [[/^Prism Energy\b/i,4],[/^Darkness Energy\b/i,2],[/^Telepathic Psychic Energy\b/i,1]])if(available.filter(e=>pattern.test(e.printing)).length>cap)return null;
+  const n=Math.min(5,available.length),baseline=bestAttackAgainst(o,active,target);
+  if(baseline>=400)return null;
+  const assignments=[],byRecipient=recipients.map(()=>[]);let bestPlan=null;
+  const compare=(a,b)=>!b||a.score>b.score||a.score===b.score&&a.activeCount<b.activeCount;
+  function examine(){
+    const upgraded=recipients.map((r,i)=>({...r,p:{...r.p,energies:[...L(r.p.energies),...byRecipient[i].map(x=>x.printing)]}}));
+    const a=upgraded.find(x=>x.zone==='active'),score=bestAttackAgainst(o,a.p,target);
+    if(score<400||score<=baseline)return;
+    // Spending two Prizes just to take one is not a conservative immediate
+    // gain; if it ends the game the trade is irrelevant.
+    if(score<1000&&(prize(target)<3||opp.prizeCount===3))return;
+    const backup=upgraded.filter(x=>x.zone==='bench').reduce((sum,x)=>sum+(mega(x.p)&&usable(x.p,'Claw of Darkness')||sableye(x.p)&&usable(x.p,'Crazy Claws')?25:0),0);
+    const activeCount=assignments.filter(x=>x.zone==='active').length;
+    const plan={sourceBenchIndex,required:n,score:score+backup,activeCount,immediateWin:score>=1000,assignments:assignments.map(x=>({...x}))};
+    if(compare(plan,bestPlan))bestPlan=plan;
+  }
+  function visit(i,used){
+    if(used===n){examine();return}
+    if(i===available.length||used+available.length-i<n)return;
+    visit(i+1,used);
+    const e=available[i];
+    for(let j=0;j<recipients.length;j++){
+      const r=recipients[j];byRecipient[j].push(e);assignments.push({discardIndex:e.index,printing:e.printing,zone:r.zone,index:r.index});
+      visit(i+1,used+1);assignments.pop();byRecipient[j].pop();
+    }
+  }
+  visit(0,0);return bestPlan;
+}
   function createPolicy({role,seat,policyVersion,config}) {
     if(role!=='opponent'||![0,1].includes(seat)||policyVersion!==POLICY_VERSION||!config||Array.isArray(config)||Object.keys(config).length)throw Error('RANK9_INIT_MISMATCH');
     let chain=null;
@@ -271,5 +316,5 @@ module.exports = (function build() {
       return r.prompt===null?root(r):prompt(r);
     }});
   }
-  return {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,createPolicy,printedDamage,payable,rootAttack,denial,prize,safeCosts};
+  return {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,createPolicy,printedDamage,payable,rootAttack,denial,prize,safeCosts,bombPlanner};
 })();

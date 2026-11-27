@@ -68,3 +68,30 @@ console.log('passed '+count+' synthetic assertions');
 
 const protocol=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 for(const code of ["BAD_CARD_SELECTION_BOUNDS","UNTRUSTED_PROMPT_SOURCE","UNSUPPORTED_POKEMON_PROMPT","NO_VISIBLE_POKEMON_TARGET","NO_LEGAL_CARD_SET","UNTRUSTED_ENERGY_SELECTION","NO_VISIBLE_ENERGY_CHOICE","UNSUPPORTED_PROMPT_TYPE","NO_SUPPORTED_ROOT_ACTION","ROLE_SEAT_BINDING_MISMATCH"])if(!protocol.isAbstentionReasonCode(code))throw Error('invalid abstention code '+code);
+
+const bombCount=(function tests(P){
+ const D='Darkness Energy MEE 15',Pr='Prism Energy ASC 216',T='Telepathic Psychic Energy POR 88';
+ const mk=(printing,energies=[],hp=280,damage=0)=>({printing,energies,hp,damage,printed:{stage:'Basic',weakness:[],resistance:[]},tools:[],specialConditions:[],publicRestrictions:{}});
+ const M=()=>mk('Mega Absol ex MEG 86'),S=()=>mk('Sableye V SSH 120'),E=()=>({...mk('Electrode-GX CES 48'),printed:{stage:'Stage 1'}}),target=()=>({...mk('Shadow Rider Calyrex VMAX CRE 75',[],320),printed:{stage:'VMAX',weakness:[{type:'Darkness',value:'×2'}],resistance:[]}});
+ const obs=(discard,opp=6,own=6)=>({ownPublic:{active:M(),bench:[E(),S()],discard,prizeCount:own},opponentPublic:{active:target(),bench:[],prizeCount:opp}});
+ let n=0;function assert(ok,label){if(!ok)throw Error(label);n++}
+ let o=obs([Pr,Pr,Pr,D,T]),p=P.bombPlanner(o,0);
+ assert(p&&p.required===5&&p.assignments.length===5,'exact five');
+ assert(new Set(p.assignments.map(x=>x.discardIndex)).size===5,'distinct occurrences');
+ assert(p.assignments.filter(x=>x.zone==='active').length===3,'fund both attackers not overstack');
+ assert(p.assignments.filter(x=>x.zone==='bench').every(x=>x.index===1),'never attach to Electrode');
+ assert(P.bombPlanner(obs([Pr,Pr,Pr],6,6),0)?.required===3,'legal short count');
+ assert(P.bombPlanner(obs([Pr,Pr],6,6),0)===null,'no immediate KO');
+ assert(P.bombPlanner(obs([Pr,Pr,Pr],2,3),0)===null,'self-KO immediate loss veto');
+ assert(P.bombPlanner(obs([Pr,Pr,Pr],3,3),0)?.immediateWin,'win after self-KO');
+ assert(P.bombPlanner(obs([Pr,Pr,Pr],3,6),0)===null,'opponent one Prize left veto');
+ o=obs([Pr,Pr,Pr]);o.ownPublic.active.energies=[D,D,Pr];
+ assert(P.bombPlanner(o,0)===null,'already funded KO');
+ o=obs([Pr,Pr,T]);o.ownPublic.stadium=['Temple of Sinnoh ASR 155'];
+ assert(P.bombPlanner(o,0)===null,'unknown special energy modifier veto');
+ o=obs([Pr,Pr,Pr,Pr,Pr]);assert(P.bombPlanner(o,0)===null,'source inventory cap');
+ o=obs([Pr,Pr,Pr]);o.ownPublic.bench[0].abilitySuppressions=[{abilityName:'Extra Energy Bomb',suppressed:true}];assert(P.bombPlanner(o,0)===null,'ability suppressed');
+ o=obs([Pr,Pr,T]);o.opponentPublic.active=mk('Pikachu TST 1',[],60);assert(P.bombPlanner(o,0)===null,'two prizes for one not chosen');
+ return n;
+})(P);
+console.log('passed '+bombCount+' Bomb planner assertions');
