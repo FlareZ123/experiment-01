@@ -1,0 +1,150 @@
+diff --git a/simulation/evaluation/2026-11/agent49-policy-protocol.cjs b/simulation/evaluation/2026-11/agent49-policy-protocol.cjs
+--- a/simulation/evaluation/2026-11/agent49-policy-protocol.cjs
++++ b/simulation/evaluation/2026-11/agent49-policy-protocol.cjs
+@@ -93,12 +93,15 @@
+ ]);
+ const ANALYSIS_ONLY_ACTION_KINDS = new Set(['projected-attack']);
+ const MULTI_SELECT_PROMPT_TYPES = new Set([
+-  'card-combination', 'pokemon', 'energy-payment', 'prize-slots', 'card-order'
++  'card-combination', 'pokemon', 'energy-payment', 'prize-slots', 'card-order',
++  'energy-discard', 'energy-attachment-set'
+ ]);
+ const MULTI_SELECT_ITEM_KINDS = Object.freeze({
+   'card-combination': 'card',
+   pokemon: 'pokemon',
+   'energy-payment': 'energy',
++  'energy-discard': 'energy',
++  'energy-attachment-set': 'energy',
+   'prize-slots': 'prize',
+   'card-order': 'card-order-item'
+ });
+@@ -267,7 +270,9 @@
+   'card-order': Object.freeze(['OrderCardsPrompt']),
+   confirm: Object.freeze(['ConfirmPrompt']),
+   option: Object.freeze(['SelectPrompt', 'SelectOptionPrompt']),
+-  'energy-attachment': Object.freeze(['AttachEnergyPrompt'])
++  'energy-attachment': Object.freeze(['AttachEnergyPrompt']),
++  'energy-discard': Object.freeze(['DiscardEnergyPrompt']),
++  'energy-attachment-set': Object.freeze(['AttachEnergyPrompt'])
+ });
+ const PROMPT_SELECTION_TYPES = new Set(Object.keys(PROMPT_SELECTION_TYPE_TO_PROMPT_TYPES));
+ const SINGLE_SELECT_ITEM_KINDS = Object.freeze({
+@@ -772,6 +777,8 @@
+   switch (metadata.selectionType) {
+     case 'card-combination':
+     case 'pokemon':
++    case 'energy-discard':
++    case 'energy-attachment-set':
+       minimumCount = metadata.minimumCount;
+       maximumCount = metadata.maximumCount;
+       break;
+@@ -839,6 +846,36 @@
+   return { selectionType: metadata.selectionType, itemKind, allowCancel };
+ }
+ 
++// Rank19-only proposed energy prompt contracts. The host separately authenticates
++// the exact opponent fingerprint and pinned native source before projection.
++function rank19EnergySource(prompt) {
++  const s=prompt.source, t=prompt.publicMetadata.selectionType;
++  if(s.sourceKind!=='card-effect'||s.copiedSourcePrinting!==undefined||s.copiedAttackName!==undefined)return null;
++  if(t==='energy-discard'&&s.effectName==='Bellowing Thunder'&&/^Raging Bolt ex TEF(?: 123)?$/.test(s.sourcePrinting))return {zone:'play',min:0,max:null};
++  if(t!=='energy-attachment-set')return null;
++  if(s.effectName==="Professor Sada's Vitality"&&/^Professor Sada's Vitality PAR(?: 170)?$/.test(s.sourcePrinting))return {zone:'discard',min:1,max:2,distinct:true};
++  if(s.effectName==='Ultimate Ray'&&/^Arceus & Dialga & Palkia-? ?GX CEC(?: 156)?$/.test(s.sourcePrinting))return {zone:'deck',min:0,max:3};
++  if(s.effectName==='Magnetic Absorption'&&/^Sandy Shocks ex PAR(?: 108)?$/.test(s.sourcePrinting))return {zone:'discard',min:1,max:1};
++  if(s.effectName==='Dance of the Ancients'&&/^Tapu Koko (?:Prism Star|◇|♢) TEU(?: 51)?$/.test(s.sourcePrinting))return {zone:'discard',min:2,max:2,distinct:true};
++  if(s.effectName==='Raihan'&&/^Raihan EVS(?: 152)?$/.test(s.sourcePrinting))return {zone:'discard',min:1,max:1};
++  return null;
++}
++function validateRank19EnergyPrompt(prompt) {
++  const m=prompt.publicMetadata, t=m.selectionType;
++  if(!['energy-discard','energy-attachment-set'].includes(t))return;
++  const s=rank19EnergySource(prompt);
++  if(!s||m.allowCancel!==false||m.minimumCount!==s.min||(s.max!==null&&m.maximumCount!==s.max))fail('BAD_RANK19_ENERGY_SOURCE');
++  const items=prompt.choices.filter(c=>c.kind==='energy'),seen=new Set();
++  if(t==='energy-discard'&&m.maximumCount!==items.length)fail('BAD_RANK19_ENERGY_BOUNDS');
++  for(const c of items){
++    const z=c.publicMetadata;
++    if(!z||z.ownerSeat!=='actor'||z.sourceZone!==s.zone||z.isOwnerVisible!==true||z.energyType!=='BASIC'||z.selectedCount!==1||!['active','bench'].includes(z.zone)||(z.zone==='bench'&&!Number.isSafeInteger(z.benchIndex)))fail('BAD_RANK19_ENERGY_ITEM');
++    const id=t==='energy-discard'?z.slotIndex:z.selectionIndex;
++    if(!Number.isSafeInteger(id))fail('BAD_RANK19_ENERGY_ITEM');
++    const k=z.zone+':'+(z.benchIndex??0)+':'+id;
++    if(seen.has(k))fail('DUPLICATE_RANK19_ENERGY_ITEM');seen.add(k);
++  }
++}
+ function validatePrompt(prompt, seat) {
+   if (prompt === null) return null;
+   exactKeys(prompt, ['schema', 'actingSeat', 'promptType', 'description', 'source', 'choices', 'publicMetadata']);
+@@ -883,6 +920,7 @@
+   }
+   multiSelectBounds(prompt);
+   singleSelectContract(prompt);
++  validateRank19EnergyPrompt(prompt);
+   return prompt;
+ }
+ 
+@@ -991,6 +1029,11 @@
+         decision.tokens.length > bounds.maximumCount) {
+       fail('BAD_MULTI_SELECT_COUNT');
+     }
++    if(bounds.selectionType==='energy-attachment-set'){
++      const selected=decision.tokens.map(t=>choiceByToken.get(t).publicMetadata);
++      if(new Set(selected.map(m=>m.selectionIndex)).size!==selected.length)fail('DUPLICATE_ATTACHMENT_CARD');
++      if(rank19EnergySource(prompt)?.distinct&&new Set(selected.map(m=>m.zone+':'+(m.benchIndex??0))).size!==selected.length)fail('DUPLICATE_ATTACHMENT_TARGET');
++    }
+     return { kind: 'select-choices', tokens: decision.tokens.slice() };
+   }
+   if (decision.kind === 'abstain') {
+diff --git a/simulation/evaluation/2026-11/agent36-prompt-projection.cjs b/simulation/evaluation/2026-11/agent36-prompt-projection.cjs
+--- a/simulation/evaluation/2026-11/agent36-prompt-projection.cjs
++++ b/simulation/evaluation/2026-11/agent36-prompt-projection.cjs
+@@ -2,6 +2,7 @@
+ 
+ const assert = require('node:assert/strict');
+ const protocol = require('./agent49-policy-protocol.cjs');
++const rank19EnergyBridge = require('./agent23-rank19-energy-host-bridge.cjs');
+ const { enumName, cloneNativeValidationGraph } = require('./agent36-native-action-frontier.cjs');
+ 
+ const MAX_PROMPT_CHOICES = 512;
+@@ -845,7 +846,7 @@
+   };
+ }
+ 
+-function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook } = {}) {
++function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook, rank19EnergyContext = null } = {}) {
+   assert.ok(prompt && state && native);
+   assert.ok(actorSeat === 0 || actorSeat === 1);
+   const actor = state.players[actorSeat];
+@@ -864,7 +865,11 @@
+   let publicMetadata = null;
+   const type = prompt.constructor?.name;
+ 
+-  switch (type) {
++  const rank19Draft=rank19EnergyContext ? rank19EnergyBridge.projectDraftEnergyPrompt({context:rank19EnergyContext,prompt,state,actorSeat,native,source}) : null;
++  if(rank19Draft){
++    choices.push(...rank19Draft.choices);
++    publicMetadata=rank19Draft.publicMetadata;
++  } else switch (type) {
+     case 'ChooseCardsPrompt':
+     case 'NightWatchPrompt':
+       publicMetadata = projectChooseCards(prompt, state, actorSeat, choices, choiceByToken);
+@@ -914,6 +919,7 @@
+     hostOnly: false,
+     promptProjection: frozen,
+     choiceByToken,
++    ...(rank19Draft?{rank19Resolve:rank19Draft.resolve}:{}),
+     diagnostics: Object.freeze({
+       promptType: type,
+       sourceKind: source.sourceKind,
+@@ -1011,7 +1017,10 @@
+   );
+   assert.ok(selected && typeof selected === 'object', 'worker prompt decision must be typed');
+   let rawResult;
+-  if (selected.kind === 'select-choice') {
++  if(typeof projection.rank19Resolve==='function'){
++    rawResult=projection.rank19Resolve(selected);
++    assert.ok(Array.isArray(rawResult),'rank19 source-bound resolution rejected selected physical energy assignments');
++  } else if (selected.kind === 'select-choice') {
+     assert.equal(typeof selected.token, 'string');
+     assert.ok(projection.choiceByToken.has(selected.token),
+       'worker selected an unknown or stale native prompt choice token');
