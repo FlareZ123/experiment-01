@@ -299,9 +299,31 @@ function r17UniqueCore(rows) {
     seen.add(k);return true;
   });
 }
+function r17TakeKeys(cards,keys,limit=Infinity) {
+  const remaining=cards.slice(),rows=[];
+  for(const key of keys){
+    if(rows.length>=limit)break;
+    const i=remaining.findIndex(c=>r17Key(c)===key);
+    if(i>=0)rows.push(...remaining.splice(i,1));
+  }
+  return rows;
+}
 function r17CarrierChoices(prompt,view,zone='discard') {
-  const rows=r17UniqueCore(r17Rank(r17ChoiceCards(prompt,zone),c=>r17CarrierValue(r17Key(c),view)));
-  return r17Multi(prompt,rows,2);
+  const cards=r17ChoiceCards(prompt,zone),counts=r17CardCounts(cards)||{};
+  const plan=r17CoreAccess(view,{}, {carrier:1,discardCounts:{voltorb:counts.voltorb||0,pikachu:counts.pikachu||0}});
+  const rows=r17TakeKeys(cards,plan.carrierKeys,2),used=new Set(rows.map(c=>c.token));
+  const fill=r17Rank(cards.filter(c=>!used.has(c.token)&&!R17_CORE_KEYS.includes(r17Key(c))),
+    c=>r17CarrierValue(r17Key(c),view));
+  return r17Multi(prompt,[...rows,...fill],2);
+}
+function r17StretcherChoices(prompt,view) {
+  const cards=r17ChoiceCards(prompt,'discard'),counts=r17CardCounts(cards)||{},discardCounts={};
+  for(const key of R17_CORE_KEYS)discardCounts[key]=counts[key]||0;
+  const plan=r17CoreAccess(view,{}, {stretcher:1,discardCounts});
+  const rows=r17TakeKeys(cards,plan.stretcherKeys,1);
+  if(rows.length)return r17Multi(prompt,rows,1);
+  return r17Multi(prompt,r17Rank(cards.filter(c=>!R17_CORE_KEYS.includes(r17Key(c))),
+    c=>r17RecoveryValue(r17Key(c),view)),1);
 }
 function r17MissingCore(view) {
   return [['voltorb','electrode'],['pikachu','raichu']].filter(([b,e])=>r17Missing(view,b,e)).map(([b])=>b);
@@ -313,8 +335,8 @@ function r17SecondBombUseful(view) {
   // that second liability solely for the simultaneous combo when it would
   // already lose, or when too little Special Energy remains to benefit.
   const energyLost=list(p.lostZone).filter(c=>R17_ENERGY.has(r17Key(c))).length;
-  return Number.isSafeInteger(o.prizeCount)&&o.prizeCount>=5&&
-    Number.isSafeInteger(p.prizeCount)&&p.prizeCount>=4&&12-energyLost>=6;
+  return (view.phase===1||Number.isSafeInteger(o.prizeCount)&&o.prizeCount>=5&&
+    Number.isSafeInteger(p.prizeCount)&&p.prizeCount>=4)&&12-energyLost>=6;
 }
 const R17_CORE_KEYS=Object.freeze(['voltorb','pikachu','raichu','electrode']);
 function r17CoreSequence(n) {
@@ -326,7 +348,7 @@ function r17CoreSequence(n) {
 }
 function r17CoreAccess(view,deckCounts={},extra={}) {
   const desiredE=r17SecondBombUseful(view)?2:1,desiredR=1,space=r17Space(view);
-  const b={},h={},d=r17CardCounts(r17Discard(view))||{};
+  const b={},h={},d={...(r17CardCounts(r17Discard(view))||{}),...(extra.discardCounts||{})};
   for(const k of [...R17_CORE_KEYS,'ditto']){b[k]=r17BoardCount(view,k);h[k]=r17HandCount(view,k);}
   const carrier=2*(r17HandCount(view,'carrier')+(extra.carrier||0));
   const stretcher=r17HandCount(view,'stretcher')+(extra.stretcher||0);
@@ -464,9 +486,11 @@ function r17SafeDiscards(cards,view,excluded) {
 }
 function r17TrainerNeed(key,view) {
   if(key==='vip')return r17First(view)&&r17Space(view)>0?240:0;
-  if(key==='carrier')return r17Discard(view).some(c=>r17CarrierValue(r17Key(c),view)>0)?260:90;
+  if(key==='carrier')return r17CoreAccess(view,{}, {carrier:1}).carrierKeys.length||
+    r17Discard(view).some(c=>!R17_CORE_KEYS.includes(r17Key(c))&&r17CarrierValue(r17Key(c),view)>0)?260:90;
   if(key==='compressor')return r17CompressorUseful(view)?240:25;
-  if(key==='stretcher')return r17Discard(view).some(c=>r17RecoveryValue(r17Key(c),view)>0)?230:70;
+  if(key==='stretcher')return r17CoreAccess(view,{}, {stretcher:1}).stretcherKeys.length||
+    r17Discard(view).some(c=>!R17_CORE_KEYS.includes(r17Key(c))&&r17RecoveryValue(r17Key(c),view)>0)?230:70;
   if(key==='heavy')return r17Missing(view,'voltorb','electrode')||r17Missing(view,'pikachu','raichu')?160:40;
   if(key==='research')return supporterAvailable(view)&&!r17Hand(view,'research')&&r17Deck(view)>=8?190:45;
   if(key==='carmine')return supporterAvailable(view)&&!r17Hand(view,'research')&&r17Deck(view)>=6?145:30;
@@ -599,9 +623,11 @@ function r17ScorePlay(item,view) {
     handCount(view)<=3&&!r17ProtectedHand(view)&&!r17BasicLock(view)?190:0;
   if(k==='gengar')return r17Space(view)>0&&!r17Board(view,k)&&!gxUsed(view)&&r17Hand(view,'unit')?145:0;
   if(k==='vip'){const z=r17KnownOwnZones(view);return r17First(view)&&r17Space(view)>0&&(!z||Object.keys(z.deck).some(k=>r17VipValue(k,view)>0))?350:0;}
-  if(k==='carrier')return r17Discard(view).some(c=>r17CarrierValue(r17Key(c),view)>0)?290:0;
+  if(k==='carrier')return r17CoreAccess(view).carrierKeys.length||
+    r17Discard(view).some(c=>!R17_CORE_KEYS.includes(r17Key(c))&&r17CarrierValue(r17Key(c),view)>0)?290:0;
   if(k==='compressor')return r17CompressorUseful(view)?(r17CompressorGain(view)>0?305:250):0;
-  if(k==='stretcher')return r17Discard(view).some(c=>r17RecoveryValue(r17Key(c),view)>0)?275:0;
+  if(k==='stretcher')return r17CoreAccess(view).stretcherKeys.length||
+    r17Discard(view).some(c=>!R17_CORE_KEYS.includes(r17Key(c))&&r17RecoveryValue(r17Key(c),view)>0)?275:0;
   if(k==='mail')return r17Deck(view)>=2?175:0;
   if(k==='heavy')return r17Missing(view,'voltorb','electrode')||r17Missing(view,'pikachu','raichu')?160:0;
   if(k==='secret')return r17SafeDiscards(hand(view),view,'secret').length>=3?155:0;
@@ -695,7 +721,7 @@ function r17Prompt(request) {
     if(key==='compressor')return r17CompressorUseful(v)?
       r17CompressorChoices(p,v):r17Abstain('R17_COMPRESSOR_NO_CARRIER_PLAN');
     if(key==='vip')return r17VipChoices(p,v);
-    if(key==='stretcher')return r17Multi(p,r17Rank(r17ChoiceCards(p,'discard'),c=>r17RecoveryValue(r17Key(c),v)),1);
+    if(key==='stretcher')return r17StretcherChoices(p,v);
     if(key==='mail')return r17Multi(p,r17Rank(r17ChoiceCards(p,'deck'),c=>r17TrainerNeed(r17Key(c),v)),1);
     if(key==='secret') {
       const zone=metadata(p).sourceZone;
@@ -717,7 +743,7 @@ function r17Prompt(request) {
   if(key==='stretcher'&&(type==='SelectOptionPrompt'||type==='SelectPrompt')) {
     // Exact printed option 0 is recover one to hand; shuffle-three mode
     // is deliberately unimplemented rather than guessed at its continuation.
-    if(r17Discard(v).some(c=>r17RecoveryValue(r17Key(c),v)>0))return r17Option(p,0);
+    if(r17CoreAccess(v,{}, {stretcher:1}).stretcherKeys.length||r17Discard(v).some(c=>!R17_CORE_KEYS.includes(r17Key(c))&&r17RecoveryValue(r17Key(c),v)>0))return r17Option(p,0);
   }
   if((key==='unown'&&effect==='Farewell Letter'||key==='marshadow'&&effect==='Resetting Hole'||
       key==='squawk'&&effect==='Squawk and Seize')&&type==='ConfirmPrompt') {
