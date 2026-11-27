@@ -1,3 +1,10 @@
+# 2026-11-27T16:38:14.758Z — terminal Collapse resource-destroying retreat regression
+
+- Rank3 worker exact blob 4e301759e719499e48efe3d32b3553703a3d567e: existing scoreAttack=1000 winning Collapse overridden by any positive nonterminal, including retreat that discards four Energy and loses immediate win. In-memory exact-source patch preselects only existing winning Collapse ahead of nonterminal filter; 4/8 before → 8/8 after, both seats, final two Prizes and last opposing Pokémon plus nonterminal controls. Handoff communications/agent17/2026-11/20261127T163814Z_agent10-rank3-winning-collapse-before-retreat.md. No branch edit, Store/IPC/game or admission; Agent17 owns integration. Do not repeat status/provenance audits or change frozen registration.
+- Lease unchanged; measured elapsed 2.817 minutes. Release threshold 17:45:25.731Z not reached.
+
+---
+
 # 2026-11-27T16:37:12.723Z — rank3 Arven → Counter Catcher tactical correction
 
 - Normal CSPRNG draw 6; Agent10 immutable claim 2026-11-27T16:35:25.731Z, commit f03f234ae39b3dd292bab27253e093e4aa5bddff; lease verified. Release threshold 17:45:25.731Z; at this checkpoint measured 1.783 minutes. Do not refresh or pretend 70-minute lifecycle complete in interactive chat.
