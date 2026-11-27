@@ -1,0 +1,71 @@
+{
+  "schema": "agent1-newmoon-rank2-acceptance-delta-v1",
+  "dateUTC": "2026-11-27",
+  "candidate": {
+    "name": "New Moon Lockbreaker v1",
+    "manifest": "results/als/new-moon-lockbreak-english-proxy-60.json",
+    "identityCountSha256": "a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4",
+    "fixed60": true
+  },
+  "sourceRank": 2,
+  "status": "actor-visible paper acceptance delta only; no native game or competitive qualification",
+  "cases": [
+    {
+      "id": "R2-DUAL-LOCK-RONDO",
+      "state": "AOR Vileplume is in play, Stoutland BCR is Active, candidate Items and Supporters are locked, Lillie's Clefairy ex has two Energy, and total Benched Pokémon across both sides is at least 6.",
+      "must": "Recognize Full Moon Rondo reaches at least 140 and cleanly KOs Stoutland, reopening Supporters after the lock Pokémon leaves Active.",
+      "forbids": "Treating simultaneous Item+Supporter lock as preventing attacks or requiring an Item/Supporter unlock first."
+    },
+    {
+      "id": "R2-RONDO-THRESHOLD",
+      "state": "Same dual-lock board, clean 140-HP Stoutland, Clefairy has two Energy, total Benched Pokémon across both sides is at most 5.",
+      "must": "Calculate Full Moon Rondo below 140 and compare prior damage/another attacker.",
+      "forbids": "Hallucinating the six-Bench breakpoint."
+    },
+    {
+      "id": "R2-TOOLS-UNDER-ITEM-LOCK",
+      "state": "AOR Vileplume's Irritating Pollen is active; Powerglass is in hand and has a legal Tool target; no separate Tool lock is active.",
+      "must": "Keep Powerglass legally playable because Pokémon Tools are not Items under the current rules.",
+      "forbids": "Applying Item lock to Pokémon Tool cards."
+    },
+    {
+      "id": "R2-BUNNELBY-PROMOTION",
+      "state": "Rank2 Bunnelby is Active, AOR Vileplume is live, Stoutland is Benched, and candidate can take the Bunnelby KO.",
+      "must": "Score Stoutland's immediate promotion and resulting Sentinel lock, then permit the KO if the selected continuation can remove Stoutland without Item/Supporter help.",
+      "forbids": "Treating the one-Prize KO as pure upside or using a universal never-KO rule."
+    },
+    {
+      "id": "R2-HORROR-GRANDTREE",
+      "state": "Candidate goes second on its first turn; Horror House-GX is legal; Grand Tree is already in play from rank2's first turn.",
+      "must": "Compare replacing Grand Tree before Horror House, since Horror House blocks hand plays but does not disable an already-in-play Stadium effect.",
+      "forbids": "Assuming hand lock switches off Grand Tree."
+    },
+    {
+      "id": "R2-HORROR-RETREAT",
+      "state": "Bunnelby is Active under Horror House with sufficient attached Energy to retreat; Stoutland is Benched.",
+      "must": "Expect ordinary retreat as a board action and Stoutland promotion even though cards cannot be played from hand.",
+      "forbids": "Treating Horror House as an Active-position lock."
+    },
+    {
+      "id": "R2-PATH-DIRECT-ATTACKER",
+      "state": "Dual lock is active; candidate can use direct Clefairy/Latias attacks; opponent Pidgeot ex or Vileplume-GX Ability is live; Path is playable.",
+      "must": "Recognize Path can suppress Rule-Box support even though it does not suppress AOR Vileplume/Stoutland; compare its low self-cost when the selected attack needs no candidate Rule-Box Ability.",
+      "forbids": "Scoring Path only by whether it removes the two lock Abilities."
+    },
+    {
+      "id": "R2-PRELOCK-POWERGLASS",
+      "state": "Candidate goes first and has its pre-lock turn before rank2 can execute its going-second TM Evolution setup; attacker/Powerglass/Basic-Psychic-discard setup competes with generic board expansion.",
+      "must": "Prefer preserving a credible in-lock attacker economy when it dominates low-impact setup.",
+      "forbids": "Burning the disappearing Item/setup window on generic access that becomes unusable under Vileplume."
+    }
+  ],
+  "damageBreakpoint": {
+    "card": "Lillie's Clefairy ex JTG 56",
+    "attack": "Full Moon Rondo",
+    "formula": "20 + 20 * total Benched Pokémon (both players)",
+    "stoutlandHP": 140,
+    "minimumTotalBenchForCleanKO": 6
+  },
+  "competitiveQualified": false,
+  "claim99Point5": false
+}
