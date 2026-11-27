@@ -383,7 +383,15 @@ function cardChoiceScore(choice, observation, context) {
     if (matches(printing, PRINT.thunderMountain)) return 230;
     if (matches(printing, PRINT.wondrousLabyrinth)) return 180;
     if (matches(printing, PRINT.tropicalBeach)) return 160;
-    if (matches(printing, PRINT.toolJammer)) return 220;
+    const emptyToolRecipient = slots(observation.ownPublic).some(row =>
+      matches(row.pokemon.printing, PRINT.ironThorns) && list(row.pokemon.tools).length === 0);
+    if (matches(printing, PRINT.toolJammer))
+      return emptyToolRecipient && opponentHasTool(observation) ? 225 : 0;
+    if (matches(printing, PRINT.palaceBelt))
+      return emptyToolRecipient && ownDeckCount(observation) >= 6 ? 210 : 0;
+    if (matches(printing, PRINT.handheldFan))
+      return emptyToolRecipient && opponentActiveEnergy(observation) > 0 &&
+        slots(observation.opponentPublic).some(row => row.zone === 'bench') ? 200 : 0;
     if (matches(printing, PRINT.doubleColorless)) return 240;
     if (matches(printing, PRINT.speedLightning)) return 200;
     if (matches(printing, PRINT.spikyEnergy)) return 170;
@@ -517,7 +525,8 @@ function bestGuzmaHalaSearch(choices, observation, maximum) {
       if (choiceOwner(choice) !== 'actor' || choiceZone(choice) !== 'deck') return false;
       if (category === 'stadium') return matches(printing, PRINT.thunderMountain) ||
         matches(printing, PRINT.wondrousLabyrinth) || matches(printing, PRINT.tropicalBeach);
-      if (category === 'tool') return matches(printing, PRINT.toolJammer);
+      if (category === 'tool') return [PRINT.toolJammer, PRINT.palaceBelt,
+         PRINT.handheldFan].some(pattern => matches(printing, pattern));
       return matches(printing, PRINT.doubleColorless) || matches(printing, PRINT.speedLightning) ||
         matches(printing, PRINT.spikyEnergy) || matches(printing, PRINT.captureEnergy);
     });
