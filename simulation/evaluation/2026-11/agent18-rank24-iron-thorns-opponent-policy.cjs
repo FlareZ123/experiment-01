@@ -445,6 +445,36 @@ function retreatScore(item, request) {
   return 242;
 }
 
+function shadowRiderPrizeLiability(printing) {
+  const p = textOf(printing);
+  if (/^Shadow Rider Calyrex VMAX\b/i.test(p)) return 3;
+  if (/^Trevenant & Dusknoir-GX\b/i.test(p)) return 3;
+  if (/^(?:Shadow Rider Calyrex V|Lillie['’]s Clefairy ex|Tapu Lele-GX|Latias ex|Dialga-GX)\b/i.test(p)) return 2;
+  if (/^(?:Mimikyu|Girafarig|Marshadow|Radiant Eternatus|Wobbuffet)\b/i.test(p)) return 1;
+  return 0;
+}
+function shadowRiderTerminalProof(observation) {
+  const target = opponentActive(observation);
+  const liability = shadowRiderPrizeLiability(target?.printing);
+  if (liability <= 0) return null;
+
+  // Current Hood Shield and Lockbridge challengers contain only these Tools and
+  // Stadiums; none reduces/prevents Volt Cyclone damage. Unknown public cards
+  // fail closed instead of being assumed harmless.
+  const safeTools = /^(?:Float Stone|Forest Seal Stone|Stealthy Hood)\b/i;
+  if (list(target?.tools).some(card => !safeTools.test(textOf(card)))) return null;
+  const safeStadiums = /^(?:Sky Field|Dimension Valley|Temple of Sinnoh|Thunder Mountain|Wondrous Labyrinth|Player['’]s Ceremony)\b/i;
+  const stadiums = [...list(observation?.ownPublic?.stadium), ...list(observation?.opponentPublic?.stadium)];
+  if (stadiums.some(card => !safeStadiums.test(textOf(card)))) return null;
+
+  // Their published attack pool has no effect that prevents or reduces damage
+  // from the opponent's next attack. Pale Moon is delayed KO, not prevention.
+  // Mimikyu's Copycat can only copy rank24's Volt Cyclone in this matchup.
+  const receipt = observation?.__publicEventReceipt;
+  if (receipt && !Array.isArray(receipt.opponentLastTurnAttacks)) return null;
+  return { prizeLiability: liability, damage: 140 };
+}
+
 function terminalAttackDecision(request) {
   const observation = request?.observation;
   const ownPrizes = ownPrizeCount(observation);
@@ -456,19 +486,27 @@ function terminalAttackDecision(request) {
     if (item?.kind !== 'attack' || !VOLT_CYCLONE.test(item?.attackName ?? '')) continue;
     const meta = item?.publicMetadata ?? {};
 
-    // A terminal override is stronger than ordinary heuristics, so require the
-    // frontier to certify the otherwise-hard-to-model pieces. Missing proof
-    // fails closed rather than guessing from a Rule Box name.
-    if (!Number.isSafeInteger(meta.prizeLiability) || meta.prizeLiability < 1) continue;
-    if (meta.hasPrevention !== false || meta.hasUnmodeledModifier !== false) continue;
+    // Prefer explicit frontier certification when present. The generic frontier
+    // currently exposes attack legality/cost but not liability/prevention
+    // fields, so a second path is allowed only for the two fixed Shadow Rider
+    // candidate profiles whose public card pool has been audited here.
+    let liability = Number.isSafeInteger(meta.prizeLiability) ? meta.prizeLiability : 0;
+    let damage = Number.isFinite(meta.damageAfterResistance) ? meta.damageAfterResistance :
+      Number.isFinite(meta.damageAfterWeakness) ? meta.damageAfterWeakness :
+      Number.isFinite(meta.damage) ? meta.damage : null;
+    const explicitProof = liability >= 1 &&
+      meta.hasPrevention === false && meta.hasUnmodeledModifier === false;
+    if (!explicitProof) {
+      const proofObservation = { ...observation, __publicEventReceipt: request?.publicEventReceipt };
+      const fallback = shadowRiderTerminalProof(proofObservation);
+      if (!fallback) continue;
+      liability = fallback.prizeLiability;
+      damage = fallback.damage;
+    }
     if (meta.attackCostPayable === false || meta.isLegal === false) continue;
     if (list(target?.energies).some(card => matches(card, LEGACY_ENERGY))) continue;
-
-    const damage = Number.isFinite(meta.damageAfterResistance) ? meta.damageAfterResistance :
-      Number.isFinite(meta.damageAfterWeakness) ? meta.damageAfterWeakness :
-      Number.isFinite(meta.damage) ? meta.damage : 140;
-    if (damage < hp) continue;
-    if (ownPrizes > meta.prizeLiability) continue;
+    if (!Number.isFinite(damage) || damage < hp) continue;
+    if (ownPrizes > liability) continue;
     return { kind: 'select-action', token: item.token };
   }
   return null;
@@ -1238,5 +1276,7 @@ module.exports = {
   handHeldFanPromptDecision,
   nGeneralScore,
   retreatScore,
-  terminalAttackDecision
+  terminalAttackDecision,
+  shadowRiderPrizeLiability,
+  shadowRiderTerminalProof
 };
