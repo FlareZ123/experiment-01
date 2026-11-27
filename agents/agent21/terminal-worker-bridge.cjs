@@ -77,7 +77,8 @@ function projectTerminalInput(request,profile,certificate){
           wobbuffet:k==="wob",latias:k==="latias",fairyZone:k==="clefairy",basic:k!=="vmax",
           ruleBox:["v","vmax","clefairy","lele","trev","latias","dialga","radiant"].includes(k),future:false,
           tool:p.tools.length?(isT(p.tools[0],"Stealthy Hood")?"hood":isT(p.tools[0],"Float Stone")?"float":"other"):"none",
-          stackCount:p.evolutionPrintings.length});
+          stackCount:p.evolutionPrintings.length,stackPrintings:[...p.evolutionPrintings],printing:p.printing,
+          evolutionEligible:k==="v"&&turn>2&&Number.isSafeInteger(p.lastPlayedOrEvolvedTurn)&&p.lastPlayedOrEvolvedTurn<turn&&!rr.cannotEvolveNextTurn});
       }else{
         const c=targetCert[id];
         check(c?.printing===p.printing&&c.damageAndPrizeGeometryCertified===true&&
@@ -133,7 +134,27 @@ function projectTerminalInput(request,profile,certificate){
     if(certificate.deckBlocksActorCertified===true){
       context.deckBlocksActorCertified=true;context.deckBlocks=certificate.deckBlocks;
     }
-    return {input,context,binding:{basicPsychicPrintings:profile.basicPsychicPrintings,trainerPrintings:cat,slots}};
+    let development=null;
+    const d=certificate.development;
+    if(d?.permissionsCertified===true){
+      const devCat=profile.developmentCatalog;
+      check(devCat&&Object.entries(devCat).every(([p,c])=>OWN[p]===c.kind&&c.printing===p),"unknown development catalog printing");
+      const pokCounts=xs=>Object.fromEntries(Object.keys(devCat).map(p=>[p,count(xs,x=>x===p)]).filter(([,n])=>n));
+      const fodder=d.fodder??[];
+      check(Array.isArray(fodder)&&fodder.every(p=>typeof p==="string"&&!devCat[p]&&!isP(p)&&exactRole(p)==="other"&&
+        !isT(p,"Mysterious Treasure")&&!isT(p,"Quick Ball")&&count(fodder,x=>x===p)<=count(hand,x=>x===p)),
+        "development fodder not disjoint or not held");
+      check(["pokemonPlayLocked","abilityPokemonPlayLocked","evolutionPlayLocked"].every(k=>typeof r[k]==="boolean"),"development locks unknown");
+      development={permissionsCertified:true,noBenchCapacityChange:d.noBenchCapacityChange===true,maxBench:d.maxBench,catalog:devCat,
+        handPokemon:pokCounts(hand),knownDeckPokemon:exact?pokCounts(k.knownPrintings.flatMap(x=>Array(x.copies).fill(x.printing))):{},
+        knownDeckPokemonCertified:exact,discardPokemon:pokCounts(discard),
+        pokemonPlayAllowed:!r.pokemonPlayLocked&&d.pokemonPlayAllowed===true,
+        abilityPokemonPlayAllowed:!r.abilityPokemonPlayLocked&&d.abilityPokemonPlayAllowed===true,
+        evolutionAllowed:turn>2&&!r.evolutionPlayLocked&&d.evolutionAllowed===true,
+        treasureCount:count(hand,p=>isT(p,"Mysterious Treasure")),quickCount:count(hand,p=>isT(p,"Quick Ball")),
+        fodder,fodderCertified:true,fodderDisjointFromModeledResources:true};
+    }
+    return {input,context,development,binding:{basicPsychicPrintings:profile.basicPsychicPrintings,trainerPrintings:cat,slots}};
   }catch(e){return fail(e.message)}
 }
 // Only the first committed action gets an intent. Replan at every next root.
@@ -142,11 +163,35 @@ function chooseTerminalRoot(request,profile,certificate,terminal,matcher,adaptiv
   if(!p.input)return p;
   const m=matcher(request,p.input,p.binding);
   if(!m.match)return m;
-  const allowed=a=>!!m.match(a);
+  function match(a){
+    if(!["bench-pokemon","evolve-pokemon","mysterious-treasure","quick-ball"].includes(a.kind))return m.match(a);
+    if(!p.development)return null;
+    const v=request.observation,slots=p.binding.slots;
+    const ts=a.kind==="mysterious-treasure"?"Mysterious Treasure":a.kind==="quick-ball"?"Quick Ball":null;
+    const wanted=ts?p.binding.trainerPrintings[ts]:[a.printing];
+    if(!wanted)return null;
+    const items=request.actionFrontier.items.filter(it=>{
+      const md=it.publicMetadata??{},print=it.actorPrinting;
+      if(it.kind!=="play-card"||!wanted.includes(print)||!Number.isSafeInteger(md.handIndex)||v.ownHand[md.handIndex]!==print)return false;
+      if(ts)return md.cardType==="trainer";
+      if(md.cardType!=="pokemon"||md.targetSeat!=="actor")return false;
+      if(a.kind==="bench-pokemon")return md.targetZone==="bench"&&Number.isSafeInteger(md.targetIndex)&&
+        md.targetIndex>=0&&md.targetIndex<v.ownPublic.bench.length&&v.ownPublic.bench[md.targetIndex]===null;
+      const loc=slots[a.target];
+      return loc?.owner&&md.targetZone===loc.zone&&(md.targetIndex??0)===loc.index&&it.targetPrinting===loc.printing;
+    });
+    // Multiple equally empty Bench slots and duplicate same-printing cards
+    // are interchangeable in this model. Deterministic index tie-break.
+    return items.sort((x,y)=>(x.publicMetadata.targetIndex??0)-(y.publicMetadata.targetIndex??0)||
+      x.publicMetadata.handIndex-y.publicMetadata.handIndex||x.token.localeCompare(y.token))[0]??null;
+  }
+  const allowed=a=>!!match(a);
   const d=terminal(p.input,options.maxStates??10000,allowed,{witnessOnly:true});
-  const search=d.decision?{...d,lowerBound:1,upperBound:1}:
+  const developed=!d.decision&&p.development&&typeof options.developmentTerminal==="function"?
+    options.developmentTerminal(terminal,p.input,p.development,{...options,firstActionAllowed:allowed}):null;
+  const search=d.decision?{...d,lowerBound:1,upperBound:1}:developed?.decision?developed:
     p.context.exactMembershipKnown&&typeof adaptive==="function"?adaptive(terminal,p.input,p.context,{...options,firstActionAllowed:allowed}):d;
-  const action=search.decision?.firstAction,root=action&&m.match(action);
+  const action=search.decision?.firstAction,root=action&&match(action);
   if(!root)return {...search,decision:null};
   const lower=search.lowerBound??0;
   // Noncertain terminal advice needs explicit caller permission/threshold: this is
@@ -195,15 +240,16 @@ function continueTerminalPrompt(intent,request){
       check(p.promptType==="ChoosePokemonPrompt"&&meta.selectionType==="pokemon","not a Pokémon choice");
       return combo(ids.map(id=>unique(p.choices.filter(c=>pokemonChoice(c,v,loc(id))))),name);
     };
-    const card=(role,zone,name)=>{
+    const card=(role,zone,name,exactPrinting=null)=>{
       check(p.promptType==="ChooseCardsPrompt"&&meta.selectionType==="card-combination"&&meta.sourceZone===zone&&
         meta.ownerSeat==="actor"&&meta.isOwnerVisible===true,"wrong card collection");
-      const printings=role==="P"?profile.basicPsychicPrintings:profile.trainerPrintings[role];
+      const printings=exactPrinting?[exactPrinting]:role==="P"?profile.basicPsychicPrintings:profile.trainerPrintings[role];
       check(Array.isArray(printings),"unknown card role");
       const candidates=p.choices.filter(c=>c.kind==="card"&&printings.includes(c.printing)&&
         c.publicMetadata?.ownerSeat==="actor"&&c.publicMetadata.sourceZone===zone&&c.publicMetadata.isOwnerVisible===true);
       const selected=one(candidates);
       if(zone==="discard")check(v.ownPublic.discard.includes(selected.printing),"discard target absent");
+      if(zone==="hand")check(v.ownHand.includes(selected.printing),"hand target absent");
       return combo([selected],name);
     };
     if(a.kind==="underworld-door"){
@@ -220,8 +266,12 @@ function continueTerminalPrompt(intent,request){
         c.publicMetadata.zone==="bench"&&c.publicMetadata.benchIndex===t.index));
       return done({kind:"select-choice",token:c.token},"door");
     }
-    if(a.kind==="fog-crystal"){src("Fog Crystal");return card("P","deck","fog")}
-    if(a.kind==="night-stretcher"){src("Night Stretcher");return card("P","discard","stretcher")}
+    if(a.kind==="fog-crystal"){src("Fog Crystal");return card("P","deck","fog",a.targetPrinting??null)}
+    if(a.kind==="night-stretcher"){src("Night Stretcher");return card("P","discard","stretcher",a.targetPrinting??null)}
+    if(a.kind==="mysterious-treasure"||a.kind==="quick-ball"){
+      src(a.kind==="mysterious-treasure"?"Mysterious Treasure":"Quick Ball");
+      return !stages.includes("cost")?card(null,"hand","cost",a.discardPrinting):card(null,"deck","tutor",a.targetPrinting);
+    }
     if(a.kind==="vs-seeker"){src("VS Seeker");return card(a.target,"discard","vs")}
     if(a.kind==="guzma"){
       src("Guzma");
