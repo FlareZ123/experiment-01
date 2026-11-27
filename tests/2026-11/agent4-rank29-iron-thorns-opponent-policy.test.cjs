@@ -908,3 +908,57 @@ test('Guzma and Energy denial reject malformed native selection contracts before
   assert.deepEqual(checkedDecision(wrongGuzma),
     {kind:'abstain',reasonCode:'UNSUPPORTED_POKEMON_PROMPT'});
 });
+
+test('first additional Iron Thorns is a real Bench-development root action', () => {
+  const items=[
+    action('bench','play-card','Iron Thorns ex TWM 77',{cardType:'pokemon'}),
+    action('hammer','play-card','Crushing Hammer POR 71',{cardType:'item'}),
+    {token:'pass',kind:'pass'}
+  ];
+  const opponent=player({
+    active:pokemon('Shadow Rider Calyrex VMAX CRE 75',
+      {energies:['Basic Psychic Energy CRE 232']})
+  });
+  const req=rootRequest({
+    ownHand:['Iron Thorns ex TWM 77','Crushing Hammer POR 71'],
+    opponentPublic:opponent,
+    ownPublic:player({active:pokemon('Iron Thorns ex TWM 77')}),
+    items
+  });
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'bench'});
+});
+
+test('once a healthy Thorns is Benched do not add unnecessary two-Prize board liability', () => {
+  const items=[
+    action('bench','play-card','Iron Thorns ex TWM 77',{cardType:'pokemon'}),
+    {token:'pass',kind:'pass'}
+  ];
+  const req=rootRequest({
+    ownHand:['Iron Thorns ex TWM 77'],
+    ownPublic:player({
+      active:pokemon('Iron Thorns ex TWM 77'),
+      bench:[pokemon('Iron Thorns ex TWM 77')]
+    }),
+    items
+  });
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'pass'});
+});
+
+test('locked Pokemon play and full Bench never select Thorns Bench', () => {
+  const items=[
+    action('bench','play-card','Iron Thorns ex TWM 77',{cardType:'pokemon'}),
+    {token:'pass',kind:'pass'}
+  ];
+  const locked=rootRequest({items,
+    ownPublic:player({active:pokemon('Iron Thorns ex TWM 77')}),
+    ownTurnResources:turnResources({pokemonPlayLocked:true})
+  });
+  assert.deepEqual(checkedDecision(locked),{kind:'select-action',token:'pass'});
+  const full=rootRequest({items,
+    ownPublic:player({
+      active:pokemon('Iron Thorns ex TWM 77'),
+      bench:Array.from({length:5},()=>pokemon('Iron Thorns ex TWM 77'))
+    })
+  });
+  assert.deepEqual(checkedDecision(full),{kind:'select-action',token:'pass'});
+});
