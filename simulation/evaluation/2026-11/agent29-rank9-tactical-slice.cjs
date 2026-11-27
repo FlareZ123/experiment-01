@@ -27,7 +27,11 @@ module.exports = (function build() {
     'Muscle Band XY 121','Forest Seal Stone SIT 156',
     'Wobbuffet PHF 36','Silent Lab PRC 140',
     'Path to the Peak CRE 148','PokéStop PGO 68',
-    'Secret Box TWM 163','Temple of Sinnoh ASR 155'
+    'Secret Box TWM 163','Temple of Sinnoh ASR 155',
+    'Canceling Cologne ASR 136','Dedenne-GX UNB 57',
+    'Escape Rope BST 125','Gengar & Mimikyu-GX TEU 53',
+    'Girafarig LOT 94','Hisuian Heavy Ball ASR 146',
+    'Toedscool PAR 16','Voltorb ROS 21'
   ]);
   const printingAliases=new Map(originalPrintings.map(full=>[
     full.replace(/ [0-9]+$/,''),full
