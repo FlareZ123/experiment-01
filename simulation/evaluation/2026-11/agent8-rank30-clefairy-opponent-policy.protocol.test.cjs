@@ -186,3 +186,51 @@ test('Star Alchemy finds actual Telepathic Energy when one Energy short',()=>{
   r.prompt.source.effectName='Star Alchemy';
   assertValid(0,r,{kind:'select-choices',tokens:['telepath']});
 });
+
+
+test('printed prize value discriminates VMAX, VSTAR, TAG TEAM-GX, Mega ex and single Prizes',()=>{
+  assert.equal(worker.sourcePrizeTarget('Shadow Rider Calyrex VMAX CRE'),3);
+  assert.equal(worker.sourcePrizeTarget('Regidrago VSTAR SIT'),2);
+  assert.equal(worker.sourcePrizeTarget('Mewtwo & Mew-GX UNM'),3);
+  assert.equal(worker.sourcePrizeTarget('Mega Gardevoir ex MEG'),3);
+  assert.equal(worker.sourcePrizeTarget('Crobat V DAA'),2);
+  assert.equal(worker.sourcePrizeTarget('Unown AOR'),1);
+});
+for(const seat of [0,1]) {
+  test('seat '+seat+' Guzma selects lethal 3-Prize Bench target then powered own Clefairy',()=>{
+    const r=request(seat,['Guzma BUS'],[clef,'Crobat V DAA'],
+      'Guzma BUS','deck',[],0,1);
+    r.observation.ownPublic.active={printing:'Unown AOR',hp:60,damage:0};
+    r.observation.ownPublic.bench=[
+      {printing:clef,energies:['Psychic Energy MEE','Telepath [P] Energy M3']},
+      {printing:'Crobat V DAA',energies:[]}];
+    r.observation.opponentPublic.bench=[
+      {printing:'Shadow Rider Calyrex VMAX CRE',hp:320,damage:250},
+      {printing:'Tapu Lele-GX GRI',hp:170,damage:100}];
+    r.actionFrontier.items=[{kind:'play-card',actorPrinting:'Guzma BUS',token:'gust'}];
+    r.prompt=null;
+    assert.deepEqual(p(seat).decide(r),{kind:'select-action',token:'gust'});
+    const mkPrompt=(ownerSeat,offer)=>({
+      schema:protocol.PROMPT_SCHEMA,actingSeat:seat,promptType:'ChoosePokemonPrompt',
+      description:'CHOOSE_POKEMON',source:{classification:'actor-choice',
+        sourceKind:'card-effect',sourcePrinting:'Guzma BUS',effectName:'Guzma'},
+      publicMetadata:{selectionType:'pokemon',targetZone:'bench',
+        minimumCount:1,maximumCount:1,allowCancel:false,isSecret:false},
+      choices:offer.map(([printing,token,index],i)=>({
+        kind:'pokemon',token,printing,publicMetadata:{selectionType:'pokemon',
+          targetZone:'bench',ownerSeat,isOwnerVisible:true,
+          benchIndex:index,selectionIndex:i,selectedCount:1}}))
+    });
+    r.prompt=mkPrompt('opponent',[
+      ['Shadow Rider Calyrex VMAX CRE','victim-vmax',0],
+      ['Tapu Lele-GX GRI','victim-gx',1]]);
+    assertValid(seat,r,{kind:'select-choices',tokens:['victim-vmax']});
+    r.prompt=mkPrompt('actor',[[clef,'powered-clefairy',0],
+      ['Crobat V DAA','unpowered-crobat',1]]);
+    assertValid(seat,r,{kind:'select-choices',tokens:['powered-clefairy']});
+    // A printed unpowered Basic cannot be promoted as a paid attacker.
+    r.prompt=null;
+    r.observation.ownPublic.bench[0].energies=[];
+    assert.deepEqual(p(seat).decide(r),{kind:'abstain',reasonCode:'NO_SUPPORTED_ROOT_ACTION'});
+  });
+}
