@@ -629,6 +629,73 @@ function projectSimplePrompt(prompt, state, choices, choiceByToken) {
   return null;
 }
 
+function projectRaichuElectroRainDamagePackets({
+  prompt,state,actorSeat,native,source,choices,choiceByToken
+}) {
+  // Pinned UNM57 Electro Rain offers one 30-damage choice for *each
+  // Lightning Energy unit*, and permits repeatedly targeting one Pokémon.
+  // Each packet/target pair gets a unique opaque token; the worker must
+  // return exactly one token from each packet ordinal.
+  if(source?.sourceKind!=='card-effect'||
+     source.sourcePrinting!=='Alolan Raichu UNM'||
+     source.effectName!=='Electro Rain'||
+     prompt?.constructor?.name!=='PutDamagePrompt'||
+     prompt.message!=='CHOOSE_POKEMON_TO_DAMAGE'||
+     prompt.playerType!==native?.PlayerType?.TOP_PLAYER||
+     !Array.isArray(prompt.slots)||prompt.slots.length!==2||
+     prompt.slots[0]!==native.SlotType.ACTIVE||
+     prompt.slots[1]!==native.SlotType.BENCH||
+     prompt.options?.allowCancel!==false||
+     prompt.options?.damageMultiple!==30||
+     prompt.options?.allowPlacePartialDamage!==false||
+     !Array.isArray(prompt.options?.blocked)||prompt.options.blocked.length!==0||
+     !Number.isSafeInteger(prompt.damage)||prompt.damage<30||
+     prompt.damage%30!==0||
+     !Array.isArray(prompt.maxAllowedDamage))
+    throw Object.assign(new Error('Unsupported pinned Alolan Raichu Electro Rain packet prompt'),
+      {code:'UNSUPPORTED_ELECTRO_RAIN_DAMAGE_PROMPT_SHAPE'});
+  const count=prompt.damage/30, opponent=state.players[1-actorSeat];
+  const targets=[];
+  const record=(slot,zone,index,slotType)=>{
+    const card=slot?.getPokemonCard?.();
+    if(!card)return;
+    const to={player:native.PlayerType.TOP_PLAYER,slot:slotType,index};
+    if(!prompt.maxAllowedDamage.some(row=>row?.target?.player===to.player&&
+      row.target.slot===to.slot&&row.target.index===to.index&&
+      Number.isFinite(row.damage)&&row.damage>=30))
+      throw Object.assign(new Error('Electro Rain native target declaration is inconsistent'),
+        {code:'BAD_ELECTRO_RAIN_DAMAGE_TARGET'});
+    targets.push({to,zone,index,printing:printing(card)});
+  };
+  record(opponent.active,'active',0,native.SlotType.ACTIVE);
+  opponent.bench.forEach((slot,index)=>record(slot,'bench',index,native.SlotType.BENCH));
+  if(targets.length===0||count*targets.length>MAX_PROMPT_CHOICES)
+    throw Object.assign(new Error('Electro Rain packet target frontier is not bounded'),
+      {code:'PROMPT_FRONTIER_TOO_LARGE'});
+  for(let packet=0;packet<count;packet++){
+    for(const target of targets){
+      addSelectableItem(choices,choiceByToken,{
+        packetIndex:packet,target:{...target.to},damage:30
+      },{
+        kind:'pokemon',printing:target.printing,
+        label:'Electro Rain hit '+(packet+1)+' of '+count+' to '+target.zone+
+          (target.zone==='bench'?' '+(target.index+1):'')+': '+target.printing,
+        publicMetadata:{
+          selectionType:'damage-packets',selectionIndex:packet,
+          amount:30,ownerSeat:'opponent',targetZone:target.zone,
+          ...(target.zone==='bench'?{benchIndex:target.index}:{slotIndex:0}),
+          isOwnerVisible:true
+        }
+      });
+    }
+  }
+  return {
+    selectionType:'damage-packets',minimumCount:count,maximumCount:count,
+    amount:prompt.damage,count,ownerSeat:'opponent',isOwnerVisible:true,
+    allowCancel:false
+  };
+}
+
 function projectElectrodeBombTransfers({
   prompt,state,actorSeat,native,source,choices,choiceByToken
 }) {
@@ -993,6 +1060,11 @@ function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook
         prompt,state,actorSeat,native,store,source,choices,choiceByToken
       });
       break;
+    case 'PutDamagePrompt':
+      publicMetadata=projectRaichuElectroRainDamagePackets({
+        prompt,state,actorSeat,native,source,choices,choiceByToken
+      });
+      break;
     default:
       publicMetadata = projectSimplePrompt(prompt, state, choices, choiceByToken);
       if (publicMetadata === null) {
@@ -1129,7 +1201,7 @@ function dispatchPromptChoice({
     const unique = new Set(selected.tokens);
     assert.equal(unique.size, selected.tokens.length, 'multi-select decision contains duplicate tokens');
     const selectionType = projection.promptProjection?.publicMetadata?.selectionType;
-    assert.ok(['card-combination', 'pokemon', 'energy-payment', 'energy-transfers', 'prize-slots', 'card-order'].includes(selectionType),
+    assert.ok(['card-combination', 'pokemon', 'energy-payment', 'energy-transfers', 'damage-packets', 'prize-slots', 'card-order'].includes(selectionType),
       'multi-select decision is unsupported for this prompt type');
     rawResult = selected.tokens.map(selectedToken => {
       assert.equal(typeof selectedToken, 'string');
@@ -1182,6 +1254,44 @@ function dispatchPromptChoice({
       assert.equal(/-(?:GX|EX)(?:\s|$)/.test(target.fullName??''),false,
         'Extra Energy Bomb cannot attach to printed EX/GX');
     }
+  }
+
+  // A multi-choice token identifies one unique 30-damage *packet*, not a
+  // freely repeated source. Native PutDamagePrompt.validate() checks only
+  // total damage and card-zone validity; enforce exact packet conservation.
+  if(projection.promptProjection?.publicMetadata?.selectionType==='damage-packets'){
+    const src=projection.promptProjection.source;
+    assert.equal(src.sourceKind,'card-effect');
+    assert.equal(src.sourcePrinting,'Alolan Raichu UNM');
+    assert.equal(src.effectName,'Electro Rain');
+    assert.equal(prompt.message,'CHOOSE_POKEMON_TO_DAMAGE');
+    assert.ok(Array.isArray(rawResult));
+    const expected=prompt.damage/30,used=new Set();
+    assert.equal(rawResult.length,expected);
+    const foe=state.players[1-actorSeat];
+    for(const hit of rawResult){
+      assert.equal(hit.damage,30,'Electro Rain packets must each equal 30');
+      assert.ok(Number.isSafeInteger(hit.packetIndex)&&
+        hit.packetIndex>=0&&hit.packetIndex<expected);
+      assert.equal(used.has(hit.packetIndex),false,
+        'Electro Rain may not reuse a physical damage packet');
+      used.add(hit.packetIndex);
+      assert.equal(hit.target?.player,native.PlayerType.TOP_PLAYER);
+      assert.ok(hit.target.slot===native.SlotType.ACTIVE||
+        hit.target.slot===native.SlotType.BENCH);
+      assert.ok(Number.isSafeInteger(hit.target.index)&&hit.target.index>=0);
+      const target=hit.target.slot===native.SlotType.ACTIVE?
+        foe.active:foe.bench[hit.target.index];
+      assert.ok(target?.getPokemonCard?.(),
+        'Electro Rain packet target must remain occupied');
+      assert.ok(prompt.maxAllowedDamage.some(row=>
+        row.target?.player===hit.target.player&&
+        row.target.slot===hit.target.slot&&row.target.index===hit.target.index));
+    }
+    // Only the pinned native schema reaches the Store/decode callback.
+    rawResult=rawResult.map(hit=>({
+      target:{...hit.target},damage:hit.damage
+    }));
   }
 
   let validationReceipt = null;
