@@ -40,6 +40,39 @@ function canonicalPokemonSubtypes(pokemon){
 }
 
 /** @param {object} card @returns {string} */
+// Public combat state omitted by this narrow actor protocol may change
+// actual damage, HP, survival or Prize awards. Separate incoming from
+// outgoing effects to avoid spurious vetoes of certain final attacks.
+// Pinned: ptcg-server/src/game/store/state/pokemon-card-list.ts @ a9905a76.
+function nonzeroNativeField(slot,keys){
+  return keys.some(key=>typeof slot[key]==='number'&&slot[key]!==0);
+}
+function presentNativeField(slot,keys){
+  return keys.some(key=>slot[key]!==undefined&&slot[key]!==null);
+}
+// Source-of-damage and recipient-of-damage effects are deliberately separate.
+// A holder's +HP Tool does not weaken its own outgoing attack; a defender's
+// outgoing Growl reduction does not protect it from the current attack.
+function incomingTerminalUncertain(slot){
+  return nonzeroNativeField(slot,[
+    'hpBonus','damageReductionNextTurn','damageReductionBeforeWeaknessNextTurn'
+  ])||['coinFlipPreventAttackDamageNextTurn','noWeaknessNextTurn',
+    'denyPrizesIfKnockedOutNextTurn'].some(key=>slot[key]===true)||
+    presentNativeField(slot,[
+      'preventDamageNextTurn','surviveOnTenHpNextTurn',
+      'retaliateOnDamageNextTurn','weaknessOverrideType'
+    ]);
+}
+function outgoingTerminalUncertain(slot){
+  return nonzeroNativeField(slot,[
+    'attackDamageReductionNextTurn','attackDamageReductionAfterWeaknessNextTurn',
+    'whileActiveAttackDamageBonus','outgoingAttackDamageBonusNextTurn',
+    'coinFlipCancelAttackNextTurn'
+  ])||presentNativeField(slot,[
+    'nextTurnAttackDamageBonus','nextTurnAttackBaseDamage'
+  ]);
+}
+
 const printing=card=>{
   assert.ok(typeof card?.fullName==='string'&&card.fullName.length>0);
   return card.fullName;
@@ -100,7 +133,9 @@ function visiblePokemon(slot){
       cannotRetreat:slot.cannotRetreat===true,
       cannotRetreatNextTurn:slot.cannotRetreatNextTurn===true,
       cannotRetreatWhileActive:slot.cannotRetreatWhileActive===true,
-      cannotEvolveNextTurn:slot.cannotEvolveNextTurn===true
+      cannotEvolveNextTurn:slot.cannotEvolveNextTurn===true,
+      incomingTerminalUncertain:incomingTerminalUncertain(slot),
+      outgoingTerminalUncertain:outgoingTerminalUncertain(slot)
     },
     evolutionPrintings:slot.cards.map(printing),
     energies:slot.energies.cards.map(printing),
