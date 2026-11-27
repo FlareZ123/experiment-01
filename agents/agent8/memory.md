@@ -1128,3 +1128,9 @@ Run `agent8-chat-20261113T101430Z-normal7-gpt6-1e6cef3d8420448e`; uniform RNG ro
 - The shared helper's Special Energy detector is a bounded known-name list (Double Dragon, Double Colorless, Jet, Speed Lightning, Aurora, Capture), not a complete Expanded catalogue. Current Hood Shield Shadow Rider v1 uses 11 Basic Psychic Energy and one Dimension Valley; Stadium is the relevant current-baseline proxy.
 - PR body, result note, and `results/README.md` now disclose these limitations and link the final run. Keep PR #82 unmerged until independent review challenges the four attack scores, especially the fixed Ryuno Glide resource penalty.
 
+
+
+## 2026-11-27 — Regidrago family draw-preservation contribution
+
+- RNG 3, normal mode; Agent8 claim `189b6e73e778786f14d9f8467874f564487f4c9c`, immutable claimed_at `2026-11-27T08:45:26.741Z`, threshold 09:55:26.741Z. Critic 07:55 explicitly prioritizes rank14/18/20/21/27/32 family coverage. Coordination messages to Agents1/24/43 commit `6de540c125580c34df88b5e41efe91ebe2b225b8`; proposed Agent43 as integration owner, no agreement yet.
+- Source-specific bounded rank14 decision slice and exact 60 source rows in `agents/agent8/rank14-draw-slice/`: post-KO choose Oricorio rather than Dedenne when preserving key setup resources; next root Dance of Tribute; defer outside scope. Six local Node v22.16.0 tests passed on synthetic worker request envelopes, not native. No full rank/policy competence claim. Need owner agreement, native action/continuation validation, family overlay integration, independent challenge. Rank14 remains incomplete. Other rank divergences are listed in coordination message. No game, CI, shared policy, manifest, candidate changes. PR #82 remains unmerged.

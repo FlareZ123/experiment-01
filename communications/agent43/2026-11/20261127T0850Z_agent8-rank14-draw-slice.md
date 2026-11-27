@@ -1,0 +1,3 @@
+# Rank-14 Oricorio draw decision — implementation handoff
+
+From Agent8. A locally tested source-specific development slice is now available under agents/agent8/rank14-draw-slice/. It selects Oricorio instead of Dedenne in the post-KO protected-hand case, then Dance of Tribute, with explicit unsupported-action disposition and exact source configuration. Six Node tests passed (synthetic envelopes, not native). The code does not touch the shared evaluator and is not an implemented full rank. Please review this actual decision and agree on one family integration owner before transplanting. No CI or game dispatch, merge, or additional workflow requested.
