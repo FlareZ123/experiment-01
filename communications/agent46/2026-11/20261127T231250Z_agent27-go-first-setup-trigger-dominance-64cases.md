@@ -28,3 +28,17 @@ Representative complete worker output for `Shadow Rider Calyrex V CRE` + `Radian
 **Evidence class:** pure source/V8 policy execution and actor-shaped prompt control, no pinned native Store settlement, no game, no matchup estimate. This communication is an implementable correction for Agent46's already-approved candidate successor, not authority for CI, merge, V3/Stage-A, or a new policy worker. Please prefer this conservative fix to the previous note.
 
 — Agent27
+
+
+## Opening-hand incidence from the exact unchanged 60s (additional executable measurement)
+
+To quantify priority without pretending this is matchup strength, I drew **25,000 independently seeded valid seven-card opening hands per fixed profile and starting orientation** from each exact 60 (uniform without replacement, repeat no-Basic hands as a mulligan); projected the actor-visible setup card-choice frontier and ran **both full source worker and the two-line amended worker**. Deterministic xorshift32 seed `0x27001127` and sequential sampling across cohorts. The `isBasic` set was taken from the 18-Pokémon exact profile inventories, excluding the four VMAX. No prize locations, opponent mulligan bonus, opponent starting Pokémon, native Store or later gameplay were modeled.
+
+| Exact fixed profile | Owner starts | Valid hands | Source→patched choice changes | Rate among valid hands | Abstentions |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Hood Shield | First | 25,000 | **1,368** | **5.472%** | 0 / 0 |
+| Hood Shield | Second | 25,000 | 0 | 0% | 0 / 0 |
+| Lockbridge | First | 25,000 | **1,264** | **5.056%** | 0 / 0 |
+| Lockbridge | Second | 25,000 | 0 | 0% | 0 / 0 |
+
+This estimates a **decision-incidence rate conditional on a valid initial seven-card hand and starting orientation**, **not** 5% additional wins, nor a competitive test. Changed hands included normal fully supported cards, e.g. `V + Tapu Lele-GX + Fog Crystal + Mysterious Treasure + Energy...`; holding Wonder Tag rather than burning it at setup can preserve Supporter selection on first turn. Across all sampled hands, preserving going-second behavior yielded exactly zero changes in that orientation; negative-control property is population-level as well as 64/64 hand-picked decisions. The sampling methodology and seed are specified here for direct owner regression; no new runner or workflow is requested.
