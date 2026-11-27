@@ -561,6 +561,72 @@
       "state": "AOR Vileplume is already live, Bunnelby is still Active after the TM Evolution turn, Stoutland is Benched, Guzma is legal because Sentinel is not yet Active, and candidate has a credible attack on Stoutland.",
       "must": "Compare Guzma as a disappearing pre-Sentinel Supporter window: gust Stoutland before it becomes Active and, if the attack line is funded, remove it before Supporter lock begins.",
       "forbids": "Saving Guzma for a future turn after Stoutland is Active and Sentinel has made Supporters unplayable."
+    },
+    {
+      "id": "ROADBLOCK-TPE-CAP",
+      "family": "Sudowoodo Roadblock",
+      "sourceRanks": [
+        14,
+        18,
+        19
+      ],
+      "state": "Opponent Sudowoodo GRI 66 Roadblock is active and candidate TPE resolves with fewer than two legal Bench slots under the four-Bench cap.",
+      "must": "Respect the live Bench cap and choose at most the number of open slots; allow fewer or zero targets.",
+      "forbids": "Resolving TPE as if the ordinary five-Bench limit still applied."
+    },
+    {
+      "id": "ROADBLOCK-KLEFKI-REACTIVATION",
+      "family": "Sudowoodo Roadblock",
+      "sourceRanks": [
+        14,
+        18,
+        19
+      ],
+      "state": "Candidate Active Klefki currently suppresses opposing Basic Sudowoodo Roadblock; candidate has expanded above four Benched Pokémon while Roadblock is off; a retreat/Guzma/other move would take Klefki out of Active.",
+      "must": "Price Roadblock reactivation as part of the switch: once the opposing Ability returns, candidate must reduce to four Benched Pokémon under the printed continuous effect.",
+      "forbids": "Using temporary Klefki suppression to build a five-plus Bench and then switching Klefki away without accounting for forced Bench reduction."
+    },
+    {
+      "id": "ROADBLOCK-PATH-NOT-ANSWER",
+      "family": "Sudowoodo Roadblock",
+      "sourceRanks": [
+        14,
+        18,
+        19
+      ],
+      "state": "Opposing Sudowoodo Roadblock is active and Path to the Peak is available.",
+      "must": "Recognize Path does not suppress the non-Rule-Box Sudowoodo Ability; use Path only for other Rule-Box targets.",
+      "forbids": "Treating Path as a universal Ability-lock answer."
+    },
+    {
+      "id": "R30-EMPOLEON-PATH-CASCADE",
+      "family": "rank30 Lillie's Clefairy",
+      "sourceRanks": [
+        30
+      ],
+      "state": "Opposing Empoleon V is Active; candidate Solrock + Lunatone OBF are in play; Mewtwo & Mew-GX Perfection is relevant; Path to the Peak is playable.",
+      "must": "Before Path, Emperor's Eyes suppresses non-Rule-Box Basic Lunatone but spares Rule-Box Mewtwo. After Path suppresses Empoleon V's Rule-Box Ability, re-evaluate continuous effects: Lunatone can regain New Moon and, with Solrock, protect candidate Pokémon from Path.",
+      "forbids": "Freezing the pre-Path Ability state or assuming Emperor's Eyes suppresses Rule-Box Mewtwo."
+    },
+    {
+      "id": "R31-BELL-LELE-ACCESS",
+      "family": "rank31 Dusknoir Chimecho",
+      "sourceRanks": [
+        31
+      ],
+      "state": "Candidate is under Chimecho CIN 43 Bell of Silence for the turn; Guzma is not already in hand; the intended access route was playing Tapu Lele-GX from hand for Wonder Tag.",
+      "must": "Reject the Tapu-Lele-from-hand route because Bell of Silence forbids playing Pokémon with Abilities from hand; compare direct draw, Secret Box/FSS if legal, or a line that does not require that hand-played Ability Pokémon.",
+      "forbids": "Treating Wonder Tag as available simply because Tapu Lele is searchable."
+    },
+    {
+      "id": "R31-CURSED-BLAST-BENCH",
+      "family": "rank31 Dusknoir Chimecho",
+      "sourceRanks": [
+        31
+      ],
+      "state": "Opposing Dusknoir PRE 37 can use Cursed Blast for 13 damage counters and self-KO; candidate is choosing whether to Bench a 60-HP support Basic for generic future value.",
+      "must": "Price the support Basic as an immediate damage-counter KO target and update the Prize map for both the Dusknoir self-KO and any candidate KO; prefer a narrower Bench when the extra body has no concrete near-term role.",
+      "forbids": "Treating Stage-2 damage-counter Ability pressure as ordinary attack spread or as free opponent self-KO value."
     }
   ],
   "implementationGate": {
