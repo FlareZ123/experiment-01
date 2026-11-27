@@ -5,6 +5,8 @@ const protocol=require('../../simulation/evaluation/2026-11/agent49-policy-proto
 const {projectPrompt}=require('../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
 const {projectRank29RevealedHandPrompt}=require(
   '../../simulation/evaluation/2026-11/agent4-rank29-revealed-hand-projection.cjs');
+const rank29Projection=require(
+  '../../simulation/evaluation/2026-11/agent4-rank29-prompt-projection-adapter.cjs');
 
 class ChooseCardsPrompt{
   constructor(id,hand,sourceCard){
@@ -130,4 +132,18 @@ test('source identity or physical prompt owner mismatch never makes private hand
     }));
     assert.equal(f.state.players[1].hand.isPublic,undefined);
   }
+});
+
+test('rank29 projection is a real drop-in canonical dependency with unmodified dispatch API',()=>{
+  const original=require('../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
+  assert.notEqual(rank29Projection.projectPrompt,original.projectPrompt);
+  for(const name of ['dispatchPromptChoice','resolveHostOnlyPrompt',
+    'createIsolatedValidationPromptStore']){
+    assert.equal(rank29Projection[name],original[name]);
+  }
+  const f=physical();
+  const result=rank29Projection.projectPrompt(f);
+  protocol.validatePrompt(result.promptProjection,0);
+  assert.equal(result.promptProjection.choices.filter(x=>x.kind==='card').length,2);
+  assert.equal(f.state.players[1].hand.isPublic,undefined);
 });
