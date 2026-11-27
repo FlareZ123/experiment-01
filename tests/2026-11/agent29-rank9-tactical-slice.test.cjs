@@ -386,7 +386,7 @@ console.log('passed '+(function drawAndDecline(P,protocol){
  a(decide(o(),[pass,{kind:'use-ability',token:'unknown',actorPrinting:Meg,publicMetadata:{abilityName:'Unknown'}}]).kind==='abstain','unmodeled ability remains visible');
  const bomb={kind:'use-ability',token:'bomb',actorPrinting:El,publicMetadata:{sourceSeat:'actor',sourceZone:'bench',sourceIndex:0,abilityName:'Extra Energy Bomb'}};
  a(decide(o(),[pass,bomb]).token==='pass','decline Bomb losing final two prizes');
- const ready=o();ready.opponentPublic.prizeCount=6;ready.opponentPublic.active={...mk(VM,[],320),printed:{weakness:[{type:'Darkness',value:'×2'}]} };ready.ownPublic.discard=[Pr,Pr,Pr];a(decide(ready,[pass,bomb]).kind==='abstain','do not hide meaningful unsupported Bomb transfer');
+ const ready=o();ready.opponentPublic.prizeCount=6;ready.opponentPublic.active={...mk(VM,[],320),printed:{weakness:[{type:'Darkness',value:'×2'}]} };ready.ownPublic.discard=[Pr,Pr,Pr];a(decide(ready,[pass,bomb]).token==='bomb','select profitable Bomb now that full native multi-transfer is supported');
  const stop={kind:'use-stadium',token:'stop',actorPrinting:Stop,publicMetadata:{stadiumEffectLive:true}};
  a(decide(o([Vip]),[pass,stop]).token==='stop','productive PokéStop before pass');
  const blocked=o();blocked.opponentPublic.bench=[mk('Toedscruel PAR 17')];a(decide(blocked,[pass,stop]).token==='pass','avoid Slime Mold discard-to-hand denial');
