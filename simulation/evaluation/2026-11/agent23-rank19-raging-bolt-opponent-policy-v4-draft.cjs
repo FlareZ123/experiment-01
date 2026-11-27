@@ -18,16 +18,18 @@ const board=o=>[{zone:'active',index:0,pokemon:o?.active},...list(o?.bench).map(
 const cmp=(a,b)=>a.some((x,i)=>x<b[i]&&a.slice(0,i).every((y,j)=>y===b[j]));
 function accelerationPreservesReserve(r,item){
  const o=r.observation.ownPublic,t=r.observation.opponentPublic.active,temple=bolt.templeMayApply(r.observation);
- const before=bolt.plan(o,t,temple);
+ const before=bolt.plan(o,t,temple,bolt.threatPolicy(r.observation));
  if(!before)return false;
  const printing=name(item?.actorPrinting),effect=item?.kind==='use-ability'?item.publicMetadata?.abilityName:sada(printing)?"Professor Sada's Vitality":/^Raihan EVS(?: 152)?$/.test(printing)?'Raihan':null;
  const sp=accel.spec({effectName:effect,sourcePrinting:printing});
  if(!sp||sp.zone!=='discard')return false;
- const after=accel.publicPlan(r,sp),p=after&&bolt.plan(after.next,t,temple);
+ const after=accel.publicPlan(r,sp),p=after&&bolt.plan(after.next,t,temple,bolt.threatPolicy(r.observation));
  return !!p&&(cmp(p.rank,before.rank)||(item.kind==='use-ability'&&after.rank[1]>0));
 }
 function chooseRoot(r,caps){
  const o=r.observation.ownPublic,op=r.observation.opponentPublic,activeTarget=targets.target(op.active),remaining=o.prizeCount;
+ const cfg={discard:caps.has(DISCARD),attach:caps.has(ATTACH)};
+ const terminal=mobility.attackRoot(r,cfg,true);if(terminal)return terminal;
  const md=v3.tacticalRoot(r),mi=rootItem(r,md);
  const bd=caps.has(DISCARD)?bolt.root(r,DISCARD):null;
  const ad=caps.has(ATTACH)?accel.root(r,ATTACH):null,ai=rootItem(r,ad);
@@ -77,7 +79,14 @@ function createPolicy({role,seat,policyVersion,config}){
    if(caps.has(ATTACH)&&r.prompt.promptType==='ChooseCardsPrompt'&&r.prompt.source?.effectName==='Raihan')return accel.raihanSearch(r)??{kind:'abstain',reasonCode:'UNSUPPORTED_RAIHAN_ATTACH_ENERGY_PROMPT'};
    return mobility.prompt(r,{discard:caps.has(DISCARD),attach:caps.has(ATTACH)})??base.decide(r);
   }
-  return chooseRoot(r,caps)??base.decide(r);
+  const chosen=chooseRoot(r,caps);if(chosen)return chosen;
+  const fallback=base.decide(r),item=rootItem(r,fallback);
+  if(!item||item.kind==='pass'||item.kind==='attack'){
+   const pressure=caps.has(DISCARD)?bolt.pressureRoot(r,DISCARD):null;
+   const direct=mobility.attackRoot(r,{discard:caps.has(DISCARD),attach:caps.has(ATTACH)});
+   return pressure??direct??fallback;
+  }
+  return fallback;
  }});
 }
 module.exports={POLICY_VERSION,createPolicy,chooseRoot,DISCARD,ATTACH};
