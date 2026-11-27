@@ -57,7 +57,7 @@ for(const seat of [0,1]) {
     assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'box'});
     r.prompt=prompt('hand',[card(psychic,'e'),card(vip,'v1'),card(vip,'v2'),
       card('Telepathic Psychic Energy POR 88','protect')],3,3);
-    assert.deepEqual(policy(seat).decide(r),{kind:'select-choices',tokens:['e','v1','v2']});
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-choices',tokens:['v1','v2','e']});
     r.observation.ownHand=['Telepathic Psychic Energy POR 88'];
     r.observation.ownPublic.discard.push(psychic);
     r.prompt=prompt('deck',[card('Sky Field ROS 89','s'),
@@ -241,7 +241,7 @@ for(const seat of [0,1]) {
       card('Battle VIP Pass FST','vip-a'),card('Battle VIP Pass FST','vip-b')],3,3),
       source:{sourcePrinting:'Secret Box TWM',effectName:'Secret Box'}};
     assert.deepEqual(policy(seat).decide(r),{kind:'select-choices',
-      tokens:['energy','vip-a','vip-b']});
+      tokens:['vip-a','vip-b','energy']});
     r.observation.ownPublic.discard=['Psychic Energy MEE'];
     r.observation.ownHand=[];
     r.prompt={...prompt('deck',[card('Wondrous Patch PFL','patch'),
