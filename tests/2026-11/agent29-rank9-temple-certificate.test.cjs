@@ -19,5 +19,9 @@ console.log('passed '+(function tests(cert){
  o=mk();o.ownPublic.bench=[{printing:'Latias ex SSP 76'}];a(cert(o).reason==='BENCH_GUST_EXPOSURE','gust exposure');
  o=mk();o.ownPublic.publicTurnRestrictions={...pr,stadiumAndToolHaveNoEffectTurnsRemaining:1};a(cert(o).reason==='STADIUM_EFFECT_NOT_CERTAIN','Temple suppressed');
  o=mk();o.opponentPublic.bench[0].printed.resistance=[{type:'Psychic',value:'-30'}];a(cert(o).reason==='PSYCHIC_RESISTANCE','unmodeled resistance');
+ o=mk();o.ownPublic.active.energies=Array(6).fill(P);o.ownPublic.bench=[{...o.ownPublic.active,energies:Array(5).fill(P)}];a(cert(o).certified,'two gust-safe VMAXs with 6+5');
+ o=mk(2,10,2);o.ownPublic.active.energies=Array(6).fill(P);o.ownPublic.bench=[{...o.ownPublic.active,energies:Array(4).fill(P)}];a(cert(o).certified,'two gust-safe VMAXs with 6+4');
+ o.ownPublic.active.energies=Array(7).fill(P);o.ownPublic.bench[0].energies=Array(3).fill(P);a(cert(o).reason==='GUST_PAYMENT_MARGIN','Plumeria then gust can deny CCC');
+ o=mk();o.ownPublic.active.energies=Array(6).fill(P);o.ownPublic.bench=[{...o.ownPublic.active,energies:Array(5).fill(P),damage:240}];a(cert(o).reason==='DAMAGE_MARGIN','gust exposed damaged VMAX');
  return n;
 })(cert)+' Temple resource-cut assertions');

@@ -9,7 +9,8 @@ module.exports=function templeCertificate(view){
   const has=(x,re)=>re.test(name(x));
   const count=(xs,re)=>list(xs).filter(x=>has(x,re)).length;
   if(!own||!opp||!active||!has(active,/^Shadow Rider Calyrex VMAX CRE 75\b/i))return fail('ACTIVE_NOT_SHADOW_RIDER_VMAX');
-  if(list(own.bench).some(Boolean))return fail('BENCH_GUST_EXPOSURE');
+  const board=[active,...list(own.bench).filter(Boolean)];
+  if(board.some(p=>!has(p,/^Shadow Rider Calyrex VMAX CRE 75\b/i)))return fail('BENCH_GUST_EXPOSURE');
   const n=own.prizeCount;
   if(!Number.isSafeInteger(n)||n<1||n>3)return fail('PRIZE_BUDGET');
   if(!Number.isSafeInteger(opp.prizeCount)||opp.prizeCount<1||opp.prizeCount>6)return fail('UNKNOWN_OPPONENT_PRIZE_COUNT');
@@ -25,14 +26,18 @@ module.exports=function templeCertificate(view){
   // is at most 20 printed damage, +20 from its one Muscle Band.
   // The opponent can play at most one Plumeria between attacks. Iono is
   // pessimistically allowed in those same turns for independent deck budget.
-  const energyCount=count(active.energies,/^(?:Basic )?Psychic Energy\b/i);
-  if(energyCount!==list(active.energies).length||energyCount>11)return fail('UNMODELED_ENERGY');
-  const energyRequired=9+(n-1);
+  const energies=board.map(p=>count(p.energies,/^(?:Basic )?Psychic Energy\b/i));
+  const energyCount=energies.reduce((a,b)=>a+b,0);
+  if(energyCount>11||board.some((p,i)=>energies[i]!==list(p.energies).length))return fail('UNMODELED_ENERGY');
+  const energyRequired=9+(n-1),perAttackerRequired=3+(n-1);
   if(energyCount<energyRequired)return fail('PLUMERIA_MARGIN');
-  if(active.hp!==320||!Number.isFinite(active.damage)||active.damage<0||320-active.damage<=40*(n-1))return fail('DAMAGE_MARGIN');
-  if(list(active.specialConditions).length!==0)return fail('SPECIAL_CONDITION');
-  const r=active.publicRestrictions;
-  if(!r||r.cannotAttackNextTurn||list(r.cannotUseAttacksNextTurn).includes('Max Geist')||r.blockedAttackNameNextTurn==='Max Geist'||r.blockedAttackNameUntilLeavesActive==='Max Geist'||r.onlyAllowedAttackNameNextTurn&&r.onlyAllowedAttackNameNextTurn!=='Max Geist'||r.attackCostIncreaseNextTurn||r.attackCostIncreaseWhileActive||own.publicTurnRestrictions?.attackLockTurnsRemaining!==0||own.publicTurnRestrictions?.attackMaxEnergyTurnsRemaining!==0)return fail('ATTACK_RESTRICTION');
+  // Guzma and Escape Rope may change the Active. Even if all Plumeria
+  // discards hit that new attacker, its CCC cost must remain payable.
+  if(energies.some(e=>e<perAttackerRequired))return fail('GUST_PAYMENT_MARGIN');
+  if(board.some(p=>p.hp!==320||!Number.isFinite(p.damage)||p.damage<0||320-p.damage<=40*(n-1)))return fail('DAMAGE_MARGIN');
+  if(board.some(p=>list(p.specialConditions).length!==0))return fail('SPECIAL_CONDITION');
+  const blocked=p=>{const r=p.publicRestrictions;return !r||r.cannotAttackNextTurn||list(r.cannotUseAttacksNextTurn).includes('Max Geist')||r.blockedAttackNameNextTurn==='Max Geist'||r.blockedAttackNameUntilLeavesActive==='Max Geist'||r.onlyAllowedAttackNameNextTurn&&r.onlyAllowedAttackNameNextTurn!=='Max Geist'||r.attackCostIncreaseNextTurn||r.attackCostIncreaseWhileActive;};
+  if(board.some(blocked)||own.publicTurnRestrictions?.attackLockTurnsRemaining!==0||own.publicTurnRestrictions?.attackMaxEnergyTurnsRemaining!==0)return fail('ATTACK_RESTRICTION');
   const deckRequired=(n-1)*(n+2)/2;
   if(!Number.isSafeInteger(own.deckCount)||own.deckCount<deckRequired)return fail('IONO_AND_DRAW_MARGIN');
   const target=opp.active;
@@ -51,6 +56,6 @@ module.exports=function templeCertificate(view){
     // One resistance could break the raw 280 damage threshold.
     if(list(p.printed?.resistance).some(x=>/^psychic$|^p$/i.test(String(x.type))))return fail('PSYCHIC_RESISTANCE');
   }
-  return {certified:true,action:'Max Geist',maxAttacks:n,energyRequired,energyCount,deckRequired,maxIncomingDamage:40*(n-1),minimumFinalAttackDamage:10+30*(energyCount-(n-1)),
-    rationale:'Temple persists; both basic Darkness Lost Zoned; no live Stadium recovery; no colored attack; 1 Plumeria/turn + conservative Iono deck budget.'};
+  return {certified:true,action:'Max Geist',maxAttacks:n,energyRequired,perAttackerRequired,energyCount,deckRequired,maxIncomingDamage:40*(n-1),minimumFinalAttackDamage:10+30*(energyCount-(n-1)),
+    rationale:'Temple persists; all possible Active VMAXs stay funded; both basic Darkness Lost Zoned; no Stadium recovery; 1 Plumeria/turn + conservative Iono deck budget.'};
 };
