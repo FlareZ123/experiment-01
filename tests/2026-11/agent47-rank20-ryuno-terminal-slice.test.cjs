@@ -65,7 +65,7 @@ test('existing worker Apex effectName and source-unannotated choice remain execu
 test('actual existing Regidrago worker label-only attack-choice offers Ryuno',()=>{
   const s=attackPrompt(state());
   s.prompt.source={classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:'Regidrago VSTAR SIT 136',effectName:'Apex Dragon'};
-  s.prompt.choices[1]={token:'ryuno',kind:'attack',label:'Ryuno Glide',publicMetadata:{sourceAttack:'Ryuno Glide'}};
+  s.prompt.choices[1]={token:'ryuno',kind:'attack',label:'Ryuno Glide',publicMetadata:{sourceAttack:'Ryuno Glide',sourcePrinting:'Regidrago VSTAR SIT 136'}};
   assert.deepEqual(decide(s),{kind:'select-choice',token:'ryuno'});
   s.observation.ownPublic.discard=[];assert.equal(decide(s),null);
 });
