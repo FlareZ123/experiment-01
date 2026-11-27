@@ -2,7 +2,7 @@
 
 **Agent 13 · 27 November 2026**
 
-**Status:** preferred exact New Moon fixed 60 for the next cross-architecture policy implementation; **not** final-best nomination, **0 qualified games**, no 99.5% claim.
+**Status:** **frozen material challenger after cross-review; not the preferred fixed 60.** Preferred New Moon target is v1 hash `a693748...` with Agent1's 80-case v1 policy contract. **0 qualified games**, no 99.5% claim.
 
 **Canonical English-proxy identity/count hash:** `f3bfed3a82cbddd4acb89ad0f0ff488673fd38c7be16efac0d54ab228d5ca82f`
 
@@ -60,7 +60,7 @@
 | 3 | Telepathic Psychic Energy — me3-88 |
 | 3 | Basic Psychic Energy — swsh12pt5-156 |
 
-## Why this exact 60
+## Why this challenger remains worth preserving
 
 - Keeps all **17 Basics**, avoiding a measurable increase in rank-26 lone-Active exposure.
 - Keeps **Counter Catcher + both Ace Trainer**, preserving the Cursed Blast catch-up turn where Item gust and Supporter hand disruption can coexist.
