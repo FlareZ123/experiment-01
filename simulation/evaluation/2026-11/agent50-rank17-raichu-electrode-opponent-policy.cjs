@@ -1068,7 +1068,7 @@ function r17AbilityBlocked(view,key,slot=null,name='') {
   const oppActive=active(opponent(view));
   if(/^Galarian Weezing\b/i.test(printingValue(oppActive))&&
      list(oppActive?.abilities).includes('Neutralizing Gas')&&!r17Suppressed(oppActive,'Neutralizing Gas'))return true;
-  const ruleBox=key==='electrode'||key==='squawk';
+  const ruleBox=key==='electrode'||key==='squawk'||key==='ditto';
   if(ruleBox&&r17StadiumToolLive(view)&&/^Path to the Peak\b/i.test(r17Stadium(view)))return true;
   if(key==='electrode'&&r17StadiumToolLive(view)&&/^Power Plant\b/i.test(r17Stadium(view)))return true;
   if(ruleBox&&/^Iron Thorns ex\b/i.test(printingValue(oppActive))&&
@@ -1102,7 +1102,11 @@ function r17NeedStadiumRemoval(view) {
   if(/^Path to the Peak\b/i.test(stadium))
     return slots(own(view)).some(p=>{
       const k=r17Key(p);
-      return (k==='electrode'||k==='squawk')&&r17AbilityBlocked(view,k,p);
+      if(k==='electrode')return r17AbilityBlocked(view,k,p);
+      if(k==='ditto')return r17AbilityBlocked(view,k,p)&&
+        ['raichu','electrode'].some(e=>r17Hand(view,e)&&r17DittoEvolutionScore(e,view)>0);
+      if(k==='squawk')return r17AbilityBlocked(view,k,p)&&r17First(view)&&r17DrawDiscardScore(view,6)>0;
+      return false;
     });
   if(/^Power Plant\b/i.test(stadium))
     return slots(own(view)).some(p=>r17Key(p)==='electrode'&&r17AbilityBlocked(view,'electrode',p));
