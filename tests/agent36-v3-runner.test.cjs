@@ -18,7 +18,7 @@ const {
   requireEncryptedFullDiagnosticMode,runV3FixtureGame,runV3FixtureGameBothSeats,normalizeV3FixtureRoleResult,
   V3_FIXTURE,V3_FIXTURE_TEST_PATHS,V3_FIXTURE_COMMON_BINDINGS,
   V3_FIXTURE_WORKER_COMMON_BINDINGS,V3_FIXTURE_WORKER_PROMPT_CHAIN,
-  buildFixtureRoleEntryManifest,buildRoleWorkerBundle,preloadRoleHostModules,
+  buildFixtureRoleEntryManifest,prepareTwoProfileCandidate,buildRoleWorkerBundle,preloadRoleHostModules,
   validatePublicSeedRegistration,validateNoGameWitnessReceipt,validateV3WorkerDecisionTrace,validateV3FullStateTraceJoins,validateV3FullStateTraceRecorderResult,
   buildNoGameWitnessFailureReceipt,buildV3RunnerFailureError,
   createV3WorkerExecutionAudit,createV3WorkerDecisionResolver,
@@ -3105,4 +3105,40 @@ test('V3 full-state recorder acceptance requires capture, public-board and summa
   assert.equal(validateV3FullStateTraceRecorderResult({
     complete:false,captureError:null,publicBoardError:null,humanSummaryError:null
   }),false,'incomplete recorder must fail');
+});
+
+
+test('Agent46 two-profile preparation binds the exact Agent4 paper Astral target hook into identity closure',()=>{
+  const repositoryRoot=path.resolve(__dirname,'..');
+  const cases=[
+    ['hood-shield-shadow-rider-v1','results/aichi-2026/candidate-hood-shadow-rider.json'],
+    ['lockbridge-shadow-rider-v1','results/aichi-2026/2026-11/agent31-lockbridge-shadow-rider-v1.json']
+  ];
+  const hookPath='simulation/twinleaf/agent4-astral-barrage-active-target-hook.cjs';
+  for(const [profileId,deckPath] of cases){
+    const deck=JSON.parse(fs.readFileSync(path.join(repositoryRoot,deckPath),'utf8'));
+    const byPrinting=new Map();
+    for(const row of deck.cards){
+      const key=JSON.stringify([row.name,row.printing.set,String(row.printing.number)]);
+      if(!byPrinting.has(key))byPrinting.set(key,{
+        name:row.name,set:row.printing.set,setNumber:String(row.printing.number),
+        fullName:row.name+' '+row.printing.set+' '+row.printing.number
+      });
+    }
+    const prepared=prepareTwoProfileCandidate({
+      profileId,allCards:[...byPrinting.values()],repositoryRoot,
+      enginePin:'a'.repeat(40),runnerRevision:'b'.repeat(40)
+    });
+    assert.equal(prepared.config.paperAstralBarrageTargets,'agent4-cre74-hook-v1');
+    const binding=prepared.manifestResult.manifest.commonRuntimeBindings
+      .find(row=>row.name==='candidatePaperAstralTargets');
+    assert.equal(binding?.path,hookPath);
+    assert.equal(binding?.exportName,'installPaperAstralBarrageTargets');
+    assert.match(binding?.sha256??'',/^[0-9a-f]{64}$/);
+    assert.ok(prepared.manifestResult.manifest.vendorImports.some(row=>row.importer===hookPath),
+      'Agent4 hook vendor imports must be closure-bound');
+    assert.equal(prepared.manifestResult.sourceClosureSummary.limitations.dynamicRequireSites
+      .some(row=>row.file===hookPath),false,
+      'Agent4 hook must not hide native dependencies behind dynamic require');
+  }
 });
