@@ -1985,6 +1985,8 @@ function loadWorkerPolicyModule(repositoryRoot,relativePath,role) {
 
 const TWO_PROFILE_POLICY_PATH='simulation/evaluation/2026-11/agent46-two-profile-candidate-policy.cjs';
 const TWO_PROFILE_K1_PATH='simulation/evaluation/2026-11/agent46-owner-prize-facts.cjs';
+const TWO_PROFILE_ASTRAL_HOOK_PATH='simulation/twinleaf/agent4-astral-barrage-active-target-hook.cjs';
+const TWO_PROFILE_ASTRAL_HOOK_ID='agent4-cre74-hook-v1';
 const TWO_PROFILE_REGISTRATION=Object.freeze({
   'hood-shield-shadow-rider-v1':Object.freeze({
     deckPath:'results/aichi-2026/candidate-hood-shadow-rider.json',
@@ -2004,10 +2006,13 @@ function prepareTwoProfileCandidate({profileId,allCards,repositoryRoot=ROOT,engi
   const deck=JSON.parse(bytes);
   assert.equal(printed60Fingerprint(deck),registration.sha,'exact deck fingerprint differs');
   const resolved=resolvePrintedDeck(deck,allCards,{label:profileId});
-  const config=Object.freeze({schema:'agent46-candidate-profile-v1',profileId,deckSha256:registration.sha});
+  const config=Object.freeze({schema:'agent46-candidate-profile-v1',profileId,
+    deckSha256:registration.sha,paperAstralBarrageTargets:TWO_PROFILE_ASTRAL_HOOK_ID});
   const manifestResult=buildFixtureRoleEntryManifest({repositoryRoot,enginePin,runnerRevision,
     commonRuntimeBindings:[...V3_FIXTURE_WORKER_COMMON_BINDINGS,
       {name:'candidatePrizeFacts',path:TWO_PROFILE_K1_PATH,exportName:'createOwnerPrizeFacts'},
+      {name:'candidatePaperAstralTargets',path:TWO_PROFILE_ASTRAL_HOOK_PATH,
+        exportName:'installPaperAstralBarrageTargets'},
       {name:'candidatePromptFilter',path:'vendor/twinleaf/ptcg-server/output/game/store/prompts/choose-cards-prompt.js',exportName:'matchesPromptFilter'}],
     orderedPromptChain:V3_FIXTURE_WORKER_PROMPT_CHAIN,
     additionalDataAssetPaths:[registration.deckPath,TWO_PROFILE_POLICY_PATH]});
@@ -2047,11 +2052,45 @@ function bindTwoProfileCandidate({prepared,candidateIdentity,candidateSeat,nativ
   assert.equal(policySha256,prepared.policySha256);
   const matchesPromptFilter=require('../../../vendor/twinleaf/ptcg-server/output/game/store/prompts/choose-cards-prompt').matchesPromptFilter;
   assert.equal(typeof matchesPromptFilter,'function','native prompt filter export absent');
+  const {installPaperAstralBarrageTargets}=require('../../twinleaf/agent4-astral-barrage-active-target-hook.cjs');
+  assert.equal(typeof installPaperAstralBarrageTargets,'function',
+    'paper Astral Barrage target hook installer absent');
   const successorNative=Object.freeze({...native,observe:knowledge.observe,candidateSuccessorSeat:candidateSeat,matchesPromptFilter});
   return Object.freeze({
     native:successorNative,
-    onStoreCreated(store){const hook=installPromptProvenanceHook(store);knowledge.bindStore(store,hook);
-      provenanceContext.current=hook;return hook;},
+    onStoreCreated(store){
+      let paperHook=null,provenanceHook=null;
+      try{
+        paperHook=installPaperAstralBarrageTargets();
+        assert.equal(paperHook?.installed,true,
+          'paper Astral Barrage target hook failed to install');
+        provenanceHook=installPromptProvenanceHook(store);
+        knowledge.bindStore(store,provenanceHook);
+        provenanceContext.current=provenanceHook;
+      }catch(error){
+        try{provenanceHook?.restore();}finally{paperHook?.restore();}
+        throw error;
+      }
+      let restoreAttempted=false;
+      return {
+        getPromptProvenance(prompt){return provenanceHook.getPromptProvenance(prompt);},
+        restore(){
+          if(restoreAttempted)return;
+          let failure=null;
+          try{provenanceHook.restore();}catch(error){failure=error;}
+          try{paperHook.restore();}catch(error){failure??=error;}
+          restoreAttempted=true;
+          if(failure)throw failure;
+        },
+        get activeEffectDepth(){return provenanceHook.activeEffectDepth;},
+        get restored(){
+          return restoreAttempted&&provenanceHook.restored===true&&paperHook.restored===true;
+        },
+        get paperAstralBarrageTargets(){
+          return paperHook.installed===true?TWO_PROFILE_ASTRAL_HOOK_ID:null;
+        }
+      };
+    },
     onAction(record,context){knowledge.onAction(record,context);if(onAction)onAction(record,context);},
     resolverOptions:Object.freeze({native:successorNative,candidateSeat,opponentSeat:1-candidateSeat,provenanceContext}),
     sessionOptions:Object.freeze({role:'candidate',seat:candidateSeat,policyVersion:prepared.policyVersion,
