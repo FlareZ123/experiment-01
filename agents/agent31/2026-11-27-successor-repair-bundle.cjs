@@ -107,6 +107,11 @@ const edits = [
     "Preserve Stone tool",
     "  if (gateAccessNeed(view) || (heavyBallNeed(view)>=1000 && !handHas(view,'Hisuian Heavy Ball') && !knownFullyPrized(view,'Hisuian Heavy Ball'))) return true;",
     "  const paidGateTutor = !itemLocked(view) && view.ownHand.some(p=>hasAnyName(p,['Mysterious Treasure','Quick Ball'])&&hasDiscardableHand(view,1,p));\n  if ((gateAccessNeed(view)&&!paidGateTutor) || (heavyBallNeed(view)>=1000 && !handHas(view,'Hisuian Heavy Ball') && !knownFullyPrized(view,'Hisuian Heavy Ball'))) return true;"
+  ],
+  [
+    "Held Gate supplies VMAX",
+    "!handHas(view, 'Shadow Rider Calyrex VMAX');\n  const missingDialga",
+    "!handHas(view, 'Shadow Rider Calyrex VMAX') && !(handHas(view,'Radiant Eternatus') && canPlayRadiantForGate(view));\n  const missingDialga"
   ]
 ];
 function apply(source) {
