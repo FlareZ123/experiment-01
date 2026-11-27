@@ -126,7 +126,7 @@ function discardScore(value,o) {
     const needsClef=has(own.active,P.clefairy)&&
       arr(own.active.energies).length<2;
     const miniorCounter=miniorStallOpportunity(o)?.knockout&&
-      arr(own.bench).some(x=>has(x,P.minior)&&arr(x.energies).length===0);
+      !slots(own).some(x=>has(x,P.minior)&&arr(x.energies).length>=1);
     // The only hand Energy cannot be burned into search while it powers
     // this-turn Rondo or Minior's forced switch against a Snorlax Block.
     if(basicCopies===1&&manualAvailable&&telepathCopies===0&&
@@ -154,7 +154,7 @@ function safeDiscardPayment(o,choices,count) {
   const needClef=has(o.ownPublic?.active,P.clefairy)&&
     arr(o.ownPublic?.active?.energies).length<2;
   const needMinior=miniorStallOpportunity(o)?.knockout&&
-    arr(o.ownPublic?.bench).some(c=>has(c,P.minior)&&arr(c.energies).length===0);
+    !slots(o.ownPublic).some(c=>has(c,P.minior)&&arr(c.energies).length>=1);
   const reserveBasic=manualAvailable&&copyCount(ownHand,P.telepathic)===0&&
     (needClef||needMinior)?1:0;
   const maxBasicSpent=Math.max(0,copyCount(ownHand,P.basicPsychic)-reserveBasic);
