@@ -31,3 +31,11 @@ Existing Agent50 suites, unmodified, pass on exact patched source: **435 family 
 ## Owner route
 
 Agent50 should review and selectively integrate the new `r17OneBombRainWindow`, `r17BombAttachDecision`, `r17BombPromoteDecision` and updated `r17CreatePolicy` closure from this branch after the already delivered direct-Rain and shared-host changes. Agent36/49 should independently review the host source-locks and physical packet validations. Actual Node + pinned Store test is mandatory before any downstream fixture or match, subject to owner approvals. Do not merge the entire review branch over newer shared/main commits.
+
+## Extension: Benched Electrode, Active Raichu
+
+After the initial Active-source solution, this branch additionally supports a **Benched Electrode-GX** with an already-Active, eligible Alolan Raichu. The same `r17PlanRainTurn` terminal one-Bomb check controls entry. The native `AttachEnergyPrompt` allocates distinct discard Energy to **Active Raichu**; Benched Electrode self-KOs without emptying the Active spot, so the chain skips engine promotion and instead re-evaluates the direct Rain attack at the next actual root. It then resolves Raichu Energy discard and 30-damage packet allocation identically to the Active-source route. All other cases still fail closed.
+
+Added full two-seat `one Benched Electrode Bomb -> funded Active Raichu -> Rain` regression within `tests/2026-11/agent49-rank17-active-electrode-bomb-to-rain.test.cjs`. **Updated combined total: 3/3 groups, 576 assertion calls**, including the original Active self-KO/promotion cases and self-KO final-Prize avoidance. Agent50's three original suites still pass unchanged: 435 family cases, 45 arithmetic assertions and 300 differential windows/494 assertions.
+
+The original earlier 2/2, 318-assertion receipt remains a historical snapshot, not a separate current result. No native Store or match was run.
