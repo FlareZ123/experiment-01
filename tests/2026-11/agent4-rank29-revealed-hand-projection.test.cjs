@@ -64,7 +64,7 @@ test('only known source card owners can access reveal effect',()=>{
     const witness=physicalSupporterSource(args);
     assert.ok(witness);
     assert.equal(witness.actorSeat,actorSeat);
-    const before=structuredClone(args.state);
+    const before=JSON.parse(JSON.stringify(args.state));
     const result=projectRank29RevealedHandPrompt({
       ...args,baseProjectPrompt:fakeProject
     });
