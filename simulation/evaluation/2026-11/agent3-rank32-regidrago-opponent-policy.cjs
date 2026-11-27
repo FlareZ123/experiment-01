@@ -289,6 +289,27 @@ function muscleBandPriority(action,observation) {
     return 30;
   return targetIsActive?135:95;
 }
+function evolveRegidragoPriority(action,observation) {
+  const target=nativeOwnerTarget(action,observation);
+  if(!target||!/^Regidrago V SIT 135\b/i.test(print(target)))return 0;
+  const own=observation?.ownPublic??{};
+  const energies=list(target.energies);
+  const hasAttack=apexTypedDeficit(target,observation)===0&&countDonors(own)>0;
+  const attached=energies.length;
+  const base=265+Math.min(55,attached*18)+(own.active===target?15:0);
+  return hasAttack?Math.min(365,base+60):base;
+}
+function retreatToAttackerPriority(action,observation) {
+  const target=nativeOwnerTarget(action,observation),own=observation?.ownPublic??{};
+  if(!target||own.active===target)return 0;
+  if(canAttackNow(own.active,observation))return 0;
+  if(canAttackNow(target,observation))return 330;
+  if(/^Regidrago VSTAR SIT 136\b/i.test(print(target)) &&
+      apexTypedDeficit(target,observation)<=1)return 175;
+  if(/^Regidrago V SIT 135\b/i.test(print(target)) &&
+      list(target.energies).length>=1)return 115;
+  return 0;
+}
 function scoreAction(action, request) {
   const obs = request?.observation ?? {};
   const own = obs.ownPublic ?? {};
@@ -297,6 +318,9 @@ function scoreAction(action, request) {
   const hand = list(obs.ownHand).length;
   const active = own.active;
   const enabledVstar = slots(own).some(p => /^Regidrago VSTAR SIT 136\b/i.test(print(p)));
+  if(action.kind==='retreat') return retreatToAttackerPriority(action,obs);
+  if(action.kind==='play-card'&&/^Regidrago VSTAR SIT 136\b/i.test(name))
+    return evolveRegidragoPriority(action,obs);
   const gustScore=tacticalGustScore(action,obs);
   if(gustScore !== null) return gustScore;
   if(action.kind==='play-card'&&/^Megaton Blower SSP 182\b/i.test(name))
@@ -803,4 +827,4 @@ module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
   isSourceSupporter,cynthiaRecoverPriority,
   legacyRecoverPriority,canUseLegacyStar,superRodRecoverPriority,estimatedDragonDamage,
   strongestCopiedDamage,canAttackNow,tacticalGustScore,gustTargetPriority,targetFromGustChoice,
-  aceSpecBlowerPriority,muscleBandPriority};
+  aceSpecBlowerPriority,muscleBandPriority,evolveRegidragoPriority,retreatToAttackerPriority};
