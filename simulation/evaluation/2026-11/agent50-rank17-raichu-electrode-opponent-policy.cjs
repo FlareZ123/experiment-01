@@ -2619,6 +2619,82 @@ function r17OneBombRainWindow(request){
     discardPrintings:new Map(discard.map(d=>[d.token,d.printing]))
   };
 }
+
+// Strict two-Bomb extension: Active Raichu and two *Benched* Electrode-GX.
+// Spend the first five physical discards, then replan from the actual public
+// post-KO state before ever committing the second self-KO. The second Bomb
+// must independently be a terminal one-Bomb plan; a projected future turn
+// is never a substitute for another actor-visible root decision.
+function r17TwoBombRainWindow(request){
+  const v=request?.observation,q=active(own(v));
+  if(!v||r17Key(q)!=='raichu'||!r17RainWindow(v,q)||
+     r17NeedTempleRemoval(v)||list(own(v).stadium).length||
+     list(opponent(v).stadium).length||
+     !Number.isSafeInteger(own(v).prizeCount)||
+     !Number.isSafeInteger(opponent(v).prizeCount)||
+     opponent(v).prizeCount<=4)return null;
+  const bench=list(own(v).bench),live=r17LiveBombs(v);
+  const sources=bench.map((source,index)=>({source,index}))
+    .filter(row=>r17Key(row.source)==='electrode');
+  if(live.length!==2||sources.length!==2||
+     sources.some(row=>!live.includes(row.source)))return null;
+  const items=list(request.actionFrontier?.items);
+  if(items.some(x=>x.kind==='attack'&&
+     r17DirectPressure(v,x)?.terminalProjection===true))return null;
+  const actions=sources.map(row=>items.find(x=>x.kind==='use-ability'&&
+    r17Key(x)==='electrode'&&metadata(x).abilityName==='Extra Energy Bomb'&&
+    metadata(x).sourceZone==='bench'&&
+    metadata(x).sourceIndex===row.index&&
+    metadata(x).abilityLive!==false&&metadata(x).abilitySuppressed!==true));
+  if(actions.some(x=>!x)||new Set(actions.map(x=>x.token)).size!==2)return null;
+  const discard=list(own(v).discard).map((c,i)=>({
+    printing:printingValue(c),token:'discard-'+i
+  })).filter(c=>R17_ENERGY.has(r17Key(c.printing)));
+  const attached=list(q.energies).map((c,i)=>({
+    printing:printingValue(c),token:'attached-'+i
+  }));
+  if(discard.length<=5||discard.length>12||
+     discard.length+attached.length>12||
+     attached.some(c=>!R17_ENERGY.has(r17Key(c.printing))))return null;
+  const targets=r17VisibleRainTargets(v,q);
+  if(!targets||targets.length>9||targets.some(t=>{
+    const p=t.zone==='active'?active(opponent(v)):opponent(v).bench?.[t.index];
+    return !p||list(p.tools).length||
+      p.publicDamageEffects!==undefined&&(
+        p.publicDamageEffects.prevention!=='none'||
+        p.publicDamageEffects.effectsPrevention!=='none'||
+        p.publicDamageEffects.reduction!==0);
+  }))return null;
+  const plan=r17PlanRainTurn({
+    attackWindowKnown:true,modifiersComplete:true,temple:false,
+    ownPrizes:own(v).prizeCount,opponentPrizes:opponent(v).prizeCount,
+    availableBombs:2,attached,discard,
+    targets:targets.map(t=>({
+      id:t.zone+':'+t.index,remainingHp:t.hits*30,
+      prizes:t.prizes,threat:0,damageAllowed:true,
+      flatDamageModifier:0,requiresNoSpecialAttached:false,
+      minRemainingEnergy:0
+    }))
+  });
+  if(plan?.status!=='immediate-ko-plan'||plan.win!==true||
+     plan.bombsUsed!==2||
+     plan.attachTokens.length!==Math.min(10,discard.length)||
+     plan.opponentPrizesAfterBomb!==opponent(v).prizeCount-4||
+     plan.lightningUnits<1||plan.lightningUnits>512)return null;
+  const firstTokens=plan.attachTokens.slice(0,5);
+  if(firstTokens.length!==5)return null;
+  return {
+    action:actions[0],benchIndex:0,benchPrinting:printingValue(q),
+    targetZone:'active',requiresPromotion:false,
+    twoBombPending:true,
+    expectedOpponentPrizesAfterFirst:opponent(v).prizeCount-2,
+    // The first native prompt may attach only five. The remaining mandatory
+    // attachment set is determined by a fresh one-Bomb replan.
+    plan:{...plan,attachTokens:firstTokens},
+    discardPrintings:new Map(discard.map(c=>[c.token,c.printing]))
+  };
+}
+
 function r17BombAttachDecision(req,chain){
   const p=req.prompt,s=p?.source,m=metadata(p);
   if(req.sequence!==chain.sequence+1||
@@ -2744,8 +2820,21 @@ function r17CreatePolicy({role,seat,policyVersion,config}) {
     if(rain){
       const bad=rain.turn!==request.observation.globalTurn||
         !Number.isSafeInteger(request.sequence)||request.sequence!==rain.sequence+1||
-        (rain.stage==='bomb-rain-root'?request.prompt!==null:!request.prompt);
+        ((rain.stage==='bomb-rain-root'||rain.stage==='bomb-second-root')?
+          request.prompt!==null:!request.prompt);
       if(bad){rain=null;return r17Abstain('R17_UNTRUSTED_PROMPT');}
+      if(rain.stage==='bomb-second-root'){
+        const actual=r17OneBombRainWindow(request);
+        if(!actual||actual.targetZone!=='active'||actual.requiresPromotion||
+           r17LiveBombs(request.observation).length!==1||
+           opponent(request.observation).prizeCount!==rain.expectedOpponentPrizesAfterFirst||
+           printingValue(active(own(request.observation)))!==rain.benchPrinting){
+          rain=null;return r17Abstain('R17_UNTRUSTED_PROMPT');
+        }
+        rain={stage:'bomb-transfer',turn:rain.turn,
+          sequence:request.sequence,...actual};
+        return {kind:'select-action',token:actual.action.token};
+      }
       if(rain.stage==='bomb-rain-root'){
         const actual=r17DirectRainWindow(request);
         if(!actual){rain=null;return r17Abstain('R17_UNTRUSTED_PROMPT');}
@@ -2758,8 +2847,9 @@ function r17CreatePolicy({role,seat,policyVersion,config}) {
         r17RainEnergyDecision(request,rain):r17RainPacketsDecision(request,rain);
       if(!decision){rain=null;return r17Abstain('R17_UNTRUSTED_PROMPT');}
       if(rain.stage==='bomb-transfer')
-        rain={...rain,stage:rain.requiresPromotion?
-          'bomb-promotion':'bomb-rain-root',sequence:request.sequence};
+        rain={...rain,stage:rain.requiresPromotion?'bomb-promotion':
+          rain.twoBombPending?'bomb-second-root':'bomb-rain-root',
+          sequence:request.sequence};
       else if(rain.stage==='bomb-promotion')
         rain={...rain,stage:'bomb-rain-root',sequence:request.sequence};
       else if(rain.stage==='discard')
@@ -2779,6 +2869,12 @@ function r17CreatePolicy({role,seat,policyVersion,config}) {
       rain={stage:'bomb-transfer',turn:request.observation.globalTurn,
         sequence:request.sequence,...bomb};
       return {kind:'select-action',token:bomb.action.token};
+    }
+    const two=r17TwoBombRainWindow(request);
+    if(two){
+      rain={stage:'bomb-transfer',turn:request.observation.globalTurn,
+        sequence:request.sequence,...two};
+      return {kind:'select-action',token:two.action.token};
     }
     return r17Best(request);
   }});
