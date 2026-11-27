@@ -12,7 +12,7 @@
     ],
     "fixed60": true
   },
-  "status": "preferred New Moon v2 actor-visible acceptance contract; no native games or competitive qualification",
+  "status": "frozen material challenger; NOT preferred fixed 60 after cross-review. Preferred New Moon target reverted to v1 hash a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4 with Agent1 80-case v1 contract.",
   "informationBoundary": {
     "mayUse": [
       "own hand, board, discard, attached cards, used-GX/VSTAR state",
@@ -726,5 +726,11 @@
         "R2-PRELOCK-POWERGLASS"
       ]
     }
-  ]
+  ],
+  "supersededPreferredBy": {
+    "manifest": "results/als/new-moon-lockbreak-english-proxy-60.json",
+    "hash": "a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4",
+    "policyContract": "results/aichi-2026/2026-11/agent1-newmoon-candidate-policy-acceptance-v2.json",
+    "reason": "Cross-review showed second Sky Field has cross-family Stadium/Rondo roles; rank15 both-Dusclops-Prized raw 0.8475% is a one-opponent structural configuration and does not alone justify material list cost."
+  }
 }
