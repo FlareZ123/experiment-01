@@ -1127,6 +1127,14 @@ function r17NeedStadiumRemoval(view) {
     });
   if(/^Power Plant\b/i.test(stadium))
     return slots(own(view)).some(p=>r17Key(p)==='electrode'&&r17AbilityBlocked(view,'electrode',p));
+  if(/^Silent Lab\b/i.test(stadium))
+    return slots(own(view)).some(p=>{
+      const k=r17Key(p);
+      if(k==='ditto')return r17AbilityBlocked(view,k,p)&&
+        ['raichu','electrode'].some(e=>r17Hand(view,e)&&r17DittoEvolutionScore(e,view)>0);
+      if(k==='squawk')return r17AbilityBlocked(view,k,p)&&r17First(view)&&r17DrawDiscardScore(view,6)>0;
+      return false;
+    });
   return false;
 }
 function r17CarrierValue(key,view) {
