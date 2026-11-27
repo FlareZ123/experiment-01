@@ -1473,3 +1473,57 @@ test('rank29 complete actor-choice transcript: Tag Call → enhanced G&H → Thu
   });
   assert.deepEqual(checkedDecision(attackRoot),{kind:'select-action',token:'attack'});
 });
+
+test('rank29 hidden-hand Eri and Team Skull use public hand count and visible archetype, not private cards', () => {
+  for(const name of ['Eri TEF 146','Team Skull Grunt SUM 133','Sidney FST 241']) {
+    const req=rootRequest({
+      ownHand:[name],
+      opponentPublic:player({
+        active:pokemon('Shadow Rider Calyrex VMAX CRE 75'),
+        handCount:8,publicHand:null
+      }),
+      items:[
+        action('disrupt','play-card',name,{cardType:'supporter'}),
+        {token:'pass',kind:'pass'}
+      ]
+    });
+    assert.deepEqual(checkedDecision(req),
+      {kind:'select-action',token:'disrupt'});
+  }
+});
+
+test('revealed zero-target hand overrides Eri and Team Skull public-size prior', () => {
+  for(const name of ['Eri TEF 146','Team Skull Grunt SUM 133']) {
+    const req=rootRequest({
+      ownHand:[name],
+      opponentPublic:player({
+        active:pokemon('Shadow Rider Calyrex VMAX CRE 75'),
+        handCount:6,
+        publicHand:[
+          'Guzma BUS 115','Lillie s Determination MEG 119',
+          'Iono PAL 185','Raihan EVS 152','Teammates PRC 141','Acerola BUS 112'
+        ]
+      }),
+      items:[
+        action('disrupt','play-card',name,{cardType:'supporter'}),
+        {token:'pass',kind:'pass'}
+      ]
+    });
+    assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'pass'});
+  }
+});
+
+test('unrecognized opposing archetype with hidden hand is never granted invented card-type knowledge', () => {
+  const req=rootRequest({
+    ownHand:['Eri TEF 146'],
+    opponentPublic:player({
+      active:pokemon('Iron Thorns ex TWM 77'),
+      handCount:8,publicHand:null
+    }),
+    items:[
+      action('eri','play-card','Eri TEF 146',{cardType:'supporter'}),
+      {token:'pass',kind:'pass'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'pass'});
+});
