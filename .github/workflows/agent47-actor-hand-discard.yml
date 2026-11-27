@@ -228,6 +228,9 @@ jobs:
       - name: Source-print Regidrago V Special Energy Celestial Roar discrepancy, both seats
         if: ${{ inputs.celestial_special_native }}
         run: node simulation/twinleaf/agent47-celestial-roar-double-dragon-pinned-native.cjs > agent47-celestial-roar-native.json
+      - name: Exact source20 true actor view and full known-cap-free V3 Apex action frontier both seats
+        if: ${{ inputs.rank20_v3_ryuno_native }}
+        run: node --test tests/2026-11/agent47-rank20-v3-authentic-frontier.test.cjs
       - name: Real original rank20 both-seat Apex Ryuno copied attack and Energy native V3 prompts
         if: ${{ inputs.rank20_v3_ryuno_native }}
         run: node --test tests/2026-11/agent47-rank20-v3-native-apex-ryuno.test.cjs
