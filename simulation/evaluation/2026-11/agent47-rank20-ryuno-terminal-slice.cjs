@@ -15,7 +15,21 @@ const POLICY_SLICE_VERSION = 'agent47-rank20-ryuno-terminal-slice-v1';
 const VSTAR = /^Regidrago VSTAR SIT(?: 136)?\b/i;
 // ASC152's pinned CardManager fullName is 'Mega Dragonite ex M2a'.
 const DRAGONITE = /^Mega Dragonite ex (?:ASC 152|M2a)\b/i;
-const SHADOW_VMAX = /^Shadow Rider Calyrex VMAX CRE(?: 75)?\b/i;
+// Fixed Hood-v1 candidate printing inventory: HP/Prize liability established
+// in Agent26's source profile. Caller must bind that candidate profile.
+const TARGETS=Object.freeze([
+  [/^Shadow Rider Calyrex VMAX CRE(?: 75)?\b/i,320,3],
+  [/^Shadow Rider Calyrex V CRE(?: 74)?\b/i,210,2],
+  [/^Lillie's Clefairy ex JTG(?: 56)?\b/i,190,2],
+  [/^Tapu Lele-GX GRI(?: 60)?\b/i,170,2],
+  [/^Trevenant & Dusknoir-GX SMP(?: (?:SM)?217)?\b/i,270,3],
+  [/^Latias ex SSP(?: 76)?\b/i,210,2],
+  [/^Dialga-GX UPR(?: 100)?\b/i,180,2],
+  [/^Mimikyu GRI(?: 58)?\b/i,70,1],
+  [/^Girafarig LOT(?: 94)?\b/i,90,1],
+  [/^Marshadow UNB(?: 81)?\b/i,80,1],
+  [/^Radiant Eternatus CRZ(?: 105)?\b/i,170,1]
+]);
 const BASIC_ENERGY = /^(?:Grass Energy MEE(?: 9)?|Fire Energy MEE(?: 10)?)\b/i;
 const DDE = /^Double Dragon Energy ROS(?: 97)?\b/i;
 const TEMPLE = /^Temple of Sinnoh\b/i;
@@ -31,15 +45,20 @@ function localActor(request) {
   return request?.role === 'opponent' && (request?.seat === 0 || request?.seat === 1) &&
     request?.observation?.actorSeat === request.seat;
 }
-function isExactVMAXTarget(target) {
-  return SHADOW_VMAX.test(printing(target)) && target?.hp === 320 &&
-    Number.isSafeInteger(target.damage) && target.damage >= 0 && target.damage < 320 &&
-    arr(target.tools).length === 0 && Array.isArray(target.tools) &&
-    arr(target.printed?.subtypes).includes('VMAX') &&
-    arr(target.printed?.types).includes('Psychic') &&
-    arr(target.printed?.resistance).every(row => row?.type !== 'Dragon') &&
-    arr(target.printed?.weakness).every(row => row?.type !== 'Dragon') &&
-    arr(target.specialConditions).length === 0;
+function isExactCandidateTerminalTarget(target,remainingPrizes,bench) {
+  const profile=TARGETS.find(([pattern])=>pattern.test(printing(target)));
+  if(!profile || !Number.isSafeInteger(remainingPrizes) || remainingPrizes<1 ||
+      remainingPrizes>6 || target?.hp!==profile[1] ||
+      !Number.isSafeInteger(target.damage) || target.damage<0 ||
+      target.damage>=profile[1] || !Array.isArray(target.tools) ||
+      target.tools.length!==0 || !Array.isArray(target.printed?.subtypes) ||
+      !Array.isArray(target.printed?.types) || target.printed.types.length===0 ||
+      !Array.isArray(target.specialConditions) || target.specialConditions.length!==0)
+    return false;
+  // Dragon resistance can reduce the printed 330 to 300 and miss 320HP.
+  if(arr(target.printed?.resistance).some(row=>row?.type==='Dragon'))return false;
+  return remainingPrizes<=profile[2] ||
+    (Array.isArray(bench) && !bench.some(Boolean));
 }
 function safeStadiums(obs) {
   for (const player of [obs.ownPublic, obs.opponentPublic]) {
@@ -67,8 +86,7 @@ function canTerminalRyuno(request) {
   const own = obs.ownPublic, opp = obs.opponentPublic, active = own.active;
   if (!VSTAR.test(printing(active))) return false;
   if (!arr(own.discard).some(c => DRAGONITE.test(printing(c)))) return false;
-  if (!Number.isSafeInteger(own.prizeCount) || own.prizeCount < 1 || own.prizeCount > 3) return false;
-  if (!isExactVMAXTarget(opp.active) || !safeStadiums(obs)) return false;
+  if (!isExactCandidateTerminalTarget(opp.active,own.prizeCount,opp.bench) || !safeStadiums(obs)) return false;
   if (!Array.isArray(active.energies) || !Array.isArray(active.tools) ||
       active.tools.length !== 0 || !Array.isArray(active.specialConditions) ||
       active.specialConditions.length !== 0) return false;
