@@ -43,6 +43,16 @@ function acerolaMaxGeist(input, maxStates = 40000, firstActionAllowed = () => tr
      (input.acerolaHeld&&input.acerolaDiscard)||(input.guzmaHeld&&input.guzmaDiscard)||
      (input.rangerHeld&&input.rangerDiscard))
     return fail("resource conservation or K1 evidence failure");
+  const printed=input.attackModel==='candidate-printed-v1';
+  const kinds=['v','vmax','wob','clefairy','lele','trev','latias','dialga','mimikyu','girafarig','marshadow','radiant'];
+  if(input.attackModel&&!printed)return fail('unknown candidate attack model');
+  if(printed&&(!input.opponents||board.some(x=>!kinds.includes(x.kind)||x.vmax!==(x.kind==='vmax'))||
+    targets.some(t=>!int(t.damage,0,1000)||!int(t.energyUnits,0,100)||
+      !['ultraBeast','counterBlockedActive','counterBlockedBench'].every(k=>bool(t[k]))||
+      !int(t.counterPrizesOnKO,0,6)||
+      (t.damageReductionAllKindsCertified!==true&&
+        board.some(x=>!int(t.damageReductionByKind?.[x.kind],0,1000))))))
+    return fail('unverified candidate damage/counter envelope');
   const dynamic=input.dynamicEffects?.kind==='thorns-wobbuffet-v1';
   if(input.dynamicEffects&&!dynamic)return fail('unknown dynamic effect model');
   if(dynamic&&(!input.dynamicEffects.otherEffectsStable||input.dynamicEffects.toolsEffective!==true||
@@ -96,22 +106,61 @@ function acerolaMaxGeist(input, maxStates = 40000, firstActionAllowed = () => tr
   const weakness=s=>dynamic&&targets[s.o].dragon&&!(s.oppHood&bit(s.o))&&
     living(s).some(i=>board[i].fairyZone&&ownAbilityLive(s,i))?2:targets[s.o].weaknessMultiplier;
   function record(s){
-    if(!board[s.a].vmax||!board[s.a].canAttack||s.e[s.a]<(s.valley?2:3))return;
-    const t=targets[s.o],total=totalEnergy(s),raw=10+30*total;
-    const attack={kind:"attack",name:"Max Geist",source:ids[s.a],target:t.id};
-    if(!s.path.length&&!firstActionAllowed(attack))return;
-    const damage=Math.max(0,Math.max(0,raw*weakness(s)-t.resistance)-t.damageReduction);
-    const ko=damage>=t.remainingHP,prizes=ko?t.prizesOnKO:0;
-    const wins=ko&&(prizes>=prizesRemaining||t.opponentBoardCount===1);
-    const score=[+wins,prizes,Math.min(damage,t.remainingHP),-s.path.length,total,s.h];
-    const branch=s.sup==="acerola"?ids[s.b]:s.sup==="guzma"?"guzma:"+t.id:s.sup==="ranger"?"ranger":"no-acerola";
-    const previous=best.get(branch);
-    const better=!previous||score.some((x,j)=>x!==previous.score[j]&&
-      score.slice(0,j).every((v,k)=>v===previous.score[k])&&x>previous.score[j]);
-    if(wins)foundWitness=true;
-    if(better)best.set(branch,{score,branch,supporter:s.sup||null,attacker:ids[s.a],target:t.id,damage,prizes,wins,
-      boardPsychic:total,handPsychic:s.h,actions:[...s.path,attack],
-      unknownDrawsIgnored:s.draws});
+    const attacker=board[s.a];
+    if(!attacker.canAttack)return;
+    const total=totalEnergy(s),t=targets[s.o],energy=s.e[s.a],attackRows=[];
+    const add=(name,p,c,raw,bypass=false)=>{
+      const cost=p+Math.max(0,c-(s.valley&&attacker.psychic?1:0));
+      if(energy<cost)return;
+      const reduction=printed&&t.damageReductionAllKindsCertified!==true?
+        t.damageReductionByKind[attacker.kind]:t.damageReduction;
+      const damage=Math.max(0,Math.max(0,bypass?raw:raw*weakness(s)-t.resistance)-reduction);
+      attackRows.push({name,indices:[s.o],damages:[damage],counters:false});
+    };
+    if(attacker.vmax)add('Max Geist',0,3,10+30*total);
+    if(printed){
+      switch(attacker.kind){
+        case 'v':
+          add('Shadow Mist',1,0,10);
+          if(energy>=3-(s.valley?1:0)){
+            const picks=targets.length===1?[[0]]:targets.flatMap((_,i)=>targets.slice(i+1).map((__,j)=>[i,i+j+1]));
+            for(const is of picks)attackRows.push({name:'Astral Barrage',indices:is,counters:true,
+              damages:is.map(i=>(i===s.o?targets[i].counterBlockedActive:targets[i].counterBlockedBench)?0:50)});
+          }
+          break;
+        case 'wob':add('Psychic Assault',1,1,10+t.damage);break;
+        case 'clefairy':add('Full Moon Rondo',1,1,20+20*(living(s).length-1+targets.length-1));break;
+        case 'lele':add('Energy Drive',0,2,20*(energy+t.energyUnits),true);break;
+        case 'trev':add('Night Watch',3,0,150);break;
+        case 'latias':add('Eon Blade',2,1,200);break;
+        case 'girafarig':add('Mind Shock',0,3,70,true);break;
+        case 'marshadow':add('Red Knuckles',0,1,t.ultraBeast?70:10);break;
+        // These candidate lists have only Basic Psychic. Dialga and Radiant
+        // cannot pay printed colored costs. Copycat requires a distinct exact
+        // prior attack and effect recipe, deliberately not guessed here.
+      }
+    }
+    for(const row of attackRows){
+      const knocked=row.indices.filter((i,j)=>row.damages[j]>=targets[i].remainingHP);
+      const prizes=knocked.reduce((n,i)=>n+(row.counters?targets[i].counterPrizesOnKO:targets[i].prizesOnKO),0);
+      const wins=knocked.length>0&&(prizes>=prizesRemaining||
+        knocked.length===targets.length&&targets.length===t.opponentBoardCount);
+      const cappedDamage=row.indices.reduce((n,i,j)=>n+Math.min(row.damages[j],targets[i].remainingHP),0);
+      const damage=row.damages.reduce((n,x)=>n+x,0);
+      const attack={kind:"attack",name:row.name,source:ids[s.a],target:t.id,
+        ...(row.indices.length>1||row.counters?{targets:row.indices.map(i=>targets[i].id)}:{})};
+      if(!s.path.length&&!firstActionAllowed(attack))continue;
+      const score=[+wins,prizes,cappedDamage,-s.path.length,total,s.h];
+      const branch=s.sup==="acerola"?ids[s.b]:s.sup==="guzma"?"guzma:"+t.id:s.sup==="ranger"?"ranger":"no-acerola";
+      const previous=best.get(branch);
+      const better=!previous||score.some((x,j)=>x!==previous.score[j]&&
+        score.slice(0,j).every((v,k)=>v===previous.score[k])&&x>previous.score[j]);
+      if(wins)foundWitness=true;
+      if(better)best.set(branch,{score,branch,supporter:s.sup||null,attacker:ids[s.a],target:t.id,
+        attackName:row.name,damage,prizes,wins,boardPsychic:total,handPsychic:s.h,
+        ...(row.counters?{damageCounters:true,damageByTarget:row.indices.map((i,j)=>({target:targets[i].id,damage:row.damages[j]}))}:{}),
+        actions:[...s.path,attack],unknownDrawsIgnored:s.draws});
+    }
   }
   while(head<queue.length){
     const s=queue[head++],own=living(s),bench=own.filter(i=>i!==s.a);
@@ -201,7 +250,7 @@ function acerolaMaxGeist(input, maxStates = 40000, firstActionAllowed = () => tr
   const winner=baseline||supportWin;
   return {advisory:true,states:seen.size,completeWithinModel:!capped&&!stoppedEarly,witnessSearchStopped:stoppedEarly,
     decision:winner?{kind:"immediate-win-certificate",firstAction:winner.actions[0],plan:winner}:null,plans,
-    boundary:"Positive known-resource certificate only. No opponent turn, other Trainers/attacks, returned Pokémon/Tools replay, new draw identities, or dynamic lock/status/cost changes outside the optional named Thorns/Wobbuffet/Hood/Skyliner/Fairy Zone/Valley model and certified Ranger Item unlock. Revalidate every actual native root/prompt and replan after draws. Absence of a certificate does not prove absence of a winning line."};
+    boundary:"Positive known-resource certificate only. No opponent turn, unmodeled Trainers/attacks, returned Pokémon/other Tools replay, new draw identities, or dynamic lock/status/cost changes outside the optional named Thorns/Wobbuffet/Hood/Skyliner/Fairy Zone/Valley model and certified Ranger Item unlock. Revalidate every actual native root/prompt and replan after draws. Absence of a certificate does not prove absence of a winning line."};
 }
 
 function selfTest() {
@@ -379,6 +428,12 @@ function selectCertificateRoot(request,input,binding,maxStates=40000){
           check(Array.isArray(a.p.energies)&&a.p.energies.every(isP)&&row.energy===a.p.energies.length&&row.damage===a.p.damage,
             "own board energy/damage mismatch");
           check(row.vmax===a.p.printing.startsWith("Shadow Rider Calyrex VMAX "),"VMAX identity mismatch");
+          if(input.attackModel){
+            const candidateNames={v:'Shadow Rider Calyrex V ',vmax:'Shadow Rider Calyrex VMAX ',wob:'Wobbuffet ',
+              clefairy:"Lillie's Clefairy ex ",lele:'Tapu Lele-GX ',trev:'Trevenant & Dusknoir-GX ',latias:'Latias ex ',
+              dialga:'Dialga-GX ',mimikyu:'Mimikyu ',girafarig:'Girafarig ',marshadow:'Marshadow ',radiant:'Radiant Eternatus '};
+            check(typeof candidateNames[row.kind]==='string'&&a.p.printing.startsWith(candidateNames[row.kind]),"candidate attack identity mismatch");
+          }
           if(input.dynamicEffects){
             check(row.wobbuffet===a.p.printing.startsWith("Wobbuffet ")&&
               row.latias===a.p.printing.startsWith("Latias ex ")&&
@@ -394,6 +449,7 @@ function selectCertificateRoot(request,input,binding,maxStates=40000){
           }
         }else{
           check(row.remainingHP===a.p.hp-a.p.damage,"opponent HP mismatch");
+          if(input.attackModel)check(row.damage===a.p.damage,"opponent damage-counter mismatch");
           if(input.dynamicEffects)check(row.thorns===a.p.printing.startsWith("Iron Thorns ex ")&&
             row.hood===(a.p.tools??[]).some(x=>isT(x,"Stealthy Hood")),"opponent lock/Tool mismatch");
         }
@@ -411,10 +467,10 @@ function selectCertificateRoot(request,input,binding,maxStates=40000){
     };
     function matches(a,item){
       const m=item.publicMetadata??{},p=item.actorPrinting;
-      if(a.kind==="attack")return item.kind==="attack"&&item.attackName==="Max Geist"&&
+      if(a.kind==="attack")return item.kind==="attack"&&item.attackName===a.name&&
         p===map.get(a.source)?.printing&&m.attackCostPayable===true&&
         m.attackSource?.sourceKind==="active-pokemon"&&m.attackSource.sourceCardFullName===p&&
-        m.attackSource.attackName==="Max Geist";
+        m.attackSource.attackName===a.name;
       if(a.kind==="retreat")return item.kind==="retreat"&&p===map.get(a.source)?.printing&&
         item.targetPrinting===map.get(a.target)?.printing&&slotMatch(m,"target",a.target);
       if(a.kind==="underworld-door")return item.kind==="use-ability"&&m.abilityName==="Underworld Door"&&
@@ -542,5 +598,50 @@ function dynamicSelfTest(){
   return checks;
 }
 
-module.exports={acerolaMaxGeist,selfTest,trainerSelfTest,selectCertificateRoot,frontierSelfTest,dynamicSelfTest};
-if(require.main===module)console.log(JSON.stringify({base:selfTest(),trainers:trainerSelfTest(),frontier:frontierSelfTest(),dynamic:dynamicSelfTest()},null,2));
+
+function attackSelfTest(){
+  const assert=(c,m)=>{if(!c)throw Error(m)};
+  const b=(id,kind,e,extra={})=>({id,kind,energy:e,damage:0,psychic:!['dialga','radiant'].includes(kind),
+    vmax:kind==='vmax',doorAvailable:false,retreatCost:2,canAttack:true,canRetreat:false,...extra});
+  const t=(id,hp,extra={})=>({id,remainingHP:hp,prizesOnKO:1,opponentBoardCount:1,weaknessMultiplier:1,resistance:0,
+    damageReduction:0,damage:0,energyUnits:0,ultraBeast:false,counterBlockedActive:false,counterBlockedBench:false,
+    counterPrizesOnKO:1,damageReductionAllKindsCertified:true,...extra});
+  const f=(board,targets,extra={})=>({stablePublicEffects:true,noUnmodeledTerminalEffects:true,attackModel:'candidate-printed-v1',
+    board,active:0,handPsychic:0,deckCount:20,manualAvailable:true,retreatAvailable:true,supportAvailable:true,
+    acerolaHeld:false,manualAttachmentAllowed:true,dimensionValley:false,prizesRemaining:1,
+    opponents:targets.map(x=>({...x,opponentBoardCount:targets.length})),...extra});
+  const checks=[];
+  function check(name,input,attack,extra=()=>true){
+    const r=acerolaMaxGeist(input);
+    assert((r.decision?.plan.attackName??null)===attack&&extra(r),name+": "+JSON.stringify(r));
+    checks.push({name,attack,damage:r.decision?.plan.damage??null,prizes:r.decision?.plan.prizes??null,actions:r.decision?.plan.actions??[]});
+  }
+  check("Latias Eon Blade attack-through",f([b("l","latias",2)],[t("a",200)],{dimensionValley:true}),"Eon Blade");
+  check("Latias with 2P and no Valley cannot pay Eon Blade",f([b("l","latias",2)],[t("a",200)]),null);
+  check("Night Watch has no Valley discount",f([b("t","trev",2)],[t("a",150)],{dimensionValley:true}),null);
+  check("Night Watch 3P terminal",f([b("t","trev",3)],[t("a",150)]),"Night Watch");
+  const clefBoard=[b("c","clefairy",1),b("a","vmax",0),b("b","vmax",0),b("d","v",0)];
+  check("Clefairy six combined Bench Rondo for 140",f(clefBoard,[t("a",140),t("b",200),t("c",200),t("d",200)],{dimensionValley:true}),
+    "Full Moon Rondo",r=>r.decision.plan.damage===140);
+  const atr=f([b("v","v",2)],[t("a",230),t("b",50,{damage:10}),t("c",50,{damage:20})],
+    {dimensionValley:true,prizesRemaining:2});
+  check("Astral Barrage final two Prizes on Benched targets",atr,"Astral Barrage",
+    r=>r.decision.plan.prizes===2&&r.decision.plan.actions.at(-1).targets.join(",")==="b,c");
+  check("Mist-protected Benched target blocks double Astral win",{...atr,opponents:atr.opponents.map(x=>x.id==="c"?{...x,counterBlockedBench:true}:x)},null);
+  check("Counter KO uses counter-specific Prize geometry",{...atr,opponents:atr.opponents.map(x=>x.id==="c"?{...x,counterPrizesOnKO:0}:x)},null);
+  check("Astral Barrage one remaining Pokémon board-out",f([b("v","v",2)],[t("a",50)],{dimensionValley:true,prizesRemaining:6}),"Astral Barrage");
+  check("Psychic Assault uses existing damage",f([b("w","wob",1)],[t("a",70,{damage:80})],{dimensionValley:true}),"Psychic Assault",r=>r.decision.plan.damage===90);
+  check("Lele Energy Drive ignores W/R",f([b("l","lele",2)],[t("a",160,{energyUnits:6,weaknessMultiplier:2,resistance:30})]),"Energy Drive",r=>r.decision.plan.damage===160);
+  check("Marshadow free Red Knuckles under Valley against Ultra Beast",f([b("m","marshadow",0)],[t("a",70,{ultraBeast:true})],{dimensionValley:true}),"Red Knuckles");
+  check("Mind Shock ignores W/R",f([b("g","girafarig",2)],[t("a",70,{weaknessMultiplier:2,resistance:30})],{dimensionValley:true}),"Mind Shock",r=>r.decision.plan.damage===70);
+  check("Dialga cannot pay Metal costs with Psychic",f([b("d","dialga",5)],[t("a",50)]),null);
+  check("Radiant Eternatus cannot pay Fire/Dark with Psychic",f([b("r","radiant",5)],[t("a",50)]),null);
+  const immune=f([b("a","vmax",4),b("w","wob",2)],[t("a",70,{damage:80,damageReductionAllKindsCertified:false,
+    damageReductionByKind:{vmax:1000,wob:0}})],{retreatAvailable:true});
+  immune.board[0].canRetreat=true;
+  check("Pay retreat into non-Rule Box attacker when VMAX damage prevented",immune,"Psychic Assault",r=>r.decision.plan.actions[0].kind==="retreat");
+  return checks;
+}
+
+module.exports={acerolaMaxGeist,selfTest,trainerSelfTest,selectCertificateRoot,frontierSelfTest,dynamicSelfTest,attackSelfTest};
+if(require.main===module)console.log(JSON.stringify({base:selfTest(),trainers:trainerSelfTest(),frontier:frontierSelfTest(),dynamic:dynamicSelfTest(),attacks:attackSelfTest()},null,2));
