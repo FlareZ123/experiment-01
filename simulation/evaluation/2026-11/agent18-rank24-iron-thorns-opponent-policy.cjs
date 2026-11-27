@@ -82,6 +82,9 @@ const SIDNEY = /^Sidney\b/i;
 const TEAM_SKULL_GRUNT = /^Team Skull Grunt\b/i;
 const XEROSIC_MACHINATIONS = /^Xerosic['’]s Machinations\b/i;
 const LILLIE_DETERMINATION = /^Lillie['’]s Determination\b/i;
+const GLADION = /^Gladion\b/i;
+const GUZMA = /^Guzma(?:\s+BUS\b|$)/i;
+const LUSAMINE = /^Lusamine\b/i;
 
 function list(value) {
   return Array.isArray(value) ? value : [];
@@ -210,6 +213,64 @@ function remainingHp(pokemon) {
   const hp = pokemon?.hp;
   const damage = pokemon?.damage;
   return Number.isFinite(hp) && Number.isFinite(damage) ? hp - damage : null;
+}
+function voltCycloneFunded(pokemon, observation) {
+  if (!pokemon || !IRON_THORNS.test(pokemon.printing ?? '')) return false;
+  const units = energyUnits(pokemon);
+  if (hasStadium(observation, THUNDER_MOUNTAIN)) return units >= 2;
+  return hasActiveEnergy(pokemon, SPEED_LIGHTNING) && units >= 3;
+}
+function bestFundedOwnBench(observation) {
+  const rows = list(observation?.ownPublic?.bench)
+    .map((pokemon, index) => ({ pokemon, index }))
+    .filter(row => row.pokemon && voltCycloneFunded(row.pokemon, observation))
+    .sort((a, b) => energyUnits(b.pokemon) - energyUnits(a.pokemon) || a.index - b.index);
+  return rows[0] ?? null;
+}
+function bestGuzmaTarget(observation) {
+  const rows = list(observation?.opponentPublic?.bench)
+    .map((pokemon, index) => ({ pokemon, index, hp: remainingHp(pokemon) }))
+    .filter(row => row.pokemon && Number.isFinite(row.hp))
+    .sort((a, b) => a.hp - b.hp || a.index - b.index);
+  return rows[0] ?? null;
+}
+function importantPrizeScore(value, observation) {
+  if (matches(value, MEGATON_BLOWER)) return 320;
+  if (matches(value, BELLELBA) && (opponentDeckCount(observation) ?? 99) <= 6) return 310;
+  if (matches(value, THUNDER_MOUNTAIN)) return 290;
+  if (matches(value, N_SUPPORTER)) return nForcesOpponentDeckZero(observation) ? 305 : 230;
+  if (matches(value, SPEED_LIGHTNING)) return 220;
+  if (matches(value, DOUBLE_COLORLESS)) return 215;
+  if (matches(value, IRON_THORNS) && ownThornsInPlay(observation) < 2) return 210;
+  if (matches(value, ENHANCED_HAMMER)) return 200;
+  if (matches(value, VS_SEEKER)) return 195;
+  return 0;
+}
+function recoveryScore(value, observation) {
+  if (matches(value, BELLELBA)) return (opponentDeckCount(observation) ?? 99) <= 6 ? 310 : 175;
+  if (matches(value, N_SUPPORTER)) return nForcesOpponentDeckZero(observation) ? 305 : 205;
+  if (matches(value, GUZMA)) {
+    const target = bestGuzmaTarget(observation);
+    return target && target.hp <= 140 && bestFundedOwnBench(observation) ? 285 : 170;
+  }
+  if (matches(value, PLUMERIA)) return opponentEnergyCount(observation) > 0 ? 250 : 150;
+  if (matches(value, TEAM_FLARE_GRUNT)) return list(opponentActive(observation)?.energies).length > 0 ? 240 : 145;
+  if (matches(value, FABA)) return 225;
+  if (matches(value, XEROSIC_MACHINATIONS)) return (opponentHandCount(observation) ?? 0) > 3 ? 215 : 135;
+  if (matches(value, LILLIE_DETERMINATION)) return list(observation?.ownHand).length <= 3 ? 200 : 130;
+  if (matches(value, GUZMA_HALA)) return 190;
+  if (matches(value, CYNTHIA_CAITLIN)) return 170;
+  if (matches(value, ERI)) return 150;
+  if (matches(value, SIDNEY)) return 145;
+  if (matches(value, TEAM_SKULL_GRUNT)) return 140;
+  if (matches(value, THUNDER_MOUNTAIN)) return 220;
+  if (matches(value, WONDROUS_LABYRINTH)) return 120;
+  return 0;
+}
+function prizedImportantCard(observation) {
+  const k1 = observation?.ownerK1;
+  if (!k1 || k1.exactMembershipKnown !== true || !Array.isArray(k1.knownPrintings)) return false;
+  return k1.knownPrintings.some(row => row?.copies > 0 && importantPrizeScore(row.printing, observation) >= 210);
 }
 function hasVoltCycloneFrontier(request) {
   return list(request?.actionFrontier?.items).some(item =>
@@ -375,6 +436,36 @@ function fundingScore(item, request) {
        stadiumVisible) ? 240 : 0;
   }
 
+  if (item.kind === 'play-card' && matches(card, GLADION)) {
+    return supporterAvailable(observation) && prizedImportantCard(observation) ? 255 : 0;
+  }
+  if (item.kind === 'play-card' && matches(card, GUZMA)) {
+    if (!supporterAvailable(observation)) return 0;
+    const ownBench = bestFundedOwnBench(observation);
+    const target = bestGuzmaTarget(observation);
+    if (!ownBench || !target) return 0;
+    if (target.hp <= 140) return 286;
+    const activeHp = remainingHp(opponentActive(observation));
+    return Number.isFinite(activeHp) && target.hp + 40 < activeHp ? 155 : 0;
+  }
+  if (item.kind === 'play-card' && matches(card, LUSAMINE)) {
+    if (!supporterAvailable(observation)) return 0;
+    const recoverable = list(observation?.ownPublic?.discard)
+      .map(card => recoveryScore(card, observation))
+      .sort((a, b) => b - a);
+    return recoverable[0] >= 250 ? 245 : recoverable[0] >= 170 ? 176 : 0;
+  }
+  if (item.kind === 'play-card' && matches(card, CYNTHIA_CAITLIN)) {
+    if (!supporterAvailable(observation)) return 0;
+    const recoverable = list(observation?.ownPublic?.discard)
+      .some(card => recoveryScore(card, observation) >= 170);
+    const safeDiscard = list(observation?.ownHand)
+      .filter(card => !matches(card, CYNTHIA_CAITLIN))
+      .some(card => discardPriority(card, observation) > 0);
+    return recoverable ? (safeDiscard ? 188 : 168) :
+      (safeDiscard && list(observation?.ownHand).length <= 3 ? 158 : 0);
+  }
+
   if (item.kind === 'play-card' && matches(card, XEROSIC_MACHINATIONS)) {
     const hand = opponentHandCount(observation);
     return supporterAvailable(observation) && Number.isSafeInteger(hand) && hand > 3 ?
@@ -428,6 +519,18 @@ function fundingScore(item, request) {
     return specialEnergyAvailable(observation) && targetIsOwnIronThorns(item, observation) &&
       !hasActiveEnergy(active, DOUBLE_COLORLESS) ? 205 : 0;
   }
+  if (item.kind === 'play-card' && matches(card, HANDHELD_FAN)) {
+    const oppHasBench = list(observation?.opponentPublic?.bench).some(Boolean);
+    return toolAvailable(observation) && targetIsOwnIronThorns(item, observation) &&
+      !activeHasTool(observation) && list(opponentActive(observation)?.energies).length > 0 &&
+      oppHasBench ? 158 : 0;
+  }
+  if (item.kind === 'play-card' && matches(card, PALACE_BOOK)) {
+    const hand = list(observation?.ownHand).length;
+    return itemAvailable(observation) && (ownDeckCount(observation) ?? 0) > 0 &&
+      !hasVoltCycloneFrontier(request) && hand <= 2 && terminalEndTurnSafety(request) ? 92 : 0;
+  }
+
   if (item.kind === 'play-card' && matches(card, TOOL_JAMMER)) {
     return toolAvailable(observation) && targetIsOwnIronThorns(item, observation) &&
       !activeHasTool(observation) && opponentActiveHasTool(observation) ? 195 : 0;
@@ -733,6 +836,118 @@ function chooseUpToTwo(prompt, scoreFn) {
   return { kind: 'select-choices', tokens: rows.slice(0, Math.min(2, promptMaximum(prompt)))
     .map(row => row.choice.token) };
 }
+function gladionPromptDecision(request) {
+  const prompt = request.prompt;
+  if (prompt?.promptType !== 'ChoosePrizePrompt') {
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
+  }
+  const rows = list(prompt.choices)
+    .filter(choice => choice?.kind === 'prize')
+    .map(choice => ({ choice, score: importantPrizeScore(choice, request.observation) }))
+    .sort((a, b) => b.score - a.score ||
+      String(a.choice.token).localeCompare(String(b.choice.token)));
+  if (!rows.length) return { kind: 'abstain', reasonCode: 'NO_USEFUL_CARD_CHOICE' };
+  return { kind: 'select-choices', tokens: [rows[0].choice.token] };
+}
+function recoveryPromptDecision(request, maxCards = 2) {
+  const prompt = request.prompt;
+  if (prompt?.promptType !== 'ChooseCardsPrompt') {
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
+  }
+  const rows = eligiblePromptCards(prompt)
+    .map(choice => ({ choice, score: recoveryScore(choice, request.observation) }))
+    .sort((a, b) => b.score - a.score ||
+      String(a.choice.token).localeCompare(String(b.choice.token)));
+  if (!rows.length) return { kind: 'abstain', reasonCode: 'NO_USEFUL_CARD_CHOICE' };
+  const n = Math.min(promptMaximum(prompt), maxCards, rows.length);
+  return { kind: 'select-choices', tokens: rows.slice(0, n).map(row => row.choice.token) };
+}
+function cynthiaCaitlinPromptDecision(request) {
+  const prompt = request.prompt;
+  if (prompt?.promptType === 'SelectOptionPrompt' || prompt?.promptType === 'SelectPrompt') {
+    const safeDiscard = list(request?.observation?.ownHand)
+      .filter(card => !matches(card, CYNTHIA_CAITLIN))
+      .some(card => discardPriority(card, request.observation) > 0);
+    const wanted = safeDiscard ? /discard another card.*draw 3/i :
+      /^Put a Supporter card from your discard pile into your hand\.?$/i;
+    return chooseOption(prompt, wanted) ??
+      chooseOption(prompt, /Supporter card from your discard pile/i) ??
+      { kind: 'abstain', reasonCode: 'NO_USEFUL_CARD_CHOICE' };
+  }
+  if (prompt?.promptType !== 'ChooseCardsPrompt') {
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
+  }
+  const handChoices = list(prompt.choices).filter(choice =>
+    choiceOwner(choice) === 'actor' && choiceZone(choice) === 'hand');
+  if (handChoices.length) {
+    const ranked = handChoices
+      .map(choice => ({ choice, score: discardPriority(choice, request.observation) }))
+      .filter(row => row.score > 0)
+      .sort((a, b) => b.score - a.score || String(a.choice.token).localeCompare(String(b.choice.token)));
+    return ranked.length ? { kind: 'select-choices', tokens: [ranked[0].choice.token] } :
+      { kind: 'abstain', reasonCode: 'NO_USEFUL_CARD_CHOICE' };
+  }
+  return recoveryPromptDecision(request, 1);
+}
+function pokemonAtChoice(choice, observation, owner) {
+  if (choiceOwner(choice) !== owner) return null;
+  const zone = choice?.publicMetadata?.targetZone ?? choiceZone(choice);
+  const index = choice?.publicMetadata?.benchIndex ??
+    choice?.publicMetadata?.selectionIndex ?? 0;
+  const player = owner === 'actor' ? observation?.ownPublic : observation?.opponentPublic;
+  if (zone === 'active') return player?.active ?? null;
+  if (zone === 'bench' && Number.isSafeInteger(index)) return list(player?.bench)[index] ?? null;
+  return null;
+}
+function guzmaPromptDecision(request) {
+  const prompt = request.prompt;
+  if (prompt?.promptType !== 'ChoosePokemonPrompt') {
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
+  }
+  const choices = list(prompt.choices);
+  const opponentRows = choices
+    .map(choice => ({ choice, pokemon: pokemonAtChoice(choice, request.observation, 'opponent') }))
+    .filter(row => row.pokemon)
+    .map(row => ({ ...row, hp: remainingHp(row.pokemon) }))
+    .sort((a, b) => (a.hp ?? 9999) - (b.hp ?? 9999) ||
+      String(a.choice.token).localeCompare(String(b.choice.token)));
+  if (opponentRows.length) {
+    return { kind: 'select-choices', tokens: [opponentRows[0].choice.token] };
+  }
+  const ownRows = choices
+    .map(choice => ({ choice, pokemon: pokemonAtChoice(choice, request.observation, 'actor') }))
+    .filter(row => row.pokemon)
+    .sort((a, b) => {
+      const af = voltCycloneFunded(a.pokemon, request.observation) ? 1 : 0;
+      const bf = voltCycloneFunded(b.pokemon, request.observation) ? 1 : 0;
+      return bf - af || energyUnits(b.pokemon) - energyUnits(a.pokemon) ||
+        String(a.choice.token).localeCompare(String(b.choice.token));
+    });
+  return ownRows.length ? { kind: 'select-choices', tokens: [ownRows[0].choice.token] } :
+    { kind: 'abstain', reasonCode: 'NO_USEFUL_CARD_CHOICE' };
+}
+function handHeldFanPromptDecision(request) {
+  const prompt = request.prompt;
+  if (prompt?.promptType !== 'AttachEnergyPrompt') {
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
+  }
+  const rows = list(prompt.choices)
+    .filter(choice => choice?.kind === 'energy')
+    .map(choice => {
+      let score = matches(choice, DOUBLE_COLORLESS) ? 120 :
+        ((choice?.publicMetadata?.energyType === 'Special' || specialEnergyPrinting(choice)) ? 100 : 70);
+      const idx = choice?.publicMetadata?.benchIndex ?? choice?.publicMetadata?.selectionIndex;
+      if (Number.isSafeInteger(idx)) {
+        const target = list(request?.observation?.opponentPublic?.bench)[idx];
+        score -= energyUnits(target) * 5;
+      }
+      return { choice, score };
+    })
+    .sort((a, b) => b.score - a.score || String(a.choice.token).localeCompare(String(b.choice.token)));
+  return rows.length ? { kind: 'select-choice', token: rows[0].choice.token } :
+    { kind: 'abstain', reasonCode: 'NO_USEFUL_CARD_CHOICE' };
+}
+
 function blindDisruptionPromptDecision(request, mode) {
   const prompt = request.prompt;
   if (prompt?.promptType !== 'ChooseCardsPrompt') {
@@ -843,6 +1058,11 @@ function promptDecision(request) {
   if (ENHANCED_HAMMER.test(source)) return enhancedHammerPromptDecision(request);
   if (TEAM_FLARE_GRUNT.test(source)) return teamFlarePromptDecision(request);
   if (FABA.test(source)) return fabaPromptDecision(request);
+  if (GLADION.test(source)) return gladionPromptDecision(request);
+  if (LUSAMINE.test(source)) return recoveryPromptDecision(request, 2);
+  if (CYNTHIA_CAITLIN.test(source)) return cynthiaCaitlinPromptDecision(request);
+  if (GUZMA.test(source)) return guzmaPromptDecision(request);
+  if (HANDHELD_FAN.test(source)) return handHeldFanPromptDecision(request);
   if (ERI.test(source)) return blindDisruptionPromptDecision(request, 'eri');
   if (SIDNEY.test(source)) return blindDisruptionPromptDecision(request, 'sidney');
   if (TEAM_SKULL_GRUNT.test(source)) return blindDisruptionPromptDecision(request, 'energy');
@@ -909,5 +1129,12 @@ module.exports = {
   trainersMailChoiceScore,
   trainersMailPromptDecision,
   blindDisruptionPromptDecision,
-  opponentHandCount
+  opponentHandCount,
+  voltCycloneFunded,
+  bestGuzmaTarget,
+  gladionPromptDecision,
+  recoveryPromptDecision,
+  cynthiaCaitlinPromptDecision,
+  guzmaPromptDecision,
+  handHeldFanPromptDecision
 };
