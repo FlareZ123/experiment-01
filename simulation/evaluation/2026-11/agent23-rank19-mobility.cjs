@@ -87,8 +87,8 @@ function attackOptions(o,own,target,caps){
  const scored=out.map(x=>copycat.adjust(o,own,target,x));
  const gx=scored.find(a=>a.attackName==='Altered Creation-GX'),ray=scored.find(a=>a.attackName==='Ultimate Ray');
  if(gx&&ray){
-  if(tempo.preferRay(o,own,target))gx.score=Math.min(gx.score,ray.score-1);
-  else ray.score=Math.min(ray.score,gx.score-1);
+  if(tempo.preferRay(o,own,target))gx.score=Math.max(1,Math.min(gx.score,ray.score-1));
+  else ray.score=Math.max(1,Math.min(ray.score,gx.score-1));
  }
  return scored.filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
 }

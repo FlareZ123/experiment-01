@@ -10,6 +10,11 @@ const clef=(energy=2,damage=0,live=true)=>mon("Lillie's Clefairy ex JTG 56",190,
 const vmax=(energy=3,damage=0)=>mon('Shadow Rider Calyrex VMAX CRE 75',320,energy,damage);
 const mim=(energy=2)=>mon('Mimikyu GRI 58',70,energy);
 const basic=()=>mon('Shadow Rider Calyrex V CRE 74',210);
+const gira=()=>mon('Girafarig LOT 94',90);
+const sourceBench=()=>[
+ mon('Raging Bolt ex TEF 123',240),mon('Galarian Moltres V CRE 97',220),
+ mon('Dedenne-GX UNB 57',160),mon('Latias ex SSP 76',210),mon('Sudowoodo GRI 66',100)
+];
 const root=(attackName,token)=>({kind:'attack',actorPrinting:'Arceus & Dialga & Palkia-GX CEC 156',attackName,token,publicMetadata:{attackCostPayable:true}});
 const GX='Altered Creation-GX',RAY='Ultimate Ray',A='rank19-attachment-set-v1';
 function req({own=adp(),target=vmax(),bench=[],ownBench=[],prizes=6,foePrizes=6,stadium=[],gxUsed=false,items=[root(GX,'gx'),root(RAY,'ray')]}={}){
@@ -22,11 +27,11 @@ const pick=r=>mobility.attackRoot(r,{attach:true,discard:true})?.token;
 test('single Double Dragon legal GX root is not lost without Ray',()=>{const r=req({own:adp([D]),items:[root(GX,'gx')]});assert.equal(select(r),'gx');assert.equal(pick(r),'gx');});
 test('ordinary nonterminal both-root board keeps GX preference',()=>{const r=req();assert.equal(prefer(r),false);assert.equal(select(r),'gx');assert.equal(pick(r),'gx');});
 test('Ray takes terminal KO regardless of reply',()=>{const r=req({target:mim(),prizes:1});assert.equal(prefer(r),true);assert.equal(select(r),'ray');assert.equal(pick(r),'ray');});
-test('Ray removes lethal active Fairy Zone and saves ADP from visible Max Geist',()=>{const r=req({target:clef(2,50),bench:[vmax(5)],ownBench:[adp(),adp(),adp(),adp(),adp()]});assert.equal(reply(r,GX).length,1);assert.equal(reply(r,RAY).length,0);assert.equal(prefer(r),true);assert.equal(select(r),'ray');assert.equal(pick(r),'ray');});
-test('surviving Clefairy allows Max Geist reply after Ray',()=>{const r=req({target:clef(2,50),bench:[vmax(5),clef(0)],ownBench:[adp(),adp(),adp(),adp(),adp()]});assert.ok(reply(r,GX).length);assert.ok(reply(r,RAY).length);assert.equal(prefer(r),true);});
-test('terminal opponent KO both ways does not assert Ray saves game',()=>{const r=req({target:clef(2,50),bench:[vmax(5),clef(0)],ownBench:[adp(),adp(),adp(),adp(),adp()],foePrizes:3});assert.ok(reply(r,GX).every(x=>x.terminal));assert.ok(reply(r,RAY).every(x=>x.terminal));assert.equal(prefer(r),false);});
-test('one surviving Clefairy causes Copycat Ray retaliation but not GX',()=>{const r=req({target:mim(),bench:[mim(),clef(0)]});assert.equal(reply(r,GX).length,0);assert.equal(reply(r,RAY)[0].attack,'Copycat');assert.equal(reply(r,RAY)[0].damage,300);assert.equal(select(r),'gx');});
-test('suppressed Fairy Zone does not double damage',()=>{const r=req({target:mim(),bench:[mim(),clef(0,0,false)]});assert.equal(reply(r,RAY).length,0);});
+test('Ray removes lethal active Fairy Zone and saves ADP from visible Max Geist',()=>{const r=req({target:clef(2,50),bench:[vmax(5)],ownBench:sourceBench()});assert.equal(reply(r,GX).length,1);assert.equal(reply(r,RAY).length,0);assert.equal(prefer(r),true);assert.equal(select(r),'ray');assert.equal(pick(r),'ray');});
+test('surviving Clefairy allows Max Geist reply after Ray',()=>{const r=req({target:clef(2,50),bench:[vmax(5),clef(0)],ownBench:sourceBench()});assert.ok(reply(r,GX).length);assert.ok(reply(r,RAY).length);assert.equal(prefer(r),true);});
+test('terminal opponent KO both ways does not assert Ray saves game',()=>{const r=req({target:clef(2,50),bench:[vmax(5),clef(0)],ownBench:sourceBench(),foePrizes:3});assert.ok(reply(r,GX).every(x=>x.terminal));assert.ok(reply(r,RAY).every(x=>x.terminal));assert.equal(prefer(r),false);});
+test('one surviving Clefairy causes Copycat Ray retaliation but not GX',()=>{const r=req({target:gira(),bench:[mim(),clef(0)]});assert.equal(reply(r,GX).length,0);assert.equal(reply(r,RAY)[0].attack,'Copycat');assert.equal(reply(r,RAY)[0].damage,300);assert.equal(select(r),'gx');});
+test('suppressed Fairy Zone does not double damage',()=>{const r=req({target:gira(),bench:[mim(),clef(0,0,false)]});assert.equal(reply(r,RAY).length,0);});
 test('dimension valley pays Max Geist with two Psychic',()=>{const r=req({target:vmax(2),bench:[clef(3)],stadium:['Dimension Valley PHF 93']});assert.equal(reply(r,GX)[0].damage,320);});
 test('no Dimension Valley means that same Max Geist is unfunded',()=>{const r=req({target:vmax(2),bench:[clef(3)]});assert.equal(reply(r,GX).length,0);});
 test('Night Watch requires all three Psychic even with Valley',()=>{const r=req({target:mon('Trevenant & Dusknoir-GX SMP SM217',270,2),bench:[clef(0)],stadium:['Dimension Valley PHF 93']});assert.equal(reply(r,GX).length,0);});
