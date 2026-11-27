@@ -700,9 +700,17 @@ function projectElectrodeBombTransfers({
   prompt,state,actorSeat,native,source,choices,choiceByToken
 }) {
   const actor=state.players[actorSeat];
-  // Pinned CES48 Electrode-GX: one AttachEnergyPrompt from the actor's
-  // public discard, min:0/max:5, to own Active/Bench excluding EX and GX.
+  // Pinned CES48 initially uses min:0, while the reversible paper rule
+  // correction in simulation/twinleaf/electrode-gx-energy-hook.cjs sets
+  // min:min(5,available). Both represent this exact same source prompt.
   // The native validator does NOT enforce blockedTo. Our dispatch does.
+  assert.ok(typeof native.EnergyCard==='function'&&native.EnergyType&&
+    native.PlayerType&&native.SlotType&&native.SuperType,
+    'pinned Extra Energy Bomb native bindings missing');
+  const energies=cardListCards(actor.discard).map((card,index)=>({card,index}))
+    .filter(({card})=>card instanceof native.EnergyCard&&
+      card.superType===native.SuperType.ENERGY);
+  const mandatory=Math.min(5,energies.length);
   const validSource=source?.sourceKind==='card-effect'&&
     source.sourcePrinting==='Electrode-GX CES'&&
     source.effectName==='Extra Energy Bomb';
@@ -715,19 +723,13 @@ function projectElectrodeBombTransfers({
     prompt.slots[1]===native.SlotType.ACTIVE&&
     prompt.filter?.superType===native.SuperType.ENERGY&&
     Object.keys(prompt.filter).length===1&&
-    opt?.allowCancel===false&&opt?.min===0&&opt?.max===5&&
+    opt?.allowCancel===false&&
+    (opt?.min===0||opt?.min===mandatory)&&opt?.max===5&&
     Array.isArray(opt.blockedTo)&&Array.isArray(opt.blocked)&&
     opt.blocked.length===0&&!opt.differentTypes&&!opt.sameTarget&&!opt.differentTargets;
   if(!validShape)throw Object.assign(
     new Error('Unsupported pinned Electrode-GX Extra Energy Bomb prompt shape'),
     {code:'UNSUPPORTED_ELECTRODE_BOMB_PROMPT_SHAPE'});
-  assert.ok(typeof native.EnergyCard==='function'&&native.EnergyType&&
-    native.PlayerType&&native.SlotType&&native.SuperType,
-    'pinned Extra Energy Bomb native bindings missing');
-
-  const energies=cardListCards(prompt.cardList).map((card,index)=>({card,index}))
-    .filter(({card})=>card instanceof native.EnergyCard&&
-      card.superType===native.SuperType.ENERGY);
   const blocked=new Set(opt.blockedTo.map(t=>[t.player,t.slot,t.index].join('|')));
   const targets=[];
   const pushTarget=(slot,slotType,index)=>{
