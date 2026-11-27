@@ -1,7 +1,7 @@
 "use strict";
 
 // Agent21 advisory for approved common two-profile successor; detached verified actor resources only.
-function acerolaMaxGeist(input, maxStates = 40000) {
+function acerolaMaxGeist(input, maxStates = 40000, firstActionAllowed = () => true) {
   // Positive known-resource certificates only. Public permissions and damage modifiers
   // must be valid across all enumerated switches/removals; Ranger is the one explicit
   // attack-effect Item-lock transition. Unverified or dynamic effects require abstention.
@@ -57,6 +57,7 @@ function acerolaMaxGeist(input, maxStates = 40000) {
   const queue=[initial],seen=new Set([key(initial)]),best=new Map();
   let capped=false,head=0;
   function push(s,changes,action){
+    if(!s.path.length&&!firstActionAllowed(action))return;
     const next={...s,...changes,path:[...s.path,action]},k=key(next);
     if(seen.has(k))return;
     if(seen.size>=maxStates){capped=true;return;}
@@ -67,6 +68,8 @@ function acerolaMaxGeist(input, maxStates = 40000) {
   function record(s){
     if(!board[s.a].vmax||!board[s.a].canAttack||s.e[s.a]<(input.dimensionValley?2:3))return;
     const t=targets[s.o],total=totalEnergy(s),raw=10+30*total;
+    const attack={kind:"attack",name:"Max Geist",source:ids[s.a],target:t.id};
+    if(!s.path.length&&!firstActionAllowed(attack))return;
     const damage=Math.max(0,Math.max(0,raw*t.weaknessMultiplier-t.resistance)-t.damageReduction);
     const ko=damage>=t.remainingHP,prizes=ko?t.prizesOnKO:0;
     const wins=ko&&(prizes>=prizesRemaining||t.opponentBoardCount===1);
@@ -76,7 +79,7 @@ function acerolaMaxGeist(input, maxStates = 40000) {
     const better=!previous||score.some((x,j)=>x!==previous.score[j]&&
       score.slice(0,j).every((v,k)=>v===previous.score[k])&&x>previous.score[j]);
     if(better)best.set(branch,{score,branch,supporter:s.sup||null,attacker:ids[s.a],target:t.id,damage,prizes,wins,
-      boardPsychic:total,handPsychic:s.h,actions:[...s.path,{kind:"attack",name:"Max Geist",source:ids[s.a],target:t.id}],
+      boardPsychic:total,handPsychic:s.h,actions:[...s.path,attack],
       unknownDrawsIgnored:s.draws});
   }
   while(head<queue.length){
@@ -232,5 +235,195 @@ function trainerSelfTest(){
   return checks;
 }
 
-module.exports={acerolaMaxGeist,selfTest,trainerSelfTest};
-if(require.main===module)console.log(JSON.stringify({base:selfTest(),trainers:trainerSelfTest()},null,2));
+
+/**
+ * Root bridge for the detached actor-only policy protocol.
+ * The effect certifier remains responsible for ALL stable future permissions and
+ * modifiers. This function binds its proposed geometry to today's actor view
+ * and searches only through first actions that the engine offered.
+ * Does not dispatch a command, carry a token to a later prompt, or resolve prompts.
+ */
+function selectCertificateRoot(request,input,binding,maxStates=40000){
+  const reject=reason=>({advisory:true,decision:null,reason});
+  try{
+    const v=request?.observation,f=request?.actionFrontier;
+    if(request?.schema!=="aichi-policy-request-v2"||
+       request.observationSchema!=="aichi-actor-observation-v4-ability-lock-order"||
+       request.prompt!=null||v?.decisionKind!=="owner-root"||
+       request.seat!==v.actorSeat||v.actorSeat!==v.turnSeat||
+       !Number.isSafeInteger(v.globalTurn)||v.globalTurn<=1||
+       f?.schema!=="aichi-action-frontier-v1"||!Array.isArray(f.items))
+      return reject("not a current actor root");
+    const check=(c,m)=>{if(!c)throw Error(m)};
+    check(input.stablePublicEffects===true&&input.noUnmodeledTerminalEffects===true,
+      "unverified stable effect envelope");
+    const own=v.ownPublic,opp=v.opponentPublic,res=v.ownTurnResources;
+    const event=request.publicEventReceipt;
+    check(event?.version==="agent8-public-event-receipt-v3-turn-stamped"&&
+          event.turn===v.globalTurn&&event.actorSeat===v.actorSeat,"missing current event receipt");
+    const slots=(side)=>[...(side.active?[{zone:"active",index:0,p:side.active}]:[]),
+      ...side.bench.flatMap((p,index)=>p?[{zone:"bench",index,p}]:[])];
+    const actualOwn=slots(own),actualOpp=slots(opp),map=new Map();
+    const catalog=binding?.basicPsychicPrintings;
+    check(Array.isArray(catalog)&&catalog.length&&catalog.every(x=>typeof x==="string"&&x.length),"missing exact Psychic printing whitelist");
+    const isP=x=>catalog.includes(x);
+    const trainers={"acerola":"Acerola","guzma":"Guzma","pokemon-ranger":"Pokémon Ranger",
+      "vs-seeker":"VS Seeker","night-stretcher":"Night Stretcher","fog-crystal":"Fog Crystal"};
+    const printMap=binding.trainerPrintings;
+    check(printMap&&Object.values(trainers).every(n=>Array.isArray(printMap[n])&&printMap[n].every(x=>typeof x==="string")),"missing exact trainer printing whitelist");
+    const isT=(p,n)=>printMap[n].includes(p);
+    const count=(xs,pred)=>xs.filter(pred).length;
+    const hand=v.ownHand,discard=own.discard;
+    check(Array.isArray(hand)&&Array.isArray(discard)&&hand.every(x=>typeof x==="string")&&discard.every(x=>typeof x==="string"),"invalid owner zones");
+    check(input.handPsychic===count(hand,isP)&&(input.discardPsychic??0)===count(discard,isP),
+      "Psychic hand/discard mismatch");
+    for(const [prop,n] of [["acerolaHeld","Acerola"],["guzmaHeld","Guzma"],["rangerHeld","Pokémon Ranger"]]){
+      check((input[prop]===true)===(count(hand,x=>isT(x,n))>0),"held Supporter mismatch "+n);
+    }
+    for(const [prop,n] of [["acerolaDiscard","Acerola"],["guzmaDiscard","Guzma"],["rangerDiscard","Pokémon Ranger"]]){
+      check((input[prop]===true)===(count(discard,x=>isT(x,n))>0),"discard Supporter mismatch "+n);
+    }
+    for(const [prop,n] of [["vsSeekerCount","VS Seeker"],["nightStretcherCount","Night Stretcher"],["fogCount","Fog Crystal"]]){
+      check((input[prop]??0)===count(hand,x=>isT(x,n)),"Item count mismatch "+n);
+    }
+    check(input.deckCount===own.deckCount&&input.prizesRemaining===own.prizeCount,"owner deck/prize mismatch");
+    check(Number.isSafeInteger(res.energyPlayedTurn)&&Number.isSafeInteger(res.retreatedTurn)&&Number.isSafeInteger(res.supporterPlayedTurn),
+      "unknown turn counters");
+    check(!input.manualAvailable||res.energyPlayedTurn!==v.globalTurn,"attachment already spent");
+    check(!input.retreatAvailable||res.retreatedTurn!==v.globalTurn,"retreat already spent");
+    check(!input.supportAvailable||(res.supporterPlayedTurn===0&&!res.supporterPlayLocked),"Supporter unavailable");
+    check(!input.manualAttachmentAllowed||!res.energyPlayLocked,"attachment forbidden");
+    check(!input.itemPlayAllowed||!res.itemPlayLocked,"Item lock active");
+    const kp=input.knownDeckPsychic??0;
+    if(kp){
+      const k=v.ownerK1,rows=k?.knownPrintings;
+      check(k?.exactMembershipKnown===true&&Array.isArray(rows)&&
+        rows.every(x=>typeof x.printing==="string"&&Number.isSafeInteger(x.copies)&&x.copies>0)&&
+        new Set(rows.map(x=>x.printing)).size===rows.length&&
+        rows.reduce((a,x)=>a+x.copies,0)===own.deckCount&&
+        rows.reduce((a,x)=>a+(isP(x.printing)?x.copies:0),0)>=kp,
+        "certified K1 lower bound absent");
+    }
+    const targets=input.opponents??[{id:"active",...input.target}];
+    function bind(rows,actual,owner,activeIndex){
+      check(rows.length===actual.length,"incomplete board geometry");
+      for(const row of rows){
+        const loc=binding.slots?.[row.id];
+        check(loc?.owner===owner&&["active","bench"].includes(loc.zone)&&Number.isSafeInteger(loc.index),"slot mapping absent");
+        const a=actual.find(x=>x.zone===loc.zone&&x.index===loc.index);
+        check(a?.p?.printing===loc.printing&&!a.p.concealed,"slot printing mismatch");
+        const key=owner+":"+loc.zone+":"+loc.index;
+        check(![...map.values()].some(x=>x.key===key)&&!map.has(row.id),"duplicate slot binding");
+        map.set(row.id,{...loc,key,p:a.p});
+        if(owner){
+          check(Array.isArray(a.p.energies)&&a.p.energies.every(isP)&&row.energy===a.p.energies.length&&row.damage===a.p.damage,
+            "own board energy/damage mismatch");
+          check(row.vmax===a.p.printing.startsWith("Shadow Rider Calyrex VMAX "),"VMAX identity mismatch");
+          if(row.doorAvailable){
+            const rec=loc.zone==="active"?event.ownerActive:event.ownerBench?.[loc.index];
+            const use=rec?.knownAbilityUse?.filter(x=>x.name==="Underworld Door");
+            check(rec?.printing===loc.printing&&use?.length===1&&use[0].usedThisTurn===false,
+              "Door use not positively unused");
+          }
+        }else{
+          check(row.remainingHP===a.p.hp-a.p.damage,"opponent HP mismatch");
+        }
+      }
+      check(map.get(rows[activeIndex].id)?.zone==="active","wrong active binding");
+    }
+    bind(input.board,actualOwn,true,input.active);
+    bind(targets,actualOpp,false,input.activeOpponent??0);
+    check(new Set(f.items.map(x=>x.token)).size===f.items.length&&
+      f.items.every(x=>typeof x.token==="string"&&x.token.length),"invalid root tokens");
+    const slotMatch=(meta,kind,id)=>{
+      const loc=map.get(id);
+      return loc?.owner===true&&meta[kind+"Seat"]==="actor"&&meta[kind+"Zone"]===loc.zone&&
+        (meta[kind+"Index"]??0)===loc.index;
+    };
+    function matches(a,item){
+      const m=item.publicMetadata??{},p=item.actorPrinting;
+      if(a.kind==="attack")return item.kind==="attack"&&item.attackName==="Max Geist"&&
+        p===map.get(a.source)?.printing&&m.attackCostPayable===true&&
+        m.attackSource?.sourceKind==="active-pokemon"&&m.attackSource.sourceCardFullName===p&&
+        m.attackSource.attackName==="Max Geist";
+      if(a.kind==="retreat")return item.kind==="retreat"&&p===map.get(a.source)?.printing&&
+        item.targetPrinting===map.get(a.target)?.printing&&slotMatch(m,"target",a.target);
+      if(a.kind==="underworld-door")return item.kind==="use-ability"&&m.abilityName==="Underworld Door"&&
+        p===map.get(a.source)?.printing&&slotMatch(m,"source",a.source);
+      if(item.kind!=="play-card"||!Number.isSafeInteger(m.handIndex)||hand[m.handIndex]!==p)return false;
+      if(a.kind==="manual-attach")return isP(p)&&m.cardType==="energy"&&slotMatch(m,"target",a.target)&&
+        item.targetPrinting===map.get(a.target)?.printing;
+      const n=trainers[a.kind];
+      return !!n&&isT(p,n)&&m.cardType==="trainer";
+    }
+    const match=a=>{
+      const found=f.items.filter(i=>matches(a,i));
+      if(found.length===1)return found[0];
+      if(found.length>1&&found.every(i=>i.kind==="play-card"&&i.actorPrinting===found[0].actorPrinting&&
+        i.publicMetadata?.targetSeat===found[0].publicMetadata?.targetSeat&&
+        i.publicMetadata?.targetZone===found[0].publicMetadata?.targetZone&&
+        i.publicMetadata?.targetIndex===found[0].publicMetadata?.targetIndex))
+        return found.sort((a,b)=>a.publicMetadata.handIndex-b.publicMetadata.handIndex)[0];
+      return null;
+    };
+    const result=acerolaMaxGeist(input,maxStates,a=>!!match(a));
+    if(!result.decision)return result;
+    const root=match(result.decision.firstAction);
+    if(!root)return reject("no legal root token");
+    return {...result,root:{kind:root.kind,token:root.token},sourceTurn:v.globalTurn,
+      continuation:"Intent only: validate the exact subsequent prompt and replan from fresh actor observations; never reuse this root token."};
+  }catch(e){return reject(String(e.message??e));}
+}
+function frontierSelfTest(){
+  const assert=(c,m)=>{if(!c)throw Error(m)};
+  const energy="Psychic Energy SVE",vmax="Shadow Rider Calyrex VMAX CRE";
+  const a=(id,e,d=0,door=false)=>({id,energy:e,damage:d,psychic:true,vmax:true,doorAvailable:door,retreatCost:2,canRetreat:false,canAttack:true});
+  const t=(id,hp)=>({id,remainingHP:hp,prizesOnKO:2,opponentBoardCount:2,weaknessMultiplier:1,resistance:0,damageReduction:0});
+  const input={stablePublicEffects:true,noUnmodeledTerminalEffects:true,board:[a("a",3),a("b",2,0,true)],active:0,
+    handPsychic:1,deckCount:20,manualAvailable:true,retreatAvailable:true,supportAvailable:true,acerolaHeld:false,
+    manualAttachmentAllowed:true,dimensionValley:false,prizesRemaining:2,opponents:[t("oa",190),t("ob",230)]};
+  const poke=(printing,hp,e=0,damage=0)=>({printing,hp,damage,energies:Array(e).fill(energy)});
+  const p=poke(vmax,320,3),q=poke(vmax,320,2),op=poke("Dedenne-GX UNB",190),oq=poke("Iron Thorns ex TWM",230);
+  const req={schema:"aichi-policy-request-v2",observationSchema:"aichi-actor-observation-v4-ability-lock-order",seat:0,prompt:null,
+    observation:{decisionKind:"owner-root",actorSeat:0,turnSeat:0,globalTurn:5,ownHand:[energy],
+      ownPublic:{active:p,bench:[null,q],discard:[],deckCount:20,prizeCount:2},
+      opponentPublic:{active:op,bench:[oq]},ownTurnResources:{energyPlayedTurn:3,retreatedTurn:3,supporterPlayedTurn:0}},
+    publicEventReceipt:{version:"agent8-public-event-receipt-v3-turn-stamped",turn:5,actorSeat:0,ownerActive:{printing:vmax,knownAbilityUse:[]},
+      ownerBench:[null,{printing:vmax,knownAbilityUse:[{name:"Underworld Door",usedThisTurn:false}]}]},
+    actionFrontier:{schema:"aichi-action-frontier-v1",items:[]}};
+  const binding={basicPsychicPrintings:[energy],trainerPrintings:{"Acerola":["Acerola BUS"],"Guzma":["Guzma BUS"],
+    "Pokémon Ranger":["Pokémon Ranger STS"],"VS Seeker":["VS Seeker PHF"],"Night Stretcher":["Night Stretcher SFA"],"Fog Crystal":["Fog Crystal CRE"]},
+    slots:{a:{owner:true,zone:"active",index:0,printing:vmax},b:{owner:true,zone:"bench",index:1,printing:vmax},
+      oa:{owner:false,zone:"active",index:0,printing:op.printing},ob:{owner:false,zone:"bench",index:0,printing:oq.printing}}};
+  const rootDoor={kind:"use-ability",token:"door-b",actorPrinting:vmax,publicMetadata:{abilityName:"Underworld Door",sourceSeat:"actor",sourceZone:"bench",sourceIndex:1}};
+  const rootAttach={kind:"play-card",token:"attach-a",actorPrinting:energy,targetPrinting:vmax,publicMetadata:{cardType:"energy",handIndex:0,targetSeat:"actor",targetZone:"active",targetIndex:0}};
+  const R=(items,changes={})=>({...req,...changes,actionFrontier:{...req.actionFrontier,items}});
+  const checks=[];
+  function check(name,r,expected){
+    assert((r.root?.token??null)===expected,name+": "+JSON.stringify(r));
+    checks.push({name,token:expected,reason:r.reason??null});
+  }
+  check("native Door offered, attach absent: use alternate winning first step",selectCertificateRoot(R([rootDoor]),input,binding),"door-b");
+  check("native attach offered",selectCertificateRoot(R([rootAttach]),input,binding),"attach-a");
+  check("no legal root action: abstain",selectCertificateRoot(R([]),input,binding),null);
+  check("wrong Door bench slot",selectCertificateRoot(R([{...rootDoor,publicMetadata:{...rootDoor.publicMetadata,sourceIndex:0}}]),input,binding),null);
+  check("wrong hand index",selectCertificateRoot(R([{...rootAttach,publicMetadata:{...rootAttach.publicMetadata,handIndex:1}}]),input,binding),null);
+  check("foreign actor request",selectCertificateRoot(R([rootDoor],{seat:1}),input,binding),null);
+  check("stale event receipt",selectCertificateRoot(R([rootDoor],{publicEventReceipt:{...req.publicEventReceipt,turn:3}}),input,binding),null);
+  check("spent Door is not positive evidence",selectCertificateRoot(R([rootDoor],{publicEventReceipt:{...req.publicEventReceipt,
+    ownerBench:[null,{printing:vmax,knownAbilityUse:[{name:"Underworld Door",usedThisTurn:true}]}]}}),input,binding),null);
+  check("invented hand resource",selectCertificateRoot(R([rootDoor]),{...input,handPsychic:2},binding),null);
+  check("changed prize count",selectCertificateRoot(R([rootDoor]),{...input,prizesRemaining:1},binding),null);
+  check("empty prompt not owner root",selectCertificateRoot(R([rootDoor],{prompt:{kind:"choose"}}),input,binding),null);
+  const directInput={...input,handPsychic:0,board:[a("a",4),a("b",2)],manualAvailable:false};
+  const directReq={...req,observation:{...req.observation,ownHand:[],ownPublic:{...req.observation.ownPublic,active:poke(vmax,320,4)}}};
+  const attack={kind:"attack",token:"attack-now",actorPrinting:vmax,attackName:"Max Geist",
+    publicMetadata:{attackCostPayable:true,attackSource:{sourceKind:"active-pokemon",sourceCardFullName:vmax,attackName:"Max Geist"}}};
+  check("exact native attack token",selectCertificateRoot({...directReq,actionFrontier:{...req.actionFrontier,items:[attack]}},directInput,binding),"attack-now");
+  check("bench-copy attack must not bind",selectCertificateRoot({...directReq,actionFrontier:{...req.actionFrontier,items:[{...attack,
+    publicMetadata:{...attack.publicMetadata,attackSource:{...attack.publicMetadata.attackSource,sourceKind:"bench-pokemon"}}}]}},directInput,binding),null);
+  return checks;
+}
+
+module.exports={acerolaMaxGeist,selfTest,trainerSelfTest,selectCertificateRoot,frontierSelfTest};
+if(require.main===module)console.log(JSON.stringify({base:selfTest(),trainers:trainerSelfTest(),frontier:frontierSelfTest()},null,2));
