@@ -23,8 +23,8 @@ function runCases(worker) {
   same(a.win,false,'14 units cannot KO 320 + 110 (11+4)');
   same(a.prizesTaken,3,'take 3 prizes at 11 hits');
   same(a.bombsUsed,1,'Bomb when favorable net Prize swing');
-  same(a.discardTokens.length,4,'four Reversal conserve Counter');
-  same(a.lightningUnits,12,'12 units used, not four');
+  same(a.discardTokens.length,4,'four cards, choose 3 Reversal and Counter');
+  same(a.lightningUnits,11,'exact 11 units used, not four');
   a=P(input({availableBombs:1,discard:cards('rrrrc'),targets:[target('a',320,3,{flatDamageModifier:30}),target('b',110,1)]}));
   same(a.win,true,'one flat +30 reduces 320 threshold to 10, two targets KO');
   same(a.prizesTaken,4,'board-out terminal even with six Prizes remaining');
