@@ -141,6 +141,14 @@ function threatenSecondTarget(o) {
   return safeInt(o.opponentPublic?.prizeCount)&&o.opponentPublic.prizeCount<=2&&
     slots(o.ownPublic).some(c=>/\b(?:ex|GX| V)\b/i.test(text(c)));
 }
+function candidateCanUseBoardHeldStarAlchemy(observation) {
+  const opponent=observation?.opponentPublic;
+  const oppVstarSpent=opponent?.publicTurnRestrictions?.vstarUsed===true ||
+    observation?.opponentTurnResources?.vstarUsed===true;
+  if(oppVstarSpent) return false;
+  return slots(opponent).some(p=>arr(p.tools).some(t=>has(t,P.fss)));
+}
+
 function rootDecision(request) {
   const o=request.observation, items=availableCards(request);
   if(!items.length)return no('R30_NO_OFFERED_ROOT');
@@ -159,7 +167,8 @@ function rootDecision(request) {
   // Hand disruption against the publicly imminent two-Prize reply is a
   // tactical heuristic, not a guarantee that a hidden gust will disappear.
   const marnie=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.marnie));
-  if(marnie && threatenSecondTarget(o))return act(marnie);
+  if(marnie && threatenSecondTarget(o) &&
+    !candidateCanUseBoardHeldStarAlchemy(o))return act(marnie);
   const attach=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.basicPsychic)&&
     has(a.targetPrinting,P.clefairy));
   if(attach)return act(attach);
@@ -186,4 +195,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  rootDecision,boxPrompt,projectedRondo,discardScore};
+  rootDecision,boxPrompt,projectedRondo,discardScore,candidateCanUseBoardHeldStarAlchemy};
