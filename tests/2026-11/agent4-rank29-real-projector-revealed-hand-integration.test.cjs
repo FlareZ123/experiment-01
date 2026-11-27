@@ -152,7 +152,8 @@ test('rank29 projection is a real drop-in canonical dependency with unmodified d
 function publicPlayer(){
   return {
     active:null,bench:[null,null,null,null,null],stadium:[],discard:[],
-    lostZone:[],resolvingSupporter:[],publicHand:null,prizeSlots:null,
+    lostZone:[],resolvingSupporter:[],publicHand:null,
+    prizeSlots:Array.from({length:6},(_,index)=>({index})),
     handCount:4,deckCount:32,prizeCount:6,
     publicTurnRestrictions:{
       gxUsed:false,vstarUsed:false,attackLockTurnsRemaining:0,
@@ -180,7 +181,7 @@ function turnResources(){
 }
 function actorRequest(projected,seat){
   return {
-    schema:protocol.REQUEST_SCHEMA,requestId:'reveal-1',
+    schema:protocol.REQUEST_SCHEMA,type:'decision',requestId:'reveal-1',
     sequence:1,role:'opponent',seat,
     observationSchema:protocol.OBSERVATION_SCHEMA,
     observation:{
