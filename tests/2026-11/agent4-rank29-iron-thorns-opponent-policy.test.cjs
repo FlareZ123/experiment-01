@@ -1024,3 +1024,37 @@ test('already legal immediate Volt Cyclone still outranks setting up another Thu
   });
   assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'attack'});
 });
+
+test('certified owner-K1 absent targets suppress dead Tag Call and G&H search', () => {
+  const none={epoch:1,exactMembershipKnown:true,knownPrintings:[],
+    invalidationReason:null};
+  const hand=["Guzma & Hala CEC 193","Trainers' Mail ROS 92",
+    'Camping Gear BST 122','Tag Call CEC 206'];
+  const items=[
+    action('gh','play-card',"Guzma & Hala CEC 193",{cardType:'supporter'}),
+    action('tag','play-card','Tag Call CEC 206',{cardType:'item'}),
+    {token:'pass',kind:'pass'}
+  ];
+  const req=rootRequest({ownHand:hand,ownerK1:none,items});
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'pass'});
+  const unknown=rootRequest({ownHand:hand,items});
+  assert.deepEqual(checkedDecision(unknown),{kind:'select-action',token:'gh'});
+});
+
+test('K1 known Tropical Beach preserves Stadium-only G&H alternative without Thunder', () => {
+  const beach={
+    epoch:2,exactMembershipKnown:true,
+    knownPrintings:[{printing:'Tropical Beach BWP 28',copies:2}],
+    invalidationReason:null
+  };
+  const req=rootRequest({
+    ownerK1:beach,
+    ownHand:['Guzma & Hala CEC 193','Lusamine CIN 96',
+      'Double Colorless Energy SUM 136'],
+    items:[
+      action('gh','play-card','Guzma & Hala CEC 193',{cardType:'supporter'}),
+      {token:'pass',kind:'pass'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'gh'});
+});
