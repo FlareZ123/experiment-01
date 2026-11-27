@@ -138,6 +138,26 @@ function legacyRecoverPriority(card, observation) {
   // Filler is not worth using an optional recovery slot.
   return 0;
 }
+function superRodRecoverPriority(card, observation) {
+  const value=print(card),own=observation?.ownPublic??{};
+  const attackers=slots(own).filter(p=>
+    /^Regidrago V(?:STAR)? SIT 13[56]\b/i.test(print(p)));
+  const vstar=attackers.some(p=>/^Regidrago VSTAR SIT 136\b/i.test(print(p)));
+  const basic=attackers.some(p=>/^Regidrago V SIT 135\b/i.test(print(p)));
+  if (/^(?:Hisuian Goodra VSTAR LOR 136|Mega Dragonite ex ASC 152|Dialga-GX UPR 100|Noivern ex PAL 153|Kyurem SFA 47|Dragapult ex TWM 130)\b/i.test(value))
+    return 0; // Apex donors should stay discarded, not shuffled into deck.
+  if (/^Regidrago VSTAR SIT 136\b/i.test(value))return basic&&!vstar?260:105;
+  if (/^Regidrago V SIT 135\b/i.test(value))return attackers.length<2?250:110;
+  if (/^Grass Energy|^Fire Energy/i.test(value)) {
+    const needs=attackers.some(p=>apexTypedDeficit(p,observation)>0);
+    return needs?210:125;
+  }
+  if (/^Budew ASC 16\b/i.test(value))
+    return slots(own).some(p=>/^Budew ASC 16\b/i.test(print(p)))?0:150;
+  if (/^Dedenne-GX UNB 57|^Tapu Lele-GX GRI 60\b/i.test(value))
+    return slots(own).length<4?85:0;
+  return 0;
+}
 function canUseLegacyStar(observation) {
   const own=observation?.ownPublic??{};
   const deckCount=own.deckCount;
@@ -173,6 +193,12 @@ function scoreAction(action, request) {
       const safe = list(obs.ownHand).filter(card=>print(card)!==name)
         .filter(card=>safeBallCost(card,obs)>0).length;
       if (safe < required) return 0;
+    }
+    if (/^Super Rod PAL 188\b/i.test(name)) {
+      const useful=list(own.discard).filter(c=>superRodRecoverPriority(c,obs)>0).length;
+      const underdeveloped=slots(own).filter(p=>
+        /^Regidrago V(?:STAR)? SIT 13[56]\b/i.test(print(p))).length<2;
+      return useful? (underdeveloped?170:125):0;
     }
     if (/^Battle Compressor(?: Team Flare Gear)? PHF 92\b/i.test(name)) {
       // Not an unconditional burn: a non-Regidrago board should prioritize setup.
@@ -495,6 +521,13 @@ function promptDecision(request) {
     }
     return {kind:'abstain',reasonCode:'RANK32_CYNTHIA_PROMPT_UNPROJECTED'};
   }
+  if (/super rod/.test(source)) {
+    if (p.promptType==='ChooseCardsPrompt' &&
+        meta.selectionType==='card-combination' && meta.sourceZone==='discard')
+      return chooseMany(choices,c=>superRodRecoverPriority(c,obs),min,Math.min(max,3),
+        'RANK32_SUPER_ROD_NO_SAFE_RECOVERY');
+    return {kind:'abstain',reasonCode:'RANK32_SUPER_ROD_PROMPT_UNPROJECTED'};
+  }
   if (/battle compressor/.test(source) && p.promptType === 'ChooseCardsPrompt') {
     return chooseMany(choices, c=>donorScore(c,obs,true), min, Math.min(max,3),
       'RANK32_COMPRESSOR_NO_SAFE_PAYLOAD');
@@ -594,4 +627,4 @@ module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
   protocolSafeDecision,apexTypedDeficit,scoreEnergyAttachment,nativeOwnerTarget,
   engineSetupDecision,setupActiveScore,setupBenchScore,
   isSourceSupporter,cynthiaRecoverPriority,
-  legacyRecoverPriority,canUseLegacyStar};
+  legacyRecoverPriority,canUseLegacyStar,superRodRecoverPriority};
