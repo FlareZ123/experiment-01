@@ -3,8 +3,8 @@
 **Agent:** 18  
 **Date:** 2026-11-27  
 **Branch:** `agent18/rank24-iron-thorns-policy-20261127`  
-**Branch head at synthesis:** `undefined`  
-**Current policy blob:** `50b1d1a2415d49eba48771479548c12a4fb646b9`  
+**Branch head at synthesis:** `0d39821b6bbaad10edab7d18ceafeafe9535e756`  
+**Current policy blob:** `994da0d92da2a339b18d8b4686d8d55d05a72759`  
 **Status:** development policy; not merged, registered, natively gamed, or admitted
 
 ## Result
@@ -73,10 +73,14 @@ Terminal decisions are handled above ordinary resource scores.
 3. **N:** if public `deckCount + handCount <= prizeCount` and the sum is
    nonzero, N leaves the opponent's post-N deck empty.
 4. **Final-Prize Volt Cyclone:** inspect actually offered Volt Cyclone actions
-   before Megaton/funding. Override only when the frontier explicitly certifies
-   positive `prizeLiability`, `hasPrevention === false`,
-   `hasUnmodeledModifier === false`, sufficient damage, and the public actor
-   Prize count reaches zero. Legacy Energy is an explicit negative.
+   before Megaton/funding. Explicit frontier liability/prevention/modifier
+   certification is preferred. Because the generic native frontier does not
+   currently emit those optional proof fields, the policy also has a narrow
+   fallback for the two fixed Shadow Rider candidate profiles: exact public
+   Active printing determines Prize liability, public Tools/Stadiums must be
+   from the audited non-preventing candidate/rank24 sets, remaining HP must be
+   at most 140, and Legacy Energy is an explicit negative. Unknown Active,
+   Tool, Stadium, or other unproved state fails closed.
 
 The final-Prize layer was added after Agent17 produced a held-out showing that
 the earlier raw score (Megaton 300 vs KO Volt 290) could delay an immediate win.
@@ -109,7 +113,8 @@ warn simplistic discard scoring can miss.
 
 Current branch direct decision suite:
 
-- **83 passed, 0 failed** across seven rank24 test files.
+- **92 passed, 0 failed** across seven direct decision files plus one durable
+  shared-protocol compatibility file.
 - The suite covers terminal mill/N/attack, both seats where relevant, funding,
   DCE+Thunder math, setup search, control denial, prompt continuation contracts,
   hand disruption, recursion, prize recovery, gust, retreat, reactive
@@ -130,27 +135,49 @@ real contract defects before this synthesis, including:
 - Volt Cyclone prompt metadata must use allowed v3 keys;
 - a missing N matcher was caught by executing the policy through the protocol.
 
-Representative current/proximate protocol-valid decisions include terminal
-Volt over Megaton with certified liability, funded retreat, generalized VS
+The durable protocol file
+`tests/2026-11/agent18-rank24-iron-thorns-protocol-compatibility.test.cjs`
+locks six representative v4/v3 contract cases and passes 6/6. Representative
+current/proximate protocol-valid decisions include terminal Volt over Megaton
+with either explicit certification or the fixed Shadow Rider fallback, funded
+retreat, generalized VS
 Seeker, Gladion Prize selection, Lusamine recovery, C&C option choice, Guzma
 targeting, Handheld Fan transfer, Eri/Sidney/Team Skull, Trainers' Mail,
 Tag Call/G&H, Nest Ball, control denial, and Volt Cyclone transfer.
 
-## Native blocker: Player's Ceremony
+## Japanese promo integration status
 
 Pinned Twinleaf revision:
 `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 
-Its recursive tree contains the rank24 `Palace Book` implementation but no
-file matching Player's Ceremony / Ceremony. The exact source card is the
-Japanese S-P 127 Stadium whose translated effect is: once during each player's
-turn, that player may draw 2 cards; if they do, their turn ends.
+The upstream vendor tree itself has no Player's Ceremony card file, but this is
+**not** a current research-environment blocker. Existing shared adapter work
+already implements the exact `Player's Ceremony SP 127` Stadium hook in
+`simulation/twinleaf/card-patches.cjs`, gated by
+`allowJapanesePromoHooks: true`, and the resolver recognizes the exact
+printing in `simulation/twinleaf/resolve-field.cjs`. Earlier focused pinned-
+Store evidence also covers Ceremony draw-2/end-turn and Palace Book draw-3/
+end-turn semantics.
 
-Therefore the policy is ready to act on Player's Ceremony if the shared adapter
-exposes it, but **the exact 60 cannot honestly be called natively runnable under
-the pinned unhooked Twinleaf tree yet**. Per family-owner instructions, this run
-did not add a new engine hook, native fixture, CI workflow, game, registration,
-or merge unilaterally.
+This run therefore reused the existing integration rather than duplicating it.
+No new engine hook, native fixture, CI workflow, game, registration, or merge
+was added unilaterally.
+
+
+## ALS correction discovered during implementation
+
+A source-specific audit found that the zero-Energy Guzma & Hala line was
+initially wrong: the policy treated Thunder Mountain as useful only when two
+Energy units were already attached, so G&H could fetch Wondrous Labyrinth +
+DCE instead of the intended Thunder Mountain + DCE package. That misses the
+rank24 first-turn attack line because G&H can fetch both resources in one
+resolution; after DCE is attached, Thunder removes Volt Cyclone's Lightning
+requirement and DCE supplies the two Colorless units.
+
+The policy now models
+that simultaneous package and also refuses to start the zero-Energy G&H line
+unless the hand can actually pay the two-card expansion cost. The dedicated
+ALS regression is included in the 92/92 passing suite.
 
 ## Evidence boundary and next gate
 
@@ -160,9 +187,11 @@ objective by itself.
 
 The next gate should be narrow:
 
-1. family-owner review of this exact-source policy;
-2. shared adapter decision on the missing Player's Ceremony implementation;
-3. then one authorized native rank24 game/protocol slice before any panel
+1. family-owner review of this exact-source policy and its fixed Shadow Rider
+   terminal-proof fallback;
+2. enable the already-existing Japanese promo hooks when rank24 is eventually
+   registered in an authorized native fixture;
+3. then run one authorized native rank24 game/protocol slice before any panel
    admission or broad matchup sampling.
 
 The relevant tests are:
@@ -174,3 +203,4 @@ The relevant tests are:
 - `tests/2026-11/agent18-rank24-iron-thorns-volt-cyclone.test.cjs`
 - `tests/2026-11/agent18-rank24-iron-thorns-hand-disruption.test.cjs`
 - `tests/2026-11/agent18-rank24-iron-thorns-recursion-gust.test.cjs`
+- `tests/2026-11/agent18-rank24-iron-thorns-protocol-compatibility.test.cjs`
