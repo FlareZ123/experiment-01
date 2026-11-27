@@ -253,7 +253,8 @@ const PROMPT_META_KEYS = [
   'energyType', 'amount', 'count', 'selectionIndex', 'isPublic', 'isOwnerVisible',
   'sourcePrinting', 'sourceAttack', 'sourceEffect', 'eligible', 'energyCount',
   'choiceIndex', 'selectedCount', 'minimumCount', 'maximumCount', 'requiredCount',
-  'sourceCardType', 'selectionType', 'zone', 'ownerSeat', 'allowCancel', 'isSecret'
+  'sourceCardType', 'selectionType', 'zone', 'ownerSeat', 'allowCancel', 'isSecret',
+  'sourceIndex', 'targetIndex', 'secondTargetIndex', 'secondTargetZone'
 ];
 
 // Selection types are closed and bound to the native prompt classes which
@@ -267,14 +268,16 @@ const PROMPT_SELECTION_TYPE_TO_PROMPT_TYPES = Object.freeze({
   'card-order': Object.freeze(['OrderCardsPrompt']),
   confirm: Object.freeze(['ConfirmPrompt']),
   option: Object.freeze(['SelectPrompt', 'SelectOptionPrompt']),
-  'energy-attachment': Object.freeze(['AttachEnergyPrompt'])
+  'energy-attachment': Object.freeze(['AttachEnergyPrompt']),
+  'damage-move': Object.freeze(['MoveDamagePrompt'])
 });
 const PROMPT_SELECTION_TYPES = new Set(Object.keys(PROMPT_SELECTION_TYPE_TO_PROMPT_TYPES));
 const SINGLE_SELECT_ITEM_KINDS = Object.freeze({
   attack: 'attack',
   confirm: 'confirm',
   option: 'option',
-  'energy-attachment': 'energy'
+  'energy-attachment': 'energy',
+  'damage-move': 'option'
 });
 
 // Action metadata uses actor-relative seats. targetSeat is the owner of the
@@ -359,7 +362,7 @@ function validatePromptMetadata(value, requireSelectionType = false) {
   for (const key of ['isPublic', 'isOwnerVisible', 'allowCancel', 'isSecret', 'eligible']) {
     if (value[key] !== undefined && typeof value[key] !== 'boolean') fail('BAD_PROMPT_METADATA');
   }
-  for (const key of ['selectionIndex', 'choiceIndex', 'benchIndex', 'slotIndex']) {
+  for (const key of ['selectionIndex', 'choiceIndex', 'benchIndex', 'slotIndex', 'sourceIndex', 'targetIndex', 'secondTargetIndex']) {
     if (value[key] !== undefined &&
         (!Number.isSafeInteger(value[key]) || value[key] < 0 || value[key] >= LIMITS.maxArrayItems)) {
       fail('BAD_PROMPT_METADATA');
@@ -880,6 +883,20 @@ function validatePrompt(prompt, seat) {
     if (choice.printing !== undefined && !boundedString(choice.printing, null, 256)) fail('BAD_CHOICE_PRINTING');
     if (choice.label !== undefined && !boundedString(choice.label, null, 256)) fail('BAD_CHOICE_LABEL');
     if (choice.publicMetadata !== undefined) validatePromptMetadata(choice.publicMetadata);
+  }
+  if (prompt.publicMetadata.selectionType === 'damage-move') {
+    if (prompt.source.sourceKind !== 'card-effect' || prompt.source.sourcePrinting !== 'Damage Pump LOR') fail('UNSUPPORTED_DAMAGE_MOVE_SOURCE');
+    const slot = (zone, index) => (zone === 'active' && index === 0) || (zone === 'bench' && Number.isInteger(index) && index >= 0 && index < 5);
+    for (const choice of prompt.choices) {
+      const m = choice.publicMetadata ?? {};
+      if (m.ownerSeat !== 'actor' || m.isOwnerVisible !== true ||
+          ![1,2].includes(m.amount) || !slot(m.sourceZone,m.sourceIndex) ||
+          !slot(m.targetZone,m.targetIndex) ||
+          (m.sourceZone === m.targetZone && m.sourceIndex === m.targetIndex) ||
+          (m.amount === 2 && (!slot(m.secondTargetZone,m.secondTargetIndex) ||
+            (m.sourceZone === m.secondTargetZone && m.sourceIndex === m.secondTargetIndex))) ||
+          (m.amount === 1 && (m.secondTargetZone !== undefined || m.secondTargetIndex !== undefined))) fail('BAD_DAMAGE_MOVE_METADATA');
+    }
   }
   multiSelectBounds(prompt);
   singleSelectContract(prompt);
