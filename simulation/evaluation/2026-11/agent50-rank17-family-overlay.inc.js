@@ -11,6 +11,7 @@ const R17_PROFILE = Object.freeze({
   inventoryTupleSha256: '2f23d234c18c648170dca695c51b64554af6f036c800fd9c34eb53b6dcba2ac0',
   familyBaseBlobSha1: '6897cd7f73ad8be8c01eafb97295fed6d74d376e',
   enginePin: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+  configSha256: '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a',
   config: Object.freeze({})
 });
 
@@ -93,7 +94,7 @@ function r17NeedTempleRemoval(view) {
 function r17CarrierValue(key,view) {
   if (key==='voltorb'&&r17Missing(view,'voltorb','electrode')) return 300;
   if (key==='pikachu'&&r17Missing(view,'pikachu','raichu')) return 290;
-  if (key==='unown'&&r17UnownUseful(view)) return 150;
+  if (key==='unown'&&r17UnownUseful(view)&&r17Space(view)>0) return 150;
   if (key==='marshadow'&&r17NeedTempleRemoval(view)&&!r17Board(view,key)&&!r17Hand(view,key)) return 210;
   return 0; // Ditto is Lost Zone on discard; never assume it is recoverable.
 }
@@ -108,10 +109,23 @@ function r17ChoiceCards(prompt,zone) {
     metadata(c).ownerSeat==='actor'&&metadata(c).isOwnerVisible===true&&
     (!zone||metadata(c).sourceZone===zone)&&r17Key(c)!==null);
 }
-function r17Abstain(reasonCode) { return {kind:'abstain',reasonCode}; }
+const R17_ABSTENTION_MAP=Object.freeze({
+  R17_BAD_MULTI_PROMPT:'UNSUPPORTED_PROMPT_TYPE',R17_BAD_MULTI_BOUNDS:'BAD_CARD_SELECTION_BOUNDS',
+  R17_INSUFFICIENT_SUPPORTED_CHOICES:'NO_LEGAL_CARD_SET',R17_NO_EMPTY_TOKEN:'NO_SUPPORTED_CARD_SELECTION',
+  R17_CORE_COMBO_NOT_IMPLEMENTED:'NO_SUPPORTED_ROOT_ACTION',R17_NO_SUPPORTED_ROOT:'NO_SUPPORTED_ROOT_ACTION',
+  R17_OPTION_UNAVAILABLE:'UNRECOGNIZED_SIMPLE_PROMPT',R17_BAD_SETUP:'UNTRUSTED_ENGINE_SETUP_PROMPT',
+  R17_NO_GO_FIRST:'UNRECOGNIZED_GO_FIRST_CHOICES',R17_BAD_MULLIGAN_OPTION:'INVALID_MULLIGAN_DRAW_OPTIONS',
+  R17_UNSUPPORTED_SETUP:'UNSUPPORTED_ENGINE_SETUP_PROMPT',R17_UNTRUSTED_PROMPT:'UNTRUSTED_PROMPT_SOURCE',
+  R17_COMPRESSOR_NO_CARRIER_PLAN:'NO_SUPPORTED_CARD_SELECTION',R17_SECRET_BOX_UNKNOWN_ZONE:'UNTRUSTED_CARD_SELECTION',
+  R17_CONFIRM_OPTION_MISSING:'UNRECOGNIZED_SIMPLE_PROMPT',R17_UNSUPPORTED_PROMPT:'UNSUPPORTED_PROMPT_TYPE',
+  ROLE_SEAT_BINDING_MISMATCH:'ROLE_SEAT_BINDING_MISMATCH'
+});
+function r17Abstain(reasonCode) {
+  return {kind:'abstain',reasonCode:R17_ABSTENTION_MAP[reasonCode]||'UNSUPPORTED_PROMPT_TYPE'};
+}
 function r17Multi(prompt,rows,limit=Infinity) {
   const m=metadata(prompt);
-  if(m.selectionType!=='card-combination'&&m.selectionType!=='pokemon'&&m.selectionType!=='energy-payment')
+  if(m.selectionType!=='card-combination'&&m.selectionType!=='pokemon'&&m.selectionType!=='energy-payment'&&m.selectionType!=='prize-slots')
     return r17Abstain('R17_BAD_MULTI_PROMPT');
   if(!Number.isSafeInteger(m.minimumCount)||!Number.isSafeInteger(m.maximumCount)||
       m.minimumCount<0||m.maximumCount<m.minimumCount) return r17Abstain('R17_BAD_MULTI_BOUNDS');
@@ -198,7 +212,7 @@ function r17TrainerNeed(key,view) {
   if(key==='rope')return r17Space(view)<5?90:45;
   if(key==='uturn')return 120;
   if(key==='sight')return 50;
-  if(key==='pokestop')return r17Deck(view)>=12?110:0;
+  if(key==='pokestop')return r17Deck(view)>=12&&benchCount(own(view))<=5?110:0;
   return 0;
 }
 function r17SecretChoices(prompt,view) {
@@ -266,6 +280,7 @@ function r17ScorePlay(item,view) {
   if(k==='secret')return r17SafeDiscards(hand(view),view,'secret').length>=3?155:0;
   if(k==='research'||k==='carmine')return !r17ProtectedHand(view)&&handCount(view)<=3&&
     r17Deck(view)>=(k==='research'?8:6)?205:0;
+  if(k==='pokestop'&&/^Sky Field\b/i.test(r17Stadium(view))&&benchCount(own(view))>5)return 0;
   if(k==='pokestop')return r17Deck(view)>=12&&!r17NeedTempleRemoval(view)&&
     !/^Pok[eé]Stop\b/i.test(r17Stadium(view))?110:r17NeedTempleRemoval(view)?300:0;
   if(k==='uturn') {
@@ -345,7 +360,7 @@ function r17Prompt(request) {
   if(s.sourceKind==='engine')return r17Setup(request);
   if(s.sourceKind!=='card-effect')return r17Abstain('R17_UNTRUSTED_PROMPT');
   const key=r17Key(s.sourcePrinting),effect=s.effectName||'',type=p.promptType;
-  if(/Extra Energy Bomb|Electro Rain|Crush and Burn/i.test(effect))return r17Abstain('R17_CORE_COMBO_NOT_IMPLEMENTED');
+  if(/Extra Energy Bomb|Electro Rain|Crush and Burn/i.test(effect))return r17Abstain('R17_UNSUPPORTED_PROMPT');
   if(type==='ChooseCardsPrompt') {
     if(key==='carrier')return r17CarrierChoices(p,v);
     if(key==='compressor')return r17CompressorUseful(v)?
@@ -385,8 +400,9 @@ function r17Prompt(request) {
   // hidden identity is inferred. Use position only for actual Prize-taking,
   // never for a Heavy Ball effect without visible owner-authorized identities.
   if(type==='ChoosePrizePrompt'&&key!=='heavy'&&key!=='ticket') {
-    const c=list(p.choices).find(x=>x.kind==='prize-slot'&&metadata(x).ownerSeat==='actor');
-    if(c)return {kind:'select-choice',token:c.token};
+    const choices=list(p.choices).filter(x=>x.kind==='prize'&&metadata(x).ownerSeat==='actor');
+    if(choices.length&&metadata(p).selectionType==='prize-slots'&&R17_POKEMON.has(key))
+      return r17Multi(p,choices,metadata(p).minimumCount);
   }
   return r17Abstain('R17_UNSUPPORTED_PROMPT');
 }
