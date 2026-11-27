@@ -1142,5 +1142,6 @@ test('Guzma Hala mode1 can fetch needed Jammer despite held DCE, but no malforme
     publicMetadata:{selectionType:'option',count:2,allowCancel:false},
     choices:[options[0],{...options[1],publicMetadata:{choiceIndex:0}}]
   });
-  assert.throws(()=>checkedDecision(malformed),/BAD_(MULTI|OPTION)|choiceIndex|DUPLICATE/);
+  assert.deepEqual(checkedDecision(malformed),
+    {kind:'abstain',reasonCode:'UNSUPPORTED_CONFIRMATION_SOURCE'});
 });
