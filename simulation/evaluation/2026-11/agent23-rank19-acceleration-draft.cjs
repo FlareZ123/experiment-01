@@ -86,7 +86,7 @@ function root(r,capability){
 }
 function decide(r){
  const p=r?.prompt,m=p?.publicMetadata,sp=spec(p?.source),o=r?.observation?.ownPublic;
- if(r?.role!=='opponent'||r.observation?.actorSeat!==r.seat||p?.promptType!=='AttachEnergyPrompt'||!sp||m?.selectionType!=='energy-attachment-set'||m.minimumCount!==sp.min||m.maximumCount!==sp.max||m.allowCancel!==false||!Array.isArray(p.choices)||!Array.isArray(o?.discard))return null;
+ if(r?.role!=='opponent'||r.observation?.actorSeat!==r.seat||p?.promptType!=='AttachEnergyPrompt'||p.source?.sourceKind!=='card-effect'||!sp||m?.selectionType!=='energy-attachment-set'||m.minimumCount!==sp.min||m.maximumCount!==sp.max||m.allowCancel!==false||!Array.isArray(p.choices)||!Array.isArray(o?.discard))return null;
  const targets=slots(o).filter(s=>eligible(s,sp)),groups=new Map(),tokens=new Set();let empty=null;
  for(const c of p.choices){
   if(typeof c.token!=='string'||tokens.has(c.token))return null;tokens.add(c.token);
