@@ -93,12 +93,13 @@ const EXECUTABLE_ACTION_KINDS = new Set([
 ]);
 const ANALYSIS_ONLY_ACTION_KINDS = new Set(['projected-attack']);
 const MULTI_SELECT_PROMPT_TYPES = new Set([
-  'card-combination', 'pokemon', 'energy-payment', 'prize-slots', 'card-order'
+  'card-combination', 'pokemon', 'energy-payment', 'energy-transfers', 'prize-slots', 'card-order'
 ]);
 const MULTI_SELECT_ITEM_KINDS = Object.freeze({
   'card-combination': 'card',
   pokemon: 'pokemon',
   'energy-payment': 'energy',
+  'energy-transfers': 'energy',
   'prize-slots': 'prize',
   'card-order': 'card-order-item'
 });
@@ -219,7 +220,9 @@ const PLAYER_RESTRICTION_KEYS = [
   'energyPlayLocked', 'specialEnergyPlayLocked',
   'stadiumAndToolHaveNoEffectTurnsRemaining'
 ];
-const PLAYER_RESTRICTION_OPTIONAL_KEYS = [];
+const PLAYER_RESTRICTION_OPTIONAL_KEYS = [
+  'alteredCreationDamage', 'usedAlteredCreation'
+];
 const TURN_RESOURCE_KEYS = [
   'supporterPlayedTurn', 'retreatedTurn', 'extraTurnActive', 'energyPlayedTurn',
   'stadiumPlayedTurn', 'stadiumUsedTurn', 'vstarUsed', 'pokemonPlayLocked',
@@ -267,7 +270,8 @@ const PROMPT_SELECTION_TYPE_TO_PROMPT_TYPES = Object.freeze({
   'card-order': Object.freeze(['OrderCardsPrompt']),
   confirm: Object.freeze(['ConfirmPrompt']),
   option: Object.freeze(['SelectPrompt', 'SelectOptionPrompt']),
-  'energy-attachment': Object.freeze(['AttachEnergyPrompt'])
+  'energy-attachment': Object.freeze(['AttachEnergyPrompt']),
+  'energy-transfers': Object.freeze(['AttachEnergyPrompt'])
 });
 const PROMPT_SELECTION_TYPES = new Set(Object.keys(PROMPT_SELECTION_TYPE_TO_PROMPT_TYPES));
 const SINGLE_SELECT_ITEM_KINDS = Object.freeze({
@@ -551,6 +555,11 @@ function validatePublicPlayer(player, allowConcealed) {
     'stadiumPlayLocked', 'toolPlayLocked', 'energyPlayLocked', 'specialEnergyPlayLocked']) {
     if (typeof player.publicTurnRestrictions[key] !== 'boolean') fail('BAD_PLAYER_RESTRICTION');
   }
+  for (const key of PLAYER_RESTRICTION_OPTIONAL_KEYS) {
+    if (player.publicTurnRestrictions[key] !== undefined &&
+        typeof player.publicTurnRestrictions[key] !== 'boolean')
+      fail('BAD_PLAYER_RESTRICTION');
+  }
   for (const key of ['attackLockTurnsRemaining', 'attackMaxEnergyTurnsRemaining', 'ignoreAttackCostTurnsRemaining']) {
     if (!Number.isSafeInteger(player.publicTurnRestrictions[key]) || player.publicTurnRestrictions[key] < 0) fail('BAD_PLAYER_RESTRICTION');
   }
@@ -772,6 +781,10 @@ function multiSelectBounds(prompt) {
   switch (metadata.selectionType) {
     case 'card-combination':
     case 'pokemon':
+      minimumCount = metadata.minimumCount;
+      maximumCount = metadata.maximumCount;
+      break;
+    case 'energy-transfers':
       minimumCount = metadata.minimumCount;
       maximumCount = metadata.maximumCount;
       break;
