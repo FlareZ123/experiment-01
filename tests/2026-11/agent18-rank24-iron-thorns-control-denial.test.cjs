@@ -153,7 +153,7 @@ test('Enhanced Hammer chooses the opponent Pokemon with visible Special Energy',
       opponentBench: [mon('B', { energies: ['Double Colorless Energy SUM 136'] })]
     }
   });
-  assert.deepEqual(policy.decide(request), { kind: 'select-choice', token: 'b' });
+  assert.deepEqual(policy.decide(request), { kind: 'select-choices', tokens: ['b'] });
 });
 
 test('Enhanced Hammer energy prompt selects Special Energy', () => {
