@@ -606,3 +606,202 @@ test('Hood VS Seeker reserves spent Ranger only for a plausible second Budew tur
     if(expected==='seeker')assert.deepEqual(decide(profiles[0],cardPrompt(seat,view,VS,'VS Seeker','discard',[lillie,RANGER])),mult('card-1'));
   }
 });
+
+// Append to existing Agent46 root test (same helper scope).
+paired('Agent31 public control Get Lost denial',(seat,profile)=>{
+ const gir=pokemon({printing:'Girafarig LOT',name:'Girafarig',hp:90,energies:[P],attacks:[attack('Get Lost',['Colorless'],'0')]});
+ const raichu=pokemon({printing:'Alolan Raichu UNM',name:'Alolan Raichu',hp:110,types:['Lightning'],energies:['Reversal Energy PAL'],attacks:[attack('Electro Rain',['Lightning'],'0')]});
+ const thorns=pokemon({printing:'Iron Thorns ex TWM',name:'Iron Thorns ex',hp:230,types:['Lightning'],energies:[]});
+ const get={kind:'attack',token:'get',attackName:'Get Lost'};
+ function prompt(view,expected){
+  const req=cardPrompt(seat,view,'Girafarig LOT','Get Lost','discard',view.opponentPublic.discard,2,2);
+  req.prompt.publicMetadata.ownerSeat='opponent';
+  for(const c of req.prompt.choices)c.publicMetadata.ownerSeat='opponent';
+  const got=decide(profile,req);
+  assert.deepEqual([...got.tokens].sort(),expected.sort());
+ }
+ const r=observation(seat,{active:gir,opponentActive:raichu,ownStadium:[TEMPLE]});
+ r.opponentPublic.discard=['Marshadow UNB','Rescue Carrier EVS','Secret Box TWM'];
+ assert.deepEqual(decide(profile,root(seat,r,[get])),sel('get'));
+ prompt(r,['card-0','card-2']);
+ r.ownPublic.stadium=[];
+ assert.deepEqual(decide(profile,root(seat,r,[get])),sel('pass'));
+ const t=observation(seat,{active:gir,opponentActive:thorns,ownStadium:[TEMPLE]});
+ t.opponentPublic.discard=['Lusamine CIN','Lusamine CIN','Cynthia & Caitlin CEC','Faba LOT',"Team Rocket's Handiwork FCO"];
+ assert.deepEqual(decide(profile,root(seat,t,[get])),sel('get'));
+ prompt(t,['card-3','card-4']);
+ t.opponentPublic.discard=['Lusamine CIN','Lusamine CIN','Cynthia & Caitlin CEC','Secret Box TWM'];
+ assert.deepEqual(decide(profile,root(seat,t,[get])),sel('get'));
+ prompt(t,['card-0','card-1']);
+ t.opponentPublic.discard=['Lusamine CIN','Cynthia & Caitlin CEC','Secret Box TWM'];
+ assert.deepEqual(decide(profile,root(seat,t,[get])),sel('get'));
+ prompt(t,['card-0','card-1']);
+ t.opponentPublic.discard=['Lusamine CIN','Secret Box TWM'];
+ assert.deepEqual(decide(profile,root(seat,t,[get])),sel('pass'));
+ t.opponentPublic.active=defender();
+ t.opponentPublic.discard=['Lusamine CIN','Lusamine CIN','Cynthia & Caitlin CEC'];
+ assert.deepEqual(decide(profile,root(seat,t,[get])),sel('pass'));
+});
+
+paired('Agent31: executable public control Girafarig access',(seat,profile)=>{
+const gir='Girafarig LOT';const thorns=pokemon({printing:'Iron Thorns ex TWM',name:'Iron Thorns ex',hp:230,types:['Lightning']});
+const active=v([P]);active.printed.retreatCost=['Colorless'];
+const view=observation(seat,{active,opponentActive:thorns,ownHand:[gir,P]});
+view.opponentPublic.discard=['Lusamine CIN','Lusamine CIN','Cynthia & Caitlin CEC'];
+const bench=play('gir',gir,null,target('bench',0));
+assert.deepEqual(decide(profile,root(seat,view,[bench])),sel('gir'));
+view.ownHand=[FOG,P];
+assert.deepEqual(decide(profile,root(seat,view,[play('fog',FOG)])),sel('fog'));
+assert.deepEqual(decide(profile,cardPrompt(seat,view,FOG,'Fog Crystal','deck',[gir,P],0,1)),mult('card-0'));
+view.ownTurnResources.energyPlayedTurn=true;
+view.ownHand=[gir,P];
+assert.deepEqual(decide(profile,root(seat,view,[bench])),sel('pass'));
+view.ownTurnResources.energyPlayedTurn=false;
+view.ownTurnResources.retreatedTurn=view.globalTurn;
+assert.deepEqual(decide(profile,root(seat,view,[bench])),sel('pass'));
+view.ownTurnResources.retreatedTurn=0;
+active.publicRestrictions.cannotRetreat=true;
+assert.deepEqual(decide(profile,root(seat,view,[bench])),sel('pass'));
+active.publicRestrictions.cannotRetreat=false;view.opponentPublic.discard=['Lusamine CIN','Secret Box TWM'];
+assert.deepEqual(decide(profile,root(seat,view,[bench])),sel('pass'));
+});
+
+paired('Agent31: public Rain denial unit priority',(seat,profile)=>{
+ const gir=pokemon({printing:'Girafarig LOT',name:'Girafarig',hp:90,energies:[P],attacks:[attack('Get Lost',['Colorless'],'0')]});
+ const raichu=pokemon({printing:'Alolan Raichu UNM',name:'Alolan Raichu',hp:110,types:['Lightning'],energies:['Unit Energy LPM UPR'],attacks:[attack('Electro Rain',['Lightning'],'0')]});
+ const elec=pokemon({printing:'Electrode-GX CES',name:'Electrode-GX',hp:190,types:['Lightning'],subtypes:['Stage 1','GX'],abilities:['Extra Energy Bomb']});
+ const get={kind:'attack',token:'get',attackName:'Get Lost'};
+ const view=observation(seat,{active:gir,opponentActive:raichu,opponentBench:[elec]});
+ view.opponentPublic.discard=['Unit Energy LPM UPR','Counter Energy CIN','Reversal Energy PAL','Unit Energy LPM UPR','Reversal Energy PAL','Counter Energy CIN'];
+ function prompt(want){
+  const req=cardPrompt(seat,view,'Girafarig LOT','Get Lost','discard',view.opponentPublic.discard,2,2);
+  req.prompt.publicMetadata.ownerSeat='opponent';for(const c of req.prompt.choices)c.publicMetadata.ownerSeat='opponent';
+  const got=decide(profile,req);assert.deepEqual([...(got.tokens??[])].sort(),want.sort());
+ }
+ assert.deepEqual(decide(profile,root(seat,view,[get])),sel('get'));
+ prompt(['card-2','card-4']);
+ view.opponentPublic.bench=[];view.opponentPublic.prizeCount=6;view.ownPublic.prizeCount=5;
+ prompt(['card-2','card-4']);
+ view.opponentPublic.prizeCount=3;view.ownPublic.prizeCount=6;
+ prompt(['card-0','card-3']);
+ view.opponentPublic.prizeCount=6;view.ownPublic.prizeCount=5;
+ view.ownPublic.stadium=[TEMPLE];view.opponentPublic.discard=['Reversal Energy PAL','Reversal Energy PAL','Marshadow UNB','Secret Box TWM'];
+ prompt(['card-2','card-3']);
+ view.opponentPublic.active=defender();view.ownPublic.stadium=[];view.opponentPublic.discard=['Reversal Energy PAL','Reversal Energy PAL','Counter Energy CIN'];
+ assert.deepEqual(decide(profile,root(seat,view,[get])),sel('pass'));
+});
+
+
+paired('Agent31: complete public control denial pivot',(seat,profile)=>{
+ const active=v([P]);active.printed.retreatCost=['Colorless'];
+ const gir=pokemon({printing:'Girafarig LOT',name:'Girafarig',hp:90,attacks:[attack('Get Lost',['Colorless'],'0')]});
+ const thorns=pokemon({printing:'Iron Thorns ex TWM',name:'Iron Thorns ex',hp:230,types:['Lightning']});
+ const view=observation(seat,{active,bench:[gir],opponentActive:thorns,ownHand:[P]});
+ view.opponentPublic.discard=['Lusamine CIN','Lusamine CIN','Cynthia & Caitlin CEC'];
+ const ret={kind:'retreat',token:'ret',targetPrinting:gir.printing,publicMetadata:{benchIndex:0}};
+ const aa=play('attach-active',P,V,target('active',0)),ag=play('attach-gir',P,gir.printing,target('bench',0));
+ const mist={kind:'attack',token:'mist',attackName:'Shadow Mist'};
+ assert.deepEqual(decide(profile,root(seat,view,[aa,ag,ret,mist])),sel('attach-gir'));
+ assert.deepEqual(decide(profile,root(seat,view,[aa,ag,mist])),sel('attach-active'));
+ view.ownTurnResources.retreatedTurn=3;
+ assert.deepEqual(decide(profile,root(seat,view,[aa,ag,ret,mist])),sel('attach-active'));
+ view.ownTurnResources.retreatedTurn=0;
+ view.opponentPublic.discard=['Lusamine CIN','Secret Box TWM'];
+ assert.deepEqual(decide(profile,root(seat,view,[aa,ag,ret,mist])),sel('attach-active'));
+ view.opponentPublic.discard=['Lusamine CIN','Lusamine CIN','Cynthia & Caitlin CEC'];
+ active.publicRestrictions.cannotRetreat=true;
+ assert.deepEqual(decide(profile,root(seat,view,[aa,ag,ret,mist])),sel('attach-active'));
+ active.publicRestrictions.cannotRetreat=false;gir.energies=[P];
+ assert.deepEqual(decide(profile,root(seat,view,[aa,ag,ret,mist])),sel('attach-active'));
+ view.ownTurnResources.energyPlayedTurn=true;view.ownHand=[];
+ assert.deepEqual(decide(profile,root(seat,view,[ret,mist])),sel('ret'));
+ view.ownPublic.active=gir;view.ownPublic.bench[0]=active;active.energies=[];
+ view.ownTurnResources.retreatedTurn=3;
+ assert.deepEqual(decide(profile,root(seat,view,[{kind:'attack',token:'get',attackName:'Get Lost'}])),sel('get'));
+ const req=cardPrompt(seat,view,'Girafarig LOT','Get Lost','discard',view.opponentPublic.discard,2,2);
+ req.prompt.publicMetadata.ownerSeat='opponent';for(const c of req.prompt.choices)c.publicMetadata.ownerSeat='opponent';
+ assert.deepEqual([...decide(profile,req).tokens].sort(),['card-0','card-1']);
+});
+
+
+paired('Agent31: public Moltres and Vileplume resource cuts',(seat,profile)=>{
+ const gir=pokemon({printing:'Girafarig LOT',name:'Girafarig',hp:90,energies:[P],attacks:[attack('Get Lost',['Colorless'],'0')]});
+ const moltres=pokemon({printing:'Galarian Moltres V CRE',name:'Galarian Moltres V',hp:220,types:['Darkness'],subtypes:['Basic','V']});
+ const pidgey=pokemon({printing:'Pidgey FLF',name:'Pidgey',hp:60,types:['Colorless']});
+ const r=observation(seat,{active:gir,bench:[v()],opponentActive:moltres});
+ const get={kind:'attack',token:'get',attackName:'Get Lost'};
+ const D='Darkness Energy MEE';
+ function prompt(want){
+  const req=cardPrompt(seat,r,'Girafarig LOT','Get Lost','discard',r.opponentPublic.discard,2,2);
+  req.prompt.publicMetadata.ownerSeat='opponent';for(const c of req.prompt.choices)c.publicMetadata.ownerSeat='opponent';
+  assert.deepEqual([...decide(profile,req).tokens].sort(),want.sort());
+ }
+ r.opponentPublic.discard=['VS Seeker PHF',D,'Double Dragon Energy ROS',D];
+ assert.deepEqual(decide(profile,root(seat,r,[get])),sel('get'));
+ prompt(['card-1','card-3']);
+ moltres.energies=[D,D];
+ assert.deepEqual(decide(profile,root(seat,r,[get])),sel('pass'));
+ moltres.energies=[];
+ r.opponentPublic.discard=[D,'Double Dragon Energy ROS','VS Seeker PHF'];
+ assert.deepEqual(decide(profile,root(seat,r,[get])),sel('pass'));
+ r.opponentPublic.discard=[D,D];r.ownPublic.bench=[];
+ assert.deepEqual(decide(profile,root(seat,r,[get])),sel('pass'));
+ r.opponentPublic.active=pidgey;r.ownPublic.bench=[v()];
+ r.opponentPublic.discard=['Oddish UNB','Karen XYP','Oddish UNB','Gloom UNB'];
+ assert.deepEqual(decide(profile,root(seat,r,[get])),sel('get'));
+ prompt(['card-0','card-2']);
+ r.opponentPublic.discard=['Gloom UNB','Karen XYP','Gloom UNB','Oddish UNB'];
+ assert.deepEqual(decide(profile,root(seat,r,[get])),sel('get'));
+ prompt(['card-0','card-2']);
+ r.opponentPublic.bench=[pokemon({printing:'Vileplume AOR',name:'Vileplume',hp:130,types:['Grass']})];
+ assert.deepEqual(decide(profile,root(seat,r,[get])),sel('pass'));
+ r.opponentPublic.bench=[];r.opponentPublic.discard=['Oddish UNB','Gloom UNB','Karen XYP'];
+ assert.deepEqual(decide(profile,root(seat,r,[get])),sel('pass'));
+ r.opponentPublic.active=defender();r.opponentPublic.discard=['Oddish UNB','Oddish UNB'];
+ assert.deepEqual(decide(profile,root(seat,r,[get])),sel('pass'));
+});
+
+// Append to the existing Agent46 root test.
+paired('Agent31: preserve funded solo Night Watch against observed Snorlax',(seat,profile)=>{
+const td=pokemon({printing:'Trevenant & Dusknoir-GX SMP',name:'Trevenant & Dusknoir-GX',hp:270,subtypes:['Basic','TAG TEAM','GX'],energies:[P,P,P,P,P],attacks:[attack('Night Watch',['Psychic','Psychic','Colorless'],'150')]});
+const snor=pokemon({printing:'Snorlax PGO 55',name:'Snorlax',hp:150,types:['Colorless'],abilities:['Block']});
+const lat='Latias ex SSP';
+const view=observation(seat,{active:td,opponentActive:snor,ownHand:[V,lat,L,R,P]});
+view.ownPublic.prizeCount=3;
+view.opponentPublic.discard=['Target Whistle PHF','Captivating Poké Puff STS'];
+const bench=[play('v',V,null,target('bench',0)),play('latias',lat,null,target('bench',0)),play('lele',L,null,target('bench',0)),play('gate',R,null,target('bench',0))];
+const charge=play('charge',P,td.printing,target('active',0)),night={kind:'attack',token:'night',attackName:'Night Watch'};
+assert.deepEqual(decide(profile,root(seat,view,[...bench,charge,night])),sel('charge'));
+view.ownTurnResources.energyPlayedTurn=true;view.ownPublic.publicTurnRestrictions.energyPlayedTurn=true;
+assert.deepEqual(decide(profile,root(seat,view,[...bench,night])),sel('night'));
+view.opponentPublic.discard=['Target Whistle PHF'];
+assert.deepEqual(decide(profile,root(seat,view,[...bench,night])),sel('v'));
+view.opponentPublic.discard=['Target Whistle PHF','Captivating Poké Puff STS'];td.energies=[P,P];
+assert.deepEqual(decide(profile,root(seat,view,[...bench])),sel('v'));
+td.energies=[P,P,P,P,P];view.opponentPublic.active=defender();
+assert.deepEqual(decide(profile,root(seat,view,[...bench])),sel('v'));
+});
+
+test('Hood Ranger does not spend its Supporter against a continuous Item lock',()=>{
+  const arven='Arven SVI';
+  for(const seat of [0,1]){
+    const lock=(printing,name,ability,suppression=false)=>pokemon({printing,name,hp:130,abilities:[ability],suppression});
+    const plume=lock('Vileplume AOR','Vileplume','Irritating Pollen');
+    const jelli=lock('Jellicent ex WHT','Jellicent ex','Oceanic Curse');
+    const trev=lock('Trevenant XY','Trevenant',"Forest's Curse");
+    const oma=lock('Omastar TEU','Omastar','Fossil Bind');
+    const cases=[
+      [defender(),[plume],[], 'arven'],
+      [defender(),[lock('Vileplume AOR','Vileplume','Irritating Pollen',true)],[], 'ranger'],
+      [jelli,[],[], 'arven'],
+      [trev,[],[], 'arven'],
+      [defender(),[trev],[], 'ranger'],
+      [oma,[],[v()], 'arven'],
+      [oma,[],[], 'ranger']
+    ];
+    for(const [opponentActive,opponentBench,bench,expected] of cases){
+      const view=lockItems(observation(seat,{active:v(),bench,opponentActive,opponentBench,ownHand:[RANGER,arven,FOG]}));
+      assert.deepEqual(decide(profiles[0],root(seat,view,[play('ranger',RANGER),play('arven',arven)])),sel(expected));
+    }
+  }
+});

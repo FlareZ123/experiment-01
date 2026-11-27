@@ -1052,7 +1052,99 @@ function paleMoonScore(attacker, attack, view, target) {
   return base - 700 + Math.min(600, retreat.cost * 180);
 }
 // Only cards already in the public opponent discard are considered.
+function observedThornsControl(view) {
+  const board=opponentBoard(view);
+  return board.length>0&&board.every(slot=>hasName(slot.printing,'Iron Thorns ex'));
+}
+function observedElectroRainThreat(view){
+ return opponentBoard(view).some(p=>hasAnyName(p.printing,['Alolan Raichu UNM','Electrode-GX CES']));
+}
+function rainDiscardEnergyValue(view,printing){
+ if(!observedElectroRainThreat(view)||
+   !hasAnyName(printing,['Reversal Energy','Counter Energy','Unit Energy LPM']))return null;
+ if(hasActiveStadiumLock(view,'Temple of Sinnoh'))return 100;
+ const bombs=opponentBoard(view).filter(p=>hasName(p.printing,'Electrode-GX CES')).length;
+ const own=view.ownPublic.prizeCount,opp=view.opponentPublic.prizeCount;
+ const usable=Math.min(bombs,Math.floor((own-1)/2));
+ const behind=opp>own-2*usable;
+ if(hasName(printing,'Reversal Energy'))return behind?900:180;
+ if(hasName(printing,'Counter Energy'))return behind?600:180;
+ return 300;
+}
+function publicTempleResettingHoleRisk(view) {
+  const board=opponentBoard(view);
+  return stadiumAndToolEffectsLive(view)===true&&
+    view.ownPublic.stadium.some(p=>hasName(p,'Temple of Sinnoh'))&&
+    board.some(p=>hasAnyName(p.printing,['Alolan Raichu','Electrode-GX']))&&
+    board.some(p=>(p.energies??[]).some(e=>!isBasicEnergyPrinting(e)))&&
+    !board.some(p=>(p.energies??[]).some(isBasicEnergyPrinting));
+}
+function exposedMoltresEnergyThreat(view){
+ const board=opponentBoard(view), discard=view.opponentPublic.discard;
+ const birds=board.filter(p=>hasName(p.printing,'Galarian Moltres V'));
+ if(!birds.length&&!discard.some(p=>hasName(p,'Galarian Moltres V')))return false;
+ if(birds.some(p=>(p.energies??[]).filter(e=>hasName(e,'Darkness Energy')).length>=2))return false;
+ return ownBoard(view).some(p=>hasName(p.printing,'Shadow Rider Calyrex V')||hasName(p.printing,'Shadow Rider Calyrex VMAX'))||
+   view.ownHand.some(p=>hasAnyName(p,['Shadow Rider Calyrex V','Shadow Rider Calyrex VMAX']));
+}
+function exposedVileplumeRecoveryThreat(view){
+ const board=opponentBoard(view),discard=view.opponentPublic.discard;
+ if(board.some(p=>hasAnyName(p.printing,['Oddish','Gloom','Vileplume'])))return false;
+ const grass=discard.some(p=>hasAnyName(p,['Oddish UNB','Gloom UNB']));
+ return grass&&(discard.some(p=>hasName(p,'Vileplume'))||
+   board.some(p=>hasAnyName(p.printing,['Pidgey FLF','Bunnelby PRC','Mega Lopunny ex PFL'])));
+}
+function observedDenialThreat(view){
+ return observedThornsControl(view)||observedElectroRainThreat(view)||
+   exposedMoltresEnergyThreat(view)||exposedVileplumeRecoveryThreat(view);
+}
+function publicResourcePairBonus(view,names){
+ if(exposedMoltresEnergyThreat(view)&&names.every(p=>isBasicEnergyPrinting(p)&&hasName(p,'Darkness Energy')))return 1200;
+ if(exposedVileplumeRecoveryThreat(view)&&
+   (names.every(p=>hasName(p,'Oddish UNB'))||names.every(p=>hasName(p,'Gloom UNB'))))return 1100;
+ return 0;
+}
+function controlPairBonus(view,names) {
+  const resource=publicResourcePairBonus(view,names);if(resource)return resource;
+  if(!observedThornsControl(view))return 0;
+  const ls=names.filter(n=>hasName(n,'Lusamine')).length;
+  if(ls===2)return 500;
+  if(ls===1&&names.some(n=>hasName(n,'Cynthia & Caitlin')))return 300;
+  return 0;
+}
+function affordableControlGetLostAccess(view){
+  if(!observedDenialThreat(view))return false;
+  if(!hasOpenBench(view)||boardHas(view,'Girafarig')||
+     view.ownTurnResources.retreatedTurn!==0||view.globalTurn<=1||
+     view.ownTurnResources.pokemonPlayLocked||
+     view.ownPublic.publicTurnRestrictions?.attackLockTurnsRemaining!==0)return false;
+  const cost=ownRetreatCost(view);
+  if(cost===null||cost>1||slotEnergyCount(view.ownPublic.active)<cost)return false;
+  if(dimensionValleyStatus(view)!==true&&
+     (view.ownTurnResources.energyPlayedTurn!==false||view.ownTurnResources.energyPlayLocked||!handHas(view,'Psychic Energy')))return false;
+  const plan=getLostPlan(view);
+  if(!Number.isFinite(plan))return false;
+  const current=bestAttackForSlot(view.ownPublic.active,view,view.opponentPublic.active);
+  return plan>(current?.score??0)+cost*350+100;
+}
+function needControlGirafarig(view){
+ return affordableControlGetLostAccess(view)&&!handHas(view,'Girafarig')&&
+    !knownFullyPrized(view,'Girafarig');
+}
 function getLostValue(view,printing) {
+  if(hasName(printing,'Marshadow UNB')&&publicTempleResettingHoleRisk(view))return 950;
+  const rain=rainDiscardEnergyValue(view,printing);if(rain!==null)return rain;
+  if(exposedMoltresEnergyThreat(view)&&isBasicEnergyPrinting(printing)&&hasName(printing,'Darkness Energy'))return 200;
+  if(exposedVileplumeRecoveryThreat(view)&&hasAnyName(printing,['Oddish UNB','Gloom UNB']))return 180;
+  if(observedThornsControl(view)){
+    if(hasAnyName(printing,["Team Rocket's Handiwork","Bellelba & Brycen-Man"]))
+      return view.ownPublic.deckCount<=8?1200:600;
+    if(hasName(printing,'Faba'))return view.ownPublic.stadium.some(p=>hasName(p,'Temple of Sinnoh'))||
+      ownBoard(view).some(p=>(p.tools??[]).some(t=>hasAnyName(t,['Stealthy Hood','Float Stone'])))?900:500;
+    if(hasName(printing,'Lusamine'))return 230;
+    if(hasName(printing,'Cynthia & Caitlin'))return 190;
+  }
+
   const regidrago=opponentHasRegidrago(view);
   if(regidrago&&hasAnyName(printing,['Dialga-GX','Dragapult ex','Giratina VSTAR','Goodra VSTAR',
     'Hisuian Goodra VSTAR','Noivern ex','Haxorus','Flygon ex','Altaria-GX','Dragonite ex',
@@ -1179,7 +1271,7 @@ function getLostPairs(view,rows){
     const score=(before.maximum>=needed&&after.maximum<needed?5000:0)+
       (before.maximum-after.maximum)*1800+
       ((before.potential??before.maximum)-(after.potential??after.maximum))*400+
-      getLostValue(view,a.printing)+getLostValue(view,b.printing);
+      getLostValue(view,a.printing)+getLostValue(view,b.printing)+controlPairBonus(view,names);
     if(!best||score>best.score)best={rows:[a,b],score,after};
   }
   return best;
@@ -1187,8 +1279,9 @@ function getLostPairs(view,rows){
 function getLostPlan(view) {
   const discard=view.opponentPublic.discard;
   const values=discard.map(p=>getLostValue(view,p)).sort((a,b)=>b-a);
-  if(values.length<2||values[0]<300)return -Infinity;
+  if(values.length<2)return -Infinity;
   const best=getLostPairs(view,discard.map((printing,index)=>({printing,index})));
+  if(values[0]<300&&(!best||controlPairBonus(view,best.rows.map(r=>r.printing))===0))return -Infinity;
   return (best?.score??values[0]+values[1])+100;
 }
 function tapuCureValue(view,slot){
@@ -1485,7 +1578,22 @@ function gatePivotView(view) {
   }
   return null;
 }
+function preserveStallSoloNightWatch(view){
+  const active=view.ownPublic.active,target=view.opponentPublic.active;
+  if(!hasName(active?.printing,'Trevenant & Dusknoir-GX')||
+     view.ownPublic.bench.some(Boolean)||active.hp-active.damage<=150)return false;
+  const board=opponentBoard(view);
+  if(!board.some(p=>hasName(p.printing,'Snorlax PGO'))||
+     !board.every(p=>hasAnyName(p.printing,['Snorlax PGO','Mimikyu PAL','Regirock PR','Wobbuffet PHF','Girafarig LOT'])))return false;
+  const used=[...view.opponentPublic.discard,...(view.opponentPublic.lostZone??[])];
+  if(!used.some(p=>hasName(p,'Target Whistle'))||!used.some(p=>hasName(p,'Captivating Poké Puff')))return false;
+  const night=active.attacks?.find(a=>a.name==='Night Watch');
+  return !!night&&canPayAttack(active,night,view)&&
+    Number.isFinite(estimatedDamage(active,night,view,target))&&
+    estimatedDamage(active,night,view,target)>=target.hp-target.damage;
+}
 function gateWantedIgnoringPrize(view) {
+  if(preserveStallSoloNightWatch(view))return false;
   return !boardHas(view, 'Radiant Eternatus') && !handHas(view, 'Radiant Eternatus') &&
     !discardHas(view, 'Radiant Eternatus') &&
     !(view.ownPublic.lostZone ?? []).some(p => hasName(p, 'Radiant Eternatus')) &&
@@ -1503,8 +1611,23 @@ function forestSealAccessNeed(view) {
       Array.isArray(slot.tools) && slot.tools.length === 0 &&
       toolsEffectiveForRetreat(view, slot, 'actor') === true && !hasStarAlchemyLock(view, slot));
 }
+// Ranger clears attack effects, not ongoing abilities. Recognize the public
+// continuous Item-lock sources in the card pool. Unknown suppression is not
+// permission to spend the only Supporter as though the source were absent.
+function hasContinuousItemLock(view){
+  const live=(slot,name,ability,seat)=>hasName(slot?.printing,name)&&
+    (slot.abilities??[]).includes(ability)&&effectiveAbilityStatus(slot,ability,seat,view)!==false;
+  if(ownBoard(view).some(p=>live(p,'Vileplume','Irritating Pollen','actor'))||
+     opponentBoard(view).some(p=>live(p,'Vileplume','Irritating Pollen','opponent')))return true;
+  const active=view.opponentPublic.active;
+  if([['Gothitelle','Magic Room'],['Trevenant','Forest\'s Curse'],
+      ['Jellicent ex','Oceanic Curse'],['Tyranitar','Daunting Gaze']]
+      .some(([name,ability])=>live(active,name,ability,'opponent')))return true;
+  return opponentBoard(view).length<ownBoard(view).length&&
+    opponentBoard(view).some(p=>live(p,'Omastar','Fossil Bind','opponent'));
+}
 function rangerUnlocksUsefulItem(view,receipt) {
-  if(!itemLocked(view)||!view.ownHand.some(isItem))return false;
+  if(!itemLocked(view)||!view.ownHand.some(isItem)||hasContinuousItemLock(view))return false;
   const hand=view.ownHand.slice();
   const rangerIndex=hand.findIndex(p=>hasName(p,'Pokémon Ranger'));
   const ranger=rangerIndex>=0?hand.splice(rangerIndex,1)[0]:'Pokémon Ranger STS';
@@ -1715,6 +1838,8 @@ function searchNeedScore(view, printing, effectName = '', receipt = null) {
     const next={...view,ownHand:[...view.ownHand,printing],ownPublic:{...view.ownPublic,handCount:view.ownPublic.handCount+1,deckCount:view.ownPublic.deckCount-1}};
     if(hasDiscardableHand(next,1,printing))return 112;
   }
+  if(hasName(printing,'Girafarig')&&needControlGirafarig(view))return 106;
+  if(preserveStallSoloNightWatch(view)&&hasAnyName(printing,['Radiant Eternatus','Latias ex','Tapu Lele-GX','Shadow Rider Calyrex V','Girafarig','Wobbuffet','Marshadow',"Lillie's Clefairy ex",'Mimikyu','Dialga-GX']))return -5;
   if (hasName(printing, 'Radiant Eternatus')) return gateAccessNeed(view) ? 120 : -5;
   if (hasName(printing, 'Forest Seal Stone')) return forestSealAccessNeed(view) ? 115 : 0;
   if (hasName(printing,'Temple of Sinnoh')) return !knownFullyPrized(view,'Temple of Sinnoh') && Number.isFinite(usefulTemple(view)) ? 105 : 0;
@@ -1790,6 +1915,7 @@ function searchNeedScore(view, printing, effectName = '', receipt = null) {
 
 function discardValue(view, printing) {
   if (!isText(printing)) return 1000;
+  if(hasName(printing,'Girafarig')&&affordableControlGetLostAccess(view))return 900;
   const duplicates = view.ownHand.filter(item => item === printing).length;
   if (hasName(printing, 'Battle VIP Pass') && view.globalTurn > 1) return 1;
   if (hasName(printing, 'Psychic Energy')) {
@@ -2630,8 +2756,9 @@ function scoreBasicPlay(item, view, profile,receipt) {
   const metadata = item.publicMetadata ?? {};
   if (metadata.targetSeat !== 'actor' || metadata.targetZone !== 'bench') return -Infinity;
   const printing = item.actorPrinting ?? '';
-  if (!hasOpenBench(view)) return -Infinity;
+  if (!hasOpenBench(view)||preserveStallSoloNightWatch(view)) return -Infinity;
   if(optionalBenchHazard(view,printing)&&!(hasName(printing,'Marshadow')&&hasStadiumRemovalTarget(view)))return -Infinity;
+  if(hasName(printing,'Girafarig')&&affordableControlGetLostAccess(view))return 1080;
   const reserveGate = handHas(view,'Radiant Eternatus') &&
     !boardHas(view,'Radiant Eternatus') && openBenchSlots(view)<=3 &&
     expectedClimacticGateTargets(view,2)>=1;
@@ -2761,6 +2888,7 @@ function canPlayRadiantForGate(view) {
 }
 
 function scoreClimacticGatePlay(item, view) {
+  if(preserveStallSoloNightWatch(view))return -Infinity;
   if (!hasName(item.actorPrinting, 'Radiant Eternatus') ||
       !canPlayRadiantForGate(view)) return -Infinity;
   const openBench = openBenchSlots(view);
@@ -2783,7 +2911,33 @@ function viewAfterPsychicAttachment(view,zone,index,printing){
     active:zone==='active'?charged:view.ownPublic.active,
     bench:view.ownPublic.bench.map((slot,i)=>zone==='bench'&&i===index?charged:slot)}};
 }
-function scoreEnergyPlay(item, view) {
+function controlGetLostChargeValue(view,index,printing,items){
+ if(!observedDenialThreat(view))return -Infinity;
+ const own=view.ownPublic,target=view.opponentPublic.active,gir=own.bench[index];
+ if(!target||!gir||!hasName(gir.printing,'Girafarig')||
+   view.globalTurn<=1||view.ownTurnResources.retreatedTurn!==0||
+   !items.some(x=>x.kind==='retreat'&&x.publicMetadata?.benchIndex===index&&
+      (!x.targetPrinting||x.targetPrinting===gir.printing)))return -Infinity;
+ const cost=ownRetreatCost(view);
+ if(cost===null||cost>1||slotEnergyCount(own.active)<cost)return -Infinity;
+ const old={...own.active,energies:own.active.energies.slice(cost)};
+ const movedView={...view,ownPublic:{...own,active:gir,bench:own.bench.map((p,i)=>i===index?old:p)}};
+ const attack=gir.attacks.find(a=>a.name==='Get Lost');
+ if(!attack||canPayAttack(gir,attack,movedView))return -Infinity;
+ const charged={...gir,energies:[...gir.energies,printing]};
+ const after={...movedView,ownPublic:{...movedView.ownPublic,active:charged}};
+ const score=attackScore(charged,attack,after,target,{requirePayable:true});
+ const current=bestAttackForSlot(own.active,view,target)?.score??0;
+ if(!Number.isFinite(score)||score<=current+cost*350+100)return -Infinity;
+ for(const ret of items.filter(x=>x.kind==='retreat')){
+   const i=ret.publicMetadata?.benchIndex,b=own.bench[i];
+   if(i===index||!b||!Number.isSafeInteger(i)||(ret.targetPrinting&&ret.targetPrinting!==b.printing))continue;
+   const alt={...view,ownPublic:{...own,active:b,bench:own.bench.map((p,j)=>j===i?old:p)}};
+   if((bestAttackForSlot(b,alt,target)?.score??0)>score)return -Infinity;
+ }
+ return 1250;
+}
+function scoreEnergyPlay(item, view, items = []) {
   const metadata = item.publicMetadata ?? {};
   if (view.ownTurnResources?.energyPlayedTurn !== false ||
       view.ownTurnResources?.energyPlayLocked === true ||
@@ -2795,8 +2949,14 @@ function scoreEnergyPlay(item, view) {
     ? view.ownPublic.active : view.ownPublic.bench[metadata.targetIndex];
   if (!target || (item.targetPrinting && target.printing !== item.targetPrinting)) return -Infinity;
   const count = slotEnergyCount(target);
+  if(target===view.ownPublic.active&&preserveStallSoloNightWatch(view)&&
+     count<3+view.ownPublic.prizeCount+2)return 1200;
   const chargedView=viewAfterPsychicAttachment(view,metadata.targetZone,metadata.targetIndex,item.actorPrinting);
   const defender=view.opponentPublic.active;
+  if(metadata.targetZone==='bench'){
+    const denial=controlGetLostChargeValue(view,metadata.targetIndex,item.actorPrinting,items);
+    if(Number.isFinite(denial))return denial;
+  }
   if (defender && chargedView?.ownPublic.active && view.globalTurn>1) {
     const before=bestAttackForSlot(view.ownPublic.active,view,defender);
     const after=bestAttackForSlot(chargedView.ownPublic.active,chargedView,defender);
@@ -3090,7 +3250,7 @@ function scoreTrainerPlay(item, view, receipt, profile) {
   const missingBasicV = !knownFullyPrized(view,'Shadow Rider Calyrex V') && !hasBasicShadowRiderV(view) &&
     !handHasBasicShadowRiderV(view) && hasOpenBench(view);
   if (hasName(name, 'Fog Crystal') &&
-      (missingBasicV ||
+      (missingBasicV || needControlGirafarig(view) ||
        (opponentHasDragon(view) &&
         !boardHas(view, "Lillie's Clefairy ex") &&
         !handHas(view, "Lillie's Clefairy ex")) ||
@@ -3099,10 +3259,10 @@ function scoreTrainerPlay(item, view, receipt, profile) {
     !boardHas(view, 'Trevenant & Dusknoir-GX') &&
     !handHas(view, 'Trevenant & Dusknoir-GX') && canFuelNightWatch(view);
   if (hasName(name, 'Mysterious Treasure') && hasDiscardableHand(view, 1, name) &&
-      (gateAccessNeed(view) || missingBasicV || needNightWatch ||
+      (gateAccessNeed(view) || missingBasicV || needNightWatch || needControlGirafarig(view) ||
        (hasUnevolvedShadowRiderV(view)&&!handHas(view,'Shadow Rider Calyrex VMAX')&&!knownFullyPrized(view,'Shadow Rider Calyrex VMAX')))) return 800;
   if (hasName(name, 'Quick Ball') && hasDiscardableHand(view, 1, name) &&
-      (missingBasicV || needNightWatch || gateAccessNeed(view))) return 790;
+      (missingBasicV || needNightWatch || gateAccessNeed(view) || needControlGirafarig(view))) return 790;
   if (hasName(name, 'Ultra Ball') && hasDiscardableHand(view, 2, name) &&
       hasUnevolvedShadowRiderV(view) &&
       !handHas(view, 'Shadow Rider Calyrex VMAX')) return 780;
@@ -3517,7 +3677,7 @@ function chooseRoot(view, request, profile) {
   const scoredPlays = plays.map(item => {
     const basic = scoreBasicPlay(item, view, profile,request.publicEventReceipt);
     const evolution = scoreEvolutionPlay(item);
-    const energy = scoreEnergyPlay(item, view);
+    const energy = scoreEnergyPlay(item, view, items);
     const trainer = scoreTrainerPlay(item, view, request.publicEventReceipt, profile);
     const terminal = scoreClimacticGatePlay(item, view);
     const score = Math.max(basic, evolution, energy, trainer, terminal);
