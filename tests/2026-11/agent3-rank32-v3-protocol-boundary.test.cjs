@@ -463,3 +463,36 @@ test('V3 Super Rod only selects attacker/Energy recovery, never Apex donor paylo
   p.choices=p.choices.filter(c=>!['basic','fire'].includes(c.token));
   assert.deepEqual(checked(req),{kind:'select-choice',token:'none'});
 });
+
+
+test('V3 Apex chooses no-discard Rolling Iron KO but Ryuno for otherwise unkillable VMAX',()=>{
+  const p={
+    schema:protocol.PROMPT_SCHEMA,actingSeat:1,promptType:'ChooseAttackPrompt',
+    description:'Choose attack for Apex Dragon',
+    source:{classification:'actor-choice',sourceKind:'card-effect',
+      sourcePrinting:'Regidrago VSTAR SIT 136',effectName:'Apex Dragon'},
+    choices:[
+      {token:'ryuno',kind:'attack',printing:'Mega Dragonite ex ASC 152',
+        label:'Ryuno Glide',publicMetadata:{
+          choiceIndex:0,sourceAttack:'Ryuno Glide',sourceZone:'discard',
+          ownerSeat:'actor',isOwnerVisible:true}},
+      {token:'rolling',kind:'attack',printing:'Hisuian Goodra VSTAR LOR 136',
+        label:'Rolling Iron',publicMetadata:{
+          choiceIndex:1,sourceAttack:'Rolling Iron',sourceZone:'discard',
+          ownerSeat:'actor',isOwnerVisible:true}}
+    ],publicMetadata:{selectionType:'attack',count:2,allowCancel:false}
+  };
+  const own=player({
+    active:pokemon('Regidrago VSTAR SIT 136',{
+      energies:['Double Dragon Energy ROS 97','Grass Energy MEE 9'],
+      subtypes:['VSTAR'],stage:'STAGE_1'})
+  });
+  const opponent=player({active:pokemon('Wobbuffet PHF 36',{
+    hp:110,damage:0,subtypes:['Basic'],stage:'BASIC'})});
+  const req=root(1,{own,opponent,prompt:p,items:[],
+    requestId:'rank32-apex-rolling-ko'});
+  assert.deepEqual(checked(req),{kind:'select-choice',token:'rolling'});
+  opponent.active=pokemon('Shadow Rider Calyrex VMAX CRE 75',{
+    hp:320,damage:0,subtypes:['VMAX'],stage:'STAGE_1'});
+  assert.deepEqual(checked(req),{kind:'select-choice',token:'ryuno'});
+});
