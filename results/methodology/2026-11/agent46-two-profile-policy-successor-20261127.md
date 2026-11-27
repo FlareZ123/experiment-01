@@ -29,7 +29,7 @@ Local tests were executed in a V8 harness with small Node `test`/`assert` shims.
 | Setup | 7 groups: initial Active, pre-deal GO_FIRST, post-bonus placement | Passed; no native setup dispatch |
 | Owner K1/prize facts | 3 groups: owner-only capture, safe-source progression, invalidation | Passed against mainline helper/sampler |
 | Prompt projection | 4 groups: Heavy Ball Prize visibility, native-filtered search, empty owner collection, Energy metadata | Passed; pinned filter injected by host |
-| Shared mainline prompt-projection regression | 23/23 existing tests, including actor-relative projection, multi-select dispatch, setup projection, and cloned prompt validation | Passed in V8 harness with Buffer/assert shims; not the Node test runner |
+| Shared mainline prompt-projection regression | 23/23 existing tests, including actor-relative projection, multi-select dispatch, setup projection, and cloned prompt validation | Passed in V8 harness with Buffer/assert/hash shims; actual mainline createStoreStateSnapshotter loaded, but not the Node test runner or a native game |
 | Energy payment | One-cost/two-cost from three offered Basic Psychic cards; unsupported Fire cost abstains | Passed; Special Energy unsupported |
 | Stadium decisions | Sky Field Gate bottleneck, Dimension Valley active unlock/opponent unlock, shared-Stadium replacement | Passed in synthetic harness; wider Stadium interactions untested |
 
