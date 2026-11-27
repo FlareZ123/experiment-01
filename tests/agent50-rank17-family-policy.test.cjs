@@ -89,6 +89,19 @@ function runCases(policy,protocol) {
     same(runRoot(p,v,[play('carrier',A.carrier),pass]),action('carrier'),tag+'carrier root');
     same(runPrompt(p,v,cards(v,A.carrier,'Rescue Carrier','discard',
       [A.unown,A.pikachu,A.voltorb,A.electrode,A.ditto],0,2)),choose('c2','c1'),tag+'carrier two distinct starters');
+
+    const carrierTemple=view(seat,{ownHand:[A.carrier],
+      ownPublic:player({discard:[A.voltorb,A.pikachu,A.marshadow]}),
+      opponentPublic:player({active:slot('Shadow Rider Calyrex VMAX CRE',{hp:320}),
+        stadium:['Temple of Sinnoh ASR']})});
+    same(runPrompt(p,carrierTemple,cards(carrierTemple,A.carrier,'Rescue Carrier','discard',
+      [A.voltorb,A.pikachu,A.marshadow],0,2)),choose('c2','c0'),
+      tag+'Carrier reserves one slot for urgent discarded Marshadow');
+    const stretcherTemple={...carrierTemple,ownHand:[A.stretcher,A.raichu],
+      ownPublic:{...carrierTemple.ownPublic,discard:[A.raichu,A.marshadow]}};
+    same(runPrompt(p,stretcherTemple,cards(stretcherTemple,A.stretcher,'Rescue Stretcher','discard',
+      [A.raichu,A.marshadow],0,1)),choose('c1'),
+      tag+'Stretcher recovers Stadium answer before stranded evolution');
     v={...v,ownHand:[A.pikachu,A.voltorb],ownPublic:player()};
     same(runRoot(p,v,[play('pikachu',A.pikachu),play('voltorb',A.voltorb),pass]),action('voltorb'),tag+'bench Voltorb');
     v={...v,ownHand:[A.pikachu],ownPublic:player({bench:[slot(A.voltorb)]})};
