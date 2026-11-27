@@ -150,3 +150,39 @@ test('Telepathic Psychic Energy does not attach to non-Psychic offered targets',
     'Telepathic Psychic Energy POR 88','opponentDeck',[],0,2).prompt;
   assertValid(0,r,{kind:'abstain',reasonCode:'UNSUPPORTED_CARD_COMBINATION_SOURCE'});
 });
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' source Forest Seal Stone attaches to Crobat V and uses Star Alchemy only for missing Clefairy',()=>{
+    const r=request(seat,['Forest Seal Stone SIT'],['Crobat V DAA'],
+      'Forest Seal Stone SIT','deck',[[clef,'clefairy'],['Psychic Energy MEE','energy']],1,1);
+    r.observation.ownTurnResources={vstarUsed:false,energyPlayedTurn:0};
+    r.prompt=null;
+    r.actionFrontier.items=[{kind:'play-card',actorPrinting:'Forest Seal Stone SIT',
+      targetPrinting:'Crobat V DAA',token:'attach-fss'}];
+    assert.deepEqual(p(seat).decide(r),{kind:'select-action',token:'attach-fss'});
+    r.observation.ownHand=[];
+    r.actionFrontier.items=[{kind:'use-ability',actorPrinting:'Forest Seal Stone SIT',
+      publicMetadata:{abilityName:'Star Alchemy'},token:'star-alchemy'}];
+    assert.deepEqual(p(seat).decide(r),{kind:'select-action',token:'star-alchemy'});
+    r.prompt=request(seat,[],['Crobat V DAA'],'Forest Seal Stone SIT','deck',
+      [[clef,'clefairy'],['Psychic Energy MEE','energy']],1,1).prompt;
+    r.prompt.source.effectName='Star Alchemy';
+    assertValid(seat,r,{kind:'select-choices',tokens:['clefairy']});
+    // Spending VSTAR without any missing axis is excluded.
+    r.prompt=null;
+    r.observation.ownPublic.active={printing:clef,
+      energies:['Psychic Energy MEE','Telepath [P] Energy M3']};
+    r.observation.ownHand=['Sky Field ROS'];
+    assert.deepEqual(p(seat).decide(r),{kind:'abstain',reasonCode:'NO_SUPPORTED_ROOT_ACTION'});
+  });
+}
+test('Star Alchemy finds actual Telepathic Energy when one Energy short',()=>{
+  const r=request(0,[],['Crobat V DAA'],
+    'Forest Seal Stone SIT','deck',
+    [['Telepath [P] Energy M3','telepath'],['Guzma BUS','guzma']],1,1);
+  r.observation.ownTurnResources={vstarUsed:false,energyPlayedTurn:0};
+  r.observation.ownPublic.active={printing:clef,energies:['Psychic Energy MEE']};
+  r.prompt.source.effectName='Star Alchemy';
+  assertValid(0,r,{kind:'select-choices',tokens:['telepath']});
+});
