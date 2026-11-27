@@ -567,3 +567,48 @@ test('Super Rod up-to-three can recover none rather than shuffle away all attack
   assert.deepEqual(promptDecision(request({prompt:p})),
     {kind:'select-choice',token:'none'});
 });
+
+
+test('Apex chooses no-discard Rolling Iron KO over expensive Ryuno overkill',()=>{
+  const p=prompt(P.regidrago,'Apex Dragon',[
+    {token:'ryuno',publicMetadata:{sourceAttack:'Ryuno Glide'}},
+    {token:'rolling',publicMetadata:{sourceAttack:'Rolling Iron'}}
+  ],'ChooseAttackPrompt');
+  const ownPublic=player({
+    active:pokemon(P.regidrago,{
+      hp:280,damage:0,energies:[P.doubleDragon,P.energy]})
+  });
+  const opponentPublic=player({
+    active:pokemon('Wobbuffet PHF 36',{
+      hp:110,damage:0,printed:{subtypes:['Basic'],weakness:[],resistance:[]}})
+  });
+  assert.deepEqual(promptDecision(request({ownPublic,opponentPublic,prompt:p})),
+    {kind:'select-choice',token:'rolling'});
+});
+
+test('Apex Ryuno still KOs high-HP VMAX when Rolling Iron cannot',()=>{
+  const p=prompt(P.regidrago,'Apex Dragon',[
+    {token:'ryuno',publicMetadata:{sourceAttack:'Ryuno Glide'}},
+    {token:'rolling',publicMetadata:{sourceAttack:'Rolling Iron'}}
+  ],'ChooseAttackPrompt');
+  const ownPublic=player({active:pokemon(P.regidrago,{
+    hp:280,damage:0,energies:[P.doubleDragon,P.energy]})});
+  const opponentPublic=player({active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{
+    hp:320,damage:0,printed:{subtypes:['VMAX'],weakness:[],resistance:[]}})});
+  assert.deepEqual(promptDecision(request({ownPublic,opponentPublic,prompt:p})),
+    {kind:'select-choice',token:'ryuno'});
+});
+
+test('Apex Rolling Iron takes advantage of known Dragon Weakness for no-cost KO',()=>{
+  const p=prompt(P.regidrago,'Apex Dragon',[
+    {token:'ryuno',publicMetadata:{sourceAttack:'Ryuno Glide'}},
+    {token:'rolling',publicMetadata:{sourceAttack:'Rolling Iron'}}
+  ],'ChooseAttackPrompt');
+  const ownPublic=player({active:pokemon(P.regidrago,{
+    hp:280,damage:0,energies:[P.doubleDragon,P.energy]})});
+  const opponentPublic=player({active:pokemon('Example Pokemon ex TWM 2',{
+    hp:320,damage:0,printed:{subtypes:['ex'],
+      weakness:[{type:'Dragon',value:'×2'}],resistance:[]}})});
+  assert.deepEqual(promptDecision(request({ownPublic,opponentPublic,prompt:p})),
+    {kind:'select-choice',token:'rolling'});
+});
