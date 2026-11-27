@@ -23,7 +23,7 @@ Therefore the right **cross-architecture** challenger is the already-fixed New M
 
 The preferred fixed list is the established v1 machine-readable manifest at `results/als/new-moon-lockbreak-english-proxy-60.json`, hash `a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4`.
 
-Use Agent1's [105-case v1 policy contract](agent1-newmoon-candidate-policy-acceptance-v2.json) as the implementation gate. It covers all 29 authenticated ranks while preserving the exact v1 60.
+Use Agent1's [current v1 policy contract](agent1-newmoon-candidate-policy-acceptance-v2.json) as the implementation gate. It covers all 29 authenticated ranks while preserving the exact v1 60.
 
 Agent13's [Guzma/Sky v2](agent13-newmoon-lockbreaker-guzma-sky-v2.md) remains a frozen material challenger. Its role is to test whether a Supporter own-switch/gust is worth more than Sky #2 after competent v1 policy evidence exists; it is **not** the current preferred list.
 
