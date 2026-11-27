@@ -1,0 +1,389 @@
+[
+  {
+    "label": "Rolling Iron, single gust, no Ranger",
+    "guaranteed": 3,
+    "example": {
+      "firstTarget": "second",
+      "mode": "guzma",
+      "attack": "Timeless-GX",
+      "firstDamage": 300,
+      "firstPrizes": 2,
+      "guaranteed": 3,
+      "reply": [
+        {
+          "promoted": "protected",
+          "best": {
+            "target": "protected",
+            "mode": "none",
+            "attack": "Max Geist",
+            "damage": 320,
+            "prizes": 2
+          },
+          "prizes": 2
+        },
+        {
+          "promoted": "Budew",
+          "best": {
+            "target": "Budew",
+            "mode": "none",
+            "attack": "Max Geist",
+            "damage": 160,
+            "prizes": 1
+          },
+          "prizes": 1
+        }
+      ]
+    }
+  },
+  {
+    "label": "Hood Ranger first, saved gust second",
+    "guaranteed": 4,
+    "example": {
+      "firstTarget": "protected",
+      "mode": "ranger",
+      "attack": "Timeless-GX",
+      "firstDamage": 300,
+      "firstPrizes": 2,
+      "guaranteed": 4,
+      "reply": [
+        {
+          "promoted": "second",
+          "best": {
+            "target": "second",
+            "mode": "none",
+            "attack": "Max Geist",
+            "damage": 320,
+            "prizes": 2
+          },
+          "prizes": 2
+        },
+        {
+          "promoted": "Budew",
+          "best": {
+            "target": "second",
+            "mode": "guzma",
+            "attack": "Max Geist",
+            "damage": 320,
+            "prizes": 2
+          },
+          "prizes": 2
+        }
+      ]
+    }
+  },
+  {
+    "label": "Two independently executable Guzma turns",
+    "guaranteed": 4,
+    "example": {
+      "firstTarget": "second",
+      "mode": "guzma",
+      "attack": "Timeless-GX",
+      "firstDamage": 300,
+      "firstPrizes": 2,
+      "guaranteed": 4,
+      "reply": [
+        {
+          "promoted": "protected",
+          "best": {
+            "target": "protected",
+            "mode": "none",
+            "attack": "Max Geist",
+            "damage": 320,
+            "prizes": 2
+          },
+          "prizes": 2
+        },
+        {
+          "promoted": "Budew",
+          "best": {
+            "target": "protected",
+            "mode": "guzma",
+            "attack": "Max Geist",
+            "damage": 320,
+            "prizes": 2
+          },
+          "prizes": 2
+        }
+      ]
+    }
+  },
+  {
+    "label": "Ranger but second gust unavailable",
+    "guaranteed": 3,
+    "example": {
+      "firstTarget": "protected",
+      "mode": "ranger",
+      "attack": "Timeless-GX",
+      "firstDamage": 300,
+      "firstPrizes": 2,
+      "guaranteed": 3,
+      "reply": [
+        {
+          "promoted": "second",
+          "best": {
+            "target": "second",
+            "mode": "none",
+            "attack": "Max Geist",
+            "damage": 320,
+            "prizes": 2
+          },
+          "prizes": 2
+        },
+        {
+          "promoted": "Budew",
+          "best": {
+            "target": "Budew",
+            "mode": "none",
+            "attack": "Max Geist",
+            "damage": 160,
+            "prizes": 1
+          },
+          "prizes": 1
+        }
+      ]
+    }
+  },
+  {
+    "label": "No Fairy Zone",
+    "guaranteed": 2,
+    "example": {
+      "firstTarget": "protected",
+      "mode": "ranger",
+      "attack": "Timeless-GX",
+      "firstDamage": 150,
+      "firstPrizes": 0,
+      "guaranteed": 2,
+      "reply": [
+        {
+          "promoted": "protected",
+          "best": {
+            "target": "protected",
+            "mode": "none",
+            "attack": "Max Geist",
+            "damage": 160,
+            "prizes": 2
+          },
+          "prizes": 2
+        }
+      ]
+    }
+  },
+  {
+    "label": "Covert Flight, one gust, no Ranger",
+    "guaranteed": 3,
+    "example": {
+      "firstTarget": "second",
+      "mode": "guzma",
+      "attack": "Timeless-GX",
+      "firstDamage": 300,
+      "firstPrizes": 2,
+      "guaranteed": 3,
+      "reply": [
+        {
+          "promoted": "protected",
+          "best": {
+            "target": "protected",
+            "mode": "none",
+            "attack": "Max Geist",
+            "damage": 320,
+            "prizes": 2
+          },
+          "prizes": 2
+        },
+        {
+          "promoted": "Budew",
+          "best": {
+            "target": "Budew",
+            "mode": "none",
+            "attack": "Max Geist",
+            "damage": 160,
+            "prizes": 1
+          },
+          "prizes": 1
+        }
+      ]
+    }
+  },
+  {
+    "label": "Covert Flight, Ranger first",
+    "guaranteed": 4,
+    "example": {
+      "firstTarget": "protected",
+      "mode": "ranger",
+      "attack": "Timeless-GX",
+      "firstDamage": 300,
+      "firstPrizes": 2,
+      "guaranteed": 4,
+      "reply": [
+        {
+          "promoted": "second",
+          "best": {
+            "target": "second",
+            "mode": "none",
+            "attack": "Max Geist",
+            "damage": 320,
+            "prizes": 2
+          },
+          "prizes": 2
+        },
+        {
+          "promoted": "Budew",
+          "best": {
+            "target": "second",
+            "mode": "guzma",
+            "attack": "Max Geist",
+            "damage": 320,
+            "prizes": 2
+          },
+          "prizes": 2
+        }
+      ]
+    }
+  },
+  {
+    "label": "No decoy, first gust leaves mandatory protected promotion",
+    "guaranteed": 4,
+    "example": {
+      "firstTarget": "second",
+      "mode": "guzma",
+      "attack": "Timeless-GX",
+      "firstDamage": 300,
+      "firstPrizes": 2,
+      "guaranteed": 4,
+      "reply": [
+        {
+          "promoted": "protected",
+          "best": {
+            "target": "protected",
+            "mode": "none",
+            "attack": "Max Geist",
+            "damage": 320,
+            "prizes": 2
+          },
+          "prizes": 2
+        }
+      ]
+    }
+  },
+  {
+    "label": "GX spent",
+    "guaranteed": 1,
+    "example": {
+      "firstTarget": "Budew",
+      "mode": "guzma",
+      "attack": "Shred",
+      "firstDamage": 80,
+      "firstPrizes": 1,
+      "guaranteed": 1,
+      "reply": []
+    }
+  },
+  {
+    "label": "Rondo after first KO, 5 combined bench fails full 280",
+    "guaranteed": 3,
+    "example": {
+      "firstTarget": "protected",
+      "mode": "ranger",
+      "attack": "Timeless-GX",
+      "firstDamage": 300,
+      "firstPrizes": 2,
+      "guaranteed": 3,
+      "reply": [
+        {
+          "promoted": "second",
+          "best": {
+            "target": "Budew",
+            "mode": "guzma",
+            "attack": "Full Moon Rondo",
+            "damage": 120,
+            "prizes": 1
+          },
+          "prizes": 1
+        },
+        {
+          "promoted": "Budew",
+          "best": {
+            "target": "Budew",
+            "mode": "none",
+            "attack": "Full Moon Rondo",
+            "damage": 120,
+            "prizes": 1
+          },
+          "prizes": 1
+        }
+      ]
+    }
+  },
+  {
+    "label": "Rondo after first KO, 6 combined bench succeeds",
+    "guaranteed": 4,
+    "example": {
+      "firstTarget": "protected",
+      "mode": "ranger",
+      "attack": "Timeless-GX",
+      "firstDamage": 300,
+      "firstPrizes": 2,
+      "guaranteed": 4,
+      "reply": [
+        {
+          "promoted": "second",
+          "best": {
+            "target": "second",
+            "mode": "none",
+            "attack": "Full Moon Rondo",
+            "damage": 280,
+            "prizes": 2
+          },
+          "prizes": 2
+        },
+        {
+          "promoted": "Budew",
+          "best": {
+            "target": "second",
+            "mode": "guzma",
+            "attack": "Full Moon Rondo",
+            "damage": 280,
+            "prizes": 2
+          },
+          "prizes": 2
+        }
+      ]
+    }
+  },
+  {
+    "label": "Radiant donor makes second Copycat competitive",
+    "guaranteed": 4,
+    "example": {
+      "firstTarget": "protected",
+      "mode": "ranger",
+      "attack": "Timeless-GX",
+      "firstDamage": 300,
+      "firstPrizes": 2,
+      "guaranteed": 4,
+      "reply": [
+        {
+          "promoted": "second",
+          "best": {
+            "target": "second",
+            "mode": "none",
+            "attack": "Power Beam",
+            "damage": 400,
+            "prizes": 2
+          },
+          "prizes": 2
+        },
+        {
+          "promoted": "Budew",
+          "best": {
+            "target": "second",
+            "mode": "guzma",
+            "attack": "Power Beam",
+            "damage": 400,
+            "prizes": 2
+          },
+          "prizes": 2
+        }
+      ]
+    }
+  }
+]
