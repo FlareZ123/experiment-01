@@ -595,3 +595,33 @@ test('V3 Muscle Band target must convert a real 200-damage Goodra attack into KO
   opponent.active.hp=180;
   assert.deepEqual(checked(req),{kind:'select-action',token:'apex'});
 });
+
+
+test('V3 Crispin deck selection preserves the distinct Basic Energy type rule',()=>{
+  const choice=(token,printing,index)=>({
+    token,kind:'card',printing,label:printing,
+    publicMetadata:{selectionIndex:index,selectedCount:1,
+      sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true}
+  });
+  const p={
+    schema:protocol.PROMPT_SCHEMA,actingSeat:0,promptType:'ChooseCardsPrompt',
+    description:'Search for up to two Basic Energy of different types',
+    source:{classification:'actor-choice',sourceKind:'card-effect',
+      sourcePrinting:'Crispin SCR 133',effectName:'Crispin'},
+    choices:[
+      choice('grass1','Grass Energy MEE 9',0),
+      choice('grass2','Grass Energy MEE 9',1),
+      choice('fire','Fire Energy MEE 10',2)
+    ],publicMetadata:{selectionType:'card-combination',
+      sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true,
+      minimumCount:1,maximumCount:2,allowCancel:false,isSecret:false}
+  };
+  const own=player({
+    active:pokemon('Regidrago VSTAR SIT 136',{subtypes:['VSTAR'],
+      stage:'STAGE_1',energies:[]})
+  });
+  const req=root(0,{own,prompt:p,items:[],
+    requestId:'rank32-v3-crispin-distinct'});
+  req.observation.pendingOwnerDeckSearch=true;
+  assert.deepEqual(checked(req),{kind:'select-choices',tokens:['fire','grass1']});
+});
