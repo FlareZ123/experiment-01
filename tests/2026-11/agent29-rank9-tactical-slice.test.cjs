@@ -219,3 +219,27 @@ console.log('passed '+(function mobility(P,protocol){
  a(root(policy(),{...free,opponentPublic:{...free.opponentPublic,stadium:['Jamming Tower TWM 153']}}).kind==='abstain','suppressed Float Stone not free');
  return n;
 })(P,protocol)+' mobility/source-inventory assertions');
+
+console.log('passed '+(function secondary(P,protocol){
+ const D='Darkness Energy MEE 15',Pr='Prism Energy ASC 216',T='Telepathic Psychic Energy POR 88',Meg='Mega Absol ex MEG 86',Gen='Gengar & Mimikyu-GX TEU 53',Sab='Sableye V SSH 120',De='Dedenne-GX UNB 57',Temple='Temple of Sinnoh ASR 155',Stop='PokéStop PGO 68',Lab='Silent Lab PRC 140',Gir='Girafarig LOT 94',Opp='Shadow Rider Calyrex VMAX CRE 75',C='Battle Compressor PHF 92';
+ const mk=(printing,energies=[],extra={})=>({printing,energies,hp:280,damage:0,tools:[],printed:{stage:'Basic',types:['Psychic'],weakness:[],resistance:[]},specialConditions:[],publicRestrictions:{},...extra});
+ const opp=mk(Opp,[],{hp:320,printed:{weakness:[{type:'Darkness',value:'×2'}],resistance:[]}});
+ const o=(p,h=[])=>({actorSeat:0,globalTurn:2,ownPublic:{active:p,bench:[],prizeCount:3,discard:[],publicTurnRestrictions:{}},opponentPublic:{active:opp,bench:[],prizeCount:6,handCount:5},ownHand:h,ownTurnResources:{energyPlayedTurn:false,supporterPlayedTurn:0}});
+ const atk=(p,a)=>({kind:'attack',token:'attack',attackName:a,actorPrinting:p.printing,publicMetadata:{attackCostPayable:true}});
+ let n=0;function a(v,l){if(!v)throw Error(l);n++}
+ let v=o(mk(Gen,[Pr]));a(P.rootAttack(atk(v.ownPublic.active,'Horror House-GX'),v)>=300,'early genuine Horror House option');
+ v.opponentPublic.stadium=[Temple];a(P.rootAttack(atk(v.ownPublic.active,'Horror House-GX'),v)===0,'Temple suppresses psychic from Prism');
+ v=o(mk(Gen,[Pr,T]));a(P.rootAttack(atk(v.ownPublic.active,'Poltergeist'),v)<400,'no hidden hand guaranteed KO');
+ v=o(mk(De,[Pr,T]));a(P.rootAttack(atk(v.ownPublic.active,'Tingly Return-GX'),v)===0,'return GX cannot strand board');
+ v.ownPublic.bench=[mk(Meg)];a(P.rootAttack(atk(v.ownPublic.active,'Tingly Return-GX'),v)>P.rootAttack(atk(v.ownPublic.active,'Static Shock'),v),'safe return line');
+ v=o(mk(Meg,[Pr,Pr,T]),[Stop,Lab]);v.opponentPublic.stadium=[Temple];a(P.stadiumScore(Stop,v)>=900,'Temple replacement enables winning KO');
+ const pol=P.createPolicy({role:'opponent',seat:0,policyVersion:P.POLICY_VERSION,config:{}});
+ const f={schema:protocol.FRONTIER_SCHEMA,items:[{kind:'play-card',token:'s',actorPrinting:Stop,publicMetadata:{}},{kind:'play-card',token:'l',actorPrinting:Lab,publicMetadata:{}}]};
+ const r=pol.decide({role:'opponent',seat:0,sequence:1,observation:v,prompt:null,actionFrontier:f});protocol.validateDecision(r,null,protocol.validateFrontier(f));a(r.token==='s','actual Stadium replacement root');
+ v=o(mk(Sab,[D]));v.opponentPublic.stadium=[Temple];v.ownPublic.discard=[Stop];a(P.rootAttack(atk(v.ownPublic.active,'Lode Search'),v)>0,'one real Dark can recover Stadium');
+ v=o(mk(Meg),[C]);v.opponentPublic.bench=[mk(Gir)];v.ownPublic.bench=[mk('Voltorb ROS 21')];
+ const ch=(token,printing)=>({token,kind:'card',printing,label:printing,publicMetadata:{ownerSeat:'actor',sourceZone:'deck',isOwnerVisible:true}});
+ const pr={schema:protocol.PROMPT_SCHEMA,actingSeat:0,promptType:'ChooseCardsPrompt',description:C,source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:C,effectName:C},choices:[ch('d1',D),ch('d2',D),ch('p',Pr),ch('t',T),{token:'empty',kind:'empty-selection',label:'Choose no items'}],publicMetadata:{selectionType:'card-combination',sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true,allowCancel:false,isSecret:false,minimumCount:0,maximumCount:3}};
+ protocol.validatePrompt(pr,0);const d=pol.decide({role:'opponent',seat:0,sequence:2,observation:v,prompt:pr});protocol.validateDecision(d,pr,new Set());a(JSON.stringify(d.tokens)===JSON.stringify(['p']),'protect both Darkness from exposed Get Lost with manual reserve');
+ return n;
+})(P,protocol)+' secondary-attack/Stadium assertions');

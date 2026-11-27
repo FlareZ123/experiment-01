@@ -1,7 +1,7 @@
 'use strict';
 // Development-only actor-visible tactical slice; see accompanying report.
 module.exports = (function build() {
-  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v7';
+  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v8';
   const SOURCE_RANK = 9;
   const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
   const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -112,7 +112,7 @@ module.exports = (function build() {
     const own=o.ownPublic?.active, opp=o.opponentPublic?.active;
     if(L(own?.specialConditions).some(x=>/asleep|paralyzed|unknown/i.test(condition(x))))return 0;
     const confused=L(own?.specialConditions).some(x=>condition(x)==='confused');
-    if(!(mega(own)&&['Terminal Period','Claw of Darkness'].includes(a)||sableye(own)&&a==='Crazy Claws'))return 0;
+    if(!(mega(own)&&['Terminal Period','Claw of Darkness'].includes(a)||sableye(own)&&a==='Crazy Claws'))return secondaryAttackScore(o,item)*(confused?.5:1);
     if(a==='Terminal Period'&&opp?.damage!==60)return 0;
     if(a!=='Terminal Period'&&(M(item).hasPrevention===true||Number(M(item).damagePrevented)>0))return 0;
     const ko=knockoutScore(o,own,opp,a);
@@ -381,6 +381,79 @@ function bombPlanner(o,sourceBenchIndex){
   const liveStadium=(o,re)=>activeStadium(o).some(x=>re.test(x))&&!o.ownPublic?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining&&!o.opponentPublic?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
   const drawEngineLive=o=>!liveStadium(o,/Silent Lab|Path to the Peak/i)&&Number(o.ownPublic?.deckCount)>6;
   const abilityLive=(p,a)=>p&&!L(p.abilitySuppressions).some(x=>x.abilityName===a&&x.suppressed===true);
+  const stadiumCard=x=>/^(?:Silent Lab PRC 140|Path to the Peak CRE 148|PokéStop PGO 68)\b/i.test(name(x));
+  const basicDark=x=>/^Darkness Energy MEE 15\b/i.test(name(x));
+  const darkCutRisk=o=>liveStadium(o,/Temple of Sinnoh/i)||slots(o.opponentPublic).some(x=>/^Girafarig LOT 94\b/i.test(name(x.p)));
+  function stadiumScore(c,o){
+    if(!stadiumCard(c)||activeStadium(o).includes(name(c)))return 0;
+    const next={...o,ownPublic:{...o.ownPublic,stadium:[name(c)]},opponentPublic:{...o.opponentPublic,stadium:[]}};
+    const before=bestAttackAgainst(o,o.ownPublic?.active,o.opponentPublic?.active),after=bestAttackAgainst(next,next.ownPublic?.active,next.opponentPublic?.active);
+    if(after>before)return after>=1000?950:470;
+    if(liveStadium(o,/Temple of Sinnoh/i))return /^PokéStop/i.test(name(c))?345:/^Silent Lab/i.test(name(c))?285:280;
+    if(liveStadium(o,/Path to the Peak/i)&&/^PokéStop/i.test(name(c))&&(has(o,elec)||handHas(o,isDedenne)))return 310;
+    const opp=slots(o.opponentPublic),own=slots(o.ownPublic);
+    const useful=p=>L(p.abilityDetails).some(a=>/Underworld Door|Abyssal Gate|Infernal Reign|Radiant|Intrepid Sword|Fleet-Footed|Dedechange|Wonder Tag|Set Up|Adrena-Brain|Restart/i.test(a.name??''));
+    if(/^Path to the Peak/i.test(name(c))){
+      const gain=opp.filter(x=>prize(x.p)>1&&useful(x.p)&&abilityLive(x.p,'Underworld Door')).length;
+      const ownLoss=own.some(x=>elec(x.p)&&bombPossible(o))||handHas(o,isDedenne)||first(o)&&has(o,isSquawk);
+      if(gain>0&&!ownLoss)return 340+Math.min(80,40*gain);
+    }
+    if(/^Silent Lab/i.test(name(c))){
+      const gain=opp.filter(x=>/^basic$/i.test(x.p.printed?.stage??'')&&useful(x.p)).length;
+      if(gain>0&&!own.some(x=>isUn(x.p))&&!handHas(o,isDedenne)&&!(first(o)&&has(o,isSquawk)))return 300;
+    }
+    return 0;
+  }
+  function secondaryAttackScore(o,item){
+    const a=item.attackName??M(item).attackName,p=o.ownPublic?.active,target=o.opponentPublic?.active;
+    if(!p||!target)return 0;
+    let cost=null,raw=0,bonus=0;
+    if(sableye(p)&&a==='Lode Search'){
+      cost=['darkness'];bonus=Math.max(0,...L(o.ownPublic?.discard).map(c=>trainerSearch(c,o)));
+      if(bonus<=0)return 0;
+    }else if(isGengar(p)&&a==='Horror House-GX'){
+      cost=['psychic'];if(o.ownPublic?.publicTurnRestrictions?.gxUsed===true)return 0;
+      const handCount=Number(o.opponentPublic?.handCount),early=o.globalTurn<=4;
+      const threat=threatAttacks(o,target).length>0;
+      const evolved=slots(o.opponentPublic).filter(x=>/VMAX|VSTAR|Stage 2/i.test(name(x.p))).length;
+      if(!Number.isFinite(handCount)||handCount<=0||threat&&!early)return 0;
+      bonus=(early?300:140)+(evolved===0?55:0)-(threat?120:0);
+      if(payable(p,['psychic','psychic'],-1,o)===true&&handCount<=2)bonus-=60;
+    }else if(isGengar(p)&&a==='Poltergeist'){
+      cost=['psychic','psychic'];const count=Number(o.opponentPublic?.handCount);
+      if(!Number.isFinite(count)||count<=0)return 0;
+      bonus=Math.min(230,50+25*count);
+    }else if(isDedenne(p)&&['Static Shock','Tingly Return-GX'].includes(a)){
+      cost=['lightning','colorless'];raw=50;
+      if(a==='Tingly Return-GX'){
+        if(o.ownPublic?.publicTurnRestrictions?.gxUsed===true||benchCount(o)===0)return 0;
+        bonus=slots(o.opponentPublic).filter(x=>x.zone==='bench').length===0?130:35;
+      }
+    }else if(isUn(p)&&a==='Hidden Power'){cost=['colorless'];raw=10;}
+    else if(isToed(p)&&a==='Kick'){cost=['colorless','colorless'];raw=20;}
+    else if(isToed(p)&&a==='Absorb'){cost=['grass','colorless','colorless'];raw=40;bonus=10;}
+    else if(isVol(p)&&a==='Thunder Wave'){cost=['lightning'];bonus=35;}
+    else if(isVol(p)&&a==='Big Explosion'){
+      cost=['lightning','colorless'];raw=60;if(benchCount(o)===0||o.opponentPublic?.prizeCount<=1)return 0;bonus=-130;
+    }else return 0;
+    if(L(p.printed?.types).some(t=>type(t)==='psychic')&&liveStadium(o,/Dimension Valley/i)){const i=cost.indexOf('colorless');if(i>=0)cost.splice(i,1);}
+    if(payable(p,cost,-1,o)!==true)return 0;
+    if(raw>0){
+      if(uncertainDefense(o,target,'damage')||M(item).hasPrevention===true)return Math.max(0,bonus);
+      const pt=L(p.printed?.types).map(type);
+      if(L(p.tools).some(x=>match(x,R.muscle))&&!liveStadium(o,/Jamming Tower/i)&&!o.ownPublic?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining)raw+=20;
+      if(pt.length===1){
+        for(const w of L(target.printed?.weakness).filter(x=>type(x.type)===pt[0])){if(/^[×x]2$/i.test(w.value))raw*=2;else if(/^\+\d+$/.test(w.value))raw+=Number(w.value);else return Math.max(0,bonus);}
+        for(const r of L(target.printed?.resistance).filter(x=>type(x.type)===pt[0])){if(!/^-\d+$/.test(r.value))return Math.max(0,bonus);raw+=Number(r.value);}
+      }
+      if(raw>=remaining(target)){
+        const final=prize(target)>=Number(o.ownPublic?.prizeCount);
+        if(a==='Big Explosion'&&!final)return 0;
+        return final?1000:400+70*prize(target)+Math.max(0,bonus);
+      }
+    }
+    return Math.max(0,bonus+(raw>0?60+raw:0));
+  }
   function bombPossible(o){
     // A planning predicate, not authority to use the unavailable adapter.
     return Number(o.opponentPublic?.prizeCount)>2&&has(o,mega)&&
@@ -395,7 +468,7 @@ function bombPlanner(o,sourceBenchIndex){
     const hand=L(o.ownHand).map(name),hs=hand.filter(ePred).length;
     const reserve=o.ownTurnResources?.energyPlayedTurn===false?1:0;
     const need=Math.max(0,5-L(o.ownPublic?.discard).filter(ePred).length);
-    const es=cards.filter(c=>ePred(c)&&(M(c).ownerSeat===undefined||M(c).ownerSeat==='actor')).sort((a,b)=>
+    const es=cards.filter(c=>ePred(c)&&(!darkCutRisk(o)||!basicDark(c))&&(M(c).ownerSeat===undefined||M(c).ownerSeat==='actor')).sort((a,b)=>
       (match(b,R.dark)?1:0)-(match(a,R.dark)?1:0));
     const burn=Math.min(n,need,Math.max(0,hs-reserve),es.length);
     for(let k=burn;k>0;k--){
@@ -427,6 +500,7 @@ function bombPlanner(o,sourceBenchIndex){
     return 0;
   }
   function trainerSearch(c,o){
+    if(stadiumCard(c))return stadiumScore(c,o);
     if(match(c,R.vip))return first(o)&&cap(o)>0&&(!ownHas(o,mega)||!ownHas(o,isVol)&&!ownHas(o,elec))?370:0;
     if(match(c,R.ultra))return !has(o,mega)||has(o,isVol)&&!has(o,elec)||has(o,isToed)&&!has(o,cruel)?300:0;
     if(match(c,R.mail))return Number(o.ownPublic?.deckCount)>8?185:0;
@@ -460,6 +534,7 @@ function bombPlanner(o,sourceBenchIndex){
       return 0;
     }
     if(item.kind!=='play-card'||m.isLegal===false||m.canPlay===false)return 0;
+    if(stadiumCard(x))return stadiumScore(x,o);
     if(ePred(x)){
       if(!p||o.ownTurnResources?.energyPlayedTurn!==false)return 0;
       const next={...p,energies:[...L(p.energies),x]};
@@ -539,7 +614,7 @@ function bombPlanner(o,sourceBenchIndex){
       if(match(x,R.stretcher))return pick(discard,c=>pokemonSearch(c,o),m.maximumCount===3?3:1);
       if(match(x,R.vs))return pick(discard,c=>supporterSearch(c,o),1);
       if(match(x,R.compressor)){
-        const e=deck.filter(ePred),need=Math.max(0,5-L(o.ownPublic?.discard).filter(ePred).length);
+        const e=deck.filter(c=>ePred(c)&&(!darkCutRisk(o)||!basicDark(c))),need=Math.max(0,5-L(o.ownPublic?.discard).filter(ePred).length);
         const reserve=!handHas(o,ePred)&&o.ownTurnResources?.energyPlayedTurn===false?1:0;
         const k=Math.min(need,Math.max(0,e.length-reserve),m.maximumCount,3);
         return pick(e,c=>match(c,R.dark)?100:75,k);
@@ -718,5 +793,5 @@ function bombPlanner(o,sourceBenchIndex){
       return r.prompt===null?root(r):prompt(r);
     }});
   }
-  return {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,createPolicy,printedDamage,payable,rootAttack,denial,prize,safeCosts,bombPlanner};
+  return {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,createPolicy,printedDamage,payable,rootAttack,denial,prize,safeCosts,bombPlanner,stadiumScore};
 })();
