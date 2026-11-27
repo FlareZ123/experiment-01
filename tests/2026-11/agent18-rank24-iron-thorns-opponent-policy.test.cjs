@@ -18,7 +18,7 @@ function active({ specialConditions = [] } = {}) {
   };
 }
 
-function observation({ seat = 0, opponentDeck = 2, opponentHand = 0, opponentPrizes = 6, ownHand = [], discard = [],
+function observation({ seat = 0, opponentDeck = 2, opponentHand = 0, opponentPrizes = 6, ownHand = [], discard = [], ownBench = [],
   supporterPlayedTurn = 0, supporterPlayLocked = false, itemPlayLocked = false,
   specialConditions = [] } = {}) {
   return {
@@ -27,6 +27,7 @@ function observation({ seat = 0, opponentDeck = 2, opponentHand = 0, opponentPri
     ownPublic: {
       active: active({ specialConditions }),
       discard,
+      bench: ownBench,
       publicTurnRestrictions: { supporterPlayLocked: false, itemPlayLocked: false }
     },
     opponentPublic: { deckCount: opponentDeck, handCount: opponentHand, prizeCount: opponentPrizes },
@@ -123,10 +124,23 @@ test('Pale Moon-GX in public opponent attack history blocks direct mill', () => 
   assert.deepEqual(policy().decide(req), { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ROOT_ACTION' });
 });
 
-test('a Special Condition blocks terminal pass/mill in this conservative first slice', () => {
-  const req = root({ opponentDeck: 2, ownHand: ['Bellelba & Brycen-Man CEC 186'],
+test('damaging Special Conditions block terminal pass/mill; non-damaging ones do not', () => {
+  const poisoned = root({ opponentDeck: 2, ownHand: ['Bellelba & Brycen-Man CEC 186'],
     specialConditions: ['POISONED'], items: [mill, pass] });
-  assert.deepEqual(policy().decide(req), { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ROOT_ACTION' });
+  assert.deepEqual(policy().decide(poisoned), { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ROOT_ACTION' });
+  const confused = root({ opponentDeck: 2, ownHand: ['Bellelba & Brycen-Man CEC 186'],
+    specialConditions: [1], items: [mill, pass] });
+  assert.deepEqual(policy().decide(confused), { kind: 'select-action', token: 'mill' });
+});
+
+test('Pale Moon only blocks when the Active KO would end the game before the forced draw', () => {
+  const unsafe = root({ opponentDeck: 2, ownHand: ['Bellelba & Brycen-Man CEC 186'],
+    items: [mill, pass], publicEventReceipt: receipt({ paleMoon: true }) });
+  assert.deepEqual(policy().decide(unsafe), { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ROOT_ACTION' });
+  const safe = root({ opponentDeck: 2, opponentPrizes: 3, ownHand: ['Bellelba & Brycen-Man CEC 186'],
+    ownBench: [{ printing: 'Iron Thorns ex TWM 77' }], items: [mill, pass],
+    publicEventReceipt: receipt({ paleMoon: true }) });
+  assert.deepEqual(policy().decide(safe), { kind: 'select-action', token: 'mill' });
 });
 
 test('used or locked Supporter slot blocks Bellelba root', () => {
