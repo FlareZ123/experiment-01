@@ -57,6 +57,11 @@ on:
         required: false
         type: boolean
         default: false
+      celestial_deterministic_native:
+        description: Six original rank20 both-seat prompt-free Celestial native Store parity tests
+        required: false
+        type: boolean
+        default: false
       minimum_attach_replay:
         description: Post-hoc same-registered-source 24-pair replay of mandatory two/three Energy prompt repair
         required: false
@@ -99,10 +104,10 @@ jobs:
       - name: Pure and original-Store adapter injection tests
         run: node --test tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent47-apex-discard-frontier.test.cjs tests/agent47-apex-discard-adapter.test.cjs tests/agent47-rank20-first-eight-co-visibility.test.cjs tests/agent47-rank20-apex-natural-audit.test.cjs tests/agent47-minimum-attach-energy-hook.test.cjs tests/physical-card-ledger.test.cjs tests/agent47-preapex-payload-opportunity.test.cjs tests/agent47-rank26-opening-bench-coverage.test.cjs tests/agent47-rank26-egg-donor-recovery.test.cjs tests/agent47-frozen-v1-native-status-derived.test.cjs tests/agent47-prospective-lillie-hand-balance.test.cjs tests/agent47-rank26-bilateral-prize-sft.cjs tests/agent47-rank26-multiaxis-prize-sft.cjs tests/2026-11/agent27-owner-turn-tracker.test.cjs
       - name: Fetch exact pinned Twinleaf for opt-in source native verification
-        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay || inputs.celestial_special_native || inputs.physical_zone_natural || inputs.physical_loss_lineage || inputs.preapex_natural || inputs.strict_physical60 || inputs.meloetta_crisis_native || inputs.unownless_one_lightning_native || inputs.egg_donor_owner_native || inputs.natural_owner_24 || inputs.native_owner_finisher }}
+        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay || inputs.celestial_special_native || inputs.celestial_deterministic_native || inputs.physical_zone_natural || inputs.physical_loss_lineage || inputs.preapex_natural || inputs.strict_physical60 || inputs.meloetta_crisis_native || inputs.unownless_one_lightning_native || inputs.egg_donor_owner_native || inputs.natural_owner_24 || inputs.native_owner_finisher }}
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install and compile pinned native Store
-        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay || inputs.celestial_special_native || inputs.physical_zone_natural || inputs.physical_loss_lineage || inputs.preapex_natural || inputs.strict_physical60 || inputs.meloetta_crisis_native || inputs.unownless_one_lightning_native || inputs.egg_donor_owner_native || inputs.natural_owner_24 || inputs.native_owner_finisher }}
+        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay || inputs.celestial_special_native || inputs.celestial_deterministic_native || inputs.physical_zone_natural || inputs.physical_loss_lineage || inputs.preapex_natural || inputs.strict_physical60 || inputs.meloetta_crisis_native || inputs.unownless_one_lightning_native || inputs.egg_donor_owner_native || inputs.natural_owner_24 || inputs.native_owner_finisher }}
         working-directory: vendor/twinleaf/ptcg-server
         run: |
           npm ci --no-audit --no-fund
@@ -220,6 +225,12 @@ jobs:
       - name: Source-print Regidrago V Special Energy Celestial Roar discrepancy, both seats
         if: ${{ inputs.celestial_special_native }}
         run: node simulation/twinleaf/agent47-celestial-roar-double-dragon-pinned-native.cjs > agent47-celestial-roar-native.json
+      - name: Pure injected prompt-free Celestial Roar hook test before native
+        if: ${{ inputs.celestial_deterministic_native }}
+        run: node --test tests/2026-11/agent47-celestial-roar-deterministic-hook-v2.test.cjs
+      - name: Six exact source20 native Store prompt-free Celestial Roar physical conservation cases
+        if: ${{ inputs.celestial_deterministic_native }}
+        run: node --test tests/2026-11/agent47-celestial-roar-deterministic-hook-v2.native.test.cjs
       - uses: actions/upload-artifact@v4
         if: ${{ always() && inputs.celestial_special_native }}
         with:
