@@ -1338,3 +1338,138 @@ test('Tool Jammer and Palace Belt are not prematurely attached to Bench when Act
       {kind:'select-action',token:'active-tool'});
   }
 });
+
+test('rank29 complete actor-choice transcript: Tag Call → enhanced G&H → Thunder+DCE → Volt Cyclone', () => {
+  // This drives the real policy and protocol at every choice, but the
+  // transitions are intentionally scripted, not a claimed native replay.
+  const start=rootRequest({
+    ownHand:['Tag Call CEC 206',"Trainers' Mail ROS 92",
+      'Camping Gear BST 122','Speed Lightning Energy RCL 173'],
+    ownPublic:player({active:pokemon('Iron Thorns ex TWM 77')}),
+    items:[
+      action('tag','play-card','Tag Call CEC 206',{cardType:'item'}),
+      action('speed','play-card','Speed Lightning Energy RCL 173',{cardType:'energy'}),
+      {token:'pass',kind:'pass'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(start),{kind:'select-action',token:'tag'});
+
+  const tagSearch=promptRequest({
+    promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('Tag Call CEC 206','Tag Call'),
+    publicMetadata:multiMetadata(0,2),
+    choices:[
+      cardChoice('gh','Guzma & Hala CEC 193'),
+      cardChoice('cc','Cynthia & Caitlin CEC 189'),
+      {token:'empty',kind:'empty-selection'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(tagSearch),
+    {kind:'select-choices',tokens:['gh','cc']});
+
+  const ghRoot=rootRequest({
+    ownHand:['Guzma & Hala CEC 193','Cynthia & Caitlin CEC 189',
+      "Trainers' Mail ROS 92",'Camping Gear BST 122',
+      'Speed Lightning Energy RCL 173'],
+    items:[
+      action('gh','play-card','Guzma & Hala CEC 193',{cardType:'supporter'}),
+      action('speed','play-card','Speed Lightning Energy RCL 173',{cardType:'energy'}),
+      {token:'pass',kind:'pass'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(ghRoot),{kind:'select-action',token:'gh'});
+
+  const mode=promptRequest({
+    promptType:'SelectOptionPrompt',
+    source:actorChoiceSource('Guzma & Hala CEC 193','Guzma & Hala'),
+    publicMetadata:{selectionType:'option',count:2,allowCancel:false},
+    observation:{
+      ownHand:['Cynthia & Caitlin CEC 189',"Trainers' Mail ROS 92",
+        'Camping Gear BST 122','Speed Lightning Energy RCL 173']
+    },
+    choices:[
+      {token:'free',kind:'option',label:'Stadium only',publicMetadata:{choiceIndex:0}},
+      {token:'enhanced',kind:'option',label:'Pay two',publicMetadata:{choiceIndex:1}}
+    ]
+  });
+  assert.deepEqual(checkedDecision(mode),{kind:'select-choice',token:'enhanced'});
+
+  const pay=promptRequest({
+    promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('Guzma & Hala CEC 193','Guzma & Hala'),
+    publicMetadata:multiMetadata(2,2),
+    observation:{
+      ownHand:['Cynthia & Caitlin CEC 189',"Trainers' Mail ROS 92",
+        'Camping Gear BST 122','Speed Lightning Energy RCL 173']
+    },
+    choices:[
+      cardChoice('speed','Speed Lightning Energy RCL 173','hand','actor'),
+      cardChoice('mail',"Trainers' Mail ROS 92",'hand','actor'),
+      cardChoice('camp','Camping Gear BST 122','hand','actor'),
+      cardChoice('cc','Cynthia & Caitlin CEC 189','hand','actor')
+    ]
+  });
+  assert.deepEqual(checkedDecision(pay),
+    {kind:'select-choices',tokens:['mail','camp']});
+
+  const search=promptRequest({
+    promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('Guzma & Hala CEC 193','Guzma & Hala'),
+    publicMetadata:multiMetadata(0,3),
+    observation:{ownPublic:player({active:pokemon('Iron Thorns ex TWM 77')})},
+    choices:[
+      cardChoice('mountain','Thunder Mountain ♢ LOT 191'),
+      cardChoice('dce','Double Colorless Energy SUM 136'),
+      cardChoice('jammer','Tool Jammer BST 136'),
+      {token:'empty',kind:'empty-selection'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(search),
+    {kind:'select-choices',tokens:['dce','mountain']});
+
+  const held=["Cynthia & Caitlin CEC 189",'Speed Lightning Energy RCL 173',
+    'Thunder Mountain ♢ LOT 191','Double Colorless Energy SUM 136'];
+  const thunderRoot=rootRequest({
+    ownHand:held,
+    ownPublic:player({active:pokemon('Iron Thorns ex TWM 77')}),
+    items:[
+      action('speed','play-card','Speed Lightning Energy RCL 173',{cardType:'energy'}),
+      action('thunder','play-card','Thunder Mountain ♢ LOT 191',{cardType:'stadium'}),
+      action('dce','play-card','Double Colorless Energy SUM 136',{cardType:'energy'}),
+      {token:'pass',kind:'pass'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(thunderRoot),{kind:'select-action',token:'thunder'});
+
+  const attachRoot=rootRequest({
+    ownHand:held.filter(x=>!x.includes('Thunder Mountain')),
+    ownPublic:player({
+      active:pokemon('Iron Thorns ex TWM 77'),
+      stadium:['Thunder Mountain ♢ LOT 191']
+    }),
+    items:[
+      action('speed','play-card','Speed Lightning Energy RCL 173',{cardType:'energy'}),
+      action('dce','play-card','Double Colorless Energy SUM 136',{cardType:'energy'}),
+      {token:'pass',kind:'pass'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(attachRoot),{kind:'select-action',token:'dce'});
+
+  const attackRoot=rootRequest({
+    ownHand:held.filter(x=>!x.includes('Thunder Mountain')&&!x.includes('Double Colorless')),
+    ownPublic:player({
+      active:pokemon('Iron Thorns ex TWM 77',
+        {energies:['Double Colorless Energy SUM 136']}),
+      stadium:['Thunder Mountain ♢ LOT 191']
+    }),
+    opponentPublic:player({active:pokemon('Shadow Rider Calyrex VMAX CRE 75',
+      {hp:320})}),
+    ownTurnResources:turnResources({energyPlayedTurn:true,supporterPlayedTurn:1}),
+    items:[
+      action('attack','attack','Iron Thorns ex TWM 77',{},
+        {attackName:'Volt Cyclone'}),
+      {token:'pass',kind:'pass'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(attackRoot),{kind:'select-action',token:'attack'});
+});
