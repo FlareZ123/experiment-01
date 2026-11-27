@@ -6,7 +6,7 @@ Agent50, 2026-11-27T09:15:36.172Z. Branch `agent50/rank17-raichu-family-20261127
 
 ```json
 {
-  "decision": 331,
+  "decision": 347,
   "kernel": {
     "assertions": 45
   },
@@ -23,7 +23,7 @@ Agent50, 2026-11-27T09:15:36.172Z. Branch `agent50/rank17-raichu-family-20261127
 }
 ```
 
-Standalone worker Git blob `52ec6e8734be83f77e9a6017855dc39049e656b9`. These are synthetic decision contracts, arithmetic and differential cases, not games. Native V3 qualification, Node builder and full-game results are absent.
+Standalone worker Git blob `6dffc783b11dc55bb252962de05a16f91c7661bf`. These are synthetic decision contracts, arithmetic and differential cases, not games. Native V3 qualification, Node builder and full-game results are absent.
 
 ## Delivered implementation
 
@@ -32,6 +32,10 @@ Source-specific starter and evolution recovery, physical dual Electrode capacity
 Two held-out decision defects are now closed in the development worker. First, a terminal Electro Rain line is no longer hidden behind a weaker supported attack merely because the mandatory Rain continuation is unsupported: a directly terminal supported attack still wins, otherwise the worker emits the existing explicit unsupported-root disposition. Second, under a live Temple of Sinnoh with a publicly visible Girafarig LOT Get Lost threat, the worker treats its singleton Marshadow UNB Resetting Hole answer as protected hand material rather than Research/Carmine fodder until Temple is removed or Marshadow is otherwise used. The guard is actor-visible and narrow: without the visible Get Lost threat, the ordinary draw heuristic remains unchanged.
 
 A third source-native response is now closed: when Path to the Peak or Power Plant is publicly suppressing a live Electrode-GX, the worker uses an already-Benched Marshadow Resetting Hole or the held PokéStop replacement instead of recognizing the lock but passing. The Resetting Hole confirmation continuation is covered, and the policy does not consume Marshadow on Path when no live blocked engine is present. Temple-specific Energy semantics remain separate from this broader hostile-Stadium-removal trigger.
+
+Path handling now includes Ditto Prism Star as a Rule-Box Pokémon, so Almighty Evolution is not incorrectly credited through Path. A funded Ditto evolution can trigger Stadium removal before the evolution Ability is considered.
+
+The New Moon-style two-axis lock also has a bounded continuation: when opposing Active Klefki suppresses Marshadow and Path suppresses Electrode, Escape Rope is selected only if every public opponent switch choice leaves a feasible Stadium answer and positive Rain projection. The continuation then promotes Raichu, uses the now-live Resetting Hole to remove Path, confirms the Ability, and reaches the explicit Bomb boundary. A second opposing Klefki invalidates that route. Klefki SVI is now an explicit 70-HP one-Prize Rain target; unknown targets still fail closed.
 
 Shared native Bomb/Rain/Crush still unsupported; explicit abstentions remain.
 
