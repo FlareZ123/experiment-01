@@ -37,8 +37,9 @@ function discardCost(ownHand) {
   // Only burn entire hand while preserving enough attack Energy/resources.
   const hand=list(ownHand);
   const hasProtectedDde=hand.some(x=>/^Double Dragon Energy ROS 97\b/i.test(print(x)));
-  const uncommittedApexPayload=hand.some(isDonor);
-  return hasProtectedDde && !uncommittedApexPayload ? 70 : 0;
+  // Discarding the entire hand loses the DDE regardless of how many copyable
+  // donors are simultaneously present; donor presence does not refund Energy.
+  return hasProtectedDde ? 70 : 0;
 }
 function rank14RootScore(item,request){
   const obs=request?.observation??{},own=obs.ownPublic??{},opp=obs.opponentPublic??{};
