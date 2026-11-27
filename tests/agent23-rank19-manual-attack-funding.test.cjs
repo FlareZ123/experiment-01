@@ -1,0 +1,30 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict');
+const funding=require('../simulation/evaluation/2026-11/agent23-rank19-manual-attack-funding.cjs');
+const v3=require('../simulation/evaluation/2026-11/agent23-rank19-raging-bolt-opponent-policy-v3-moltres.cjs');
+const v4=require('../simulation/evaluation/2026-11/agent23-rank19-raging-bolt-opponent-policy-v4-draft.cjs');
+const D='Darkness Energy MEE 15',F='Fighting Energy MEE 14',L='Lightning Energy MEE 12',P='Psychic Energy MEE 13',DD='Double Dragon Energy ROS 97';
+const mon=(printing,hp,energies=[],extra={})=>({printing,hp,damage:0,energies,tools:[],specialConditions:[],publicRestrictions:{},...extra});
+const mol=()=>mon('Galarian Moltres V CRE 97',220,[D,F]);
+const sandy=()=>mon('Sandy Shocks ex PAR 108',220,[F,L]);
+const adp=()=>mon('Arceus & Dialga & Palkia-GX CEC 156',280,[DD]);
+const clef=()=>mon("Lillie's Clefairy ex JTG 56",190);
+const vm=n=>mon('Shadow Rider Calyrex VMAX CRE 75',320,Array(n).fill(P));
+function req(active=mol(),h=[F,D],target=clef(),prizes=2,bench=[vm(0)]){
+ return {role:'opponent',seat:0,observation:{actorSeat:0,turnSeat:0,globalTurn:10,ownHand:h,ownTurnResources:{energyPlayedTurn:8,retreatedTurn:8,supporterPlayedTurn:8},ownPublic:{active,bench:[],stadium:[],discard:[],prizeCount:prizes,publicTurnRestrictions:{gxUsed:false}},opponentPublic:{active:target,bench,stadium:[],prizeCount:2}},actionFrontier:{items:h.map((actorPrinting,handIndex)=>({kind:'play-card',token:'e'+handIndex,actorPrinting,targetPrinting:active.printing,publicMetadata:{handIndex,targetSeat:'actor',targetZone:'active',targetIndex:0}}))}};
+}
+const cap={discard:false,attach:false},cap4={discard:true,attach:true};
+const p3=v3.createPolicy({role:'opponent',seat:0,policyVersion:v3.POLICY_VERSION,config:{}});
+const p4=v4.createPolicy({role:'opponent',seat:0,policyVersion:v4.POLICY_VERSION,config:{draftPromptContracts:[v4.ATTACH,v4.DISCARD]}});
+test('exact Darkness attachment enables final Aura Burn, not generic first Energy',()=>{const r=req();assert.equal(funding.root(r,cap,true)?.token,'e1');assert.equal(p3.decide(r).token,'e1');});
+test('Sandy gets required second Fighting',()=>{const r=req(sandy(),[D,F]);assert.equal(funding.root(r,cap,true)?.token,'e1');});
+test('ADP gets Ray to close game rather than use available GX',()=>{const r=req(adp(),[L],mon('Girafarig LOT 94',90),1);r.actionFrontier.items.push({kind:'attack',attackName:'Altered Creation-GX',actorPrinting:r.observation.ownPublic.active.printing,token:'gx',publicMetadata:{attackCostPayable:true}});assert.equal(funding.root(r,cap4,true)?.token,'e0');assert.equal(p4.decide(r).token,'e0');});
+test('unsupported Ray contract is not projected',()=>assert.equal(funding.root(req(adp(),[L],mon('Girafarig LOT 94',90),1),cap,true),null));
+test('manual attachment already spent',()=>{const r=req();r.observation.ownTurnResources.energyPlayedTurn=10;assert.equal(funding.root(r,cap,true),null);});
+test('first turn going first does not imply legal attack',()=>{const r=req();r.observation.globalTurn=1;r.observation.ownTurnResources.energyPlayedTurn=0;assert.equal(funding.root(r,cap,true),null);});
+test('wrong physical hand index or destination is ignored',()=>{const r=req();r.actionFrontier.items[1].publicMetadata.handIndex=0;assert.equal(funding.root(r,cap,true),null);r.actionFrontier.items[1].publicMetadata.handIndex=1;r.actionFrontier.items[1].publicMetadata.targetZone='bench';assert.equal(funding.root(r,cap,true),null);});
+test('no more Energy when already terminal',()=>{const r=req(mon('Galarian Moltres V CRE 97',220,[D,D,F]),[D]);assert.equal(funding.root(r,cap,true),null);});
+test('nonterminal KO with surviving source is enabled',()=>{const r=req(mol(),[D],clef(),6);assert.equal(funding.root(r,cap,false)?.token,'e0');});
+test('nonterminal KO followed by funded opponent win is not prioritized',()=>assert.equal(funding.root(req(mol(),[D],clef(),6,[vm(6)]),cap,false),null));
+test('terminal win ignores a funded reply',()=>assert.equal(funding.root(req(mol(),[D],clef(),2,[vm(6)]),cap,true)?.token,'e0'));
+test('cannot attack restriction blocks prospective funding',()=>{const r=req();r.observation.ownPublic.active.publicRestrictions.cannotAttackNextTurn=true;assert.equal(funding.root(r,cap,true),null);});

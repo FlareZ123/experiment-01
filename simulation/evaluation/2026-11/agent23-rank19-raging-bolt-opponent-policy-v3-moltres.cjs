@@ -7,6 +7,7 @@ const opening=require('./agent23-rank19-opening.cjs');
 const mobility=require('./agent23-rank19-mobility.cjs');
 const locks=require('./agent23-rank19-lock-counterplay.cjs');
 const road=require('./agent23-rank19-roadblock.cjs');
+const funding=require('./agent23-rank19-manual-attack-funding.cjs');
 const POLICY_VERSION = 'agent23-rank19-raging-bolt-opponent-v3-moltres';
 const list = x => Array.isArray(x) ? x : [];
 const p = x => typeof x === 'string' ? x : x?.printing ?? x?.fullName ?? '';
@@ -335,7 +336,7 @@ function createPolicy({role,seat,policyVersion,config}){
   return Object.freeze({decide(r){
     if(!r||r.role!==role||r.seat!==seat||r.observation?.actorSeat!==seat)return {kind:'abstain',reasonCode:'ROLE_SEAT_BINDING_MISMATCH'};
     if(r.prompt)return opening.decide(r)??locks.prompt(r)??mobility.prompt(r)??tacticalPrompt(r)??fallback.decide(v2Request(r));
-    const chosen=mobility.attackRoot(r,undefined,true)??locks.root(r)??road.root(r)??mobility.root(r)??tacticalRoot(r);if(chosen)return chosen;
+    const chosen=mobility.attackRoot(r,undefined,true)??funding.root(r,undefined,true)??locks.root(r)??road.root(r)??mobility.root(r)??funding.root(r)??tacticalRoot(r);if(chosen)return chosen;
     const next=fallback.decide(v2Request(r)),item=list(r.actionFrontier?.items).find(x=>x.token===next?.token);
     if(!item||item.kind==='pass'||item.kind==='attack')return mobility.attackRoot(r)??next;
     return next;

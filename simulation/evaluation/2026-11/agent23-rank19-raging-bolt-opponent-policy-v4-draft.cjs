@@ -8,6 +8,7 @@ const targets=require('./agent23-rank19-candidate-targets.cjs');
 const mobility=require('./agent23-rank19-mobility.cjs');
 const locks=require('./agent23-rank19-lock-counterplay.cjs');
 const road=require('./agent23-rank19-roadblock.cjs');
+const funding=require('./agent23-rank19-manual-attack-funding.cjs');
 const POLICY_VERSION='agent23-rank19-raging-bolt-opponent-v4-draft';
 const DISCARD='rank19-bellowing-discard-v1',ATTACH='rank19-attachment-set-v1';
 const allowed=new Set([DISCARD,ATTACH]);
@@ -31,7 +32,7 @@ function accelerationPreservesReserve(r,item){
 function chooseRoot(r,caps){
  const o=r.observation.ownPublic,op=r.observation.opponentPublic,activeTarget=targets.target(op.active),remaining=o.prizeCount;
  const cfg={discard:caps.has(DISCARD),attach:caps.has(ATTACH)};
- const terminal=mobility.attackRoot(r,cfg,true);if(terminal)return terminal;
+ const terminal=mobility.attackRoot(r,cfg,true)??funding.root(r,cfg,true);if(terminal)return terminal;
  const unlock=locks.root(r,cfg);if(unlock)return unlock;
  const block=road.root(r);if(block)return block;
  const md=v3.tacticalRoot(r),mi=rootItem(r,md);
@@ -42,6 +43,7 @@ function chooseRoot(r,caps){
  if(bd&&activeTarget&&Number.isSafeInteger(remaining)&&activeTarget.prizes>=remaining)return bd;
  const move=mobility.root(r,{discard:caps.has(DISCARD),attach:caps.has(ATTACH)});
  if(move)return move;
+ const funded=funding.root(r,cfg);if(funded)return funded;
  if(directAura)return md;
  const viaGuzma=mi?.kind==='play-card'&&/^Guzma BUS(?: 115)?$/.test(name(mi.actorPrinting));
  const viaPivot=mi?.kind==='retreat'&&mol(mi.targetPrinting);
