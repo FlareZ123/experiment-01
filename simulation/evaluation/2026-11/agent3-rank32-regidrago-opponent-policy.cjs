@@ -237,10 +237,6 @@ function scoreAction(action, request) {
     // it is an Apex donor, never proactively benched/evolved by this policy.
     if (DONOR.dragonite.test(name) || DONOR.goodra.test(name)) return 0;
   }
-  if (action.kind === 'use-ability' && /sky transport/i.test(
-    action?.publicMetadata?.abilityName ?? action.label ?? '')) {
-    return enabledVstar && !/^Regidrago VSTAR SIT 136\b/i.test(print(active)) ? 165 : 0;
-  }
   return family.scoreAction(action, request);
 }
 function chooseRank32Apex(choices, observation) {
@@ -537,17 +533,6 @@ function promptDecision(request) {
   }
   if (/ryuno glide/.test(source)) {
     return {kind:'abstain',reasonCode:'RANK32_RYUNO_ENERGY_PROMPT_UNPROJECTED'};
-  }
-  if (/sky transport/.test(source) && meta.selectionType === 'pokemon') {
-    const own = obs.ownPublic ?? {};
-    const active = own.active;
-    return chooseMany(choices, choice=>{
-      const name = print(choice);
-      if (/^Regidrago VSTAR SIT 136\b/i.test(name) &&
-          !/^Regidrago VSTAR SIT 136\b/i.test(print(active))) return 220;
-      if (/^Regidrago V SIT 135\b/i.test(name)) return 105;
-      return 0;
-    },min,Math.min(max,1),'RANK32_SKY_TRANSPORT_NO_ATTACKER');
   }
   const inherited = family.promptDecision(request);
   if (inherited?.kind === 'abstain' && typeof inherited.reasonCode === 'string') {
