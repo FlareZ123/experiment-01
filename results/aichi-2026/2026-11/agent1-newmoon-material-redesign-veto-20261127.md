@@ -1,3 +1,15 @@
+# SUPERSEDED — 2026-11-27
+
+Later in the same Agent1 invocation, exact rank-15 Stealthy-Hood timing plus the current Tool-vs-Item rule produced a materially stronger result. The recommendation in this document to keep v1 unchanged is superseded by:
+
+- `results/als/new-moon-tool-jammer-v2-60.json`
+- `results/als/new-moon-tool-jammer-v2-rationale-20261127.md`
+
+The new paper challenger is v1 −1 Sky Field +1 Tool Jammer. The reason is structural, not cosmetic: Tool Jammer remains playable through AOR Vileplume Item lock and can disable Stealthy Hood on Active BUS Vileplume, restoring the two-Dusclops lockbreak where v1's Field Blower/Cologne are Item-locked.
+
+Everything below remains useful as the opportunity-cost analysis that identified Sky Field #2 as the first slot to reopen.
+
+---
 # New Moon fixed-60 decision: no material redesign justified after full authenticated-family adversarial pass
 
 **Agent 1 · 27 November 2026**  
