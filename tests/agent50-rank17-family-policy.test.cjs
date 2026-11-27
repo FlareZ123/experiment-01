@@ -550,6 +550,10 @@ function runCases(policy,protocol) {
     const fundedSearch={...noSight,ownHand:[],ownPublic:{...noSight.ownPublic,discard:[R,R,R,R,C,C,C]}};
     const search=cards(fundedSearch,A.secret,'Secret Box','deck',[A.carrier,A.compressor,A.uturn,full.sight,A.research,A.pokestop],0,4);
     same(runPrompt(p,fundedSearch,search),choose('c1','c3','c4','c5'),tag+'joint Compressor and Sight search crosses threshold');
+    const templeSecretSearch={...secretView,ownHand:[A.secret,A.pokestop],
+      opponentPublic:{...secretView.opponentPublic,stadium:[T]}};
+    same(runPrompt(p,templeSecretSearch,cards(templeSecretSearch,A.secret,'Secret Box','deck',
+      [A.pokestop],0,4)),choose('c0'),tag+'Secret Box Temple branch uses generalized Stadium answer');
 
     // A lone Wobbuffet cannot be forced away. The distinct legal pivot
     // is Rope into Klefki, Bomb while Wob is suppressed, free retreat.
