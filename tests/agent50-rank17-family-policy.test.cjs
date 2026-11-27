@@ -379,10 +379,10 @@ function runCases(policy,protocol) {
     same(policy.liveBombs(hooded).length,0,tag+'Hood restores Bomb lock');
     const fundedJoust={...hooded,ownPublic:{...hooded.ownPublic,
       active:{...hooded.ownPublic.active,energies:[U],tools:[A.uturn]}}};
-    const joust={kind:'attack',token:'joust',actorPrinting:A.klefki,attackName:'Joust'};
-    const retreatRain={kind:'retreat',token:'retreat-rain',targetPrinting:A.raichu,
+    const joustAttack={kind:'attack',token:'joust-hood',actorPrinting:A.klefki,attackName:'Joust'};
+    const retreatRainFromKlefki={kind:'retreat',token:'retreat-rain-hood',targetPrinting:A.raichu,
       publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:0,isOwnerVisible:true,retreatEnergyCost:0}};
-    same(runRoot(p,fundedJoust,[joust,retreatRain,pass]),action('joust'),tag+'Joust Hood before abandoning Klefki connector');
+    same(runRoot(p,fundedJoust,[joustAttack,retreatRainFromKlefki,pass]),action('joust-hood'),tag+'Joust Hood before abandoning Klefki connector');
     const hoodGone={...fundedJoust,opponentPublic:{...fundedJoust.opponentPublic,active:{...wob,tools:[]}}};
     same(policy.liveBombs(hoodGone).length,1,tag+'Joust Hood removal exposes live Bomb next turn');
     const garb={...rainV,opponentPublic:{...opp,bench:[...opp.bench,slot('Garbodor BKP',{tools:['Float Stone BKT'],abilities:['Garbotoxin']})]}};
