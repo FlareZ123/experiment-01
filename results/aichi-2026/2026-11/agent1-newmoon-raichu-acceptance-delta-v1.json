@@ -1,0 +1,68 @@
+{
+  "schema": "agent1-newmoon-raichu-acceptance-delta-v1",
+  "dateUTC": "2026-11-27",
+  "candidate": {
+    "name": "New Moon Lockbreaker v1",
+    "manifest": "results/als/new-moon-lockbreak-english-proxy-60.json",
+    "identityCountSha256": "a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4",
+    "fixed60": true
+  },
+  "purpose": "Patch the Raichu/Electrode omission in agent13-newmoon-candidate-policy-acceptance-v1 without changing the 60.",
+  "sourceRanks": [
+    4,
+    17
+  ],
+  "status": "paper/actor-visible acceptance delta only; no native game or competitive qualification",
+  "cases": [
+    {
+      "id": "RAI-KLEFKI-STAGE1",
+      "state": "Opposing Klefki is Active; opposing Electrode-GX is Benched and otherwise able to use Extra Energy Bomb; candidate Mewtwo & Mew-GX and Lunatone Abilities are relevant.",
+      "must": "Recognize Klefki suppresses Basic Perfection and Basic New Moon, but does not suppress Stage-1 Electrode-GX.",
+      "forbids": "Treating opposing Klefki as symmetrical shutdown of Electrode-GX or treating Lunatone as active under Klefki."
+    },
+    {
+      "id": "RAI-PATH-NATIVE-HORROR",
+      "state": "Native Gengar & Mimikyu-GX is attack-ready with GX unused; Path to the Peak is playable; opposing Electrode-GX is live; no actor-visible board-only Stadium removal is established.",
+      "must": "Compare Path -> native Horror House-GX against Cologne/Perfection, crediting Path's suppression of Electrode and Horror House's denial of hand-played Stadium/evolution answers.",
+      "forbids": "Requiring Perfection or Cologne merely because opposing Klefki suppresses Mewtwo."
+    },
+    {
+      "id": "RAI-R17-MARSHADOW",
+      "state": "Rank-17 Marshadow UNB 81 is already on the Bench while Path/Horror House is being considered.",
+      "must": "Expect Resetting Hole to remain a board Ability that can discard Path despite Horror House.",
+      "forbids": "Conflating hand lock with in-play Ability lock."
+    },
+    {
+      "id": "RAI-BENCH-FRONTIER",
+      "state": "A legal TPE/Bench choice would add unnecessary low-HP or multi-Prize bodies while the source can plausibly reach a Telescopic-Sight Electro Rain Bomb turn.",
+      "must": "Allow 0/1 TPE targets and price each Bench body by Electro Rain packets-to-KO plus Prize yield; prefer discard-zone Gengar donor over an unnecessary Benched donor when legal.",
+      "forbids": "Maximizing Bench/search connectivity without scoring distributed Prize conversion."
+    },
+    {
+      "id": "RAI-PARITY-TWO-DUSCLOPS",
+      "state": "No Prize changes yet; both candidate Dusclops can use Cursed Blast and self-KO before the opponent's first Electrode Bomb; their counter placement does not take an opposing Prize.",
+      "must": "Recognize two self-KOs make the first Bomb restore 4-4 Prize parity, so Reversal/Counter Energy Prize-deficit multipliers are off after that Bomb unless another Prize change occurs.",
+      "forbids": "Assuming the first Bomb always activates Reversal/Counter multipliers."
+    },
+    {
+      "id": "RAI-PARITY-ONE-DUSCLOPS",
+      "state": "Exactly one candidate Cursed Blast self-KO occurred before the opponent's first Electrode Bomb and no other Prize changes occurred.",
+      "must": "Recognize the post-Bomb state is candidate 4 Prizes remaining vs Raichu 5, so Raichu is still behind and Reversal/Counter multipliers remain live.",
+      "forbids": "Treating one self-KO as sufficient Prize-parity control."
+    },
+    {
+      "id": "RAI-GOING-SECOND-PREEVOLUTION",
+      "state": "Candidate goes second on its first turn; Horror House-GX is legal; opponent has not yet legally evolved Voltorb/Pikachu on its first turn.",
+      "must": "Value Horror House as denial of the next hand-play evolution/Bomb-combo turn, not merely generic hand disruption.",
+      "forbids": "Waiting for Electrode/Raichu to exist before valuing the lock."
+    }
+  ],
+  "arithmeticWitness": {
+    "oneBombMaxEnergyUnits": 14,
+    "condition": "4 Reversal Energy + 1 Counter Energy attached to non-Rule-Box Evolution Alolan Raichu while Raichu has more Prizes remaining",
+    "sixPrizeBenchExample": "Benched Gengar & Mimikyu-GX: 7 selections with Telescopic Sight + Benched Tapu Lele-GX: 5 + one 60-HP Unown/Duskull: 2 = 14 selections and 6 nominal Prizes",
+    "caveat": "Source-inventory/board frontier only, not frequency or win probability."
+  },
+  "competitiveQualified": false,
+  "claim99Point5": false
+}
