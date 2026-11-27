@@ -58,7 +58,8 @@ function replies(o,own,defender,sourceAttack){
 function preferRay(o,own,defender){
  const t=targets.target(defender);
  if(!t)return false;
- if(t.remaining<=150&&Number.isSafeInteger(own.prizeCount)&&own.prizeCount<=t.prizes)return true;
+ const emptyBoard=Array.isArray(o.opponentPublic?.bench)&&o.opponentPublic.active===defender&&!o.opponentPublic.bench.some(Boolean);
+ if(t.remaining<=150&&(emptyBoard||Number.isSafeInteger(own.prizeCount)&&own.prizeCount>0&&own.prizeCount<=t.prizes))return true;
  const gx=replies(o,own,defender,'Altered Creation-GX'),ray=replies(o,own,defender,'Ultimate Ray');
  // Explicit risk differential, not a certificate that the no-reply side is safe.
  if(gx.length&&!ray.length)return true;

@@ -49,9 +49,9 @@ function swapped(o,index){
  const bench=o.bench.slice();bench[index]=o.active;
  return {...o,active:o.bench[index],bench};
 }
-function result(t,remaining,damage,extra={}){
+function result(t,remaining,damage,extra={},emptyBoard=false){
  const lethal=damage>=t.remaining;
- const terminal=lethal&&Number.isSafeInteger(remaining)&&remaining>0&&t.prizes>=remaining;
+ const terminal=lethal&&(emptyBoard||Number.isSafeInteger(remaining)&&remaining>0&&t.prizes>=remaining);
  return {damage,lethal,terminal,prizes:lethal?t.prizes:0,score:terminal?10000:lethal?200+t.prizes*100:damage,...extra};
 }
 // A prospective attack is never used to assert an actual native root's legality.
@@ -61,23 +61,26 @@ function attackOptions(o,own,target,caps){
  const e=physicalEnergy(p,temple);
  if(!e)return [];
  const left=own.prizeCount,out=[];
- const add=(attackName,damage,extra={})=>out.push({attackName,...result(t,left,damage,extra)});
+ // A knockout of the opponent's last Pokémon also wins the game.
+ const emptyBoard=Array.isArray(o.opponentPublic?.bench)&&o.opponentPublic.active===target&&!o.opponentPublic.bench.some(Boolean);
+ const resolveDamage=(damage,extra={})=>result(t,left,damage,extra,emptyBoard);
+ const add=(attackName,damage,extra={})=>out.push({attackName,...resolveDamage(damage,extra)});
  if(k==='moltres'&&e.d>=2&&e.total>=3){
   const lethal=190*(t.darkWeak?2:1)>=t.remaining;
-  const safe=p.hp-p.damage>30||(lethal&&Number.isSafeInteger(left)&&t.prizes>=left&&o.opponentPublic.prizeCount>2&&list(own.bench).some(Boolean));
+  const safe=p.hp-p.damage>30||(lethal&&(emptyBoard||Number.isSafeInteger(left)&&left>0&&t.prizes>=left)&&o.opponentPublic.prizeCount>2&&list(own.bench).some(Boolean));
   if(safe)add('Aura Burn',190*(t.darkWeak?2:1));
  }
  if(k==='bolt'){
   if(caps.discard&&(!temple&&e.dde>0||e.l>=1&&e.f>=1)){
    const plan=bolt.plan(own,target,temple,bolt.threatPolicy(o));
-   if(plan)add('Bellowing Thunder',plan.damage,{donors:plan.minimumCards,score:result(t,left,plan.damage).score-(result(t,left,plan.damage).terminal?0:plan.minimumCards*5)});
+   if(plan)add('Bellowing Thunder',plan.damage,{donors:plan.minimumCards,score:resolveDamage(plan.damage).score-(resolveDamage(plan.damage).terminal?0:plan.minimumCards*5)});
   }
   if(e.total>=1&&handSize(o)<=2&&o.globalTurn<=3)out.push({attackName:'Burst Roar',score:70,damage:0,lethal:false,terminal:false,prizes:0});
  }
  if(k==='adp'&&!temple&&e.dde>=1){
   if(own.publicTurnRestrictions?.gxUsed===false&&own.publicTurnRestrictions?.cannotUseGXAttacks!==true)out.push({attackName:'Altered Creation-GX',score:190,damage:0,lethal:false,terminal:false,prizes:0});
   if(caps.attach&&e.total>=3){
-   const ray=result(t,left,150);
+   const ray=resolveDamage(150);
    add('Ultimate Ray',150,{score:ray.score+(ray.terminal?0:60)});
   }
  }

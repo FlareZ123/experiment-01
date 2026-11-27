@@ -1,0 +1,32 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict');
+const mobility=require('../simulation/evaluation/2026-11/agent23-rank19-mobility.cjs');
+const tempo=require('../simulation/evaluation/2026-11/agent23-rank19-adp-tempo.cjs');
+const accel=require('../simulation/evaluation/2026-11/agent23-rank19-acceleration-draft.cjs');
+const v3=require('../simulation/evaluation/2026-11/agent23-rank19-raging-bolt-opponent-policy-v3-moltres.cjs');
+const v4=require('../simulation/evaluation/2026-11/agent23-rank19-raging-bolt-opponent-policy-v4-draft.cjs');
+const P='Psychic Energy MEE 13',D='Darkness Energy MEE 15',F='Fighting Energy MEE 14',L='Lightning Energy MEE 12',DD='Double Dragon Energy ROS 97';
+const mon=(printing,hp,damage=0,energies=[])=>({printing,hp,damage,energies,tools:[],specialConditions:[],publicRestrictions:{}});
+const mol=(damage=0)=>mon('Galarian Moltres V CRE 97',220,damage,[D,D,F]);
+const sandy=()=>mon('Sandy Shocks ex PAR 108',220,0,[F,F,D]);
+const clef=()=>mon("Lillie's Clefairy ex JTG 56",190);
+const adp=()=>mon('Arceus & Dialga & Palkia-GX CEC 156',280,0,[DD,L]);
+const v=(damage=0)=>mon('Shadow Rider Calyrex V CRE 74',210,damage);
+const caps={attach:true,discard:true};
+function req(active,target,{ownBench=[],oppBench=[],their=6,attacks=['Aura Burn']}={}){
+ const o={actorSeat:0,globalTurn:10,ownHand:[],ownTurnResources:{retreatedTurn:8,supporterPlayedTurn:8},ownPublic:{active,bench:ownBench,stadium:[],discard:[],prizeCount:6,publicTurnRestrictions:{gxUsed:false}},opponentPublic:{active:target,bench:oppBench,stadium:[],prizeCount:their,publicTurnRestrictions:{}}};
+ return {role:'opponent',seat:0,observation:o,actionFrontier:{items:attacks.map(a=>({kind:'attack',token:a,actorPrinting:active.printing,attackName:a,publicMetadata:{attackCostPayable:true}}))}};
+}
+const p3=v3.createPolicy({role:'opponent',seat:0,policyVersion:v3.POLICY_VERSION,config:{}});
+const p4=v4.createPolicy({role:'opponent',seat:0,policyVersion:v4.POLICY_VERSION,config:{draftPromptContracts:[v4.ATTACH,v4.DISCARD]}});
+const pick=r=>mobility.attackRoot(r,caps,true)?.token;
+test('Moltres takes board-out win with six prizes left',()=>{const r=req(mol(),clef());assert.equal(pick(r),'Aura Burn');assert.equal(p3.decide(r).token,'Aura Burn');assert.equal(p4.decide(r).token,'Aura Burn');});
+test('known surviving bench prevents false board-out terminal',()=>{const r=req(mol(),clef(),{oppBench:[v()]});assert.equal(pick(r),undefined);});
+test('missing bench field never proves empty board',()=>{const r=req(mol(),clef());delete r.observation.opponentPublic.bench;assert.equal(pick(r),undefined);});
+test('recoil self-KO permitted only with own surviving board and opponent not taking final prizes',()=>{const r=req(mol(190),clef(),{ownBench:[sandy()],their:3});assert.equal(pick(r),'Aura Burn');assert.equal(p3.decide(r).token,'Aura Burn');});
+test('recoil and no own bench is not certified win',()=>{const r=req(mol(190),clef(),{their:3});assert.equal(pick(r),undefined);});
+test('recoil gives opponent final two prizes: no certified board-out-only win',()=>{const r=req(mol(190),clef(),{ownBench:[sandy()],their:2});assert.equal(pick(r),undefined);});
+test('Sandy direct KO wins by no opposing Pokémon',()=>{const r=req(sandy(),clef(),{attacks:['Earthen Spike']});assert.equal(pick(r),'Earthen Spike');assert.equal(p3.decide(r).token,'Earthen Spike');});
+test('ADP Ray board-out beats GX through mobility, acceleration and v4',()=>{const r=req(adp(),v(70),{attacks:['Altered Creation-GX','Ultimate Ray']});assert.equal(pick(r),'Ultimate Ray');assert.equal(tempo.preferRay(r.observation,r.observation.ownPublic,r.observation.opponentPublic.active),true);assert.equal(accel.root(r,v4.ATTACH)?.token,'Ultimate Ray');assert.equal(p4.decide(r).token,'Ultimate Ray');});
+test('ADP Ray with surviving opponent bench is not terminal on six prizes',()=>{const r=req(adp(),v(70),{oppBench:[clef()],attacks:['Altered Creation-GX','Ultimate Ray']});assert.equal(pick(r),undefined);});
+test('last Pokémon not KO does not produce terminal',()=>{const r=req(adp(),v(),{attacks:['Altered Creation-GX','Ultimate Ray']});assert.equal(pick(r),undefined);});
