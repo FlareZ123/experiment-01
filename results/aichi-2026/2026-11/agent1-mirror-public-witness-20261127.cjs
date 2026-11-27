@@ -113,7 +113,23 @@ function project(req,profile,opts={}){
   // Known face-up Prize identities are deliberately not consumed: the
   // residual is a support superset, with all Prize identities latent.
   requireTrue(Object.values(initial).reduce((n,x)=>n+x,0)===own.deckCount+own.prizeCount,'fixed-list zone conservation mismatch');
-  const d={};for(const [n,k] of Object.entries(initial)){const cat=categoryByName(n);d[cat]=(d[cat]??0)+k;}
+  let d={};for(const [n,k] of Object.entries(initial)){const cat=categoryByName(n);d[cat]=(d[cat]??0)+k;}
+  let knowledge={mode:'K0',supportComplete:true,exchangeable:false,unknownPrizes:own.prizeCount,counts:d};
+  // Only a host-authenticated owner-deck membership snapshot can admit
+  // fixed search choices. Never derive K1 from eligible prompt choices.
+  if(opts.knownSearchCertified===true&&v.ownerK1?.exactMembershipKnown===true){
+   const k=v.ownerK1;
+   requireTrue(integer(k.epoch)&&k.invalidationReason===null&&Array.isArray(k.knownPrintings),'malformed authenticated K1 snapshot');
+   const remaining={...initial},names=new Set();d={};let deckCount=0;
+   for(const row of k.knownPrintings){
+    requireTrue(typeof row.printing==='string'&&integer(row.copies)&&row.copies>0&&!names.has(row.printing),'malformed K1 row');
+    names.add(row.printing);const c=card(row.printing);
+    requireTrue(remaining[c.name]>=row.copies,'K1 exceeds physical residual '+c.name);
+    remaining[c.name]-=row.copies;d[c.category]=(d[c.category]??0)+row.copies;deckCount+=row.copies;
+   }
+   requireTrue(deckCount===own.deckCount&&Object.values(remaining).reduce((n,x)=>n+x,0)===own.prizeCount,'K1 does not conserve deck and Prizes');
+   knowledge={mode:'K1',supportComplete:true,exchangeable:false,unknownPrizes:0,counts:d};
+  }
   const skyliner=a.some(r=>r.p[3]==='latias'),fairy=a.some(r=>r.p[3]==='clefairy');
   const r=own.publicTurnRestrictions;
   const lock=k=>r[k]===true||t[k]===true;
@@ -129,9 +145,9 @@ function project(req,profile,opts={}){
   // target-count fix is actually present in the relevant runner.
   const model={stable:true,own:slots,opp:target,remaining:own.prizeCount};
   const input={model,position:{a:0,b:0,es:a.map(x=>x.slot.energies.length),discount:st[0]==='Dimension Valley'?1:0},
-   flags:{manual:!t.energyPlayedTurn&&!lock('energyPlayLocked'),retreat:t.retreatedTurn===0||t.retreatedTurn===false,supporter:t.supporterPlayedTurn===0&&!lock('supporterPlayLocked'),items:!lock('itemPlayLocked'),tools:!lock('toolPlayLocked'),stadium:!t.stadiumPlayedTurn&&!lock('stadiumPlayLocked'),vstar:!t.vstarUsed&&!r.vstarUsed,priorKO:false,safeValley:a.length<=6&&b.length<=6,safeFloat:true,safeStone:false,safeRedraw:false,oppHandNonempty:opp.handCount>0},
+   flags:{manual:!t.energyPlayedTurn&&!lock('energyPlayLocked'),retreat:t.retreatedTurn===0||t.retreatedTurn===false,supporter:t.supporterPlayedTurn===0&&!lock('supporterPlayLocked'),items:!lock('itemPlayLocked'),tools:!lock('toolPlayLocked'),stadium:!t.stadiumPlayedTurn&&!lock('stadiumPlayLocked'),vstar:!t.vstarUsed&&!r.vstarUsed,priorKO:req.publicEventReceipt?.version==='agent8-public-event-receipt-v3-turn-stamped'&&req.publicEventReceipt.actorSeat===req.seat&&req.publicEventReceipt.turn===v.globalTurn&&req.publicEventReceipt.priorOpponentTurnKO?.any===true,safeValley:a.length<=6&&b.length<=6,safeFloat:true,safeStone:knowledge.mode==='K1',safeRedraw:false,oppHandNonempty:opp.handCount>0},
    hand:countCategories(v.ownHand),discard:countCategories(own.discard),
-   belief:{mode:'K0',supportComplete:true,exchangeable:false,unknownPrizes:own.prizeCount,counts:d}};
+   belief:knowledge};
   return {status:'ok',input,own:a,opp:b,actorSeat:req.seat,turn:v.globalTurn};
  }catch(e){return {status:'unsupported',reason:e.message};}
 }
@@ -142,17 +158,17 @@ function matchesAddress(m,row,prefix){
 function matchRoot(req,proj,move){
  const actions=req.actionFrontier?.items;
  if(!Array.isArray(actions))return null;
- const name={manual:'Psychic Energy',guzma:'Guzma',stretcher:'Night Stretcher',seeker:'VS Seeker',float:'Float Stone',valley:'Dimension Valley'}[move.kind];
+ const name={manual:'Psychic Energy',guzma:'Guzma',stretcher:'Night Stretcher',seeker:'VS Seeker',float:'Float Stone',valley:'Dimension Valley',fog:'Fog Crystal',compressor:'Battle Compressor',arven:'Arven',teammates:'Teammates',stone:'Forest Seal Stone'}[move.kind];
  const found=actions.filter(a=>{
   if(typeof a.token!=='string'||!a.token)return false;
   const m=a.publicMetadata??{};
   if(m.hasUnmodeledModifier===true)return false;
   if(move.kind==='attack')return a.kind==='attack'&&a.attackName===move.name&&a.actorPrinting===proj.own[0].slot.printing&&m.attackCostPayable===true&&m.attackSource?.sourceKind==='active-pokemon'&&m.attackSource.sourceSlot==='ACTIVE'&&m.attackSource.sourceIndex===0&&m.attackSource.sourceCardFullName===a.actorPrinting&&m.attackSource.attackName===move.name;
   if(move.kind==='retreat')return a.kind==='retreat'&&a.actorPrinting===proj.own[0].slot.printing&&matchesAddress(m,proj.own[move.to],'target')&&m.isOwnerVisible===true&&a.targetPrinting===proj.own[move.to].slot.printing;
-  if(move.kind==='door')return a.kind==='use-ability'&&m.abilityName==='Underworld Door'&&a.actorPrinting===proj.own[move.source].slot.printing&&matchesAddress(m,proj.own[move.source],'source');
+  if(move.kind==='door'||move.kind==='star-alchemy')return a.kind==='use-ability'&&m.abilityName===(move.kind==='door'?'Underworld Door':'Star Alchemy')&&a.actorPrinting===proj.own[move.source].slot.printing&&matchesAddress(m,proj.own[move.source],'source');
   if(!name||a.kind!=='play-card'||!integer(m.handIndex)||req.observation.ownHand[m.handIndex]!==a.actorPrinting)return false;
   try{if(card(a.actorPrinting).name!==name)return false;}catch{return false;}
-  if(move.kind==='manual'||move.kind==='float')return matchesAddress(m,proj.own[move.target],'target')&&m.isOwnerVisible===true&&a.targetPrinting===proj.own[move.target].slot.printing;
+  if(move.kind==='manual'||move.kind==='float'||move.kind==='stone')return matchesAddress(m,proj.own[move.target],'target')&&m.isOwnerVisible===true&&a.targetPrinting===proj.own[move.target].slot.printing;
   return true;
  });
  // Identical cards may have distinct hand-index tokens; stable order is
@@ -166,11 +182,12 @@ function rootIntent(proj,move,rootToken){
  if(move.kind==='door'){out.source=ref(proj.own,move.source);out.target=ref(proj.own,move.target);}
  if(move.kind==='retreat')out.pay=move.pay;
  if(move.kind==='seeker'||move.kind==='stretcher')out.card=move.card;
+ if(Array.isArray(move.selection))out.selection=move.selection.slice();
  return out;
 }
 function recommend(req,profile,opts={}){
  const p=project(req,profile,opts);if(p.status!=='ok')return p;
- const solve=planner.solve(p.input,{guaranteeOnly:true,deterministicOnly:true,freeRetreatOnly:true,maxStates:opts.maxStates??10000,maxBranches:opts.maxBranches??50000,firstAllowed:m=>matchRoot(req,p,m)!==null});
+ const solve=planner.solve(p.input,{guaranteeOnly:true,deterministicOnly:true,knownSearchOnly:p.input.belief.mode==='K1',freeRetreatOnly:true,maxStates:opts.maxStates??10000,maxBranches:opts.maxBranches??50000,firstAllowed:m=>matchRoot(req,p,m)!==null});
  if(solve.status!=='certified')return solve;
  const token=matchRoot(req,p,solve.first);
  if(!token)return {status:'unsupported',reason:'certificate has no current root token'};
@@ -208,6 +225,18 @@ function resolvePrompt(req,intent){
  if((intent.kind==='stretcher'||intent.kind==='seeker')&&sourceIs(intent.kind==='stretcher'?'Night Stretcher':'VS Seeker')&&p.promptType==='ChooseCardsPrompt'&&meta.sourceZone==='discard'){
   const xs=choices.filter(c=>validChoice(c)&&c.kind==='card'&&c.publicMetadata.ownerSeat==='actor'&&c.publicMetadata.sourceZone==='discard'&&Object.hasOwn(P,c.printing)&&P[c.printing].category===intent.card);
   return xs.length?choose(xs.slice(0,1)):null;
+ }
+ const searchName={fog:'Fog Crystal',compressor:'Battle Compressor',arven:'Arven',teammates:'Teammates','star-alchemy':'Forest Seal Stone'}[intent.kind];
+ if(searchName&&source.sourceKind==='card-effect'&&sourceIs(searchName)&&p.promptType==='ChooseCardsPrompt'&&meta.sourceZone==='deck'&&meta.ownerSeat==='actor'&&Array.isArray(intent.selection)){
+  const eligible=choices.filter(c=>validChoice(c)&&c.kind==='card'&&c.publicMetadata.ownerSeat==='actor'&&c.publicMetadata.sourceZone==='deck'&&Object.hasOwn(P,c.printing));
+  const xs=[];
+  for(const cat of intent.selection){const c=eligible.find(x=>!xs.includes(x)&&P[x.printing].category===cat);if(c)xs.push(c);}
+  // Arven may have separately filtered Item/Tool prompts. Do not invent a
+  // missing category, and do not choose an unplanned fallback card.
+  if(intent.kind!=='arven'&&xs.length!==intent.selection.length)return null;
+  if(xs.length)return choose(xs);
+  const empty=choices.filter(c=>c.kind==='empty-selection'&&typeof c.token==='string');
+  return meta.minimumCount===0&&empty.length===1?{kind:'select-choice',token:empty[0].token}:null;
  }
  // Paid retreat prompt is intentionally not guessed: the native
  // payment prompt's authoritative source/selection contract must be

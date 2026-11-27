@@ -1,4 +1,8 @@
 
+## 2026-11-27T02:22:41.552Z — authenticated K1 fixed search witnesses
+- Extended deterministic planner with exact owner-K1 search choices for Fog, Compressor, Arven, Teammates, Forest Seal Stone/Star Alchemy. Reject K0 and any search after a Door whose drawn cards are intentionally ignored (no stale deck-membership plan). 86 planner cases passed. Adapter consumes only authenticated `ownerK1.knownPrintings` with explicit caller opt-in and fixed-list conservation; emits search intent and maps eligible actor-deck tokens. No Raihan prompt guess. Concrete adapter K1 fixtures/report next.
+
+
 ## 2026-11-27T02:20:26.761Z — mirror adapter tested and narrowed to supported prompt families
 - results/aichi-2026/2026-11/agent1-mirror-public-witness-tests-20261127.cjs synthetic conserved inventories, both seats, actual root token metadata and physical bench holes. 58 assertions / 40 root observations passed in V8. Door uses actual AttachEnergyPrompt assignment and select-choice, not fictitious split card/Pokémon prompts. Adapter requires free retreat only until paid retreat prompt provenance is admitted; the general model still includes paid-retreat arithmetic. Next protocol validation and report/handoff. No native games or frozen policy changes.
 

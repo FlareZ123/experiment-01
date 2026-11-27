@@ -111,11 +111,15 @@ function inputState(input,guarantee){
  return {a:p.a,b:p.b,es:p.es.slice(),discount:p.discount,h,d:mix?K.map(()=>0):d,z,u:b.unknownPrizes,mix,
   manual:f.manual,retreat:f.retreat,supporter:f.supporter,stadium:f.stadium,vstar:f.vstar,
   doors:mask(m.own,x=>x.door),open:mask(m.own,x=>x.tool==='open'),
-  stones:mask(m.own,x=>x.tool==='stone'&&x.stoneUsable),floats:0};
+  stones:mask(m.own,x=>x.tool==='stone'&&x.stoneUsable),floats:0,searchOpen:true};
 }
 function solve(input,options={}){
  const guarantee=options.guaranteeOnly===true, deterministic=options.deterministicOnly===true;
  const deterministicKinds=new Set(['attack','manual','retreat','guzma','door','stretcher','seeker','float','valley']);
+ const knownSearch=options.knownSearchOnly===true;
+ const searchKinds=new Set(['fog','compressor','arven','teammates','star-alchemy','stone']);
+ if(knownSearch&&(!deterministic||input?.belief?.mode!=='K1'||input.belief.segments!==undefined))return {status:'unsupported',reason:'known search witness requires exact K1 membership'};
+ if(knownSearch)for(const k of searchKinds)deterministicKinds.add(k);
  if(deterministic&&(!guarantee||options.pending!==undefined))return {status:'unsupported',reason:'deterministic witness requires guarantee-only root'};
  if(guarantee&&options.riskAware===true)return {status:'unsupported',reason:'probability-based risk objective incompatible with support-only guarantee'};
  if(options.firstAllowed!==undefined&&typeof options.firstAllowed!=='function')return {status:'unsupported',reason:'bad first action filter'};
@@ -136,7 +140,7 @@ function solve(input,options={}){
   if(s.u&&deckSize(s)===0)return {...s,u:0,d:s.d.map(()=>0)};
   return s;
  }
- function key(s){return [s.a,s.b,s.es.join(','),s.discount,s.h.join(','),s.mix?belief.key(s.mix):s.d.join(','),s.z.join(','),s.u,+s.manual,+s.retreat,+s.supporter,+s.stadium,+s.vstar,s.doors,s.open,s.stones,s.floats].join('|');}
+ function key(s){return [s.a,s.b,s.es.join(','),s.discount,s.h.join(','),s.mix?belief.key(s.mix):s.d.join(','),s.z.join(','),s.u,+s.manual,+s.retreat,+s.supporter,+s.stadium,+s.vstar,s.doors,s.open,s.stones,s.floats,+s.searchOpen].join('|');}
  function worst(a,b){return cmp(a.steps,b.steps)>=0?a.steps:b.steps;}
  function weighted(counts,n,fn){
   if(guarantee){
@@ -226,9 +230,9 @@ function solve(input,options={}){
   let best={...score(),move:null};
   if(options.disableBound!==true&&!couldWin(s)){boundPrunes++;memo.set(k,best);return best;}
   function consider(move,compute){
-   if(!risk&&cmp(best.p,ONE)===0n||!firstAllowed(move)||deterministic&&!deterministicKinds.has(move.kind))return;
-   tick();const r=compute(),paid=payAction(r,move);
-   if(better(paid,best,risk))best={...paid,move:{...move,...(r.selection!==undefined?{selection:r.selection}:{})},...(deterministic?{path:[move,...(r.path??[])]}:{})};
+   if(!risk&&cmp(best.p,ONE)===0n||!firstAllowed(move)||deterministic&&!deterministicKinds.has(move.kind)||knownSearch&&!s.searchOpen&&searchKinds.has(move.kind))return;
+   tick();const r=compute(),paid=payAction(r,move),selected={...move,...(r.selection!==undefined?{selection:r.selection}:{})};
+   if(better(paid,best,risk))best={...paid,move:selected,...(deterministic?{path:[selected,...(r.path??[])]}:{})};
   }
   function det(move,next){consider(move,()=>value(next));}
   // In fast mode a probability-one route establishes the maximum. In
@@ -252,7 +256,7 @@ function solve(input,options={}){
      // Ignore every drawn card in a deterministic witness. This is a
      // conservative abstraction: neither those cards nor latent deck
      // knowledge can be used, and no mid-turn deck-out loss is modeled.
-     return deterministic?value(next):draw(next,2);});
+     return deterministic?value({...next,searchOpen:false}):draw(next,2);});
   if(f.items){
    if(s.h[I.stretcher]&&s.z[E])
     det({kind:'stretcher',card:'energy'},{...take(s,I.stretcher),h:change(change(s.h,I.stretcher,-1),E,1),z:change(change(s.z,I.stretcher,1),E,-1)});
@@ -311,7 +315,7 @@ function solve(input,options={}){
    const x=search(s,options.pending);r={...x,move:{kind:'choose-search',spec:options.pending,selection:x.selection}};
   }else r=value(s);
   if(guarantee)return {status:cmp(r.p,ONE)===0n?'certified':'no-guarantee',first:r.move,states,branches,boundPrunes,
-   objective:deterministic?'deterministic-public-witness-ignoring-draw-benefits':'universal-terminal-certificate-over-declared-support',...(cmp(r.p,ONE)===0n?{worstCaseActions:str(r.steps),...(deterministic?{witness:r.path}:{})}:{})};
+   objective:deterministic?(knownSearch?'deterministic-K1-search-witness-no-search-after-opaque-draw':'deterministic-public-witness-ignoring-draw-benefits'):'universal-terminal-certificate-over-declared-support',...(cmp(r.p,ONE)===0n?{worstCaseActions:str(r.steps),...(deterministic?{witness:r.path}:{})}:{})};
   return {status:cmp(r.p,ONE)===0n?'certified':r.p.n?'positive':'no-certificate',probability:str(r.p),first:r.move,states,branches,boundPrunes,
    objective:risk?'max-terminal-P; min-lex-failure-spend; min-expected-actions':'max-terminal-P',
    failureSpend:Object.fromEntries(LOSS.map((k,i)=>[k,str(r.loss[i])])),expectedActions:str(r.steps)};
@@ -413,7 +417,15 @@ function selfTest(){
  if(dw.status!=='certified'||dw.witness.map(x=>x.kind).join(',')!=='door,attack')throw Error('known Door attachment '+JSON.stringify(dw));
  const searchNeeded=solve(cases[2][1],{guaranteeOnly:true,deterministicOnly:true});
  if(searchNeeded.status!=='no-guarantee')throw Error('deterministic witness used search');
- return {cases:cases.length+6+3+cases.length+4,results,riskExamples:{fast,risk,longFast,shortRisk},guaranteeExamples:{g,ng,g2,deterministicRoute,dw}};
+ const ks=solve(cases[2][1],{guaranteeOnly:true,deterministicOnly:true,knownSearchOnly:true});
+ if(ks.status!=='certified'||!ks.witness.some(x=>x.kind==='fog'&&x.selection.join(',')==='energy'))throw Error('known search witness '+JSON.stringify(ks));
+ const blocked=solve(cases[3][1],{guaranteeOnly:true,deterministicOnly:true,knownSearchOnly:true});
+ if(blocked.status!=='unsupported')throw Error('known search admitted K0');
+ const afterDoor=makeInput([V(3,{door:true}),V(1)],[low,bench],{hand:{energy:1,fog:1},deck:{energy:1,other:2}});
+ const noPostDoor=solve(afterDoor,{guaranteeOnly:true,deterministicOnly:true,knownSearchOnly:true,firstAllowed:m=>m.kind==='door'});
+ const yesPreDoor=solve(afterDoor,{guaranteeOnly:true,deterministicOnly:true,knownSearchOnly:true});
+ if(noPostDoor.status!=='no-guarantee'||yesPreDoor.status!=='certified')throw Error('opaque draw sequencing '+JSON.stringify({noPostDoor,yesPreDoor}));
+ return {cases:cases.length+6+3+cases.length+7,results,riskExamples:{fast,risk,longFast,shortRisk},guaranteeExamples:{g,ng,g2,deterministicRoute,dw}};
 }
 module.exports={solve,makeInput,selfTest,eachDraw,K};
 if(require.main===module)console.log(JSON.stringify(selfTest(),null,2));
