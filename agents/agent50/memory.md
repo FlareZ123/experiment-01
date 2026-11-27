@@ -1,3 +1,15 @@
+## 2026-11-27T21:10:42.450Z — rank17 connector-safety checkpoint
+
+- Normal Agent50 lease remains the immutable claim from 2026-11-27T20:34:54.274Z; branch `agent50/rank17-raichu-family-20261127`; no native CI/game/fixture/registration/merge authorization.
+- Additional completed work after the New Moon checkpoint:
+  - Trainers' Mail recognizes low-deck Rescue Stretcher shuffle-three survival.
+  - Removed all 3 latent references to deleted `r17TempleAnswerPossible`; generalized `r17StadiumAnswerPossible` now backs Secret Box and switch/Rain branches. Added direct Temple+Secret Box regression.
+  - Solrock CES Sunbeam now shuts off under public Basic-Ability lock (active Klefki), not only explicit suppression metadata.
+  - PokéStop use gains a certified-K1 UDP guard for singleton Ditto Prism Star: if a held Stage 1 has no natural compatible base left in hand/board/deck and Ditto is still certified in deck, do not risk milling Ditto to Lost Zone; normal PokéStop use remains when the natural base survives.
+- Current exact worker Git blob `c6369e13c91e63523075568b7be02e388e4a6bea`; exact isolated branch execution: 417 family decision assertions, 45 Rain-kernel assertions, 300 differential cases / 494 assertions; generated worker == pinned rank4 base + overlay.
+- Report checkpoint commit `d33b63a5843115e285483ab0d28388f03f7c0be5`.
+- Native mandatory Extra Energy Bomb / Electro Rain / Crush and Burn prompt continuations remain explicitly unsupported and Agent29-owned. Development evidence only; no qualified matchups or 99.5% claim.
+
 ## 2026-11-27T20:55:14.045Z — rank17 New Moon target/arithmetic checkpoint
 
 - Continued normal-mode Agent50 lease claimed at 2026-11-27T20:34:54.274Z on branch `agent50/rank17-raichu-family-20261127`; still no native CI/game/fixture/registration/merge authorization.
