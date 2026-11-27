@@ -1,4 +1,178 @@
 'use strict';
+// Agent16 exact helper blobs: terminal bb44d6e7ac35d69009277a348306e4c100cb223e; resource 7e66330aa58eaded4fde5680a5b453c639286338.
+const __terminal=(()=>{const module={exports:{}};
+'use strict';
+/* A sufficient terminal certificate for the exact rank26 attackers after
+ * opponent's remaining Prizes are reduced to exactly one. Caller supplies
+ * verified effective damage and Prize value, including actual public effects.
+ * This deliberately rejects unknown attack/KO/promotion triggers. It never
+ * predicts the opponent's promotion from private information. */
+function certifyCrisisPunchTerminal(x){
+  const no=reason=>({terminal:false,reason});
+  if(!x||x.attackReady!==true||x.toolEffective!==true||x.stableAttackConditions!==true||
+     !Number.isSafeInteger(x.energyUnits)||x.energyUnits<3||
+     !Number.isSafeInteger(x.ownPrizes)||x.ownPrizes<1||x.ownPrizes>6||
+     typeof x.firstTurnGoingFirst!=='boolean'||!Array.isArray(x.opponentBench)||x.opponentBench.length>5)
+    return no('UNPROVEN_PRECONDITIONS');
+  let attacks;
+  if(x.attacker==='Meloetta ex BLK 44'){
+    if(x.firstTurnGoingFirst&&x.debutEffective!==true)return no('DEBUT_UNAVAILABLE');
+    attacks=1;
+  }else if(x.attacker==='Bunnelby PRC 121'){
+    if(x.firstTurnGoingFirst)return no('FIRST_TURN_ATTACK_PROHIBITED');
+    // If Barrage's second attack is not verified, consider only one attack.
+    attacks=x.barrageEffective===true?2:1;
+  }else return no('UNSUPPORTED_ATTACKER');
+  const targets=[x.opponentActive,...x.opponentBench];
+  if(targets.some(t=>!t||typeof t.id!=='string'||!t.id||!Number.isSafeInteger(t.hpRemaining)||t.hpRemaining<1||
+      !Number.isSafeInteger(t.damagePerPunch)||t.damagePerPunch<0||!Number.isSafeInteger(t.prizes)||t.prizes<1||t.prizes>3)||
+      new Set(targets.map(t=>t.id)).size!==targets.length)return no('UNPROVEN_TARGET_EFFECTS');
+  const first=targets[0],bench=targets.slice(1),p=x.ownPrizes;
+  if(first.damagePerPunch>=first.hpRemaining){
+    if(first.prizes>=p||!bench.length)return {terminal:true,maxAttacks:1,branches:[{first:first.id,win:'first-ko'}]};
+    if(attacks<2)return no('NO_SECOND_ATTACK');
+    const branches=bench.map(t=>({first:first.id,promotion:t.id,second:t.id,
+      terminal:t.damagePerPunch>=t.hpRemaining&&(bench.length===1||first.prizes+t.prizes>=p)}));
+    if(branches.every(b=>b.terminal))return {terminal:true,maxAttacks:2,branches};
+    return no('AT_LEAST_ONE_PROMOTION_SURVIVES');
+  }
+  if(attacks===2&&2*first.damagePerPunch>=first.hpRemaining&&(first.prizes>=p||!bench.length))
+    return {terminal:true,maxAttacks:2,branches:[{first:first.id,second:first.id,win:'second-hit-ko'}]};
+  return no('NO_FORCED_TERMINAL');
+}
+module.exports={certifyCrisisPunchTerminal};
+
+return module.exports;})();
+const __donation=(()=>{const module={exports:{}};
+'use strict';
+const {certifyCrisisPunchTerminal}=__terminal;
+
+/* Bounded deterministic extension of donk_pump_plan.cjs. Models known Eggs,
+ * reusable Unown AOR30, fixed on-board donors and hand-held non-Darkness donors.
+ * No deck order, prize identity, RNG, engine objects or new draws are consumed
+ * by the planner. Farewell Letter's actual draw is an ignored future benefit.
+ * Call only after the non-Prize terminal attack has been established, and
+ * replan after each actual legal root action and native effect receipt.
+ * A source marked X is inaccessible. Fixed donors stay on board; optional
+ * hand donors can be benched but not discarded except modeled Unown.
+ */
+function planDonationResources(input) {
+  const invalid=reason=>({status:'invalid',reason});
+  if (!input || input.finishReady !== true || input.itemsPlayable !== true ||
+      input.riskyRuinsActive !== true || !Number.isSafeInteger(input.opponentBenchCount) ||
+      input.opponentBenchCount<0 || input.opponentBenchCount>5 ||
+      typeof input.propagationAvailable !== 'boolean' || typeof input.farewellAvailable !== 'boolean')
+    return invalid('FINISH_OR_EFFECT_PRECONDITION');
+  const certificate=input.terminalAttack===undefined?null:certifyCrisisPunchTerminal(input.terminalAttack);
+  if((certificate&&(!certificate.terminal||input.terminalAttack.opponentBench.length!==input.opponentBenchCount))||
+      (input.opponentBenchCount>0&&!certificate?.terminal))return invalid('NO_FORCED_TERMINAL');
+  const integer=(v,lo,hi)=>Number.isSafeInteger(v)&&v>=lo&&v<=hi;
+  const {opponentPrizes,pumps,carriers,drawCapacity}=input;
+  const maxStates=input.maxStates??100000;
+  if(!integer(opponentPrizes,1,6)||!integer(pumps,0,5)||!integer(carriers,0,2)||
+      !integer(drawCapacity,0,60)||!integer(maxStates,1,1000000))return invalid('RESOURCE_RANGE');
+  if(!Array.isArray(input.eggs)||input.eggs.length!==2||!Array.isArray(input.unown)||input.unown.length>4||
+     !Array.isArray(input.fixed)||input.fixed.length>6||!Array.isArray(input.handDonors)||input.handDonors.length>7||
+     (input.small!==undefined&&(!Array.isArray(input.small)||input.small.length>1)))
+    return invalid('CARD_COUNTS');
+  const eggs=input.eggs.map(x=>({...x})), unown=input.unown.map(x=>({...x})),
+    fixed=input.fixed.map(x=>({...x})), handDonors=input.handDonors.map(x=>({...x})),small=(input.small??[]).map(x=>({...x}));
+  const all=[...eggs,...unown,...fixed,...handDonors,...small];
+  const ids=all.map(x=>x.id);
+  const reusableOk=(x,max)=>['H','D','B','X','A'].includes(x.zone)&&integer(x.counters,0,max)&&
+    (['A','B'].includes(x.zone)||x.counters===0);
+  if(all.length>12||ids.some(x=>typeof x!=='string'||!x)||new Set(ids).size!==ids.length||
+     eggs.some(x=>!reusableOk(x,2))||unown.some(x=>!reusableOk(x,5))||small.some(x=>!reusableOk(x,5))||
+     fixed.some(x=>!['A','B'].includes(x.zone)||!integer(x.counters,0,40))||
+     handDonors.some(x=>!['H','B','X'].includes(x.zone)||!integer(x.counters,0,40)||
+       (x.zone!=='B'&&x.counters!==0)||typeof x.darkness!=='boolean')||all.filter(x=>x.zone==='A').length!==1)
+    return invalid('CARD_STATE');
+  // If the current Active is sacrificial, caller certifies the intended Benched
+  // attacker is fully powered and can legally attack once promoted. Its only
+  // missing precondition is promotion after the modeled own Active KO.
+  const attackerId=input.promoteAttackerId??fixed.find(x=>x.zone==='A')?.id;
+  const attacker=fixed.find(x=>x.id===attackerId);
+  if(!attacker||!['A','B'].includes(attacker.zone)||
+     (attacker.zone==='B'&&(!input.promoteAttackerId||fixed.some(x=>x.zone==='A'))))return invalid('PROMOTION_PRECONDITION');
+  if(certificate&&input.terminalAttack.attackerId!==attackerId)return invalid('ATTACKER_ID_MISMATCH');
+  const boardCount=s=>[...s.eggs,...s.unown,...s.fixed,...s.handDonors,...s.small].filter(x=>x.zone==='B').length;
+  const start={eggs,unown,fixed,handDonors,small,prizes:opponentPrizes,pumps,carriers,drawCapacity};
+  if(boardCount(start)>5)return invalid('BENCH_OVERFLOW');
+  const key=s=>JSON.stringify([s.prizes,s.pumps,s.carriers,s.drawCapacity,
+      s.eggs.map(x=>[x.zone,x.counters]).sort(),s.unown.map(x=>[x.zone,x.counters]).sort(),
+      s.fixed.map(x=>[x.zone,x.counters]),s.handDonors.map(x=>[x.zone,x.counters,x.darkness]).sort(),s.small.map(x=>[x.zone,x.counters])]);
+  const copy=s=>({...s,eggs:s.eggs.map(x=>({...x})),unown:s.unown.map(x=>({...x})),
+      fixed:s.fixed.map(x=>({...x})),handDonors:s.handDonors.map(x=>({...x})),small:s.small.map(x=>({...x}))});
+  // BFS shortest number of known actions. Prune paths that cannot supply the
+  // remaining Prize donation even if every Pump achieves two KOs.
+  const queue=[{s:start,parent:-1,action:null}];const seen=new Set([key(start)]);
+  let capped=false;
+  for(let pos=0;pos<queue.length;pos++){
+    const {s}=queue[pos];
+    if(s.prizes===1&&s.fixed.some(x=>x.id===attackerId&&x.zone==='A')){const actions=[];for(let j=pos;j>0;j=queue[j].parent)actions.push(queue[j].action);actions.reverse();
+      return {status:'solved',actions,pumpsUsed:pumps-s.pumps,carriersUsed:carriers-s.carriers,
+        drawsIgnored:drawCapacity-s.drawCapacity,donated:opponentPrizes-1,explored:pos+1,certificate};}
+    if(s.prizes-1>2*s.pumps)continue;
+    const enqueue=(n,action)=>{
+      if(n.prizes<1||n.prizes-1>2*n.pumps)return;
+      const k=key(n);if(seen.has(k))return;
+      if(queue.length>=maxStates){capped=true;return;}
+      seen.add(k);queue.push({s:n,parent:pos,action});
+    };
+    const bench=boardCount(s);
+    for(const field of ['eggs','unown','small','handDonors'])for(let j=0;j<s[field].length;j++){
+      const card=s[field][j];
+      if(card.zone==='H'&&bench<5){const n=copy(s);n[field][j].zone='B';
+        n[field][j].counters=field==='handDonors'&&card.darkness?0:2;
+        enqueue(n,{kind:'bench',id:card.id});}
+      if(field==='eggs'&&card.zone==='D'&&input.propagationAvailable){const n=copy(s);n.eggs[j].zone='H';
+        enqueue(n,{kind:'propagate',id:card.id});}
+      if(field==='unown'&&card.zone==='B'&&input.farewellAvailable&&s.drawCapacity>0){const n=copy(s);
+        n.unown[j].zone='D';n.unown[j].counters=0;n.drawCapacity--;
+        enqueue(n,{kind:'farewell-letter',id:card.id});}
+    }
+    if(s.carriers){
+      const targets=['eggs','unown','small'].flatMap(field=>s[field].map((x,j)=>({field,j,x})).filter(y=>y.x.zone==='D'));
+      for(let i=0;i<targets.length;i++)for(let j=i;j<targets.length;j++){
+        const selected=j===i?[targets[i]]:[targets[i],targets[j]];
+        const n=copy(s);n.carriers--;for(const t of selected)n[t.field][t.j].zone='H';
+        enqueue(n,{kind:'rescue-carrier',ids:selected.map(t=>t.x.id)});
+      }
+    }
+    if(!s.pumps)continue;
+    const sources=['eggs','unown','small','fixed','handDonors'].flatMap(field=>s[field].map((x,j)=>({field,j,x})))
+      .filter(t=>['A','B'].includes(t.x.zone)&&t.x.counters>0);
+    for(const from of sources){
+      const targetFields=input.allowUnownKO===true||input.promoteAttackerId?['eggs','unown','small']:['eggs'];
+      const targets=targetFields.flatMap(field=>s[field].map((x,j)=>({field,x,j})))
+        .filter(t=>['A','B'].includes(t.x.zone)&&!(from.field===t.field&&from.j===t.j));
+      const distributions=[];
+      for(let i=0;i<targets.length;i++){
+        distributions.push([[i,1]]);
+        if(from.x.counters>=2){
+          distributions.push([[i,2]]);
+          for(let j=i+1;j<targets.length;j++)distributions.push([[i,1],[j,1]]);
+        }
+      }
+      for(const distribution of distributions){
+        const cost=distribution.reduce((a,[,count])=>a+count,0);
+        const n=copy(s);n.pumps--;n[from.field][from.j].counters-=cost;
+        const moves=[],knocked=[];let promoted=null;
+        for(const [i,count] of distribution){
+          const t=targets[i], card=n[t.field][t.j];
+          card.counters+=count;moves.push({id:card.id,counters:count});
+          if(card.counters>=(t.field==='eggs'?3:6)){knocked.push(card.id);if(card.zone==='A'){promoted=attackerId;n.fixed.find(x=>x.id===attackerId).zone='A';}card.zone='D';card.counters=0;}
+        }
+        n.prizes-=knocked.length;
+        enqueue(n,{kind:'damage-pump',from:from.x.id,moves,knocked,...(promoted?{promoted}:{})});
+      }
+    }
+  }
+  return {status:capped?'limit':'unreachable-under-model',explored:queue.length};
+}
+module.exports={planDonationResources};
+
+return module.exports;})();
 (function rank26(module){
   const VERSION='agent21-rank26-meloetta-opponent-v1';
   const SOURCE_RANK=26, SOURCE_LIST_BLOB_SHA1='ae773f6201d7aa69d31914dbfee66f3fba692200';
@@ -29,7 +203,7 @@
   const source=(a,o)=>meta(a).sourceSeat==='actor'?slot(own(o),meta(a).sourceZone,meta(a).sourceIndex):null;
   const on=x=>x===true;
   const itemOpen=o=>!on(o.ownTurnResources?.itemPlayLocked)&&!on(own(o).publicTurnRestrictions?.itemPlayLocked);
-  const toolLive=o=>Number(own(o).publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining??0)===0&&!slots(own(o)).some(x=>false)&&!([...arr(own(o).stadium),...arr(opp(o).stadium)].some(x=>/^Jamming Tower\b/i.test(printing(x))));
+  const toolLive=o=>Number(own(o).publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining??0)===0&&!([...arr(own(o).stadium),...arr(opp(o).stadium)].some(x=>/^Jamming Tower\b/i.test(printing(x))));
   const stadium=o=>[...arr(own(o).stadium),...arr(opp(o).stadium)];
   const ruins=o=>has(stadium(o),'R')&&Number(own(o).publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining??0)===0;
   const energy=p=>arr(p?.energies).reduce((s,e)=>s+(kind(e)==='DCE'?2:kind(e)==='L'?1:0),0);
@@ -151,7 +325,7 @@
     if(a.kind==='attack')return scoreAttack(a,o);
     if(a.kind==='use-ability'){
       const ab=m.abilityName, s=source(a,o);
-      if(ab==='Dance of the Ancients')return 0; // Current host rejects this AttachEnergyPrompt source.
+      if(ab==='Dance of the Ancients')return s&&kind(s)==='K'&&m.sourceZone==='bench'&&g?.zone==='bench'&&g.index!==m.sourceIndex&&!has(g.p.energies,'L')&&has(discard(o),'L')&&(has(g.p.energies,'DCE')||has(h,'DCE'))&&!lockLive(o)?1500:0;
       if(ab==='Propagation'&&k==='E'&&needEgg(o)&&room>0)return 560;
       if(ab==='Farewell Letter'&&s&&kind(s)==='U'&&m.sourceZone==='bench'&&energy(s)===0&&!arr(s.tools).length&&own(o).deckCount>0&&s.damage===0&&(h.length<=5||room===0))return 350;
       if(ab==='Squawk and Seize'&&s&&kind(s)==='S'&&h.length<=3&&!h.some(x=>['DCE','K','M','TM'].includes(kind(x))))return 350;
@@ -161,7 +335,7 @@
     if(a.kind==='retreat'){
       const t=target(a,o);
       // With printed Float Stone or zero retreat, move to a truly funded attacker.
-      if(t&&kind(t)==='M'&&has(t.tools,'TM')&&energy(t)>=3&&toolLive(o)&&opp(o).prizeCount===1&&
+      if(t&&kind(t)==='M'&&has(t.tools,'TM')&&energy(t)>=3&&toolLive(o)&&(opp(o).prizeCount===1||Number(o.globalTurn)===1)&&
           (has(active?.tools,'FLOAT')||arr(active?.printed?.retreatCost).length===0))return 1800;
       return 0;
     }
@@ -200,7 +374,7 @@
     }
     if(k==='R')return !ruins(o)&&!has(stadium(o),'R')?650:0;
     if(ITEM.has(k)&&!itemOpen(o))return 0;
-    if(k==='DP'||k==='HB'||k==='TK')return 0; // Current host lacks damage movement / revealed-prize / ticket reordering contracts.
+    if(k==='DP'||k==='HB'||k==='TK')return 0; // Damage Pump is selected only by a certified donation path; other two prompts remain unsupported.
     if(k==='COL')return activeOpponentLock(o)&&g?.zone==='bench'&&has(discard(o),'L')&&find(o,'K')?150:0;
     if(k==='BC')return needLightning(o)||needEgg(o)&&!activeOpponentLock(o)?590:0;
     if(k==='QB'&&room>0&&h.some(x=>discardValue(o,kind(x))>0)&&(!find(o,'M')&&!has(h,'M')||!find(o,'K')&&!has(h,'K')||h.length<=3))return 570;
@@ -210,15 +384,107 @@
     if(k==='NAV')return !ruins(o)&&!has(h,'R')?480:0;
     if(k==='RC')return room>0&&has(discard(o),'E')&&needEgg(o)||room>=2&&has(discard(o),'U')&&h.length<=4?310:0;
     if(k==='DM')return h.filter(x=>discardValue(o,kind(x))>0).length>=2&&discard(o).some(x=>trainerScore(o,kind(x))>=175)?300:0;
-    if(k==='ROPE')return slots(opp(o)).length===1&&g?.zone==='bench'&&readyTarget(o)?.zone==='bench'&&opp(o).prizeCount===1?1750:0;
+    if(k==='ROPE')return slots(opp(o)).length===1&&g?.zone==='bench'&&readyTarget(o)?.zone==='bench'&&(opp(o).prizeCount===1||Number(o.globalTurn)===1)?1750:0;
     if(k==='CC')return opp(o).prizeCount<own(o).prizeCount&&slots(opp(o)).length>1&&readyTarget(o)?.zone==='active'&&opp(o).prizeCount===1?1400:0;
     if(k==='RED')return opp(o).prizeCount<=3&&opp(o).handCount>3?120:0;
     if(k==='CAR'||k==='IONO')return h.length<=3&&!h.some(x=>['DCE','K','M','TM'].includes(kind(x)))&&own(o).deckCount>=6?380:0;
     return 0;
   }
-  function root(req){
+
+  const coord=x=>x.zone+':'+x.index;
+  const lockLive=o=>activeOpponentLock(o)&&!arr(opp(o).active?.abilitySuppressions).some(x=>x.suppressed===true&&['Bide Barricade','Neutralizing Gas','Initialization','Mischievous Lock','Midnight Fluttering'].includes(x.abilityName));
+  function terminalReady(o){
+    const a=find(o,'M'), t=opp(o).active, rem=publicRemaining(t);
+    if(Number(o.globalTurn)!==1||!a||!t||slots(opp(o)).length!==1||!itemOpen(o)||!ruins(o)||!toolLive(o)||
+      !has(a.p.tools,'TM')||energy(a.p)<3||arr(a.p.specialConditions).length||arr(t.tools).length||
+      suppression(a.p,'Debut Performance')!==false||!Number.isSafeInteger(rem)||rem<=0)return null;
+    // Restrict first-turn certificate to exact recognizable, non-preventing basic targets.
+    if(!/^(Shadow Rider Calyrex V CRE|Wobbuffet PHF|Girafarig LOT|Tapu Lele-GX GRI|Radiant Eternatus CRZ|Marshadow UNB)(?:\s\d+)?$/.test(printing(t)))return null;
+    if(arr(t.abilities).some(x=>!['Bide Barricade','Wonder Tag','Climactic Gate','Resetting Hole'].includes(typeof x==='string'?x:x?.name)))return null;
+    const resistance=arr(t.printed?.resistance);
+    if(resistance.some(x=>!x||!Number.isFinite(Number(x.value))))return null;
+    const damage=280-Math.max(0,...resistance.map(x=>Math.abs(Number(x.value))));
+    if(rem>damage)return null;
+    if(a.zone==='bench'&&!['E','U','B'].includes(kind(own(o).active)))return null;
+    return {a,damage};
+  }
+  function donationPlan(o){
+    const terminal=terminalReady(o);
+    if(!terminal||!Number.isSafeInteger(opp(o).prizeCount)||opp(o).prizeCount<=1)return null;
+    const map=new Map(), eggs=[],unown=[],fixed=[],handDonors=[],small=[];
+    function add(k,id,zone,counters,detail){
+      const x={id,zone,counters};map.set(id,detail);
+      if(k==='E')eggs.push(x);else if(k==='U')unown.push(x);
+      else if(k==='B')small.push(x);
+      else if(zone==='A'||zone==='B')fixed.push(x);
+      else if(zone==='H'&&['S','C','D','K'].includes(k))handDonors.push({...x,darkness:k==='C'});
+    }
+    for(const x of board(o)){
+      const k=kind(x.p);
+      if(!BASIC.has(k)||!Number.isSafeInteger(x.p.damage)||x.p.damage%10!==0)return null;
+      // Don't assume Farewell Letter can discard an attached resource.
+      if(k==='U'&&(arr(x.p.energies).length||arr(x.p.tools).length))return null;
+      add(k,coord(x),x.zone==='active'?'A':'B',x.p.damage/10,{...x,k});
+    }
+    hand(o).forEach((x,i)=>{const k=kind(x);if(['E','U','B','S','C','D','K'].includes(k))add(k,'hand:'+i,'H',0,{zone:'hand',index:i,k});});
+    discard(o).forEach((x,i)=>{const k=kind(x);if(['E','U','B'].includes(k))add(k,'discard:'+i,'D',0,{zone:'discard',index:i,k});});
+    while(eggs.length<2)eggs.push({id:'unavailable-egg-'+eggs.length,zone:'X',counters:0});
+    const aid=coord(terminal.a);
+    const plan=__donation.planDonationResources({finishReady:true,itemsPlayable:true,riskyRuinsActive:true,opponentBenchCount:0,
+      propagationAvailable:!lockLive(o),farewellAvailable:!lockLive(o)||/^Wobbuffet PHF/.test(printing(opp(o).active)),
+      opponentPrizes:opp(o).prizeCount,pumps:n(hand(o),'DP'),carriers:n(hand(o),'RC'),drawCapacity:own(o).deckCount,
+      eggs,unown,fixed,handDonors,small,allowUnownKO:true,maxStates:30000,
+      ...(terminal.a.zone==='bench'?{promoteAttackerId:aid}:{})});
+    return plan.status==='solved'?{plan,map}:null;
+  }
+  function donationAction(o,rows){
+    const line=donationPlan(o);if(!line||!line.plan.actions.length)return null;
+    const step=line.plan.actions[0], loc=line.map.get(step.id);
+    const play=k=>rows.find(x=>x.kind==='play-card'&&kind(x.actorPrinting)===k);
+    let a=null,intent=null;
+    if(step.kind==='bench')a=rows.find(x=>x.kind==='play-card'&&kind(x.actorPrinting)===loc?.k&&meta(x).handIndex===loc.index);
+    if(step.kind==='propagate'||step.kind==='farewell-letter'){
+      const name=step.kind==='propagate'?'Propagation':'Farewell Letter';
+      a=rows.find(x=>x.kind==='use-ability'&&meta(x).abilityName===name&&meta(x).sourceZone===loc?.zone&&meta(x).sourceIndex===loc.index);
+    }
+    if(step.kind==='rescue-carrier'){
+      a=play('RC');intent={type:'carrier',roles:step.ids.map(id=>line.map.get(id)?.k)};
+    }
+    if(step.kind==='damage-pump'){
+      a=play('DP');
+      const from=line.map.get(step.from), dest=step.moves.flatMap(x=>Array(x.counters).fill(line.map.get(x.id)));
+      if(!from||dest.some(x=>!x))return null;
+      intent={type:'pump',from:coord(from),dest:dest.map(coord).sort(),damage:board(o).map(x=>[coord(x),printing(x.p),x.p.damage]),prizes:opp(o).prizeCount};
+    }
+    return a?{action:a,intent}:null;
+  }
+  function pumpChoice(p,o,intent){
+    if(intent?.type!=='pump'||opp(o).prizeCount!==intent.prizes||
+       JSON.stringify(board(o).map(x=>[coord(x),printing(x.p),x.p.damage]))!==JSON.stringify(intent.damage))return abstain('UNSUPPORTED_PROMPT_TYPE');
+    const match=arr(p.choices).find(x=>{
+      const m=meta(x),from=m.sourceZone+':'+m.sourceIndex,dest=[m.targetZone+':'+m.targetIndex];
+      if(m.amount===2)dest.push(m.secondTargetZone+':'+m.secondTargetIndex);
+      return from===intent.from&&JSON.stringify(dest.sort())===JSON.stringify(intent.dest);
+    });
+    return match?chooseChoice(match.token):abstain('NO_LEGAL_CARD_SET');
+  }
+  function kokoChoice(p,o){
+    const a=find(o,'M')??find(o,'B'), k=find(o,'K');
+    if(!a||a.zone!=='bench'||!k||k.zone!=='bench'||has(a.p.energies,'L'))return abstain('NO_LEGAL_CARD_SET');
+    const rows=arr(p.choices).map(x=>{
+      const m=meta(x),indices=[m.benchIndex,m.secondTargetIndex];
+      return {x,s:m.sourceZone==='discard'&&m.ownerSeat==='actor'&&indices.includes(a.index)?100+(indices.includes(k.index)?10:0):0};
+    }).filter(x=>x.s>0).sort((a,b)=>b.s-a.s);
+    return rows.length?chooseChoice(rows[0].x.token):abstain('NO_LEGAL_CARD_SET');
+  }
+  function root(req,context={}){
     const o=req.observation;
     const rows=arr(req.actionFrontier?.items).filter(a=>EXEC.has(a.kind));
+    context.intent=null;
+    const direct=rows.find(a=>scoreAttack(a,o)>=3000);
+    if(direct)return chooseAction(direct.token);
+    const donation=donationAction(o,rows);
+    if(donation){context.intent=donation.intent;return chooseAction(donation.action.token);}
     const ranked=rows.map((a,i)=>({a,i,s:scoreRoot(a,o)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s||a.i-b.i);
     if(ranked.length)return chooseAction(ranked[0].a.token);
     // Do not mislabel a blocked archetype-critical action as a deliberate pass.
@@ -226,10 +492,12 @@
     const pass=rows.find(a=>a.kind==='pass');
     return pass?chooseAction(pass.token):abstain('NO_SUPPORTED_ROOT_ACTION');
   }
-  function prompt(req){
+  function prompt(req,context={}){
     const p=req.prompt,o=req.observation,m=meta(p),sk=kind(p.source?.sourcePrinting),effect=p.source?.effectName??'';
     if(p.source?.sourceKind==='engine')return setup(p,o);
     if(p.source?.sourceKind!=='card-effect')return abstain('UNTRUSTED_PROMPT_SOURCE');
+    if(p.promptType==='MoveDamagePrompt'&&sk==='DP')return pumpChoice(p,o,context.intent);
+    if(p.promptType==='AttachEnergyPrompt'&&sk==='K'&&effect==='Dance of the Ancients')return kokoChoice(p,o);
     if(p.promptType==='ChooseCardsPrompt'){
       const z=m.sourceZone;
       if(m.ownerSeat!=='actor'||m.isOwnerVisible!==true)return abstain('UNTRUSTED_CARD_SELECTION');
@@ -240,6 +508,11 @@
         // Select physical rows, not duplicate identities by name. One Lightning is sufficient.
         let light=needLightning(o)?1:0,eggs=!activeOpponentLock(o)?Math.max(0,2-n(hand(o),'E')-n(discard(o),'E')-countBoard(o,'E')):0;
         return pick(p,c=>{if(!visible(c,'deck'))return 0;const k=kind(c);if(k==='L'&&light>0){light--;return 300;}if(k==='E'&&eggs>0){eggs--;return 200;}return 0;},{want:3,allowEmpty:true});
+      }
+      if(sk==='RC'&&z==='discard'&&context.intent?.type==='carrier'){
+        const wanted=context.intent.roles.slice();
+        const selected=arr(p.choices).filter(c=>{const i=wanted.indexOf(kind(c));if(i<0||!visible(c,'discard'))return false;wanted.splice(i,1);return true;});
+        return wanted.length===0&&selected.length>=m.minimumCount&&selected.length<=m.maximumCount?chooseChoices(selected.map(c=>c.token)):abstain('NO_LEGAL_CARD_SET');
       }
       if(sk==='RC'&&z==='discard')return pick(p,c=>visible(c,'discard')?(kind(c)==='E'&&needEgg(o)?300:kind(c)==='U'&&benchRoom(o)>=1?180:kind(c)==='B'&&!find(o,'B')?80:0):0,{want:2,allowEmpty:true});
       if(sk==='DM'&&z==='discard')return pick(p,c=>visible(c,'discard')?trainerScore(o,kind(c)):0,{want:1});
@@ -287,11 +560,12 @@
   }
   function createPolicy({role,seat,policyVersion,config}){
     if(role!=='opponent'||![0,1].includes(seat)||policyVersion!==VERSION||!config||typeof config!=='object'||Array.isArray(config)||Object.keys(config).length)throw Error('RANK26_POLICY_INIT_MISMATCH');
+    const context={intent:null};
     return Object.freeze({decide(req){
       if(req?.role!=='opponent'||req.seat!==seat||req.observation?.actorSeat!==seat)return abstain('ROLE_SEAT_BINDING_MISMATCH');
       if(req.prompt&&req.prompt.actingSeat!==seat)return abstain('ROLE_SEAT_BINDING_MISMATCH');
-      return req.prompt?prompt(req):root(req);
+      return req.prompt?prompt(req,context):root(req,context);
     }});
   }
-  module.exports={POLICY_VERSION:VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,WORKER_PROTOCOL_BLOB_SHA1:PROTOCOL_BLOB,createPolicy,scoreRoot,scoreAttack,kind,root,prompt};
+  module.exports={POLICY_VERSION:VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,WORKER_PROTOCOL_BLOB_SHA1:PROTOCOL_BLOB,createPolicy,scoreRoot,scoreAttack,kind,root,prompt,donationPlan,terminalReady};
 })(module);
