@@ -79,3 +79,35 @@ for(const seat of [0,1]){
   prompt.options.max=4;assert.equal(m.project(args),null);
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' avoid exposing two Darkness to Girafarig when alternate lethal donors exist',()=>{
+  const t=mon('Wobbuffet PHF',[],110),o=own(bolt([L,F]),[mon('Latias ex SSP',[D,D],210)]);
+  o.discard=[];o.lostZone=[];
+  const ordinary=m.plan(o,t,false);
+  assert.deepEqual(ordinary.donors.map(x=>x.type),['Darkness','Darkness']);
+  const aware=m.plan(o,t,false,{girafarigThreat:true});
+  assert.equal(aware.donors.filter(x=>x.type==='Darkness').length,1);
+  assert.equal(aware.rank[0],0);
+  const r=request(seat,o,t,[attack]);r.observation.opponentPublic.lostZone=['Girafarig LOT'];
+  r.prompt=prompt(o);
+  assert.deepEqual(m.decideDiscard(r),{kind:'select-choices',tokens:['e2','e3']});
+ });
+ test('seat '+seat+' nonlethal pressure keeps funded Lele for a two-hit VMAX route',()=>{
+  const t=mon('Shadow Rider Calyrex VMAX CRE',Array(8).fill('Psychic Energy MEE'),320);
+  const o=own(bolt([X]),[mon('Tapu Lele-GX GRI',[D,F],170),mon('Latias ex SSP',[L,L],210)]);
+  const p=m.planPressure(o,t,false,{girafarigThreat:true});
+  assert.equal(p.damage,140);assert.equal(p.followupDamage,200);assert.equal(p.setup,true);
+  assert.deepEqual(p.donors.map(x=>x.slot.index),[1,1]);
+  const r=request(seat,o,t,[attack]);r.observation.globalTurn=4;r.observation.ownHand=['Guzma BUS'];
+  assert.deepEqual(m.pressureRoot(r,'rank19-bellowing-discard-v1'),{kind:'select-action',token:'attack'});
+  r.prompt=prompt(o);assert.deepEqual(m.decideDiscard(r),{kind:'select-choices',tokens:['e2','e3']});
+ });
+ test('seat '+seat+' early low hand preserves Burst Roar, late pressure uses spare Basics',()=>{
+  const o=own(bolt([X]),[mon('Latias ex SSP',[L,F],210)]),r=request(seat,o,target(),[attack]);
+  r.observation.globalTurn=3;r.observation.ownHand=['Guzma BUS'];
+  assert.equal(m.pressureRoot(r,'rank19-bellowing-discard-v1'),null);
+  r.observation.globalTurn=4;
+  assert.deepEqual(m.pressureRoot(r,'rank19-bellowing-discard-v1'),{kind:'select-action',token:'attack'});
+ });
+}
