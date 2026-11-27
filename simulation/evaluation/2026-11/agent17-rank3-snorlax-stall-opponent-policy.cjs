@@ -29,22 +29,22 @@ const PRINT = Object.freeze({
   articuno: /^Articuno-GX CES 31\b/i,
   rotom: /^Rotom V LOR 58\b/i,
   plumeria: /^Plumeria BUS 120\b/i,
-  arven: /^Arven OBF 186\b/i,
+  arven: /^Arven OBF(?: 186)?$/i,
   teamFlare: /^Team Flare Grunt XY 129\b/i,
   teammates: /^Teammates PRC 141\b/i,
   lusamine: /^Lusamine CIN 96\b/i,
   handiwork: /^Team Rocket's Handiwork FCO 112\b/i,
   gladion: /^Gladion CIN 95\b/i,
-  guzma: /^Guzma BUS 115\b/i,
+  guzma: /^Guzma BUS(?: 115)?$/i,
   faba: /^Faba LOT 173\b/i,
   penny: /^Penny SVI 183\b/i,
   eri: /^Eri TEF 146\b/i,
   lillie: /^Lillie's Determination MEG 119\b/i,
   nestBall: /^Nest Ball SVI 181\b/i,
-  vsSeeker: /^VS Seeker PHF 109\b/i,
+  vsSeeker: /^VS Seeker PHF(?: 109)?$/i,
   enhancedHammer: /^Enhanced Hammer TWM 148\b/i,
   trainersMail: /^Trainers' Mail ROS 92\b/i,
-  counterCatcher: /^Counter Catcher PAR 160\b/i,
+  counterCatcher: /^Counter Catcher PAR(?: 160)?$/i,
   scoopCyclone: /^Scoop Up Cyclone TWM 162\b/i,
   quickBall: /^Quick Ball FST 237\b/i,
   heavyBall: /^Hisuian Heavy Ball ASR 146\b/i,
@@ -370,6 +370,7 @@ function snorlaxHoodWindow(observation) {
   if (!matches(own?.printing ?? '', PRINT.snorlax) ||
       !opponentWobbuffetActive(observation) ||
       !liveToolWindow(observation) ||
+      hasTool(opposing, PRINT.stealthyHood) ||
       list(own?.tools).length > 0 ||
       !Number.isFinite(own?.damage) || remainingHp(own) <= 0 ||
       !slots(observation.opponentPublic).some(row => row.zone === 'bench')) return false;
@@ -390,23 +391,45 @@ function accessibleHoodThisTurn(observation) {
   const hand = list(observation.ownHand);
   if (hand.some(card => matches(card, PRINT.stealthyHood))) return true;
   if (sourceCopiesRemaining(observation, PRINT.stealthyHood) === 0 ||
-      !supporterAvailable(observation)) return false;
+      !supporterAvailable(observation) || !hasUnseenArvenSearchTargets(observation)) return false;
   if (hand.some(card => matches(card, PRINT.arven))) return true;
   return !itemLocked(observation) &&
     hand.some(card => matches(card, PRINT.vsSeeker)) &&
     list(observation.ownPublic?.discard).some(card => matches(card, PRINT.arven));
 }
 
+function attacklessDialga(pokemon) {
+  return matches(pokemon?.printing ?? '', PRINT.dialga) &&
+    list(pokemon?.energies).every(energy => /^(?:Basic )?Psychic Energy\b/i.test(valueText(energy)));
+}
+
+// Block's prohibition is on the opposing Active Pokémon. Conservatively
+// decline a Hood-protected trap unless the exact active Snorlax has a live
+// Tool Jammer, which suppresses that Active Pokémon's Hood. Tool-off epochs
+// suppress both Tools, so an attached Hood does not itself prevent Block.
+function dialgaBlockWorks(observation, snorlax, dialga) {
+  return matches(snorlax?.printing ?? '', PRINT.snorlax) && attacklessDialga(dialga) &&
+    (!liveToolWindow(observation) || !hasTool(dialga, PRINT.stealthyHood) ||
+      hasTool(snorlax, PRINT.toolJammer));
+}
+
+function dialgaTrapHeld(observation) {
+  return dialgaBlockWorks(observation, observation.ownPublic?.active,
+    observation.opponentPublic?.active);
+}
+
 function dialgaTrapAvailable(observation, viaGuzma = false) {
   const own = observation.ownPublic;
   const opponent = observation.opponentPublic;
-  if (matches(opponent?.active?.printing ?? '', PRINT.dialga)) return false;
-  const snorlaxReady = viaGuzma
-    ? slots(own).some(row => row.zone === 'bench' && matches(row.pokemon.printing, PRINT.snorlax))
-    : matches(own?.active?.printing ?? '', PRINT.snorlax);
-  return snorlaxReady && slots(opponent).some(row => row.zone === 'bench' &&
-    matches(row.pokemon.printing, PRINT.dialga) &&
-    list(row.pokemon.energies).every(energy => /^(?:Basic )?Psychic Energy\b/i.test(valueText(energy))));
+  if (dialgaTrapHeld(observation) || matches(opponent?.active?.printing ?? '', PRINT.dialga)) return false;
+  const eligible = viaGuzma
+    ? slots(own).filter(row => row.zone === 'bench' && matches(row.pokemon.printing, PRINT.snorlax))
+    : slots(own).filter(row => row.zone === 'active' && matches(row.pokemon.printing, PRINT.snorlax));
+  // When Guzma will later need to distinguish duplicate Snorlax printings,
+  // only claim a Hooded-Dialga trap if every possible Snorlax promotion
+  // restores Block; this avoids relying on an ambiguous target projection.
+  return eligible.length > 0 && slots(opponent).some(row => row.zone === 'bench' &&
+    eligible.every(s => dialgaBlockWorks(observation, s.pokemon, row.pokemon)));
 }
 
 function scoreSearchCard(printing, observation, context = '') {
@@ -636,7 +659,17 @@ function scoreAttack(item, observation) {
     return !gxUsed(observation) && opponentActiveEnergy(observation) >= 2 &&
       energyCount(own.active) <= 1 ? 185 : 0;
   }
-  if (name === 'Collapse') return activeHp > 0 && activeHp <= 150 ? 175 : 85;
+  if (name === 'Collapse') {
+    if (dialgaTrapHeld(observation)) {
+      // A nonlethal hit enables Acerola on previously undamaged Dialga;
+      // a non-winning KO frees the opponent to promote a real attacker.
+      // Keep the stall unless this very attack wins by prizes/no Pokémon.
+      const winsNow = activeHp > 0 && activeHp <= 150 &&
+        (own.prizeCount <= 2 || !slots(opponent).some(row => row.zone === 'bench'));
+      return winsNow ? 1000 : 0;
+    }
+    return activeHp > 0 && activeHp <= 150 ? 175 : 85;
+  }
   if (name === 'Ice Wing') return activeHp > 0 && activeHp <= 130 ? 155 : 90;
   if (name === 'Damage Rush') return 70;
   if (name === 'Ghost Eye') return activeHp > 0 && activeHp <= 70 ? 155 : 65;
@@ -787,8 +820,7 @@ function scoreAction(item, request) {
     }
     if (matches(card, PRINT.guzma)) {
       if (dialgaTrapAvailable(observation, true)) return 290;
-      if (matches(opponent.active?.printing ?? '', PRINT.dialga) &&
-          matches(own.active?.printing ?? '', PRINT.snorlax)) return 0;
+      if (dialgaTrapHeld(observation)) return 0;
       if (!slots(opponent).some(row => row.zone === 'bench')) return 0;
       const activeIsSnorlax = matches(own.active?.printing ?? '', PRINT.snorlax);
       const damagedSnorlaxCanRotate = activeIsSnorlax && (own.active.damage ?? 0) >= 100 &&
@@ -836,8 +868,7 @@ function scoreAction(item, request) {
   if (matches(card, PRINT.counterCatcher)) {
     if (!(own.prizeCount > opponent.prizeCount)) return 0;
     if (dialgaTrapAvailable(observation)) return 300;
-    if (matches(own.active?.printing ?? '', PRINT.snorlax) &&
-        matches(opponent.active?.printing ?? '', PRINT.dialga)) return 0;
+    if (dialgaTrapHeld(observation)) return 0;
     return slots(opponent).some(row => row.zone === 'bench') ? 135 : 0;
   }
   if (matches(card, PRINT.scoopCyclone)) {
@@ -937,7 +968,7 @@ function opponentPokemonScore(choice, observation, gustMode = '') {
   if (gustMode && choiceZone(choice) === 'bench' &&
       matches(printing, PRINT.dialga) &&
       dialgaTrapAvailable(observation, gustMode === 'guzma') &&
-      list(pokemon.energies).every(energy => /^(?:Basic )?Psychic Energy\b/i.test(valueText(energy)))) return 320;
+      attacklessDialga(pokemon)) return 1000;
   return 40 + energyCount(pokemon) * 30 +
     (pokemon.printed?.retreatCost?.length ?? 0) * 8 +
     (pokemon.printed?.stage === 'BASIC' ? 5 : 15);

@@ -116,3 +116,50 @@ test('a held Hood is not searched a second time; inactive Wobbuffet does not boo
   assert.equal(scoreSearchCard(H,state(), 'arven'),0);
   assert.equal(scoreSearchCard(H,state({hand:[A],opp:mon(V),obench:[mon(W)]}),'arven'),0);
 });
+
+test('opposing live Hood vetoes the Wobbuffet trap; suppressing Tools vetoes own Hood attachment',()=>{
+  const o=state({opp:mon(W,{tools:[H]})});
+  assert.equal(score(tool('h',H),o),0);
+});
+test('Hood-protected Dialga is not elevated over other gust targets without Tool Jammer',()=>{
+  const o=state({obench:[mon(V,{energies:[E,E,E,E]}),mon(D,{tools:[H]})]});
+  assert.equal(score(root('c',C),o),135);
+  assert.deepEqual(prompt(o,C,[choice('vm',V),choice('dialga',D)]),
+    {kind:'select-choice',token:'vm'});
+});
+test('Active Snorlax Tool Jammer restores the protected-Dialga trap',()=>{
+  const o=state({own:mon(S,{tools:[J]}),obench:[mon(V,{energies:Array(10).fill(E)}),mon(D,{tools:[H]})]});
+  assert.equal(score(root('c',C),o),300);
+  assert.deepEqual(prompt(o,C,[choice('vm',V),choice('dialga',D)]),
+    {kind:'select-choice',token:'dialga'});
+});
+test('Guzma does not claim protected-Dialga trap from mixed duplicate Snorlax promotion options',()=>{
+  const o=state({own:mon('Rotom V LOR 58'),bench:[mon(S,{tools:[J]}),mon(S)],
+    obench:[mon(V,{energies:[E,E,E,E]}),mon(D,{tools:[H]})],hand:[G]});
+  assert.equal(score(root('g',G),o),185);
+  assert.deepEqual(prompt(o,G,[choice('vm',V),choice('dialga',D)]),
+    {kind:'select-choice',token:'vm'});
+});
+test('do not damage a safely trapped undamaged Dialga or take a nonwinning KO',()=>{
+  const collapse={token:'collapse',kind:'attack',attackName:'Collapse'};
+  const o=state({opp:mon(D,{hp:180}),obench:[mon(V)],hand:[]});
+  assert.deepEqual(decide(o,[collapse,pass]),{kind:'select-action',token:'pass'});
+  const damaged=state({opp:mon(D,{hp:180,damage:50}),obench:[mon(V)],hand:[]});
+  assert.deepEqual(decide(damaged,[collapse,pass]),{kind:'select-action',token:'pass'});
+});
+test('take the winning Collapse if it takes final two prizes or leaves no opposing Pokémon',()=>{
+  const collapse={token:'collapse',kind:'attack',attackName:'Collapse'};
+  const final=state({opp:mon(D,{hp:180,damage:50}),obench:[mon(V)],ownExtra:{prizeCount:2},hand:[]});
+  assert.deepEqual(decide(final,[collapse,pass]),{kind:'select-action',token:'collapse'});
+  const noBench=state({opp:mon(D,{hp:180,damage:50}),obench:[],hand:[]});
+  assert.deepEqual(decide(noBench,[collapse,pass]),{kind:'select-action',token:'collapse'});
+});
+test('native set-only action aliases reach the actual Arven, Guzma, and Counter Catcher choices',()=>{
+  const o=state({hand:['Arven OBF','Tool Jammer BST'],obench:[mon('Dialga-GX UPR')]});
+  assert.deepEqual(decide(o,[tool('jam','Tool Jammer BST'),root('arven','Arven OBF'),pass]),
+    {kind:'select-action',token:'arven'});
+  assert.equal(score(root('catch','Counter Catcher PAR'),o),300);
+  const g=state({own:mon('Rotom V LOR 58'),bench:[mon('Snorlax PGO')],
+    obench:[mon('Dialga-GX UPR')],hand:['Guzma BUS']});
+  assert.equal(score(root('g','Guzma BUS'),g),290);
+});
