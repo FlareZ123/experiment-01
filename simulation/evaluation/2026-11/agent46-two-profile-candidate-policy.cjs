@@ -3713,6 +3713,51 @@ function freeRetreatKnown(view) {
   return ownRetreatCost(view)===0;
 }
 
+// Narrow paid-retreat lookahead: Wobbuffet can suppress an opposing
+// Stoutland Sentinel long enough to make a held Guzma legal. Project only
+// Bide Barricade's public Ability suppression; the existing Guzma planner
+// must then certify a final-Prize KO before the retreat gets terminal priority.
+function projectWobbuffetSentinelUnlock(view,movedView,target) {
+  if(!hasName(target?.printing,'Wobbuffet') ||
+      effectiveAbilityStatus(target,'Bide Barricade','actor',movedView)!==true ||
+      view.ownTurnResources?.supporterPlayLocked!==true ||
+      view.ownPublic.publicTurnRestrictions?.supporterPlayLocked!==true)return null;
+  const sentinel=view.opponentPublic.active;
+  if(!hasName(sentinel?.printing,'Stoutland') ||
+      !(sentinel.abilities??[]).includes('Sentinel') ||
+      effectiveAbilityStatus(sentinel,'Sentinel','opponent',view)!==true ||
+      (sentinel.printed?.types??[]).includes('Psychic'))return null;
+  const suppress=slot=>{
+    if(!slot||(slot.printed?.types??[]).includes('Psychic')||!(slot.abilities??[]).length)return slot;
+    const prior=new Map((slot.abilitySuppressions??[]).map(row=>[row.abilityName,row]));
+    return {...slot,abilitySuppressions:slot.abilities.map(abilityName=>({
+      ...(prior.get(abilityName)??{abilityName}),abilityName,suppressed:true,
+      reasonCode:'PROJECTED_BIDE_BARRICADE',sourcePrinting:target.printing
+    }))};
+  };
+  const player=p=>({...p,active:suppress(p.active),bench:p.bench.map(suppress)});
+  let projected={...movedView,ownPublic:player(movedView.ownPublic),
+    opponentPublic:player(movedView.opponentPublic)};
+  if(effectiveAbilityStatus(projected.opponentPublic.active,'Sentinel','opponent',projected)!==false)return null;
+  projected={...projected,
+    ownTurnResources:{...projected.ownTurnResources,supporterPlayLocked:false},
+    ownPublic:{...projected.ownPublic,publicTurnRestrictions:{
+      ...projected.ownPublic.publicTurnRestrictions,supporterPlayLocked:false}}};
+  return projected;
+}
+function terminalWobbuffetRetreatScore(view,movedView,target,cost) {
+  if(!handHas(view,'Guzma')||view.ownTurnResources?.supporterPlayedTurn!==0)return -Infinity;
+  const current=bestAttackForSlot(view.ownPublic.active,view,view.opponentPublic.active);
+  if(current&&Number.isFinite(current.damage)&&
+      current.damage>=Math.max(0,view.opponentPublic.active.hp-view.opponentPublic.active.damage)&&
+      prizeLiability(view.opponentPublic.active)>=view.ownPublic.prizeCount)return -Infinity;
+  const projected=projectWobbuffetSentinelUnlock(view,movedView,target);
+  if(!projected||!supporterAvailable(projected))return -Infinity;
+  const plan=guzmaPlans(projected)[0];
+  if(!plan||plan.prizes<projected.ownPublic.prizeCount)return -Infinity;
+  return 3200-cost*100;
+}
+
 function chooseRetreat(view, items, profile) {
   const cost=ownRetreatCost(view);
   if (cost===null || !view.opponentPublic.active || slotEnergyCount(view.ownPublic.active)<cost) return null;
@@ -3732,6 +3777,7 @@ function chooseRetreat(view, items, profile) {
       bench:view.ownPublic.bench.map((p,i)=>i===index?moved:p)}};
     const attack=bestAttackForSlot(target,movedView,view.opponentPublic.active);
     let score=(attack?.score??0)-(current?.score??0)-cost*350;
+    score=Math.max(score,terminalWobbuffetRetreatScore(view,movedView,target,cost));
     if (profile?.profileId==='lockbridge-shadow-rider-v1') {
       const gate=hasName(old.printing,'Wobbuffet') && handHas(view,'Radiant Eternatus') &&
         !hasName(target.printing,'Wobbuffet') && canPlayRadiantForGate(invalidateDepartedWobbuffet(movedView,old));
