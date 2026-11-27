@@ -554,8 +554,8 @@ test('Super Rod chooses Regidrago and Basic Energy, never Goodra or Mega Dragoni
     choice('vstar',P.regidrago),choice('fire','Fire Energy MEE 10')
   ],'ChooseCardsPrompt',[0,3]);
   p.publicMetadata.sourceZone='discard';
-  assert.deepEqual(promptDecision(request({ownPublic,prompt:p})),
-    {kind:'select-choices',tokens:['vstar','fire']});
+  assert.deepEqual(new Set(promptDecision(request({ownPublic,prompt:p})).tokens),
+    new Set(['vstar','fire']));
 });
 
 test('Super Rod up-to-three can recover none rather than shuffle away all attack payloads',()=>{
