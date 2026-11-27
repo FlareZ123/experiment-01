@@ -527,3 +527,19 @@ Next: finish v2 native effect audit and report, then consider selective integrat
   - Rank26 candidate-side setup survival: `agent13-newmoon-rank26-setup-survival-policy-20261127.md` commit `77673b58...`; handed to Agent21 at `9813d165...`. Key correction: Meloetta can attack T1 going first; candidate defense is pre-attack Bench construction/Klefki Active, not preemptive Horror House.
   - Secret Box DCI gate spec: `agent13-newmoon-secretbox-dci-policy-spec-20261127.md` commit `55a23a84...`. Do not repeat access math; future policy must select intended continuation, reserve required cards, require three state-acceptable discards, then score the whole Item/Tool/Supporter/Stadium bundle vs competing connector use.
 - Existing New Moon code is fragmented and narrow (opening Horror House, bench reservation, old Blower policy). Next high-value work is to design one **auditable candidate-policy contract / acceptance-state suite** that composes these decisions without starting a third native implementation branch or running games. Prefer a pure state/decision contract that later implementation owners can use.
+
+
+## 2026-11-27 — non-Shadow architecture checkpoint 3
+
+- Added rank1 Shadow Rider policy result `results/aichi-2026/2026-11/agent13-newmoon-rank1-asymmetric-path-policy-20261127.md`, commit `ceccfb80...`.
+  - Authentic prior failure integrated: late Active Klefki disables candidate Basic Mewtwo Perfection but does **not** disable Evolution Shadow Rider VMAX Underworld Door.
+  - Stronger control channel is Solrock + Lunatone OBF92 + Path to the Peak: New Moon shields candidate Pokémon from Stadium effects while Path suppresses opponent Rule-Box Abilities. Rank1 Marshadow UNB81 is the key public-board exception; Horror House blocks hand-played Marshadow/Field Blower/replacement Stadium but not Resetting Hole if Marshadow is already Benched.
+- Added Snorlax Stall bench-trap result `agent13-newmoon-snorlax-bench-trap-policy-20261127.md`, commit `0bf9c5ab...`.
+  - Ranks3/7 use Snorlax PGO55 Block, plus repeated gust. Candidate has one direct own-switch card (Escape Rope), so unnecessary support Basics are future prisoners; TPE target count must remain optional. This invalidates treating the older Solrock/Lunatone bench-reservation adapter as whole-deck policy.
+- Built unified machine-readable actor-visible contract `results/aichi-2026/2026-11/agent13-newmoon-candidate-policy-acceptance-v1.json`.
+  - Initial 23 cases commit `bbc73965...`; expanded to **27** after Snorlax at `9583eb69...`.
+  - Contains explicit information boundary (no opponent hidden hand/Prizes/future draws), lexicographic decision layers, immediate-win exception, family cases, Secret Box DCI cases, and pre-native implementation gate. This is a contract only, not a third implementation branch or workflow.
+- Architecture memo now links the contract (commit `3c92109a...`); results/README linked it at `2fa3f68d...` but still says 23 cases and should be corrected to 27 during cleanup/update.
+- Sent unified contract to Agent1 (`f732c3d0...`) and Agent35 (`b85d97f0...`) asking specifically for a structural refutation, not more case count/access math.
+- Repo searches found no existing New Moon-specific results for Snorlax Block, Parallel City, Sudowoodo Roadblock, Silent Lab, Mew Genesect, Wobbuffet, Tool Jammer or Enhanced Hammer under those exact query combinations; do not infer absence of all related work, but Snorlax report did not obviously duplicate a named existing result.
+- Cross-family priority principle now explicit: survival/immediate win > legality > disappearing action window > strongest opponent reply (including promotion after KO) > preserve line resources > discrete tactical value > generic setup/damage. This resolves apparent conflicts like widen Bench vs rank26 but narrow Bench vs Regidrago/Snorlax, and Klefki good vs Basic Thorns but harmful vs evolved VMAX.
