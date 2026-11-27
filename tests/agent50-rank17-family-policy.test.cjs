@@ -140,6 +140,58 @@ function runCases(policy,protocol) {
     same(runRoot(p,v,[play('secret',A.secret),pass]),action('secret'),tag+'three safe discards');
     const pay={...v,ownHand:[A.vip,A.vip,A.unit,A.unit,A.pikachu]};
     same(runPrompt(p,pay,cards(pay,A.secret,'Secret Box','hand',[A.vip,A.vip,A.unit,A.unit,A.pikachu],3,3)),choose('c0','c1','c2'),tag+'preserve singleton core payment');
+
+    // Connector contention: a live Unown in discard is not a reason to
+    // spend the only Carrier before Compressor establishes missing starters.
+    v=view(seat,{ownHand:[A.compressor,A.carrier],ownPublic:player({discard:[A.unown]})});
+    same(runRoot(p,v,[play('compress',A.compressor),play('carrier',A.carrier),pass]),action('compress'),tag+'preserve Carrier for missing core instead of Unown draw');
+    v={...v,ownPublic:player({discard:[A.voltorb,A.unown]})};
+    same(runRoot(p,v,[play('compress',A.compressor),play('carrier',A.carrier),pass]),action('compress'),tag+'Compressor finds missing second starter');
+    same(runPrompt(p,v,cards(v,A.compressor,'Battle Compressor','deck',
+      [A.unown,A.voltorb,A.pikachu,A.electrode],0,3)),choose('c2'),tag+'do not discard duplicate already-recoverable starter');
+    v={...v,ownPublic:player({discard:[A.voltorb,A.pikachu,A.unown]})};
+    same(runRoot(p,v,[play('compress',A.compressor),play('carrier',A.carrier),pass]),action('carrier'),tag+'already funded Carrier dominates Compressor');
+    // First-turn Horror House route: the energy-bearing Gengar is on the
+    // Bench and the Active cannot retreat for free. Rope first, opponent
+    // switches (external), then own correctly scoped target prompt.
+    const rope='Escape Rope BST';
+    const pivot=slot(A.unown),g=slot(A.gengar,{hp:240,energies:[A.unit]});
+    const firstSecond={...view(seat),globalTurn:2,ownHand:[rope],
+      ownPublic:player({active:pivot,bench:[slot(A.voltorb),g]}),
+      opponentPublic:player({active:slot('Shadow Rider Calyrex V CRE',{hp:210})})};
+    same(runRoot(p,firstSecond,[play('rope',rope),pass]),action('rope'),tag+'Rope unlocks first-turn Horror House');
+    const switchPrompt={schema:protocol.PROMPT_SCHEMA,actingSeat:seat,promptType:'ChoosePokemonPrompt',
+      description:'CHOOSE_POKEMON_TO_SWITCH',source:{classification:'actor-choice',sourceKind:'card-effect',
+        sourcePrinting:rope,effectName:'Escape Rope'},
+      publicMetadata:{selectionType:'pokemon',targetZone:'bench',minimumCount:1,maximumCount:1,allowCancel:false,isSecret:false},
+      choices:[{token:'voltorb',kind:'pokemon',printing:A.voltorb,label:'Your bench 1',
+        publicMetadata:{selectionIndex:0,selectedCount:1,selectionType:'pokemon',ownerSeat:'actor',targetZone:'bench',benchIndex:0,isOwnerVisible:true}},
+        {token:'gengar',kind:'pokemon',printing:A.gengar,label:'Your bench 2',
+        publicMetadata:{selectionIndex:1,selectedCount:1,selectionType:'pokemon',ownerSeat:'actor',targetZone:'bench',benchIndex:1,isOwnerVisible:true}}]};
+    same(runPrompt(p,firstSecond,switchPrompt),choose('gengar'),tag+'Rope continuation chooses charged Gengar');
+    const afterRope={...firstSecond,ownPublic:player({active:g,bench:[slot(A.voltorb),pivot]})};
+    same(runRoot(p,afterRope,[{token:'horror',kind:'attack',actorPrinting:A.gengar,attackName:'Horror House-GX'},pass]),action('horror'),tag+'Horror House terminal turn action');
+    const free={kind:'retreat',token:'free',targetPrinting:A.gengar,
+      publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:1,freeRetreat:true,isOwnerVisible:true}};
+    same(runRoot(p,firstSecond,[play('rope',rope),free,pass]),action('free'),tag+'free retreat dominates Rope');
+    const paid={...free,token:'paid',publicMetadata:{...free.publicMetadata,freeRetreat:false,retreatEnergyCost:1}};
+    same(runRoot(p,firstSecond,[play('rope',rope),paid,pass]),action('rope'),tag+'avoid unsupported paid-retreat continuation');
+    same(runRoot(p,{...firstSecond,globalTurn:1},[play('rope',rope),pass]),action('pass'),tag+'no first-player attack route');
+    same(runRoot(p,{...firstSecond,opponentPublic:player({prizeCount:3})},[play('rope',rope),pass]),action('pass'),tag+'do not expose final three Prizes');
+    same(runRoot(p,{...firstSecond,opponentPublic:player({stadium:['Temple of Sinnoh ASR']})},[play('rope',rope),pass]),action('pass'),tag+'Temple invalidates Unit for Horror House');
+    same(runRoot(p,{...firstSecond,opponentPublic:player({active:slot('Shadow Rider Calyrex VMAX CRE',{energies:[A.unit,A.unit]})})},[play('rope',rope),pass]),action('pass'),tag+'do not expose Gengar to charged board');
+    const invalid={...switchPrompt,choices:[switchPrompt.choices[0],{...switchPrompt.choices[1],publicMetadata:{...switchPrompt.choices[1].publicMetadata,ownerSeat:'opponent'}}]};
+    same(runPrompt(p,firstSecond,invalid),choose('voltorb'),tag+'never choose opponent switch target');
+    // Ordinary card-effect Prize collection is opaque; exact requiredCount
+    // and physical slot tokens, not a fabricated identity or min/max.
+    const prizes={schema:protocol.PROMPT_SCHEMA,actingSeat:seat,promptType:'ChoosePrizePrompt',
+      description:'CHOOSE_PRIZE_CARD',source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:A.raichu,effectName:'Electric Ball'},
+      publicMetadata:{selectionType:'prize-slots',sourceZone:'prizes',ownerSeat:'actor',isOwnerVisible:false,
+        count:4,requiredCount:2,allowCancel:false,isSecret:false},
+      choices:Array.from({length:4},(_,i)=>({token:'p'+i,kind:'prize',label:'Your Prize slot '+(i+1),
+        publicMetadata:{selectionIndex:i,selectedCount:1,sourceZone:'prizes',ownerSeat:'actor',isOwnerVisible:false,requiredCount:2}}))};
+    same(runPrompt(p,firstSecond,prizes),choose('p0','p1'),tag+'opaque Prize taking exact required count');
+
     // Distinct support and setup provenance, never a foreign role.
     same(p.decide({role:'opponent',seat:1-seat,observation:v,prompt:null}),abstain('ROLE_SEAT_BINDING_MISMATCH'),tag+'seat bound');
   }
