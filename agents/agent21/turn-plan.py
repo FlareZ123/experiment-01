@@ -29,6 +29,13 @@ CARDS = {
 }
 KINDS=tuple(CARDS)
 KINDEX={k:i for i,k in enumerate(KINDS)}
+TUTORS=('fog','treasure','quick','arven','fss','raihan','teammates')
+TINDEX={k:i for i,k in enumerate(TUTORS)}
+RESOURCES=KINDS+('psychic','hood','float','blower','guzma','vs','stretcher','valley','temple','sky')+TUTORS
+RINDEX={k:i for i,k in enumerate(RESOURCES)}
+ITEM_TARGETS=('fog','treasure','quick','blower','vs','stretcher')
+TOOL_TARGETS=('hood','float','fss')
+SUPPORT_TARGETS=('guzma','arven','raihan','teammates')
 ABIL_BASIC={'wob','clefairy','lele','latias','marshadow','radiant'}
 TOOLS = {'', 'hood', 'float', 'fss', 'jammer', 'generic'}
 STADIUMS = {'none', 'valley', 'temple', 'sky', 'path', 'lab', 'jamming', 'swell', 'mine', 'other'}
@@ -46,6 +53,8 @@ class State:
     kinds: tuple = (); own_damage: tuple = (); retreat_extras: tuple = ()
     held: tuple = (); discard_mon: tuple = (); evolvable: int = 0
     evolved: int = 0; benched: int = 0
+    tutors: tuple = (); known: tuple = (); fodder: tuple = (); support_discard: tuple = ()
+    star_used: bool = False; searches: int = 0; used_supporters: int = 0
     played_stadium: bool = False; used_marshadow: bool = False; tools_played: int = 0
 
 class Planner:
@@ -67,10 +76,15 @@ class Planner:
         hand = data.get('hand',{}); used = data.get('used',{}); discard=data.get('discard',{})
         original_n=self.n
         # Reserve reusable public slots only if a held/recoverable Basic can enter.
-        hmon=hand.get('pokemon',{});dmon=discard.get('pokemon',{})
+        hmon=hand.get('pokemon',{});dmon=discard.get('pokemon',{});known=data.get('known_deck',{})
+        assert set(known)<=set(RESOURCES) and all(isinstance(n,int) and 0<=n<=60 for n in known.values())
+        assert sum(known.values())<=data.get('deck_remaining',40)
+        # The caller must supply legitimate K1 deck composition/lower bounds, never hidden state.
+        fodder=tuple(sorted(hand.get('discardable',[])))
+        assert all(isinstance(x,str) and x for x in fodder)
         assert set(hmon)<=set(KINDS) and set(dmon)<=set(KINDS)
         assert all(isinstance(c,int) and 0<=c<=4 for c in list(hmon.values())+list(dmon.values()))
-        if any(CARDS[k][1] and (hmon.get(k,0) or dmon.get(k,0)) for k in KINDS):
+        if any(CARDS[k][1] and (hmon.get(k,0) or dmon.get(k,0) or known.get(k,0)) for k in KINDS):
             for i in range(self.n,9):
                 id='new'+str(i);assert id not in self.ids
                 self.ids.append(id);self.own.append({'id':id,'kind':''})
@@ -92,6 +106,7 @@ class Planner:
         self.pokemon_play_lock=data.get('pokemon_play_lock',False)
         self.ability_pokemon_play_lock=data.get('ability_pokemon_play_lock',False)
         self.evolution_lock=data.get('evolution_lock',False)
+        self.prior_ko=data.get('prior_ko',False) is True
         self.first = State(self.ids.index(data['active']), self.eids.index(data['opp_active']),
             tuple(x.get('energy',0) for x in self.own), tuple(x.get('tool','') for x in self.own),
             tuple(x.get('tool','') for x in self.opp), (1<<original_n)-1, stadium,
@@ -105,7 +120,9 @@ class Planner:
             kinds=tuple(x['kind'] for x in self.own),own_damage=tuple(x.get('damage',0) for x in self.own),
             retreat_extras=tuple(x.get('retreat_extra',0) for x in self.own),
             held=tuple(hmon.get(k,0) for k in KINDS),discard_mon=tuple(dmon.get(k,0) for k in KINDS),
-            evolvable=mask(lambda x:x['kind']=='v' and x.get('evolvable',False)))
+            evolvable=mask(lambda x:x['kind']=='v' and x.get('evolvable',False)),
+            tutors=tuple(hand.get(k,0) for k in TUTORS),known=tuple(known.get(k,0) for k in RESOURCES),fodder=fodder,
+            support_discard=tuple(discard.get(k,0) for k in SUPPORT_TARGETS[1:]),star_used=used.get('vstar',False))
         assert self.first.hand_p >= 0 and self.first.discard_p >= 0 and sum(self.first.energy)+self.first.hand_p+self.first.discard_p <= 11
         assert 0<=self.first.vs<=4 and 0<=self.first.stretcher<=4
         assert not (self.first.guzma and self.first.discard_guzma)  # single Guzma in the candidate
@@ -187,8 +204,85 @@ class Planner:
             self.unsupported.add('Sky Field removal with >5 Benched Pokémon requires discard/promotion decisions'); return False
         return s.stadium!='none'
 
+    def available_deck(self,s,key):
+        # We do not use an unseen Door draw as a known card. Each unknown draw can remove
+        # one copy of any target, so subsequent deterministic searches use lower bounds.
+        return max(0,s.known[RINDEX[key]]-s.draws) if s.deck>0 else 0
+    def tutor_count(self,s,key):return s.tutors[TINDEX[key]]
+    def spend_tutor(self,s,key):
+        return replace(s,tutors=self.setv(s.tutors,TINDEX[key],self.tutor_count(s,key)-1))
+    def add_held(self,s,key):
+        if key in KINDEX:return replace(s,held=self.setv(s.held,KINDEX[key],s.held[KINDEX[key]]+1))
+        if key in TINDEX:return replace(s,tutors=self.setv(s.tutors,TINDEX[key],self.tutor_count(s,key)+1))
+        if key=='psychic':return replace(s,hand_p=s.hand_p+1)
+        if key=='hood':return replace(s,hood=s.hood+1)
+        if key=='float':return replace(s,flt=s.flt+1)
+        if key=='blower':return replace(s,blower=True)
+        if key=='guzma':return replace(s,guzma=True)
+        if key=='vs':return replace(s,vs=s.vs+1)
+        if key=='stretcher':return replace(s,stretcher=s.stretcher+1)
+        if key in ('valley','temple','sky'):return replace(s,stadiums=tuple(sorted(s.stadiums+(key,))))
+        raise ValueError(key)
+    def take(self,s,key):
+        assert self.available_deck(s,key)>0
+        return self.add_held(replace(s,deck=s.deck-1,known=self.setv(s.known,RINDEX[key],s.known[RINDEX[key]]-1)),key)
+    def support_tutor(self,s,key):
+        j=SUPPORT_TARGETS[1:].index(key)
+        q=self.spend_tutor(s,key)
+        return replace(q,support=True,used_supporters=s.used_supporters+1,
+                       support_discard=self.setv(q.support_discard,j,q.support_discard[j]+1))
+    def search_actions(self,s):
+        # Source-specific effects, using only known own-deck target lower bounds.
+        targets=[k for k in RESOURCES if self.available_deck(s,k)]
+        if self.item_ok(s):
+            for source in ('fog','treasure','quick'):
+                if not self.tutor_count(s,source):continue
+                q=self.spend_tutor(s,source)
+                if source!='fog':
+                    if not s.fodder:continue
+                    # Designated interchangeable fodder only. Do not silently burn key resources.
+                    q=replace(q,fodder=s.fodder[1:])
+                for k in targets:
+                    ok=(k=='psychic' or (k in KINDEX and CARDS[k][0]=='Psychic' and CARDS[k][1])) if source=='fog' else (k in KINDEX and (source=='treasure' or CARDS[k][1]))
+                    if ok:
+                        extra='' if source=='fog' else f'; discard {s.fodder[0]}'
+                        yield f'{source} -> {k}{extra}',replace(self.take(q,k),searches=s.searches+1)
+        if self.support_ok(s):
+            if self.tutor_count(s,'arven'):
+                q=self.support_tutor(s,'arven')
+                for item in [None]+[k for k in ITEM_TARGETS if k in targets]:
+                    for tool in [None]+[k for k in TOOL_TARGETS if k in targets]:
+                        if not item and not tool:continue
+                        r=q
+                        if item:r=self.take(r,item)
+                        if tool:r=self.take(r,tool)
+                        yield 'Arven -> '+','.join(k for k in (item,tool) if k),replace(r,searches=s.searches+1)
+            if self.prior_ko and self.tutor_count(s,'raihan') and s.discard_p:
+                q=self.support_tutor(s,'raihan')
+                for i in self.own_indices(s):
+                    r=replace(q,discard_p=q.discard_p-1,energy=self.setv(q.energy,i,q.energy[i]+1))
+                    for k in targets:
+                        yield f'Raihan -> attach Psychic to {self.ids[i]}; search {k}',replace(self.take(r,k),searches=s.searches+1)
+                    if not targets:
+                        # If deck is nonempty, mandatory search chooses an unmodeled card.
+                        yield f'Raihan -> attach Psychic to {self.ids[i]}; search other if nonempty',replace(r,deck=max(0,r.deck-1),draws=r.draws+int(r.deck>0),searches=s.searches+1)
+            if self.prior_ko and self.tutor_count(s,'teammates'):
+                q=self.support_tutor(s,'teammates')
+                for j,k in enumerate(targets):
+                    r=self.take(q,k)
+                    if not r.deck:yield f'Teammates -> {k}',replace(r,searches=s.searches+1)
+                    else:
+                        for l in targets[j:]:
+                            if self.available_deck(r,l):yield f'Teammates -> {k},{l}',replace(self.take(r,l),searches=s.searches+1)
+        if not s.star_used:
+            for i in self.own_indices(s):
+                if self.kind(s,i) not in ('v','vmax') or s.ot[i]!='fss' or not self.own_tool_live(s,i):continue
+                # Forest Seal Stone grants a Tool VSTAR Power, not the Pokémon's printed Ability.
+                for k in targets:
+                    yield f'Star Alchemy {self.ids[i]} -> {k}',replace(self.take(s,k),star_used=True,searches=s.searches+1)
     def actions(self,s):
         own=self.own_indices(s); bench=[i for i in own if i!=s.a]
+        yield from self.search_actions(s)
         # Benching uses a canonical empty slot (slot permutation is irrelevant within this model).
         # Optional on-play Abilities are declined here; model only the immediate board effect.
         cap=9 if s.stadium=='sky' else 6
@@ -198,11 +292,15 @@ class Planner:
                 for k in KINDS:
                     j=KINDEX[k]
                     if not CARDS[k][1] or not s.held[j] or (self.ability_pokemon_play_lock and k in ABIL_BASIC):continue
-                    yield f'bench {k} -> {self.ids[empty]}',replace(s,alive=s.alive|(1<<empty),kinds=self.setv(s.kinds,empty,k),
+                    q=replace(s,alive=s.alive|(1<<empty),kinds=self.setv(s.kinds,empty,k),
                         energy=self.setv(s.energy,empty,0),ot=self.setv(s.ot,empty,''),own_damage=self.setv(s.own_damage,empty,0),
                         retreat_extras=self.setv(s.retreat_extras,empty,0),held=self.setv(s.held,j,s.held[j]-1),
                         doors=s.doors&~(1<<empty),attack_block=s.attack_block&~(1<<empty),retreat_block=s.retreat_block&~(1<<empty),
                         evolvable=s.evolvable&~(1<<empty),benched=s.benched+1)
+                    label=f'bench {k} -> {self.ids[empty]}';yield label,q
+                    if k=='lele' and self.own_ability(q,empty):
+                        for target in SUPPORT_TARGETS:
+                            if self.available_deck(q,target):yield label+'; Wonder Tag -> '+target,replace(self.take(q,target),searches=q.searches+1)
         j=KINDEX['vmax']
         if s.held[j] and not self.evolution_lock and not self.pokemon_play_lock and not self.ability_pokemon_play_lock:
             for i in own:
@@ -234,6 +332,11 @@ class Planner:
         if self.item_ok(s):
             if s.vs and s.discard_guzma and not s.guzma:
                 yield 'VS Seeker -> Guzma',replace(s,vs=s.vs-1,discard_guzma=False,guzma=True,played_recovery=s.played_recovery+1)
+            if s.vs:
+                for j,k in enumerate(SUPPORT_TARGETS[1:]):
+                    if s.support_discard[j]:
+                        q=replace(s,vs=s.vs-1,support_discard=self.setv(s.support_discard,j,s.support_discard[j]-1),played_recovery=s.played_recovery+1)
+                        yield 'VS Seeker -> '+k,self.add_held(q,k)
             if s.stretcher and s.discard_p:
                 yield 'Night Stretcher -> Psychic Energy',replace(s,stretcher=s.stretcher-1,discard_p=s.discard_p-1,hand_p=s.hand_p+1,played_recovery=s.played_recovery+1)
             if s.stretcher:
@@ -252,6 +355,8 @@ class Planner:
                 yield f'attach Stealthy Hood -> {self.ids[i]}',replace(s,ot=self.setv(s.ot,i,'hood'),hood=s.hood-1,tools_played=s.tools_played+1)
             if s.flt:
                 yield f'attach Float Stone -> {self.ids[i]}',replace(s,ot=self.setv(s.ot,i,'float'),flt=s.flt-1,tools_played=s.tools_played+1)
+            if self.tutor_count(s,'fss') and self.kind(s,i) in ('v','vmax'):
+                yield f'attach Forest Seal Stone -> {self.ids[i]}',replace(self.spend_tutor(s,'fss'),ot=self.setv(s.ot,i,'fss'),tools_played=s.tools_played+1)
         if s.blower and self.item_ok(s):
             targets=[('own',i) for i in own if s.ot[i]]+[('opp',i) for i in range(self.m) if s.et[i]]
             if self.stadium_removable(s): targets.append(('stadium',-1))
@@ -357,7 +462,7 @@ class Planner:
                 capped=sum(min(d,hp) for d,hp in zip(damages,remain))
                 # Transparent representative ranking per same attack/target, not global win-rate utility.
                 score=(prizes,capped,heal,-s.discarded,-int(s.played_guzma),-int(s.played_blower),
-                       -int(s.played_stadium),-int(s.used_marshadow),-s.tools_played,-s.played_recovery,-s.benched,-s.evolved,s.draws,s.hand_p)
+                       -int(s.played_stadium),-int(s.used_marshadow),-s.tools_played,-s.played_recovery,-s.benched,-s.evolved,-int(s.star_used),-s.used_supporters,-s.searches,len(s.fodder),s.draws,s.hand_p)
                 key=(s.a,attack,targets,effect)
                 old=best.get(key)
                 if old is None or score>old[0]:best[key]=(score,s,damages,ko,prizes,effect,gx,heal,cost)
@@ -372,11 +477,11 @@ class Planner:
                 'attack_cost':cost,'effect':effect,'gx':gx,'heal':heal,'actions':path(s),
                 'board_psychic':{self.ids[j]:s.energy[j] for j in self.own_indices(s)},'known_hand_psychic':s.hand_p,
                 'discarded_psychic':s.discarded,'door_draws':s.draws,'stadium':s.stadium,
-                'recovery_items_used':s.played_recovery,'board_kinds':{self.ids[j]:self.kind(s,j) for j in self.own_indices(s)}})
+                'recovery_items_used':s.played_recovery,'searches':s.searches,'vstar_used':s.star_used,'board_kinds':{self.ids[j]:self.kind(s,j) for j in self.own_indices(s)}})
         results.sort(key=lambda x:(-x['immediate_prizes'],-sum(x['damage_or_counters']),-x['heal'],x['discarded_psychic'],len(x['actions']),x['attack']))
         return {'states':len(paths),'complete_within_model':not incomplete,'distinct_attack_target_options':len(results),
                 'options':results[:limit],'omitted_options':max(0,len(results)-limit),'unsupported':sorted(self.unsupported),
-                'boundary':'Known-resource plan only; replan after observed Door draws. No hidden order or deck search, opponent future action, full copy or defense resolver. Caller supplies effective public flags. Representative ranking is not a game-win policy.'}
+                'boundary':'Known-resource plan only; own-deck searches require supplied legitimate lower bounds; replan after observed Door draws. No hidden order, opponent future action, full copy or defense resolver. Caller supplies effective public flags. Representative ranking is not a game-win policy.'}
 
     def lethal_option(self,s,attack,path):
         name,targets,damages,effect,gx,heal,cost=attack
@@ -408,9 +513,10 @@ class Planner:
             x=dict(x0);x.update(damage=x.get('damage',0)+dealt.get(i,0),tool=s.et[i]);opp.append(x)
         data=dict(self.data);data.pop('copycat_recipe',None)
         data.update(own=own,opp=opp,active=self.ids[s.a],opp_active=self.eids[promotion],stadium=s.stadium,
-             hand={'psychic':s.hand_p,'hood':s.hood,'float':s.flt,'blower':s.blower,'guzma':s.guzma,'stadiums':list(s.stadiums),'vs':s.vs,'stretcher':s.stretcher,'pokemon':dict(zip(KINDS,s.held))},
-             discard={'psychic':s.discard_p,'guzma':s.discard_guzma,'pokemon':dict(zip(KINDS,s.discard_mon))},
-             used={'gx':self.gx_used or gx},deck_remaining=s.deck-1,can_attack=True,support_allowed=True,
+             hand={'psychic':s.hand_p,'hood':s.hood,'float':s.flt,'blower':s.blower,'guzma':s.guzma,'stadiums':list(s.stadiums),'vs':s.vs,'stretcher':s.stretcher,'pokemon':dict(zip(KINDS,s.held)),'discardable':list(s.fodder),**dict(zip(TUTORS,s.tutors))},
+             discard={'psychic':s.discard_p,'guzma':s.discard_guzma,'pokemon':dict(zip(KINDS,s.discard_mon)),**dict(zip(SUPPORT_TARGETS[1:],s.support_discard))},
+             used={'gx':self.gx_used or gx,'vstar':s.star_used},deck_remaining=s.deck-1,can_attack=True,support_allowed=True,
+             known_deck={k:max(0,self.available_deck(s,k)-1) for k in RESOURCES},prior_ko=False,
              prizes_remaining=self.data['prizes_remaining']-prizes)
         if self.data.get('attack_locks_expire_after_turn',True):
             data.update(item_attack_lock=False,support_attack_lock=False,stadium_attack_lock=False,tool_attack_lock=False,energy_attack_lock=False,pokemon_play_lock=False,ability_pokemon_play_lock=False,evolution_lock=False)
@@ -537,6 +643,20 @@ def selftest():
        'hand':{'psychic':1,'pokemon':{'clefairy':1}}}
     r=Planner(q).solve();assert any(x['immediate_prizes']==2 and any(a.startswith('bench clefairy') for a in x['actions']) for x in r['options'])
     q['ability_pokemon_play_lock']=True;assert not any(x['immediate_prizes'] for x in Planner(q).solve()['options'])
+    # K1 tutors: Arven -> Fog+FSS -> known Psychic and VMAX; evolve, manual, Door.
+    q={'own':[{'id':'v1','kind':'v','energy':2,'evolvable':True},{'id':'v2','kind':'v','energy':1}],
+       'opp':[{'id':'target','type':'Grass','hp':160,'prizes':2}], 'active':'v1','opp_active':'target','stadium':'valley',
+       'hand':{'psychic':1,'arven':1},'known_deck':{'fog':1,'fss':1,'psychic':1,'vmax':1}}
+    r=Planner(q).solve();p=next(x for x in r['options'] if x['immediate_prizes']==2);assert 'Arven -> fog,fss' in p['actions'] and any(a.startswith('Star Alchemy') for a in p['actions'])
+    assert p['vstar_used'] and p['searches']==3
+    q['known_deck']={};assert not any(x['immediate_prizes'] for x in Planner(q).solve()['options'])
+    q['known_deck']={'fog':1,'fss':1,'psychic':1,'vmax':1};q['used']={'vstar':True};assert not any(x['immediate_prizes'] for x in Planner(q).solve()['options'])
+    # Raihan attaches without consuming the manual attachment and searches a known evolution.
+    q={'own':[{'id':'v1','kind':'v','energy':2,'evolvable':True},{'id':'v2','kind':'v','energy':1}],
+       'opp':[{'id':'target','type':'Grass','hp':160,'prizes':2}], 'active':'v1','opp_active':'target','stadium':'valley',
+       'hand':{'psychic':1,'raihan':1},'discard':{'psychic':1},'known_deck':{'vmax':1},'prior_ko':True}
+    r=Planner(q).solve();assert any(x['immediate_prizes']==2 and any(a.startswith('Raihan') for a in x['actions']) for x in r['options'])
+    q['prior_ko']=False;assert not any(x['immediate_prizes'] for x in Planner(q).solve()['options'])
     print('All focused actor-visible tactical tests passed.')
 
 def main():
