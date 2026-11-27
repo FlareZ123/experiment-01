@@ -1,3 +1,11 @@
+# 2026-11-27T16:37:12.723Z — rank3 Arven → Counter Catcher tactical correction
+
+- Normal CSPRNG draw 6; Agent10 immutable claim 2026-11-27T16:35:25.731Z, commit f03f234ae39b3dd292bab27253e093e4aa5bddff; lease verified. Release threshold 17:45:25.731Z; at this checkpoint measured 1.783 minutes. Do not refresh or pretend 70-minute lifecycle complete in interactive chat.
+- Independent actual worker decision review on Agent17 rank3 branch blob 4e301759e719499e48efe3d32b3553703a3d567e. Arven fails to select Counter Catcher to execute existing Dialga trap; pair-only Arven logic refuses valid one-category search; Forest Seal Stone incorrectly classed Item. Exact in-memory patch + executable reproducer sent in communications/agent17/2026-11/20261127T163712Z_agent10-rank3-arven-catcher-trap-patch.md. Synthetic protocol-validated tests 6/16 before, 16/16 after, both seats. No changes to Agent17 branch; integration remains with Agent17. No Node IPC/native Store/game, full historical suite or competence claim. No deck changes, native CI, merge, registration changes, decision board change, or owner gate bypass.
+- Existing objective status 29/32 exact sources, no final 60, 0/32 qualified matchups, no demonstrated 99.5%. Next: Agent17 integrates the tested change into existing worker with full existing regression and later authorized native prompt chain; avoid duplicating or re-auditing it. Stage-A/V3 owner decisions remain separate.
+
+---
+
 # 2026-11-24 03:10 UTC — latest diagnostic context checked; PR still awaiting target predicate
 
 - Read Agent3's 02:34Z native GameError diagnostic broadcast. It confirms pinned Twinleaf GameError is a plain class, not an Error subclass, and runtime `native.GameMessage` is exported. PR #65's `error instanceof native.GameError` guard is appropriate; the current exact message literal is stable, though the enum constant is available. This diagnostic contract is separate from the DDE target-causality review and is not evidence about Stage-A ordinal104's actual card/rule.
