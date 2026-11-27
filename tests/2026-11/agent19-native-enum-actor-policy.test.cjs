@@ -45,12 +45,12 @@ function nativePlayer(id,{own=false}={}){
     attacks:[{name:'Max Geist',cost:[COLORLESS,COLORLESS,COLORLESS],
       damage:'10+',damageCalculation:null,text:null,gxAttack:false,barrage:false}],
     powers:[{name:'Underworld Door',powerType:'ABILITY',text:null}],
-    weakness:[{type:DARK,value:'×2'}]
+    weakness:[{type:DARK}]
   }):nativeSlot({
     fullName:'Regidrago VSTAR SIT',name:'Regidrago VSTAR',
     types:[DRAGON],hp:280,subtypes:['VSTAR'],damage:120,
     powers:[{name:'Legacy Star',powerType:'ABILITY',text:null}],
-    weakness:[{type:10,value:'×2'}],
+    weakness:[{type:10}],
     attacks:[{name:'Apex Dragon',cost:[1,1,2],
       damage:'',damageCalculation:null,text:null,gxAttack:false,barrage:false}]
   });
@@ -96,7 +96,7 @@ for(const seat of [0,1]){
       'Pinned absent Weakness.value means x2 rather than no Weakness');
     assert.deepEqual(view.ownPublic.active.attacks[0].cost,['Colorless','Colorless','Colorless']);
     assert.deepEqual(view.opponentPublic.active.printed.types,['Dragon']);
-    assert.deepEqual(view.opponentPublic.active.printed.weakness,[{type:'Fairy',value:'×2'}]);
+    assert.deepEqual(view.opponentPublic.active.printed.weakness,[{type:'Fairy',value:2}]);
     assert.doesNotThrow(()=>protocol.validateActorObservation(view,seat));
     for(const profile of profiles){
       const policy=worker.createPolicy({role:'candidate',seat,
