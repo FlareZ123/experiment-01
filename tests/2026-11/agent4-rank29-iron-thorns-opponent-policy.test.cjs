@@ -1215,3 +1215,53 @@ test('Faba and Enhanced Hammer typed ChooseCardsPrompt paths choose actual oppon
   });
   assert.deepEqual(checkedDecision(hammer),{kind:'select-choices',tokens:['dce']});
 });
+
+test('context DCI burns one Speed Lightning for immediate G&H DCE turbo instead of attaching it', () => {
+  const req=rootRequest({
+    ownHand:['Guzma & Hala CEC 193','Speed Lightning Energy RCL 173',
+      'Camping Gear BST 122'],
+    items:[
+      action('gh','play-card','Guzma & Hala CEC 193',{cardType:'supporter'}),
+      action('speed','play-card','Speed Lightning Energy RCL 173',{cardType:'energy'}),
+      {token:'pass',kind:'pass'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'gh'});
+  const payment=promptRequest({
+    promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('Guzma & Hala CEC 193','Guzma & Hala'),
+    publicMetadata:multiMetadata(2,2),
+    observation:{ownHand:['Speed Lightning Energy RCL 173','Camping Gear BST 122']},
+    choices:[
+      cardChoice('speed','Speed Lightning Energy RCL 173','hand','actor'),
+      cardChoice('gear','Camping Gear BST 122','hand','actor')
+    ]
+  });
+  assert.deepEqual(checkedDecision(payment),
+    {kind:'select-choices',tokens:['gear','speed']});
+});
+
+test('one Speed outside turbo window remains protected, opposing Hood protects Tool Jammer', () => {
+  const unavailableDce={
+    epoch:3,exactMembershipKnown:true,
+    knownPrintings:[{printing:'Tropical Beach BWP 28',copies:1}],
+    invalidationReason:null
+  };
+  const req=promptRequest({
+    promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('Guzma & Hala CEC 193','Guzma & Hala'),
+    publicMetadata:multiMetadata(2,2),
+    observation:{
+      ownerK1:unavailableDce,
+      ownHand:['Speed Lightning Energy RCL 173','Tool Jammer BST 136','Camping Gear BST 122'],
+      opponentPublic:player({active:pokemon('Shadow Rider Calyrex VMAX CRE 75',
+        {tools:['Stealthy Hood UNB 186']})})
+    },
+    choices:[
+      cardChoice('speed','Speed Lightning Energy RCL 173','hand','actor'),
+      cardChoice('jammer','Tool Jammer BST 136','hand','actor'),
+      cardChoice('gear','Camping Gear BST 122','hand','actor')
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),{kind:'abstain',reasonCode:'NO_LEGAL_CARD_SET'});
+});
