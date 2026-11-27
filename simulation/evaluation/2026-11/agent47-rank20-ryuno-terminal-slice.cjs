@@ -12,26 +12,26 @@ const SOURCE_RANK = 20;
 const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
 const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const POLICY_SLICE_VERSION = 'agent47-rank20-ryuno-terminal-slice-v1';
-const VSTAR = /^Regidrago VSTAR SIT(?: 136)?\b/i;
+const VSTAR = /^Regidrago VSTAR SIT(?: 136)?$/i;
 // ASC152's pinned CardManager fullName is 'Mega Dragonite ex M2a'.
-const DRAGONITE = /^Mega Dragonite ex (?:ASC 152|M2a)\b/i;
+const DRAGONITE = /^Mega Dragonite ex (?:ASC 152|M2a)$/i;
 // Fixed Hood-v1 candidate printing inventory: HP/Prize liability established
 // in Agent26's source profile. Caller must bind that candidate profile.
 const TARGETS=Object.freeze([
-  [/^Shadow Rider Calyrex VMAX CRE(?: 75)?\b/i,320,3],
-  [/^Shadow Rider Calyrex V CRE(?: 74)?\b/i,210,2],
-  [/^Lillie's Clefairy ex JTG(?: 56)?\b/i,190,2],
-  [/^Tapu Lele-GX GRI(?: 60)?\b/i,170,2],
-  [/^Trevenant & Dusknoir-GX SMP(?: (?:SM)?217)?\b/i,270,3],
-  [/^Latias ex SSP(?: 76)?\b/i,210,2],
-  [/^Dialga-GX UPR(?: 100)?\b/i,180,2],
-  [/^Mimikyu GRI(?: 58)?\b/i,70,1],
-  [/^Girafarig LOT(?: 94)?\b/i,90,1],
-  [/^Marshadow UNB(?: 81)?\b/i,80,1],
-  [/^Radiant Eternatus CRZ(?: 105)?\b/i,170,1]
+  [/^Shadow Rider Calyrex VMAX CRE(?: 75)?$/i,320,3],
+  [/^Shadow Rider Calyrex V CRE(?: 74)?$/i,210,2],
+  [/^Lillie's Clefairy ex JTG(?: 56)?$/i,190,2],
+  [/^Tapu Lele-GX GRI(?: 60)?$/i,170,2],
+  [/^Trevenant & Dusknoir-GX SMP(?: (?:SM)?217)?$/i,270,3],
+  [/^Latias ex SSP(?: 76)?$/i,210,2],
+  [/^Dialga-GX UPR(?: 100)?$/i,180,2],
+  [/^Mimikyu GRI(?: 58)?$/i,70,1],
+  [/^Girafarig LOT(?: 94)?$/i,90,1],
+  [/^Marshadow UNB(?: 81)?$/i,80,1],
+  [/^Radiant Eternatus CRZ(?: 105)?$/i,170,1]
 ]);
-const BASIC_ENERGY = /^(?:Grass Energy MEE(?: 9)?|Fire Energy MEE(?: 10)?)\b/i;
-const DDE = /^Double Dragon Energy ROS(?: 97)?\b/i;
+const BASIC_ENERGY = /^(?:Grass Energy MEE(?: 9)?|Fire Energy MEE(?: 10)?)$/i;
+const DDE = /^Double Dragon Energy ROS(?: 97)?$/i;
 const TEMPLE = /^Temple of Sinnoh\b/i;
 const SAFE_STADIUM = /^(?:Path to the Peak|Parallel City|Sky Field|Dimension Valley|Temple of Sinnoh)\b/i;
 
@@ -104,8 +104,8 @@ function canTerminalRyuno(request) {
   return true;
 }
 function activeBasicCostPayable(energies) {
-  return arr(energies).filter(e=>/^Grass Energy MEE(?: 9)?\b/i.test(printing(e))).length >= 2 &&
-    arr(energies).filter(e=>/^Fire Energy MEE(?: 10)?\b/i.test(printing(e))).length >= 1;
+  return arr(energies).filter(e=>/^Grass Energy MEE(?: 9)?$/i.test(printing(e))).length >= 2 &&
+    arr(energies).filter(e=>/^Fire Energy MEE(?: 10)?$/i.test(printing(e))).length >= 1;
 }
 function apexRootDecision(request) {
   if (!canTerminalRyuno(request) || request?.prompt != null) return null;
@@ -129,7 +129,7 @@ function apexCopyChoiceDecision(request) {
   if (!/Apex Dragon/i.test(origin)) return null;
   const option = arr(prompt.choices).find(c => c?.kind === 'attack' &&
     (meta(c).sourceAttack ?? c.attackName ?? c.label) === 'Ryuno Glide' &&
-    (DRAGONITE.test(printing(c)) || (!printing(c) && c.label === 'Ryuno Glide')) &&
+    DRAGONITE.test(printing(c)) &&
     (meta(c).sourceZone === undefined || meta(c).sourceZone === 'discard') &&
     (meta(c).ownerSeat === undefined || meta(c).ownerSeat === 'actor') &&
     meta(c).eligible !== false && meta(c).attackCostPayable !== false &&
