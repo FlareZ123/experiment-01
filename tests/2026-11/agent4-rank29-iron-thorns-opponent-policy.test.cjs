@@ -366,7 +366,7 @@ test('spoofed description alone cannot activate Field Blower-specific prompt', (
     description:'Field Blower choose two target Tools',
     source:actorChoiceSource('Quick Ball FST 237','Quick Ball'),
     publicMetadata:multiMetadata(0,2),
-    choices:[cardChoice('hood','Stealthy Hood UNB 186','attached','opponent')]
+    choices:[cardChoice('hood','Stealthy Hood UNB 186','attached','opponent'),{token:'empty',kind:'empty-selection'}]
   });
   const d=checkedDecision(req);
   assert.equal(d.kind,'abstain');
@@ -394,8 +394,8 @@ test('Target Whistle chooses opposing Basic from discard even with Bench destina
     source:actorChoiceSource('Target Whistle Team Flare Gear PHF 106','Target Whistle'),
     publicMetadata:multiMetadata(1,1),
     choices:[
-      cardChoice('latias','Latias ex SSP 76','discard','opponent','pokemon','bench'),
-      cardChoice('shadow','Shadow Rider Calyrex V CRE 74','discard','opponent','pokemon','bench')
+      cardChoice('latias','Latias ex SSP 76','discard','opponent','card','bench'),
+      cardChoice('shadow','Shadow Rider Calyrex V CRE 74','discard','opponent','card','bench')
     ]
   });
   assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:['latias']});
@@ -442,7 +442,8 @@ test('Peonia is not selected without a supported owner-K1 Prize-exchange continu
   const prompt=promptRequest({
     promptType:'ChoosePrizePrompt',
     source:actorChoiceSource('Peonia CRE 149','Peonia'),
-    choices:[{token:'prize-1',kind:'prize-slot',label:'Prize 1'}]
+    publicMetadata:multiMetadata(1,1,'prize-slots'),
+    choices:[cardChoice('prize-1','Prize slot 1','prize','actor','prize')]
   });
   assert.deepEqual(checkedDecision(prompt),{kind:'abstain',reasonCode:'PEONIA_PRIZE_EXCHANGE_UNSUPPORTED'});
 });
