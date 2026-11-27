@@ -255,8 +255,305 @@ function refreshSelfTest(terminal){
   results.push({name:"dynamic Hood drawn after shuffle rather than retained",p:hoodRoute.lowerBound});
   return results;
 }
-module.exports={exactRefreshTerminal,refreshSelfTest,drawVectors,chooseBig};
+
+/**
+ * Adaptive finite-horizon turn planner. Reuses the same deterministic
+ * candidate mechanics, stopping at each random draw and maximizing AFTER
+ * observing its role multiset. No action can depend on a not-yet-drawn card.
+ * Draw blocks represent actor-certified exchangeable segments, not hidden order.
+ */
+function adaptiveTerminal(terminal,input,context,options={}){
+  const reject=reason=>({advisory:true,decision:null,reason,lowerBound:0,upperBound:1});
+  try{
+    const require=(c,m)=>{if(!c)throw Error(m)};
+    require(typeof terminal==="function"&&input?.stablePublicEffects===true&&input.noUnmodeledTerminalEffects===true,
+      "stable terminal envelope required");
+    require(context?.exactMembershipKnown===true&&context.rolesAreExact===true,
+      "exact actor-known role membership required");
+    const h0=roleVector(context.handCounts),d0=roleVector(context.deckCounts);
+    const discard0={lillie:context.refreshDiscard?.lillie??0,iono:context.refreshDiscard?.iono??0};
+    const checkCount=(x,max)=>Number.isSafeInteger(x)&&x>=0&&x<=max;
+    require(checkCount(discard0.lillie,2)&&checkCount(discard0.iono,1),"invalid refresh discard counts");
+    require(sum(h0)+sum(d0)<=60&&sum(d0)===input.deckCount&&h0[idx("P")]===input.handPsychic&&
+      d0[idx("P")]===(input.knownDeckPsychic??0)&&(!d0[idx("P")]||input.knownDeckPsychicCertified===true),
+      "inconsistent exact hand/deck");
+    for(let i=0;i<h0.length;i++){
+      const k=REFRESH_ROLES[i];
+      const disc=k==='P'?(input.discardPsychic??0):
+        k==='acerola'?+!!input.acerolaDiscard:k==='guzma'?+!!input.guzmaDiscard:
+        k==='ranger'?+!!input.rangerDiscard:(discard0[k]??0);
+      const attached=k==='P'?input.board.reduce((a,x)=>a+x.energy,0):
+        k==='hood'?input.board.filter(x=>x.tool==='hood').length:
+        k==='float'?input.board.filter(x=>x.tool==='float').length:k==='valley'?+!!input.dimensionValley:0;
+      require(h0[i]+d0[i]+disc+attached<=ROLE_LIMITS[k],"role copy conservation "+k);
+    }
+    const expected=applyRoles(input,h0,d0,false);
+    for(const k of ["acerolaHeld","guzmaHeld","rangerHeld","vsSeekerCount","fogCount","nightStretcherCount",
+      ...(input.dynamicEffects?["hoodCount","floatStoneCount","fieldBlowerCount","valleyHeld"]:[])])
+      require((input[k]??(typeof expected[k]==="boolean"?false:0))===expected[k],"held role mismatch "+k);
+    if(!input.dynamicEffects)require(['hood','float','blower','valley'].every(k=>h0[idx(k)]===0&&d0[idx(k)]===0),
+      "unmodeled Tool/Stadium roles must be Other");
+    require(["lillie","iono","stamp"].every(k=>typeof context.refreshLegal?.[k]==="boolean"),
+      "refresh permission certificate required");
+    const limits={nodes:options.maxNodes??3000,depth:options.maxChanceDepth??6,states:options.maxStatesPerDeterministic??3000,
+      routes:options.maxChanceRoutesPerNode??300,outcomes:options.maxOutcomesPerChance??1000};
+    require(Object.entries(limits).every(([k,x])=>checkCount(x,k==="depth"?10:100000)&&
+      (k==="depth"||x>0)),"invalid adaptive limits");
+    const firstAllowed=options.firstActionAllowed??(()=>true);
+    const zero=()=>Array(REFRESH_ROLES.length).fill(0);
+    const totalBlocks=blocks=>blocks.reduce((a,b)=>add(a,b.counts),zero());
+    const compact=blocks=>blocks.filter(b=>sum(b.counts)>0);
+    const shuffled=counts=>compact([{counts,exchangeable:true}]);
+    let blocks0=compact([{counts:d0,exchangeable:context.oldDeckExchangeable===true}]);
+    if(context.deckBlocks!==undefined){
+      require(context.deckBlocksActorCertified===true&&Array.isArray(context.deckBlocks)&&
+        context.deckBlocks.every(b=>typeof b.exchangeable==="boolean"),"uncertified deck segment representation");
+      blocks0=compact(context.deckBlocks.map(b=>({counts:roleVector(b.counts),exchangeable:b.exchangeable})));
+      require(totalBlocks(blocks0).every((n,i)=>n===d0[i]),"deck blocks do not match K1 membership");
+    }
+    // Full preceding blocks are observed in their entirety. At most one
+    // partial exchangeable block has a hypergeometric branch.
+    function drawSpec(blocks,n){
+      let fixed=zero(),i=0,left=Math.min(n,sum(totalBlocks(blocks)));
+      while(i<blocks.length&&left>=sum(blocks[i].counts)){
+        fixed=add(fixed,blocks[i].counts);left-=sum(blocks[i].counts);i++;
+      }
+      if(left===0)return {fixed,pool:zero(),drawN:0,tail:blocks.slice(i),denom:1n};
+      const b=blocks[i];
+      if(!b.exchangeable)return null;
+      return {fixed,pool:b.counts,drawN:left,tail:blocks.slice(i+1),denom:chooseBig(sum(b.counts),left)};
+    }
+    const stats={nodes:0,memoHits:0,terminalCalls:0,prefixStates:0,chanceRoutes:0,chanceOutcomes:0,
+      cappedNodes:0,cappedDepth:0,cappedPrefixes:0,cappedRoutes:0,cappedOutcomes:0,unexchangeable:0,unknownReturns:0};
+    const memo=new Map();
+    const unknown=(reason)=>({lo:0,hi:1,reason,path:null});
+    // Convert deterministic prefix snapshot to the full hand and deck blocks.
+    // The deterministic helper never uses refresh cards and never resolves
+    // a random draw in this prefix mode.
+    function recoverPrefix(base,h,blocks,snap,path){
+      let hand=h.slice();
+      const roleFields={P:'handPsychic',fog:'fogCount',stretcher:'nightStretcherCount',vs:'vsSeekerCount',
+        acerola:'acerolaHeld',guzma:'guzmaHeld',ranger:'rangerHeld',
+        ...(base.dynamicEffects?{hood:'hoodCount',float:'floatStoneCount',blower:'fieldBlowerCount',valley:'valleyHeld'}:{})};
+      for(const [role,field] of Object.entries(roleFields))hand[idx(role)]=Number(snap[field]??0);
+      for(const a of path)if(a.kind==='acerola'){
+        const row=base.board.find(x=>x.id===a.target);
+        // Exact actor projection must supply returned evolution stack size;
+        // the candidate's attached P and modeled Tools are already tracked.
+        if(base.dynamicEffects){
+          if(!checkCount(row?.stackCount,3)||row.stackCount<1)return null;
+          const removed=path.slice(0,path.indexOf(a)).some(x=>x.kind==='field-blower'&&
+            x.targetSeat==='actor'&&x.target===a.target);
+          hand[idx('other')]+=row.stackCount+(row.tool==='other'&&!removed?1:0);
+        }else{
+          if(!checkCount(row?.returnedOtherCount,10)||row.returnedOtherCount<1)return null;
+          hand[idx('other')]+=row.returnedOtherCount;
+        }
+      }
+      const fogSpent=h[idx('fog')]-hand[idx('fog')];
+      if(fogSpent<0)return null;
+      let outBlocks=blocks;
+      if(fogSpent>0){
+        const total=totalBlocks(blocks);
+        if(total[idx('P')]<fogSpent)return null;
+        outBlocks=shuffled(change(total,'P',-fogSpent));
+      }
+      return {h:hand,blocks:outBlocks};
+    }
+    function stateKey(base,h,blocks,disc,oppPositive,depth){
+      return JSON.stringify([base,h,blocks,disc,oppPositive,depth]);
+    }
+    function solve(base,h,blocks,disc,oppPositive,depth,isRoot=false){
+      const exactDeck=totalBlocks(blocks);
+      base=applyRoles(base,h,exactDeck,false);
+      const key=stateKey(base,h,blocks,disc,oppPositive,depth);
+      if(!isRoot&&memo.has(key)){stats.memoHits++;return memo.get(key);}
+      if(stats.nodes>=limits.nodes){stats.cappedNodes++;return unknown("node budget");}
+      stats.nodes++;
+      const allowed=isRoot?firstAllowed:()=>true;
+      stats.terminalCalls++;
+      const direct=terminal(base,limits.states,allowed,{witnessOnly:true});
+      if(direct.decision){
+        const result={lo:1,hi:1,path:direct.decision.plan.actions,certain:true};
+        if(!isRoot)memo.set(key,result);
+        return result;
+      }
+      const candidates=new Map();
+      let omitted=false,unknownGeometry=false;
+      function addCandidate(c){
+        if(!c.path.length)return;
+        const k=JSON.stringify([c.kind,c.input,c.h,c.blocks,c.disc,c.oppPositive,c.drawCount]);
+        const old=candidates.get(k);
+        if(old){
+          if(c.path.length<old.path.length)candidates.set(k,c);
+          return;
+        }
+        if(candidates.size>=limits.routes){omitted=true;return;}
+        candidates.set(k,c);
+      }
+      function generateRefresh(snap,path){
+        const resources=recoverPrefix(base,h,blocks,snap,path);
+        if(!resources){unknownGeometry=true;return;}
+        for(const kind of ['lillie','iono','stamp']){
+          if(!context.refreshLegal[kind]||
+            (kind==='stamp'?!(snap.itemPlayAllowed&&context.ownPokemonKOdLastOpponentTurn===true):!snap.supportAvailable))
+            continue;
+          let hand=resources.h.slice(),route=path.slice(),discard={...disc};
+          if(!hand[idx(kind)]){
+            if(kind==='stamp'||!snap.itemPlayAllowed||!hand[idx('vs')]||!discard[kind])continue;
+            const vs={kind:'vs-seeker',target:kind==='lillie'?"Lillie's Determination":"Iono"};
+            if(!route.length&&!allowed(vs))continue;
+            route.push(vs);hand=change(change(hand,'vs',-1),kind,1);discard[kind]--;
+          }
+          const refresh={kind:'refresh',card:kind==='lillie'?"Lillie's Determination":kind==='iono'?'Iono':'Unfair Stamp'};
+          if(!route.length&&!allowed(refresh))continue;
+          route.push(refresh);hand=change(hand,kind,-1);
+          // Iono draws only if at least one player put cards on bottom.
+          if(kind==='iono'&&!sum(hand)&&oppPositive!==true){
+            if(oppPositive===null)unknownGeometry=true;
+            continue;
+          }
+          const nextBlocks=kind==='iono'?compact([...resources.blocks,{counts:hand,exchangeable:true}]):
+            shuffled(add(totalBlocks(resources.blocks),hand));
+          const desired=kind==='lillie'?(snap.prizesRemaining===6?8:6):kind==='iono'?snap.prizesRemaining:5;
+          const count=Math.min(desired,sum(totalBlocks(nextBlocks)));
+          if(count===0)continue;
+          let nextOppPositive=oppPositive;
+          if(kind==='stamp'){
+            // The opponent draws 2 from shuffled old hand+deck. Only its
+            // public positive-hand fact is used to establish Iono's trigger.
+            nextOppPositive=oppPositive===true||context.opponentDeckPositive===true?true:
+              oppPositive===false&&context.opponentDeckPositive===false?false:null;
+          }
+          addCandidate({kind,path:route,input:{...snap,supportAvailable:snap.supportAvailable&&kind==='stamp'},
+            h:zero(),blocks:nextBlocks,disc:discard,oppPositive:nextOppPositive,drawCount:count});
+        }
+      }
+      stats.terminalCalls++;
+      const prefixes=terminal(base,limits.states,allowed,{stopBeforeChance:true,
+        onReachableState:({input:snap,path})=>{stats.prefixStates++;generateRefresh(snap,path);},
+        onChance:({input:snap,path,drawCount})=>{
+          const resources=recoverPrefix(base,h,blocks,snap,path);
+          if(!resources){unknownGeometry=true;return;}
+          addCandidate({kind:'door',path,input:snap,h:resources.h,blocks:resources.blocks,
+            disc,oppPositive,drawCount});
+        }});
+      if(prefixes.decision){
+        const result={lo:1,hi:1,path:prefixes.decision.plan.actions,certain:true};
+        if(!isRoot)memo.set(key,result);
+        return result;
+      }
+      if(!prefixes.completeWithinModel){stats.cappedPrefixes++;omitted=true;}
+      if(unknownGeometry){stats.unknownReturns++;omitted=true;}
+      if(candidates.size>=limits.routes&&omitted)stats.cappedRoutes++;
+      let best={lo:0,hi:0,path:null},upper=omitted?1:0;
+      const rootOptions=[];
+      for(const c of candidates.values()){
+        stats.chanceRoutes++;
+        let lo=0,hi=0,example=null,examined=0;
+        const spec=drawSpec(c.blocks,c.drawCount);
+        if(!spec){stats.unexchangeable++;hi=1;}
+        else if(depth===0){stats.cappedDepth++;hi=1;}
+        else{
+          let visited=0n;
+          for(const {draw,weight} of drawVectors(spec.pool,spec.drawN)){
+            if(examined>=limits.outcomes||stats.nodes>=limits.nodes){
+              stats.cappedOutcomes++;break;
+            }
+            examined++;stats.chanceOutcomes++;visited+=weight;
+            const observed=add(c.h,add(spec.fixed,draw));
+            const remainder=compact([{counts:sub(spec.pool,draw),exchangeable:true},...spec.tail]);
+            const child=solve(c.input,observed,remainder,c.disc,c.oppPositive,depth-1,false);
+            const p=Number(weight)/Number(spec.denom);
+            lo+=p*child.lo;hi+=p*child.hi;
+            if(!example&&child.lo>0)example={draw:Object.fromEntries(REFRESH_ROLES.map((k,i)=>[k,observed[i]])),
+              continuation:child.path,conditionalLower:child.lo};
+          }
+          hi+=Number(spec.denom-visited)/Number(spec.denom);
+        }
+        lo=Math.max(0,Math.min(1,lo));hi=Math.max(lo,Math.min(1,hi));
+        upper=Math.max(upper,hi);
+        const option={kind:c.kind,path:c.path,lo,hi,outcomes:examined,example};
+        if(isRoot)rootOptions.push(option);
+        if(lo>best.lo+1e-12||(Math.abs(lo-best.lo)<=1e-12&&lo>0&&(!best.path||c.path.length<best.path.length)))
+          best=option;
+        // A witnessed probability-one route is globally optimal for this
+        // objective, so remaining branches cannot improve it.
+        if(best.lo>=1-1e-12){best.lo=1;upper=1;break;}
+      }
+      const result={...best,hi:Math.max(best.lo,upper),...(isRoot?{rootOptions}:{}),certain:best.lo===1};
+      if(!isRoot)memo.set(key,result);
+      return result;
+    }
+    const oppPositive=typeof context.opponentHandPositive==="boolean"?context.opponentHandPositive:null;
+    const result=solve(input,h0,blocks0,discard0,oppPositive,limits.depth,true);
+    return {advisory:true,decision:result.lo>0&&result.path?.length?{kind:result.certain?'adaptive-certain-witness':'adaptive-terminal-choice',
+      firstAction:result.path[0],prefix:result.path,nextChance:result.kind??null,example:result.example??null}:null,
+      lowerBound:result.lo,upperBound:result.hi,exactWithinRestrictedModel:Math.abs(result.lo-result.hi)<1e-12,
+      rootOptions:result.rootOptions??[],stats,
+      boundary:"Maximize probability of a current-turn terminal within modeled deterministic actions and observed Door/Lillie/Iono/Stamp draws; replan after actual observations. Exact actor-known multiset and exchangeable segments only. Bounds explicitly include unmodeled/capped chance branches within this search, not all legal Pokémon TCG actions. No opponent response, hidden order, future-turn utility, or qualified match performance."};
+  }catch(e){return reject(String(e.message??e));}
+}
+function adaptiveSelfTest(terminal){
+  const assert=(c,m)=>{if(!c)throw Error(m)};
+  const v=(id,e,door=false)=>({id,energy:e,damage:0,psychic:true,vmax:true,doorAvailable:door,retreatCost:2,
+    canAttack:true,canRetreat:false,returnedOtherCount:1});
+  const f=(board,h,d,extra={})=>({stablePublicEffects:true,noUnmodeledTerminalEffects:true,board,active:0,
+    handPsychic:h.P??0,knownDeckPsychic:d.P??0,knownDeckPsychicCertified:true,deckCount:Object.values(d).reduce((a,x)=>a+x,0),
+    manualAvailable:true,retreatAvailable:true,supportAvailable:true,acerolaHeld:!!h.acerola,guzmaHeld:!!h.guzma,rangerHeld:!!h.ranger,
+    fogCount:h.fog??0,vsSeekerCount:h.vs??0,nightStretcherCount:h.stretcher??0,manualAttachmentAllowed:true,dimensionValley:false,
+    itemPlayAllowed:true,prizesRemaining:2,target:{remainingHP:190,prizesOnKO:2,opponentBoardCount:2,weaknessMultiplier:1,
+    resistance:0,damageReduction:0},...extra});
+  const c=(h,d,extra={})=>({exactMembershipKnown:true,rolesAreExact:true,handCounts:h,deckCounts:d,oldDeckExchangeable:true,
+    refreshLegal:{lillie:true,iono:true,stamp:true},...extra});
+  const results=[];
+  function check(name,r,p,firstKind){
+    assert(Math.abs(r.lowerBound-p)<1e-10&&Math.abs(r.upperBound-p)<1e-10&&r.exactWithinRestrictedModel,
+      name+" probability mismatch "+JSON.stringify(r));
+    if(firstKind)assert(r.decision?.firstAction.kind===firstKind,name+" first action mismatch "+JSON.stringify(r));
+    results.push({name,p:r.lowerBound,action:r.decision?.firstAction??null,stats:r.stats});
+  }
+  let h={P:1},d={P:1,other:4},input=f([v("a",3),v("b",1,true)],h,d);
+  let r=adaptiveTerminal(terminal,input,c(h,d));
+  check("Door before manual creates a 2/5 winning draw",r,0.4,"underworld-door");
+  check("manual-first root cannot use the unseen Psychic",adaptiveTerminal(terminal,input,c(h,d),{firstActionAllowed:a=>a.kind==="manual-attach"}),0);
+  r=adaptiveTerminal(terminal,input,c(h,d,{oldDeckExchangeable:false}));
+  assert(r.lowerBound===0&&r.upperBound===1&&r.stats.unexchangeable>0,"unseen order must not be invented");
+  results.push({name:"unknown deck order stays interval",lo:r.lowerBound,hi:r.upperBound});
+  check("actor-certified known bottom segment is not shuffled into Door draw",
+    adaptiveTerminal(terminal,input,c(h,d,{deckBlocksActorCertified:true,deckBlocks:[
+      {counts:{other:4},exchangeable:true},{counts:{P:1},exchangeable:true}]})),0);
+  check("draw crossing into known bottom segment",
+    adaptiveTerminal(terminal,input,c(h,d,{deckBlocksActorCertified:true,deckBlocks:[
+      {counts:{other:1},exchangeable:false},{counts:{P:1,other:3},exchangeable:true}]})),0.25,"underworld-door");
+  h={P:1,lillie:1};d={P:3,other:17};input=f([v("a",3),v("b",1,true)],h,d);
+  const fixed=exactRefreshTerminal(terminal,input,c(h,d));
+  r=adaptiveTerminal(terminal,input,c(h,d));
+  assert(r.lowerBound>fixed.decision.route.lowerBound&&r.exactWithinRestrictedModel,
+    "adaptive Door/refresh must improve fixed prebank "+JSON.stringify({r,fixed:fixed.decision}));
+  results.push({name:"Door and Lillie adaptive improvement",p:r.lowerBound,fixed:fixed.decision.route.lowerBound,
+    action:r.decision.firstAction,stats:r.stats});
+  h={stamp:1};d={P:2,lillie:1,other:7};input=f([v("a",3),v("b",1,true)],h,d);
+  const ctx=c(h,d,{ownPokemonKOdLastOpponentTurn:true,opponentHandPositive:true});
+  const one=exactRefreshTerminal(terminal,input,ctx);
+  r=adaptiveTerminal(terminal,input,ctx);
+  assert(r.lowerBound>one.decision.route.lowerBound&&r.exactWithinRestrictedModel&&r.decision.firstAction.card==="Unfair Stamp",
+    "Stamp then observed Supporter/Doors should improve "+JSON.stringify({r,one:one.decision}));
+  results.push({name:"Stamp preserves adaptive Lillie and Door",p:r.lowerBound,oneRefresh:one.decision.route.lowerBound,stats:r.stats});
+  r=adaptiveTerminal(terminal,input,ctx,{maxNodes:1});
+  assert(r.lowerBound===0&&r.upperBound===1&&!r.exactWithinRestrictedModel,"node cap must keep unresolved mass");
+  h={P:1};d={other:4};input=f([v("a",3),v("b",2)],h,d);
+  check("certain manual win bypasses chance enumeration",adaptiveTerminal(terminal,input,c(h,d)),1,"manual-attach");
+  h={iono:1,P:1};d={P:1,other:2};input=f([v("a",3),v("b",1,true)],h,d);
+  r=adaptiveTerminal(terminal,input,c(h,d,{opponentHandPositive:true}),{firstActionAllowed:a=>a.kind==="refresh"&&a.card==="Iono"});
+  // Iono draws 2 of the 3 old cards: if P is among them (2/3), Door
+  // attaches it then draws remaining old card and bottomed held P.
+  check("Iono bottomed Psychic can be drawn by later Door",r,2/3,"refresh");
+  return results;
+}
+
+module.exports={exactRefreshTerminal,refreshSelfTest,drawVectors,chooseBig,adaptiveTerminal,adaptiveSelfTest};
 if(require.main===module){
   const {acerolaMaxGeist}=require("./acerola-max-geist-advisory.cjs");
-  console.log(JSON.stringify(refreshSelfTest(acerolaMaxGeist),null,2));
+  console.log(JSON.stringify({refresh:refreshSelfTest(acerolaMaxGeist),adaptive:adaptiveSelfTest(acerolaMaxGeist)},null,2));
 }
