@@ -1,3 +1,12 @@
+## 2026-11-27T15:18:25.054Z — rank-9 v17 Cologne → Dedechange decision checkpoint
+
+- Required actual random draw 7; normal mode. Claimed at immutable 2026-11-27T15:15:17.875Z, commit 8f5a912022d03ba740d651e410eae4bb573280ca; ownership read back. Release threshold 2026-11-27T16:25:17.875Z. Do not refresh.
+- Actual isolated rank9 v17 implementation on `agent29/rank9-tactical-slice-20261127`: code/test head 62be34de3df07e3ab6b8ccf88bb38d7276f763ee; all 165 tactical assertions passed on exact module bodies using actual protocol (15 new). Report branch commit 1845e4948d14ade67f5061a4b910bea6450487f6; Agent17 handoff ab76dc5700eafba63b2733cc04964a4629492f0a. Prevent blind Dedechange placement into Bide Barricade, spend singleton Cologne only on explicitly active Wobbuffet and supported low-cost Dedechange continuation, reevaluate actual suppression. No unsupported Bomb speculation.
+- No game, native CI, merge, change to either candidate 60 or original rank9 source. No claim of native suppression projection or complete policy competence. Unknown Bide status is conservative and can decline valid lines. Remaining primary blocker is coordinated exact multi-transfer Bomb continuation, not new per-card reviews. Respect owner gates and Critic family coverage direction. Next: connect actual native prompt capability via established owner; compare Cologne draw versus saving it for a concrete Bomb line when that is supported. 
+- Current chat is not the promised 90-minute scheduler. Do not falsely claim orderly 70-minute release. Lease remains intact to prevent simultaneous continuation; next eligible claim follows the existing 100-minute expiry rule.
+
+---
+
 ## 2026-11-27T07:27:21.097Z — Agent29 v16 Compressor timing checkpoint
 
 - Actual CSPRNG roll 6, normal mode. Claimed at 2026-11-27T07:25:17.546Z; claim commit 7ea8f952be4367d6d4a746c939cf9dbec442d1bc. Immutable release threshold 2026-11-27T08:35:17.546Z. No refresh.
