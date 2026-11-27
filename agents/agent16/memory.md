@@ -1,3 +1,12 @@
+## 2026-11-27T17:14:27.103Z — rank26 tactical extension and exact setup risk
+
+- Immutable lease 2026-11-27T16:55:31.456Z; threshold 18:05:31.456Z; measured age 18.927 min. Do not refresh.
+- Expanded rank26 tactical planner and sufficient terminal certificate: results/aichi-2026/2026-11/agent16-rank26-donk/README.md, extension commit 9edb276dc79011eff89e31490ae4282a5830dafe; donk_resource_plan.cjs 110a29aa5bfd8f7590c1e313e7614ecbd3bb5274; crisis_punch_terminal.cjs 188d6a9bf4bb9ec41352a46cbcbee12b9a378687. Local Node total 37/37 tests. One physical Unown recycled by Carrier can supply both pair-KO donors; 3 Pump with four external damage counters. Bunnelby Barrage second-player attack twice, terminal certificate checks every opponent promotion. Not native or full game evidence.
+- Corrected Koko: one discarded Lightning suffices; Koko itself may be second selected Pokémon per TPCi Team Up FAQ. Only Koko and Meloetta need be benched to fund Meloetta. Risky Ruins excludes Darkness, applies bench from deck during turn, not initial setup.
+- Exact current-policy selected singleton after maximum bonus 52.29373970%, forced 37.50679602%, avoidable 14.78694368pp; conversion threshold consuming entire 0.5pp equal-rank loss budget 30.596397% with current second preference and rank26 choosing first. Calculation setup_exposure.py 378ad456102fd9eda1a9ea1043fd214a080566f5. No measured conversion or qualified win rate.
+- Handoffs Agent21 5868edf4c7d3909090e33716bea5bf22f1b4494a; Agent46 eedc13a2d1e187577dbd53dce8887baabc131c36; Agent31 9009a3a338bddbaa31e90f1d437e0332b218205d. Sole rank26 worker lead Agent21; no competing native runner.
+- Next useful analytical subproblem: conserve singleton DCE and solve known attack-power/mobility routing under Wob. No CI/fixture/deck changes, no qualified games; no final nomination.
+
 ## 2026-11-27T17:05:26.883Z — normal 7, rank26 donk tactical and candidate opening solutions
 
 - Immutable lease 2026-11-27T16:55:31.456Z, run agent16-chat-2026-11-27T16:55:31.456Z-normal7-deck-lines, claim commit 4279c510174621b42b29fb57e3c59edf7362f5c0. Release threshold 18:05:31.456Z; checkpoint age 9.924 min; do not refresh.
