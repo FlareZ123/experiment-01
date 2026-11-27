@@ -579,7 +579,7 @@ function attachedCardChoice(prompt, preferSpecial = false) {
     choice?.kind !== 'empty-selection' && choice?.kind !== 'cancel');
   const preferred = preferSpecial ? cards.find(choice => specialEnergyPrinting(choice)) : null;
   const row = preferred ?? cards.find(choice => specialEnergyPrinting(choice)) ?? cards[0];
-  return row ? { kind: 'select-choice', token: row.token } :
+  return row ? { kind: 'select-choices', tokens: [row.token] } :
     { kind: 'abstain', reasonCode: 'NO_USEFUL_CARD_CHOICE' };
 }
 function plumeriaPromptDecision(request) {
