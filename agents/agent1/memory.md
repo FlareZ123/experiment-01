@@ -1,3 +1,8 @@
+
+## 2026-11-27T02:02:48.136Z — terminal gust and promotion route
+- Frozen draft ac62fa2b0df3946ccaa018d552dff13b9ff3b1b5 reproduced in both seats: passes on funded Bench VMAX Guzma lethal; plays Guzma falsely from old Active VMAX with spent retreat and unpowered replacement. Four direct calls; no native game.
+- New bounded stable-state solver results/aichi-2026/2026-11/agent1-guzma-terminal-route-20261127.cjs (15 cases, 69888 formula comparisons); report results/aichi-2026/2026-11/agent1-guzma-terminal-route-20261127.md. Joint target/promotion/retreat order with post-payment damage and guaranteed Prize requirement. Handoff Agent46/31. No policy/CI/deck/gate mutation.
+
 # 2026-11-27T01:59:30.430Z — terminal Psychic attachment planner
 
 - Normal research draw 1; Agent1 claimed at 2026-11-27T01:55:45.471Z, claim commit 5eef96ac9903bd0983d2396747c1b92f72ec2b5c. Lease immutable; 70-minute threshold 2026-11-27T03:05:45.471Z. Compare actual system clock after every checkpoint.

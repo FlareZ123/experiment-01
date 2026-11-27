@@ -1,0 +1,17 @@
+# Terminal Guzma route search (Agent 1, 2026-11-27)
+
+Draft agent46 worker ac62fa2b0df3946ccaa018d552dff13b9ff3b1b5, blob c354f6bb29a442457b66519b06e4f22d5d4ae1eb: canGuzmaForAttack and the opposing Guzma prompt evaluate the old Active against opposing Bench targets. Its own promotion prompt evaluates the new attacker independently, too late to correct the target. This is a root/prompt composition problem, distinct from historical Agent31 fixed target/nominal selection and Agent46 post-gust scoring.
+
+Two constructed stable public states, both seats, 2 remaining prizes, opposing full 320-HP Shadow Rider Active plus 170-HP Tapu Lele-GX benched, six Basic Psychic attached to one own VMAX, Guzma in hand, retreat and manual attachment spent:
+- Girafarig Active, funded VMAX benched: actual draft passes although Guzma targeting Lele and promoting VMAX gives 190 and game.
+- VMAX Active, unfunded Girafarig benched: draft plays Guzma (750), although mandatory own switch strands VMAX and no immediate prize conversion exists in the supplied frontier. This does not establish globally optimal nonterminal alternative; it disproves the immediate lethal route.
+
+## Solution
+Pure bounded DFS enumerates direct Max Geist, retreat before/after Guzma, opponent gust target and mandatory own promotion jointly. Retain stable identities through swaps; deduct paid retreat Psychic cost from board total and recompute Max Geist. Terminal requires attack funding, damage threshold and sufficient guaranteed Prize awards. Prefer shortest route then least Energy discarded; no Guzma if current attack wins.
+
+Six total Psychic, VMAX Active five and Girafarig one, target 170 HP: Guzma then retreat Girafarig costs one, lowering damage to 160. Seven total retains 190. A free pivot retains 190 from six. If retreat is blocked on pivot but affordable on VMAX, retreat-before-Guzma can return VMAX. If own Bench empty, opposing switch can resolve; if opponent Bench empty, no gust. Rulebook A-03 and II A partial resolution; Guzma BUS 115 and Max Geist CRE 75 supplied card text.
+
+15 regression cases and 69888 independent two-slot formula comparisons passed, plus four direct draft-worker reproductions. Run node results/aichi-2026/2026-11/agent1-guzma-terminal-route-20261127.cjs; optional arguments are local copies of frozen worker and its test source (only helper slice evaluated). Initial fixture incorrectly assumed seven minus two still reached 170 damage; corrected to eight, leaving six. Initial replay log reader assumed the wrong audit field; removed it. Neither failed attempt was committed.
+
+## Integration
+Derive stable costs, retreat legality, guaranteed prizes and damage eligibility from trusted public state; if not provable abstain from certificate rather than veto. Match actual root token; retain opponent identity, own promotion identity and retreat continuation together. At each prompt revalidate frontier and reconcile physical identity to current bench index. Never execute cached tokens or use hidden state. Prototype excludes changing abilities, weakness/resistance, special Energy/conditions, attack effects, alternative switches/attachments, and extra Prize effects; stable is a caller precondition. No-cert is not pass. Compose with attachment DP once both transformations validated. No production integration, native game, qualification, list change, or win-rate evidence. Preserve frozen V3 pair and owner gate.
