@@ -21,6 +21,7 @@ const md = x => x?.publicMetadata ?? {};
 const ALIASES=Object.freeze({
   "Raging Bolt ex TEF": "Raging Bolt ex TEF 123",
   "Dedenne-GX UNB": "Dedenne-GX UNB 57",
+  "Arceus & Dialga & Palkia GX CEC": "Arceus & Dialga & Palkia-GX CEC 156",
   "Arceus & Dialga & Palkia-GX CEC": "Arceus & Dialga & Palkia-GX CEC 156",
   "Sandy Shocks ex PAR": "Sandy Shocks ex PAR 108",
   "Galarian Moltres V CRE": "Galarian Moltres V CRE 97",
@@ -204,7 +205,7 @@ function tacticalPrompt(r) {
   const prompt=r.prompt, options=list(prompt?.choices), m=md(prompt);
   if(!prompt || !slots(opp(r)).some(s=>targetValue(s.pokemon)>0))return null;
   if(prompt.promptType==='ChooseCardsPrompt' && sourceIs(prompt,'Direflame Wings',mol)){
-    if(m.minimumCount!==1||m.maximumCount!==1)return null;
+    if(m.minimumCount!==0||m.maximumCount!==1||m.allowCancel!==true)return null;
     const c=options.find(x=>x.kind==='card'&&md(x).ownerSeat==='actor'&&md(x).sourceZone==='discard'&&md(x).isOwnerVisible===true&&dark(x));
     return c?choice(c):null;
   }
