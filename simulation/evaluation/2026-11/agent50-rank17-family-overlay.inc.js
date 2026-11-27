@@ -673,12 +673,42 @@ function r17TrainerNeed(key,view) {
   return 0;
 }
 function r17SecretChoices(prompt,view) {
-  const cards=r17ChoiceCards(prompt,'deck'),groups=[R17_ITEM,R17_TOOL,R17_SUPPORTER,new Set(['pokestop'])],rows=[];
-  for(const group of groups) {
-    const ranked=r17Rank(cards.filter(c=>group.has(r17Key(c))),c=>r17TrainerNeed(r17Key(c),view));
-    if(ranked[0])rows.push(ranked[0]);
-  }
-  return r17Multi(prompt,rows,4);
+  const cards=r17ChoiceCards(prompt,'deck'),groups=[R17_ITEM,R17_TOOL,R17_SUPPORTER,new Set(['pokestop'])];
+  const lists=groups.map(group=>{
+    const seen=new Set();
+    return cards.filter(c=>{const k=r17Key(c);if(!group.has(k)||seen.has(k))return false;seen.add(k);return true;});
+  });
+  const ordinary=lists.map(rows=>r17Rank(rows,c=>r17TrainerNeed(r17Key(c),view))[0]).filter(Boolean);
+  const p=active(own(view));
+  if(!r17RainWindow(view,p)||!r17LiveBombs(view).length)return r17Multi(prompt,ordinary,4);
+  // Joint search: the Item, Tool and Stadium slots may be complements,
+  // not independent upgrades. Assess the whole bundle against the
+  // presently available line. Energy availability is only a K0 upper
+  // bound until the subsequent Compressor search supplies exact choices.
+  const ignoreTemple=r17NeedTempleRemoval(view)&&r17TempleAnswerPossible(view);
+  const baseline=r17RainProjection(view,p,{ignoreTemple});
+  const bound=r17EnergyDeckBounds(view),held=r17HandCount(view,'compressor');
+  let best=null;
+  for(const item of lists[0].length?lists[0]:[null])
+    for(const tool of lists[1].length?lists[1]:[null])
+      for(const supporter of lists[2].length?lists[2]:[null])
+        for(const stadium of lists[3].length?lists[3]:[null]){
+          const rows=[item,tool,supporter,stadium].filter(Boolean);
+          const forceSight=r17Key(tool)==='sight'&&list(p.tools).length===0&&r17StadiumToolLive(view)&&
+            !own(view).publicTurnRestrictions?.toolPlayLocked&&!view.ownTurnResources?.toolPlayLocked;
+          const removeTemple=ignoreTemple||r17NeedTempleRemoval(view)&&r17Key(stadium)==='pokestop'&&
+            !own(view).publicTurnRestrictions?.stadiumPlayLocked&&view.ownTurnResources?.stadiumPlayedTurn!==view.globalTurn;
+          const options={forceSight,ignoreTemple:removeTemple};
+          const capacity=Math.min(12,3*(held+Number(r17Key(item)==='compressor')));
+          let projected=r17RainProjection(view,p,options);
+          const load=r17LoadPlan(view,p,bound,capacity,options);
+          if(load&&r17CompareProjection(load.projection,projected)>0)projected=load.projection;
+          if(!projected||r17CompareProjection(projected,baseline)<=0)continue;
+          const value=rows.reduce((n,c)=>n+r17TrainerNeed(r17Key(c),view),0);
+          const cmp=r17CompareProjection(projected,best?.projection);
+          if(cmp>0||cmp===0&&value>best.value)best={rows,projection:projected,value};
+        }
+  return r17Multi(prompt,best?.rows||ordinary,4);
 }
 function r17Slot(view,zone,index) {
   if(zone==='active')return active(own(view));
