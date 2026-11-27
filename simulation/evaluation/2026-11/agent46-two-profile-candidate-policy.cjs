@@ -2674,6 +2674,16 @@ const heldFloat = hand.some(p=>hasName(p,'Float Stone'));
     const lele=candidates.find(row=>hasName(row.choice.printing,'Tapu Lele-GX'));
     if (lele) selected.push(lele.choice);
   }
+  // Rank-26 donk exposure makes an otherwise lone Shadow Rider V too costly
+  // when a legal backup Basic is already in the setup hand. This fallback is
+  // deliberately below every positive-score Bench choice: only sacrifice an
+  // entry trigger when the alternative is entering play with exactly one body.
+  if(room>0&&bench.length+placed===0&&isBasicShadowRiderVPrinting(activePrinting)){
+    const backup=['Dialga-GX','Tapu Lele-GX','Radiant Eternatus']
+      .map(name=>candidates.find(row=>hasName(row.choice.printing,name)))
+      .find(Boolean);
+    if(backup)selected.push(backup.choice);
+  }
   setPolicyAuditRule(initial ? 'STRATEGIC_INITIAL_ACTIVE_AND_BENCH' :
     'POST_BONUS_RETAIN_TRIGGERS_AND_RESERVE_BENCH', 'SCORE_DESC_NATIVE_INDEX_ASC');
   if (selected.length < metadata.minimumCount) return abstain('INSUFFICIENT_STARTING_POKEMON_CHOICES');
