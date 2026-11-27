@@ -781,7 +781,9 @@ function attackBaseDamage(attacker, attack, view, target) {
     const specialSuppressed=[...view.ownPublic.stadium,...view.opponentPublic.stadium].some(p=>hasName(p,'Temple of Sinnoh')) &&
       stadiumAndToolEffectsLive(view)===true;
     const units=slot=>slot.energies.reduce((sum,p)=>sum+(specialSuppressed&&!isBasicEnergyPrinting(p)?1:energyCardUnits(slot,p)),0);
-    return 20*(units(attacker)+units(target));
+      const a=publicEnergySupply(attacker,view,specialSuppressed,'actor'),
+      b=publicEnergySupply(target,view,specialSuppressed,'opponent');
+    return a&&b?20*(a.length+b.length):null;
   }
   if (attack.name === 'Full Moon Rondo') {
     return 20 + 20 * (
@@ -2947,39 +2949,97 @@ function scoreTrainerPlay(item, view, receipt, profile) {
   return -Infinity;
 }
 
-function templePressure(view) {
-  const special = opponentBoard(view).flatMap(slot=>slot.energies??[])
-    .filter(p=>hasAnyName(p,['Double Dragon Energy','Double Colorless Energy','Twin Energy',
-      'Double Turbo Energy','Reversal Energy','Rainbow Energy','Aurora Energy','Prism Energy',
-      'Luminous Energy','Mist Energy','Jet Energy','Legacy Energy','Capture Energy','Gift Energy',
-      'Powerful Colorless Energy','Rapid Strike Energy','Single Strike Energy']));
-  const double = special.filter(p=>hasAnyName(p,['Double Dragon Energy','Double Colorless Energy',
-      'Twin Energy','Double Turbo Energy','Reversal Energy','Rapid Strike Energy'])).length;
-  return Math.min(1200,double*750 + (special.length-double)*250);
-}
-function projectedStadium(view,name) {
-  const after=viewAfterRemovingAbilityStadiums(view);
-  return {...after,ownPublic:{...after.ownPublic,stadium:[name]}};
-}
-function usefulCandidateStadium(view,name) {
-  const all=[...view.ownPublic.stadium,...view.opponentPublic.stadium];
-  if(view.ownTurnResources?.stadiumPlayedTurn===true||view.ownTurnResources?.stadiumPlayLocked===true||
-    view.ownPublic.publicTurnRestrictions?.stadiumPlayLocked===true||stadiumAndToolEffectsLive(view)!==true||
-    all.some(p=>hasName(p,hasName(name,'Sky Field')?'Sky Field':'Dimension Valley')))return -Infinity;
-  if(hasName(name,'Dimension Valley')&&countBench(view.ownPublic)>5)return -Infinity;
-  const after=projectedStadium(view,name);
-  if(handHas(view,'Radiant Eternatus')&&!canPlayRadiantForGate(view)&&canPlayRadiantForGate(after))return 1150;
-  if(!gateAccessNeed(view)&&gateAccessNeed(after))return 980;
-  if(hasStadiumRemovalTarget(view))return 880;
-  const attacker=view.ownPublic.active,target=view.opponentPublic.active;
-  if(attacker&&target){
-    const before=bestAttackForSlot(attacker,view,target);
-    const next=bestAttackForSlot(after.ownPublic.active,after,target);
-    if(next&&next.score>Math.max(0,before?.score??0)+200)return next.score>=10000?1900:850;
+// Public typed-energy feasibility. This is not an opponent-hand prediction.
+// Return null for unresolved Special Energy effects rather than fabricate
+// either a colored supply or a lock.
+const ENERGY_TYPES=['Grass','Fire','Water','Lightning','Psychic','Fighting','Darkness','Metal','Fairy'];
+function publicEnergySupply(slot,view,temple=false,side='opponent'){
+  const units=[];
+  const add=(n,types)=>{for(let i=0;i<n;i++)units.push(types)};
+  const tags=slot.printed?.subtypes??slot.subtypes??[];
+  for(const name of slot.energies??[]){
+    const basic=/^(?:Basic )?(Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy(?: |$)/.exec(name);
+    if(basic){add(1,[basic[1]]);continue;}
+    if(temple){add(1,[]);continue;}
+    if(hasName(name,'Double Dragon Energy')){if(!isDragon(slot))return null;add(2,ENERGY_TYPES);continue;}
+    if(hasAnyName(name,['Double Colorless Energy','Double Turbo Energy'])){add(2,[]);continue;}
+    if(hasName(name,'Twin Energy')){add(modernVOrEx(slot)?1:2,[]);continue;}
+    if(hasAnyName(name,['Rainbow Energy','Aurora Energy','Legacy Energy'])){add(1,ENERGY_TYPES);continue;}
+    if(hasName(name,'Prism Energy')){add(1,isBasicPokemon(slot)?ENERGY_TYPES:[]);continue;}
+    if(hasName(name,'Luminous Energy')){add(1,slot.energies.filter(p=>!isBasicEnergyPrinting(p)).length===1?ENERGY_TYPES:[]);continue;}
+    if(hasName(name,'Rapid Strike Energy')){if(!tags.includes('Rapid Strike'))return null;add(2,['Water','Fighting']);continue;}
+    if(hasName(name,'Single Strike Energy')){if(!tags.includes('Single Strike'))return null;add(1,['Fighting','Darkness']);continue;}
+    if(hasName(name,'Triple Acceleration Energy')){if(isBasicPokemon(slot))return null;add(3,[]);continue;}
+    if(hasName(name,'Reversal Energy')){
+      const holder=side==='opponent'?view.opponentPublic:view.ownPublic;
+      const other=side==='opponent'?view.ownPublic:view.opponentPublic;
+      add(!isBasicPokemon(slot)&&!isRuleBoxPokemon(slot)&&holder.prizeCount>other.prizeCount?3:1,
+        !isBasicPokemon(slot)&&!isRuleBoxPokemon(slot)&&holder.prizeCount>other.prizeCount?ENERGY_TYPES:[]);
+      continue;
+    }
+    if(hasAnyName(name,['Counter Energy','Double Rainbow Energy','Unit Energy','Blend Energy','Boost Energy']))return null;
+    if(hasAnyName(name,['Jet Energy','Gift Energy','Mist Energy','Capture Energy','Powerful Colorless Energy','Recycle Energy',
+      'Lucky Energy','Treasure Energy','V Guard Energy','Draw Energy','Speed Lightning Energy','Wash Water Energy',
+      'Horror Psychic Energy','Coating Metal Energy','Stone Fighting Energy','Heat Fire Energy','Hiding Darkness Energy',
+      'Aromatic Grass Energy'])) {
+      const color=/^(?:Speed|Wash|Horror|Coating|Stone|Heat|Hiding|Aromatic) (Lightning|Water|Psychic|Metal|Fighting|Fire|Darkness|Grass) Energy/.exec(name);
+      add(1,color?[color[1]]:[]);continue;
+    }
+    return null;
   }
-  if(hasName(name,'Sky Field')&&boardHas(view,"Lillie's Clefairy ex")&&
-    countBench(view.ownPublic)>=4&&view.ownHand.some(p=>isBasicShadowRiderVPrinting(p)))return 720;
-  return -Infinity;
+  return units;
+}
+function publicEnergyCanPay(slot,attack,view,temple=false,side='opponent'){
+  const supply=publicEnergySupply(slot,view,temple,side);
+  if(!supply||!Array.isArray(attack?.cost))return null;
+  let cost=attack.cost.slice();
+  const stadiums=[...view.ownPublic.stadium,...view.opponentPublic.stadium];
+  if(!temple&&stadiums.some(p=>hasName(p,'Dimension Valley'))&&
+    stadiumAndToolEffectsLive(view)===true&&slot.printed?.types?.includes('Psychic')){
+    const i=cost.indexOf('Colorless');if(i>=0)cost.splice(i,1);
+  }
+  if(slot.publicRestrictions?.attackCostIncreaseWhileActive>0&&
+    (slot===view.ownPublic.active||slot===view.opponentPublic.active)){
+    cost.push(...Array(slot.publicRestrictions.attackCostIncreaseWhileActive).fill('Colorless'));
+  }
+  if(supply.length<cost.length)return false;
+  const colored=cost.filter(c=>c!=='Colorless').sort((a,b)=>
+    supply.filter(u=>u.includes(a)).length-supply.filter(u=>u.includes(b)).length);
+  function assign(i,used){
+    if(i===colored.length)return true;
+    for(let j=0;j<supply.length;j++)if(!(used&(1<<j))&&supply[j].includes(colored[i])&&assign(i+1,used|(1<<j)))return true;
+    return false;
+  }
+  if(supply.length>24)return null;
+  return assign(0,0);
+}
+function templeLive(view){
+  return stadiumAndToolEffectsLive(view)===true&&[...view.ownPublic.stadium,...view.opponentPublic.stadium].some(p=>hasName(p,'Temple of Sinnoh'));
+}
+function templePressure(view) {
+  let pressure=0;
+  for(const slot of opponentBoard(view)){
+    const special=(slot.energies??[]).filter(p=>!isBasicEnergyPrinting(p));
+    if(!special.length)continue;
+    const before=publicEnergySupply(slot,view,false),after=publicEnergySupply(slot,view,true);
+    const attacks=(slot.attacks??[]).slice();
+    if(hasName(slot.printing,'Regidrago VSTAR')&&!attacks.some(a=>a.name==='Apex Dragon'))
+      attacks.push({name:'Apex Dragon',cost:['Grass','Grass','Fire']});
+    const losses=attacks.filter(a=>publicEnergyCanPay(slot,a,view,false)===true&&publicEnergyCanPay(slot,a,view,true)===false);
+    if(losses.length){
+      const major=losses.some(a=>a.name==='Apex Dragon'||/^[1-9][0-9]{2}/.test(String(a.damage??'')));
+      pressure+=major?1200:750;
+    }else if(before&&after){
+      // One more attachment might restore the attack; score disruption as
+      // provisional, not permanent attack denial.
+      const lostUnits=Math.max(0,before.length-after.length);
+      const coloredLoss=before.filter(u=>u.length>0).length-after.filter(u=>u.length>0).length;
+      const stillPaid=attacks.some(a=>publicEnergyCanPay(slot,a,view,true)===true);
+      pressure+=stillPaid?Math.min(200,lostUnits*70+coloredLoss*30):
+        Math.min(600,lostUnits*250+coloredLoss*175);
+    }
+  }
+  return Math.min(1600,pressure);
 }
 function usefulTemple(view) {
   if (view.ownTurnResources?.stadiumPlayedTurn === true ||
