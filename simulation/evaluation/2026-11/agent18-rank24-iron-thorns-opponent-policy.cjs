@@ -89,6 +89,15 @@ function opponentDeckCount(observation) {
     ? observation.opponentPublic.deckCount : null;
 }
 
+function nForcesOpponentDeckZero(observation) {
+  const deck = opponentDeckCount(observation);
+  const hand = observation?.opponentPublic?.handCount;
+  const prizes = observation?.opponentPublic?.prizeCount;
+  if (![deck, hand, prizes].every(Number.isSafeInteger)) return false;
+  if (deck < 0 || hand < 0 || prizes < 0) return false;
+  return deck + hand > 0 && deck + hand <= prizes;
+}
+
 function hasCard(collection, pattern) {
   return list(collection).some(card => matches(card, pattern));
 }
@@ -144,10 +153,22 @@ function rootDecision(request) {
       return { kind: 'select-action', token: bellelba.token };
     }
 
+    const n = findAction(request, N_SUPPORTER);
+    if (n && hasCard(observation?.ownHand, N_SUPPORTER) &&
+        nForcesOpponentDeckZero(observation)) {
+      return { kind: 'select-action', token: n.token };
+    }
+
     const seeker = findAction(request, VS_SEEKER);
     if (seeker && itemAvailable(observation) &&
         hasCard(observation?.ownPublic?.discard, BELLELBA)) {
       return { kind: 'select-action', token: seeker.token };
+    }
+  } else if (supporterAvailable(observation) && terminalEndTurnSafety(request)) {
+    const n = findAction(request, N_SUPPORTER);
+    if (n && hasCard(observation?.ownHand, N_SUPPORTER) &&
+        nForcesOpponentDeckZero(observation)) {
+      return { kind: 'select-action', token: n.token };
     }
   }
 
@@ -246,5 +267,6 @@ module.exports = {
   rootDecision,
   promptDecision,
   terminalEndTurnSafety,
-  terminalWindow
+  terminalWindow,
+  nForcesOpponentDeckZero
 };
