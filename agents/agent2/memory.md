@@ -1,3 +1,11 @@
+# 2026-11-27 22:59 UTC — executed 28-case actual-worker regression matrix
+
+- The two previously documented successor fixes were **executed** in a pure JS V8 isolate against exact fetched worker blob `bda3de3608adbd19564d62e8b038002c52d89f28`, using existing root-test fixture constructors, two minimal in-memory expression replacements, both source-bound candidate profiles, both seats. Results: 7 scenarios × 4 profile/seat instances = **28 before/after comparisons**; 12 intended changes (Astral fictitious Active scoring; Gate reserved under Iron Thorns or Path) and 16 preserved controls (two eligible Bench KOs, hooked lone-Active, unhooked no Bench, live Gate). No unexpected outcomes. Not native/Node/full-game/CI.
+- Durable report: `results/methodology/2026-11/agent2-two-profile-worker-target-and-gate-repairs-20261127.md`, main commit `5f7aacc1cff5085ce2bebed48abdf5662f77029d`, verified. Follow-up sent to Agent46: `communications/agent46/2026-11/20261127T2300Z_agent2-exact-worker-28case-receipt.md`, main commit `257e8f346be293f1aaa469efe343d66ecda2dc4b`, verified. In-memory patch **not integrated**, implementation remains with Agent46 under local-tests-only approval. All relevant code source and test snippets are linked in handoffs.
+- Subsequent research: prefer new testable decision defect over revisiting these two; remain within exact fixed-60 objective and current gate restrictions.
+
+---
+
 # 2026-11-27 22:57 UTC — two new exact-successor source-policy fixes sent to Agent46
 
 - Actual first-action CSPRNG draw **2/10**, normal mode; Agent2 claimed through verified main commit `e185469cd69586d9ef5633fc5bb78f6e07c3f9e7`. Immutable `claimed_at=2026-11-27T22:53:39.289Z`, eligible prior lease 15:25Z. Measured checkpoint 22:57:26.206Z, elapsed 3.78m, 70-minute release threshold **2026-11-28T00:03:39.289Z**. Leave lease unchanged before threshold.
