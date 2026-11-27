@@ -1,0 +1,173 @@
+{
+  "n": 10000,
+  "seed": 20261127,
+  "stats": {
+    "eager": {
+      "ready": 287,
+      "turn1Voltorb": 6673,
+      "discardedT1": 2748,
+      "cut": 0,
+      "routes": {
+        "Bomb Float Stone": 100,
+        "Bomb paid retreat": 73,
+        "Bomb self-KO promotion": 32,
+        "Bomb active": 82
+      },
+      "failure": {
+        "Electrode missing": 3703,
+        "Mega missing": 4089,
+        "discard empty": 1777,
+        "insufficient Energy or mobility": 144
+      }
+    },
+    "defer": {
+      "ready": 273,
+      "turn1Voltorb": 6673,
+      "discardedT1": 228,
+      "cut": 0,
+      "routes": {
+        "Bomb Float Stone": 92,
+        "Bomb active": 81,
+        "Bomb paid retreat": 69,
+        "Bomb self-KO promotion": 31
+      },
+      "failure": {
+        "Electrode missing": 3714,
+        "Mega missing": 4089,
+        "discard empty": 1777,
+        "insufficient Energy or mobility": 147
+      }
+    },
+    "eagerCut": {
+      "ready": 66,
+      "turn1Voltorb": 6673,
+      "discardedT1": 2748,
+      "cut": 1881,
+      "routes": {
+        "Bomb paid retreat": 11,
+        "Bomb Float Stone": 26,
+        "Bomb active": 21,
+        "Bomb self-KO promotion": 8
+      },
+      "failure": {
+        "Electrode missing": 3703,
+        "Mega missing": 4089,
+        "discard empty": 1802,
+        "insufficient Energy or mobility": 340
+      }
+    },
+    "deferCut": {
+      "ready": 270,
+      "turn1Voltorb": 6673,
+      "discardedT1": 228,
+      "cut": 227,
+      "routes": {
+        "Bomb Float Stone": 92,
+        "Bomb active": 80,
+        "Bomb paid retreat": 69,
+        "Bomb self-KO promotion": 29
+      },
+      "failure": {
+        "Electrode missing": 3714,
+        "Mega missing": 4089,
+        "discard empty": 1802,
+        "insufficient Energy or mobility": 125
+      }
+    },
+    "megaFirst": {
+      "ready": 287,
+      "turn1Voltorb": 5745,
+      "discardedT1": 2831,
+      "cut": 0,
+      "routes": {
+        "Bomb Float Stone": 100,
+        "Bomb paid retreat": 73,
+        "Bomb self-KO promotion": 32,
+        "Bomb active": 82
+      },
+      "failure": {
+        "Electrode missing": 4596,
+        "Mega missing": 3205,
+        "discard empty": 1769,
+        "insufficient Energy or mobility": 143
+      }
+    },
+    "withoutBox": {
+      "ready": 178,
+      "turn1Voltorb": 6381,
+      "discardedT1": 1766,
+      "cut": 0,
+      "routes": {
+        "Bomb paid retreat": 71,
+        "Bomb self-KO promotion": 27,
+        "Bomb active": 61,
+        "Bomb Float Stone": 19
+      },
+      "failure": {
+        "Electrode missing": 3466,
+        "Mega missing": 4406,
+        "discard empty": 1809,
+        "insufficient Energy or mobility": 141
+      }
+    },
+    "withoutHeavy": {
+      "ready": 276,
+      "turn1Voltorb": 6452,
+      "discardedT1": 2639,
+      "cut": 0,
+      "routes": {
+        "Bomb Float Stone": 97,
+        "Bomb paid retreat": 70,
+        "Bomb self-KO promotion": 29,
+        "Bomb active": 80
+      },
+      "failure": {
+        "Electrode missing": 3585,
+        "Mega missing": 4304,
+        "discard empty": 1697,
+        "insufficient Energy or mobility": 138
+      }
+    },
+    "withoutEnergyCosts": {
+      "ready": 271,
+      "turn1Voltorb": 6912,
+      "discardedT1": 2521,
+      "cut": 0,
+      "routes": {
+        "Bomb Float Stone": 100,
+        "Bomb paid retreat": 72,
+        "Bomb self-KO promotion": 27,
+        "Bomb active": 72
+      },
+      "failure": {
+        "Electrode missing": 3773,
+        "Mega missing": 4017,
+        "discard empty": 1828,
+        "insufficient Energy or mobility": 111
+      }
+    },
+    "withSafeRope": {
+      "ready": 302,
+      "turn1Voltorb": 6673,
+      "discardedT1": 2748,
+      "cut": 0,
+      "routes": {
+        "Bomb Float Stone": 100,
+        "Bomb paid retreat": 71,
+        "Bomb self-KO promotion": 32,
+        "Bomb active": 82,
+        "Bomb Escape Rope": 17
+      },
+      "failure": {
+        "Electrode missing": 3703,
+        "Mega missing": 4089,
+        "discard empty": 1777,
+        "insufficient Energy or mobility": 129
+      }
+    }
+  },
+  "pairedCutSaved": 204,
+  "pairedCutLost": 0,
+  "pairedDeferGain": 33,
+  "pairedDeferLoss": 47
+}

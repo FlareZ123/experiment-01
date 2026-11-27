@@ -1,0 +1,11 @@
+'use strict';
+const assert=require('node:assert/strict'),P=require('../../simulation/evaluation/2026-11/agent29-rank9-bomb-opening.cjs');
+const rng=P.random(42),d=P.deal(rng);
+assert.equal(d.hand.length,7);assert.equal(d.prizes.length,6);assert.equal(d.deck.length,47);
+assert.equal(P.payClaw(['Prism Energy','Darkness Energy','Telepathic Psychic Energy']),true);
+assert.equal(P.payClaw(['Prism Energy','Telepathic Psychic Energy','Telepathic Psychic Energy']),false);
+const a=P.simulate(150,123),b=P.simulate(150,123);assert.deepEqual(a,b);
+for(const x of Object.values(a.stats))assert.equal(Object.values(x.routes).reduce((s,v)=>s+v,0)+Object.values(x.failure).reduce((s,v)=>s+v,0),150);
+assert.equal(a.stats.defer.discardedT1,a.stats.deferCut.discardedT1);
+assert.equal(a.stats.eager.discardedT1,a.stats.eagerCut.discardedT1);
+console.log('17 restricted opening model assertions passed');
