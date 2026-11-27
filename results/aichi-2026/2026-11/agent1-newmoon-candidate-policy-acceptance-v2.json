@@ -13,8 +13,8 @@
     "note": "Agent13 v1 already integrates Agent1's Raichu/Electrode delta. V2 adds uncovered rank2/rank5/rank9/rank19/rank30/rank31 families without changing the fixed 60."
   },
   "status": "actor-visible paper acceptance consolidation; no policy implementation, native game, competitive qualification, or win-rate claim",
-  "addedCaseCount": 94,
-  "totalCaseCount": 133,
+  "addedCaseCount": 96,
+  "totalCaseCount": 135,
   "addedCases": [
     {
       "id": "R2-DUAL-LOCK-RONDO",
@@ -628,33 +628,33 @@
       "id": "K1-FSS-HOST-PRIZED",
       "family": "K1 / dynamic DCI",
       "sourceRanks": [],
-      "state": "After first deck search, K1 shows Galarian Articuno V is Prized; Forest Seal Stone remains accessible and no other Pokémon V exists in the fixed 60.",
-      "must": "Remove Star Alchemy continuation from the live line set and re-evaluate FSS discardability.",
-      "forbids": "Protecting FSS as a usable universal search card when it has no legal host."
+      "state": "K1 shows Galarian Articuno V Prized; Forest Seal Stone remains accessible. Hisuian Heavy Ball and current Item legality may or may not provide Prize recovery.",
+      "must": "If HHB is accessible and Item play is legal, keep Articuno/FSS continuation recoverable through HHB; if Item play is locked/unavailable, treat FSS as temporarily hostless and re-evaluate DCI.",
+      "forbids": "Equating a Prized Basic host with permanent inaccessibility or ignoring Item lock on the recovery route."
     },
     {
       "id": "K1-NEWMOON-PAIR-COLLAPSE",
       "family": "K1 / dynamic DCI",
       "sourceRanks": [],
-      "state": "K1 shows exactly one of Solrock or Lunatone is Prized.",
-      "must": "Remove asymmetric-Path continuation that requires the pair and re-evaluate the surviving singleton's role/DCI.",
-      "forbids": "Crediting New Moon Stadium protection from a single member of the pair."
+      "state": "K1 shows exactly one of Solrock or Lunatone Prized; Hisuian Heavy Ball and Item legality are known.",
+      "must": "Permit HHB recovery of the Prized Basic partner when legal; otherwise treat the asymmetric-Path pair as temporarily broken.",
+      "forbids": "Crediting the pair from one member alone or deleting it despite an available HHB recovery."
     },
     {
       "id": "K1-GENGAR-PRIZED",
       "family": "K1 / dynamic DCI",
       "sourceRanks": [],
-      "state": "K1 shows singleton Gengar & Mimikyu-GX is Prized.",
-      "must": "Remove native/Perfection Horror House and Poltergeist continuations until that Prize is taken.",
-      "forbids": "Searching/discard-planning around a Gengar donor that is not accessible."
+      "state": "K1 shows singleton Gengar & Mimikyu-GX Prized; HHB recovery access and Item legality are known.",
+      "must": "Permit Hisuian Heavy Ball to recover the Prized Basic Gengar when legal; otherwise remove Horror House/Poltergeist donor continuations until recovery.",
+      "forbids": "Treating Prized Gengar as permanently inaccessible or pretending HHB works through Item lock."
     },
     {
       "id": "K1-DUSKULL-ALL-PRIZED",
       "family": "K1 / dynamic DCI",
       "sourceRanks": [],
-      "state": "K1 shows both Duskull copies are Prized while Dusclops remains outside Prizes.",
-      "must": "Mark ordinary Dusclops evolution/Cursed-Blast line unavailable and raise DCI of stranded Dusclops unless another legal deployment route exists.",
-      "forbids": "Treating Stage-1 copies as live with no Basic stage available."
+      "state": "K1 shows both Duskull copies Prized; Dusclops remains outside Prizes; HHB recovery access and Item legality are known.",
+      "must": "Permit HHB to exchange for one Prized Basic Duskull when legal, restoring the evolution chain; under Item lock/unavailability treat the chain as temporarily blocked.",
+      "forbids": "Calling Dusclops permanently stranded despite legal Basic-Pokémon Prize recovery."
     },
     {
       "id": "DISCARD-NATIVE-GENGAR",
@@ -910,6 +910,22 @@
       "state": "Candidate Gengar already took 140 before its Horror House turn; opponent retains a funded Thorns able to Volt Cyclone during the locked turn.",
       "must": "Treat the second clean 140 as lethal and reject Horror/Powerglass as a survival line on that damaged Gengar.",
       "forbids": "Transplanting the fresh-Gengar going-second line onto a damaged going-first state."
+    },
+    {
+      "id": "K1-DUSCLOPS-ALL-PRIZED",
+      "family": "K1 / dynamic DCI",
+      "sourceRanks": [],
+      "state": "K1 shows both Stage-1 Dusclops copies Prized while Duskull remains accessible.",
+      "must": "Remove Cursed Blast/Stage-1 attack continuation until a Dusclops Prize is naturally taken or another exact non-HHB recovery exists; Hisuian Heavy Ball cannot recover Stage 1.",
+      "forbids": "Applying Basic-Pokémon Prize recovery to Dusclops."
+    },
+    {
+      "id": "K1-FSS-PRIZED",
+      "family": "K1 / dynamic DCI",
+      "sourceRanks": [],
+      "state": "K1 shows Forest Seal Stone itself Prized.",
+      "must": "Remove Star Alchemy continuation until the Trainer is naturally recovered from Prizes or another exact Trainer-Prize recovery exists.",
+      "forbids": "Using Hisuian Heavy Ball to recover a Trainer card."
     }
   ],
   "authenticatedFamilyCoverage": {
@@ -967,13 +983,13 @@
     "Lock-resilient search is multi-channel: TPE Energy, Forest Seal Stone Tool/VSTAR search, Powerglass Basic-Energy recursion and Stadium replacement survive different card-type locks; track Tool and Basic-Energy custody explicitly.",
     "Before passing into Bench-punishment, compress/harden existing liabilities: Farewell unneeded Unown when legal and evolve Duskull when the HP/Stage change alters opponent reply thresholds.",
     "Attack effects persist only while their target remains in the relevant state: explicitly score retreat/switch/evolution before treating copied Techno Blast, Eon Blade or Pale Moon as future-turn guarantees.",
-    "At K1, exact Prize knowledge must recompute continuation viability and DCI; do not preserve singleton/pair pieces for lines whose prerequisite is Prized or discard the only surviving redundancy.",
     "Discard-paying connectors are continuation transactions, not raw access: select the line first, classify payments dynamically, then compare the whole post-payment continuation against not using the connector.",
     "Supporter value is continuation-specific: settle Prize legality first, preserve deterministic hands, exploit disappearing Supporter windows, and score Ace Trainer's opponent reset together with Night Watch rather than as draw volume.",
     "New Moon has 17 Basics (not 19 Pokémon-as-Basics); rank26 setup policy must distinguish lone-Active exposure from actual donk exposure and spend first-turn Bench access aggressively before returning to ordinary Bench-liability minimization.",
     "Connector routes preserve exact movement semantics: destination alone does not determine triggers; TPE direct deployment can bypass hand-play locks while forfeiting Wonder Tag, and Perfection donors are exact Pokémon-GX/EX rather than generic Rule Box bodies.",
     "Opponent hand size is dual-use: compression improves denial but reduces Poltergeist ceiling; extra-Psychic Horror can enlarge/freeze the hand for Poltergeist, but hidden Trainer identities remain uncertain.",
-    "Against exact Iron Thorns lists, TPE->Solrock/Lunatone->Path plus native Horror House can create a protected lock turn, and Powerglass can attach the second Basic Psychic after the attack; survival still depends on full-HP Gengar and actor-visible board attack damage."
+    "Against exact Iron Thorns lists, TPE->Solrock/Lunatone->Path plus native Horror House can create a protected lock turn, and Powerglass can attach the second Basic Psychic after the attack; survival still depends on full-HP Gengar and actor-visible board attack damage.",
+    "At K1, exact Prize knowledge must recompute continuation viability **with recovery access**: Prized Basics may be recoverable through Hisuian Heavy Ball while Items are legal, whereas Prized Stage 1/Trainer prerequisites are not HHB targets."
   ],
   "implementationGate": {
     "required": [
