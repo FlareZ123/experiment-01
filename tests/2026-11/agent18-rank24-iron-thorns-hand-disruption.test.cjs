@@ -179,6 +179,32 @@ test('Team Skull prompt prefers revealed Special Energy over Basic Energy', () =
     { kind: 'select-choices', tokens: ['dce', 'basic'] });
 });
 
+test("Trainers' Mail does not take dead Megaton/Faba over a live attack connector", () => {
+  const req = prompt({
+    sourcePrinting: "Trainers' Mail ROS 92",
+    choices: [
+      empty,
+      {
+        token: 'meg', kind: 'card', printing: 'Megaton Blower SSP 182', label: 'Megaton Blower SSP 182',
+        publicMetadata: { ownerSeat: 'actor', sourceZone: 'deck' }
+      },
+      {
+        token: 'faba', kind: 'card', printing: 'Faba LOT 173', label: 'Faba LOT 173',
+        publicMetadata: { ownerSeat: 'actor', sourceZone: 'deck' }
+      },
+      {
+        token: 'tag', kind: 'card', printing: 'Tag Call CEC 206', label: 'Tag Call CEC 206',
+        publicMetadata: { ownerSeat: 'actor', sourceZone: 'deck' }
+      }
+    ],
+    observationOptions: {
+      ownHand: ['Handheld Fan TWM 150', 'Palace Book SMP NAN25', 'N FCO 105', 'Eri TEF 146']
+    }
+  });
+  assert.deepEqual(policy.decide(req),
+    { kind: 'select-choices', tokens: ['tag'] });
+});
+
 test("Trainers' Mail prioritizes Tag Call/G&H over Nest Ball when the attack ALS is payable", () => {
   const req = prompt({
     sourcePrinting: "Trainers' Mail ROS 92",
