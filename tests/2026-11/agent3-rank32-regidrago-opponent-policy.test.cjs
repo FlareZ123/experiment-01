@@ -187,7 +187,7 @@ test('native ChooseEnergyPrompt uses energyCount and retains DDE if two Basics a
     {kind:'abstain',reasonCode:'RANK32_RYUNO_ENERGY_PROMPT_UNPROJECTED'});
   p.promptType='DiscardEnergyPrompt';
   assert.deepEqual(promptDecision(request({prompt:p})),
-    {kind:'abstain',reasonCode:'UNSUPPORTED_RANK32_PROMPT_TYPE'});
+    {kind:'abstain',reasonCode:'RANK32_RYUNO_ENERGY_PROMPT_UNPROJECTED'});
 });
 
 test('Sky Transport selects own Regidrago rather than an opposing Pokemon',()=>{
