@@ -767,3 +767,57 @@ test('rank13 terminal Wide Blast outranks lock/setup but never credits Active or
     }
   }
 });
+
+test('rank13 uses the existing no-gust Timeless/Trifrost planner only with paid, safe continuation, both seats', () => {
+  const S='Regidrago VSTAR SIT 136',DIA='Dialga-GX UPR 100',KYU='Kyurem SFA 47',NO='Noivern ex PAL 153';
+  const tag=pokemon('Trevenant & Dusknoir-GX SMP 217',{hp:270,types:['Psychic'],subtypes:['Basic','TAG TEAM','GX']});
+  const mimi=pokemon('Mimikyu GRI 58',{hp:70,types:['Psychic']});
+  const gira=pokemon('Girafarig LOT 94',{hp:90,types:['Psychic']});
+  const mar=pokemon('Marshadow UNB 81',{hp:80,types:['Psychic']});
+  const vmax=pokemon('Shadow Rider Calyrex VMAX CRE 75',{hp:320,subtypes:['VMAX'],types:['Psychic']});
+  const wound=pokemon('Shadow Rider Calyrex VMAX CRE 75',{hp:320,damage:170,subtypes:['VMAX'],types:['Psychic']});
+  const latias=pokemon('Latias ex SSP 76',{hp:210,types:['Psychic']});
+  const attack=(token,printing,name)=>({token,kind:'attack',printing,label:printing+' — '+name,publicMetadata:{choiceIndex:0,sourceAttack:name,sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true}});
+  for(const seat of [0,1]){
+    const cases=[
+      {name:'five Prize conversion',expected:'timeless',root:'apex'},
+      {name:'six across adverse promotion',active:wound,bench:[mimi,gira,mar,latias],prizes:6,expected:'timeless',root:'apex'},
+      {name:'direct three beats extra turn',bench:[mimi,gira,mar,vmax],prizes:3,expected:'trifrost',root:'apex'},
+      {name:'no Band',band:false,expected:'echo',root:'legacy'},
+      {name:'empty deck next draw',deck:0,expected:'echo',root:'legacy'},
+      {name:'opponent GX used',oppGX:true,expected:'echo',root:'legacy'},
+      {name:'own GX used',gx:true,expected:'echo',root:'legacy'},
+      {name:'unfunded next attack',energies:['Grass Energy MEE 9'],expected:'echo',root:'legacy'},
+      {name:'unknown pending effect',oppGX:null,expected:'echo',root:'legacy'},
+      {name:'confused',confused:true,expected:'echo',root:'legacy'},
+      {name:'target tool unmodeled',tool:true,expected:'echo',root:'legacy'},
+      {name:'Kyurem absent',missing:true,expected:'echo',root:'legacy'},
+      {name:'Trifrost missing from prompt',noOffer:true,expected:'echo',root:'apex'}
+    ];
+    for(const c of cases) {
+      const actor=pokemon(S,{subtypes:['VSTAR'],abilities:['Legacy Star'],energies:c.energies??['Double Dragon Energy ROS 97','Grass Energy MEE 9'],tools:c.band===false?[]:['Muscle Band XY 121']});
+      if(c.confused) actor.specialConditions=['Confused'];
+      const ownPlayer={active:actor,discard:c.missing?[DIA,NO]:[DIA,KYU,NO],prizeCount:c.prizes??5,deckCount:c.deck??30,publicTurnRestrictions:{gxUsed:c.gx??false}};
+      const active=c.tool?{...tag,tools:['Big Charm SSH 158']}:c.active??tag;
+      const opponentPlayer={active,bench:c.bench??[mimi,gira,vmax,latias],stadium:['Sky Field ROS 89'],publicTurnRestrictions:{gxUsed:c.oppGX===undefined?false:c.oppGX}};
+      if(c.oppGX===null) delete opponentPlayer.publicTurnRestrictions.gxUsed;
+      const choices=[attack('echo',NO,'Dominating Echo'),attack('timeless',DIA,'Timeless-GX'),attack('shred',DIA,'Shred')];
+      if(!c.missing&&!c.noOffer) choices.push(attack('trifrost',KYU,'Trifrost'));
+      const req=promptRequest({seat,promptType:'ChooseAttackPrompt',source:actorChoiceSource(S,'Apex Dragon'),choices,observation:{ownPlayer,opponentPlayer}});
+      if(c.oppGX===null) delete req.observation.opponentPublic.publicTurnRestrictions.gxUsed;
+      // Unknown GX field is deliberately tested at the policy boundary rather than
+      // fabricating a protocol-admitted unknown; malformed observation may fail protocol.
+      const policy=createPolicy({role:'opponent',seat,policyVersion:POLICY_VERSION,config:{}});
+      const got=c.oppGX===null?policy.decide(req):checkedDecision(req);
+      assert.deepEqual(got,{kind:'select-choice',token:c.expected},c.name+' prompt seat '+seat);
+      const root=rootRequest({seat,ownPlayer,opponentPlayer,items:[
+        action('legacy','use-ability',S,{abilityName:'Legacy Star'}),
+        {token:'apex',kind:'attack',label:'Apex Dragon',attackName:'Apex Dragon'},
+        action('pass','pass',null)
+      ]});
+      if(c.oppGX===null) delete root.observation.opponentPublic.publicTurnRestrictions.gxUsed;
+      const rootGot=c.oppGX===null?policy.decide(root):checkedDecision(root);
+      assert.deepEqual(rootGot,{kind:'select-action',token:c.root},c.name+' root seat '+seat);
+    }
+  }
+});
