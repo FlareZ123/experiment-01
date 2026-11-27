@@ -3579,11 +3579,24 @@ function canUseStarAlchemy(view, item, receipt, profile) {
 // the actor's legal frontier. Only a proven direct public final-Prize
 // opportunity overrides general resource heuristics.
 const FINAL_ATTACKS=new Set(['Max Geist','Night Watch','Full Moon Rondo','Psychic Assault','Power Beam','Shadow Mist','Energy Drive','Mind Shock','Eon Blade']);
+// Narrow direct-attack terminal admission. These named abilities have no
+// defensive damage, KO prevention, or Prize modification effect for a
+// direct hit on their controller's Active. Do not infer this for arbitrary
+// unknown Abilities or projected root plans.
+function directTerminalHarmlessAbility(slot,name){
+  return (name==='Legacy Star'&&hasName(slot.printing,'Regidrago VSTAR')) ||
+    (name==='Fairy Zone'&&hasName(slot.printing,"Lillie's Clefairy ex")) ||
+    (name==='Farewell Letter'&&hasName(slot.printing,'Unown AOR')) ||
+    (name==='Skyliner'&&hasName(slot.printing,'Latias ex')) ||
+    (name==='Wonder Tag'&&hasName(slot.printing,'Tapu Lele-GX')) ||
+    (name==='Underworld Door'&&isShadowRiderVmax(slot)) ||
+    (name==='Climactic Gate'&&hasName(slot.printing,'Radiant Eternatus'));
+}
 function cleanPublicTerminalView(view,direct=false){
   return view.globalTurn>1&&view.ownPublic.active&&view.opponentPublic.active&&
     opponentBoard(view).every(slot=>
   (slot.abilities??[]).every(a=>
-    (direct&&a==='Legacy Star'&&hasName(slot.printing,'Regidrago VSTAR')) ||
+    (direct&&directTerminalHarmlessAbility(slot,a)) ||
     (a==='Garbotoxin'&&hasName(slot.printing,'Garbodor'))) &&
   (slot.tools??[]).every(t=>hasName(t,'Float Stone')) &&
   (slot.energies??[]).every(p=>

@@ -845,3 +845,30 @@ paired('Acerola responds to publicly funded Rondo and typed weakness exposure, n
   view.opponentPublic.bench[0].energies=[dark,dark];
   assert.deepEqual(decide(profile,root(seat,view,items)),sel('hit')); // only 3 Psychic, 100 damage
 });
+
+
+paired('Direct terminal Max Geist precedes further setup despite nondefensive opposing abilities',(seat,profile)=>{
+  const active=vmax([P,P,P,P,P,P]);active.hp=320;
+  const clefairy=pokemon({printing:"Lillie's Clefairy ex JTG",name:"Lillie's Clefairy ex",hp:190,
+    subtypes:['Basic','ex'],abilities:['Fairy Zone'],suppression:false,
+    energies:[P,P],attacks:[attack('Full Moon Rondo',['Psychic','Colorless'],'20+')]});
+  const unown=pokemon({printing:'Unown AOR',name:'Unown',hp:60,
+    abilities:['Farewell Letter'],suppression:false});
+  const lele=pokemon({printing:L,name:'Tapu Lele-GX',subtypes:['Basic','GX'],
+    abilities:['Wonder Tag'],suppression:false});
+  const view=observation(seat,{active,bench:[v()],opponentActive:clefairy,
+    opponentBench:[unown,latias(),lele,vmax([]),radiant()],ownHand:[P]});
+  view.ownPublic.prizeCount=2;
+  const items=[play('attach',P,M,target('active',0)),{kind:'attack',token:'win',attackName:'Max Geist'}];
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('win'));
+  // The public terminal certificate cannot cover a missing KO.
+  clefairy.hp=200;
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('attach'));
+  clefairy.hp=190;view.ownPublic.prizeCount=3;
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('attach'));
+  view.ownPublic.prizeCount=2;
+  // A different, unadmitted Ability must not be relabelled harmless.
+  view.opponentPublic.bench[0]=pokemon({printing:'Mimikyu PAL',name:'Mimikyu',hp:70,
+    abilities:['Safeguard'],suppression:false});
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('attach'));
+});
