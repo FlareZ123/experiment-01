@@ -27,6 +27,9 @@ CARDS = {
     'marshadow': ('Psychic', True, False, 80, 1, 1),
     'radiant': ('Dragon', True, True, 170, 2, 1),
 }
+KINDS=tuple(CARDS)
+KINDEX={k:i for i,k in enumerate(KINDS)}
+ABIL_BASIC={'wob','clefairy','lele','latias','marshadow','radiant'}
 TOOLS = {'', 'hood', 'float', 'fss', 'jammer', 'generic'}
 STADIUMS = {'none', 'valley', 'temple', 'sky', 'path', 'lab', 'jamming', 'swell', 'mine', 'other'}
 LOCKS = {'', 'thorns', 'klefki', 'garbotoxin', 'item_vileplume', 'basic_vileplume', 'sentinel', 'block'}
@@ -40,12 +43,15 @@ class State:
     draws: int = 0; played_guzma: bool = False; played_blower: bool = False
     vs: int = 0; stretcher: int = 0; discard_p: int = 0; discard_guzma: bool = False
     played_recovery: int = 0
+    kinds: tuple = (); own_damage: tuple = (); retreat_extras: tuple = ()
+    held: tuple = (); discard_mon: tuple = (); evolvable: int = 0
+    evolved: int = 0; benched: int = 0
     played_stadium: bool = False; used_marshadow: bool = False; tools_played: int = 0
 
 class Planner:
     def __init__(self, data):
         self.data = data
-        self.own = data['own']; self.opp = data['opp']
+        self.own = [dict(x) for x in data['own']]; self.opp = data['opp']
         assert 1 <= len(self.own) <= 9 and 1 <= len(self.opp) <= 9
         self.n = len(self.own); self.m = len(self.opp)
         self.ids = [x['id'] for x in self.own]; self.eids = [x['id'] for x in self.opp]
@@ -58,7 +64,17 @@ class Planner:
             assert x['hp'] > x.get('damage',0) >= 0 and 0 <= x.get('prizes',1) <= 6
             # Removing a HP-modifying tool can KO before the attack; not modeled.
             if x.get('tool_hp_extra',0): raise ValueError('HP-modifying Tool transitions not supported')
-        hand = data.get('hand',{}); used = data.get('used',{})
+        hand = data.get('hand',{}); used = data.get('used',{}); discard=data.get('discard',{})
+        original_n=self.n
+        # Reserve reusable public slots only if a held/recoverable Basic can enter.
+        hmon=hand.get('pokemon',{});dmon=discard.get('pokemon',{})
+        assert set(hmon)<=set(KINDS) and set(dmon)<=set(KINDS)
+        assert all(isinstance(c,int) and 0<=c<=4 for c in list(hmon.values())+list(dmon.values()))
+        if any(CARDS[k][1] and (hmon.get(k,0) or dmon.get(k,0)) for k in KINDS):
+            for i in range(self.n,9):
+                id='new'+str(i);assert id not in self.ids
+                self.ids.append(id);self.own.append({'id':id,'kind':''})
+            self.n=len(self.own)
         stadium = data.get('stadium','none'); assert stadium in STADIUMS
         stad = tuple(sorted(hand.get('stadiums',[])))
         assert all(x in {'valley','temple','sky'} for x in stad) and len(set(stad)) == len(stad)
@@ -73,30 +89,36 @@ class Planner:
         self.no_retreat = data.get('no_retreat',False)
         self.tool_attack_lock = data.get('tool_attack_lock',False)
         self.energy_attack_lock = data.get('energy_attack_lock',False)
-        discard = data.get('discard',{})
+        self.pokemon_play_lock=data.get('pokemon_play_lock',False)
+        self.ability_pokemon_play_lock=data.get('ability_pokemon_play_lock',False)
+        self.evolution_lock=data.get('evolution_lock',False)
         self.first = State(self.ids.index(data['active']), self.eids.index(data['opp_active']),
             tuple(x.get('energy',0) for x in self.own), tuple(x.get('tool','') for x in self.own),
-            tuple(x.get('tool','') for x in self.opp), (1<<self.n)-1, stadium,
+            tuple(x.get('tool','') for x in self.opp), (1<<original_n)-1, stadium,
             hand.get('psychic',0), hand.get('hood',0), hand.get('float',0),
             hand.get('blower',False), hand.get('guzma',False), stad,
             used.get('manual',False), used.get('retreat',False), used.get('support',False), used.get('stadium',False),
             mask(lambda x:x.get('door_used',False)), mask(lambda x:x.get('attack_blocked',False)),
             mask(lambda x:x.get('retreat_blocked',False)), data.get('deck_remaining',40),
             vs=hand.get('vs',0),stretcher=hand.get('stretcher',0),
-            discard_p=discard.get('psychic',0),discard_guzma=discard.get('guzma',False))
+            discard_p=discard.get('psychic',0),discard_guzma=discard.get('guzma',False),
+            kinds=tuple(x['kind'] for x in self.own),own_damage=tuple(x.get('damage',0) for x in self.own),
+            retreat_extras=tuple(x.get('retreat_extra',0) for x in self.own),
+            held=tuple(hmon.get(k,0) for k in KINDS),discard_mon=tuple(dmon.get(k,0) for k in KINDS),
+            evolvable=mask(lambda x:x['kind']=='v' and x.get('evolvable',False)))
         assert self.first.hand_p >= 0 and self.first.discard_p >= 0 and sum(self.first.energy)+self.first.hand_p+self.first.discard_p <= 11
         assert 0<=self.first.vs<=4 and 0<=self.first.stretcher<=4
         assert not (self.first.guzma and self.first.discard_guzma)  # single Guzma in the candidate
         assert 0 <= self.first.hood <= 2 and 0 <= self.first.flt <= 1 and self.first.deck >= 0
-        assert len(self.own)<= (9 if stadium=='sky' else 6) and len(self.opp)<= (9 if stadium=='sky' else 6)
+        assert original_n<= (9 if stadium=='sky' else 6) and len(self.opp)<= (9 if stadium=='sky' else 6)
         self.unsupported = set()
 
     def live_own(self,s,i): return bool(s.alive & (1<<i))
     def own_indices(self,s): return [i for i in range(self.n) if self.live_own(s,i)]
-    def kind(self,i): return self.own[i]['kind']
-    def basic(self,i): return CARDS[self.kind(i)][1]
-    def rule(self,i): return CARDS[self.kind(i)][2]
-    def psychic(self,i): return CARDS[self.kind(i)][0]=='Psychic'
+    def kind(self,s,i): return s.kinds[i]
+    def basic(self,s,i): return CARDS[self.kind(s,i)][1]
+    def rule(self,s,i): return CARDS[self.kind(s,i)][2]
+    def psychic(self,s,i): return CARDS[self.kind(s,i)][0]=='Psychic'
     def own_tool_live(self,s,i):
         return bool(s.ot[i]) and s.stadium!='jamming' and not (i==s.a and s.et[s.o]=='jammer')
     def enemy_tool_live(self,s,i): return bool(s.et[i]) and s.stadium!='jamming'
@@ -108,7 +130,7 @@ class Planner:
     def klefki(self,s):
         return self.opp[s.o].get('lock')=='klefki' and s.stadium!='lab' and not self.garbo(s)
     def wob(self,s):
-        if self.kind(s.a)!='wob' or s.stadium=='lab': return False
+        if self.kind(s,s.a)!='wob' or s.stadium=='lab': return False
         if self.garbo(s) and not self.hooded(s,s.a): return False
         if self.klefki(s) and self.klefki_blocks_wob and not self.hooded(s,s.a): return False
         return True
@@ -117,14 +139,14 @@ class Planner:
                 and not self.garbo(s) and (not self.wob(s) or self.enemy_hooded(s,s.o)))
     def own_ability(self,s,i):
         if not self.live_own(s,i): return False
-        if self.kind(i)=='wob': return i==s.a and self.wob(s)
-        if s.stadium=='lab' and self.basic(i): return False
-        if s.stadium=='path' and self.rule(i): return False
-        if self.wob(s) and not self.psychic(i): return False  # own lock: Hood does not protect.
+        if self.kind(s,i)=='wob': return i==s.a and self.wob(s)
+        if s.stadium=='lab' and self.basic(s,i): return False
+        if s.stadium=='path' and self.rule(s,i): return False
+        if self.wob(s) and not self.psychic(s,i): return False  # own lock: Hood does not protect.
         if not self.hooded(s,i):
             if self.garbo(s): return False
-            if self.klefki(s) and self.basic(i): return False
-            if self.thorns(s) and self.rule(i): return False
+            if self.klefki(s) and self.basic(s,i): return False
+            if self.thorns(s) and self.rule(s,i): return False
         return True
     def opp_ability(self,s,i):
         x=self.opp[i]; lock=x.get('lock',''); basic=x.get('basic',True); rule=x.get('rulebox',False)
@@ -145,14 +167,14 @@ class Planner:
                 not (self.opp[s.o].get('lock')=='sentinel' and self.opp_ability(s,s.o)))
     def attack_ok(self,s):
         return (self.can_attack and not (s.attack_block & (1<<s.a)) and
-                not (self.basic(s.a) and self.opp[s.o].get('lock')=='basic_vileplume'
+                not (self.basic(s,s.a) and self.opp[s.o].get('lock')=='basic_vileplume'
                      and self.opp_ability(s,s.o) and not self.hooded(s,s.a)))
     def retreat_cost(self,s):
         if self.no_retreat or s.retreat or (s.retreat_block & (1<<s.a)): return None
         if self.opp[s.o].get('lock')=='block' and self.opp_ability(s,s.o) and not self.hooded(s,s.a): return None
-        if (s.ot[s.a]=='float' and self.own_tool_live(s,s.a)) or (self.basic(s.a) and any(self.kind(i)=='latias' and self.own_ability(s,i) for i in self.own_indices(s))):
+        if (s.ot[s.a]=='float' and self.own_tool_live(s,s.a)) or (self.basic(s,s.a) and any(self.kind(s,i)=='latias' and self.own_ability(s,i) for i in self.own_indices(s))):
             return 0
-        return CARDS[self.kind(s.a)][4]+(2 if s.stadium=='mine' else 0)+self.own[s.a].get('retreat_extra',0)
+        return CARDS[self.kind(s,s.a)][4]+(2 if s.stadium=='mine' else 0)+s.retreat_extras[s.a]
     def switch(self,s,i,o=None):
         # Moving old Active to Bench clears effects/conditions on that Pokémon.
         return replace(s,a=i,o=s.o if o is None else o,
@@ -167,14 +189,35 @@ class Planner:
 
     def actions(self,s):
         own=self.own_indices(s); bench=[i for i in own if i!=s.a]
+        # Benching uses a canonical empty slot (slot permutation is irrelevant within this model).
+        # Optional on-play Abilities are declined here; model only the immediate board effect.
+        cap=9 if s.stadium=='sky' else 6
+        if not self.pokemon_play_lock and len(own)<cap:
+            empty=next((i for i in range(self.n) if not self.live_own(s,i)),None)
+            if empty is not None:
+                for k in KINDS:
+                    j=KINDEX[k]
+                    if not CARDS[k][1] or not s.held[j] or (self.ability_pokemon_play_lock and k in ABIL_BASIC):continue
+                    yield f'bench {k} -> {self.ids[empty]}',replace(s,alive=s.alive|(1<<empty),kinds=self.setv(s.kinds,empty,k),
+                        energy=self.setv(s.energy,empty,0),ot=self.setv(s.ot,empty,''),own_damage=self.setv(s.own_damage,empty,0),
+                        retreat_extras=self.setv(s.retreat_extras,empty,0),held=self.setv(s.held,j,s.held[j]-1),
+                        doors=s.doors&~(1<<empty),attack_block=s.attack_block&~(1<<empty),retreat_block=s.retreat_block&~(1<<empty),
+                        evolvable=s.evolvable&~(1<<empty),benched=s.benched+1)
+        j=KINDEX['vmax']
+        if s.held[j] and not self.evolution_lock and not self.pokemon_play_lock and not self.ability_pokemon_play_lock:
+            for i in own:
+                if self.kind(s,i)!='v' or not s.evolvable&(1<<i):continue
+                yield f'evolve {self.ids[i]} -> vmax',replace(s,kinds=self.setv(s.kinds,i,'vmax'),held=self.setv(s.held,j,s.held[j]-1),
+                    doors=s.doors&~(1<<i),attack_block=s.attack_block&~(1<<i),retreat_block=s.retreat_block&~(1<<i),
+                    evolvable=s.evolvable&~(1<<i),evolved=s.evolved+1)
         if s.hand_p:
             if not s.manual and not self.energy_attack_lock:
                 for i in own:
                     yield f'manual Psychic -> {self.ids[i]}',replace(s,energy=self.setv(s.energy,i,s.energy[i]+1),hand_p=s.hand_p-1,manual=True)
             for j in own:
-                if self.kind(j)!='vmax' or s.doors&(1<<j) or not self.own_ability(s,j):continue
+                if self.kind(s,j)!='vmax' or s.doors&(1<<j) or not self.own_ability(s,j):continue
                 for i in bench:
-                    if not self.psychic(i): continue
+                    if not self.psychic(s,i): continue
                     n=min(2,s.deck)
                     yield f'Underworld Door {self.ids[j]} -> {self.ids[i]}; draw {n} and replan',replace(s,energy=self.setv(s.energy,i,s.energy[i]+1),hand_p=s.hand_p-1,doors=s.doors|(1<<j),deck=s.deck-n,draws=s.draws+n)
         cost=self.retreat_cost(s)
@@ -193,6 +236,11 @@ class Planner:
                 yield 'VS Seeker -> Guzma',replace(s,vs=s.vs-1,discard_guzma=False,guzma=True,played_recovery=s.played_recovery+1)
             if s.stretcher and s.discard_p:
                 yield 'Night Stretcher -> Psychic Energy',replace(s,stretcher=s.stretcher-1,discard_p=s.discard_p-1,hand_p=s.hand_p+1,played_recovery=s.played_recovery+1)
+            if s.stretcher:
+                for j,k in enumerate(KINDS):
+                    if not s.discard_mon[j]:continue
+                    yield f'Night Stretcher -> {k}',replace(s,stretcher=s.stretcher-1,discard_mon=self.setv(s.discard_mon,j,s.discard_mon[j]-1),
+                        held=self.setv(s.held,j,s.held[j]+1),played_recovery=s.played_recovery+1)
         if not s.stadium_used and not self.stadium_attack_lock:
             for name in s.stadiums:
                 if name==s.stadium or (s.stadium!='none' and not self.stadium_removable(s)): continue
@@ -217,27 +265,27 @@ class Planner:
                     yield 'Field Blower: '+', '.join(names),replace(s,ot=ot,et=et,stadium=stad,blower=False,played_blower=True)
         if self.stadium_removable(s):
             for i in bench:
-                if self.kind(i)=='marshadow' and self.own_ability(s,i):
-                    yield f'Resetting Hole {self.ids[i]} (discard Stadium and this Pokémon)',replace(s,alive=s.alive&~(1<<i),energy=self.setv(s.energy,i,0),ot=self.setv(s.ot,i,''),stadium='none',discarded=s.discarded+s.energy[i],discard_p=s.discard_p+s.energy[i],used_marshadow=True)
+                if self.kind(s,i)=='marshadow' and self.own_ability(s,i):
+                    yield f'Resetting Hole {self.ids[i]} (discard Stadium and this Pokémon)',replace(s,alive=s.alive&~(1<<i),energy=self.setv(s.energy,i,0),ot=self.setv(s.ot,i,''),stadium='none',discarded=s.discarded+s.energy[i],discard_p=s.discard_p+s.energy[i],used_marshadow=True,discard_mon=self.setv(s.discard_mon,KINDEX['marshadow'],s.discard_mon[KINDEX['marshadow']]+1))
 
     def effective_opp_energy(self,s,i):
         x=self.opp[i]
         return x.get('temple_energy',x.get('energy',0)) if s.stadium=='temple' else x.get('energy',0)
-    def cost(self,s,p,c):return p+max(0,c-(s.stadium=='valley' and self.psychic(s.a)))
+    def cost(self,s,p,c):return p+max(0,c-(s.stadium=='valley' and self.psychic(s,s.a)))
     def defense(self,s,i,key,default=None):
         x=self.opp[i]
         if x.get('defense_is_ability',False) and not self.opp_ability(s,i): return default
         return x.get(key,default)
     def damage(self,s,raw,bypass=False):
-        x=self.opp[s.o]; k=self.kind(s.a); category={'all','basic' if self.basic(s.a) else 'evolution'}
-        if self.rule(s.a): category.add('rulebox')
+        x=self.opp[s.o]; k=self.kind(s,s.a); category={'all','basic' if self.basic(s,s.a) else 'evolution'}
+        if self.rule(s,s.a): category.add('rulebox')
         if k in ('v','vmax'):category.add('v')
         if k in ('clefairy','latias'):category.add('ex')
         if k in ('lele','trev','dialga'):category.add('gx')
         if set(self.defense(s,s.o,'prevent_damage_from',[]) or [])&category:return 0
         dmg=raw
-        if not bypass and self.psychic(s.a):
-            fairy=x.get('type')=='Dragon' and any(self.kind(i)=='clefairy' and self.own_ability(s,i) for i in self.own_indices(s))
+        if not bypass and self.psychic(s,s.a):
+            fairy=x.get('type')=='Dragon' and any(self.kind(s,i)=='clefairy' and self.own_ability(s,i) for i in self.own_indices(s))
             if fairy or x.get('weakness')=='Psychic':dmg*=2
             dmg-=x.get('psychic_resistance',0)
         return max(0,dmg+self.defense(s,s.o,'damage_modifier',0))
@@ -251,7 +299,7 @@ class Planner:
         return x.get(key,x.get('prizes',1))
     def attacks(self,s):
         if not self.attack_ok(s):return
-        k=self.kind(s.a); a=s.energy[s.a]; total=sum(s.energy); target=self.opp[s.o]
+        k=self.kind(s,s.a); a=s.energy[s.a]; total=sum(s.energy); target=self.opp[s.o]
         # The list's only Energy is basic Psychic. Dialga and Radiant's printed attacks are not payable.
         options=[]
         def add(name,p,c,raw=0,effect='',gx=False,bypass=False,counters=False,heal=0):
@@ -266,7 +314,7 @@ class Planner:
         elif k=='latias':add('Eon Blade',2,1,200,'cannot attack during next own turn unless effect cleared')
         elif k=='lele':
             add('Energy Drive',0,2,20*(a+self.effective_opp_energy(s,s.o)),bypass=True)
-            heal=sum(sorted((self.own[i].get('damage',0) for i in self.own_indices(s) if i!=s.a),reverse=True)[:2])
+            heal=sum(sorted((s.own_damage[i] for i in self.own_indices(s) if i!=s.a),reverse=True)[:2])
             add('Tapu Cure-GX',1,0,effect='heal two Benched Pokémon',gx=True,heal=heal)
         elif k=='trev':
             add('Night Watch',3,0,150,'shuffle two random opponent hand cards into deck')
@@ -309,7 +357,7 @@ class Planner:
                 capped=sum(min(d,hp) for d,hp in zip(damages,remain))
                 # Transparent representative ranking per same attack/target, not global win-rate utility.
                 score=(prizes,capped,heal,-s.discarded,-int(s.played_guzma),-int(s.played_blower),
-                       -int(s.played_stadium),-int(s.used_marshadow),-s.tools_played,-s.played_recovery,s.draws,s.hand_p)
+                       -int(s.played_stadium),-int(s.used_marshadow),-s.tools_played,-s.played_recovery,-s.benched,-s.evolved,s.draws,s.hand_p)
                 key=(s.a,attack,targets,effect)
                 old=best.get(key)
                 if old is None or score>old[0]:best[key]=(score,s,damages,ko,prizes,effect,gx,heal,cost)
@@ -324,11 +372,11 @@ class Planner:
                 'attack_cost':cost,'effect':effect,'gx':gx,'heal':heal,'actions':path(s),
                 'board_psychic':{self.ids[j]:s.energy[j] for j in self.own_indices(s)},'known_hand_psychic':s.hand_p,
                 'discarded_psychic':s.discarded,'door_draws':s.draws,'stadium':s.stadium,
-                'recovery_items_used':s.played_recovery})
+                'recovery_items_used':s.played_recovery,'board_kinds':{self.ids[j]:self.kind(s,j) for j in self.own_indices(s)}})
         results.sort(key=lambda x:(-x['immediate_prizes'],-sum(x['damage_or_counters']),-x['heal'],x['discarded_psychic'],len(x['actions']),x['attack']))
         return {'states':len(paths),'complete_within_model':not incomplete,'distinct_attack_target_options':len(results),
                 'options':results[:limit],'omitted_options':max(0,len(results)-limit),'unsupported':sorted(self.unsupported),
-                'boundary':'Known-resource plan only; replan after observed Door draws. No bench/evolution/search/hidden order, opponent future action, full copy or defense resolver. Caller supplies effective public flags. Representative ranking is not a game-win policy.'}
+                'boundary':'Known-resource plan only; replan after observed Door draws. No hidden order or deck search, opponent future action, full copy or defense resolver. Caller supplies effective public flags. Representative ranking is not a game-win policy.'}
 
     def lethal_option(self,s,attack,path):
         name,targets,damages,effect,gx,heal,cost=attack
@@ -338,7 +386,8 @@ class Planner:
                 'damage_or_counters':list(damages),'ko':[self.eids[i] for i in ko],
                 'immediate_prizes':prizes,'actions':path,'effect':effect,'gx':gx,'attack_cost':cost,
                 'board_psychic':{self.ids[i]:s.energy[i] for i in self.own_indices(s)},
-                'known_hand_psychic':s.hand_p,'door_draws':s.draws,'stadium':s.stadium},ko
+                'known_hand_psychic':s.hand_p,'door_draws':s.draws,'stadium':s.stadium,
+                'board_kinds':{self.ids[j]:self.kind(s,j) for j in self.own_indices(s)}},ko
 
     def followup(self,s,attack,ko,prizes,promotion):
         """Construct one no-opponent-action extra-turn information state.
@@ -350,7 +399,7 @@ class Planner:
         if s.deck<1:return None
         own=[]
         for i in self.own_indices(s):
-            x=dict(self.own[i]);x.update(energy=s.energy[i],tool=s.ot[i],door_used=False,
+            x=dict(self.own[i]);x.update(kind=self.kind(s,i),energy=s.energy[i],damage=s.own_damage[i],retreat_extra=s.retreat_extras[i],tool=s.ot[i],door_used=False,evolvable=self.kind(s,i)=='v',
                 attack_blocked=bool(s.attack_block&(1<<i)),retreat_blocked=bool(s.retreat_block&(1<<i)))
             own.append(x)
         dealt=dict(zip(targets,damages));opp=[]
@@ -359,12 +408,12 @@ class Planner:
             x=dict(x0);x.update(damage=x.get('damage',0)+dealt.get(i,0),tool=s.et[i]);opp.append(x)
         data=dict(self.data);data.pop('copycat_recipe',None)
         data.update(own=own,opp=opp,active=self.ids[s.a],opp_active=self.eids[promotion],stadium=s.stadium,
-             hand={'psychic':s.hand_p,'hood':s.hood,'float':s.flt,'blower':s.blower,'guzma':s.guzma,'stadiums':list(s.stadiums),'vs':s.vs,'stretcher':s.stretcher},
-             discard={'psychic':s.discard_p,'guzma':s.discard_guzma},
+             hand={'psychic':s.hand_p,'hood':s.hood,'float':s.flt,'blower':s.blower,'guzma':s.guzma,'stadiums':list(s.stadiums),'vs':s.vs,'stretcher':s.stretcher,'pokemon':dict(zip(KINDS,s.held))},
+             discard={'psychic':s.discard_p,'guzma':s.discard_guzma,'pokemon':dict(zip(KINDS,s.discard_mon))},
              used={'gx':self.gx_used or gx},deck_remaining=s.deck-1,can_attack=True,support_allowed=True,
              prizes_remaining=self.data['prizes_remaining']-prizes)
         if self.data.get('attack_locks_expire_after_turn',True):
-            data.update(item_attack_lock=False,support_attack_lock=False,stadium_attack_lock=False,tool_attack_lock=False,energy_attack_lock=False)
+            data.update(item_attack_lock=False,support_attack_lock=False,stadium_attack_lock=False,tool_attack_lock=False,energy_attack_lock=False,pokemon_play_lock=False,ability_pokemon_play_lock=False,evolution_lock=False)
         return Planner(data)
 
     def find_lethal(self,max_states=200000,max_followup=128,allow_extra=True):
@@ -475,6 +524,19 @@ def selftest():
     q['item_attack_lock']=True;assert not any(x['immediate_prizes'] for x in Planner(q).solve()['options'])
     q=dict(f['basic_attack_lock']);q['tool_attack_lock']=True;assert not any(x['attack']=='Eon Blade' for x in Planner(q).solve()['options'])
     q=dict(f['protected_vileplume']);q['energy_attack_lock']=True;assert any(x['attack']=='Eon Blade' and x['immediate_prizes']==1 for x in Planner(q).solve()['options']) # Door still works
+    # Held VMAX evolution creates an additional Door; ineligible freshly played V cannot evolve.
+    q={'own':[{'id':'v1','kind':'v','energy':2,'evolvable':True},{'id':'v2','kind':'v','energy':1}],
+       'opp':[{'id':'target','type':'Grass','hp':160,'prizes':2}], 'active':'v1','opp_active':'target','stadium':'valley',
+       'hand':{'psychic':2,'pokemon':{'vmax':1}}}
+    r=Planner(q).solve();p=next(x for x in r['options'] if x['immediate_prizes']==2);assert 'evolve v1 -> vmax' in p['actions'] and p['door_draws']==2
+    q['own'][0]['evolvable']=False;assert not any(x['immediate_prizes'] for x in Planner(q).solve()['options'])
+    q['own'][0]['evolvable']=True;q['hand']={'psychic':2,'stretcher':1};q['discard']={'pokemon':{'vmax':1}}
+    r=Planner(q).solve();assert any(x['immediate_prizes']==2 and 'Night Stretcher -> vmax' in x['actions'] for x in r['options'])
+    q={'own':[{'id':'vmax','kind':'vmax','energy':3},{'id':'v','kind':'v','energy':1}],
+       'opp':[{'id':'drago','type':'Dragon','hp':280,'prizes':2}], 'active':'vmax','opp_active':'drago','stadium':'valley',
+       'hand':{'psychic':1,'pokemon':{'clefairy':1}}}
+    r=Planner(q).solve();assert any(x['immediate_prizes']==2 and any(a.startswith('bench clefairy') for a in x['actions']) for x in r['options'])
+    q['ability_pokemon_play_lock']=True;assert not any(x['immediate_prizes'] for x in Planner(q).solve()['options'])
     print('All focused actor-visible tactical tests passed.')
 
 def main():
