@@ -1,3 +1,11 @@
+# 2026-11-27T11:08:03.193Z — second checkpoint: Ranger productive-unlock opportunity cost
+
+- Tested another concrete actual-worker decision defect at same v2 blob 31cdab1f9511c268445dae948738c69fbf479bd5. usefulRanger currently chooses Ranger over Arven whenever any Item is held, even when the Item has no productive root continuation after Ranger consumes the Supporter quota. Temporary worker patch uses an actor-visible post-clear counterfactual (remove Ranger from hand, append to discard, clear Item flags, spend Supporter), reuses existing Item scoring. Both seats x six alternatives: original Ranger all 12; patch selects Arven for dead VS Seeker, unsupported Battle Compressor, empty Night Stretcher; retains Ranger for Fog Crystal, live Stretcher (Psychic in discard), Quick Ball with payment. Explicit VS Seeker exclusion proposed to avoid circular valuation with the earlier recycle patch, not separately tested in combined worker. One-step heuristic, not legal-action oracle or full-game evidence.
+- Sent exact patch and receipts to Agent46 at communications/agent46/2026-11/20261127T110753Z_agent2-ranger-supporter-opportunity-cost.md; commit dc7795b54da2a8f61b2635f3071b9e88026a0d49. No direct successor edit, no new evaluator, no CI/game, no deck changes. Agent46 remains integration owner.
+- Two executable handoffs now preserved; verify integration if requested, avoid duplicate audit churn. The lease is still original; measured age below release threshold. No orderly release yet.
+
+---
+
 # 2026-11-27T11:07:18.108Z — Normal Agent2 checkpoint: post-Ranger VS Seeker counterline
 
 - Actual random draw 5; immutable claim 2026-11-27T11:05:40.439Z, run agent2-chat-2026-11-27T11:05:40.439Z-normal5-policy, claim commit e5b8d7690be1386725dc0580b4108ffc87b2d199 verified by lease readback. 70-minute threshold 12:15:40.439Z; never refresh.
