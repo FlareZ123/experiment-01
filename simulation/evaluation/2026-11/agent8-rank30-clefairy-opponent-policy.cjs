@@ -45,7 +45,8 @@ const P = Object.freeze({
   mimikyu: /^Mimikyu GRI(?: 58)?\b/i,
   minior: /^Minior PAR(?: 99)?\b/i,
   snorlax: /^Snorlax PGO(?: 55)?\b/i,
-  mail: /^Trainers' Mail ROS(?: 92)?\b/i
+  mail: /^Trainers' Mail ROS(?: 92)?\b/i,
+  ultra: /^Ultra Ball MEG(?: 131)?\b/i
 });
 const arr = value => Array.isArray(value) ? value : [];
 const text = value => typeof value === 'string' ? value : value?.printing ?? value?.fullName ?? value?.label ?? '';
@@ -86,7 +87,10 @@ const PUBLIC_ABORT = Object.freeze({
   R30_MINIOR_PROMPT_UNSUPPORTED:'UNRECOGNIZED_SIMPLE_PROMPT',
   R30_MINIOR_NO_CONFIRM:'UNRECOGNIZED_SIMPLE_PROMPT',
   R30_MAIL_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
-  R30_MAIL_NO_USEFUL_CARD:'NO_LEGAL_CARD_SET'
+  R30_MAIL_NO_USEFUL_CARD:'NO_LEGAL_CARD_SET',
+  R30_ULTRA_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
+  R30_ULTRA_PAYMENT_UNAVAILABLE:'NO_LEGAL_CARD_SET',
+  R30_ULTRA_NO_POKEMON:'NO_LEGAL_CARD_SET'
 });
 const no = reasonCode => ({kind:'abstain',reasonCode:PUBLIC_ABORT[reasonCode]??reasonCode});
 const act = x => ({kind:'select-action',token:x.token});
@@ -114,13 +118,31 @@ function isLaterTurn(observation) {
 // ACE SPEC, Forest Seal Stone and live gust; never discard them here.
 function discardScore(value,o) {
   const h = o.ownHand, p = text(value);
-  if (has(p,P.basicPsychic) && hasBenchedPsychic(o.ownPublic)) return 90;
+  if (has(p,P.basicPsychic) && hasBenchedPsychic(o.ownPublic)) {
+    const own=o.ownPublic,hand=arr(o.ownHand);
+    const basicCopies=copyCount(hand,P.basicPsychic);
+    const telepathCopies=copyCount(hand,P.telepathic);
+    const manualAvailable=o.ownTurnResources?.energyPlayedTurn===0;
+    const needsClef=has(own.active,P.clefairy)&&
+      arr(own.active.energies).length<2;
+    const miniorCounter=miniorStallOpportunity(o)?.knockout&&
+      arr(own.bench).some(x=>has(x,P.minior)&&arr(x.energies).length===0);
+    // The only hand Energy cannot be burned into search while it powers
+    // this-turn Rondo or Minior's forced switch against a Snorlax Block.
+    if(basicCopies===1&&manualAvailable&&telepathCopies===0&&
+      (needsClef||miniorCounter))return 0;
+    if(basicCopies>1)return 90;
+    if(hand.some(x=>has(x,P.patch))&&hasBenchedPsychic(own))return 88;
+    if(manualAvailable&&telepathCopies===0&&
+       slots(own).every(x=>arr(x.energies).length===0))return 15;
+    return 55;
+  }
   if (has(p,P.vip) && isLaterTurn(o)) return 80;
   if (has(p,P.sky) && stadium(o) && copyCount(h,P.sky)>1) return 70;
   if (has(p,P.quickBall) && copyCount(h,P.quickBall)>1 && slots(o.ownPublic).some(c=>has(c,P.clefairy))) return 35;
   return 0;
 }
-function discardPayment(o, choices) {
+function safeDiscardPayment(o,choices,count) {
   const ownHand = arr(o.ownHand);
   const seen = new Set();
   const options = arr(choices).filter(c=>c.kind==='card' && typeof c.token==='string' &&
@@ -128,8 +150,9 @@ function discardPayment(o, choices) {
     .map((choice,i)=>({choice,score:discardScore(choice,o),i}))
     .filter(row=>row.score>0)
     .sort((a,b)=>b.score-a.score||a.i-b.i);
-  return options.length>=3 ? options.slice(0,3).map(row=>row.choice) : null;
+  return options.length>=count ? options.slice(0,count).map(row=>row.choice) : null;
 }
+function discardPayment(o,choices){return safeDiscardPayment(o,choices,3);}
 function proposedDeckSearch(o,choices) {
   const offered=arr(choices).filter(c=>c.kind==='card' && typeof c.token==='string');
   const wantPatch=basicDiscard(o.ownPublic)&&hasBenchedPsychic(o.ownPublic);
@@ -360,6 +383,7 @@ function trainersMailPriority(name,o,{enablePatchProjection=false}={}) {
   if(has(name,P.vsSeeker))return guzmaOpportunity(o)&&
     arr(own.discard).some(x=>has(x,P.guzma))?86:25;
   if(has(name,P.box))return canStartBox(o)?83:20;
+  if(has(name,P.ultra))return ultraOpportunity(o)?78:20;
   if(has(name,P.sky))return !stadium(o)&&remaining&&
     remaining.damage<remaining.remaining&&remaining.damage+rondoIncrement(o)>=remaining.remaining?82:48;
   if(has(name,P.fss))return o.ownTurnResources?.vstarUsed===false&&
@@ -384,6 +408,46 @@ function trainersMailPrompt(request,{enablePatchProjection=false}={}) {
   const empty=arr(p.choices).find(x=>x.kind==='empty-selection'&&typeof x.token==='string');
   return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
     no('R30_MAIL_NO_USEFUL_CARD');
+}
+
+function ultraOpportunity(o) {
+  const own=o?.ownPublic;
+  if(!own||!safeInt(own.deckCount)||own.deckCount<=0)return false;
+  const clefs=slots(own).filter(x=>has(x,P.clefairy)).length+
+    arr(o.ownHand).filter(x=>has(x,P.clefairy)).length;
+  const miniorNeeded=miniorStallOpportunity(o)?.knockout&&
+    !slots(own).some(x=>has(x,P.minior))&&!o.ownHand.some(x=>has(x,P.minior));
+  if(clefs>0&&!miniorNeeded)return false;
+  const cap=stadium(o)?8:5;
+  if(benchCount(own)>=cap)return false;
+  const options=arr(o.ownHand).filter(c=>!has(c,P.ultra))
+    .map((c,i)=>({kind:'card',token:'candidate-'+i,printing:text(c)}));
+  return Boolean(safeDiscardPayment(o,options,2));
+}
+function ultraBallPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
+    m.ownerSeat!=='actor'||m.isOwnerVisible!==true||!safeInt(m.minimumCount)||
+    !safeInt(m.maximumCount)||m.minimumCount>m.maximumCount)
+    return no('R30_ULTRA_PROMPT_UNSUPPORTED');
+  if(m.sourceZone==='hand'&&m.minimumCount===2&&m.maximumCount===2){
+    const payment=safeDiscardPayment(o,p.choices,2);
+    return payment?picks(payment):no('R30_ULTRA_PAYMENT_UNAVAILABLE');
+  }
+  if(m.sourceZone==='deck'&&m.maximumCount===1){
+    const choices=arr(p.choices).filter(c=>c.kind==='card'&&typeof c.token==='string');
+    const stall=miniorStallOpportunity(o)?.knockout &&
+      !slots(o.ownPublic).some(x=>has(x,P.minior));
+    const wanted=stall?choices.find(x=>has(x,P.minior)):null;
+    const firstClef=choices.find(x=>has(x,P.clefairy));
+    const latias=choices.find(x=>/^Latias ex SSP(?: 76)?\b/i.test(text(x)));
+    const chosen=wanted??firstClef??latias;
+    if(chosen)return picks([chosen]);
+    const empty=arr(p.choices).find(c=>c.kind==='empty-selection'&&typeof c.token==='string');
+    return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
+      no('R30_ULTRA_NO_POKEMON');
+  }
+  return no('R30_ULTRA_PROMPT_UNSUPPORTED');
 }
 
 function starNeedsResource(o,{enablePatchProjection=false}={}) {
@@ -715,6 +779,8 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   if(quick && canStartQuickBall(o))return act(quick);
   const carrier=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.carrier));
   if(carrier&&carrierOpportunity(o))return act(carrier);
+  const ultra=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.ultra));
+  if(ultra&&ultraOpportunity(o))return act(ultra);
   const box=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.box));
   if(box && canStartBox(o))return act(box);
   const discard=arr(o.ownPublic?.discard);
@@ -784,6 +850,7 @@ function createPolicy({role,seat,policyVersion,config}) {
        !Array.isArray(request.observation?.ownHand))return no('R30_OBSERVATION_INCOMPLETE');
     if(request.prompt!==null){
       if(sameSource(request.prompt,P.box))return boxPrompt(request);
+      if(sameSource(request.prompt,P.ultra))return ultraBallPrompt(request);
       if(sameSource(request.prompt,P.quickBall))return quickBallPrompt(request);
       if(sameSource(request.prompt,P.mail))return trainersMailPrompt(request,
         {enablePatchProjection:config.enablePatchProjection===true});
@@ -805,4 +872,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,candidateCanUseBoardHeldStarAlchemy};
+  rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
