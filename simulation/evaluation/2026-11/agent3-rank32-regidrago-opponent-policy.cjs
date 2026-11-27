@@ -250,9 +250,11 @@ function aceSpecBlowerPriority(observation) {
     return 0; // Already have immediate game-winning Prize, save the ACE SPEC.
   const energy=list(opp.active?.energies)
     .concat(list(opp.bench).flatMap(p=>list(p?.energies)));
-  const special=energy.filter(e=>
-    /^(?:Double Dragon Energy|Double Colorless Energy|Triple Acceleration Energy|Mystery Energy|Prism Energy|Aurora Energy|Rapid Strike Energy|Fusion Strike Energy)\b/i.test(print(e)) ||
-    /Special Energy/i.test(print(e))).length;
+  // Basic Energy has exactly one of the nine canonical type names; unlike
+  // a finite handpicked list this detects Jet, Strong, Legacy, Double Dragon,
+  // etc. as Special Energy from the actor-visible printing alone.
+  const basicEnergyName=/^(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy\b/i;
+  const special=energy.filter(e=>print(e)!=='' && !basicEnergyName.test(print(e))).length;
   const tools=slots(opp).reduce((n,p)=>n+list(p.tools).length,0);
   const temple=list(opp.stadium).concat(list(own.stadium))
     .some(st=>/^Temple of Sinnoh ASR 155\b/i.test(print(st)));
