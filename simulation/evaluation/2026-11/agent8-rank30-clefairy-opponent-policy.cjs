@@ -449,8 +449,12 @@ function patchPrompt(request) {
 function canStartQuickBall(o) {
   if(!o||!Array.isArray(o.ownHand)||!safeInt(o.ownPublic?.deckCount)||
     o.ownPublic.deckCount<1)return false;
-  if(slots(o.ownPublic).some(x=>has(x,P.clefairy))||
-     o.ownHand.some(x=>has(x,P.clefairy)))return false;
+  const hasClefairy=slots(o.ownPublic).some(x=>has(x,P.clefairy))||
+     o.ownHand.some(x=>has(x,P.clefairy));
+  const needsMinior=Boolean(miniorStallOpportunity(o)?.knockout)&&
+     !slots(o.ownPublic).some(x=>has(x,P.minior))&&
+     !o.ownHand.some(x=>has(x,P.minior));
+  if(hasClefairy&&!needsMinior)return false;
   const capacity=stadium(o)?8:5;
   if(benchCount(o.ownPublic)>=capacity)return false;
   return o.ownHand.some(x=>discardScore(x,o)>0);
