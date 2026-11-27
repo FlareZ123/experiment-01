@@ -36,7 +36,8 @@ function print(v) {
 function has(x, re) { return re.test(print(x)); }
 function slots(p) { return [p?.active, ...list(p?.bench)].filter(Boolean); }
 function countDonors(own) {
-  return Object.values(DONOR).filter(re => list(own?.discard).some(card => has(card, re))).length;
+  return Object.entries(DONOR).filter(([name,re]) => name !== 'dragapult' &&
+    list(own?.discard).some(card => has(card, re))).length;
 }
 function context(prompt) {
   const s = prompt?.source ?? {};
@@ -155,7 +156,7 @@ function donorScore(card, observation, aggressive) {
   if (DONOR.dialga.test(name)) return own.publicTurnRestrictions?.gxUsed === true ? 110 : 220;
   if (DONOR.noivern.test(name)) return 210;
   if (DONOR.kyurem.test(name)) return 185;
-  if (DONOR.dragapult.test(name)) return aggressive ? 95 : 0;
+  if (DONOR.dragapult.test(name)) return 0; // Native damage-allocation continuation is not supported.
   if (!aggressive) return 0;
   if (/^Grass Energy|^Fire Energy/i.test(name)) return 20;
   if (/^Regidrago V SIT 135\b/i.test(name) &&
