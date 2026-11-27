@@ -224,6 +224,9 @@ function runCases(policy,protocol) {
     same(runPrompt(p,lowDeck,shufflePrompt),choose('c2','c1','c0'),tag+'shuffle exactly three recoverable Pokémon');
     const safeDeck={...lowDeck,ownPublic:{...lowDeck.ownPublic,deckCount:12}};
     same(runRoot(p,safeDeck,[play('stretcher-safe',A.stretcher),pass]),action('pass'),tag+'do not speculative shuffle-three with healthy deck');
+    const mailLowDeck={...lowDeck,ownHand:[A.mail],ownPublic:{...lowDeck.ownPublic,handCount:1}};
+    same(runPrompt(p,mailLowDeck,cards(mailLowDeck,A.mail,"Trainers' Mail",'deck',
+      [A.research,A.stretcher],0,1)),choose('c1'),tag+'Mail finds Stretcher over draw in deckout window');
     // Secret Box must not burn unique core or count itself as payment.
     v=view(seat,{globalTurn:4,ownHand:[A.secret,A.vip,A.vip,A.unit,A.pikachu]});
     same(runRoot(p,v,[play('secret',A.secret),pass]),action('pass'),tag+'cannot pay three safe discards');
