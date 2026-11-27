@@ -265,13 +265,35 @@ function scoreAction(action, request) {
   }
   return family.scoreAction(action, request);
 }
+function estimatedDragonDamage(base, observation) {
+  // Approximation with printed Weakness/Resistance and a known Muscle Band;
+  // native engine remains authoritative for effects, prevention and modifiers.
+  const target=observation?.opponentPublic?.active ?? {};
+  const attacker=observation?.ownPublic?.active ?? {};
+  const band=list(attacker.tools).some(x=>/^Muscle Band XY 121\b/i.test(print(x)))?20:0;
+  let damage=base+band;
+  const weakness=list(target?.printed?.weakness).find(x=>x?.type==='Dragon');
+  if(weakness){
+    const w=String(weakness.value??'×2').replace(/\s/g,'').replace('×','x').toLowerCase();
+    const multi=Number.parseFloat(w.replace(/^x/,'').replace(/x$/,''));
+    damage*=Number.isFinite(multi)&&multi>1?multi:2;
+  }
+  const resistance=list(target?.printed?.resistance).find(x=>x?.type==='Dragon');
+  if(resistance){
+    const minus=Number.parseInt(String(resistance.value??'-30').replace(/[^0-9-]/g,''),10);
+    damage-=Number.isFinite(minus)?Math.abs(minus):30;
+  }
+  return Math.max(0,damage);
+}
 function chooseRank32Apex(choices, observation) {
   const target = observation?.opponentPublic?.active;
   const hp = Number(target?.hp) - Number(target?.damage ?? 0);
   const energyCards = list(observation?.ownPublic?.active?.energies).length;
   const ownPrizes = Number(observation?.ownPublic?.prizeCount ?? 6);
   const rollingChoice = list(choices).find(c=>
-    (c?.publicMetadata?.sourceAttack??c?.attackName??c?.label)==='Rolling Iron');
+    (c?.publicMetadata?.sourceAttack??c?.attackName??c?.label)==='Rolling Iron' &&
+    c?.publicMetadata?.eligible!==false &&
+    c?.publicMetadata?.attackCostPayable!==false);
   const rolling = rollingChoice ? evaluateApexAttackChoice(rollingChoice,observation):null;
   const rows = list(choices).map((choice, index) => {
     const name = choice?.publicMetadata?.sourceAttack ?? choice?.attackName ?? choice?.label ?? '';
@@ -281,7 +303,8 @@ function chooseRank32Apex(choices, observation) {
       // Printed 330 attack, two attached Energy discarded. Native computes
       // actual damage, prevention and energy-discard requirements; this is only
       // a decision heuristic based on visible HP.
-      const knockout = Number.isFinite(hp) && hp > 0 && hp <= 330;
+      const knockout = Number.isFinite(hp) && hp > 0 &&
+        hp <= estimatedDragonDamage(330,observation);
       // When a legal Rolling Iron already Knocks Out the same Active,
       // discard-two Ryuno is connector-dominated: it loses future Energy
       // and the 80-damage defensive reduction for no additional Prize.
@@ -634,4 +657,4 @@ module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
   protocolSafeDecision,apexTypedDeficit,scoreEnergyAttachment,nativeOwnerTarget,
   engineSetupDecision,setupActiveScore,setupBenchScore,
   isSourceSupporter,cynthiaRecoverPriority,
-  legacyRecoverPriority,canUseLegacyStar,superRodRecoverPriority};
+  legacyRecoverPriority,canUseLegacyStar,superRodRecoverPriority,estimatedDragonDamage};
