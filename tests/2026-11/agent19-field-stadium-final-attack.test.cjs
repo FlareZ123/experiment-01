@@ -34,7 +34,7 @@ function publicPlayer(active,bench,prizes,stadium=[]) {
     publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:0}};
 }
 function setup(seat,{stadium='',damage=120,prizeCount=2,
-  attackerTypes=['Psychic'],oppBench=true}={}) {
+  attackerTypes=['Psychic'],oppBench=true,fairyZone=false}={}) {
   // Real Aichi opponent family: Regidrago VSTAR 280 HP, attack-copy engine.
   // Five Psychic Energy: Max Geist = 160 without Fairy Zone; 120 pre-damage
   // leaves exactly 160 HP. Opponent Bench prevents a board-empty shortcut.
@@ -42,8 +42,9 @@ function setup(seat,{stadium='',damage=120,prizeCount=2,
     Array(5).fill(PSY),[['Max Geist','10+',['Colorless','Colorless','Colorless']]]);
   const target=mon('Regidrago VSTAR SIT 136',280,['Dragon'],['VSTAR'],[],[],damage,['Legacy Star']);
   const bench=mon('Regidrago V SIT 135',220,['Dragon'],['V']);
+  const clefairy=mon("Lillie's Clefairy ex JTG 56",190,['Psychic'],['Basic','ex'],[],[],0,['Fairy Zone']);
   const view={actorSeat:seat,decisionKind:'owner-root',phase:2,globalTurn:4,
-    ownHand:[FOG],ownPublic:publicPlayer(active,[],prizeCount,stadium?[stadium]:[]),
+    ownHand:[FOG],ownPublic:publicPlayer(active,fairyZone?[clefairy]:[],prizeCount,stadium?[stadium]:[]),
     opponentPublic:publicPlayer(target,oppBench?[bench]:[],6),ownTurnResources:{
       supporterPlayedTurn:0,retreatedTurn:0,energyPlayedTurn:false,
       stadiumPlayedTurn:false}};
@@ -71,6 +72,16 @@ for(const profile of PROFILES)for(const seat of [0,1]){
       assert.equal(short.policyAudit.selectionRuleCode,'ROOT_PLAY_MAX_COMPONENT_SCORE');
       const tooManyPrizes=choose({stadium,prizeCount:3});
       assert.deepEqual(tooManyPrizes.decision,{kind:'select-action',token:'fog'});
+    }
+    // A real positive/negative ability-contention counterfactual: Fairy Zone
+    // doubles Psychic damage to a Dragon only when its Basic ex holder is live.
+    // Path and Silent Lab suppress that holder; Parallel City does not.
+    const fairyBase=choose({fairyZone:true,damage:0});
+    assert.deepEqual(fairyBase.decision,{kind:'select-action',token:'hit'});
+    for(const stadium of STADIUMS){
+      const got=choose({stadium,fairyZone:true,damage:0});
+      assert.deepEqual(got.decision,{kind:'select-action',token:
+        stadium.includes('Parallel City')?'hit':'fog'});
     }
     const unknown=choose({stadium:UNKNOWN});
     assert.deepEqual(unknown.decision,{kind:'select-action',token:'fog'});
