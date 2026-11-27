@@ -80,7 +80,8 @@ test('duplicate prompt identity does not recapture and a failed search cannot re
   for(const seat of [0,1]){
     const f=fixture(seat);const p=f.search();
     const first=f.adapter.observe(f.state,seat).ownerK1.epoch;
-    f.search();
+    // Re-observe the same pending native prompt object. A different object
+    // with the same recycled ID is not a duplicate native prompt.
     assert.equal(f.adapter.observe(f.state,seat).ownerK1.epoch,first);
     f.after(p,1);
     f.owner.deck.cards.push({fullName:HB});
