@@ -53,8 +53,8 @@ function rank14RootScore(item,request){
     }
     if(/^Squawkabilly ex PAL 169\b/i.test(name)){
       const existing=board(own).some(x=>/^Squawkabilly ex PAL 169\b/i.test(print(x)));
-      return turnOne(obs)&&open>0&&!existing&&cardCount<=4 ?
-        225-discardCost(hand) : 0;
+      return turnOne(obs)&&open>0&&!existing&&cardCount<=4 &&
+        discardCost(hand)===0 ? 225 : 0;
     }
     if(/^Oricorio-GX CEC 95\b/i.test(name)){
       const existing=board(own).some(x=>/^Oricorio-GX CEC 95\b/i.test(print(x)));
@@ -67,12 +67,12 @@ function rank14RootScore(item,request){
     if(/^Professor's Research JTG 155\b/i.test(name)){
       // Discarding a singleton DDE hand without another payload can destroy
       // the copied-attacker route; make the risk explicit.
-      return cardCount<=3 ? Math.max(0,180-discardCost(hand)) : 25;
+      return discardCost(hand)>0?0:(cardCount<=3?180:25);
     }
     if(/^Carmine TWM 145\b/i.test(name)){
       const already=obs.ownTurnResources?.supporterPlayedTurn;
-      return turnOne(obs)&&cardCount<=3&&already!==obs.globalTurn ?
-        Math.max(0,165-discardCost(hand)):0;
+      return turnOne(obs)&&cardCount<=3&&already!==obs.globalTurn &&
+        discardCost(hand)===0 ? 165 : 0;
     }
   }
   if(item.kind==='use-ability') {
