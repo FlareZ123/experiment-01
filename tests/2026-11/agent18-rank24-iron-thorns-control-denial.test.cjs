@@ -180,7 +180,7 @@ test('Team Flare prompt prefers Special Energy over Basic when both are legal', 
       selectionType: 'card-combination', minimumCount: 1, maximumCount: 1
     }
   });
-  assert.deepEqual(policy.decide(request), { kind: 'select-choice', token: 'dce' });
+  assert.deepEqual(policy.decide(request), { kind: 'select-choices', tokens: ['dce'] });
 });
 
 test('Plumeria payment spends disposable cards and protects N', () => {
@@ -206,8 +206,8 @@ test('Plumeria payment spends disposable cards and protects N', () => {
     },
     observationOptions: {
       ownHand: [
-        'Plumeria BUS 120', "Player's Ceremony SP 127",
-        'Palace Book SMP NAN25', 'N FCO 105'
+        'Plumeria BUS 120', 'Handheld Fan TWM 150',
+        "Trainers' Mail ROS 92", "Trainers' Mail ROS 92", 'N FCO 105'
       ]
     }
   });
@@ -230,7 +230,7 @@ test('Plumeria target prompt chooses the more energized Pokemon', () => {
       ]
     }
   });
-  assert.deepEqual(policy.decide(request), { kind: 'select-choice', token: 'b' });
+  assert.deepEqual(policy.decide(request), { kind: 'select-choices', tokens: ['b'] });
 });
 
 test('Faba chooses Special Energy option before Tool or Stadium', () => {
