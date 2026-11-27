@@ -80,6 +80,26 @@ const edits=[
     "pass legal retreat frontier",
     "    const energy = scoreEnergyPlay(item, view);",
     "    const energy = scoreEnergyPlay(item, view, items);"
+  ],
+  [
+    "resource denial helpers",
+    "function controlPairBonus(view,names) {",
+    "function exposedMoltresEnergyThreat(view){\n const board=opponentBoard(view), discard=view.opponentPublic.discard;\n const birds=board.filter(p=>hasName(p.printing,'Galarian Moltres V'));\n if(!birds.length&&!discard.some(p=>hasName(p,'Galarian Moltres V')))return false;\n if(birds.some(p=>(p.energies??[]).filter(e=>hasName(e,'Darkness Energy')).length>=2))return false;\n return ownBoard(view).some(p=>hasName(p.printing,'Shadow Rider Calyrex V')||hasName(p.printing,'Shadow Rider Calyrex VMAX'))||\n   view.ownHand.some(p=>hasAnyName(p,['Shadow Rider Calyrex V','Shadow Rider Calyrex VMAX']));\n}\nfunction exposedVileplumeRecoveryThreat(view){\n const board=opponentBoard(view),discard=view.opponentPublic.discard;\n if(board.some(p=>hasAnyName(p.printing,['Oddish','Gloom','Vileplume'])))return false;\n const grass=discard.some(p=>hasAnyName(p,['Oddish UNB','Gloom UNB']));\n return grass&&(discard.some(p=>hasName(p,'Vileplume'))||\n   board.some(p=>hasAnyName(p.printing,['Pidgey FLF','Bunnelby PRC','Mega Lopunny ex PFL'])));\n}\nfunction observedDenialThreat(view){\n return observedThornsControl(view)||observedElectroRainThreat(view)||\n   exposedMoltresEnergyThreat(view)||exposedVileplumeRecoveryThreat(view);\n}\nfunction publicResourcePairBonus(view,names){\n if(exposedMoltresEnergyThreat(view)&&names.every(p=>isBasicEnergyPrinting(p)&&hasName(p,'Darkness Energy')))return 1200;\n if(exposedVileplumeRecoveryThreat(view)&&\n   (names.every(p=>hasName(p,'Oddish UNB'))||names.every(p=>hasName(p,'Gloom UNB'))))return 1100;\n return 0;\n}\nfunction controlPairBonus(view,names) {\n  const resource=publicResourcePairBonus(view,names);if(resource)return resource;"
+  ],
+  [
+    "resource denial values",
+    "  const rain=rainDiscardEnergyValue(view,printing);if(rain!==null)return rain;",
+    "  const rain=rainDiscardEnergyValue(view,printing);if(rain!==null)return rain;\n  if(exposedMoltresEnergyThreat(view)&&isBasicEnergyPrinting(printing)&&hasName(printing,'Darkness Energy'))return 200;\n  if(exposedVileplumeRecoveryThreat(view)&&hasAnyName(printing,['Oddish UNB','Gloom UNB']))return 180;"
+  ],
+  [
+    "resource denial access",
+    "  if(!observedThornsControl(view)&&!observedElectroRainThreat(view))return false;",
+    "  if(!observedDenialThreat(view))return false;"
+  ],
+  [
+    "resource denial funding",
+    " if(!observedThornsControl(view)&&!observedElectroRainThreat(view))return -Infinity;",
+    " if(!observedDenialThreat(view))return -Infinity;"
   ]
 ];
 module.exports={edits,apply(source){for(const [label,a,b] of edits){if(source.split(a).length!==2)throw Error(label);source=source.replace(a,b)}return source}};
