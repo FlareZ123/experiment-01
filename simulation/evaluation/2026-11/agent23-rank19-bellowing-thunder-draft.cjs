@@ -48,7 +48,14 @@ function score(o,remove,temple,policy={}){
     deficitIncrease+=weight*Math.max(0,b-a);
     if(s.zone==='active')activeLoss+=Math.max(0,b-a);
   }
-  // The source has exactly three Darkness Basics. Two exposed Darkness\n  // in discard can be permanently removed by Girafarig's Get Lost. Do\n  // not create this loss-of-attacker condition to save an ordinary donor.\n  const lost=(o.lostZone??[]).filter(x=>basic(x)==='Darkness').length;\n  const exposed=(o.discard??[]).filter(x=>basic(x)==='Darkness').length;\n  const darkDonors=(inventory(o)??[]).filter(x=>remove.has(x.key)&&x.type==='Darkness').length;\n  const risk=policy.girafarigThreat&&lost<2&&lost+exposed<2&&lost+exposed+darkDonors>=2?1:0;\n  return [risk,readyLoss,deficitIncrease,activeLoss];
+  // The source has exactly three Darkness Basics. Two exposed Darkness
+  // in discard can be permanently removed by Girafarig's Get Lost. Do
+  // not create this loss-of-attacker condition to save an ordinary donor.
+  const lost=(o.lostZone??[]).filter(x=>basic(x)==='Darkness').length;
+  const exposed=(o.discard??[]).filter(x=>basic(x)==='Darkness').length;
+  const darkDonors=(inventory(o)??[]).filter(x=>remove.has(x.key)&&x.type==='Darkness').length;
+  const risk=policy.girafarigThreat&&lost<2&&lost+exposed<2&&lost+exposed+darkDonors>=2?1:0;
+  return [risk,readyLoss,deficitIncrease,activeLoss];
 }
 const less=(a,b)=>a.some((x,i)=>x<b[i]&&a.slice(0,i).every((y,j)=>y===b[j]));
 function plan(o,target,temple,policy={}){
