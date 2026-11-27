@@ -1453,8 +1453,19 @@ function r17ActiveLoadPlan(view,deckCounts=null,searching=false) {
 }
 function r17CompressorPlan(view,deckCounts=null,searching=false) {
   if(!itemAvailable(view))return [];
-  const core=r17CoreAccess(view,deckCounts||r17OptimisticDeck(view)).searchKeys;
+  const counts=deckCounts||r17OptimisticDeck(view);
+  const z=r17KnownOwnZones(view);
+  const marshadowAvailable=searching?(counts.marshadow||0)>0:
+    z?(z.deck.marshadow||0)>0:true;
+  const stadiumAnswer=r17NeedStadiumRemoval(view)&&r17Hand(view,'carrier')&&
+    !r17Board(view,'marshadow')&&!r17Hand(view,'marshadow')&&
+    !r17Discard(view).some(c=>r17Key(c)==='marshadow')&&marshadowAvailable;
+  const core=r17CoreAccess(view,counts).searchKeys;
   const load=r17ActiveLoadPlan(view,deckCounts,searching);
+  // Under a hostile Stadium, Compressor->Carrier is a concrete singleton
+  // access line. It precedes ordinary setup because Bomb/Special Energy
+  // development is otherwise stranded.
+  if(stadiumAnswer)return ['marshadow',...(load?.now||[]),...core].slice(0,3);
   if(!load)return core;
   // A projected same-turn terminal or positive Prize trade precedes future
   // development only when Raichu and Bomb are already ready.
