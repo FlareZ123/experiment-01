@@ -167,9 +167,17 @@ function canUseLegacyStar(observation) {
 }
 function prizeValue(pokemon) {
   const types=list(pokemon?.printed?.subtypes);
-  if(types.some(x=>['VMAX','TAG TEAM','V-UNION'].includes(x))) return 3;
-  if(types.some(x=>['V','VSTAR','GX','ex'].includes(x))) return 2;
-  return 1;
+  const name=print(pokemon);
+  let prizes=1;
+  if(types.some(x=>['VMAX','TAG TEAM','V-UNION'].includes(x)) ||
+      /^Mega .+ ex\b/i.test(name) ||
+      types.some(x=>/MEGA.*EX|MEGA_EVOLUTION_EX/i.test(x)))prizes=3;
+  else if(types.some(x=>['V','VSTAR','GX','ex','EX'].includes(x)))prizes=2;
+  // Treat unobserved once-per-game Legacy Energy consumption conservatively.
+  // One fewer Prize on a KO is not a terminal Prize condition.
+  if(list(pokemon?.energies).some(e=>/^Legacy Energy TWM 167\b/i.test(print(e))))
+    prizes=Math.max(1,prizes-1);
+  return prizes;
 }
 function remainingHP(pokemon) {
   return Number.isFinite(pokemon?.hp)&&Number.isFinite(pokemon?.damage)?
