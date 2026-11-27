@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict');
 const { once } = require('node:events');
 const protocol = require('./agent49-policy-protocol.cjs');
+const {evidenceBundleSha256} = require('../canonical-evidence-json.cjs');
 const dockerWorker = require('./agent36-docker-policy-worker.cjs');
 
 class AsyncJsonLineChannel {
@@ -166,6 +167,32 @@ function validateResponse(response, expected) {
   assert.equal(response.policyVersion, expected.policyVersion);
 }
 
+// Only the successor's version opts into public profile delivery. Existing fixture
+// workers continue to receive the empty config, with no change to their registration.
+function resolveWorkerConfig({role, policyVersion, policyIdentity, config}) {
+  if (policyVersion!=='agent46-two-profile-v1') {
+    assert.ok(config===undefined || (config && typeof config==='object' &&
+      !Array.isArray(config) && Object.keys(config).length===0),'Legacy worker config must be empty');
+    return Object.freeze({});
+  }
+  assert.equal(role,'candidate');
+  assert.equal(policyIdentity?.role,'candidate-policy');
+  assert.equal(policyIdentity?.policyVersion,policyVersion);
+  const definition=policyIdentity.policyDefinition;
+  const options=definition?.policyOptions;
+  assert.ok(options && typeof options==='object' && !Array.isArray(options));
+  assert.equal(definition.policyVersion,policyVersion);
+  assert.equal(definition.deckSha256,policyIdentity.deckSha256);
+  assert.equal(options.deckSha256,policyIdentity.deckSha256);
+  assert.equal(evidenceBundleSha256(options),policyIdentity.policyOptionsSha256);
+  assert.equal(evidenceBundleSha256(definition),policyIdentity.policySha256);
+  if (config!==undefined) assert.deepEqual(config,options,'Delivered config differs from frozen identity');
+  const delivered=JSON.parse(JSON.stringify(options));
+  protocol.validateInit({schema:protocol.INIT_SCHEMA,type:'init',role,seat:0,
+    policyVersion,bundleSha256:'0'.repeat(64),config:delivered});
+  return Object.freeze(delivered);
+}
+
 function validateOptions(options) {
   const {
     bundle, role, seat, policyVersion,
@@ -259,15 +286,15 @@ class AsyncDockerPolicySession {
     this.failed = false;
     this.pending = false;
     this.cleanupReceipt = null;
-    this.init = {
+    Object.defineProperty(this,'init',{value:Object.freeze({
       schema: protocol.INIT_SCHEMA,
       type: 'init',
       role: this.role,
       seat: this.seat,
       policyVersion: this.policyVersion,
       bundleSha256: this.bundle.bundleSha256,
-      config: {}
-    };
+      config: resolveWorkerConfig(this.options)
+    }),writable:false,configurable:false,enumerable:true});
     protocol.validateInit(this.init);
   }
 
@@ -461,3 +488,5 @@ module.exports = {
   validateResponse,
   validateOptions
 };
+
+module.exports.resolveWorkerConfig = resolveWorkerConfig;

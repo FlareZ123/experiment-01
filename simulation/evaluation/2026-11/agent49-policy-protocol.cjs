@@ -754,7 +754,19 @@ function validateInit(message) {
   if (!boundedString(message.policyVersion, /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/)) fail('BAD_POLICY_VERSION');
   if (!boundedString(message.bundleSha256, /^[a-f0-9]{64}$/)) fail('BAD_BUNDLE_DIGEST');
   if (!isRecord(message.config)) fail('BAD_POLICY_CONFIG');
-  exactKeys(message.config, []); // Policy-specific settings are frozen in the role-only bundle.
+  if (message.policyVersion === 'agent46-two-profile-v1') {
+    if (message.role !== 'candidate') fail('BAD_POLICY_CONFIG');
+    exactKeys(message.config, ['schema','profileId','deckSha256']);
+    const profileDecks = {
+      'hood-shield-shadow-rider-v1': '1cc3d2080b40c7a9e0c61297439ba5d1ae34f9211ba9b24fcffffb2786a3e924',
+      'lockbridge-shadow-rider-v1': '011cb8481b473c8566935d6835fc9a2a5762e4f09349f23c8284ec19b0cac642'
+    };
+    if (message.config.schema !== 'agent46-candidate-profile-v1' ||
+        !Object.prototype.hasOwnProperty.call(profileDecks,message.config.profileId) ||
+        message.config.deckSha256 !== profileDecks[message.config.profileId]) fail('BAD_POLICY_CONFIG');
+  } else {
+    exactKeys(message.config, []); // Existing frozen workers retain empty init config.
+  }
   assertBoundedJson(message.config);
   assertNoForbiddenFields(message);
   return message;
