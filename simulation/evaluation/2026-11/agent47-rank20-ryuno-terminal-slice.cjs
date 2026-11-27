@@ -53,8 +53,13 @@ function templeActive(obs) {
   return [obs.ownPublic,obs.opponentPublic].some(p=>arr(p?.stadium).some(s=>TEMPLE.test(printing(s))));
 }
 function payableForApex(energies,obs) {
-  return activeBasicCostPayable(energies) ||
-    (!templeActive(obs) && arr(energies).some(e=>DDE.test(printing(e))) && arr(energies).length>=2);
+  if (activeBasicCostPayable(energies)) return true;
+  if (templeActive(obs)) return false;
+  const selected=arr(energies).filter(e=>
+    DDE.test(printing(e)) || BASIC_ENERGY.test(printing(e)));
+  // One Double Dragon plus a second source-legal Energy supplies GGF.
+  // Unknown Colorless/restricted Specials must not be credited.
+  return selected.length>=2 && selected.some(e=>DDE.test(printing(e)));
 }
 function canTerminalRyuno(request) {
   const obs = request?.observation;
