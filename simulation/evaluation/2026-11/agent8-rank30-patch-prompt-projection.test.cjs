@@ -74,3 +74,26 @@ test('Patch adapter refuses not-from-actor-discard and non-Psychic shape before 
   const p=fixture(1);p.prompt.filter.name='Water Energy';
   assert.throws(()=>projectRank30Prompt(p),/contract mismatch/);
 });
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' rank30 worker consumes opt-in Patch projection and returns native-backed token',()=>{
+    const worker=require('./agent8-rank30-clefairy-opponent-policy.cjs');
+    const native=fixture(seat);
+    const projected=projectRank30Prompt(native);
+    const policy=worker.createPolicy({role:'opponent',seat,
+      policyVersion:worker.POLICY_VERSION,config:{sourceRank:30,
+        sourceBlobSha1:worker.SOURCE_LIST_BLOB_SHA1,enablePatchProjection:true}});
+    const decision=policy.decide({role:'opponent',seat,
+      observation:{actorSeat:seat,globalTurn:4,ownHand:[],
+        ownPublic:{active:{printing:'Unown AOR 30'},
+          bench:[{printing:"Lillie's Clefairy ex JTG 56"}],
+          discard:['Psychic Energy MEE 13']},
+        opponentPublic:{active:{printing:'Shadow Rider Calyrex VMAX CRE 75',hp:320,damage:0}}},
+      prompt:projected.promptProjection,actionFrontier:{items:[]}});
+    assert.deepEqual(protocol.validateDecision(decision,projected.promptProjection,new Set()),
+      {kind:'select-choice',token:'r30-patch-0'});
+    assert.deepEqual(projected.choiceByToken.get(decision.token),
+      [{to:{player:'BOTTOM',slot:'BENCH',index:0},index:0}]);
+  });
+}
