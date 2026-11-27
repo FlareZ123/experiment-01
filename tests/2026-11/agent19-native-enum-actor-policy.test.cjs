@@ -89,6 +89,9 @@ for(const seat of [0,1]){
     assert.ok(view.ownPublic.active.printed.subtypes.includes('V'));
     assert.ok(view.opponentPublic.active.printed.subtypes.includes('VSTAR'));
     assert.ok(view.opponentPublic.bench[0].printed.subtypes.includes('Basic'));
+    assert.equal(view.ownPublic.active.printed.stage,'VMAX');
+    assert.equal(view.opponentPublic.active.printed.stage,'VSTAR');
+    assert.equal(view.opponentPublic.bench[0].printed.stage,'BASIC');
     assert.deepEqual(view.ownPublic.active.printed.retreatCost,['Colorless']);
     assert.deepEqual(view.ownPublic.active.printed.weakness,[{type:'Darkness',value:2}]);
     assert.equal(worker.__test.weaknessMultiplier(
