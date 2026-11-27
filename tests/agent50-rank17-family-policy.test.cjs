@@ -145,6 +145,17 @@ function runCases(policy,protocol) {
     same(runRoot(p,v,[ability('reset',A.marshadow,'Resetting Hole',0),pass]),action('reset'),tag+'Temple removal ability');
     const noTemple={...v,opponentPublic:player()};
     same(runRoot(p,noTemple,[ability('reset',A.marshadow,'Resetting Hole',0),pass]),action('pass'),tag+'no gratuitous Resetting Hole');
+    const pathLock=view(seat,{ownHand:[A.pokestop],
+      ownPublic:player({bench:[slot(A.marshadow),slot(A.electrode,{hp:190,abilities:['Extra Energy Bomb']})]}),
+      opponentPublic:player({stadium:['Path to the Peak CRE']})});
+    same(policy.abilityBlocked(pathLock,'electrode',pathLock.ownPublic.bench[1],'Extra Energy Bomb'),true,tag+'Path visibly blocks Electrode');
+    same(runRoot(p,pathLock,[ability('reset',A.marshadow,'Resetting Hole',0),play('pokestop',A.pokestop),pass]),action('reset'),tag+'Resetting Hole removes Path before Bomb');
+    const noMarshadowPath={...pathLock,ownPublic:player({bench:[slot(A.electrode,{hp:190,abilities:['Extra Energy Bomb']})]})};
+    same(runRoot(p,noMarshadowPath,[play('pokestop',A.pokestop),pass]),action('pokestop'),tag+'Pokestop replaces Path blocking live Electrode');
+    const pathNoBomb={...pathLock,ownPublic:player({bench:[slot(A.marshadow)]})};
+    same(runRoot(p,pathNoBomb,[ability('reset',A.marshadow,'Resetting Hole',0),pass]),action('pass'),tag+'do not spend Marshadow on Path without live blocked engine');
+    const powerLock={...pathLock,opponentPublic:player({stadium:['Power Plant UNB']})};
+    same(runRoot(p,powerLock,[ability('reset',A.marshadow,'Resetting Hole',0),pass]),action('reset'),tag+'Resetting Hole removes Power Plant blocking Electrode');
     const sky={...v,ownPublic:player({bench:Array.from({length:6},()=>slot(A.unown))}),opponentPublic:player({stadium:['Sky Field ROS']})};
     same(runRoot(p,sky,[play('pokestop',A.pokestop),pass]),action('pass'),tag+'do not collapse own six-Bench Sky Field');
     // Exact current protocol, including multi-select and empty token semantics.
