@@ -270,11 +270,14 @@ function pokemonChoice(token, printing, owner = 'opponent', zone = 'bench', inde
     printing,
     label: printing,
     publicMetadata: {
+      // The choice ordinal is intentionally independent of its physical
+      // Bench position; native projection reports both distinct fields.
       selectionIndex: index,
-      selectedCount: 0,
+      selectedCount: 1,
       selectionType: 'pokemon',
       ownerSeat: owner,
       targetZone: zone,
+      ...(zone==='bench'?{benchIndex:index}:{slotIndex:0}),
       isOwnerVisible: true
     }
   };
