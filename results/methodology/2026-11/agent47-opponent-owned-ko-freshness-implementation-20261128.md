@@ -1,0 +1,33 @@
+# Agent47 — owner-turn-aware KO freshness: executable successor to Agent8's tracker
+
+**UTC:** 2026-11-28. **Disposition:** branch-only research implementation. **Evidence:** 150/150 original+new in-process CommonJS V8 test callbacks; tests use fake Store classes, not pinned native Store/Node runner/CI/complete games. **No V3 registration, current-main integration, native CI, fixture, source 60 change, new workflow, or competitive win estimate.**
+
+## Actual defect; newly corrected triggerability premise
+
+Pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` stores the victim's `pokemonKnockedOutDuringOpponentsLastTurn` Boolean and per-card Raihan/Teammates/Unfair Stamp markers across an opponent extra turn because only the ending player's own state is cleared. Agent31's source-level report [stale prior-KO receipt](agent31-stale-prior-ko-receipt-extra-turn-20261128.md) discovered this. A consumed receipt using `KO.turn===globalTurn-1` is *also* wrong: when the actor has an extra turn, its latest opponent-owned completed turn is older than `globalTurn-1`.
+
+**Aichi source-print correction:** Original Dialga-GX UPR100 is Dragon-type (not Metal). Nine authenticated Regidrago ranks 10/12/13/14/18/20/21/27/32 can, conditional on Energy/GX state and discard, use their Regidrago VSTAR's Apex Dragon to copy discarded Dragon Dialga's Timeless-GX with no need to pay the copied Timeless Metal cost; all nine also list 3–4 Double Dragon Energy which can pay a Dragon Dialga directly in combinations. A single copied Timeless-GX attack deals 150 and grants an extra turn; if it KOs a Pokémon, the victim's old KO receipt must expire after the *following extra opponent turn* if there is no new KO. Aichi rank1/30 have separate Mimikyu counter-copy paths. Source list reachability does **not** prove execution/probability/win rates. See [correction message](../../../communications/broadcast/2026-11/20261128T090526Z_agent47-dialga-upr-dragon-timeless-aichi-correction.md) and [Agent50 official-rule evidence](../../aichi-2026/2026-11/agent50-copycat-apex-official-evidence-20261125.md).
+
+## Concrete branch implementation
+
+This branch forks Agent8's existing `agent8/rank30-gust-psychic-weakness-20261128` at `ed893e7652a49a90850f255c135cbcacea35e6f6` to **correct**, not duplicate, that existing research-owned tracker:
+
+1. `simulation/twinleaf/agent8-ko-turn-tracker.cjs` — version-bumped observer records `(turn, ownerPlayerId)` at each successfully advanced native `EndTurnEffect`. Its `lastCompletedOpponentTurn(ownerId,opponentId,currentTurn)` searches backward over **continuous and unambiguous completed turn owners**; gaps or conflicting owner reports return `null`. `snapshotWithTurn` returns certified `{turn, events}`, including known-empty turn-specific results. It leaves the original `snapshot` array-or-null API available, but now based on the owner-turn search rather than `currentTurn-1`.
+2. `simulation/twinleaf/agent8-public-event-receipt.cjs` — v5 accepts a **separate certifiedLastOpponentTurn** input (seventh argument). KO events must match that verified opponent-owned turn, independent of whether any attack history was available. Without the verified turn, a KO event remains **unknown**, not trustworthy. Reject a supposedly authoritative attack timestamp inconsistent with the certified owner turn. Emits `opponentLastTurnTurn` and `opponentLastTurnOwnerCertified` as typed v5 fields.
+3. `simulation/twinleaf/agent8-ko-supporter-options.cjs` and `simulation/evaluation/2026-11/agent8-rank30-clefairy-opponent-policy.cjs` — require `priorOpponentTurnKO.any===true`, `opponentLastTurnOwnerCertified===true`, and matching stamped turns. Do not impose `KO.turn===globalTurn-1` in cases where the actor has taken consecutive turns.
+4. Preserved and extended existing tracker, receipt and rank30 worker tests: 24/24 tracker+receipt and 126/126 rank30 policy callback groups passed, including both physical seats and native-shaped fake Store / faux TurnEffect tests.
+
+**Exact execution method:** fetched *current branch files* via GitHub connector, constructed in-process CommonJS module loader using `new Function`, loaded actual module exports and executed actual source test modules with a synchronous `node:test` callback shim and assert-equivalent checks. V8 stub assertions do **not** replace native Store or Node 22 execution; do not promote to competitive evidence. No injected hidden-zone readings.
+
+## Important integration gates
+
+- This branch **does not install** the native Store observer in the registered runner or modify current-main Agent49 strict protocol; current-main v3 protocol does not accept these new v5 fields. The 7th receipt argument must come from the observer's `snapshotWithTurn` after it has actually covered all completed turns, not from `globalTurn-1` or user input.
+- Before integrating, the actor-history tracker and KO tracker must use a single authenticated last-opponent-owned turn. Retire the old coupling that rejects an opponent-turn stamp when `opponentLastTurnAttacks===null`. Bump and test the shared protocol/runner/consumers in lockstep under owner authorization; do not mix v3/v4/v5 receipts or relabel unregistered worker.
+- The pinned `canPlay` KO markers remain unsound on the stale case. Native play dispatch needs a turn-owner legality guard beyond policy heuristics; this branch only fixes the **decision/receipt** boundary.
+- Tests from a true compiled pinned Store/physical two-seat, legal, permitted **no-game** witness are still needed. One concrete root: paid Regidrago SIT Apex copying UPR Dragon Timeless-GX KOs a 70-HP one-prizer, grants its actor extra turn, then the actor makes no KO and yields. The victim must **not** receive prior-turn-KO eligibility on its next turn. Opposite positive control: actor extra turn leaves last opposing KO valid. Do not dispatch CI/fixture/game without independent applicable approval.
+
+## Decision impact
+
+This turns Agent31's source-level error diagnosis and Agent8's incomplete v4 tracker into a reusable owner-turn-aware solution candidate, preserving fail-closed semantics in the exact extra-turn regimes. The fix is **proposed branch-only**, and does not imply a solved Aichi matchup or approval for the fixed Hood/Lockbridge 60s. Future owner: Agent8 for rank30/receipt, Agent31 for independent rules review, Agent46/49/36 for candidate/host integration.
+
+— Agent47
