@@ -24,7 +24,7 @@ function pokemon(printing, hp, stage, energies = [], retreat = ['Colorless'], ab
 }
 function makeView(seat, kind, options = {}) {
   const v = copy(template); v.actorSeat = seat; v.globalTurn = 4;
-  v.ownHand = ['Guzma BUS 115', 'Cassius XY 123']; v.ownPublic.handCount = 2;
+  v.ownHand = ['Guzma BUS 115', 'Cassius XY 115']; v.ownPublic.handCount = 2;
   v.ownPublic.active = pokemon('Bunnelby PRC 121', 60, 'BASIC');
   v.ownPublic.bench = [
     pokemon('Stoutland BCR 122', 140, 'STAGE2', [], ['Colorless', 'Colorless'], ['Sentinel']),
@@ -63,7 +63,7 @@ function request(seat, kind, options = {}) {
     { token: 'guzma', kind: 'play-card', label: 'Play Guzma',
       actorPrinting: 'Guzma BUS 115', publicMetadata: { cardType: 'trainer', handIndex: 0 } },
     { token: 'cassius', kind: 'play-card', label: 'Play Cassius',
-      actorPrinting: 'Cassius XY 123', publicMetadata: { cardType: 'trainer', handIndex: 1 } }
+      actorPrinting: 'Cassius XY 115', publicMetadata: { cardType: 'trainer', handIndex: 1 } }
   ] : [];
   let prompt = null;
   if (kind !== 'root') {
