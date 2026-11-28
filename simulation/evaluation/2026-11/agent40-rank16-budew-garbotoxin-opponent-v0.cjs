@@ -259,20 +259,32 @@ function handCanPay(o,played,n){
 }
 function sourceBasicChoices(rows,o,max){
  const mine=o.ownPublic;
- const selected=[],present=new Set();
+ const selected=[];
  const limit=Math.min(max,Math.max(0,benchCapacity(o)-benchCount(mine)));
+ // VIP puts Pokémon directly from the deck onto the Bench: Dark Asset,
+ // Wonder Tag and Dedechange do NOT trigger because they require playing
+ // their Pokémon from hand. Squawk and Seize may be activated afterward on
+ // its owner's first turn, and Crobat V can be a Forest Seal Stone carrier.
+ const optional=[];
+ const squawkUsable=o.globalTurn<=2&&!hasProtectedHand(o)&&
+  handCount(o)<=3&&deckCount(o)>0&&
+  benchSupportAbilityUsable('Squawkabilly ex PAL 169',o);
+ if(squawkUsable)optional.push(PRINT.squawk);
+ const forestAnchor=!o.ownTurnResources?.vstarUsed&&
+  list(o.ownHand).some(x=>match(x,PRINT.forest))&&
+  benchSupportAbilityUsable('Crobat V DAA 104',o);
+ if(forestAnchor)optional.push(PRINT.crobat);
  // VIP can place Budew directly when Float on the initial non-Budew
  // Active makes an immediate zero-Energy Item-lock attack reachable.
- // A fixed Trubbish+Mega ordering otherwise consumes both VIP slots.
  const urgency=readyToPivotIntoBudew(o)&&!onBoard(mine,PRINT.budew);
  const priority=urgency?
-  [PRINT.budew,PRINT.trubbish,PRINT.mega,PRINT.crobat,PRINT.tapu,PRINT.dedenne,PRINT.squawk]:
-  [PRINT.trubbish,PRINT.mega,PRINT.budew,PRINT.crobat,PRINT.tapu,PRINT.dedenne,PRINT.squawk];
+  [PRINT.budew,PRINT.trubbish,PRINT.mega,...optional]:
+  [PRINT.trubbish,PRINT.mega,PRINT.budew,...optional];
  for(const printing of priority){
   if(selected.length>=limit)break;
   if(slots(mine).some(x=>match(x.pokemon.printing,printing)))continue;
   const c=rows.find(c=>!selected.includes(c)&&match(c,printing));
-  if(c){selected.push(c);present.add(printing)}
+  if(c)selected.push(c);
  }
  return selected;
 }
@@ -895,8 +907,13 @@ function promptDecision(req){
    const pool=cards.filter(c=>zone(c)==='deck');
    if(/battle vip pass/.test(src)){
     const chosen=sourceBasicChoices(pool,o,bd.max);
-    if(chosen.length>=bd.min)return{kind:'select-choices',tokens:chosen.map(c=>c.token)};
-    return {kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'};
+    if(chosen.length<bd.min)return {kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'};
+    if(chosen.length===0){
+     const empty=cs.find(c=>c.kind==='empty-selection');
+     return empty?{kind:'select-choice',token:empty.token}:
+      {kind:'abstain',reasonCode:'NO_EMPTY_BENCH_SELECTION'};
+    }
+    return {kind:'select-choices',tokens:chosen.map(c=>c.token)};
    }
    if(/secret box/.test(src))return secretBoxSearch(p,pool,bd.min,bd.max,o);
    return pickRows(p,pool,bd.min,bd.max,c=>cardScore(c,o));
