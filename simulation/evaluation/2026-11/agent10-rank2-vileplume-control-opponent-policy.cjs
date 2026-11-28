@@ -112,7 +112,9 @@ function pokemonStackPrintings(pokemon) {
 function visibleSourceCopies(observation, pattern) {
   const own = observation?.ownPublic ?? {};
   let count = countMatching(observation?.ownHand, pattern);
-  for (const zone of ['discard', 'lostZone', 'resolvingSupporter', 'stadium', 'publicHand']) {
+  // ownHand is already complete for the acting player. If the same hand is
+  // publicly revealed, ownPublic.publicHand is a second view, not new cards.
+  for (const zone of ['discard', 'lostZone', 'resolvingSupporter', 'stadium']) {
     count += countMatching(own[zone], pattern);
   }
   for (const row of boardSlots(own)) {
