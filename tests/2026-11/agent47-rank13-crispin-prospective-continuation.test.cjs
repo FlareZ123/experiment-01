@@ -182,3 +182,19 @@ test('unrelated AttachEnergyPrompt leaves original projector in control',()=>{
   });
   assert.deepEqual(project(x),{delegated:true});
 });
+
+test('pinned native Basic Energy set-number aliases MEE 1/2 are accepted only in the correct pair',()=>{
+  const r=request();
+  r.prompt.choices=[
+    {token:'grass-native',kind:'card',printing:'Grass Energy MEE 1'},
+    {token:'fire-native',kind:'card',printing:'Fire Energy MEE 2'}];
+  assert.deepEqual(choose(r),{kind:'select-choices',tokens:['grass-native','fire-native']});
+  const a=attachmentRequest();
+  a.observation.ownPublic.active.energies=[
+    {printing:'Grass Energy MEE 1'},{printing:'Fire Energy MEE 2'}];
+  a.prompt.choices=a.prompt.choices.filter(c=>c.token!=='grass-active');
+  a.prompt.choices.push({token:'grass-numbered',kind:'energy',
+    printing:'Grass Energy MEE 1',publicMetadata:{
+      ownerSeat:'actor',zone:'active',sourceZone:'effect-revealed',isOwnerVisible:true}});
+  assert.deepEqual(choose(a),{kind:'select-choice',token:'grass-numbered'});
+});
