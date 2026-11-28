@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {pendingPaleMoonGXKnockOut,choosePaleMoonEscapeRetreat,choosePaleMoonEscapeRanger,choosePaleMoonEscapeGuzmaRoot,choosePaleMoonEscapeGuzmaPrompt,rescuePaleMoonTerminalPass,choosePaleMoonFloatStonePreparation}=require('../../simulation/twinleaf/2026-11/agent34-pale-moon-escape.cjs');
+const {pendingPaleMoonGXKnockOut,choosePaleMoonEscapeRetreat,choosePaleMoonEscapeRanger,choosePaleMoonEscapeGuzmaRoot,choosePaleMoonEscapeGuzmaPrompt,rescuePaleMoonTerminalPass,choosePaleMoonFloatStonePreparation,knownNoPrizeAwardOnPaleMoonKO,terminalPaleMoonPrizeRisk}=require('../../simulation/twinleaf/2026-11/agent34-pale-moon-escape.cjs');
 const {actorObservation}=require('../../simulation/twinleaf/actor-observation-contract.cjs');
 const {validateActorObservation}=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 
@@ -268,4 +268,32 @@ test('Float Stone root rejects active locks, disabled Tools, invalid targets and
   assert.equal(choosePaleMoonFloatStonePreparation(base,[...root,floatStoneItem('active','second')]),null);
   assert.equal(rescuePaleMoonTerminalPass({...base,opponentPublic:{
     ...base.opponentPublic,prizeCount:2}},root,'pass'),null);
+});
+
+test('paper Prize-denial removes false terminal premise, but multi-Prize targets still lose',()=>{
+  const basic={...rangerView(),ownPublic:{...rangerView().ownPublic,
+    active:{...rangerView().ownPublic.active,printing:'Mimikyu GRI 58',tools:['Life Dew PLF']}}};
+  assert.equal(knownNoPrizeAwardOnPaleMoonKO(basic),true);
+  assert.equal(terminalPaleMoonPrizeRisk(basic),false);
+  const options=[{token:'pass',kind:'pass'},ranger()];
+  assert.equal(rescuePaleMoonTerminalPass(basic,options,'pass'),null);
+  const max={...basic,ownPublic:{...basic.ownPublic,
+    active:{...basic.ownPublic.active,printing:'Shadow Rider Calyrex VMAX CRE 75'}}};
+  assert.equal(knownNoPrizeAwardOnPaleMoonKO(max),false);
+  assert.equal(terminalPaleMoonPrizeRisk(max),true);
+  assert.equal(rescuePaleMoonTerminalPass(max,options,'pass')?.token,'ranger1');
+  for(const doll of ['Lillie\'s Poké Doll CEC','Snorlax Doll PAR',
+    'Robo Substitute Team Flare Gear PHF','Shedinja DRX 48']) {
+    const v={...rangerView(),ownPublic:{...rangerView().ownPublic,
+      active:{...rangerView().ownPublic.active,printing:doll}}};
+    assert.equal(terminalPaleMoonPrizeRisk(v),false,doll);
+  }
+  const shedinjaTool={...basic,ownPublic:{...basic.ownPublic,
+    active:{...basic.ownPublic.active,tools:['Shedinja LOT']}}};
+  assert.equal(terminalPaleMoonPrizeRisk(shedinjaTool),false);
+  const legacy={...rangerView(),ownPublic:{...rangerView().ownPublic,
+    active:{...rangerView().ownPublic.active,printing:'Mimikyu GRI 58',
+      energies:['Legacy Energy TWM']}}};
+  assert.equal(terminalPaleMoonPrizeRisk(legacy),true,
+    'Legacy Energy only reduces Prizes on KO by attack damage, not KO effect');
 });
