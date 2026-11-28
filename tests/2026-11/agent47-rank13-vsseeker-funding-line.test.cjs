@@ -153,3 +153,15 @@ test('K1 source conservation: authenticated physical pair certifies, impossible 
     {printing:'Fire Energy MEE',copies:1}];
   assert.equal(assess(view).status,'invalid');
 });
+
+test('source MEE 9/10 and pinned native MEE 1/2 equivalent Basic Energy aliases retain same K0 proof',()=>{
+  const view=base().observation;
+  const before=assess(view);
+  assert.equal(before.status,'certified-k0-lower-bound');
+  view.ownPublic.active.energies=[
+    {printing:'Grass Energy MEE 1'},
+    {printing:'Fire Energy MEE 2'}];
+  assert.deepEqual(assess(view),before);
+  assert.deepEqual(choose({...base(),observation:view}),
+    {kind:'select-choices',tokens:['crispin']});
+});
