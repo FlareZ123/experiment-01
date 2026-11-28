@@ -11,6 +11,10 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const path=require('node:path');
+const fs=require('node:fs');
+const {planAichi}=require('../../simulation/evaluation/aichi-pilot.cjs');
+const {buildSourcePrintingMap,projectSourcePrintings}=
+  require('../../simulation/evaluation/2026-11/agent32-source-printing-bridge.cjs');
 const {stage}=require('../../simulation/twinleaf/agent5-attack-special-arbitration-native.cjs');
 const {initializeCards}=require('../../simulation/twinleaf/headless.cjs');
 const {actorObservation}=require('../../simulation/twinleaf/actor-observation-contract.cjs');
@@ -69,7 +73,7 @@ for(const seat of [0,1]){
     assert.doesNotThrow(()=>protocol.validateActorObservation(view,seat));
   });
 
-  test('real pinned BASIC stage changes rank3 Penny versus Handiwork root decision; seat '+seat,()=>{
+  test('real pinned BASIC and native/source printing split in rank3 root; seat '+seat,()=>{
     const x=stage(seat),manager=initializeCards();
     const snorlax=createCard(manager,'Snorlax PGO');
     assert.equal(snorlax.stage,Stage.BASIC);
@@ -145,6 +149,83 @@ for(const seat of [0,1]){
     unknownView.ownPublic.active.printed.subtypes=[];
     assert.deepEqual(policy.decide({...sourceStamped,observation:unknownView}),
       {kind:'select-action',token:'handi'});
+    
+    // Full source-sixty + exact native-sixty order defines the alias; neither
+    // a naive string suffix nor a guess from card name is accepted.
+    const sourceDeck=JSON.parse(fs.readFileSync(path.resolve(__dirname,
+      '../../results/aichi-2026/full-decklists.json'),'utf8'))
+      .decks.find(d=>d.rank===3);
+    const resolved=planAichi(1,{
+      allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true
+    }).opponents.find(d=>d.rank===3);
+    assert.equal(resolved.status,'ready');
+    const printMap=buildSourcePrintingMap(sourceDeck,resolved.cards);
+    assert.equal(printMap.get('Penny SVI'),'Penny SVI 183');
+    assert.equal(printMap.get("Team Rocket's Handiwork FCO"),
+      "Team Rocket's Handiwork FCO 112");
+    assert.equal(printMap.get('Snorlax PGO'),'Snorlax PGO 55');
+    // Rank3's source identifies BWP 50 whereas the pinned native Beach
+    // is BWP 28. The *resolved source-sixty* binds this equivalence, not
+    // Card.setNumber nor arbitrary same-name matching.
+    assert.equal(printMap.get('Tropical Beach BWP'),'Tropical Beach BWP 50');
+    const maps=seat===0?[printMap,new Map()]:[new Map(),printMap];
+
+    const realFrontier=buildNativeActionFrontier({
+      state:x.state,actorSeat:seat,native:frontierNative()
+    });
+    const genuineItems=realFrontier.actionFrontier.items;
+    const nativePenny=genuineItems.find(a=>a.kind==='play-card'&&
+      a.actorPrinting==='Penny SVI');
+    const nativeHandi=genuineItems.find(a=>a.kind==='play-card'&&
+      a.actorPrinting==="Team Rocket's Handiwork FCO");
+    assert.ok(nativePenny,'Native Store must offer actually legal Penny');
+    assert.ok(nativeHandi,'Native Store must offer actually legal Handiwork');
+    const mapped=projectSourcePrintings(view,realFrontier.actionFrontier,maps);
+    const bridgedRoot={...root,observation:mapped.observation,
+      actionFrontier:mapped.actionFrontier};
+    assert.equal(mapped.observation.ownHand.includes('Penny SVI 183'),true);
+    assert.equal(mapped.observation.ownPublic.active.printing,'Snorlax PGO 55');
+    assert.equal(mapped.observation.ownPublic.prizeSlots.every(p=>
+      p.printing===undefined),true);
+    const nativeRequest={...request,requestId:'agent32-real-printed-'+seat,
+      observation:mapped.observation,actionFrontier:mapped.actionFrontier};
+    const admitted=protocol.validateRequest(nativeRequest,init,0,new Set());
+    const selected=policy.decide(bridgedRoot);
+    assert.deepEqual(selected,{kind:'select-action',token:nativePenny.token});
+    assert.deepEqual(protocol.validateDecision(
+      selected,null,admitted.actionTokens),selected);
+    const oldMapped=JSON.parse(JSON.stringify(mapped.observation));
+    oldMapped.ownPublic.active.printed.stage=Stage.BASIC;
+    assert.deepEqual(policy.decide({...bridgedRoot,observation:oldMapped}),
+      {kind:'select-action',token:nativeHandi.token});
+
+    // Settle the *actual selected* Penny through the genuine Store. This
+    // tests a legal optional Bench target, not source-policy competence for
+    // choosing the best Penny target under live match conditions.
+    x.store.dispatch(selectedNativeAction(realFrontier,selected.token));
+    const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+    let chosePennyTarget=false;
+    for(let i=0;i<24;i++){
+      const pending=x.state.prompts.find(p=>p.result===undefined);
+      if(!pending)break;
+      if(pending.constructor.name==='WaitPrompt'){
+        x.store.dispatch(new ResolvePromptAction(pending.id,null));
+        continue;
+      }
+      assert.equal(pending.constructor.name,'ChoosePokemonPrompt',
+        'Penny must request only the owned Basic Pokémon target');
+      assert.equal(pending.playerId,x.owner.id);
+      assert.equal(chosePennyTarget,false,'Penny should choose one target');
+      const answer=[x.owner.bench[1]];
+      assert.equal(pending.validate(answer,x.state),true);
+      x.store.dispatch(new ResolvePromptAction(pending.id,answer));
+      chosePennyTarget=true;
+    }
+    assert.equal(chosePennyTarget,true);
+    assert.equal(x.state.prompts.some(p=>p.result===undefined),false);
+    assert.equal(x.owner.bench[1].cards.length,0);
+    assert.equal(x.owner.hand.cards.some(c=>c.fullName==='Regidrago V SIT'),true);
+
   });
 }
 
