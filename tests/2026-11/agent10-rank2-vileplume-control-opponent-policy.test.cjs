@@ -1601,6 +1601,44 @@ test('Stealthy Hood can preserve a visible Pidgeot engine under opposing Garboto
  assert.deepEqual(checkedDecision(request),{kind:'select-action',token:'pidgeot'});
 });
 
+
+function grandTreeRoot(observationOptions={}){
+ return rootRequest({
+   ownHand:['Grand Tree SCR 136'],
+   ownPublic:observationOptions.ownPublic??player({
+     active:pokemon('Bunnelby PRC 121'),
+     bench:[pokemon('Oddish UNB 5',{lastPlayedOrEvolvedTurn:3})]}),
+   opponentPublic:observationOptions.opponentPublic??player(),
+   globalTurn:observationOptions.globalTurn??3,
+   items:[{token:'grand-tree',kind:'play-card',
+     actorPrinting:'Grand Tree SCR 136',
+     publicMetadata:{cardType:'trainer',handIndex:0}},
+     {token:'pass',kind:'pass',label:'Pass turn'}]
+ });
+}
+test('Grand Tree ACE SPEC is saved if only current-turn Basic evolution target exists',()=>{
+ const request=grandTreeRoot({globalTurn:3,
+   ownPublic:player({active:pokemon('Bunnelby PRC 121'),
+     bench:[pokemon('Oddish UNB 5',{lastPlayedOrEvolvedTurn:3})]})});
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-action',token:'pass'});
+});
+test('Grand Tree ACE SPEC is used when prior-turn Basic and K0 line are eligible',()=>{
+ const request=grandTreeRoot({globalTurn:3,
+   ownPublic:player({active:pokemon('Bunnelby PRC 121'),
+     bench:[pokemon('Oddish UNB 5',{lastPlayedOrEvolvedTurn:1})]})});
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-action',token:'grand-tree'});
+});
+test('Grand Tree can still counter an opposing Path to the Peak Stadium',()=>{
+ const request=grandTreeRoot({globalTurn:3,
+   ownPublic:player({active:pokemon('Bunnelby PRC 121'),
+     bench:[pokemon('Oddish UNB 5',{lastPlayedOrEvolvedTurn:3})]}),
+   opponentPublic:player({stadium:['Path to the Peak CRE 148']})});
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-action',token:'grand-tree'});
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
