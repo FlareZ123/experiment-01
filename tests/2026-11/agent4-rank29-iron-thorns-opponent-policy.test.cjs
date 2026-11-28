@@ -2609,3 +2609,37 @@ test('Volt Cyclone still chooses Speed over DCE when Speed completes DCE-bearing
   assert.deepEqual(checkedDecision(req),
     {kind:'select-choice',token:'speed'});
 });
+
+
+test('Native-validated Tool prompts never require literal word Tool in card name',()=>{
+  for(const seat of [0,1]){
+    const unknownOpponentTool=cardChoice('unknown','Technical Machine: Devolution PAR 177',
+      'bench','opponent');
+    const friendlyTool=cardChoice('friendly','Palace Belt BWP 153',
+      'active','actor');
+    const field=promptRequest({
+      seat,promptType:'ChooseCardsPrompt',
+      source:actorChoiceSource('Field Blower GRI 125','Field Blower'),
+      publicMetadata:multiMetadata(1,2),
+      choices:[unknownOpponentTool,friendlyTool]
+    });
+    assert.deepEqual(checkedDecision(field,seat),
+      {kind:'select-choices',tokens:['unknown']});
+    const faba=promptRequest({
+      seat,promptType:'ChooseCardsPrompt',
+      source:actorChoiceSource('Faba LOT 173','Faba'),
+      publicMetadata:multiMetadata(1,1),
+      choices:[unknownOpponentTool,friendlyTool]
+    });
+    assert.deepEqual(checkedDecision(faba,seat),
+      {kind:'select-choices',tokens:['unknown']});
+    const megaton=promptRequest({
+      seat,promptType:'ChooseCardsPrompt',
+      source:actorChoiceSource('Megaton Blower SSP 182','Megaton Blower'),
+      publicMetadata:multiMetadata(1,3),
+      choices:[unknownOpponentTool,friendlyTool]
+    });
+    assert.deepEqual(checkedDecision(megaton,seat),
+      {kind:'select-choices',tokens:['unknown']});
+  }
+});
