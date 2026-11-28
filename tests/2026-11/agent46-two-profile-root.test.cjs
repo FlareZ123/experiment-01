@@ -2227,3 +2227,39 @@ test('Agent46: owner Ranger chain through Battle Compressor then VS Seeker then 
     assert.deepEqual(decide(profiles[0],root(seat,spent,[bcPlay])),sel('pass'));
   }
 });
+
+test('Agent46: Compressor via VS Seeker restores Raihan or Teammates after a real opposing KO',()=>{
+  const bc='Battle Compressor PHF',raihan='Raihan EVS',teammates='Teammates PRC';
+  const koReceipt={priorOpponentTurnKO:{any:true}};
+  for(const seat of [0,1])for(const profile of profiles){
+    for(const useRaihan of [false,true]){
+      const active=useRaihan?vmax([P,P]):v([P]);
+      const view=observation(seat,{active,opponentActive:defender(),
+        ownHand:[bc,VS],ownDiscard:useRaihan?[P]:[]});
+      view.globalTurn=8;
+      const compressor=play('compress',bc),seeker=play('seeker',VS);
+      const rootReq=root(seat,view,[compressor,seeker],koReceipt);
+      assert.deepEqual(decide(profile,rootReq),sel('compress'));
+      const choose=cardPrompt(seat,view,bc,'Battle Compressor','deck',
+        [teammates,raihan,D],0,3);
+      choose.publicEventReceipt=koReceipt;
+      const intended=useRaihan?'card-1':'card-0';
+      assert.deepEqual(decide(profile,choose),mult(intended));
+      const selected=useRaihan?raihan:teammates;
+      const post={...view,ownHand:[VS],ownPublic:{...view.ownPublic,
+        handCount:1,discard:[bc,...view.ownPublic.discard,selected]}};
+      assert.deepEqual(decide(profile,root(seat,post,[seeker],koReceipt)),sel('seeker'));
+      const supporterPrompt=cardPrompt(seat,post,VS,'VS Seeker','discard',[selected]);
+      supporterPrompt.publicEventReceipt=koReceipt;
+      assert.deepEqual(decide(profile,supporterPrompt),mult('card-0'));
+      const ready={...post,ownHand:[selected],ownPublic:{...post.ownPublic,
+        handCount:1,discard:[bc,...view.ownPublic.discard,VS]}};
+      assert.deepEqual(decide(profile,root(seat,ready,[play('supporter',selected)],koReceipt)),
+        sel('supporter'));
+    }
+    // No opposing KO: neither source Supporter has a live condition.
+    const view=observation(seat,{active:v([P]),opponentActive:defender(),
+      ownHand:[bc,VS]});
+    assert.deepEqual(decide(profile,root(seat,view,[play('compress',bc)])),sel('pass'));
+  }
+});

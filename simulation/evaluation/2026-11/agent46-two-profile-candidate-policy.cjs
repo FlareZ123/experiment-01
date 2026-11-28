@@ -2041,6 +2041,24 @@ function isItem(printing) {
   return hasAnyName(printing, ITEM_NAMES);
 }
 
+// Battle Compressor becomes a real access connector only together with a
+// *currently held* VS Seeker, a free Supporter turn and a specific live need.
+// Ordinary empty-deck thinning, speculative copied attacks, and burning an
+// irreplaceable one-of without a recovery action remain unsupported.
+const COMPRESSOR_SEEKER_SUPPORTERS=Object.freeze([
+  'Pokémon Ranger','Raihan','Teammates'
+]);
+function compressorSeekerSupporterNeed(view,printing,receipt) {
+  if(!COMPRESSOR_SEEKER_SUPPORTERS.some(name=>hasName(printing,name)) ||
+     !supporterAvailable(view) || !handHas(view,'VS Seeker') ||
+     handHas(view,printing) || discardHas(view,printing) ||
+     knownFullyPrized(view,printing) ||
+     (view.ownPublic.lostZone??[]).some(p=>hasName(p,printing)))return -Infinity;
+  const needed=supporterNeedScore(view,printing,receipt);
+  if(!Number.isFinite(needed)||needed<90)return -Infinity;
+  const held=Math.max(0,...view.ownHand.map(p=>supporterNeedScore(view,p,receipt)));
+  return needed>held?needed:-Infinity;
+}
 function searchCandidates(view, prompt, choices, receipt = null) {
   const effectName = prompt.source?.effectName ?? '';
   const sourcePrinting = prompt.source?.sourcePrinting ?? '';
@@ -2052,18 +2070,13 @@ function searchCandidates(view, prompt, choices, receipt = null) {
   let rows;
   if (sourceZone === 'deck' && effectName === 'Battle Compressor' &&
       hasName(sourcePrinting, 'Battle Compressor')) {
-    // The Mimikyu/Dialga copied-attack route remains unadmitted.
-    // A smaller, presently executable line is Compressor -> Ranger into
-    // discard -> VS Seeker -> Ranger to clear a current attack effect.
-    // Do not discard a protected singleton merely to thin the deck.
-    const rangerViaSeeker = supporterAvailable(view) &&
-      handHas(view,'VS Seeker') && !discardHas(view,'Pokémon Ranger') &&
-      !handHas(view,'Pokémon Ranger') && usefulRanger(view,receipt);
-    rows = choices.map(choice => ({
-      choice,
-      score: rangerViaSeeker && hasName(choice.printing,'Pokémon Ranger') ?
-        2500 : -discardValue(view, choice.printing,receipt)
-    }));
+    // Choose exactly one needed singleton Supporter, not three arbitrary
+    // low-discard-value cards. The actor can recover it with VS Seeker.
+    rows = choices.map(choice => {
+      const need=compressorSeekerSupporterNeed(view,choice.printing,receipt);
+      return {choice,score:Number.isFinite(need)?
+        2000+need:-discardValue(view,choice.printing,receipt)};
+    });
   } else if (sourceZone === 'hand') {
     rows = choices.map(choice => ({
       choice, score: -discardValue(view, choice.printing,receipt)
@@ -3558,17 +3571,16 @@ function scoreTrainerPlay(item, view, receipt, profile) {
     const need=acerolaNeed(view);
     return Number.isFinite(need)?Math.min(1600,700+need/4):-Infinity;
   }
-  // Copied-attack Compressor route remains unsupported; accept only the
-  // source-real Ranger recovery via VS Seeker in the exact Hood profile.
-  if(hasName(name,'Battle Compressor') &&
-      profile?.profileId==='hood-shield-shadow-rider-v1' &&
-      !supporterUsed && view.ownPublic.deckCount>0 &&
-      handHas(view,'VS Seeker') && !handHas(view,'Pokémon Ranger') &&
-      !discardHas(view,'Pokémon Ranger') &&
-      !knownFullyPrized(view,'Pokémon Ranger') &&
-      usefulRanger(view,receipt)) {
-    const held=Math.max(0,...view.ownHand.map(card=>supporterNeedScore(view,card,receipt)));
-    if(held<110) return 1120;
+  // Source-real singleton retrieval, not speculative deck-thinning:
+  // Compressor -> (Ranger / Raihan / Teammates) in discard -> held VS
+  // Seeker -> currently productive Supporter. Ranger is Hood-only.
+  if(hasName(name,'Battle Compressor') && !supporterUsed &&
+      view.ownPublic.deckCount>0) {
+    const candidates=COMPRESSOR_SEEKER_SUPPORTERS.filter(name=>
+      name!=='Pokémon Ranger'||profile?.profileId==='hood-shield-shadow-rider-v1');
+    const needed=Math.max(-Infinity,...candidates.map(printing=>
+      compressorSeekerSupporterNeed(view,printing,receipt)));
+    if(Number.isFinite(needed))return 1000+needed;
   }
   const missingBasicV = !knownFullyPrized(view,'Shadow Rider Calyrex V') && !hasBasicShadowRiderV(view) &&
     !handHasBasicShadowRiderV(view) && hasOpenBench(view);
