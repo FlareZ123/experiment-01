@@ -192,3 +192,14 @@ for(const seat of [0,1]){
    {kind:'select-choices',tokens:['card-0','card-1']});
  });
 }
+
+for(const seat of [0,1]){
+ test('Benched funded Regidrago V may evolve next turn; no funding-cut premium, seat '+seat,()=>{
+  const v=view(seat);
+  v.opponentPublic.bench[0]=slot('Regidrago V SIT',
+    ['Grass Energy SVE','Grass Energy SVE','Fire Energy SVE'],
+    [['Dragon Laser',['Grass','Grass','Fire'],130]],['Dragon'],['Basic','V']);
+  assert.deepEqual(decision(prompt(seat,v)),
+   {kind:'select-choices',tokens:['card-0','card-1']});
+ });
+}
