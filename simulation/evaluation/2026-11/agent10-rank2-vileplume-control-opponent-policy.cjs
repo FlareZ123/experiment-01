@@ -593,8 +593,14 @@ function scoreAction(item, request) {
     return disruptiveStadium ? 120 : 0;
   }
   if (matches(card, PRINT.artazon)) {
-    return list(own.bench).some(slot => slot === null) &&
-      missingLinePriority(observation) > 0 ? 128 : 70;
+    const canUseNow = list(own.bench).some(slot => slot === null) &&
+      missingLinePriority(observation) > 0;
+    if (canUseNow) return 128;
+    const disruptiveStadium = [...list(own.stadium), ...list(opponent.stadium)]
+      .some(printing => /Path to the Peak|Jamming Tower|Silent Lab/i.test(printing));
+    // Artazon is symmetric and replaces the current Stadium: do not spend
+    // it on a full Bench unless it immediately dislodges a suppressor.
+    return disruptiveStadium ? 95 : 0;
   }
   if (matches(card, PRINT.guzma)) {
     // Guzma's opponent gust is still meaningful with no own Bench; its
