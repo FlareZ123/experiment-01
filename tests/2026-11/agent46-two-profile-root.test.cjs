@@ -2552,3 +2552,37 @@ paired('Agent2: source Snorlax Block mandatory KO promotion chooses a payable ne
   assert.deepEqual(decide(profile,request({...view,
     ownPublic:{...view.ownPublic,prizeCount:2}})),mult('b0'));
 });
+
+paired('Agent2: paid last-Prize Compressor jointly selects Raihan plus Psychic under strict prompt protocol', (seat,profile)=>{
+  const compressor='Battle Compressor PHF 92',seeker='VS Seeker PHF 109';
+  const raihan='Raihan EVS 152',psychic='Psychic Energy MEE';
+  const teammates='Teammates PRC 141';
+  const attacker=vmax([psychic,psychic]);
+  attacker.hp=320;
+  const dedenne=pokemon({printing:'Dedenne-GX UNB',name:'Dedenne-GX',
+    hp:160,damage:80,types:['Lightning'],subtypes:['Basic','GX'],
+    abilities:['Dedechange']});
+  const view=observation(seat,{
+    active:attacker,bench:[v()],opponentActive:dedenne,
+    opponentBench:[defender()],ownHand:[seeker],ownDiscard:[compressor],
+    globalTurn:3,decisionKind:'owner-prompt',promptType:'ChooseCardsPrompt'
+  });
+  view.ownPublic.prizeCount=2;
+  view.ownPublic.deckCount=28;
+  view.ownTurnResources.energyPlayedTurn=3;
+  const prompt=cardPrompt(seat,view,compressor,'Battle Compressor',
+    'deck',[raihan,psychic,teammates,'Sky Field ROS 89'],0,3);
+  prompt.publicEventReceipt={priorOpponentTurnKO:{any:true}};
+  assert.deepEqual(decide(profile,prompt),mult('card-0','card-1'));
+  // No certified prior KO means Raihan cannot be played; no pair.
+  const withoutKo={...prompt,publicEventReceipt:{
+    priorOpponentTurnKO:{any:false}
+  }};
+  assert.deepEqual(decide(profile,withoutKo),choice('empty'));
+  // When the normal attachment remains, the two-card sacrifice is
+  // dominated. The existing policy chooses a different single payload.
+  const withManual={...prompt,observation:{...prompt.observation,
+    ownTurnResources:{...prompt.observation.ownTurnResources,
+      energyPlayedTurn:0}}};
+  assert.deepEqual(decide(profile,withManual),mult('card-2'));
+});
