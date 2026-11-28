@@ -1010,7 +1010,7 @@ function promptDecision(request) {
       context.includes('faba') || context.includes('plumeria');
     if ((selectionType === 'card-combination' || selectionType === 'card-order') &&
         !recognizedCardSource) {
-      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_SELECTION_SOURCE' };
+      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_COMBINATION_SOURCE' };
     }
     let ranked;
     if (selectionType === 'pokemon') {
@@ -1024,12 +1024,12 @@ function promptDecision(request) {
       if (!discardPrompt && context.includes('guzma & hala')) {
         const selected = guzmaHalaSearchSelection(choices, request.observation, min, max);
         return selected ? { kind: 'select-choices', tokens: selected } :
-          { kind: 'abstain', reasonCode: 'NO_VALID_GUZMA_HALA_SEARCH_SET' };
+          { kind: 'abstain', reasonCode: 'NO_SUPPORTED_CARD_SELECTION' };
       }
       if (discardPrompt && context.includes('guzma & hala')) {
         const selected = guzmaHalaDiscardSelection(choices, request.observation, max);
         return selected ? { kind: 'select-choices', tokens: selected } :
-          { kind: 'abstain', reasonCode: 'INSUFFICIENT_SAFE_GUZMA_HALA_DISCARDS' };
+          { kind: 'abstain', reasonCode: 'NO_SUPPORTED_CARD_SELECTION' };
       }
       ranked = rankedChoices(choices, choice => {
         if (discardPrompt) return discardPriority(choice, request.observation);
@@ -1052,7 +1052,7 @@ function promptDecision(request) {
       }, required);
     } else if (selectionType === 'prize-slots') {
       if (context.includes('peonia') || context.includes('gladion')) {
-        return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PRIZE_SOURCE_POLICY' };
+        return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PRIZE_SELECTION' };
       }
       const required = Number.isSafeInteger(metadata.requiredCount) ?
         metadata.requiredCount : min;
@@ -1092,7 +1092,7 @@ function promptDecision(request) {
       return { kind: 'select-choice', token: modeOne.token };
     }
     if (modeZero) return { kind: 'select-choice', token: modeZero.token };
-    return { kind: 'abstain', reasonCode: 'NO_SAFE_GUZMA_HALA_MODE' };
+    return { kind: 'abstain', reasonCode: 'UNTRUSTED_PROMPT' };
   }
 
   if (prompt.promptType === 'ChooseAttackPrompt') {
@@ -1122,7 +1122,7 @@ function promptDecision(request) {
 
   if (prompt.promptType === 'ChoosePrizePrompt') {
     if (context.includes('peonia') || context.includes('gladion')) {
-      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PRIZE_SOURCE_POLICY' };
+      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PRIZE_SELECTION' };
     }
     const choice = choices.slice().sort((a, b) =>
       (a.publicMetadata?.choiceIndex ?? 0) - (b.publicMetadata?.choiceIndex ?? 0))[0];
@@ -1146,7 +1146,7 @@ function promptDecision(request) {
       return { kind: 'select-choice', token: yes.token };
     }
     if (no) return { kind: 'select-choice', token: no.token };
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_OPTIONAL_PROMPT' };
+    return { kind: 'abstain', reasonCode: 'UNRECOGNIZED_SIMPLE_PROMPT' };
   }
 
   return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
