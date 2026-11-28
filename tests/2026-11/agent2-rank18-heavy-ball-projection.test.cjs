@@ -204,3 +204,27 @@ test('non-Heavy Ball prompt delegates generic existing projector untouched',()=>
   assert.equal(project(e).reason,'delegated non-Heavy Ball');
  }
 });
+
+
+test('source face-down-only selection never chooses previously face-up Basic',()=>{
+ for(const seat of [0,1]){
+  const e=env(seat);
+  // Before ASR146, a different effect permanently exposed this specific
+  // Squawk Prize; Item text only permits searching FACE-DOWN Prize cards.
+  e.actor.prizes[2].faceUpPrize=true;
+  e.actor.prizes[2].isSecret=false;
+  const out=project(e),choices=out.promptProjection.choices;
+  assert.equal(out.diagnostics.eligibleBasicCount,1);
+  assert.deepEqual(choices.filter(x=>x.kind==='card').map(x=>x.printing),
+    ['Regidrago V SIT 135']);
+  assert.ok(!choices.some(x=>x.printing==='Squawkabilly ex PAL 169'));
+  assert.ok(choices.some(x=>x.kind==='empty-selection'));
+  assert.deepEqual(validatePrompt(out.promptProjection,seat),
+    out.promptProjection);
+  e.actor.prizes[1].faceUpPrize=true;
+  const emptied=project(e);
+  assert.equal(emptied.diagnostics.eligibleBasicCount,0);
+  assert.equal(emptied.promptProjection.choices.length,1);
+  assert.equal(emptied.promptProjection.choices[0].kind,'empty-selection');
+ }
+});
