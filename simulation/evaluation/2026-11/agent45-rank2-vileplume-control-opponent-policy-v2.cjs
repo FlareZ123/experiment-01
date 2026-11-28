@@ -627,11 +627,28 @@ function scoreAction(item, request) {
       list(row.pokemon.energies).some(energy => matches(energy, PRINT.memoryEnergy))) ? 116 : 50;
   }
   if (matches(card, PRINT.stealthyHood)) {
-    const targetSlot = boardSlots(own).find(row =>
-      target ? row.pokemon.printing === target : matches(row.pokemon.printing, PRINT.vileplume));
+    if (ownToolLocked(observation)) return 0;
     const threatened = opponentHasGarbotoxin(opponent);
-    const alreadyProtected = targetSlot && hasStealthyHood(targetSlot.pokemon);
-    return targetSlot && threatened && !alreadyProtected && !ownToolLocked(observation) ? 205 : 65;
+    const hoodScore = row => {
+      if (!row || list(row.pokemon.tools).length > 0) return 0;
+      if (matches(row.pokemon.printing,PRINT.vileplume))
+        return threatened ? 230 : 60;
+      if (matches(row.pokemon.printing,PRINT.stoutland))
+        return threatened ? 215 : 45;
+      return 0;
+    };
+    // Native play-card actions may name the physical Tool recipient now.
+    // Protect the intended lock Pokémon, never a name-matched duplicate
+    // already equipped with another Tool, or a random Basic.
+    if (metadata.targetZone === 'active' || metadata.targetZone === 'bench') {
+      const row=boardSlots(own).find(row=>row.zone===metadata.targetZone &&
+        row.index===metadata.targetIndex);
+      if (metadata.targetSeat !== 'actor' || !row ||
+          !samePrinting(row.pokemon.printing,target)) return 0;
+      return hoodScore(row);
+    }
+    // A targetless legacy root requires a separate physical-attachment prompt.
+    return Math.max(0,...boardSlots(own).map(hoodScore));
   }
   if (matches(card, PRINT.grandTree)) {
     return hasUnevolvedBasicFromPriorTurn(own, observation.globalTurn) &&
