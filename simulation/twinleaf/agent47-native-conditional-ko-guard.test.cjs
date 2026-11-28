@@ -205,6 +205,7 @@ for(const seat of [0,1])for(const actorExtra of [false,true]){
     t.actor.pokemonKnockedOutLastTurnEntries=[];
     t.opponent.pokemonKnockedOutLastTurnEntries=[];
     t.actor.marker={hasMarker:()=>true};
+    state.turn=0; // install before all event turns that will be certified
     t.store.state=state;
     t.store.reduceEffect=originalStoreReduce;
     const {tracker,uninstall}=installStoreKnockoutTurnTracker(t.store,{
