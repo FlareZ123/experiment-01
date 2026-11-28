@@ -3726,12 +3726,7 @@ function publicEnergySupply(slot,view,temple=false,side='opponent'){
       continue;
     }
     if(hasName(name,'Unit Energy')){
-      const types=hasAnyName(name,['LPM','LightningPsychicMetal'])?
-        ['Lightning','Psychic','Metal']:
-        hasAnyName(name,['GFW','GrassFireWater'])?
-          ['Grass','Fire','Water']:
-        hasAnyName(name,['FDF','FightingDarknessFairy'])?
-          ['Fighting','Darkness','Fairy']:null;
+      const types=unitEnergySourceTypes(name);
       if(!types)return null;
       add(1,types);continue;
     }
@@ -4154,6 +4149,23 @@ function astralTerminalHarmlessAbility(slot,name){
 // intentionally closed: Spiky/Horror retaliation, Stone reduction and Legacy
 // Prize modification are NOT harmless. In particular, Mist prevents effects
 // of attacks, not damage. This helper must never certify effect-based attacks.
+// All three native Unit Energy classes have printed three-type rules. The
+// native class abbreviations GRW and FDY differ from the older names GFW/FDF
+// used in the earlier heuristic. Restrict this family to source-confirmed
+// names plus the English catalog variants: an unknown Unit printing cannot
+// be assumed nondefensive or assigned arbitrary typed Energy.
+const UNIT_ENERGY_SOURCE_TYPES=Object.freeze({
+  'Unit Energy LPM UPR':['Lightning','Psychic','Metal'],
+  'Unit Energy GRW UPR':['Grass','Fire','Water'],
+  'Unit Energy FDY FLI':['Fighting','Darkness','Fairy'],
+  'Unit Energy LightningPsychicMetal UPR':['Lightning','Psychic','Metal'],
+  'Unit Energy GrassFireWater UPR':['Grass','Fire','Water'],
+  'Unit Energy FightingDarknessFairy FLI':['Fighting','Darkness','Fairy']
+});
+function unitEnergySourceTypes(printing){
+  const types=UNIT_ENERGY_SOURCE_TYPES[printing];
+  return Array.isArray(types)?types.slice():null;
+}
 const TERMINAL_DIRECT_SAFE_ENERGY_NAMES=Object.freeze([
   'Double Colorless Energy','Capture Energy','Jet Energy',
   'Reversal Energy','Counter Energy','Memory Energy','Recycle Energy',
@@ -4163,7 +4175,7 @@ function directTerminalSafeSpecialEnergy(energy,slot) {
   if(!isText(energy))return false;
   const matches=name=>energy===name || energy.startsWith(name+' ');
   if(matches('Double Dragon Energy'))return isDragon(slot);
-  if(matches('Unit Energy'))return true; // all three printed Unit families are type-only
+  if(matches('Unit Energy'))return unitEnergySourceTypes(energy)!==null;
   return TERMINAL_DIRECT_SAFE_ENERGY_NAMES.some(matches);
 }
 // Current, directly offered printed attacks are unaffected by Stadiums that

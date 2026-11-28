@@ -2381,3 +2381,33 @@ test('Agent46: Compressor leaves a searchable deck for Raihan or Teammates',()=>
       [play('compress',bc)])),sel('compress'));
   }
 });
+
+paired('Agent46: pinned native GRW and FDY Unit variants share source-safe semantics',(seat,profile)=>{
+  const variants=[
+    ['Unit Energy LPM UPR',['Lightning','Psychic','Metal']],
+    ['Unit Energy GRW UPR',['Grass','Fire','Water']],
+    ['Unit Energy FDY FLI',['Fighting','Darkness','Fairy']],
+    ['Unit Energy LightningPsychicMetal UPR',['Lightning','Psychic','Metal']],
+    ['Unit Energy GrassFireWater UPR',['Grass','Fire','Water']],
+    ['Unit Energy FightingDarknessFairy FLI',['Fighting','Darkness','Fairy']]
+  ];
+  const view=observation(seat,{active:vmax(Array(9).fill(P)),
+    opponentActive:defender({hp:280})});
+  view.globalTurn=8;view.ownPublic.prizeCount=2;
+  const max={token:'max',kind:'attack',attackName:'Max Geist'};
+  const policy=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile});
+  const rule=()=>policy.decideWithAudit(root(seat,view,[max])).policyAudit.selectionRuleCode;
+  for(const [printing,types] of variants){
+    view.opponentPublic.active.energies=[printing];
+    assert.deepEqual(worker.__test.publicEnergySupply(view.opponentPublic.active,view)[0],
+      types,printing);
+    assert.equal(rule(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK',printing);
+  }
+  for(const invalid of ['Unit Energy UNRECOGNIZED',
+    'Unit Energy GFW UPR','Unit Energy FDF FLI','Unit Energy LPM UNKNOWN']){
+    view.opponentPublic.active.energies=[invalid];
+    assert.equal(worker.__test.publicEnergySupply(view.opponentPublic.active,view),
+      null,invalid);
+    assert.notEqual(rule(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK',invalid);
+  }
+});
