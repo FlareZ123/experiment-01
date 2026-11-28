@@ -1704,16 +1704,40 @@ function raihanAttachPrompt(request) {
       (cm.targetSeat===undefined||cm.targetSeat==='actor')&&
       (zone==='active'||zone==='bench');
   });
-  // This source slice only attaches to a Clefairy that can still gain its
-  // second Psychic Energy; other legal target families deliberately abstain.
+  // Raihan can power a certified secondary finishing attack as well as
+  // Clefairy's first two Energy. An AttachEnergyPrompt hides root actions;
+  // for Bench finishers require actor-certified Skyliner/Float Stone mobility
+  // and no already-used retreat rather than inventing a future retreat.
   const ranked=options.map(c=>{
     const cm=c.publicMetadata??{},zone=cm.zone??cm.targetZone;
     const index=safeInt(cm.benchIndex)?cm.benchIndex:
       safeInt(cm.targetIndex)?cm.targetIndex:cm.slotIndex;
     const target=zone==='active'?o.ownPublic?.active:
       safeInt(index)?arr(o.ownPublic?.bench)[index]:null;
-    const useful=has(target,P.clefairy)&&arr(target?.energies).length<2;
-    return {choice:c,score:!useful?-1:zone==='active'?150:125};
+    if(!target)return {choice:c,score:-1};
+    const count=arr(target.energies).length;
+    let score=has(target,P.clefairy)&&count<2?
+      (zone==='active'?150:125):0;
+    if((has(target,P.latias)&&count===2)||
+       (has(target,P.lele)&&count===1)){
+      const canMove=zone==='active'||
+        (o?.ownTurnResources?.retreatedTurn!==o?.globalTurn&&
+         noCostRetreatOpportunity(o));
+      if(canMove){
+        const nextTarget={...target,
+          energies:[...arr(target.energies),ownPrinting(c)]};
+        const bench=arr(o.ownPublic.bench).slice();
+        if(zone==='bench')bench[index]=o.ownPublic.active;
+        const future={...o,ownPublic:{
+          ...o.ownPublic,active:nextTarget,bench}};
+        const ko=has(target,P.latias)?
+          latiasEonBladeKO(future):tapuLeleEnergyDriveKO(future);
+        if(ko)score=250+Math.max(0,ko.prizeLowerBound??0)*15+
+          (safeInt(o.ownPublic.prizeCount)&&
+           o.ownPublic.prizeCount<=ko.prizeLowerBound?100:0);
+      }
+    }
+    return {choice:c,score};
   }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
   return ranked.length?{kind:'select-choice',token:ranked[0].choice.token}:
     no('R30_RAIHAN_ATTACH_NO_TARGET');
