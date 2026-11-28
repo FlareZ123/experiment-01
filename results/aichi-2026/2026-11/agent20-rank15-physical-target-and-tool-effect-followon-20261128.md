@@ -68,6 +68,22 @@ The decision impact goes beyond arithmetic: when the source Pidgeot ex holds liv
 
 The committed comprehensive source attack test file covers all 11 original fixed-damage cards, typed Weakness, nonmatching resistance, correct PCE/Belt scope, empty/muted Stadium conditions, nondamaging move negatives, Float Up sole-Pokémon loss avoidance, and immediate-Prize attack-versus-setup choices on both physical seats. These remain **constructed actor-only decisions, not authenticated native-Store attack resolution**.
 
+## Eldegoss V Happy Match against source's own Stadium locks
+
+The exact rank15 source includes **Silent Lab PRC140**, **Path to the Peak CRE148**, and **Eldegoss V RCL19**. Eldegoss V's Happy Match Ability triggers when played from hand onto Bench, retrieving a Supporter from the discard. A live Silent Lab makes all Basic Pokémon have no Abilities; a live Path disables the Rule-Box Pokémon V's Ability. Before the patch, `eldCanBench` noticed Path but **not Silent Lab**, and it unconditionally vetoed Path even when global `stadiumAndToolHaveNoEffectTurnsRemaining > 0` was explicitly muting Stadium effects. The worker therefore either wasted an Eldegoss play into its own Silent Lab, or refused a live recovery opportunity when the locking Stadium was inactive.
+
+The new branch checks both relevant Stadiums and the global effect-nullification state, preserving separate protection from the opponent's Active Iron Thorns. Both-seat tests demonstrate actual offered Eldegoss root choices admitted when Happy Match can work and refused when its Ability cannot trigger. They do not prove the subsequent Supporter-retrieval prompt is correctly resolved by the native engine.
+
+## Strict V3 actor decision-contract acceptance
+
+Earlier synthetic action/choice assertions intentionally constructed minimal objects without the complete owner schema. We also built a second fixture using the actual checked-in `agent49-policy-protocol.cjs` validators, including full actor observation/public restrictions, event receipt, prompt source and zone metadata, and action frontier. The production pure `validateRequest` and `validateDecision` jointly admit the revised rank15 worker's:
+
+- Grand Tree choosing **the established Oddish at Bench index1**, not identically printed newly planted index0, on both physical seats.
+- Pidgeot ex's **live PCE+Belt 170-damage** terminal attack into an opponent V at 170 remaining HP, when the attack is offered.
+- Its refusal of that false terminal under active Jamming Tower, selecting a visible setup action instead.
+
+The six new cases and **four inherited Agent41 strict-V3 cases** all passed with the exact protocol blob `d8349ae6f3537816b357b8309e9ab140ddec51eb`. This exercises real schema/decision admission code but **still does not initialize, dispatch, or complete a Twinleaf Store**; action-frontier offers and board states are constructed, not native traces.
+
 ## Reproducible assets
 
 - Policy: `simulation/evaluation/2026-11/agent20-rank15-lopunny-vileplume-opponent-policy.cjs`
@@ -78,9 +94,12 @@ The committed comprehensive source attack test file covers all 11 original fixed
 - Grand Tree target age/slot/Active: `tests/2026-11/agent20-rank15-grandtree-physical-evolution-heldout.test.cjs` (**18** cases)
 - Guzma own attacker promise / Belt lower-bound: `tests/2026-11/agent20-rank15-guzma-prompt-attacker-binding-heldout.test.cjs` (**14** cases)
 - Complete original fixed-attack surface: `tests/2026-11/agent20-rank15-source-fixed-attack-damage-heldout.test.cjs` (**80** cases)
-- Exact final policy blob: `834ab54bcdd11c78bf36e5fdf6e22d5bfff7ac9b`
-- Exact test blobs: `04aa7326f3d2c3bf18b115ca48d6988021c511cb`, `99418a2ca86cc651773af5cf3248979e4563317c`, `5d99721052439eb84849b4094ad98e0c6bd16132`, `fea7ca06fc33741301619f13dd8782a2ccfcd57a`, `7fa0f188ae3b889e16163fb8af639632dd4816e8`, `ad0d6d4c0c4259827ec70ef1b298e11d90cbcb5e`, `757fb4f866d5013f6bb6a76eb92a4813ee3c549d`
-- Executed both committed test files against the exact policy blob with a JavaScript CommonJS V8 shim for `node:test`, `node:assert/strict`, and the policy module: **162 passed / 0 failed**. This confirms synchronous decision assertions only. The V8 shim is not Node CLI, pinned Twinleaf Store, native protocol, source-deck game, or competitive qualification.
+- Eldegoss self-Silent Lab/Path root choices: `tests/2026-11/agent20-rank15-eldegoss-self-silent-lab-heldout.test.cjs` (**10** cases)
+- Full strict V3 Grand Tree/Pidgeot requests: `tests/2026-11/agent20-rank15-grandtree-pidgeot-strict-v3-heldout.test.cjs` (**6** cases)
+- Parent strict V3 Temple regressions (not owned by PR93): `tests/2026-11/agent41-rank15-temple-strict-v3-protocol-heldout.test.cjs` (**4** cases)
+- Exact final policy blob: `00ab91615effd421d40c8246aa461f8431bb8740`
+- Exact test blobs: `04aa7326f3d2c3bf18b115ca48d6988021c511cb`, `99418a2ca86cc651773af5cf3248979e4563317c`, `5d99721052439eb84849b4094ad98e0c6bd16132`, `fea7ca06fc33741301619f13dd8782a2ccfcd57a`, `7fa0f188ae3b889e16163fb8af639632dd4816e8`, `ad0d6d4c0c4259827ec70ef1b298e11d90cbcb5e`, `757fb4f866d5013f6bb6a76eb92a4813ee3c549d`, `b488b4988c93ef88065c87f390dd6320dcade34b`, `259305b66e940632aed10c45708178915d1096d9`
+- Executed both committed test files against the exact policy blob with a JavaScript CommonJS V8 shim for `node:test`, `node:assert/strict`, and the policy module: **182 passed / 0 failed** (172 constructed source cases + 6 new full strict V3 requests + 4 parent strict V3 requests). This confirms synchronous decision assertions only. The V8 shim is not Node CLI, pinned Twinleaf Store, native protocol, source-deck game, or competitive qualification.
 
 The original PR90 head reproduced the wrong Jet and TM selections and the absent correct Hood decision before the follow-on patch. Neither PR90 nor PR93 should be treated as an admission to main or a frozen policy. Both may be challenged through independent actor-visible native continuation before any owner-approved game. No CI or V3 dispatch was performed here.
 
