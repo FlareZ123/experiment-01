@@ -5,7 +5,7 @@
  * Pin the bundle blob after independent review before any native worker use.
  * agent43-regidrago-apex-choice.cjs 65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b
  * agent1-rank12-regidrago-opponent-policy-v2.cjs bfaee2205ea9d0c3b618948fe24ff81075d4ccda
- * agent3-rank32-regidrago-opponent-policy.cjs 617ff9eb67c35a77f895223d8611c59fdebf9c72
+ * agent3-rank32-regidrago-opponent-policy.cjs 525acdb8483ef888dc6ceda80d1de8be837ee2cb
  */
 const __rank32Modules = Object.freeze({
 "./agent43-regidrago-apex-choice.cjs": function(require, module, exports) {
@@ -1220,6 +1220,20 @@ function gustTargetPriority(pokemon,observation,attacker) {
   const prizes=prizeValue(pokemon,observation), ownPrizes=observation?.ownPublic?.prizeCount;
   return (Number.isSafeInteger(ownPrizes)&&prizes>=ownPrizes?400:260)+prizes*12;
 }
+function zeroRetreatGuzmaPivot(observation) {
+  const own=observation?.ownPublic??{}, resources=observation?.ownTurnResources??{};
+  if(!canAttackNow(own.active,observation) ||
+      !Number.isSafeInteger(observation?.globalTurn) ||
+      !Number.isSafeInteger(resources.retreatedTurn) ||
+      resources.retreatedTurn===observation.globalTurn ||
+      own.publicTurnRestrictions?.cannotRetreat===true)return null;
+  return list(own.bench).find(p=>
+    /^Budew ASC 16\b/i.test(print(p)) &&
+    Array.isArray(p?.printed?.retreatCost) && p.printed.retreatCost.length===0 &&
+    p?.publicRestrictions?.cannotRetreat!==true &&
+    p?.publicRestrictions?.cannotRetreatNextTurn!==true &&
+    p?.publicRestrictions?.cannotRetreatWhileActive!==true)??null;
+}
 function tacticalGustScore(action,observation) {
   const own=observation?.ownPublic??{},opp=observation?.opponentPublic??{};
   const actorActive=own.active, opponentActive=opp.active;
@@ -1227,15 +1241,17 @@ function tacticalGustScore(action,observation) {
   const isCounter=/^Counter Catcher PAR 160\b/i.test(name);
   const isGuzma=/^Guzma BUS 115\b/i.test(name);
   if(!isCounter&&!isGuzma)return null;
-  const attacker = isCounter ? actorActive :
-    list(own.bench).find(p=>canAttackNow(p,observation));
-  // Guzma necessarily switches your own Active. If it already attacks and
-  // there is no independently ready benched attacker, do not sacrifice it.
+  const benchedAttacker=list(own.bench).find(p=>canAttackNow(p,observation));
+  const pivot=isGuzma&&!benchedAttacker?zeroRetreatGuzmaPivot(observation):null;
+  const attacker=isCounter?actorActive:(benchedAttacker??(pivot?actorActive:null));
+  // Forced self-switch is safe only with an independently funded attacker,
+  // or a certified unspent zero-retreat Budew pivot back to the Active.
   if(isGuzma && canAttackNow(actorActive,observation)&&!attacker)return 0;
   if(!attacker)return isCounter?0:null;
   const bestBench=list(opp.bench).reduce((best,p)=>
     Math.max(best,gustTargetPriority(p,observation,attacker)),0);
   if(bestBench<=0)return isCounter?0:20;
+  if(pivot&&bestBench<400)return 0; // Pivot only for same-turn Prize win.
   const currentCanKO=gustTargetPriority(opponentActive,observation,attacker)>0;
   if(currentCanKO&&bestBench<400)return isCounter?0:20;
   return isCounter?Math.min(410,bestBench+30):
@@ -1759,13 +1775,13 @@ function promptDecision(request) {
   if (/counter catcher|guzma/.test(source) && meta.selectionType==='pokemon') {
     const own=obs.ownPublic??{};
     const isGuzma=/guzma/.test(source);
-    const attacker=isGuzma?
-      list(own.bench).find(p=>canAttackNow(p,obs)):
-      own.active;
+    const benched=isGuzma?list(own.bench).find(p=>canAttackNow(p,obs)):null;
+    const pivot=isGuzma&&!benched?zeroRetreatGuzmaPivot(obs):null;
+    const attacker=isGuzma?(benched??(pivot?own.active:null)):own.active;
     return chooseMany(choices,c=>{
       const target=targetFromGustChoice(c,obs);
       if(c?.publicMetadata?.ownerSeat==='actor') {
-        return isGuzma&&canAttackNow(target,obs)?300:0;
+        return isGuzma&&(canAttackNow(target,obs)||pivot===target)?300:0;
       }
       return gustTargetPriority(target,obs,attacker);
     },min,Math.min(max,1),'RANK32_GUST_NO_LETHAL_TARGET');
