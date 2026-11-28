@@ -11,7 +11,7 @@ const { initializeCards } = require('../../simulation/twinleaf/headless.cjs');
 const { actorObservation } = require('../../simulation/twinleaf/actor-observation-contract.cjs');
 const { installPromptProvenanceHook } =
   require('../../simulation/evaluation/2026-11/agent36-prompt-provenance.cjs');
-const { projectPrompt } =
+const { projectPrompt, validateRawPromptResult } =
   require('../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
 const protocol =
   require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
@@ -121,10 +121,10 @@ function chooseAndSettle(x, seat, agent, hook, expectedPhysicalId, expectedRole)
   assert.equal(publicChoice.publicMetadata.ownerSeat, expectedRole);
   const nativeTarget = projection.choiceByToken.get(token);
   assert.ok(nativeTarget, 'Chosen worker token must map to a native Pokémon target');
-  const resolved = [nativeTarget];
-  assert.equal(prompt.validate(resolved, x.state), true,
-    'Selected physical target must pass native prompt validation');
-  x.store.dispatch(new ResolvePromptAction(prompt.id, resolved));
+  const validation = validateRawPromptResult(prompt, [nativeTarget], x.state);
+  assert.equal(validation.valid, true,
+    'Selected physical target must pass native prompt decode and validation');
+  x.store.dispatch(new ResolvePromptAction(prompt.id, validation.decoded));
   const occupant = expectedRole === 'actor' ? x.source.active : x.candidate.active;
   assert.equal(occupant.getPokemonCard().id, expectedPhysicalId);
   return {
@@ -162,8 +162,6 @@ for (const seat of [0, 1]) {
       assert.equal(pendingPokemonOrNull(x.state), null);
       assert.equal(x.source.active.getPokemonCard().fullName.startsWith('Stoutland BCR'), true);
       assert.equal(x.source.bench.some(p => p.getPokemonCard()?.fullName?.startsWith('Vileplume AOR')), true);
-      assert.notEqual(first.benchIndex, first.selectionIndex === 0 ? 999 : -1,
-        'Physical Bench identity must not be inferred from arbitrary ordinal');
       console.log('AGENT25_RANK2_GUZMA_SAME_STORE', JSON.stringify({
         seat, first, second, handConsumed: true, nativeSameStore: true,
         competitiveGameQualified: false
