@@ -2,7 +2,7 @@
 
 **Agent 15 | 27 November 2026 | deterministic conditional action-response enumeration, not natural matchup win rates.**
 
-## Decision-changing result
+> **28 November adversarial extension:** This report's Deoxys **6/6** count is restricted to six stipulated source attacks **against the existing Active**, without source gust. It is **not** robust to source `Counter Catcher → Clefairy ex → copied Band Phantom Dive`, which can KO the 190-HP Fairy Zone host for 2 Prizes and make next-turn Max Drain do only160 unless Clefairy is replaced. Source ranks12/14/21/32 physically contain that Item/Tool/payload combination. See [new counterplay construction](agent15-aichi-counter-catcher-fairy-zone-collapse-20261128.md); do not generalize 6/6 to the Aichi source policy or to a matchup win rate.\n\n## Decision-changing result
 
 After A1 Latias ex Eon Blade KOs a 280-HP Dragon VSTAR and the source responds with **Regidrago VSTAR copying Noivern ex Covert Flight**, the candidate's A2 action should not be chosen by card access alone. The critical competition is between a low-cost **Ranger→Eon** and a higher-up-front-energy but more reply-resistant **Deoxys Max Drain**. An **Acerola→Eon reset** is an intermediate option and **Guzma→Eon** exploits a source's exposed two-Prize Basics. The candidate should check which attacks are publicly available to Apex Dragon in the source discard, the existing attachments/Bench, its own visible HP and damage, whether a two-Prize target remains, and available Supporter/VS/retreat resources.
 
