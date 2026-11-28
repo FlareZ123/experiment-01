@@ -2771,7 +2771,7 @@ test('Palace Book pinned draw-three may end stalled turn but never preempt attac
     items:[
       palace,
       action('attack','attack','Iron Thorns ex TWM 77',{},{
-        attackName:'Volt Cyclone',attackCostPayable:true
+        attackName:'Volt Cyclone'
       }),
       {token:'pass',kind:'pass'}
     ],
