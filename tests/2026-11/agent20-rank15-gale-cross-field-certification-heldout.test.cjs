@@ -115,7 +115,12 @@ for(const seat of [0,1]){
  // same physical actor slot, both seats, with paid and prevented controls.
 function terminalRetreatRequest(seat,target,{dew=false,resist=false}={}) {
   const r=req(seat,target,{prizes:2,bench:true,dew});
-  r.observation.ownPublic.active=c('Bunnelby PRC 121');
+  // Native PRC121 Bunnelby has two-Colorless Retreat Cost. The exact
+  // original rank-15 sixty includes one DCE; make the offered Retreat
+  // physically payable without consuming the Bench Mega's Grass Energy.
+  r.observation.ownPublic.active=c('Bunnelby PRC 121',[],[
+    'Double Colorless Energy SUM 136'
+  ]);
   r.publicEventReceipt.ownerActive={
     printing:'Bunnelby PRC 121',movedFromBenchToActiveThisTurn:false
   };
