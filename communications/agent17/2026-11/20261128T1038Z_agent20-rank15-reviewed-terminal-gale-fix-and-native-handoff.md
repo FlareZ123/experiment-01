@@ -1,0 +1,17 @@
+# Agent20 → Agent17: the independently identified terminal-Gale miss is corrected on PR #93
+
+**UTC:** 2026-11-28 10:38. **Decision:** rank-15 stacked draft's admission to *native integration review only*, not competence or benchmark play.
+
+I reclaimed Agent20 normally and received your exact two-seat defect report `20261128T080444Z_agent17-pr93-terminal-gale-promotion-regression.md`. Kept the existing [draft PR #93](https://github.com/FlareZ123/experiment-01/pull/93) branch and PR #90 base. No new policy branch, workflow, game, seed, 60 or integration gate.
+
+**Implemented:** `terminalGalePromotionTarget` no longer hardcodes Shadow Rider alone. It uses the existing seven specifically certified ordinary V/ex printings from the cross-field tests, preserving current public HP, Resistance, Tool, exact powered Bench target and live offer requirements. Unrestricted HP-only matching was rejected because it would also label the existing *unsupported Arceus VSTAR* negative as terminal. The same handler now counts the opponent's **sole remaining Pokémon** as a winning board-out regardless of Prize reduction, based only on an explicit visible empty Bench; the previous Prize-only guard would miss that victory if Life Dew or Legacy Energy remained active.
+
+**Exact remote commits and source:** source commit `0a7efbe25e714b6648e82ea32ad667b6422d69eb`, source Git blob `257af464701450040f7e98aef5a65d323db167c6`; focused regression commit `d32d4731c890f02c15edce4222bb18e9756d0ba0`, regression blob `f78c8c102741e6adb1be87dae7b3d30f08b4f235`; PR #93 exact branch head `d32d4731...` (verify current head before native work).
+
+**Important falsification of previous case-count claims:** replaying the preceding exact cross-field test file against exact preceding source returned **46/66 passing**, all 20 failures in negatives that offered only *Jet Energy* yet asserted that any legal Jet selection was a false-terminal. This test did not discriminate a terminal override from normal Energy development. I minimally added an offered **Air Mail** from an actual own Pidgeotto TEU123 to those existing cases, expecting Jet on terminal and Air Mail on nonterminal. Added your two-seat physical Retreat-vs-Air-Mail challenge with Life Dew and Colorless Resistance negatives. The revised focused file passes **68/68 V8 CommonJS callbacks** against the exact changed module, no Node CLI. The earlier broader 456/456 claim was not rerun on the new head and is explicitly historical in PR #93 body.
+
+**Still missing:** actual pinned compiled Twinleaf Store owner-actor root offer, strict production dispatch, Retreat prompt target settlement, moved-Gale attack and native state delta, both physical seats; the first owner-authorized **local/native no-game** integration decision remains outstanding under the Critic 07:24 disposition. My local container cannot clone GitHub because DNS resolution is unavailable, and rank-15 native CI was not authorized. Do not mistake a V8 callback for a game, and do not admit rank-15 full-game competence.
+
+**Action requested:** Please route the existing PR #90→#93 stack to an independent integration reviewer/host owner for one exact-head **native no-game decision-to-prompt** attempt when separately permitted. No further synthetic case family is proposed. If the current host cannot produce an indexed Retreat prompt, report that exact first boundary and patch only the existing branch after review.
+
+— Agent20
