@@ -840,6 +840,31 @@ function candidateCanUseBoardHeldStarAlchemy(observation) {
 // presently refuses copied Apex Dragon; never fabricate that blocked route.
 // Only use a Copycat attack when authenticated actor-visible last-opponent-turn
 // history proves a deterministic knockout with a native offered root.
+// Tapu Lele-GX GRI 60: Energy Drive counts Energy supplied by both Active,
+// ignoring Weakness and Resistance. Physical card count is a conservative
+// lower bound for units supplied by valid attached Energy.
+function tapuLeleEnergyDriveKO(o) {
+  const attacker=o?.ownPublic?.active,target=o?.opponentPublic?.active;
+  if(!has(attacker,P.lele)||!target||
+      !safeInt(target.hp)||!safeInt(target.damage)||
+      target.effectUnknown===true||target.damageModifiersUnknown===true||
+      attacker.effectUnknown===true||attacker.damageModifiersUnknown===true)
+    return null;
+  // Do not assert a guaranteed KO through unmodelled defensive Tools.
+  const knownNondefensive=/^(?:Stealthy Hood|Forest Seal Stone|Float Stone|Air Balloon|Rescue Board|Hero's Medal|Life Dew|Ribbon Badge|Island Challenge Amulet|Choice Belt|Choice Band)\b/i;
+  if(arr(target.tools).some(t=>!knownNondefensive.test(text(t))))return null;
+  const ownEnergies=arr(attacker.energies),oppEnergies=arr(target.energies);
+  // The original rank30 60 contains no Double Turbo Energy. A copied or
+  // effect-supplied instance can reduce Energy Drive by 20, so fail closed.
+  if(ownEnergies.some(e=>/^Double Turbo Energy\b/i.test(text(e))))return null;
+  const energyFloor=ownEnergies.length+oppEnergies.length;
+  const damage=20*energyFloor,remaining=target.hp-target.damage;
+  if(!safeInt(energyFloor)||energyFloor<2||remaining<=0||
+     !safeInt(damage)||damage<remaining)return null;
+  return Object.freeze({damageLowerBound:damage,remaining,
+    energyCardFloor:energyFloor,
+    prizeLowerBound:minimumPrizesOnAttackKnockout(target)});
+}
 function guaranteedMimikyuCopycatKO(request) {
   const o=request?.observation,r=request?.publicEventReceipt;
   if(!o||!r||r.actorSeat!==o.actorSeat||r.turn!==o.globalTurn||
@@ -1698,6 +1723,9 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
     !(a.kind==='play-card'&&[P.guzma,P.marnie,P.raihan].some(p=>
       has(ownPrinting(a),p))));
   if(!items.length)return no('R30_NO_OFFERED_ROOT');
+  const leleDrive=items.find(a=>a.kind==='attack'&&
+    a.attackName==='Energy Drive'&&has(ownPrinting(a),P.lele));
+  if(leleDrive&&tapuLeleEnergyDriveKO(o))return act(leleDrive);
   const mimikyuCopycat=items.find(a=>a.kind==='attack'&&
     a.attackName==='Copycat'&&has(ownPrinting(a),P.mimikyu));
   if(mimikyuCopycat&&guaranteedMimikyuCopycatKO(request))
@@ -1891,4 +1919,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,sourceCardPatternCoverage,heavyBallBasicCoverage,createPolicy,
-  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,certifiedPsychicBenchTargets,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,minimumPrizesOnAttackKnockout,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,guaranteedMimikyuCopycatKO,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy,hasFreshPriorOpponentTurnKO,raihanOpportunity,raihanAttachPrompt,raihanSearchPrompt,raihanPrompt,hisuianHeavyBallOpportunity,hisuianHeavyBallPrompt};
+  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,certifiedPsychicBenchTargets,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,minimumPrizesOnAttackKnockout,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,tapuLeleEnergyDriveKO,guaranteedMimikyuCopycatKO,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy,hasFreshPriorOpponentTurnKO,raihanOpportunity,raihanAttachPrompt,raihanSearchPrompt,raihanPrompt,hisuianHeavyBallOpportunity,hisuianHeavyBallPrompt};
