@@ -471,9 +471,28 @@ function rank16UntooledGarb(o) {
     list(row.pokemon.tools).length===0);
 }
 function rank16UsefulOwnSetup(item,o) {
-  if(item.kind!=='use-ability'||rank16LockLive(o))return false;
+  if(rank16LockLive(o))return false;
+  if(item.kind==='play-card') {
+    // These draw/search Abilities are triggered by playing a Basic to Bench.
+    // They often do not appear as independent use-ability roots.
+    if(!rank16CanBenchSupport(o))return false;
+    const print=item.actorPrinting??'';
+    if(matches(print,PRINT.crobat))return handCount(o)<6&&deckCount(o)>0;
+    if(matches(print,PRINT.tapuLele)) {
+      const hasSupporter=list(o.ownHand).some(card=>
+        [PRINT.marnie,PRINT.plumeria,PRINT.guzma,PRINT.carmine,
+          PRINT.lilliesDetermination,PRINT.karen].some(pattern=>matches(card,pattern)));
+      return supporterAvailable(o)&&!hasSupporter&&deckCount(o)>0;
+    }
+    if(matches(print,PRINT.dedenne))
+      return handCount(o)<=3&&deckCount(o)>=6&&safeToDiscardHand(o);
+    if(matches(print,PRINT.squawk))
+      return o.globalTurn<=2&&handCount(o)<=2&&deckCount(o)>=6&&safeToDiscardHand(o);
+    return false;
+  }
+  if(item.kind!=='use-ability')return false;
   const n=item.publicMetadata?.abilityName??'';
-  if(/^Dark Asset$/i.test(n))return handCount(o)<5&&deckCount(o)>0;
+  if(/^Dark Asset$/i.test(n))return handCount(o)<6&&deckCount(o)>0;
   if(/^Wonder Tag$/i.test(n))return supporterAvailable(o)&&deckCount(o)>0;
   if(/^Star Alchemy$/i.test(n))return !o.ownTurnResources?.vstarUsed&&deckCount(o)>0;
   if(/^Dedechange$/i.test(n))return handCount(o)<=3&&deckCount(o)>=6&&safeToDiscardHand(o);
@@ -641,6 +660,12 @@ function scoreAction(item, request) {
     return 0;
   }
   if (item.kind !== 'play-card') return 0;
+  if(rank16UsefulOwnSetup(item,observation))return 480;
+  // If Garbotoxin is already live, benching Ability-only utility Basics
+  // consumes Bench capacity without triggering their usual draw/search.
+  if(rank16LockLive(observation)&&
+    [PRINT.crobat,PRINT.dedenne,PRINT.tapuLele,PRINT.squawk]
+      .some(pattern=>matches(printing,pattern)))return 0;
   if (matches(printing, PRINT.trubbish)) return count(own, PRINT.trubbish) < 2 ? 210 : 20;
   if (matches(printing, PRINT.garbodor)) return hasTrubbish(observation) && !hasGarbodor(observation) ? 240 : 55;
   if (matches(printing, PRINT.mega)) return count(own, PRINT.mega) < 2 ? 190 : 35;
