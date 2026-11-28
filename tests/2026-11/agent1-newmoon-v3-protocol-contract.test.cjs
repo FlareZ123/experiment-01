@@ -171,4 +171,28 @@ got=run(w,[{kind:'attack',token:'shadow',actorPrinting:stage2.printing,
  attackSource:{sourceKind:'active-pokemon',sourceSlot:'ACTIVE',sourceIndex:0,
  sourceCardName:stage2.name,sourceCardFullName:stage2.printing,attackName:'Shadow Bind'}}},pass()]);
 assert.deepEqual(got,{kind:'select-action',token:'shadow'});
+
+// Mewtwo Perfection: an actual native projected ChooseAttackPrompt is a
+// separate decision from the paid root ATTACK_ACTION. Donor is in discard.
+const copyView=view({active:mew,bench:[],bus:reg,oppBench:[],ownPrize:4,
+ oppPrize:4,hand:['Basic Psychic Energy']});
+copyView.globalTurn=8;
+copyView.ownPublic.discard=['Trevenant & Dusknoir-GX PR-SM217'];
+copyView.opponentPublic.active.damage=150;
+const copyPrompt={schema:P.PROMPT_SCHEMA,actingSeat:0,
+ promptType:'ChooseAttackPrompt',description:'Choose a copied attack',
+ source:{classification:'actor-choice',sourceKind:'card-effect',
+ sourcePrinting:mew.printing,effectName:'Perfection'},
+ publicMetadata:{count:2,selectionType:'attack',allowCancel:true},
+ choices:[
+  {kind:'attack',token:'night-copy',printing:trev.printing,
+   publicMetadata:{choiceIndex:0,sourceAttack:'Night Watch',
+    sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true}},
+  {kind:'attack',token:'pale-copy',printing:trev.printing,
+   publicMetadata:{choiceIndex:0,sourceAttack:'Pale Moon-GX',
+    sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true}}
+ ]};
+got=run(copyView,[],copyPrompt);
+assert.deepEqual(got,{kind:'select-choice',token:'night-copy'});
+
 console.log('v3 production protocol validator accepted '+passed+' synthetic request/decision/audit phases');
