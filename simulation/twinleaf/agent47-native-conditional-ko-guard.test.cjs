@@ -3,7 +3,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {withCertifiedLastOpponentTurnKO,certifiedKO,PRINTS}=
   require('./agent47-native-conditional-ko-guard.cjs');
-const {createKnockoutTurnTracker}=
+const {createKnockoutTurnTracker,installStoreKnockoutTurnTracker}=
   require('./agent8-ko-turn-tracker.cjs');
 
 class TrainerEffect {
@@ -178,3 +178,65 @@ test('guard restores all native prototypes when its workload throws',()=>{
   for(const [key,fn] of Object.entries(previous))
     assert.strictEqual(dependencies[key].prototype.reduceEffect,fn);
 });
+
+const GamePhase={PLAYER_TURN:1,ATTACK:2};
+class KnockOutEffect{
+  constructor(victim){this.player=victim;
+    this.target={getPokemonCard:()=>({name:'one-Prizer'})};
+    this.preventDefault=false;
+  }
+}
+class EndTurnEffect{constructor(player){this.player=player;}}
+
+for(const seat of [0,1])for(const actorExtra of [false,true]){
+  test('seat '+seat+' native-observer-to-card-fence full fake Store chain, actorExtra='+actorExtra,()=>{
+    const t=trial({seat,actorExtra,positive:false}); // replace hand-seeded tracker
+    const state=t.state;
+    const originalStoreReduce=(s,e)=>{
+      if(e instanceof KnockOutEffect&&e.preventDefault!==true){
+        const attacker=s.players[s.activePlayer],victim=e.player;
+        if(attacker!==victim&&
+           [GamePhase.PLAYER_TURN,GamePhase.ATTACK].includes(s.phase))
+          victim.pokemonKnockedOutLastTurnEntries.push({ko:true});
+      }
+      if(e instanceof EndTurnEffect)s.turn++;
+      return s;
+    };
+    t.actor.pokemonKnockedOutLastTurnEntries=[];
+    t.opponent.pokemonKnockedOutLastTurnEntries=[];
+    t.actor.marker={hasMarker:()=>true};
+    t.store.state=state;
+    t.store.reduceEffect=originalStoreReduce;
+    const {tracker,uninstall}=installStoreKnockoutTurnTracker(t.store,{
+      KnockOutEffect,EndTurnEffect,GamePhase
+    });
+    try{
+      state.turn=2;
+      state.activePlayer=1-seat;
+      state.phase=GamePhase.ATTACK;
+      t.store.reduceEffect(state,new KnockOutEffect(t.actor));
+      t.store.reduceEffect(state,new EndTurnEffect(t.opponent));
+      state.activePlayer=actorExtra?seat:1-seat;
+      state.phase=GamePhase.PLAYER_TURN;
+      t.store.reduceEffect(state,new EndTurnEffect(actorExtra?t.actor:t.opponent));
+      state.activePlayer=seat;
+      state.phase=GamePhase.PLAYER_TURN;
+      assert.equal(state.turn,4);
+      const own=tracker.snapshotWithTurn(t.actor.id,t.opponent.id,4);
+      assert.equal(own.turn,actorExtra?2:3);
+      assert.equal(own.events.length,actorExtra?1:0);
+      withCertifiedLastOpponentTurnKO({
+        store:t.store,tracker,dependencies,execute(){
+          for(const card of Object.values(t.instances)){
+            assert.equal(card.canPlay(t.store,state,t.actor),actorExtra);
+            if(actorExtra)card.reduceEffect(t.store,state,
+              new TrainerEffect(t.actor,card));
+            else assert.throws(()=>card.reduceEffect(t.store,state,
+              new TrainerEffect(t.actor,card)));
+          }
+        }
+      });
+      assert.equal(state.used.length,actorExtra?3:0);
+    }finally{uninstall();}
+  });
+}
