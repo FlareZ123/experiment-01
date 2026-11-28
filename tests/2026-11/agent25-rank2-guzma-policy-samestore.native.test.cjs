@@ -60,7 +60,7 @@ const native = {
 };
 
 
-function stage(seat, withLatias = false, { manualItemLock = true, heldFogCrystal = false, heldFloatStone = false } = {}) {
+function stage(seat, withLatias = false, { manualItemLock = true, heldFogCrystal = false, heldFloatStone = false, heldForestSealStone = false } = {}) {
   const manager = initializeCards();
   let serial = 625000 + seat * 2000 + Number(withLatias) * 1000;
   const unsupportedPrintings=new Set();
@@ -139,6 +139,7 @@ function stage(seat, withLatias = false, { manualItemLock = true, heldFogCrystal
   candidate.hand.cards.push(hood('Iono PAL'));
   if (heldFogCrystal) candidate.hand.cards.push(hood('Fog Crystal CRE'));
   if (heldFloatStone) candidate.hand.cards.push(hood('Float Stone BKT'));
+  if (heldForestSealStone) candidate.hand.cards.push(hood('Forest Seal Stone SIT'));
 
   for (const [player, remaining] of [
     [source, sourceRemaining], [candidate, candidateRemaining]
@@ -463,6 +464,102 @@ for (const seat of [0, 1]) {
       seat, sourceVileplumeBenched: true, sourceStoutlandActive: true,
       nativeToolPlayAccepted: true, nativeRetreatAccepted: true,
       qualifiedGame: false
+    }));
+  });
+}
+
+
+// A stronger, explicit connector counterline than simply holding Float
+// Stone: Forest Seal Stone itself is a Tool, can be played during the
+// Item+Supporter double lock, then Star Alchemy searches the original Hood
+// one-of Float Stone to attach to the now-stranded Active V. It requires
+// an unspent VSTAR Power, separate eligible V Tool slots, and native prompts.
+// No full-match strength inference from this local, staged original-60 path.
+for (const seat of [0, 1]) {
+  test('rank2 seat ' + seat + ': authentic Forest Seal Stone -> Star Alchemy -> Float Stone -> retreat connector under two locks', () => {
+    const x = stage(seat, false, { heldForestSealStone: true });
+    const agent = policy(seat);
+    const sourceHook = installPromptProvenanceHook(x.store);
+    try {
+      x.store.dispatch(new PlayCardAction(x.source.id, 0, {
+        player: PlayerType.ANY, slot: SlotType.BOARD, index: 0
+      }));
+      chooseAndSettle(x, seat, agent, sourceHook, x.strandedId, 'opponent');
+      chooseAndSettle(x, seat, agent, sourceHook, x.sentinelId, 'actor');
+    } finally {
+      sourceHook.restore();
+    }
+    x.store.dispatch(new gameActions.PassTurnAction(x.source.id));
+    assert.equal(x.state.activePlayer, 1 - seat);
+    assert.equal(x.candidate.cannotPlayItemCards, true);
+    assert.equal(x.candidate.active.getPokemonCard().id, x.strandedId);
+    const enumerate = () => buildNativeActionFrontier({
+      state: x.state, actorSeat: 1 - seat, native,
+      enumerator: createKnownCapFreeActionEnumerator({
+        native, enginePin: EXPECTED_ENGINE_PIN
+      })
+    });
+    const chooseAction = (frontier, name, metadataCheck=()=>true) => {
+      const found=frontier.actionFrontier.items.filter(item =>
+        item.kind === 'play-card' && item.actorPrinting?.startsWith(name) &&
+        metadataCheck(item.publicMetadata??{},item));
+      assert.ok(found.length>=1,
+        'The exact genuine native legal-action frontier must offer '+name);
+      return selectedNativeAction(frontier,found[0].token);
+    };
+    const forestFrontier = enumerate();
+    const forestAction=chooseAction(forestFrontier,'Forest Seal Stone SIT',
+      meta=>meta.targetZone==='bench' && meta.targetSeat==='actor' &&
+        meta.targetIndex===0);
+    x.store.dispatch(forestAction);
+    assert.ok(x.candidate.bench[0].tools.some(t=>t.fullName==='Forest Seal Stone SIT'));
+    assertOpaqueQuarantined(x.state);
+
+    const starFrontier=enumerate();
+    const star=starFrontier.actionFrontier.items.find(item=>
+      item.kind==='use-ability' &&
+      item.publicMetadata?.abilityName==='Star Alchemy');
+    assert.ok(star,'native legal action frontier must offer Tool Star Alchemy');
+    const promptHook=installPromptProvenanceHook(x.store);
+    try {
+      x.store.dispatch(selectedNativeAction(starFrontier,star.token));
+      const prompt=x.state.prompts.find(p=>p.result===undefined);
+      assert.equal(prompt?.constructor?.name,'ChooseCardsPrompt');
+      const projected=projectPrompt({
+        prompt,state:x.state,actorSeat:1-seat,store:x.store,
+        native:{PlayerType,SlotType},provenanceHook:promptHook
+      });
+      assert.equal(projected.hostOnly,false);
+      const floatOption=projected.promptProjection.choices.find(choice=>
+        choice.printing==='Float Stone BKT');
+      assert.ok(floatOption,'original Hood deck must still contain searchable Float Stone');
+      const normalized=protocol.validateDecision({
+        kind:'select-choices',tokens:[floatOption.token]
+      },projected.promptProjection,new Set());
+      assert.equal(normalized.kind,'select-choices');
+      const chosen=projected.choiceByToken.get(normalized.tokens[0]);
+      const validation=validateRawPromptResult(prompt,[chosen],x.state);
+      assert.equal(validation.valid,true);
+      x.store.dispatch(new ResolvePromptAction(prompt.id,validation.decoded));
+    } finally {
+      promptHook.restore();
+    }
+    assert.ok(x.candidate.hand.cards.some(c=>c.fullName==='Float Stone BKT'),
+      'actual Star Alchemy search must place original Float Stone in hand');
+    assertOpaqueQuarantined(x.state);
+    const floatFrontier=enumerate();
+    const floatAction=chooseAction(floatFrontier,'Float Stone BKT',
+      meta=>meta.targetSeat==='actor' && meta.targetZone==='active');
+    x.store.dispatch(floatAction);
+    assert.ok(x.candidate.active.tools.some(t=>t.fullName==='Float Stone BKT'),
+      'actual native Tool must attach to stranded Active Pokémon');
+    x.store.dispatch(new gameActions.RetreatAction(x.candidate.id,0));
+    assert.notEqual(x.candidate.active.getPokemonCard().id,x.strandedId);
+    assertOpaqueQuarantined(x.state);
+    console.log('AGENT25_RANK2_NATIVE_FOREST_FLOAT_ESCAPE',JSON.stringify({
+      seat,rootActions:4,throughItemLock:true,throughSupporterLock:true,
+      forestSealVSTARUsed:true,floatStonePhysicallyRetrieved:true,
+      physicallyRetreated:true,competitiveGameQualified:false
     }));
   });
 }
