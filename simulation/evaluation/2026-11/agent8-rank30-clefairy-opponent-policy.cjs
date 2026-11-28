@@ -305,9 +305,10 @@ function guzmaPrompt(request) {
 }
 
 function supporterAvailable(o) {
-  const used=o?.ownTurnResources?.supporterPlayedTurn;
-  const turn=o?.globalTurn;
-  return used===0 || (safeInt(used)&&safeInt(turn)&&used<turn);
+  // The pinned actor-observation contract exposes owner.supporterTurn as the
+  // number of Supporters already played in *this turn*. Comparing it with
+  // the global turn index illegally enables a second Supporter later in game.
+  return o?.ownTurnResources?.supporterPlayedTurn===0;
 }
 function compressorOpportunity(o,{enablePatchProjection=false}={}) {
   const hand=arr(o?.ownHand),discard=arr(o?.ownPublic?.discard);
