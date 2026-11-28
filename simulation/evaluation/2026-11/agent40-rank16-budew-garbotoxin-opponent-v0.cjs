@@ -287,6 +287,12 @@ function cardScore(c,o){
  if(match(c,PRINT.mega))return onBoard(o.ownPublic,PRINT.mega)?10:105;
  if(match(c,PRINT.budew))return onBoard(o.ownPublic,PRINT.budew)?15:100;
  if(match(c,PRINT.float))return onBoard(o.ownPublic,PRINT.garbodor)?100:45;
+ if(match(c,PRINT.forest))return onBoard(o.ownPublic,PRINT.crobat)&&!o.ownTurnResources?.vstarUsed?145:25;
+ if(match(c,PRINT.muscle))return onBoard(o.ownPublic,PRINT.mega)?80:20;
+ if(match(c,PRINT.temple))return slots(o.opponentPublic).some(x=>list(x.pokemon.energies).some(e=>!/^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal) Energy\\b/i.test(name(e))))?95:25;
+ if(match(c,PRINT.guzma))return benchCount(o.opponentPublic)>0?80:20;
+ if(match(c,PRINT.karen))return list(o.ownPublic?.discard).some(x=>[PRINT.mega,PRINT.trubbish,PRINT.garbodor].some(p=>match(x,p)))?70:18;
+ if(match(c,PRINT.ultra))return onBoard(o.ownPublic,PRINT.trubbish)&&!onBoard(o.ownPublic,PRINT.garbodor)?95:42;
  if(match(c,PRINT.dark))return onBoard(o.ownPublic,PRINT.mega)?70:40;
  if(match(c,PRINT.patch))return list(o.ownPublic?.discard).some(x=>match(x,PRINT.dark))?80:10;
  if(match(c,PRINT.boost))return onBoard(o.ownPublic,PRINT.trubbish)&&!onBoard(o.ownPublic,PRINT.garbodor)?90:5;
