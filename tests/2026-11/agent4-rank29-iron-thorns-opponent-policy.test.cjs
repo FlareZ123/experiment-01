@@ -1930,10 +1930,10 @@ test('rank29 V3 policyAudit covers opposing Fan prompt and legal empty selection
     observation:{opponentPublic:player({bench:[pokemon('Tapu Lele-GX GRI 60')]})}
   }),0,policy);
   assert.deepEqual(withoutMove.decision,{kind:'select-choice',token:'empty'});
-  assert.equal(withoutMove.policyAudit.selectionRuleCode,'RANK29_SCORED_SELECTION');
+  assert.equal(withoutMove.policyAudit.selectionRuleCode,'RANK29_DIRECT_SELECTION');
   assert.equal(withoutMove.policyAudit.evaluations[0].status,'rule-selected');
   assert.equal(withoutMove.policyAudit.evaluations[0].reasonCode,
-    'SELECTED_BY_UNSCORED_POLICY_RULE');
+    'SELECTED_BY_ZERO_SCORE_FALLBACK');
 });
 
 test('rank29 V3 policyAudit resolves engine setup and abstention without replayed score state',()=>{
