@@ -293,6 +293,24 @@ function choiceOwner(choice) {
   return choice?.publicMetadata?.ownerSeat ?? null;
 }
 
+// The native prompt offers physical board-slot indices. Matching the first
+// identical printing can act on a different Pokémon than the chosen token.
+function choiceBoardPokemon(choice, observation) {
+  const metadata = choice?.publicMetadata ?? {};
+  if (metadata.isOwnerVisible === false) return null;
+  const player = metadata.ownerSeat === 'actor' ? observation?.ownPublic :
+    metadata.ownerSeat === 'opponent' ? observation?.opponentPublic : null;
+  if (!player) return null;
+  const zone = metadata.targetZone;
+  const index = zone === 'bench' ? metadata.benchIndex :
+    zone === 'active' ? metadata.slotIndex : null;
+  if (!Number.isSafeInteger(index) || index < 0 ||
+      (zone === 'active' && index !== 0)) return null;
+  const pokemon = zone === 'bench' ? list(player.bench)[index] :
+    zone === 'active' ? player.active : null;
+  return pokemon && samePrinting(pokemon.printing, choicePrinting(choice)) ? pokemon : null;
+}
+
 function missingLinePriority(observation) {
   const own = observation?.ownPublic ?? {};
   const hand = list(observation?.ownHand);
@@ -742,25 +760,21 @@ function scorePokemonChoice(choice, observation, context) {
   if (zone && zone !== 'bench' && !context.includes('irresistible aroma') &&
       !context.includes('cassius') && !context.includes('grand tree')) return -100;
   if (context.includes('guzma')) {
-    const target = list(observation.opponentPublic?.bench).find(slot =>
-      slot && samePrinting(slot.printing, printing));
+    const target = choiceBoardPokemon(choice, observation);
     if (!target) return -100;
     const hp = remainingHp(target);
     const multiPrize = /(?:-GX|\b(?:V|VMAX|VSTAR|ex)\b)/i.test(printing) ? 2 : 1;
     return 100 + (hp > 0 && hp <= 90 ? 50 : 0) + multiPrize * 8;
   }
   if (context.includes('cassius')) {
-    const target = boardSlots(observation.ownPublic).find(row =>
-      samePrinting(row.pokemon.printing, printing));
+    const target = choiceBoardPokemon(choice, observation);
     if (!target) return -100;
-    return remainingHp(target.pokemon) > 0 &&
-      remainingHp(target.pokemon) <= 50 ? 160 : 15;
+    return remainingHp(target) > 0 &&
+      remainingHp(target) <= 50 ? 160 : 15;
   }
   if (context.includes('grand tree')) {
-    const target = boardSlots(observation.ownPublic).find(row =>
-      samePrinting(row.pokemon.printing, printing) &&
-      grandTreeTargetPossible(observation, row.pokemon));
-    if (!target) return -100;
+    const target = choiceBoardPokemon(choice, observation);
+    if (!target || !grandTreeTargetPossible(observation, target)) return -100;
     if (matches(printing, PRINT.oddish)) return 140;
     if (matches(printing, PRINT.lillipup)) return 135;
     if (matches(printing, PRINT.pidgey)) return 125;
