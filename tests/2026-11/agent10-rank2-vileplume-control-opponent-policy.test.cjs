@@ -1186,6 +1186,67 @@ test('Guzma own-Bench switch selects Bunnelby under visible Garbotoxin', () => {
   });
 });
 
+
+test('targetless Guzma root executes opponent gust and mandatory own switch', () => {
+  const own = player({
+    active: pokemon('Fan Rotom SCR 118'),
+    bench: [pokemon('Stoutland BCR 122', {
+      stage: 'STAGE2', subtypes: ['Stage 2']
+    })]
+  });
+  const opposing = player({
+    active: pokemon('Basic Water Pokémon SVE 1'),
+    bench: [pokemon('Pidgeot ex OBF 164', { hp: 280, damage: 220 })]
+  });
+  const root = rootRequest({
+    ownPublic: own, opponentPublic: opposing,
+    items: [
+      { token: 'guzma-root', kind: 'play-card', actorPrinting: 'Guzma BUS 115',
+        label: 'Play Guzma', publicMetadata: { cardType: 'trainer', handIndex: 0 } },
+      { token: 'pass', kind: 'pass', label: 'Pass turn' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(root), {
+    kind: 'select-action', token: 'guzma-root'
+  });
+  const opposingPrompt = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Guzma BUS 115', 'Guzma'),
+    choices: [pokemonChoice('opponent-target', 'Pidgeot ex OBF 164',
+      'opponent', 'bench', 0)],
+    observation: { ownPublic: own, opponentPublic: opposing }
+  });
+  assert.deepEqual(checkedDecision(opposingPrompt), {
+    kind: 'select-choices', tokens: ['opponent-target']
+  });
+  const ownPrompt = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Guzma BUS 115', 'Guzma'),
+    choices: [pokemonChoice('self-pivot', 'Stoutland BCR 122',
+      'actor', 'bench', 0)],
+    observation: { ownPublic: own, opponentPublic: opposing }
+  });
+  assert.deepEqual(checkedDecision(ownPrompt), {
+    kind: 'select-choices', tokens: ['self-pivot']
+  });
+});
+
+test('Guzma root abstains to Pass without an opponent Bench', () => {
+  const request = rootRequest({
+    ownPublic: player({ active: pokemon('Fan Rotom SCR 118'),
+      bench: [pokemon('Bunnelby PRC 121')] }),
+    opponentPublic: player({ active: pokemon('Pidgeot ex OBF 164') }),
+    items: [
+      { token: 'guzma-root', kind: 'play-card', actorPrinting: 'Guzma BUS 115',
+        label: 'Play Guzma', publicMetadata: { cardType: 'trainer', handIndex: 0 } },
+      { token: 'pass', kind: 'pass', label: 'Pass turn' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action', token: 'pass'
+  });
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
