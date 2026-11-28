@@ -831,6 +831,16 @@ function opponentHandDiscardScore(c,o){
 function discardScore(c,o){
  if(owner(c)!=='actor'||zone(c)!=='hand')return 0;
  if(match(c,PRINT.vip))return o.globalTurn>2?200:0;
+ // State-dependent discardability: first-turn-only draw, completed
+ // evolution accelerators and exhausted VSTAR Tools free real discard
+ // costs without sacrificing future high-leverage resources.
+ if(match(c,PRINT.squawk)&&o.globalTurn>2)return 175;
+ if(match(c,PRINT.boost)&&onBoard(o.ownPublic,PRINT.garbodor)&&
+    !onBoard(o.ownPublic,PRINT.trubbish))return 170;
+ if(match(c,PRINT.forest)&&o.ownTurnResources?.vstarUsed&&
+    !emergencyGarbotoxinToolEligible(o,c))return 165;
+ if(match(c,PRINT.quick)&&!basicSearchDemand(o))return 150;
+ if(match(c,PRINT.ultra)&&!ultraSearchDemand(o))return 95;
  if(match(c,PRINT.dark)&&list(o.ownPublic?.discard).filter(x=>match(x,PRINT.dark)).length<3)return 160;
  if(match(c,PRINT.float)){
   const held=list(o.ownHand).filter(x=>match(x,PRINT.float)).length;
