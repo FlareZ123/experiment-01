@@ -1370,6 +1370,41 @@ test('targetless Guzma still gusts with no own Bench under partial-resolution ru
     kind:'select-action',token:'guzma'});
 });
 
+
+function tmRootAction(token,targetPrinting,zone,index){
+  return {token,kind:'play-card',actorPrinting:'Technical Machine: Evolution PAR 178',
+    targetPrinting,publicMetadata:{cardType:'trainer',handIndex:0,
+    targetSeat:'actor',targetZone:zone,targetIndex:index,isOwnerVisible:true}};
+}
+test('TM Evolution chooses physical Bunnelby over offered unrelated Bench Pokémon',()=>{
+  const request=rootRequest({ownHand:['Technical Machine: Evolution PAR 178'],
+    ownPublic:player({active:pokemon('Bunnelby PRC 121'),
+      bench:[pokemon('Oddish UNB 5')]}),
+    items:[tmRootAction('on-oddish','Oddish UNB 5','bench',0),
+      tmRootAction('on-bunnelby','Bunnelby PRC 121','active',0),
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(request),{
+    kind:'select-action',token:'on-bunnelby'});
+});
+test('TM Evolution without a Bunnelby target is not burned onto a Bench Basic',()=>{
+  const request=rootRequest({ownHand:['Technical Machine: Evolution PAR 178'],
+    ownPublic:player({active:pokemon('Bunnelby PRC 121'),
+      bench:[pokemon('Oddish UNB 5')]}),
+    items:[tmRootAction('on-oddish','Oddish UNB 5','bench',0),
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(request),{kind:'select-action',token:'pass'});
+});
+test('TM Evolution still supports a Benched Bunnelby when Jet Energy can activate it',()=>{
+  const request=rootRequest({
+    ownHand:['Technical Machine: Evolution PAR 178','Jet Energy PAL 190'],
+    ownPublic:player({active:pokemon('Fan Rotom SCR 118'),
+      bench:[pokemon('Bunnelby PRC 121'),pokemon('Oddish UNB 5')]}),
+    items:[tmRootAction('on-bunnelby','Bunnelby PRC 121','bench',0),
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(request),{
+    kind:'select-action',token:'on-bunnelby'});
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
