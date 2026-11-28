@@ -12,6 +12,33 @@ const assert=require('node:assert/strict');
 
 const OPAQUE_MARKER=Symbol.for('agent25.paper-opaque-printing-v1');
 
+// The source manifest uses Limitless display "Grand Tree", while the pinned
+// engine implements the same SCR 136 ACE SPEC Stadium as "Great Tree".
+// Alias ONLY this exact printed set/number pair; never fuzzy-match names or
+// substitute a different print with materially different mechanics.
+const EXACT_PAPER_PRINTING_ALIASES=Object.freeze({
+  'Grand Tree SCR':Object.freeze({
+    nativeName:'Great Tree SCR',set:'SCR',number:'136'
+  })
+});
+function resolvePaperPrintedCard(manager,row){
+  const requested=row.name+' '+row.printing.set;
+  const exact=manager.getCardByName(requested);
+  if(exact)return {card:exact,alias:null};
+  const known=EXACT_PAPER_PRINTING_ALIASES[requested];
+  if(!known)return {card:null,alias:null};
+  const candidate=manager.getCardByName(known.nativeName);
+  if(!candidate)return {card:null,alias:null};
+  assert.equal(String(candidate.set).toUpperCase(),known.set);
+  assert.equal(String(Number(candidate.setNumber)),known.number);
+  assert.equal(String(Number(row.printing.number)),known.number);
+  return {card:candidate,alias:Object.freeze({
+    sourcePrinting:requested,nativePrinting:candidate.fullName,
+    printId:known.set+' '+known.number
+  })};
+}
+
+
 function opaquePaperCard(row,{PokemonCard,TrainerCard,EnergyCard}={}){
   assert.ok(row&&typeof row.name==='string'&&
     typeof row.printing?.set==='string');
@@ -74,4 +101,4 @@ function assertOpaqueQuarantined(state){
   return quarantined;
 }
 
-module.exports={OPAQUE_MARKER,opaquePaperCard,getOpaque,assertOpaqueQuarantined};
+module.exports={OPAQUE_MARKER,EXACT_PAPER_PRINTING_ALIASES,resolvePaperPrintedCard,opaquePaperCard,getOpaque,assertOpaqueQuarantined};
