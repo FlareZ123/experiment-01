@@ -23,10 +23,10 @@ function previousTurnResponseOptions(view,receipt,isBasicEnergy){
   const hand=view.ownHand;
   const printed=value=>typeof value==='string'?value:
     value?.printing??value?.fullName??'';
-  const p=hand.findIndex(value=>/^Teammates PRC(?: 141)?\\b/i.test(printed(value)));
+  const p=hand.findIndex(value=>/^Teammates PRC(?: 141)?\b/i.test(printed(value)));
   if(p>=0)result.push({printing:'Teammates PRC',
     handIndex:p,searchMaximum:Math.min(2,view.ownPublic.deckCount)});
-  const r=hand.findIndex(value=>/^Raihan EVS(?: 152)?\\b/i.test(printed(value)));
+  const r=hand.findIndex(value=>/^Raihan EVS(?: 152)?\b/i.test(printed(value)));
   if(r>=0&&Array.isArray(view.ownPublic.discard)&&
      view.ownPublic.discard.some(isBasicEnergy))
     result.push({printing:'Raihan EVS',handIndex:r,
