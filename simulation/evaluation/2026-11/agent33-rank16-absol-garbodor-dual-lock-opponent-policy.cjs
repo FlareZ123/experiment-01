@@ -618,7 +618,9 @@ function rank16PlumeriaTargetScore(choice,o) {
 }
 function rank16PlumeriaEnergyScore(choice) {
   if(owner(choice)!=='opponent'||choice.kind!=='energy')return 0;
-  if(!['attached','active','bench','in-play'].includes(zone(choice)))return 0;
+  // Agent36's real locateCard() projects a Pokémon's attached Energy as
+  // sourceZone='energy' (not the natural-language 'attached').
+  if(zone(choice)!=='energy')return 0;
   return /Double Dragon Energy|Double Colorless Energy|Special Energy|Jet Energy|Legacy Energy/i.test(textOf(choice))?225:150;
 }
 // Battle Compressor PHF92: choose *up to three actual cards from own deck*
