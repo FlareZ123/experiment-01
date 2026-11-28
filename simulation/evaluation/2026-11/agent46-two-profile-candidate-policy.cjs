@@ -1411,6 +1411,8 @@ function visibleTempleRegidragoFundingPairBonus(view,names){
 function getLostPairs(view,rows){
   const before=apexHazard(view);
   const discarded=view.opponentPublic.discard;
+  const beforeAttackIdentities=new Set(observedPayloads(discarded,view)
+    .map(([printing])=>printing));
   let best=null;
   const cache=new Map();
   for(let i=0;i<rows.length;i++)for(let j=i+1;j<rows.length;j++){
@@ -1429,8 +1431,6 @@ function getLostPairs(view,rows){
     // actually reduces the *currently revealed* attack repertoire.
     // This tiny tie breaker is NOT next-turn denial: new donors can be
     // discarded later from hidden hand/deck, as the Temple-cut guard notes.
-    const beforeAttackIdentities=new Set(observedPayloads(discarded,view)
-      .map(([printing])=>printing));
     // Reuse the same exact physical-removal identity as apexHazard.
     const remain=discarded.slice();
     for(const name of names){const k=remain.indexOf(name);if(k>=0)remain.splice(k,1)}
