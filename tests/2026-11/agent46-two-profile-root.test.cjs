@@ -2055,3 +2055,26 @@ paired('Agent46: nondefensive opponent Tools do not veto a direct final Prize hi
     assert.notEqual(rule(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK',reactive);
   }
 });
+
+paired('Agent46: Wondrous Labyrinth source cost is paid before Shadow Mist final certification',(seat,profile)=>{
+  const thorns=pokemon({printing:'Iron Thorns ex TWM',name:'Iron Thorns ex',
+    hp:230,damage:220,types:['Lightning'],subtypes:['Basic','ex','Future'],
+    abilities:['Initialization'],suppression:false});
+  const view=observation(seat,{active:v([P]),opponentActive:thorns,
+    opponentStadium:['Wondrous Labyrinth TEU']});
+  view.globalTurn=8;view.ownPublic.prizeCount=2;
+  const mist={token:'mist',kind:'attack',attackName:'Shadow Mist'};
+  const policy=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile});
+  const rule=()=>policy.decideWithAudit(root(seat,view,[mist])).policyAudit.selectionRuleCode;
+  assert.notEqual(rule(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK'); // One P underpays P+C.
+  view.ownPublic.active.energies.push(P);
+  assert.equal(rule(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK'); // Two paid P, 10 final damage.
+  view.ownPublic.active.energies.pop();
+  view.ownPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining=1;
+  view.opponentPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining=1;
+  assert.equal(rule(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK'); // Stadium effect disabled.
+  view.ownPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining=0;
+  view.opponentPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining=0;
+  view.opponentPublic.stadium=[];
+  assert.equal(rule(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK'); // No Stadium.
+});

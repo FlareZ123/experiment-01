@@ -733,6 +733,12 @@ function effectiveAttackCost(slot, attack, view) {
   if(Number.isSafeInteger(slot?.publicRestrictions?.attackCostIncreaseWhileActive)&&
      (slot===view.ownPublic.active||slot===view.opponentPublic.active))
     required+=Math.max(0,slot.publicRestrictions.attackCostIncreaseWhileActive);
+  // Wondrous Labyrinth Prism Star increases non-Fairy attack costs by C.
+  // Under unknown Stadium status, conservatively count the extra unit.
+  if(!slot?.printed?.types?.includes('Fairy') &&
+      [...view.ownPublic.stadium,...view.opponentPublic.stadium].some(name=>
+        hasName(name,'Wondrous Labyrinth')) &&
+      stadiumAndToolEffectsLive(view)!==false)required+=1;
   return required;
 }
 
@@ -4051,7 +4057,8 @@ function directTerminalSafeTool(tool) {
 }
 function directTerminalSafeStadium(stadium,view){
   if(!isText(stadium))return false;
-  if(hasAnyName(stadium,['Tropical Beach','Chaotic Swell','Artazon']))return true;
+  if(hasAnyName(stadium,['Tropical Beach','Chaotic Swell','Artazon',
+      'Wondrous Labyrinth']))return true; // Extra C checked by effectiveAttackCost.
   // The immutable Hood/Lockbridge lists use no Lightning Pokémon attackers.
   // Still fail closed for a future Lightning-type caller of this helper.
   if(hasName(stadium,'Thunder Mountain') &&
