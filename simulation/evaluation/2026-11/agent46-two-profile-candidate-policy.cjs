@@ -3610,9 +3610,16 @@ function guzmaFreePivotMultiPrize(before,after,index){
     (target?.abilities??[]).includes('Irritating Pollen')&&
     effectiveAbilityStatus(target,'Irritating Pollen','opponent',projected)===true&&
     itemLocked(before)&&!liveOther('Irritating Pollen');
+  // A live Garbotoxin suppresses Latias ex's Skyliner. Require an
+  // independent, live Float Stone on the actual temporary Active pivot;
+  // otherwise the apparent free-retreat line is not physically playable.
+  const garbPivot=after.ownPublic.active;
+  const guaranteedToolPivot=(garbPivot?.tools??[]).some(tool=>hasName(tool,'Float Stone'))&&
+    toolsEffectiveForRetreat(after,garbPivot,'actor')===true;
   const garbBreak=prizeLiability(target)===1&&
     (hasName(target?.printing,'Garbodor BKP')||
      hasName(target?.printing,'Garbodor LTR'))&&
+    guaranteedToolPivot&&
     (target?.abilities??[]).includes('Garbotoxin')&&
     (target?.tools??[]).length>0&&
     effectiveAbilityStatus(target,'Garbotoxin','opponent',projected)===true&&
