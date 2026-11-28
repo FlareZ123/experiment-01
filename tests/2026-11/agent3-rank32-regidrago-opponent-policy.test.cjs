@@ -720,6 +720,42 @@ test('Guzma does not strand a sole powered Active VSTAR on the Bench',()=>{
 });
 
 
+test('Raihan attached-energy prompt spends actual actor discarded Fire on funding VSTAR',()=>{
+  const vstar=pokemon(P.regidrago,{energies:[P.energy,P.energy]});
+  const v=pokemon(P.regidragoV,{energies:[]});
+  const ownPublic=player({active:vstar,bench:[v],discard:[
+    {printing:'Raihan EVS 152'},{printing:'Fire Energy MEE 10'},
+    {printing:'Grass Energy MEE 9'}]});
+  const options=[
+    {token:'bench-grass',kind:'energy',printing:'Grass Energy MEE 9',
+      publicMetadata:{sourceZone:'discard',ownerSeat:'actor',
+        isOwnerVisible:true,zone:'bench',benchIndex:0}},
+    {token:'bad-own',kind:'energy',printing:'Fire Energy MEE 10',
+      publicMetadata:{sourceZone:'discard',ownerSeat:'opponent',
+        isOwnerVisible:true,zone:'active'}},
+    {token:'active-fire',kind:'energy',printing:'Fire Energy MEE 10',
+      publicMetadata:{sourceZone:'discard',ownerSeat:'actor',
+        isOwnerVisible:true,zone:'active'}},
+    {token:'active-grass',kind:'energy',printing:'Grass Energy MEE 9',
+      publicMetadata:{sourceZone:'discard',ownerSeat:'actor',
+        isOwnerVisible:true,zone:'active'}}
+  ];
+  const p=prompt('Raihan EVS 152','Raihan',options,'AttachEnergyPrompt',[1,1]);
+  p.publicMetadata={selectionType:'energy-attachment',sourceZone:'discard',
+    ownerSeat:'actor',minimumCount:1,maximumCount:1};
+  for(const seat of [0,1]){
+    const q=request({seat,ownPublic,prompt:p});
+    assert.deepEqual(promptDecision(q),{kind:'select-choices',tokens:['active-fire']});
+    // Typed Fire no longer missing: the next Basic should fund Bench V.
+    ownPublic.active.energies.push('Fire Energy MEE 10');
+    assert.deepEqual(promptDecision(q),{kind:'select-choices',tokens:['bench-grass']});
+    ownPublic.active.energies.pop();
+    const forged={...p,publicMetadata:{...p.publicMetadata,sourceZone:'hand'}};
+    assert.notDeepEqual(promptDecision(request({seat,ownPublic,prompt:forged})),
+      {kind:'select-choices',tokens:['active-fire']});
+  }
+});
+
 test('Guzma Budew pivot preempts funded Mimikyu Copycat Timeless ALS without sacrificing final-Prize priorities',()=>{
   const active=pokemon(P.regidrago,{
     hp:280,energies:[P.energy,P.energy,'Fire Energy MEE 10']});
