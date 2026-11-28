@@ -66,6 +66,15 @@ function benchOpen(obs){
   const limit=roadblock?4:stadiumPresent(obs,/^Sky Field ROS(?: 89)?$/)?8:5;
   return n<limit;
 }
+function templeUnlocksApex(obs){
+  const active=obs?.ownPublic?.active;
+  if(!stadiumPresent(obs,/^Temple of Sinnoh ASR(?: 155)?$/)||
+     name(active)!==P.star||ownDonors(obs).length===0)return false;
+  // Rank18 includes Hisuian Goodra VSTAR, which rank27's donor set does not.
+  // Reusing rank27's donor gate would miss a Goodra-only winning line.
+  return common.energyCoverage(active?.energies,false)===3&&
+    common.energyCoverage(active?.energies,true)<3;
+}
 function goal(obs){
   const own=obs?.ownPublic??{};
   return {v:count(own,P.v),star:count(own,P.star),
@@ -135,7 +144,7 @@ function scoreRoot(item,request){
   const g=goal(obs);
   if(item.kind==='play-card'){
     if(p===P.vip)return benchOpen(obs)?(g.v===0?390:315):-Infinity;
-    if(p===P.sky)return common.templeUnlocksApex(obs)?590:
+    if(p===P.sky)return templeUnlocksApex(obs)?590:
       (!stadiumPresent(obs,/^Sky Field ROS(?: 89)?$/)&&
        arr(own.bench).filter(Boolean).length>=4?195:65);
     if(p===P.squawk)return benchOpen(obs)&&g.firstTurnCandidate?
@@ -149,7 +158,7 @@ function scoreRoot(item,request){
     if(p==='Lillie\'s Determination MEG 119')return g.hand<=3?235:105;
     if(p==='Iono PAL 185')return g.hand<=3?205:85;
     if(p==='Carmine TWM 145')return g.firstTurnCandidate&&g.hand<=3?240:45;
-    if(p==='Megaton Blower SSP 182')return common.templeUnlocksApex(obs)?560:
+    if(p==='Megaton Blower SSP 182')return templeUnlocksApex(obs)?560:
       board(opp).some(mon=>arr(mon.tools).length>0||
         arr(mon.energies).some(e=>/Double|Special/.test(name(e))))?200:45;
   }
@@ -280,4 +289,4 @@ function createPolicy({role,seat,policyVersion,config}={}){
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_BLOB_SHA1,
  SOURCE_PRINTINGS,createPolicy,scoreRoot,promptDecision,searchValue,
- sourceDiscardValue,benchOpen,pickAttack,resolveSourcePrinting:name};
+ sourceDiscardValue,benchOpen,pickAttack,templeUnlocksApex,resolveSourcePrinting:name};
