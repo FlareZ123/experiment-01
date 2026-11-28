@@ -490,3 +490,60 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'karen'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' source Guzma chooses Darkness-weak three-Prize VMAX over Dedenne without fabricated HP choice metadata',()=>{
+  const mega=mon('Mega Absol ex MEG 86',{energies:['Darkness Energy MEE 15','Darkness Energy MEE 15','Darkness Energy MEE 15']});
+  const vmax=mon('Shadow Rider Calyrex VMAX CRE 75',{hp:320,printed:{
+   subtypes:['VMAX'],weakness:[{type:'Darkness',value:'×2'}]}});
+  const dede=mon('Dedenne-GX UNB 57',{hp:160,printed:{subtypes:['GX'],weakness:[]}});
+  const board=own({active:mon('Budew ASC 16'),bench:[mega]});
+  const theirs=opp({active:mon('Regidrago VSTAR SIT 136',{hp:280}),bench:[dede,vmax]});
+  const g=play('Guzma BUS 115','gust');
+  const q=root(seat,[g,attack('Itchy Pollen','pollen'),pass],
+    {ownPublic:board,opponentPublic:theirs,ownHand:['Guzma BUS 115']});
+  assert.equal(policy.guzmaRootScore(q.observation),905);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'gust'});
+  const qp=prompt(seat,{promptType:'ChoosePokemonPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Guzma BUS 115',effectName:'Guzma'},
+   publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+   choices:[{kind:'pokemon',token:'dede',printing:'Dedenne-GX UNB 57',publicMetadata:{
+       ownerSeat:'opponent',targetZone:'bench',benchIndex:0}},
+    {kind:'pokemon',token:'vmax',printing:'Shadow Rider Calyrex VMAX CRE 75',publicMetadata:{
+       ownerSeat:'opponent',targetZone:'bench',benchIndex:1}}]},
+   {ownPublic:board,opponentPublic:theirs});
+  assert.deepEqual(decide(seat,qp),{kind:'select-choices',tokens:['vmax']});
+  qp.prompt.choices=[{kind:'pokemon',token:'mega',printing:'Mega Absol ex MEG 86',publicMetadata:{
+    ownerSeat:'actor',targetZone:'bench',benchIndex:0}},
+   {kind:'pokemon',token:'other',printing:'Crobat V DAA 104',publicMetadata:{
+    ownerSeat:'actor',targetZone:'bench',benchIndex:1}}];
+  board.bench.push(mon('Crobat V DAA 104'));
+  assert.deepEqual(decide(seat,qp),{kind:'select-choices',tokens:['mega']});
+ });
+ test('seat '+seat+' no Guzma when only powered Mega is Active and no free Float return',()=>{
+  const mega=mon('Mega Absol ex MEG 86',{energies:['Darkness Energy MEE 15','Darkness Energy MEE 15','Darkness Energy MEE 15']});
+  const target=mon('Dedenne-GX UNB 57',{hp:160,printed:{subtypes:['GX']}});
+  const board=own({active:mega,bench:[mon('Trubbish CRI 56')]});
+  const theirs=opp({active:mon('Regidrago VSTAR SIT 136'),bench:[target]});
+  const q=root(seat,[play('Guzma BUS 115','gust'),attack('Claw of Darkness','claw'),pass],
+    {ownPublic:board,opponentPublic:theirs,ownHand:['Guzma BUS 115']});
+  assert.equal(policy.guzmaRootScore(q.observation),0);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'claw'});
+  board.bench[0].tools=['Float Stone BKT 137'];
+  assert(policy.guzmaRootScore(q.observation)>0);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'gust'});
+ });
+ test('seat '+seat+' Guzma opponent terminal 60-counter target goes first only when powered bench Mega exists',()=>{
+  const benchMega=mon('Mega Absol ex MEG 86',{energies:['Darkness Energy MEE 15','Darkness Energy MEE 15','Darkness Energy MEE 15']});
+  const target=mon('Shadow Rider Calyrex VMAX CRE 75',{hp:320,damage:60,
+    printed:{subtypes:['VMAX'],weakness:[]}});
+  const q=root(seat,[play('Guzma BUS 115','gust'),attack('Itchy Pollen','pollen'),pass],{
+   ownPublic:own({active:mon('Budew ASC 16'),bench:[benchMega],prizeCount:3}),
+   opponentPublic:opp({active:mon('Regidrago VSTAR SIT 136',{hp:280}),bench:[target]})});
+  assert.equal(policy.guzmaRootScore(q.observation),985);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'gust'});
+  q.observation.ownPublic.bench[0].energies=[];
+  assert.equal(policy.guzmaRootScore(q.observation),0);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+ });
+}
