@@ -1381,3 +1381,44 @@ for(const seat of [0,1]) {
     assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'gust'});
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' Field Blower declines three-layer Garbotoxin plus Path lock',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active={printing:clef,energies:[psychic,psychic],
+      abilities:['Fairy Zone']};
+    r.observation.opponentPublic.active={
+      printing:'Regidrago VSTAR SIT 136',hp:280,damage:0,
+      printed:{types:['DRAGON']}};
+    r.observation.opponentPublic.bench=[
+      {printing:'Garbodor BKP 57',abilities:['Garbotoxin'],
+       tools:['Float Stone BKT 137']},
+      {printing:'Garbodor LTR 68',abilities:['Garbotoxin'],
+       tools:['Muscle Band XY 121']}];
+    r.observation.opponentPublic.stadium=['Path to the Peak CRE 148'];
+    r.actionFrontier.items=[root('play-card','Field Blower GRI 125','blower')];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    // With two removable locks, the same effect has an immediate payoff.
+    r.observation.opponentPublic.stadium=[];
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'blower'});
+    r.prompt={...prompt('mixed',[card('Float Stone BKT 137','float'),
+      card('Muscle Band XY 121','band')],0,2),
+      source:{sourcePrinting:'Field Blower GRI 125',effectName:'Field Blower'}};
+    r.prompt.publicMetadata.ownerSeat='mixed';
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choices',tokens:['float','band']});
+    // Live opposing Iron Thorns Initialization means removing a spare Path
+    // alone cannot restore Fairy Zone, even with one Field Blower.
+    r.prompt=null;
+    r.observation.opponentPublic.bench=[];
+    r.observation.opponentPublic.stadium=['Path to the Peak CRE 148'];
+    r.observation.opponentPublic.active={
+      printing:'Iron Thorns ex TWM 77',hp:230,damage:0,
+      abilities:['Initialization'],abilitySuppressions:[{
+        abilityName:'Initialization',suppressed:false,
+        reasonCode:null,sourcePrinting:null}]};
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  });
+}
