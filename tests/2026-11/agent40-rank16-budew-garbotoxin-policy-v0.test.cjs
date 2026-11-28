@@ -1413,3 +1413,25 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' two visible Dragon payloads trigger Karen before first Regidrago Basic appears',()=>{
+  const developing=opp({active:mon('Budew ASC 16'),bench:[],
+   discard:['Dialga-GX UPR 100','Dragapult ex TWM 130']});
+  const q=root(seat,[play('Karen XYP 177','karen'),attack('Itchy Pollen','pollen'),pass],{
+   ownPublic:own({active:mon('Budew ASC 16')}),
+   opponentPublic:developing,ownHand:['Karen XYP 177']});
+  assert.equal(policy.regidragoPayloadCount(q.observation),2);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'karen'});
+  developing.discard=['Dialga-GX UPR 100'];
+  assert.equal(policy.regidragoPayloadCount(q.observation),0);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+  developing.discard=['Dialga-GX UPR 100','Dragapult ex TWM 130'];
+  developing.active=mon('Shadow Rider Calyrex VMAX CRE 75');
+  assert.equal(policy.regidragoPayloadCount(q.observation),0);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+  developing.active=mon('Regidrago V SIT 135');
+  assert.equal(policy.regidragoPayloadCount(q.observation),2);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'karen'});
+ });
+}
