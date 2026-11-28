@@ -32,6 +32,26 @@ Given Budew is unseen after eight cards, the probability both copies are sequest
 
 The 7+1 exact fraction also demonstrates why the worker must preserve a Float Stone for the pivot rather than discard it into Quick Ball to pursue Budew. The code's joint-payment guard and Trubbish pivot are concrete decisions informed by that resource constraint.
 
+## Structural six-Prize collapse of fixed two-copy core roles
+
+A separate, more useful failure-mode calculation now models the **joint distribution** of a legal opening seven and the following six face-down Prizes, without incorrectly treating a six-of-60 sample as independent of the legal-Basic opening condition. The denominator counts exactly
+
+\[
+\bigl({60\choose7}-{49\choose7}\bigr){53\choose6}
+=6{,}894{,}276{,}702{,}593{,}280
+\]
+
+ordered opening-hand/Prize-set outcomes with at least one of the 11 Basic Pokémon in the hand. Three important role families each have exactly two cards in this original source 60: Mega Absol ex MEG86 (attacker), Trubbish CRI56 (Garbotoxin foundation), and Budew ASC16 (turn-one Item lock).
+
+| Conditional six-Prize event | Exact probability |
+|---|---:|
+| Both copies of one specified core role Prized | **0.7785%** |
+| Both copies of each of two specified core roles Prized | **0.002491%** |
+| Both copies of all three core roles Prized | **0.000001323%** |
+| **At least one** of those three two-copy roles completely Prized | **2.3280%** |
+
+The union's exact numerator is 160,500,639,821,928. These are **resource collapse configurations**, not demonstrated unwinnable games. A player can take Prize cards with another attacker, access later copies, or pursue alternative disruption, so none of these probabilities is a loss-rate bound. Nonetheless, they demonstrate that optimizing only the naturally available Budew opening is incomplete; the rank16 worker needs alternate Regidrago Energy-denial, defensive Trubbish and Mega attack plans, plus eventual recovery after the relevant cards enter the discard. Karen recovers discarded Pokémon but **cannot retrieve a Pokémon that is still face-down in the Prizes**. The worker's Karen recovery guard therefore triggers only from visible discard state and does not hallucinate access to Prized cards.
+
 ## Implementation decision changed
 
 A rigid starting rule that only chooses Budew if initially visible can use the direct opening in only 28.5% of legal hands. In the additional 3.88% event with Trubbish + Float + Quick/VIP and no initial Budew, there is a distinct *possible* ALS:
