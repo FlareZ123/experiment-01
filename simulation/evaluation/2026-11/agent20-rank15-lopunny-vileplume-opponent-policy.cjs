@@ -176,6 +176,28 @@ function usefulBasic(item,o) {
   if(has(p,P.fan))return board.some(x=>has(x,P.fan))?0:30;
   return 0;
 }
+function k1Available(o,patterns) {
+  // K0 is epistemic uncertainty; absence from public discard ≠ in deck.
+  // The owner-only exact deck-membership projection is used *only* when
+  // explicitly marked trustworthy by the host.
+  const k=o?.ownerK1;
+  if(!k||k.exactMembershipKnown!==true||!Array.isArray(k.knownPrintings))
+    return null;
+  const pats=arr(patterns);
+  return k.knownPrintings.some(x=>Number.isSafeInteger(x.copies)&&x.copies>0&&
+    pats.some(p=>has(x.printing,p)));
+}
+function k1EvoTarget(o) {
+  const bench=arr(o?.ownPublic?.bench).filter(Boolean);
+  return bench.some(x=>{
+    const pats=has(x,P.oddish)?[P.gloom]:
+      has(x,P.gloom)?[P.aor,P.bus]:
+      has(x,P.buneary)?[P.mega]:
+      has(x,P.pidgey)?[P.pidgeotto]:
+      has(x,P.pidgeotto)?[P.pidgeot]:[];
+    return pats.length>0&&k1Available(o,pats)!==false;
+  });
+}
 function missingEvolutionChannels(o) {
   const own=o.ownPublic;
   const bench=arr(own?.bench).filter(Boolean);
@@ -238,9 +260,9 @@ function grandTreeTarget(o) {
   const established=arr(own?.bench).filter(x=>x&&
     Number.isSafeInteger(x.lastPlayedOrEvolvedTurn)&&
     x.lastPlayedOrEvolvedTurn<o.globalTurn);
-  return established.find(x=>has(x,P.oddish))||
-    established.find(x=>has(x,P.pidgey))||
-    established.find(x=>has(x,P.buneary))||null;
+  return established.find(x=>has(x,P.oddish)&&k1Available(o,[P.gloom])!==false)||
+    established.find(x=>has(x,P.pidgey)&&k1Available(o,[P.pidgeotto])!==false)||
+    established.find(x=>has(x,P.buneary)&&k1Available(o,[P.mega])!==false)||null;
 }
 function grandTreePrompt(request) {
   const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
@@ -620,7 +642,7 @@ function omegaBarragePrompt(request) {
   const own=o.ownPublic;
   const ready=has(own?.active,P.bunnelby)&&
     arr(own.active.tools).some(x=>has(x,P.tmEvolution))&&
-    arr(own.active.energies).length>0&&stageTargets(o);
+    arr(own.active.energies).length>0&&k1EvoTarget(o);
   if(ready&&yes)return {kind:'select-choice',token:yes.token};
   return no?{kind:'select-choice',token:no.token}:
     abstain('UNRECOGNIZED_SIMPLE_PROMPT');
@@ -691,8 +713,7 @@ function rootDecision(request) {
   const tmAttack=attacks.find(x=>x.attackName==='Evolution'&&
     has(o.ownPublic?.active,P.bunnelby)&&
     arr(o.ownPublic?.active?.tools).some(c=>has(c,P.tmEvolution)));
-  if(tmAttack&&arr(o.ownPublic?.bench).some(x=>x&&
-     [P.oddish,P.gloom,P.buneary,P.pidgey,P.pidgeotto].some(p=>has(x,p))))return take(tmAttack);
+  if(tmAttack&&k1EvoTarget(o))return take(tmAttack);
   const busWindow=busActivePromotionOpportunity(o);
   if(busWindow){
     const jetBus=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.jet)&&
@@ -715,6 +736,7 @@ function rootDecision(request) {
   if(gh&&ghLineFeasible(o,P.guzmaHala))return take(gh);
   const tag=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.tagCall));
   if(tag&&!arr(o.ownHand).some(c=>has(c,P.guzmaHala))&&
+    k1Available(o,[P.guzmaHala])!==false&&
     ghLineFeasible(o,P.tagCall))return take(tag);
   // Only a complete offered two-Basic deck-search line is initiated here.
   const poffin=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.poffin));
@@ -802,4 +824,4 @@ function createPolicy({role,seat,policyVersion,config}) {
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,
   createPolicy,rootDecision,poffinPrompt,printedDamage,movementEvidence,
-  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,usefulArtazonBasic,artazonPrompt,airMailPrompt,grandTreePrompt,grandTreeTarget,guzmaOpportunity,guzmaPrompt,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
+  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,k1Available,k1EvoTarget,usefulArtazonBasic,artazonPrompt,airMailPrompt,grandTreePrompt,grandTreeTarget,guzmaOpportunity,guzmaPrompt,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
