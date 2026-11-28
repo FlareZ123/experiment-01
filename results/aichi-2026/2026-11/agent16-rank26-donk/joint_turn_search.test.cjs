@@ -83,3 +83,15 @@ test('donation projection cannot fabricate a benched two-counter donor',()=>{
  assert.equal(r.status,'no-verified-joint-resource-trace');
  assert.ok(r.checks.some(x=>x.reason==='INVENTED_POST_POWER_BOARD_CARD'));
 });
+
+test('Koko cannot be revived as a donor from hand after Dance sent it to the Lost Zone',()=>{
+ const s=scenario({float:true});const orig=s.makeDonationInput;
+ s.makeDonationInput=(final,actions)=>{
+  const d=orig(final,actions);
+  d.handDonors.push({id:'K',zone:'H',counters:0,darkness:false});
+  return d;
+ };
+ const r=planJointKnownTurn(s);
+ assert.equal(r.status,'no-verified-joint-resource-trace');
+ assert.ok(r.checks.some(x=>x.reason==='POST_POWER_LOST_ZONE_RESURRECTION'));
+});
