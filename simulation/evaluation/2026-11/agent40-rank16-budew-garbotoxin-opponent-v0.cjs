@@ -91,6 +91,37 @@ function activeOpponentAbilityWorking(o,printing,abilityName){
  // Pokémon's on-play Ability will function through a known Active lock.
  return state?.suppressed!==true;
 }
+function opponentLockAbilityLive(o,pokemon,abilityName){
+ const suppression=list(pokemon?.abilitySuppressions).find(x=>x.abilityName===abilityName);
+ if(suppression?.suppressed===true)return false;
+ if(suppression?.suppressed===false)return true;
+ const hood=toolEnabled(o)&&list(pokemon?.tools).some(x=>
+  /^Stealthy Hood UNB 186\b/i.test(name(x)));
+ // Once our own equipped Garbotoxin is confirmed active it suppresses
+ // the opponent's automatic lock except where Stealthy Hood protects it.
+ return !(liveGarbotoxin(o)&&!hood);
+}
+function opponentVileplumeItemLock(o){
+ const explicit=o.ownPublic?.publicTurnRestrictions?.itemPlayLocked===true;
+ if(explicit)return true;
+ return slots(o.opponentPublic).some(x=>
+  /^Vileplume AOR 3\b/i.test(name(x.pokemon.printing))&&
+  opponentLockAbilityLive(o,x.pokemon,'Irritating Pollen'));
+}
+function opponentStoutlandSupporterLock(o){
+ if(o.ownPublic?.publicTurnRestrictions?.supporterPlayLocked===true)return true;
+ const p=o.opponentPublic?.active;
+ return /^Stoutland BCR 122\b/i.test(name(p?.printing))&&
+  opponentLockAbilityLive(o,p,'Sentinel');
+}
+function sourceItem(printing){
+ return [PRINT.quick,PRINT.ultra,PRINT.mail,PRINT.compressor,PRINT.vs,
+  PRINT.patch,PRINT.vip,PRINT.boost,PRINT.secret].some(x=>match(printing,x));
+}
+function sourceSupporter(printing){
+ return [PRINT.marnie,PRINT.lillie,PRINT.carmine,PRINT.guzma,
+  PRINT.plumeria,PRINT.karen].some(x=>match(printing,x));
+}
 function opponentSnorlaxBlock(o){
  return activeOpponentAbilityWorking(o,/^Snorlax PGO 55\b/i,'Block');
 }
@@ -485,6 +516,8 @@ function score(action,req){
  }
  if(action.kind==='use-stadium')return 0;
  if(action.kind!=='play-card')return 0;
+ if(opponentVileplumeItemLock(o)&&sourceItem(p))return 0;
+ if(opponentStoutlandSupporterLock(o)&&sourceSupporter(p))return 0;
  if(match(p,PRINT.crobat)||match(p,PRINT.dedenne)||match(p,PRINT.tapu)||match(p,PRINT.squawk)){
   if(!benchSupportFits(o)||!benchSupportAbilityUsable(p,o)||
     benchSupportOnceThisTurnAlreadyUsed(p,o)||
@@ -898,4 +931,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,activeMimikyuSafeguard,regidragoPayloadCount,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,liveGarbotoxin};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,activeMimikyuSafeguard,regidragoPayloadCount,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,liveGarbotoxin};
