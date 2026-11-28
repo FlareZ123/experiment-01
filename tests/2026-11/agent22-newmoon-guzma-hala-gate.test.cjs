@@ -68,5 +68,34 @@ x=base();x.plan.wanted[0]={role:'stadium',name:'Dimension Valley'};
 x.plan.rondoAttackNeedsValleyDiscount=false;
 x.public.ownNewMoonActive=true;
 x=check(x,'candidate');assert.equal(x.mode,'triple-search');
-assert.equal(passed,22);
-console.log('New Moon G&H actor opportunity: '+passed+' synthetic contract cases passed (including v9 own-New-Moon/Valley anti-synergy)');
+const tpeSelect=require('../../results/als/new-moon-guzma-hala-actor-opportunity-gate.cjs').selectValleyCompatibleTpeBasics;
+const tpeOffer={choices:[{token:'s',name:'Solrock'},{token:'l',name:'Lunatone'},
+ {token:'u',name:'Unown'},{token:'d',name:'Duskull'}]};
+let state={needBasicCount:2,openBenchSlots:2,hasSolrockInPlay:false,
+ hasLunatoneInPlay:false,valleyDiscountNeeded:true};
+let chosen=tpeSelect(tpeOffer,state);
+assert.equal(chosen.status,'candidate');
+assert.equal(chosen.selectedNames.includes('Solrock')&&chosen.selectedNames.includes('Lunatone'),false);passed++;
+state={...state,hasSolrockInPlay:true};
+chosen=tpeSelect(tpeOffer,state);
+assert.equal(chosen.status,'candidate');
+assert.equal(chosen.selectedNames.includes('Lunatone'),false);passed++;
+state={...state,hasSolrockInPlay:false,hasLunatoneInPlay:true};
+chosen=tpeSelect(tpeOffer,state);
+assert.equal(chosen.status,'candidate');
+assert.equal(chosen.selectedNames.includes('Solrock'),false);passed++;
+chosen=tpeSelect({choices:[{token:'s',name:'Solrock'},{token:'l',name:'Lunatone'}]},
+ {...state,hasLunatoneInPlay:false});
+assert.equal(chosen.status,'blocked');
+assert.equal(chosen.reason,'TPE_SEARCH_WOULD_ACTIVATE_NEW_MOON');passed++;
+chosen=tpeSelect({choices:[{token:'s',name:'Solrock'},{token:'l',name:'Lunatone'}]},
+ {...state,hasLunatoneInPlay:false,valleyDiscountNeeded:false});
+assert.equal(chosen.status,'candidate');assert.equal(chosen.tokens.length,2);passed++;
+chosen=tpeSelect(tpeOffer,{...state,hasSolrockInPlay:true,hasLunatoneInPlay:true});
+assert.equal(chosen.reason,'NEW_MOON_ALREADY_ACTIVE');passed++;
+chosen=tpeSelect(tpeOffer,{...state,openBenchSlots:1});
+assert.equal(chosen.reason,'INSUFFICIENT_BENCH_SLOTS');passed++;
+chosen=tpeSelect({choices:[{token:'u',name:'Unown'},{token:'u',name:'Duskull'}]},state);
+assert.equal(chosen.reason,'TPE_OFFER_DUPLICATE_SOURCE_TOKEN');passed++;
+assert.equal(passed,30);
+console.log('New Moon G&H actor opportunity: '+passed+' synthetic contracts passed (including v9 TPE search preserving Valley discount)');
