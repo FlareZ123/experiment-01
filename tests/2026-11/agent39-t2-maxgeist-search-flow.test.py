@@ -44,6 +44,15 @@ class ExactPolicyConstraints(unittest.TestCase):
         self.assertFalse(s.possible(h(psychic=1,vmax=1,seal=1),
                                     h(dimension=1),fss_used_initial=True))
 
+    def test_arven_mysterious_and_seal_joint_pair_is_necessary(self):
+        hand=h(psychic=1,arven=1,other=1)
+        remaining=h(vmax=1,dimension=1,seal=1,mystery=1)
+        self.assertTrue(s.possible(hand,remaining))
+        self.assertFalse(s.possible(hand,remaining,
+                                    block_arven_myst_fss=True))
+        # Mysterious Treasure still discards the spare hand card and
+        # Forest Seal Stone still searches exactly one other card.
+
     def test_physical_seed_is_replayable_and_nested_rates_order(self):
         a=s.run(3000,390039,s.BASE)
         b=s.run(3000,390039,s.BASE)
