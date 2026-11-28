@@ -81,6 +81,28 @@ function movementEvidence(request) {
   return typeof r.ownerActive.movedFromBenchToActiveThisTurn==='boolean' ?
     r.ownerActive.movedFromBenchToActiveThisTurn:null;
 }
+function applyColorlessWeaknessResistance(base,target) {
+  if(!Number.isFinite(base)||base<0)return null;
+  let damage=base;
+  for(const row of arr(target?.printed?.weakness)){
+    const type=typeof row==='string'?row:row?.type;
+    if(type!=='Colorless')continue;
+    const val=String(row?.value??'');
+    const mul=/^[x×*]([2-9])$/.exec(val);
+    const plus=/^\+([1-9]\d*)$/.exec(val);
+    if(mul)damage*=Number(mul[1]);
+    else if(plus)damage+=Number(plus[1]);
+    else return null;
+  }
+  for(const row of arr(target?.printed?.resistance)){
+    const type=typeof row==='string'?row:row?.type;
+    if(type!=='Colorless')continue;
+    const value=String(row?.value??'');
+    if(!/^-[1-9]\d*$/.test(value))return null;
+    damage=Math.max(0,damage+Number(value));
+  }
+  return damage;
+}
 function printedDamage(item,request) {
   const o=request.observation,own=o?.ownPublic?.active,op=o?.opponentPublic?.active;
   if(!own||!op||item.kind!=='attack')return null;
@@ -89,9 +111,12 @@ function printedDamage(item,request) {
       meta.hasPrevention===true) return null;
   if(Number.isSafeInteger(meta.damageAfterResistance)&&meta.damageAfterResistance>=0)
     return meta.damageAfterResistance;
-  // No scalar assertion about Weakness, Resistance or unknown protections.
-  if(arr(op.printed?.weakness).length||arr(op.printed?.resistance).length||
-      arr(op.tools).length||arr(op.abilitySuppressions).some(x=>x.suppressed===false))return null;
+  // V3 presents printed Weakness/Resistance as {type,value} arrays.
+  // Other-type modifiers do not affect source Colorless attackers. Spiky
+  // Hopper explicitly ignores defensive effects, not Weakness/Resistance.
+  const bypass=has(own,P.mega)&&item.attackName==='Spiky Hopper';
+  if(!bypass&&(arr(op.tools).length||
+     arr(op.abilitySuppressions).some(x=>x.suppressed===false)))return null;
   let value=null;
   if(has(own,P.mega)) {
     if(item.attackName==='Gale Thrust') {
@@ -107,7 +132,7 @@ function printedDamage(item,request) {
   }
   if(has(own,P.pidgeot)&&item.attackName==='Blustery Wind')value=120;
   if(has(own,P.pidgey)&&item.attackName==='Peck Off')value=10;
-  return value;
+  return value===null?null:applyColorlessWeaknessResistance(value,op);
 }
 function knockOut(item,request) {
   const op=request.observation?.opponentPublic?.active;
@@ -932,5 +957,5 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,
-  createPolicy,rootDecision,poffinPrompt,printedDamage,movementEvidence,karenOpportunity,REGIDRAGO_DRAGON_PAYLOADS,
+  createPolicy,rootDecision,poffinPrompt,printedDamage,applyColorlessWeaknessResistance,movementEvidence,karenOpportunity,REGIDRAGO_DRAGON_PAYLOADS,
   candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,k1Available,k1EvoTarget,usefulArtazonBasic,artazonPrompt,airMailPrompt,grandTreePrompt,grandTreeTarget,guzmaOpportunity,guzmaPrompt,rototillerPrompt,rototillerPriority,bunnelbyAttritionAction,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
