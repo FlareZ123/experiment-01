@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {planJointKnownTurn}=require('./joint_turn_search.cjs');
+const {planJointKnownTurn,verifyPostPowerProjection}=require('./joint_turn_search.cjs');
 const b=(kind,active)=>({id:kind,kind,active,tool:'',energy:[],counters:0});
 const h=kind=>({id:kind,kind});
 const e=(id,zone,counters=0)=>({id,zone,counters});
@@ -94,4 +94,17 @@ test('Koko cannot be revived as a donor from hand after Dance sent it to the Los
  const r=planJointKnownTurn(s);
  assert.equal(r.status,'no-verified-joint-resource-trace');
  assert.ok(r.checks.some(x=>x.reason==='POST_POWER_LOST_ZONE_RESURRECTION'));
+});
+
+test('phase boundary cannot fabricate active Ruins, Item access or Grass Propagation under Wob',()=>{
+ const s=scenario({float:true});
+ const final={board:[{id:'M',active:true,counters:0},
+   {id:'S',active:false,counters:2}],handBasics:[],locked:false};
+ const base=s.makeDonationInput(final);
+ assert.equal(verifyPostPowerProjection(s.powerInput,final,
+   {...base,riskyRuinsActive:false}).reason,'POST_POWER_STADIUM_MISMATCH');
+ assert.equal(verifyPostPowerProjection(s.powerInput,final,
+   {...base,itemsPlayable:false}).reason,'POST_POWER_ITEM_LOCK_MISMATCH');
+ assert.equal(verifyPostPowerProjection(s.powerInput,{...final,locked:true},
+   {...base,propagationAvailable:true}).reason,'WOBBUFFET_STILL_BLOCKS_PROPAGATION');
 });
