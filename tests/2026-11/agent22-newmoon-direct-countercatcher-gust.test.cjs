@@ -165,6 +165,41 @@ for(const tweak of [
  const q=regi(),s=createDirectGustSlice({seat:0});tweak(q);
  assert.equal(s.decide(q),null);checks++;
 }
-assert.equal(checks,53);
+
+// All 14 printed source target families from the authenticated published
+// field have fixed 2/3-Prize identities and physically printed HP. Test
+// native-ready Item -> paid printedGX root entry with target pre-damaged
+// only when necessary (no claim that such damage actually occurs in play).
+const registered=[
+ ['Mega Lopunny ex',330,3],['Mega Kangaskhan ex',300,3],
+ ['Mega Absol ex',280,3],['Mega Dragonite ex',370,3],
+ ['Regidrago VSTAR',280,2],
+ ['Dedenne-GX',160,2],['Tapu Lele-GX',170,2],
+ ['Squawkabilly ex',160,2],['Crobat V',180,2],
+ ['Genesect V',190,2],['Pidgeot ex',280,2],
+ ['Articuno-GX',170,2],['Rotom V',190,2],
+ ['Iron Thorns ex',230,2]];
+for(const [name,hp,prize] of registered){
+ const q=base();q.observation.ownPublic.prizeCount=prize;
+ q.observation.opponentPublic.prizeCount=prize-1;
+ q.observation.opponentPublic.bench[0]={
+  printing:name+' source-verified',hp,damage:Math.max(0,hp-200),
+  tools:[],printed:{resistance:[]}};
+ const data=targetPrizesAndHp(q.observation.opponentPublic.bench[0]);
+ assert.equal(data.prize,prize);checks++;
+ assert.equal(createDirectGustSlice({seat:0}).decide(q).decision.token,
+  'cc');checks++;
+}
+// Thorns' Initialization activates when gusted Active and suppresses
+// Mewtwo Perfection: if printed GX isn't available, never start an
+// apparent Night Watch win merely because Perfection works on Bench.
+{
+ const q=regi();
+ q.observation.opponentPublic.bench[0]={
+  printing:'Iron Thorns ex TWM077',hp:230,damage:80,tools:[],
+  printed:{resistance:[]}};
+ assert.equal(createDirectGustSlice({seat:0}).decide(q),null);checks++;
+}
+assert.equal(checks,82);
 console.log('Agent22 Counter Catcher direct no-selfKO gust policy: '+
  checks+' checked synthetic actor branches passed');
