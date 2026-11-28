@@ -87,10 +87,21 @@ function assessRank13CrispinEnergyPair(view) {
       total+(isPrint(row?.printing,re) && Number.isSafeInteger(row?.copies)?
         row.copies:0),0);
     const knownDeck=Object.freeze({grass:count(GRASS),fire:count(FIRE)});
+    const grassInPrizes=unaccountedGrass-knownDeck.grass;
+    const fireInPrizes=unaccountedFire-knownDeck.fire;
+    // A fresh owner snapshot cannot contradict conservation of the source
+    // 4G/3F copies, the current deck size or the finite Prize capacity.
+    // Decline inconsistent authenticated views instead of pretending they
+    // prove a line, even if the distinct snapshot's schema was valid.
+    const consistent=grassInPrizes>=0 && fireInPrizes>=0 &&
+      grassInPrizes+fireInPrizes<=prizes &&
+      knownDeck.grass+knownDeck.fire<=deck;
     return {
-      status:knownDeck.grass>=1 && knownDeck.fire>=1?
-        'certified-fresh-k1':'blocked',
-      reason:'fresh-owner-deck-membership',
+      status:!consistent?'invalid':
+        knownDeck.grass>=1 && knownDeck.fire>=1?
+          'certified-fresh-k1':'blocked',
+      reason:consistent?'fresh-owner-deck-membership':
+        'fresh-owner-k1-source-conservation-conflict',
       knownDeck,lowerBounds
     };
   }
