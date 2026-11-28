@@ -148,6 +148,24 @@ check('rank16 Active Budew with Benched Garbodor is negative control',()=>{
  const v=view({bus:makeSlot('Budew PRE 004'),opponentBench:[aor(),makeSlot('Garbodor BKP 057',{tools:['Float Stone']})]});
  assert.equal(sel(root(v,[play(),benchBlast(),pass()])),'abstain');
 });
+check('BUS moves Bench: funded Stage-1 Will-O-Wisp takes actual damaged Bunnelby KO',()=>{
+ const v=view({active:dus({tools:['Tool Jammer BST 136'],energies:['Basic Psychic Energy','Basic Psychic Energy']}),
+  bus:makeSlot('Bunnelby PRC 121',{hp:60,damage:10}),opponentBench:[aor(),bus()]});
+ assert.equal(sel(root(v,[willow(),pass()])),'willow');
+});
+check('BUS Bench does not force an unqualified nonlethal Will-O-Wisp',()=>{
+ const v=view({active:dus({tools:['Tool Jammer BST 136'],energies:['Basic Psychic Energy','Basic Psychic Energy']}),
+  bus:makeSlot('Bunnelby PRC 121',{hp:60,damage:0}),opponentBench:[aor(),bus()]});
+ assert.equal(sel(root(v,[willow(),pass()])),'abstain');
+});
+check('BUS Bench fallback requires live AOR and legal uncontaminated attack',()=>{
+ const v=view({active:dus({tools:['Tool Jammer BST 136'],energies:['Basic Psychic Energy','Basic Psychic Energy']}),
+  bus:makeSlot('Bunnelby PRC 121',{hp:60,damage:10}),opponentBench:[bus()]});
+ assert.equal(sel(root(v,[willow(),pass()])),'abstain');
+ v.opponentPublic.bench.push(aor());
+ v.ownPublic.active.specialConditions=['CONFUSED'];
+ assert.equal(sel(root(v,[willow(),pass()])),'abstain');
+});
 check('BUS moves Bench: no stale active suppression or phantom lockbreak',()=>{
  const v=view({active:dus({tools:['Tool Jammer BST 136']}),bus:makeSlot('Bunnelby PRC'),
    opponentBench:[aor(),bus()]});

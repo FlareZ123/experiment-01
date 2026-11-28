@@ -184,6 +184,16 @@ function test() {
  const v7=view({active:dus(['Tool Jammer BST 136']),oppStadium:['Jamming Tower TWM 153']});
  same(run(v7,[use('blast','Cursed Blast','bench',0),pass()]),
   {kind:'abstain',reasonCode:'NO_SUPPORTED_ACTION'},'blank Tool Jammer');
+ const escaped=view({active:dus(['Tool Jammer BST 136']),
+  oppBench:[aor(),bus()],bus:slot('Bunnelby PRC 121','Bunnelby',[],[],0,10)});
+ escaped.opponentPublic.active.hp=60;
+ escaped.opponentPublic.active.printed.stage='Basic';
+ escaped.opponentPublic.active.printed.subtypes=['Basic'];
+ same(run(escaped,[willow(),pass()]),
+  {kind:'select-action',token:'willow'},'non-BUS active within Willow KO range after BUS benches');
+ escaped.opponentPublic.active.damage=0;
+ same(run(escaped,[willow(),pass()]),
+  {kind:'abstain',reasonCode:'NO_SUPPORTED_ACTION'},'non-BUS Active unqualified 2HKO not forced');
  const v8=view({hand:[],bench:[dus(),art()]});
  same(run(v8,[use('star','Star Alchemy','bench',1),pass()]),
   {kind:'select-action',token:'star'},'forest seal V route');

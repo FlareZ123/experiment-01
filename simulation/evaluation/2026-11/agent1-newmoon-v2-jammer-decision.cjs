@@ -12,6 +12,32 @@ const abilityLive = (s,n) => {
 const isDusclops=s=>has(s?.printing,'Dusclops') && !has(s?.printing,'Dusknoir');
 const hasTool=(s,n)=>Array.isArray(s?.tools) && s.tools.some(x=>has(x,n));
 const psychic=(s)=>Array.isArray(s?.energies) ? s.energies.filter(x=>has(x,'Psychic Energy')).length:0;
+const attackRisk=slot=>!Array.isArray(slot?.specialConditions) ||
+  slot.specialConditions.some(x=>Number.isSafeInteger(x) ||
+    ['ASLEEP','PARALYZED','CONFUSED'].includes(String(x).toUpperCase()));
+// When the Hooded BUS lock holder is no longer Active, do not hallucinate
+// continued Tool-Jammer suppression of its Benched Hood. A paid Stage-1
+// Dusclops may nevertheless take an actual available non-BUS Active KO.
+function chooseEscapedBusResponse(view,items) {
+  const own=view?.ownPublic,opp=view?.opponentPublic;
+  if(!own || !opp || !Array.isArray(opp.bench) || !Array.isArray(items) ||
+      !isDusclops(own.active) || !hasTool(own.active,'Tool Jammer') ||
+      psychic(own.active)<2 || attackRisk(own.active)) return null;
+  const liveAOR=slots(opp).some(x=>has(x.printing,'Vileplume AOR') &&
+      abilityLive(x,'Irritating Pollen'));
+  const hoodedBusBenched=opp.bench.some(x=>has(x?.printing,'Vileplume BUS') &&
+      hasTool(x,'Stealthy Hood'));
+  const target=opp.active;
+  if(!liveAOR || !hoodedBusBenched || !target ||
+      has(target.printing,'Vileplume BUS') ||
+      !Number.isFinite(target.hp) || !Number.isFinite(target.damage) ||
+      target.hp-target.damage<=0 || target.hp-target.damage>50) return null;
+  const willow=items.find(x=>x.kind==='attack' && x.attackName==='Will-O-Wisp' &&
+      (!x.actorPrinting || x.actorPrinting===own.active.printing));
+  return willow ? {decision:{kind:'select-action',token:willow.token},
+     reason:'BUS_BENCHED_TAKE_AVAILABLE_ONE_PRIZE_KO'}:null;
+}
+
 function position(view) {
   const own=view?.ownPublic, opp=view?.opponentPublic;
   if (!own || !opp || !Array.isArray(own.bench) || !Array.isArray(opp.bench)) return null;
@@ -33,10 +59,10 @@ function position(view) {
 const cardAction=(x,n)=>x?.kind==='play-card' && has(x.actorPrinting,n);
 const useAbility=(x,n)=>x?.kind==='use-ability' && x.publicMetadata?.abilityName===n;
 function chooseRoot(view,frontier) {
-  const p=position(view);
-  if (!p) return null;
   const items=frontier?.items;
   if (!Array.isArray(items)) return null;
+  const p=position(view);
+  if (!p) return chooseEscapedBusResponse(view,items);
   const choose=(row,reason)=>row ? {decision:{kind:'select-action',token:row.token},reason}:null;
   const canSelfKO = Number.isSafeInteger(p.opp.prizeCount) &&
     p.opp.prizeCount > 1 && Number.isSafeInteger(p.own.prizeCount) &&
@@ -53,11 +79,8 @@ function chooseRoot(view,frontier) {
     // A paid ordinary attack on a 50-HP-or-less BUS avoids the immediate
     // Cursed Blast self-KO and its gifted Prize. Do not assume that an attack
     // from an Asleep/Paralyzed/Confused Active is guaranteed to resolve.
-    const condition=p.active.specialConditions;
-    const attackRisk=!Array.isArray(condition) || condition.some(x=>
-      Number.isSafeInteger(x) || ['ASLEEP','PARALYZED','CONFUSED'].includes(String(x).toUpperCase()));
     const payableWillow=items.find(x=>x.kind==='attack' && x.attackName==='Will-O-Wisp');
-    if (lethal && psychic(p.active)>=2 && !attackRisk && payableWillow)
+    if (lethal && psychic(p.active)>=2 && !attackRisk(p.active) && payableWillow)
       return choose(payableWillow,'SAFE_WILLOW_LETHAL_WITHOUT_SELF_KO');
     if (lethal && canSelfKO && p.own.bench.some(Boolean) &&
         abilityLive(p.active,'Cursed Blast')) {
