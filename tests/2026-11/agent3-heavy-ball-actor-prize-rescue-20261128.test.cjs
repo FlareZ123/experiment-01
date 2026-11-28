@@ -48,7 +48,8 @@ function prizes(seat,opts={}){
     publicMetadata:{ownerSeat:opts.foreign?'opponent':'actor',
       isOwnerVisible:!opts.hidden,sourceZone:'prizes',selectionIndex:i}
   }));
-  if(opts.empty)choices.push({kind:'empty-selection',token:'none',
+  // Strict optional cardinality (minimum 0) must offer the empty token.
+  choices.push({kind:'empty-selection',token:'none',
     publicMetadata:{ownerSeat:'actor',sourceZone:'prizes'}});
   req.prompt={schema:protocol.PROMPT_SCHEMA,actingSeat:seat,
     promptType:'ChooseCardsPrompt',description:'CHOOSE_CARD',
@@ -65,8 +66,8 @@ function prizes(seat,opts={}){
 const cases=[
  ['Play free owner-Prize rescue item with six face-down Prizes',
    root,{}, {kind:'select-action',token:'heavy-ball'}],
- ['Still Bench first V before playing optional Heavy Ball',
-   root,{basic:true},{kind:'select-action',token:'bench-v'}],
+ ['Heavy Ball is played before optional second V Bench expansion',
+   root,{basic:true},{kind:'select-action',token:'heavy-ball'}],
  ['Native stale Ball root when no Prizes: do not select',
    root,{prizes:0},{kind:'select-action',token:'pass'}],
  ['Prize owner Mimikyu counter outranks second Basic against Regidrago',
