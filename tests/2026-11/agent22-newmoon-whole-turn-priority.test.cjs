@@ -44,7 +44,7 @@ const gh=()=>({
  wanted:[{role:'stadium',name:'Sky Field'},{role:'tool',name:'Stealthy Hood'},
  {role:'specialEnergy',name:'Telepathic Psychic Energy'}]}});
 function root(b){return {actorStateFingerprint:'actor-public-root',
- branchContexts:{fairyZoneDirect:null,duskTerminalBlast:null,duskExactAttack:null,
+ branchContexts:{fairyZoneDirect:null,duskTerminalBlast:null,duskCounterCatcher:null,duskExactAttack:null,
  duskDragonRondo:null,duskThornsRondo:null,guzmaHala:null,...b}};}
 function check(r,status,branch){
  const o=choose(r);assert.equal(o.status,status);
@@ -62,7 +62,7 @@ x=check(root({guzmaHala:gh()}),'candidate','guzmaHala');
 assert.equal(x.firstAction.type,'play-supporter');assert.equal(x.firstAction.name,'Guzma & Hala');
 assert.deepEqual(x.firstAction.discardIntents,['f','c']);
 x=check(root({fairyZoneDirect:fairy(),duskDragonRondo:dragon()}),'candidate','fairyZoneDirect');
-assert.equal(x.evaluations.length,1);
+assert.equal(x.evaluations.length,7);
 let b=fairy();b.public.preventBasicAttackDamage=true;
 check(root({fairyZoneDirect:b,duskExactAttack:blast()}),'candidate','duskExactAttack');
 b=fairy();delete b.public.psychicWeaknessX2Certified;
@@ -75,7 +75,7 @@ check(root({guzmaHala:b}),'none');
 b=gh();b.own.hand[1].lowOpportunityCost=false;b.own.hand[2].lowOpportunityCost=false;
 x=check(root({guzmaHala:b}),'candidate','guzmaHala');
 assert.equal(x.entry.mode,'stadium-only');
-x=check(root({}),'none');assert.equal(x.evaluations.length,6);
+x=check(root({}),'none');assert.equal(x.evaluations.length,7);
 x=check({branchContexts:{fairyZoneDirect:fairy()}},'unsupported');
 assert.equal(x.reason,'NO_COMMON_NATIVE_ACTOR_STATE_FINGERPRINT');
 x=check(root({duskExactAttack:false}),'unsupported');
@@ -116,5 +116,61 @@ ss=JSON.parse(JSON.stringify(solo));ss.public.opponentPrizesRemaining=1;
 check(root({duskTerminalBlast:ss,guzmaHala:gh()}),'candidate','guzmaHala');
 ss=JSON.parse(JSON.stringify(solo));delete ss.public.opponentBenchCount;
 check(root({duskTerminalBlast:ss,guzmaHala:gh()}),'candidate','guzmaHala');
-assert.equal(count,23);
+
+const counter=()=>({public:{ownPrizesRemaining:3,opponentPrizesRemaining:3,
+ benchTargets:[{token:'bench-mega',remainingHp:330,prizeValue:3,
+ blastCountersApply:true,attackOptions:[{name:'Miraculous Duo-GX',
+ sourceToken:'active-mew',damageAfterAllEffects:200,paidAfterSelfKo:true,
+ legalAfterGust:true,sourceProvenanceCertified:true,
+ attackEffectsCertified:true,requiresGX:true}]}]},
+ own:{hand:[{token:'cc',name:'Counter Catcher'}],
+ benchedDusknoirReady:true,itemPlayLocked:false,
+ counterCatcherNativeInHand:true,activeAttackerStillPresent:true,gxUsed:false},
+ combat:{cursedBlastLegal:true,cursedBlastCountersApply:true,
+ reactiveEffectsAccountedFor:true,counterCatcherPostKOAllowed:true,
+ allPostGustEffectsCertified:true}});
+// A non-terminal direct Dragon OHKO gains only two of our three remaining
+// Prizes; by contrast Dusk -> Counter Catcher -> 3 Prize gust is a win now.
+b=fairy();b.public.ownPrizesRemaining=3;b.public.targetPrizeValue=2;
+x=check(root({fairyZoneDirect:b,duskCounterCatcher:counter()}),
+ 'candidate','duskCounterCatcher');
+assert.equal(x.gameTerminalProposed,true);
+assert.equal(x.entry.targetToken,'bench-mega');
+assert.equal(x.continuation.length,3);
+// If the same paid attack takes our final Prizes, save Dusknoir and GX slot.
+b=fairy();b.public.ownPrizesRemaining=2;b.public.targetPrizeValue=2;
+x=check(root({fairyZoneDirect:b,duskCounterCatcher:counter()}),
+ 'candidate','fairyZoneDirect');
+assert.equal(x.gameTerminalProposed,true);
+assert.equal(x.entry.terminalMode,'all-prizes');
+// An Ability-only Prize close outranks a no-selfKO attack that would need
+// another turn, but not an immediate certified paid game-winning attack.
+b=fairy();b.public.ownPrizesRemaining=3;b.public.targetPrizeValue=2;
+ss=JSON.parse(JSON.stringify(terminal));
+ss.public.ownPrizesRemaining=3;ss.public.targets[0].prizeValue=3;
+x=check(root({fairyZoneDirect:b,duskTerminalBlast:ss}),
+ 'candidate','duskTerminalBlast');
+assert.equal(x.gameTerminalProposed,true);
+b=fairy();b.public.ownPrizesRemaining=2;b.public.targetPrizeValue=2;
+x=check(root({fairyZoneDirect:b,duskTerminalBlast:terminal}),
+ 'candidate','fairyZoneDirect');
+assert.equal(x.gameTerminalProposed,true);
+// Proposed 130 + paid Night Watch taking last two Prizes beats nonterminal
+// Rondo and retains first-action requirement to recheck after the self-KO.
+b=blast();b.own.prizesRemaining=2;
+let nonterminal=fairy();nonterminal.public.ownPrizesRemaining=3;
+nonterminal.public.targetPrizeValue=2;
+x=check(root({fairyZoneDirect:nonterminal,duskExactAttack:b}),
+ 'candidate','duskExactAttack');
+assert.equal(x.gameTerminalProposed,true);
+// Item-lock prevents the Counter Catcher continuation; direct attack stays.
+let locked=counter();locked.own.itemPlayLocked=true;
+x=check(root({fairyZoneDirect:nonterminal,duskCounterCatcher:locked}),
+ 'candidate','fairyZoneDirect');
+assert.equal(x.gameTerminalProposed,false);
+// Unknown higher priority visible branch blocks choosing the lower one.
+x=check(root({fairyZoneDirect:{unsupported:true},
+ duskCounterCatcher:counter()}),'unsupported');
+assert.equal(x.firstUnresolvedBranch,'fairyZoneDirect');
+assert.equal(count,30);
 console.log('Agent22 whole-turn composite: '+count+' synthetic contracts passed');
