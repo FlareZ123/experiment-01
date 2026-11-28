@@ -779,19 +779,35 @@ test('Peonia becomes a last-resort live Supporter only with K1 and three low-cos
     {kind:'select-action',token:'pass'});
 });
 
-test('Peonia exact-three Prize slots choose owned physical indices, not hidden card identities', () => {
-  const req=promptRequest({
-    promptType:'ChoosePrizePrompt',
-    source:actorChoiceSource('Peonia CRE 149','Peonia'),
-    publicMetadata:multiMetadata(3,3,'prize-slots'),
-    choices:[5,2,0,1,4,3].map(i=>({
-      token:'slot'+i,kind:'prize',label:'Prize slot '+i,
-      publicMetadata:{ownerSeat:'actor',sourceZone:'prize',slotIndex:i}
-    }))
-  });
-  assert.deepEqual(checkedDecision(req),{
-    kind:'select-choices',tokens:['slot0','slot1','slot2']
-  });
+test('Peonia native exact-three Prize slots choose owned face-down filtered indices, not identities, both seats', () => {
+  for(const seat of [0,1]){
+    const req=promptRequest({
+      seat,promptType:'ChoosePrizePrompt',
+      source:actorChoiceSource('Peonia CRE 149','Peonia'),
+      publicMetadata:{
+        selectionType:'prize-slots',count:6,requiredCount:3,
+        allowCancel:false,isSecret:false,sourceZone:'prizes',
+        ownerSeat:'actor',isOwnerVisible:false
+      },
+      choices:[5,2,0,1,4,3].map(i=>({
+        token:'slot'+i,kind:'prize',label:'Your Prize slot '+(i+1),
+        publicMetadata:{ownerSeat:'actor',sourceZone:'prizes',
+          isOwnerVisible:false,selectionIndex:i,selectedCount:1,requiredCount:3}
+      }))
+    });
+    assert.deepEqual(checkedDecision(req,seat),{
+      kind:'select-choices',tokens:['slot0','slot1','slot2']
+    });
+    const incorrect=promptRequest({
+      seat,promptType:'ChoosePrizePrompt',
+      source:actorChoiceSource('Peonia CRE 149','Peonia'),
+      publicMetadata:{...req.prompt.publicMetadata,ownerSeat:'opponent'},
+      choices:req.prompt.choices
+    });
+    assert.deepEqual(checkedDecision(incorrect,seat),{
+      kind:'abstain',reasonCode:'UNSUPPORTED_PRIZE_SELECTION'
+    });
+  }
 });
 
 test('Peonia replacement selects high-DCI actor hand cards not recovered Lusamine', () => {
