@@ -99,6 +99,7 @@ function createDirectGustSlice({seat}){
       own.active?.printing!==state.actorPrinting||
       opp.active?.printing!==state.printing||opp.active.hp!==state.hp||
       opp.active.damage<state.initialDamage||!int(opp.active.damage)||
+      opp.active.damage>=opp.active.hp||
       !Array.isArray(opp.active.tools)||opp.active.tools.length){
      reset();return null;
    }
