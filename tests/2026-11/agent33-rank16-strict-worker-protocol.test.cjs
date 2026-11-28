@@ -150,3 +150,45 @@ test('strict protocol forbids hidden-state seed',()=>{
   protocol.validateInit(init);
   assert.throws(()=>protocol.validateRequest(request,init,1,new Set()));
 });
+
+/* Source-bound Plumeria: pay 2 disposable cards, target opponent Energy. */
+for(const seat of [0,1]) {
+  const plumeria='Plumeria BUS 120';
+  const vip='Battle VIP Pass FST 225';
+  const boost='Boost Shake EVS 142';
+  const opp=player({active:pokemon('Shadow Rider Calyrex VMAX CRE 75',
+    {energies:['Psychic Energy MEE 13','Psychic Energy MEE 13']})});
+  const own=player({active:pokemon(P.absol),bench:[pokemon(P.garb)]});
+  test('strict Plumeria root pays two source costs seat '+seat,()=>{
+    const r=rootRequest({seat,globalTurn:4,ownPublic:own,opponentPublic:opp,
+      ownHand:[vip,boost,'Darkness Energy MEE 15'],
+      items:[{token:'plumeria',kind:'play-card',actorPrinting:plumeria},
+        {token:'pass',kind:'pass',label:'Pass turn'}]});
+    assert.deepEqual(checked(r,seat),{kind:'select-action',token:'plumeria'});
+  });
+  test('strict Plumeria exact two discard cards seat '+seat,()=>{
+    const r=promptRequest({seat,globalTurn:4,ownPublic:own,opponentPublic:opp,
+      ownHand:[vip,boost,'Darkness Energy MEE 15'],
+      promptType:'ChooseCardsPrompt',source:source(plumeria,'Plumeria'),
+      publicMetadata:{selectionType:'card-combination',minimumCount:2,maximumCount:2,allowCancel:false},
+      choices:[card('vip',vip,'hand'),card('boost',boost,'hand'),
+        card('dark','Darkness Energy MEE 15','hand')]});
+    assert.deepEqual(checked(r,seat),{kind:'select-choices',tokens:['vip','boost']});
+  });
+  test('strict Plumeria opponent-only powered Pokémon target seat '+seat,()=>{
+    const r=promptRequest({seat,ownPublic:own,opponentPublic:opp,
+      promptType:'ChoosePokemonPrompt',source:source(plumeria,'Plumeria'),
+      publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,allowCancel:false},
+      choices:[poke('active','Shadow Rider Calyrex VMAX CRE 75','opponent','active',0)]});
+    assert.deepEqual(checked(r,seat),{kind:'select-choices',tokens:['active']});
+  });
+  test('strict Plumeria opponent attached Energy payment selector seat '+seat,()=>{
+    const r=promptRequest({seat,ownPublic:own,opponentPublic:opp,
+      promptType:'ChooseEnergyPrompt',source:source(plumeria,'Plumeria'),
+      publicMetadata:{selectionType:'energy-payment',energyCount:1,count:1,allowCancel:false},
+      choices:[{token:'energy',kind:'energy',printing:'Psychic Energy MEE 13',
+        label:'Psychic Energy MEE 13',
+        publicMetadata:{ownerSeat:'opponent',sourceZone:'attached'}}]});
+    assert.deepEqual(checked(r,seat),{kind:'select-choices',tokens:['energy']});
+  });
+}
