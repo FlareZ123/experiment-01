@@ -1711,10 +1711,13 @@ function hasDiscardableHand(view, required = 1, playingPrinting = null) {
 }
 
 function hasAbilityLockThreat(view) {
-  return allBoard(view).some(slot =>
-    hasName(slot.printing, 'Iron Thorns ex') ||
-    hasName(slot.printing, 'Garbodor') ||
-    hasName(slot.printing, 'Snorlax PGO'));
+  // Only opponent-side, operational Ability locks matter. Initialization,
+  // Neutralizing Gas and Snorlax Block require the Active Spot, whereas
+  // Garbotoxin LTR68/BKP57 works from Bench only with a live Tool.
+  // Merely having a spare Iron Thorns or unequipped Garbodor on Bench
+  // must not force Arven/Stealthy Hood into a dominated connector line.
+  return opponentBlocksEntryAbilities(view) ||
+    view.opponentPublic.active?.printing === 'Snorlax PGO 55';
 }
 
 function hasStadiumRemovalTarget(view) {
