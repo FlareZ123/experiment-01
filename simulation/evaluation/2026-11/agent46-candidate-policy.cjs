@@ -1621,6 +1621,17 @@ function scoreToolAttachment(item,view){
 // Require both the live player restriction and the prior turn's witnessed
 // exact Budew attack, plus an Item actually stuck in our hand.
 function rangerCanUnlockBudewItemTurn(view, receipt) {
+  // A concurrently operating Irritating Pollen Ability survives Ranger:
+  // clearing the player-attached Itchy Pollen attack effect would still
+  // leave the Item play illegal. Only an explicitly suppressed Vileplume
+  // is known not to maintain that independent lock.
+  const vileplumeLocks=allBoard(view).some(slot=>
+    slot?.printing==='Vileplume AOR 3' &&
+    slot.abilities?.includes('Irritating Pollen') &&
+    !slot.abilitySuppressions?.some(effect=>
+      effect.abilityName==='Irritating Pollen' &&
+      effect.suppressed===true));
+  if (vileplumeLocks) return false;
   if (view.ownPublic?.publicTurnRestrictions?.itemPlayLocked !== true ||
       view.ownPublic.publicTurnRestrictions.supporterPlayLocked === true ||
       receipt?.actorSeat !== view.actorSeat ||
