@@ -68,10 +68,10 @@ for(const seat of [0,1]){
   assert.equal(policy.toolEnabled(q.observation),false);
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'budew'});
  });
- test('seat '+seat+' immediate Terminal Period over lock only at exact 300 damage',()=>{
-  const q=root(seat,[attack('Terminal Period','terminal'),tool,pass],{opponentPublic:opp({active:mon('Mega Lopunny ex PFL 84',{hp:330,damage:300})})});
+ test('seat '+seat+' Terminal Period only at six counters (60 damage), never 300',()=>{
+  const q=root(seat,[attack('Terminal Period','terminal'),tool,pass],{opponentPublic:opp({active:mon('Mega Lopunny ex PFL 84',{hp:330,damage:60})})});
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'terminal'});
-  q.observation.opponentPublic.active.damage=290;
+  q.observation.opponentPublic.active.damage=300;
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'tool'});
  });
  test('seat '+seat+' unpayable attack never chosen',()=>{
