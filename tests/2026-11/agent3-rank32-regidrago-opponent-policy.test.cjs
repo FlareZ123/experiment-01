@@ -720,6 +720,96 @@ test('Guzma does not strand a sole powered Active VSTAR on the Bench',()=>{
 });
 
 
+test('VS Seeker recovers Lillie instead of dead Guzma and preserves unusable connector',()=>{
+  const ownPublic=player({active:pokemon(P.regidrago,{
+    energies:[P.energy,P.doubleDragon]}),
+    discard:[{printing:'Guzma BUS 115'},
+      {printing:"Lillie's Determination MEG 119"}]});
+  const opponentPublic=player({active:pokemon('Shadow Rider Calyrex VMAX CRE 75')});
+  const vs=[action('vs','play-card','VS Seeker PHF 109'),action('pass','pass')];
+  const search=prompt('VS Seeker PHF 109','VS Seeker',[
+    choice('g','Guzma BUS 115'),choice('l',"Lillie's Determination MEG 119")
+  ],'ChooseCardsPrompt',[1,1]);
+  search.publicMetadata.sourceZone='discard';
+  for(const seat of [0,1]){
+    const root=request({seat,ownPublic,opponentPublic,
+      hand:['VS Seeker PHF 109'],items:vs});
+    assert.deepEqual(bestAction(root),{kind:'select-action',token:'vs'});
+    assert.deepEqual(promptDecision(request({seat,ownPublic,opponentPublic,
+      hand:['VS Seeker PHF 109'],prompt:search})),
+    {kind:'select-choices',tokens:['l']});
+    ownPublic.discard=[{printing:'Guzma BUS 115'}];
+    assert.deepEqual(bestAction(request({seat,ownPublic,opponentPublic,items:vs})),
+      {kind:'select-action',token:'pass'});
+    ownPublic.discard=[{printing:'Guzma BUS 115'},
+      {printing:"Lillie's Determination MEG 119"}];
+  }
+});
+
+test('VS Seeker obtains final-Prize Guzma only with real retreat pivot, else Crispin',()=>{
+  const ownPublic=player({
+    active:pokemon(P.regidrago,{energies:[P.energy,P.energy,'Fire Energy MEE 10']}),
+    bench:[pokemon('Budew ASC 16',{hp:30,
+      printed:{subtypes:['Basic'],retreatCost:[]}})],
+    discard:[{printing:'Guzma BUS 115'},
+      {printing:"Lillie's Determination MEG 119"},
+      {printing:'Crispin SCR 133'}]
+  });
+  ownPublic.prizeCount=2;
+  const opponentPublic=player({
+    active:pokemon('Budew ASC 16',{hp:30}),
+    bench:[pokemon('Dedenne-GX UNB 57',{
+      hp:160,printed:{subtypes:['GX'],weakness:[],resistance:[]}})]
+  });
+  const search=prompt('VS Seeker PHF 109','VS Seeker',[
+    choice('l',"Lillie's Determination MEG 119"),
+    choice('g','Guzma BUS 115'),
+    choice('c','Crispin SCR 133')
+  ],'ChooseCardsPrompt',[1,1]);
+  search.publicMetadata.sourceZone='discard';
+  const rootItems=[action('vs','play-card','VS Seeker PHF 109'),
+    action('pass','pass')];
+  for(const seat of [0,1]){
+    const r=request({seat,ownPublic,opponentPublic,
+      hand:['VS Seeker PHF 109'],items:rootItems});
+    r.observation.globalTurn=7;
+    r.observation.ownTurnResources={retreatedTurn:0};
+    assert.deepEqual(bestAction(r),{kind:'select-action',token:'vs'});
+    const choose=request({seat,ownPublic,opponentPublic,prompt:search,
+      hand:['VS Seeker PHF 109']});
+    choose.observation.globalTurn=7;
+    choose.observation.ownTurnResources={retreatedTurn:0};
+    assert.deepEqual(promptDecision(choose),{kind:'select-choices',tokens:['g']});
+    ownPublic.active.energies=[];
+    assert.deepEqual(promptDecision(choose),{kind:'select-choices',tokens:['c']});
+    ownPublic.active.energies=[P.energy,P.energy,'Fire Energy MEE 10'];
+  }
+});
+
+test('VS Seeker respects protected DDE and current Raihan prerequisite',()=>{
+  const ownPublic=player({
+    active:pokemon(P.regidragoV),
+    discard:[{printing:'Professor Sycamore BKP 107'}]
+  });
+  const items=[action('vs','play-card','VS Seeker PHF 109'),action('pass','pass')];
+  for(const seat of [0,1]){
+    const r=request({seat,ownPublic,items,hand:['VS Seeker PHF 109',P.doubleDragon]});
+    assert.deepEqual(bestAction(r),{kind:'select-action',token:'pass'});
+    ownPublic.discard.push({printing:'Raihan EVS 152'});
+    assert.deepEqual(bestAction(r),{kind:'select-action',token:'pass'});
+    ownPublic.discard.push({printing:P.energy});
+    r.publicEventReceipt={priorOpponentTurnKO:{any:true}};
+    assert.deepEqual(bestAction(r),{kind:'select-action',token:'vs'});
+    const promptR=prompt('VS Seeker PHF 109','VS Seeker',[
+      choice('s','Professor Sycamore BKP 107'),choice('r','Raihan EVS 152')
+    ],'ChooseCardsPrompt',[1,1]);
+    promptR.publicMetadata.sourceZone='discard';
+    assert.deepEqual(promptDecision({...r,prompt:promptR}),
+      {kind:'select-choices',tokens:['r']});
+    ownPublic.discard=[{printing:'Professor Sycamore BKP 107'}];
+  }
+});
+
 test('Dedechange and Sycamore retain protected DDE before two attackers are funded',()=>{
   const choices=[
     {token:'yes',kind:'confirm',label:'Yes'},
