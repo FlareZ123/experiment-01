@@ -1245,6 +1245,67 @@ function bestManualPsychicAttachment(items,o) {
   return rows[0]?.item??null;
 }
 
+// One legal Basic Psychic attachment can *complete* a secondary attacker
+// rather than marginally improve Clefairy's setup. This examines only the
+// actual offered hand-attachment roots; a Bench finisher also requires the
+// independent native-offered free RetreatAction to that exact target index.
+function manualEnergyCompletesPrintedKO(items,o) {
+  if(o?.ownTurnResources?.attackLocked===true||
+     o?.ownPublic?.publicTurnRestrictions?.attackLocked===true)return null;
+  const own=o?.ownPublic;
+  if(!own?.active||!Array.isArray(own.bench))return null;
+  const actions=items.filter(a=>a.kind==='play-card'&&
+    has(ownPrinting(a),P.basicPsychic)&&
+    a.publicMetadata?.targetSeat==='actor'&&
+    a.publicMetadata?.isOwnerVisible===true&&
+    ['active','bench'].includes(a.publicMetadata?.targetZone));
+  const psyche=/^(?:Psychic Energy|Telepathic Psychic Energy)\b/i;
+  const candidates=[];
+  for(const action of actions) {
+    const md=action.publicMetadata,zone=md.targetZone;
+    const benchIndex=safeInt(md.targetIndex)?md.targetIndex:
+      safeInt(md.benchIndex)?md.benchIndex:null;
+    const target=zone==='active'?own.active:
+      benchIndex!==null?own.bench[benchIndex]:null;
+    if(!target||text(action.targetPrinting)!==text(target))continue;
+    if(!has(target,P.latias)&&!has(target,P.lele))continue;
+    const before=arr(target.energies),after=[...before,ownPrinting(action)];
+    if(before.length>=3)continue;
+    const activeTarget=zone==='active';
+    // Native actor may choose to retreat only once, and only a currently
+    // offered, target-index matched zero-cost retreat is trusted.
+    const retreat=zone==='bench'&&noCostRetreatOpportunity(o)&&
+      items.some(a=>a.kind==='retreat'&&
+        a.publicMetadata?.targetSeat==='actor'&&
+        a.publicMetadata?.targetZone==='bench'&&
+        a.publicMetadata?.benchIndex===benchIndex&&
+        text(a.targetPrinting)===text(target));
+    if(!activeTarget&&!retreat)continue;
+    if(activeTarget){
+      const c=arr(target.specialConditions).map(x=>String(x).toUpperCase());
+      if(c.includes('ASLEEP')||c.includes('PARALYZED')||
+         target.publicRestrictions?.cannotAttack===true)continue;
+    }
+    const powered={...target,energies:after};
+    const benched=own.bench.slice();
+    if(zone==='bench')benched[benchIndex]=own.active;
+    const next={...o,ownPublic:{...own,active:powered,bench:benched}};
+    let win=null;
+    if(has(target,P.latias)&&after.length>=3&&
+       after.filter(x=>psyche.test(text(x))).length>=2)
+      win=latiasEonBladeKO(next);
+    else if(has(target,P.lele)&&after.length>=2)
+      win=tapuLeleEnergyDriveKO(next);
+    if(!win)continue;
+    // Without this particular attachment, the same paid attack cannot fire.
+    const alreadyReady=has(target,P.latias)?before.length>=3:before.length>=2;
+    if(alreadyReady)continue;
+    candidates.push({action,prizes:win.prizeLowerBound,
+      damage:win.damage??win.damageLowerBound??0});
+  }
+  candidates.sort((a,b)=>b.prizes-a.prizes||b.damage-a.damage);
+  return candidates[0]?.action??null;
+}
 function startingActiveRank(printing) {
   if(has(printing,P.clefairy))return 120;
   if(/^Latias ex SSP(?: 76)?\b/i.test(text(printing)))return 110;
@@ -1800,6 +1861,10 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
     if(retrievedGuzma&&supporterAvailable(o)&&
        arr(o.ownPublic?.discard).some(x=>has(x,P.guzma)))return act(retrievedGuzma);
   }
+  // A single actor-offered Basic Psychic can finish a precise 2-/3-Prize
+  // Latias/Lele line. Act before using generic consistency connectors.
+  const finishAttachment=manualEnergyCompletesPrintedKO(items,o);
+  if(finishAttachment)return act(finishAttachment);
   // Lele's on-play Wonder Tag is an executable supporter-access axis,
   // not merely a two-Prize Bench filler. Under public Ability lock preserve it.
   if(needWonderTag(o)){
@@ -1974,4 +2039,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,sourceCardPatternCoverage,heavyBallBasicCoverage,createPolicy,
-  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,certifiedPsychicBenchTargets,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,freeRetreatToPrintedFinisher,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,minimumPrizesOnAttackKnockout,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,latiasEonBladeKO,tapuLeleEnergyDriveKO,guaranteedMimikyuCopycatKO,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy,hasFreshPriorOpponentTurnKO,raihanOpportunity,raihanAttachPrompt,raihanSearchPrompt,raihanPrompt,hisuianHeavyBallOpportunity,hisuianHeavyBallPrompt};
+  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,certifiedPsychicBenchTargets,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,freeRetreatToPrintedFinisher,manualEnergyCompletesPrintedKO,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,minimumPrizesOnAttackKnockout,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,latiasEonBladeKO,tapuLeleEnergyDriveKO,guaranteedMimikyuCopycatKO,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy,hasFreshPriorOpponentTurnKO,raihanOpportunity,raihanAttachPrompt,raihanSearchPrompt,raihanPrompt,hisuianHeavyBallOpportunity,hisuianHeavyBallPrompt};
