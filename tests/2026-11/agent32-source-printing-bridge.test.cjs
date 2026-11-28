@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {buildSourcePrintingMap,projectSourcePrintings,projectAdmittedWorkerParts,wrapSourcePrintedObserver}=
+const {buildSourcePrintingMap,projectSourcePrintings,projectAdmittedWorkerParts,wrapSourcePrintedObserver,createCertifiedSourcePrintedHostBridge}=
   require('../../simulation/evaluation/2026-11/agent32-source-printing-bridge.cjs');
 
 const source={cards:[
@@ -350,4 +350,64 @@ test('native.observe source wrapper seals frozen view before driver digest',()=>
   assert.equal(wrapped.observe({stage:'fixture'},0).ownHand[0],
     observation.ownHand[0]);
   assert.equal(calls,2);
+});
+
+
+test('single two-seat adapter binds frozen driver SHA to exact projected worker input',()=>{
+  const {createHash}=require('node:crypto');
+  const hash=v=>createHash('sha256').update(JSON.stringify(v)).digest('hex');
+  const otherDeck={cards:[
+    {name:'Penny',count:1,printing:{set:'SVI',number:'999'}},
+    {name:'Psychic Energy',count:59,printing:{set:'SVE',number:'5'}}]};
+  const otherIds=['Penny SVI',...Array(59).fill('Psychic Energy SVE')];
+  const checks=[];
+  const strict={
+    validateActorObservation(value,seat){
+      checks.push('view');
+      assert.equal(value.actorSeat,seat);
+    },
+    validatePrompt(value){checks.push('prompt');assert.equal(value,null);},
+    validatePublicEventReceipt(value){checks.push('receipt');assert.equal(value,null);},
+    validateFrontier(value){
+      checks.push('frontier');
+      assert.equal(value.schema,'fixture');
+      return new Set(value.items.map(item=>item.token));
+    }
+  };
+  const mockNative={observe(_state,seat){
+    return {actorSeat:seat,ownHand:['Penny SVI'],
+      ownPublic:{active:{printing:'Penny SVI'},bench:[]},
+      opponentPublic:{active:{printing:'Penny SVI'},bench:[]}};
+  }};
+  const bridge=createCertifiedSourcePrintedHostBridge({
+    native:mockNative,protocol:strict,
+    sourceDecksBySeat:[source,otherDeck],
+    nativeOrdered60BySeat:[ids,otherIds]
+  });
+  assert.equal(Object.isFrozen(bridge),true);
+  for(const seat of [0,1]){
+    const observed=bridge.native.observe({},seat);
+    const firstSha=hash(observed);
+    const packet=bridge.projectWorkerParts({observation:observed,
+      prompt:null,publicEventReceipt:null,
+      actionFrontier:{schema:'fixture',items:[
+        {token:'a0',kind:'play-card',actorPrinting:'Penny SVI'},
+        {token:'a1',kind:'pass'}
+      ]}});
+    assert.equal(hash(packet.observation),firstSha,
+      'worker sees exactly the same observation content as driver ledger');
+    assert.deepEqual(packet.actionFrontier.items.map(x=>x.token),['a0','a1']);
+    assert.equal(packet.observation.ownHand[0],
+      seat===0?'Penny SVI 183':'Penny SVI 999');
+    assert.equal(packet.observation.opponentPublic.active.printing,
+      seat===0?'Penny SVI 999':'Penny SVI 183');
+    assert.equal(packet.actionFrontier.items[0].actorPrinting,
+      packet.observation.ownHand[0]);
+  }
+  assert.ok(checks.length>=16);
+  assert.throws(()=>createCertifiedSourcePrintedHostBridge({
+    native:mockNative,protocol:strict,
+    sourceDecksBySeat:[source,otherDeck],
+    nativeOrdered60BySeat:[ids,ids.slice(0,59)]
+  }),/60/);
 });
