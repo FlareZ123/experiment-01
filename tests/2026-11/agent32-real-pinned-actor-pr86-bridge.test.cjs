@@ -2,9 +2,10 @@
 
 /**
  * Actual pinned PokemonCard instances -> shared actor observation -> strict
- * worker protocol -> two-seat opponent decision. Deliberately no game/CI or
- * policy-strength claim; the action frontier here is a controlled comparison
- * rather than a native legal-action enumeration.
+ * worker protocol -> two-seat opponent decision. Includes a controlled
+ * pre-fix comparator AND genuine native ActionEnumerator+Simulator frontiers,
+ * actual policy-selected ChoosePokemonPrompt, and Store settlement.
+ * Deliberately no whole-game/CI or competitive policy-strength claim.
  *
  * Intended to accompany the narrowly scoped host normalization in PR #86.
  */
