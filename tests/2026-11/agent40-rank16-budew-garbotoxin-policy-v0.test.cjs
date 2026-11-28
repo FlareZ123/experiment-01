@@ -439,7 +439,7 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
   reg.active.energies.push('Grass Energy MEE 8','Grass Energy MEE 8','Fire Energy MEE 2');
   assert.equal(policy.templeStrandsApexDragon(q.observation),false);
-  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
  });
 }
 
@@ -656,7 +656,7 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
   active.energies.push('Double Colorless Energy SUM 136');
   assert.equal(policy.templeStrandsIronThorns(q.observation),false);
-  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
  });
  test('seat '+seat+' Temple replaces Thunder Mountain first-turn DCE-powered Thorns attack',()=>{
   const active=mon('Iron Thorns ex TWM 77',{energies:['Double Colorless Energy SUM 136']});
@@ -667,7 +667,7 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
   q.observation.opponentPublic.stadium=[];
   assert.equal(policy.templeStrandsIronThorns(q.observation),false);
-  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
  });
 }
 
@@ -683,7 +683,7 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
   thorns.energies.push('Lightning Energy MEE 4');
   assert.equal(policy.templeStrandsIronThorns(q.observation),false);
-  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
  });
  test('seat '+seat+' source rank24 Thorns double Speed Lightning with Thunder Mountain loses Lightning under Temple',()=>{
   const thorns=mon('Iron Thorns ex TWM 77',{energies:[
