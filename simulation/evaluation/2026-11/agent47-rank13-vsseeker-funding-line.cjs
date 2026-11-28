@@ -127,28 +127,9 @@ function assessRank13CrispinEnergyPair(view) {
   return assessSourceCountCrispinEnergyPair(view,RANK13_ENERGY_COPIES);
 }
 
-function chooseRank13VsSeekerFundingLine(request) {
-  const prompt = request?.prompt;
-  const view = request?.observation;
-  const meta = prompt?.publicMetadata;
-  if (!prompt || prompt.promptType !== 'ChooseCardsPrompt' ||
-      !isPrint(prompt.source?.sourcePrinting, VS_SEEKER) ||
-      prompt.source?.classification !== 'actor-choice' ||
-      meta?.selectionType !== 'card-combination' ||
-      meta.minimumCount !== 1 || meta.maximumCount !== 1 ||
-      meta.ownerSeat !== 'actor' || meta.isOwnerVisible !== true ||
-      meta.sourceZone !== 'discard' || meta.allowCancel !== false ||
-      !Array.isArray(prompt.choices) || !view ||
-      view.decisionKind !== 'owner-prompt') return null;
-
-  const crispin = prompt.choices.filter(choice =>
-    typeof choice?.token === 'string' && isPrint(choice, CRISPIN));
-  const guzma = prompt.choices.filter(choice =>
-    typeof choice?.token === 'string' && isPrint(choice, GUZMA));
-  if (crispin.length !== 1 || guzma.length !== 1) return null;
-
-  const own = view.ownPublic;
-  const foe = view.opponentPublic;
+function isRank13CrispinFundingWindow(view) {
+  const own = view?.ownPublic;
+  const foe = view?.opponentPublic;
   const active = own?.active;
   const defending = foe?.active;
   const energy = active?.energies;
@@ -184,11 +165,60 @@ function chooseRank13VsSeekerFundingLine(request) {
       // otherwise keep the prospective but uncertain line unless deck/card
       // exhaustion positively blocks it. No opaque hidden-zone peeking.
       ['blocked','invalid','unknown'].includes(
-        assessRank13CrispinEnergyPair(view).status)) return null;
+        assessRank13CrispinEnergyPair(view).status)) return false;
 
+  return true;
+}
+
+function chooseRank13VsSeekerFundingRoot(request) {
+  const view=request?.observation;
+  if(request?.prompt!==null && request?.prompt!==undefined)return null;
+  if(view?.decisionKind!=='owner-root' || request?.role!=='opponent' ||
+     request?.seat!==view?.actorSeat ||
+     !isRank13CrispinFundingWindow(view))return null;
+  // Be more conservative than the prompt-level selector: do not displace an
+  // otherwise good available root action unless the Basic pair is certified
+  // in deck by K0 counting or authenticated fresh K1.
+  const status=assessRank13CrispinEnergyPair(view).status;
+  if(status!=='certified-k0-lower-bound' &&
+     status!=='certified-fresh-k1')return null;
+  if(!Array.isArray(view?.ownHand) ||
+     !view.ownHand.some(card=>isPrint(card,VS_SEEKER)) ||
+     !view?.ownPublic?.discard?.some(card=>isPrint(card,CRISPIN)))return null;
+  const actions=request?.actionFrontier?.items;
+  if(!Array.isArray(actions) || actions.some(item=>item?.kind==='attack'))
+    return null;
+  const seekers=actions.filter(item=>item?.kind==='play-card' &&
+    typeof item?.token==='string' && isPrint(item.actorPrinting,VS_SEEKER));
+  if(seekers.length!==1)return null;
+  return {kind:'select-action',token:seekers[0].token};
+}
+
+function chooseRank13VsSeekerFundingLine(request) {
+  const prompt = request?.prompt;
+  const view = request?.observation;
+  const meta = prompt?.publicMetadata;
+  if (!prompt || prompt.promptType !== 'ChooseCardsPrompt' ||
+      !isPrint(prompt.source?.sourcePrinting, VS_SEEKER) ||
+      prompt.source?.classification !== 'actor-choice' ||
+      meta?.selectionType !== 'card-combination' ||
+      meta.minimumCount !== 1 || meta.maximumCount !== 1 ||
+      meta.ownerSeat !== 'actor' || meta.isOwnerVisible !== true ||
+      meta.sourceZone !== 'discard' || meta.allowCancel !== false ||
+      !Array.isArray(prompt.choices) || !view ||
+      view.decisionKind !== 'owner-prompt') return null;
+
+  const crispin = prompt.choices.filter(choice =>
+    typeof choice?.token === 'string' && isPrint(choice, CRISPIN));
+  const guzma = prompt.choices.filter(choice =>
+    typeof choice?.token === 'string' && isPrint(choice, GUZMA));
+  if (crispin.length !== 1 || guzma.length !== 1) return null;
+
+  if (!isRank13CrispinFundingWindow(view)) return null;
   return { kind: 'select-choices', tokens: [crispin[0].token] };
 }
 
 module.exports = { chooseRank13VsSeekerFundingLine,
+  chooseRank13VsSeekerFundingRoot,isRank13CrispinFundingWindow,
   assessRank13CrispinEnergyPair,assessSourceCountCrispinEnergyPair,
   RANK13_ENERGY_COPIES };
