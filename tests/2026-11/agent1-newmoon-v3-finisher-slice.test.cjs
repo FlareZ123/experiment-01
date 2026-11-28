@@ -576,4 +576,70 @@ test('certified lethal Active Stage2 Shadow Bind targets unlocked low-HP opponen
  assert(f.root().token,'shadow');
 });
 
+
+test('full-source paid Night Watch applies damage and two-card hand pressure',()=>{
+ const f=make();f.own.bench[0]=null;
+ f.night.publicMetadata.attackSource.sourceCardName='Trevenant & Dusknoir-GX';
+ assert(f.root().token,'night');
+});
+test('paid pressure can attack instead of unsafe last-Prize Cursed Blast',()=>{
+ const f=make();f.opp.prizeCount=1;
+ f.night.publicMetadata.attackSource.sourceCardName='Trevenant & Dusknoir-GX';
+ assert(f.root().token,'night');
+});
+test('nonlethal Night Watch uses current paid source but refuses known damage reduction',()=>{
+ const f=make();f.own.bench[0]=null;f.night.publicMetadata.damageReduced=20;
+ f.night.publicMetadata.attackSource.sourceCardName='Trevenant & Dusknoir-GX';
+ assert(f.root().kind,'abstain');
+});
+test('paid Stage2 Shadow Bind can progress two-hit knockout without item-lock target',()=>{
+ const f=make();f.own.active.printing='Dusknoir SFA 20';f.own.bench=[];
+ f.items.splice(0,f.items.length,{kind:'attack',token:'shadow',
+ actorPrinting:'Dusknoir SFA 20',attackName:'Shadow Bind',
+ publicMetadata:{attackCostPayable:true,attackSource:{sourceKind:'active-pokemon',
+ sourceSlot:'ACTIVE',sourceIndex:0,sourceCardName:'Dusknoir',
+ sourceCardFullName:'Dusknoir SFA 20',attackName:'Shadow Bind'}}});
+ assert(f.root().token,'shadow');
+});
+test('paid Dusclops chip 50 can advance partial counter-KO',()=>{
+ const f=make();f.own.active.printing='Dusclops SFA 19';f.own.bench=[];
+ f.items.splice(0,f.items.length,{kind:'attack',token:'willow',
+ actorPrinting:'Dusclops SFA 19',attackName:'Will-O-Wisp',
+ publicMetadata:{attackCostPayable:true,attackSource:{sourceKind:'active-pokemon',
+ sourceSlot:'ACTIVE',sourceIndex:0,sourceCardName:'Dusclops',
+ sourceCardFullName:'Dusclops SFA 19',attackName:'Will-O-Wisp'}}});
+ assert(f.root().token,'willow');
+});
+test('refill with Lillie only when hand thin and Supporter open',()=>{
+ const f=make();f.own.bench[0]=null;f.obs.ownHand=['Lillie’s Determination'];
+ f.items.splice(0,f.items.length,{kind:'play-card',token:'lillie',
+ actorPrinting:"Lillie's Determination MEG 119",
+ publicMetadata:{cardType:'trainer'}});
+ assert(f.root().token,'lillie');
+});
+test('refill cannot consume a second Supporter this turn',()=>{
+ const f=make();f.own.bench[0]=null;f.obs.ownHand=["Lillie's Determination"];
+ f.obs.ownTurnResources.supporterPlayedTurn=1;
+ f.items.splice(0,f.items.length,{kind:'play-card',token:'lillie',
+ actorPrinting:"Lillie's Determination MEG119",
+ publicMetadata:{cardType:'trainer'}});
+ assert(f.root().kind,'abstain');
+});
+test('refill protects singleton Secret Box hand',()=>{
+ const f=make();f.own.bench[0]=null;
+ f.obs.ownHand=["Lillie's Determination",'Secret Box TWM 163'];
+ f.items.splice(0,f.items.length,{kind:'play-card',token:'lillie',
+ actorPrinting:"Lillie's Determination MEG119",
+ publicMetadata:{cardType:'trainer'}});
+ assert(f.root().kind,'abstain');
+});
+test('refill protects held Dusknoir when evolved board already exists',()=>{
+ const f=make();f.own.bench[0]=null;
+ f.obs.ownHand=["Lillie's Determination",'Dusknoir SFA 20'];
+ f.items.splice(0,f.items.length,{kind:'play-card',token:'lillie',
+ actorPrinting:"Lillie's Determination MEG119",
+ publicMetadata:{cardType:'trainer'}});
+ assert(f.root().kind,'abstain');
+});
+
 console.log('Agent1 v3 research actor tests: '+checks+' assertions passed');
