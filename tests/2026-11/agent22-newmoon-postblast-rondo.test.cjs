@@ -70,5 +70,7 @@ x=base();x.own.benchBeforeBlast=0;
 check(x,'unsupported','INVALID_PUBLIC_STATE');
 x=base();x.public.sourceDamage=50;
 x=check(x,'candidate'); // Prior 50 damage means 130+80 is lethal despite only 3 Bench
-assert.equal(checks,21);
+x=base();x.public.sourceDamage=100;
+check(x,'blocked','CURSED_BLAST_ALONE_ALREADY_KOS_TARGET');
+assert.equal(checks,22);
 console.log('agent22 post-Blast Rondo actor gate: '+checks+' synthetic cases passed');
