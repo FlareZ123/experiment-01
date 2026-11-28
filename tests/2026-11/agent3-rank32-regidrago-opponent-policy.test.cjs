@@ -720,6 +720,49 @@ test('Guzma does not strand a sole powered Active VSTAR on the Bench',()=>{
 });
 
 
+test('Guzma Budew printed-zero pivot declines known public retreat taxes',()=>{
+  const ownPublic=player({
+    active:pokemon(P.regidrago,{
+      energies:[P.energy,P.energy,'Fire Energy MEE 10']}),
+    bench:[pokemon('Budew ASC 16',{hp:30,
+      printed:{subtypes:['Basic'],retreatCost:[]}})],
+    discard:[{printing:P.goodra}]
+  });
+  ownPublic.prizeCount=2;
+  const opponentPublic=player({
+    active:pokemon('Budew ASC 16',{hp:30}),
+    bench:[pokemon('Dedenne-GX UNB 57',{hp:160,
+      printed:{subtypes:['GX']}})]
+  });
+  const items=[action('guzma','play-card','Guzma BUS 115'),
+    action('apex','attack',P.regidrago,{attackName:'Apex Dragon'}),
+    action('pass','pass')];
+  const {projectedBudewRetreatTax}=require(
+    '../../simulation/evaluation/2026-11/agent3-rank32-regidrago-opponent-policy.cjs');
+  for(const seat of [0,1]){
+    const q=()=>{const req=request({seat,ownPublic,opponentPublic,items});
+      req.observation.globalTurn=8;
+      req.observation.ownTurnResources={retreatedTurn:7};
+      return req;};
+    assert.equal(projectedBudewRetreatTax(q().observation),0);
+    assert.deepEqual(bestAction(q()),{kind:'select-action',token:'guzma'});
+    ownPublic.stadium=['Galar Mine RCL 160'];
+    assert.equal(projectedBudewRetreatTax(q().observation),2);
+    assert.deepEqual(bestAction(q()),{kind:'select-action',token:'apex'});
+    ownPublic.stadium=[];
+    opponentPublic.stadium=['Calamitous Wasteland PAL 175'];
+    assert.equal(projectedBudewRetreatTax(q().observation),1);
+    assert.deepEqual(bestAction(q()),{kind:'select-action',token:'apex'});
+    opponentPublic.stadium=[];
+    opponentPublic.bench.push(pokemon('Spidops ex SVI 19',{
+      printed:{subtypes:['ex'],retreatCost:['Colorless']}}));
+    assert.equal(projectedBudewRetreatTax(q().observation),1);
+    assert.deepEqual(bestAction(q()),{kind:'select-action',token:'apex'});
+    opponentPublic.bench.pop();
+    assert.deepEqual(bestAction(q()),{kind:'select-action',token:'guzma'});
+  }
+});
+
 test('Raihan searches a functional Regidrago bottleneck, not a generic connector',()=>{
   const meta={sourceZone:'deck',ownerSeat:'actor',
     selectionType:'card-combination',minimumCount:1,maximumCount:1};
