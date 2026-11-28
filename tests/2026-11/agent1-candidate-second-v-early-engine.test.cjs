@@ -209,6 +209,8 @@ for(const seat of [0,1])test(
       publicMetadata:{sourceZone:'deck',ownerSeat:'actor',
         isOwnerVisible:true,selectionIndex:i,selectedCount:1}
     }));
+    choices.push({token:'none',kind:'empty-selection',
+      label:'Choose no items',publicMetadata:{selectedCount:0}});
     const prompt={schema:protocol.PROMPT_SCHEMA,actingSeat:seat,
       promptType:'ChooseCardsPrompt',description:null,
       source:{classification:'actor-choice',sourceKind:'card-effect',
