@@ -431,3 +431,40 @@ test('Marnie hand-reset turns on only when it meaningfully disrupts a large oppo
   assert.equal(score(6,7),0);
   assert.equal(score(2,7,1),0);
 });
+
+test('Karen recycles visible Regidrago attack donors and wins real Supporter contention', () => {
+  const regidrago=player({
+    active:poke('Regidrago VSTAR SIT 136'),
+    discard:['Dialga-GX UPR 100','Dragapult ex TWM 130']
+  });
+  const o=observation({opponentPublic:regidrago,ownHand:['Karen XYP 177','Marnie SSH 169']});
+  const karen={kind:'play-card',actorPrinting:'Karen XYP 177',token:'karen'};
+  const marnie={kind:'play-card',actorPrinting:'Marnie SSH 169',token:'marnie'};
+  assert.equal(policy.scoreAction(karen,root([],o)),300);
+  assert.deepEqual(policy.bestAction(root([marnie,karen,pass],o)),
+    {kind:'select-action',token:'karen'});
+});
+test('Karen is not burned when Regidrago has no discarded attack donors', () => {
+  const karen={kind:'play-card',actorPrinting:'Karen XYP 177'};
+  const without=observation({opponentPublic:player({
+    active:poke('Regidrago VSTAR SIT 136'),discard:['Quick Ball FST 237']
+  }),ownHand:['Karen XYP 177']});
+  const other=observation({opponentPublic:player({
+    active:poke('Shadow Rider Calyrex VMAX CRE 75'),
+    discard:['Dialga-GX UPR 100']}),
+    ownHand:['Karen XYP 177']});
+  assert.equal(policy.scoreAction(karen,root([],without)),0);
+  assert.equal(policy.scoreAction(karen,root([],other)),0);
+});
+test('VS Seeker Karen is search-prioritized in a live Regidrago donor board', () => {
+  const o=observation({opponentPublic:player({
+    active:poke('Regidrago VSTAR SIT 136'),
+    discard:['Kyurem SHF 47','Noivern ex PAL 153']
+  }),ownPublic:player({discard:['Karen XYP 177','Marnie SSH 169']})});
+  const prompt={promptType:'ChooseCardsPrompt',
+    source:{sourcePrinting:'VS Seeker PHF 109',effectName:'VS Seeker'},
+    choices:[choice('karen','Karen XYP 177','discard'),
+      choice('marnie','Marnie SSH 169','discard')]};
+  assert.deepEqual(policy.promptDecision({observation:o,prompt}),
+    {kind:'select-choice',token:'karen'});
+});
