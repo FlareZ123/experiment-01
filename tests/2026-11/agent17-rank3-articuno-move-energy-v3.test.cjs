@@ -61,7 +61,7 @@ function fixture(seat) {
   const prompt = new MoveEnergyPrompt(state.players[seat].id);
   const provenanceHook = {
     getPromptProvenance() {
-      return { sourceKind: 'card-effect', sourceCard, effectName: 'Legendary Ascent' };
+      return { sourceKind: 'card-effect', sourceCard, effectName: 'Articuno-GX' };
     }
   };
   return { prompt, state, actorSeat: seat, native, store: {}, provenanceHook };
@@ -155,7 +155,7 @@ function confirmRequest(seat, {
   benchWater = true,
   opponentEnergy = 2,
   gxUsed = false,
-  effectName = 'Legendary Ascent'
+  effectName = 'Articuno-GX'
 } = {}) {
   return {
     role: 'opponent', seat,
