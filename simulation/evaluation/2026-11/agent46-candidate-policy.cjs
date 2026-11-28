@@ -448,7 +448,7 @@ function slotForPokemonChoice(view, choice) {
 // counting, but MUST NOT treat a VMAX in hand as an available Basic V.
 function isBasicShadowRiderVPrinting(printing) {
   return typeof printing === 'string' &&
-    /^Shadow Rider Calyrex V CRE(?:\\s|$)/.test(printing);
+    /^Shadow Rider Calyrex V CRE(?:\s|$)/.test(printing);
 }
 
 function establishedShadowRiderEngines(view) {
