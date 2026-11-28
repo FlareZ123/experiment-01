@@ -761,7 +761,7 @@ One source-conditioned successful `AttackAction` announcement establishes only p
 - **Communication:** broadcast communications/broadcast/20261128T0615Z_agent40_wobbuffet_bench_ability_suppression.md explains the general active Wobbuffet/bench-Ability edge case. Agent17 received communications/agent17/2026-11/20261128T0615Z_agent40_rank16_wobbuffet_review_update.md with latest hashes and narrow review request. Independent review still pending.
 - **Next:** await Agent17 review; inspect any broadcast responses. Continue only evidence-based policy fixes. No Node CI/native Twinleaf/full games/qualified matchups/win-rate evidence; no CI/game/merge authorization.
 
-## 28 Nov 2026 06:20 UTC — Psychic Garbodor exception inventory
+## 28 Nov 2026 — Psychic Garbodor exception inventory
 
 - **Lifecycle unchanged:** Agent40 claimed_at=2026-11-28T05:54:57.320434496Z; release threshold 2026-11-28T07:04:57.320434496Z. Last actual clock check before this checkpoint was ~06:17Z; do not refresh lease.
 - **Card-pool correction:** both exact Garbotoxin printings in this worker's SOURCE_INVENTORY—Garbodor LTR68 and Garbodor BKP57—are Psychic-type in the supplied card pool. Active Wobbuffet PHF36's Bide Barricade exempts Psychic Pokémon and therefore does not suppress these Garbotoxin Abilities. pokemonIsPsychic exact-print fallback now includes both Garbodor identities.
@@ -770,7 +770,7 @@ One source-conditioned successful `AttackAction` announcement establishes only p
 - **Communication:** broadcast communications/broadcast/20261128T0620Z_agent40_psychic_garbodor_wobbuffet_exception.md; Agent17 review update communications/agent17/2026-11/20261128T0620Z_agent40_rank16_psychic_garbodor_review_update.md. Earlier 0610 Stadium and 0615 Wobbuffet broadcasts remain relevant. Independent review pending.
 - **Next:** await Agent17 feedback. Avoid building a generic Ability-lock ledger or resolving mixed-source Garbotoxin activation without a source-backed, narrowly scoped requirement; current README says the activation-order field is Active-entry only and untracked mixed-source cases remain unknown. No native/CI/game/merge authorization.
 
-## 28 Nov 2026 06:28 UTC — Wobbuffet setup-action scoring and Active Flutter Mane
+## 28 Nov 2026 — Wobbuffet setup-action scoring and Active Flutter Mane
 
 - **Lifecycle unchanged:** Agent40 claimed_at=2026-11-28T05:54:57.320434496Z; 70-minute release threshold=2026-11-28T07:04:57.320434496Z. Last actual clock check was 06:28:31.572Z (~33.6 min elapsed). Do not refresh lease.
 - **New decision bug fixed:** benchSupportAbilityUsable already respected active Iron Thorns and Wobbuffet, but generic use-ability scoring, setupAbilityPending and ConfirmPrompt bypassed it. This allowed non-Psychic Dedechange/Dark Asset/Squawk and Seize under active Wobbuffet. New setupAbilitySourcePrinting maps the four Basic setup abilities (and Star Alchemy's Crobat host) to exact source printings; score, pending detection and confirmation now use the shared benchSupportAbilityUsable gate. Wobbuffet blocks non-Psychic Crobat/Dedenne/Squawk but permits Psychic Tapu Lele-GX Wonder Tag. Iron Thorns Rule-Box suppression also reaches these action paths.
@@ -779,7 +779,7 @@ One source-conditioned successful `AttackAction` announcement establishes only p
 - **Communication:** broadcast communications/broadcast/20261128T0628Z_agent40_setup_ability_lock_scoring.md asks other policy authors to audit scoring/pending/confirmation paths, not just helpers. Agent17 received communications/agent17/2026-11/20261128T0628Z_agent40_rank16_setup_ability_review_update.md with latest hashes and focused review request. Independent review remains pending.
 - **Next:** check Agent17 response and any broadcast feedback; continue only material source-backed decision corrections. No Node CI, native Twinleaf, full games, qualified matchup result or win-rate evidence; no CI/game/merge authorization.
 
-## 28 Nov 2026 06:33 UTC — Critic ownership and independent review gate
+## 28 Nov 2026 — Critic ownership and independent review gate
 
 - **Critic disposition (communications/agent17/2026-11/20261128T062900Z_critic-rank16-ownership-and-review.md):** Agent40 is sole rank16 implementation lead for agent40/rank16-budew-garbotoxin-20261128; Agent17 remains panel coordinator. This is ownership/review routing only, not game-specific approval or permission for CI, merge, games, or admission. Critic requires one independent reviewer, small held-out actor-visible positive/negative cases, and a real Node test execution if locally available; do not ask reviewer to reproduce the 288-case matrix.
 - **Reviewer designated:** Agent17 is the single independent reviewer (did not author the branch). Request communications/agent17/2026-11/20261128T0633Z_agent40_rank16_independent_review_request.md includes current exact blobs and four focused checks: Stadium no-effect gates; active Wobbuffet and Psychic exception; setup Ability scoring/pending/ConfirmPrompt; Active-only Flutter Mane. Ask for first concrete counterexample or bounded-scope affirmation.
@@ -787,7 +787,7 @@ One source-conditioned successful `AttackAction` announcement establishes only p
 - **Exact local Node blocker:** Node v22.16.0 is installed, but there is no repository checkout in common local paths or under /mnt/data; /mnt/data contains only advanced-players-rulebook.md, card-list.zip, human_concepts.md and prompt.md. GitHub CLI is absent. git ls-remote https://github.com/FlareZ123/experiment-01.git HEAD fails: Could not resolve host: github.com. Therefore exact test file cannot be run under Node locally; do not substitute another V8 shim receipt. Reported this in branch coverage report section 06:29.
 - **Next:** wait for Agent17's single focused review. If reviewer has a real local checkout/Node, ask them to run only a small held-out decision set or exact file as their environment allows; do not ask for matrix reproduction. Branch remains unadmitted. No CI/native Twinleaf/game/merge/promotion/qualification authorization.
 
-## 28 Nov 2026 06:55 UTC — Forest Seal Stone Tool Ability correction; review snapshot refreshed
+## 28 Nov 2026 — Forest Seal Stone Tool Ability correction; review snapshot refreshed
 
 - **Lifecycle unchanged:** Agent40 claimed_at=2026-11-28T05:54:57.320434496Z; release threshold=2026-11-28T07:04:57.320434496Z. Last clock check was 06:33Z; perform a fresh actual clock/lease comparison after this checkpoint. Do not refresh lease.
 - **Critical rules correction:** Forest Seal Stone is a Pokémon Tool with its own Star Alchemy Ability; the attached Pokémon V can use it, but it is not an Ability of Crobat V. Official Pokémon Card Game Asia Q&A explicitly says Star Alchemy works under Path to the Peak: https://asia.pokemon-card.com/hk-en/rules/search/?keyword=Forest+Seal+Stone . Supplied advanced manual classifies Pokémon Tools as Trainer cards. Thus Pokémon-Ability locks (Path, Silent Lab, Wobbuffet, Iron Thorns, Garbotoxin, Flutter Mane, Klefki) should not suppress Star Alchemy.
@@ -798,7 +798,7 @@ One source-conditioned successful `AttackAction` announcement establishes only p
 - **Node blocker unchanged:** Node v22.16.0 is installed, but no repo checkout or GitHub CLI; /mnt/data contains only four uploaded reference files; git ls-remote fails DNS resolution. Exact test file cannot be run under Node locally. Reported in coverage section 06:29; no CI/native/game authorization.
 - **Next:** await Agent17's focused review of Forest Seal Tool-vs-Pokémon Ability distinction and Tool Jammer scope, plus earlier Wobbuffet/Active Flutter cases. Do not claim current tests pass; do not reproduce old matrix; no CI/native Twinleaf/game/merge/promotion/qualification authorization.
 
-## 28 Nov 2026 06:58 UTC — final review snapshot locked
+## 28 Nov 2026 — final review snapshot locked
 
 - **Lifecycle:** original lease remains 2026-11-28T05:54:57.320434496Z; 70-minute release threshold 2026-11-28T07:04:57.320Z. Last actual clock check 06:44:27Z; compare again after this checkpoint.
 - **Final current rank16 branch snapshot:** head f04ce5f3663c3c95a9ebc53017f27fa3d092d6bd; worker db526026d925ef3a2ba61df72d929c4723d52660; tests 03cdca06f757c845e88a9c2be8362a6120d89b4f; Agent49 protocol d8349ae6f3537816b357b8309e9ab140ddec51eb.
