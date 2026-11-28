@@ -200,3 +200,40 @@ for(const seat of [0,1]) {
     assert.deepEqual(decide(request),{kind:'select-action',token:'pass'});
   });
 }
+
+for(const seat of [0,1]) {
+  test('rank16 Garbotoxin physically suppressed means no false Budew dual lock seat '+seat,()=>{
+    const garb={...poke(P.garbLTR),tools:[tool()],
+      abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:true,reasonCode:'NEUTRALIZING_GAS'}]};
+    const request=state(seat,{
+      ownPublic:{active:poke(P.absol),bench:[garb,poke(P.budew)]},
+      items:[action('retreat','budew',{targetPrinting:P.budew}),action('pass','pass')]
+    });
+    assert.deepEqual(decide(request),{kind:'select-action',token:'pass'});
+  });
+  test('rank16 offered own setup Ability suppressed by Garbotoxin is not selected seat '+seat,()=>{
+    const request=state(seat,{
+      ownPublic:{active:poke(P.absol),bench:[
+        {...poke(P.garbBKP),tools:[tool()]},poke(P.crobat)]},
+      items:[action('use-ability','dark',{publicMetadata:{abilityName:'Dark Asset'}}),
+        action('pass','pass')]
+    });
+    assert.deepEqual(decide(request),{kind:'select-action',token:'pass'});
+  });
+  test('rank16 VS Seeker / Plumeria hand-value cycle terminates seat '+seat,()=>{
+    const request=state(seat,{
+      ownHand:['VS Seeker PHF 109','Battle VIP Pass FST 225','Boost Shake EVS 142',
+        'Darkness Energy MEE 15'],
+      ownPublic:{active:poke(P.absol),bench:[poke(P.garbLTR)],discard:[
+        'Plumeria BUS 120','Marnie SSH 169']},
+      opponentPublic:{active:{...poke('Shadow Rider Calyrex VMAX CRE 75'),
+        energies:[{printing:'Psychic Energy MEE 13'},{printing:'Psychic Energy MEE 13'}]},
+        bench:[],discard:[],prizeCount:6,handCount:4},
+      items:[action('play-card','vs',{actorPrinting:'VS Seeker PHF 109'}),
+        action('play-card','plumeria',{actorPrinting:'Plumeria BUS 120'}),
+        action('pass','pass')]
+    });
+    assert.equal(decide(request).kind,'select-action');
+    assert.equal(['vs','plumeria'].includes(decide(request).token),true);
+  });
+}
