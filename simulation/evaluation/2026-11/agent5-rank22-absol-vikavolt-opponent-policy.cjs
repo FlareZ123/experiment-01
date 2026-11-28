@@ -667,9 +667,9 @@ function rank22CompressorTargets(prompt, deck, observation) {
     return { kind: 'abstain', reasonCode: 'RANK22_COMPRESSOR_NO_SAFE_PAYLOAD' };
   }
   if (!selected.length) {
-    const empty = list(prompt.choices).find(choice => choice.kind === 'empty-selection');
-    return empty ? { kind: 'select-choice', token: empty.token } :
-      { kind: 'abstain', reasonCode: 'RANK22_COMPRESSOR_NO_SAFE_PAYLOAD' };
+    // Paper ruling requires at least one selected discard (even if pinned
+    // native source still exposes min:0 without its paper correction hook).
+    return { kind: 'abstain', reasonCode: 'RANK22_COMPRESSOR_NO_SAFE_PAYLOAD' };
   }
   return { kind: 'select-choices', tokens: selected.map(choice => choice.token) };
 }
