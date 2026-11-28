@@ -52,11 +52,45 @@ def exact_probabilities(path: Path = ROOT / "results/aichi-2026/full-decklists.j
         (Fraction(comb(bunnelby+other, k)*comb(nonbasic, n-k), denom)
          for k in range(6, 8)), Fraction()
     )
+    # Source line-specific direct-opening funding: one Budew and at least
+    # one Bunnelby, with TM Evolution, an attachable Energy, and a compatible
+    # first-turn Bench evolution target (Oddish/Lillipup/Pidgey/Fan Rotom).
+    # Fan Rotom can fetch Colorless Pidgey/Lillipup with its first-turn Ability.
+    # Counts are disjoint categories in the authenticated rank-2 60.
+    budew_count = sum(c["count"] for c in cards if c["name"] == "Budew")
+    tm_count = sum(c["count"] for c in cards
+                   if c["name"] == "Technical Machine: Evolution")
+    energy_count = sum(c["count"] for c in cards if c["category"] == "Energy")
+    target_count = sum(c["count"] for c in cards if c["name"] in
+                       {"Oddish", "Lillipup", "Pidgey", "Fan Rotom"})
+    assert (budew_count, tm_count, energy_count, target_count) == (1,2,6,7)
+    remaining = total - sum((budew_count, bunnelby,
+                             tm_count, energy_count, target_count))
+    direct_funded = Fraction()
+    direct_unfunded = Fraction()
+    for bu in range(1, budew_count+1):
+        for bn in range(1, bunnelby+1):
+            for tm in range(tm_count+1):
+                for en in range(energy_count+1):
+                    for tg in range(target_count+1):
+                        rest = n-bu-bn-tm-en-tg
+                        if not 0 <= rest <= remaining:
+                            continue
+                        count = (comb(budew_count,bu)*comb(bunnelby,bn)*
+                                 comb(tm_count,tm)*comb(energy_count,en)*
+                                 comb(target_count,tg)*comb(remaining,rest))
+                        probability = Fraction(count,denom)
+                        if tm>0 and en>0 and tg>0:
+                            direct_funded += probability
+                        else:
+                            direct_unfunded += probability
     return {
         "total":total, "bunnelby":bunnelby, "other_basic":other,
         "no_basic":p_no_basic, "old_not_bunnelby":old_not_bunnelby,
         "old_not_bunnelby_given_valid":old_not_bunnelby/(1-p_no_basic),
         "old_start_full_bench":p_full_bench,
+        "budew_bunnelby_funded_direct":direct_funded,
+        "budew_bunnelby_unfunded_direct":direct_unfunded,
     }
 
 
@@ -69,3 +103,5 @@ if __name__ == "__main__":
             print(f"{key}: {value}")
     assert round(float(result["old_not_bunnelby"]), 8) == 0.09841045
     assert round(float(result["old_start_full_bench"]), 8) == 0.00036657
+    assert round(float(result["budew_bunnelby_unfunded_direct"]), 8) == 0.02220334
+    assert round(float(result["budew_bunnelby_funded_direct"]), 8) == 0.00050268
