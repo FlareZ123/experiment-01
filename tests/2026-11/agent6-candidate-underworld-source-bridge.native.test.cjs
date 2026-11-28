@@ -32,6 +32,8 @@ const {publicEventReceipt}=
   require('../../simulation/twinleaf/agent8-public-event-receipt.cjs');
 const {actorObservation}=
   require('../../simulation/twinleaf/actor-observation-contract.cjs');
+const {installUnderworldDoorPsychicRecipientHook}=
+  require('../../simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs');
 
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const PR94_BRIDGE_BLOB='3686489bfb60a1cefefb9387f141e20ed37f9cab';
@@ -55,6 +57,7 @@ function nativeBindings(){
     TrainerType:card.TrainerType,CardType:card.CardType,
     EnergyType:card.EnergyType,SuperType:card.SuperType,
     StateUtils:native('game/store/state-utils').StateUtils,
+    CheckPokemonTypeEffect:native('game/store/effects/check-effects').CheckPokemonTypeEffect,
     GameError:native('game/game-error').GameError,
     ResolvePromptAction
   };
@@ -161,6 +164,8 @@ function checkedDecision(worker,request,init,sequence){
 
 for(const seat of [0,1]){
   test('native Hood Underworld root -> strict prompt -> physical Energy+draw; seat '+seat,()=>{
+    const restorePaper=installUnderworldDoorPsychicRecipientHook();
+    try{
     const x=scene(seat);
     const {store,state,owner,adapters,dependencies}=x;
     const initial=adapters.native.observe(state,seat);
@@ -297,6 +302,10 @@ for(const seat of [0,1]){
     }finally{
       hook.restore();
       assert.equal(hook.restored,true);
+    }
+    }finally{
+      restorePaper();
+      assert.equal(restorePaper.isRestored,true);
     }
   });
 }
