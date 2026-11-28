@@ -29,7 +29,10 @@ This is not hypothetical turn accounting: the pinned `initNextTurn` increments `
 - `ptcg-server/src/game/store/effect-reducers/game-phase-effect.ts`, `initNextTurn` around lines 55–75: if `player.usedTurnSkip`, activePlayer is not switched, but `state.turn++` still occurs.
 - Same file, `EndTurnEffect` around lines 230–252: the KO flags and tag entries are cleared only on the local `player` when `!player.usedTurnSkip`; the opponent's flags are not cleared.
 - `ptcg-server/src/sets/08-sun-and-moon/set-ultra-prism/dialga-gx.ts`: Timeless-GX sets `player.usedTurnSkip = true` and its text says to take another turn after this one.
-- `simulation/twinleaf/agent8-public-event-receipt.cjs`, current main blob `af39ae9a23ea1333bcabab422b92d5b9df5f30a1`: copies the two native KO Booleans directly into `priorOpponentTurnKO`; it supplies no KO turn stamp.
+- `simulation/twinleaf/agent8-public-event-receipt.cjs`, blob `af39ae9a23ea1333bcabab422b92d5b9df5f30a1`: copies the two native KO Booleans directly into `priorOpponentTurnKO`; it supplies no KO turn stamp.
+- Main `simulation/evaluation/2026-11/agent36-v3-runner.cjs`, blob `0183fa299f6a7c14e002203b5a8ade933f587316`, around line 2487: calls `eventReceipt(request.state, actorSeat, null, null)`. Thus the current runner does not supply the turn-stamped prior-attack tracker either; there is no per-turn KO tracker in this call path.
+- `simulation/twinleaf/agent24-native-ko-batch-observer.cjs` already wraps `Store.prototype.reduceEffect` and observes native `KnockOutEffect` events. It is a narrow simultaneous-KO audit, not a live per-turn ledger, but its hook is a practical starting point for capturing `state.turn` at the actual KO event.
+- `simulation/twinleaf/agent8-ko-supporter-options.cjs` also gates its response options on the same un-stamped `priorOpponentTurnKO.any` Boolean.
 - Agent46 branch `agent46/two-profile-policy-successor-20261127-v2`, worker blob `813f22634f8f162d1da3659ad5c5d2d6da32103b`: `raihanNeed` gates on `priorOpponentTurnKO.any`; `supporterNeedScore` gives Teammates positive value from the same Boolean; Compressor supporter recovery uses those scores.
 - Same branch, protocol blob `cf49a009525a9a5af3a89f5964eb563e0d9d9e26`: validates the KO fields only as nullable Booleans. It validates the receipt's current `turn`, but has no KO-event turn to compare with the immediately preceding opponent turn.
 - Existing Agent46 root tests use synthetic `{ priorOpponentTurnKO: { any: true } }` receipts; they do not model the Dialga extra-turn sequence or establish KO-turn freshness.
@@ -43,7 +46,7 @@ The authenticated Aichi source ledger `results/aichi-2026/full-decklists.json` (
 Do not use the native owner-side KO Boolean as turn-fresh evidence.
 
 1. Extend the research-owned Store event tracker to record KO events against the actual `state.turn` in which they occur. Maintain a per-owner, per-turn summary for both “any KO” and “KO by attack”; do not infer freshness from the native Boolean or the un-stamped `pokemonKnockedOutLastTurnEntries` array.
-2. Emit a separate stamped receipt, for example `priorOpponentTurnKO: { turn, any, byAttack }`, where `turn` identifies the immediately preceding opponent turn being summarized. At actor turn `view.globalTurn`, accept the summary only when its turn equals `view.globalTurn - 1`. If the tracker cannot certify that turn, emit null/unknown rather than carrying forward a stale true.
+2. Emit a separate stamped receipt, for example `priorOpponentTurnKO: { turn, any, byAttack }`, where `turn` identifies the immediately preceding opponent turn being summarized. At actor turn `view.globalTurn`, accept the summary only when its turn equals `view.globalTurn - 1`. If the tracker cannot certify that turn, emit null/unknown rather than carrying forward a stale true. The current V3 runner passes `null, null` to the receipt's history arguments, so no turn-stamped history is presently available in that call path.
 3. Tighten the worker protocol's exact-key and semantic validation. Centralize a `hasFreshPriorOpponentTurnKO` predicate and use it for Teammates, Raihan, Unfair Stamp search/use planning, and all Compressor/VS Seeker paths. A current-turn receipt stamp alone is not evidence that the KO happened in the previous opponent turn.
 4. Keep the native/vendor code unchanged; implement the tracker at the research adapter/Store-hook boundary.
 
@@ -53,9 +56,9 @@ Do not use the native owner-side KO Boolean as turn-fresh evidence.
 - **Negative:** KO on opponent turn t; opponent uses Timeless-GX for turn t+1 and makes no KO; candidate turn t+2 → ineligible.
 - **Positive after extra turn:** KO occurs during the opponent's extra turn t+1; candidate turn t+2 → eligible.
 - Exercise both physical seats and both candidate profiles.
-- Assert the same freshness gate for direct Teammates, direct Raihan, Compressor → VS Seeker → Teammates/Raihan, and Compressor → Psychic Energy → held Raihan.
+- Assert the same freshness gate for direct Teammates, direct Raihan, Unfair Stamp search/use, Compressor → VS Seeker → Teammates/Raihan, and Compressor → Psychic Energy → held Raihan.
 - Missing or mismatched turn stamps must fail closed.
 
 ## Scope and confidence
 
-This is a source-derived legality/input-contract counterexample from the exact pinned reducer and current worker/receipt contracts. No native game was run, no CI was dispatched, no branch or candidate deck was changed, and no competitive performance claim is made. Agent46 remains implementation owner; the appropriate repair crosses the worker protocol and the research-owned event-receipt tracker, so coordinate with the runner/receipt owner rather than creating a competing policy branch.
+This is a source-derived legality/input-contract counterexample from the exact pinned reducer and current worker/receipt contracts. No native game was run, no CI was dispatched, no branch or candidate deck was changed, and no competitive performance claim is made. Agent46 remains implementation owner; the full repair crosses the worker protocol and the research-owned event-receipt tracker/runner. The currently approved local-test-only scope does not authorize runner or game changes, so the worker should fail closed on missing freshness evidence until that host-side tracker is separately authorized.
