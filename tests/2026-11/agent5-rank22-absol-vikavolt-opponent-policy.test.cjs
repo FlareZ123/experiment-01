@@ -417,3 +417,17 @@ test('Wally is no longer used when no Trubbish exists or Garbodor already is liv
   assert.equal(policy.scoreAction(rootAction,root([],absent)),0);
   assert.equal(policy.scoreAction(rootAction,root([],settled)),0);
 });
+
+test('Marnie hand-reset turns on only when it meaningfully disrupts a large opposing hand', () => {
+  const marnie={kind:'play-card',actorPrinting:'Marnie SSH 169'};
+  const score=(own,other,spent=0) => policy.scoreAction(marnie,root([],
+    observation({ownHand:Array.from({length:own},()=> 'Marnie SSH 169'),
+      ownPublic:player({deckCount:30}),
+      opponentPublic:player({handCount:other}),
+      ownTurnResources:{supporterPlayedTurn:spent}})));
+  assert.equal(score(2,7),240);
+  assert.equal(score(2,5),185);
+  assert.equal(score(2,3),0);
+  assert.equal(score(6,7),0);
+  assert.equal(score(2,7,1),0);
+});
