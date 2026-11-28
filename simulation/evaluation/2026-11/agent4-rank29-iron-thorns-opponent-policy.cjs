@@ -458,7 +458,9 @@ function cardChoiceScore(choice, observation, context) {
       return emptyToolRecipient && opponentHasTool(observation) ? 225 : 0;
     if (matches(printing, PRINT.palaceBelt))
       return emptyToolRecipient && ownDeckCount(observation) >= 6 ? 210 : 0;
-    if (matches(printing, PRINT.handheldFan)) return 0; // native prompt unsupported
+    if (matches(printing, PRINT.handheldFan))
+      return emptyToolRecipient && opponentHasAnyEnergy(observation) &&
+        slots(observation.opponentPublic).some(row => row.zone === 'bench') ? 180 : 0;
     if (matches(printing, PRINT.doubleColorless)) return 240;
     if (matches(printing, PRINT.speedLightning)) return 200;
     if (matches(printing, PRINT.spikyEnergy)) return 170;
@@ -1006,6 +1008,41 @@ function promptDecision(request) {
   }
 
   if (prompt.promptType === 'AttachEnergyPrompt') {
+    if (prompt.source?.sourcePrinting === 'Handheld Fan TWM') {
+      if (prompt.source.sourceKind !== 'card-effect' ||
+          prompt.source.effectName !== 'Handheld Fan' ||
+          metadata.selectionType !== 'energy-attachment' ||
+          metadata.sourceZone !== 'active' ||
+          metadata.ownerSeat !== 'opponent' ||
+          metadata.zone !== 'bench' ||
+          metadata.minimumCount !== 0 || metadata.maximumCount !== 1 ||
+          metadata.allowCancel !== false)
+        return {kind:'abstain',reasonCode:'UNTRUSTED_ENERGY_SELECTION'};
+      const chosen=singleChoice(choices, choice => {
+        const meta=choice?.publicMetadata ?? {};
+        const index=meta.benchIndex;
+        const recipient=Number.isSafeInteger(index) && index >= 0 &&
+          index < list(observation?.opponentPublic?.bench).length ?
+          observation.opponentPublic.bench[index] : null;
+        if (choice.kind !== 'energy' || meta.sourceZone !== 'active' ||
+            meta.ownerSeat !== 'opponent' || meta.zone !== 'bench' ||
+            meta.isOwnerVisible !== true || meta.selectedCount !== 1 ||
+            !recipient?.printing) return 0;
+        const energy=choicePrinting(choice);
+        const energyPriority=/Double Dragon Energy/i.test(energy) ? 330 :
+          /Double Colorless Energy/i.test(energy) ? 300 :
+          /Mystery Energy|Horror Psychic Energy|Psychic Energy/i.test(energy) ? 260 :
+          /Energy/i.test(energy) ? 180 : 0;
+        // Move attacker's Energy to a less capable Bench occupant where
+        // possible; do not use hidden information about the opponent hand.
+        const lowValueRecipient=/Tapu Lele-GX|Dedenne-GX|Radiant Eternatus|Latias ex/i
+          .test(recipient.printing) ? 80 : 0;
+        return energyPriority + lowValueRecipient - 12 * energyCount(recipient);
+      },'NO_VISIBLE_ENERGY_CHOICE');
+      if (chosen.kind === 'select-choice') return chosen;
+      const empty=choices.find(choice=>choice.kind==='empty-selection');
+      return empty ? {kind:'select-choice',token:empty.token} : chosen;
+    }
     // Preserve the existing fail-closed disposition of unrelated source prompts.
     if (prompt.source?.effectName !== 'Volt Cyclone')
       return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};
@@ -1260,10 +1297,13 @@ function scorePlayCard(item, request) {
       (toBench ? 30 : 75) : 0;
   }
   if (matches(card, PRINT.handheldFan)) {
-    // The pinned AfterDamage Fan emits AttachEnergyPrompt, but the current
-    // actor projection accepts only Underworld Door. Don't play a Tool that
-    // will deadlock an unqualified native owner-prompt chain.
-    return 0;
+    // Defending Tool owner can now resolve the pinned AfterDamage opponent
+    // Active-to-Bench Energy assignment, including its native zero case.
+    return !toolLocked(observation) && toActive &&
+      matches(target || own.active?.printing, PRINT.ironThorns) &&
+      list(own.active?.tools).length === 0 &&
+      opponentHasAnyEnergy(observation) &&
+      slots(opponent).some(row=>row.zone==='bench') ? 132 : 0;
   }
   if (matches(card, PRINT.palaceBelt)) {
     const destination = target || own.active?.printing;
