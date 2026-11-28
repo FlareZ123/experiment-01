@@ -720,6 +720,35 @@ test('Guzma does not strand a sole powered Active VSTAR on the Bench',()=>{
 });
 
 
+test('second Regidrago Basic is proactively Benched before first V evolves, but not overfilled',()=>{
+  const items=[action('second','play-card',P.regidragoV),action('pass','pass')];
+  for(const seat of [0,1]){
+    const ownPublic=player({active:pokemon(P.regidragoV,{energies:[P.energy]})});
+    assert.deepEqual(bestAction(request({seat,ownPublic,items})),
+      {kind:'select-action',token:'second'});
+    ownPublic.bench=[pokemon(P.regidragoV)];
+    assert.deepEqual(bestAction(request({seat,ownPublic,items})),
+      {kind:'select-action',token:'pass'});
+    ownPublic.bench=[pokemon(P.regidrago)];
+    assert.deepEqual(bestAction(request({seat,ownPublic,items})),
+      {kind:'select-action',token:'pass'});
+  }
+});
+
+test('Apex Dragon donor Dialga and Kyurem stay available to discard, not casually Benched',()=>{
+  const ownPublic=player({
+    active:pokemon(P.regidrago,{energies:[P.doubleDragon,P.energy]}),
+    discard:[{printing:P.goodra}]
+  });
+  for(const seat of [0,1]){
+    for(const printing of [P.dialga,'Kyurem SFA 47']) {
+      const items=[action('donor','play-card',printing),action('pass','pass')];
+      assert.deepEqual(bestAction(request({seat,ownPublic,items})),
+        {kind:'select-action',token:'pass'});
+    }
+  }
+});
+
 test('Kyurem Trifrost selects exactly three distinct opposing target slots, not native minimum one',()=>{
   const opponentPublic=player({active:pokemon('Budew ASC 16',
     {hp:30,printed:{subtypes:['Basic'],weakness:[],resistance:[]}}),
