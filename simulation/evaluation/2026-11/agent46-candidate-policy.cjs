@@ -677,14 +677,13 @@ function choosePokemonRecipient(view, prompt) {
       };
     });
   } else if (effectName === 'Guzma' && opponentChoices.length > 0) {
-    const attacker = view.ownPublic.active;
     ranked = opponentChoices.map(row => {
-      const attack = bestAttackForSlot(attacker, view, row.target.slot);
+      const attack = bestGuzmaPostSwitchAttack(view, row.target.slot);
       const liability = prizeLiability(row.target.slot);
       return {
         ...row,
-        score: (attack?.score ?? -1000) + liability * 1200 -
-          Math.max(0, row.target.slot.hp - row.target.slot.damage)
+        score: attack ? attack.score + liability * 1200 -
+          Math.max(0, row.target.slot.hp - row.target.slot.damage) : -Infinity
       };
     });
   } else {
@@ -1139,13 +1138,29 @@ function hasStadiumRemovalTarget(view) {
     hasName(name, 'Wondrous Labyrinth'));
 }
 
+// Guzma gusts the opponent, then forces our Active onto the Bench if possible.
+// The immediate attacker must therefore be a payable incoming Bench Pokemon.
+// Without any own Bench, the second clause cannot resolve and Active remains.
+// Do not credit speculative free retreat or a later switching effect.
+function bestGuzmaPostSwitchAttack(view, target) {
+  const bench = view.ownPublic.bench.filter(Boolean);
+  const attackers = bench.length ? bench :
+    (view.ownPublic.active ? [view.ownPublic.active] : []);
+  let best = null;
+  for (const attacker of attackers) {
+    const attack = bestAttackForSlot(attacker, view, target);
+    if (attack && attack.score > (best?.score ?? -Infinity)) best = attack;
+  }
+  return best;
+}
+
 function canGuzmaForAttack(view) {
-  const active = view.ownPublic.active;
-  if (!active || !view.opponentPublic.active) return false;
+  if (!view.opponentPublic.active) return false;
   return view.opponentPublic.bench.some(slot => {
     if (!slot) return false;
-    const attack = bestAttackForSlot(active, view, slot);
-    return attack && attack.damage >= Math.max(0, slot.hp - slot.damage);
+    const attack = bestGuzmaPostSwitchAttack(view, slot);
+    return attack && attack.damage !== null &&
+      attack.damage >= Math.max(0, slot.hp - slot.damage);
   });
 }
 
