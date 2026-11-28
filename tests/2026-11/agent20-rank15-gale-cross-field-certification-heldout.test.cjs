@@ -177,3 +177,33 @@ for(const seat of [0,1]) {
     });
   });
 }
+
+ // Printed PAL190 Jet Energy provides 1 Colorless AND switches its Bench
+ // target Active. An otherwise unpowered Stage1 Mega's Gale [C] is payable
+ // after the Jet attachment; neither old readiness nor generic Energy
+ // development may override the exact terminal physical action.
+for(const seat of [0,1]){
+  test('seat '+seat+': unpowered physical Mega + Jet terminal, not Temple or wrong slot',()=>{
+    const r=req(seat,'Iron Thorns ex TEF 77',{prizes:2,bench:true});
+    r.observation.ownPublic.bench[0].energies=[];
+    r.actionFrontier.items=[
+      {kind:'play-card',token:'jet-to-mega',actorPrinting:JET,
+        targetPrinting:MEGA,publicMetadata:{targetSeat:'actor',
+          targetZone:'bench',targetIndex:0,benchIndex:0,isOwnerVisible:true}},
+      {kind:'use-ability',token:'air-mail',
+        actorPrinting:'Pidgeotto TEU 123',publicMetadata:{abilityName:'Air Mail'}}
+    ];
+    assert.equal(rootDecision(r).token,'jet-to-mega');
+    r.observation.opponentPublic.stadium=['Temple of Sinnoh ASR 155'];
+    assert.equal(rootDecision(r).token,'air-mail');
+    r.observation.opponentPublic.stadium=[];
+    r.observation.ownPublic.bench.push(c(MEGA));
+    r.actionFrontier.items[0].publicMetadata.targetIndex=2;
+    r.actionFrontier.items[0].publicMetadata.benchIndex=2;
+    assert.equal(rootDecision(r).token,'jet-to-mega');
+    r.actionFrontier.items[0].targetPrinting='Pidgeotto TEU 123';
+    r.actionFrontier.items[0].publicMetadata.targetIndex=1;
+    r.actionFrontier.items[0].publicMetadata.benchIndex=1;
+    assert.equal(rootDecision(r).token,'air-mail');
+  });
+}
