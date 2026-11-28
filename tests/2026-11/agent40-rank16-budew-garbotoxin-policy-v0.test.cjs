@@ -258,3 +258,36 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['m']});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' synthetic six-decision Trubbish Float Quick into next-turn double lock line',()=>{
+  const t=mon('Trubbish CRI 56',{printed:{retreatCost:['Colorless']}}),m=mon('Mega Absol ex MEG 86');
+  const own1=own({active:t,bench:[m],deckCount:35,prizeCount:6});
+  const hand=['Quick Ball FST 237','Float Stone BKT 137','Darkness Energy MEE 15','Marnie SSH 169'];
+  const q1=root(seat,[play('Quick Ball FST 237','quick'),pass],{globalTurn:2,ownHand:hand,ownPublic:own1});
+  assert.deepEqual(decide(seat,q1),{kind:'select-action',token:'quick'});
+  const q2=prompt(seat,{source:{sourceKind:'card-effect',sourcePrinting:'Quick Ball FST 237',effectName:'Quick Ball'},
+   publicMetadata:{minimumCount:1,maximumCount:1},
+   choices:[choice('budew','Budew ASC 16'),choice('mega','Mega Absol ex MEG 86')]},
+   {globalTurn:2,ownHand:['Float Stone BKT 137','Marnie SSH 169'],ownPublic:own1});
+  assert.deepEqual(decide(seat,q2),{kind:'select-choices',tokens:['budew']});
+  own1.bench.push(mon('Budew ASC 16'));
+  const q3=root(seat,[play('Float Stone BKT 137','float',{targetSeat:'actor',targetZone:'active'}),pass],
+   {globalTurn:2,ownHand:['Float Stone BKT 137','Marnie SSH 169'],ownPublic:own1});
+  assert.deepEqual(decide(seat,q3),{kind:'select-action',token:'float'});
+  t.tools=['Float Stone BKT 137'];
+  const q4=root(seat,[{kind:'retreat',token:'retreatBudew',targetPrinting:'Budew ASC 16'},pass],{
+   globalTurn:2,ownHand:['Marnie SSH 169'],ownPublic:own1});
+  assert.deepEqual(decide(seat,q4),{kind:'select-action',token:'retreatBudew'});
+  own1.active=mon('Budew ASC 16');own1.bench=[m,t];
+  const q5=root(seat,[attack('Itchy Pollen','pollen'),pass],{globalTurn:2,ownPublic:own1});
+  assert.deepEqual(decide(seat,q5),{kind:'select-action',token:'pollen'});
+  const q6=root(seat,[play('Garbodor LTR 68','evolve'),attack('Itchy Pollen','pollen'),pass],{
+   globalTurn:4,ownHand:['Garbodor LTR 68'],ownPublic:own1});
+  assert.deepEqual(decide(seat,q6),{kind:'select-action',token:'evolve'});
+  own1.bench[1]=mon('Garbodor LTR 68',{tools:['Float Stone BKT 137'],abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]});
+  assert.equal(policy.garbotoxinStatus(q6.observation),'live');
+  q6.actionFrontier.items=[attack('Itchy Pollen','pollen'),pass];
+  assert.deepEqual(decide(seat,q6),{kind:'select-action',token:'pollen'});
+ });
+}
