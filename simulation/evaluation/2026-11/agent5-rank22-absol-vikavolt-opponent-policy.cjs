@@ -958,6 +958,23 @@ function bestAction(request) {
   const pass = items.find(item => item.kind === 'pass');
   return pass ? { kind: 'select-action', token: pass.token } : { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ACTION' };
 }
+function normalizeRank22Selection(prompt, decision) {
+  if (decision?.kind !== 'select-choice' || !prompt) return decision;
+  const selectionType = prompt.publicMetadata?.selectionType;
+  if (!['card-combination', 'pokemon', 'energy-payment', 'prize-slots', 'card-order']
+    .includes(selectionType)) return decision;
+  const selected = list(prompt.choices).find(choice => choice.token === decision.token);
+  if (!selected || selected.kind === 'cancel' || selected.kind === 'empty-selection')
+    return decision;
+  const meta = prompt.publicMetadata ?? {};
+  const min = selectionType === 'energy-payment' ? 1 :
+    selectionType === 'prize-slots' ? meta.requiredCount :
+    selectionType === 'card-order' ? meta.count : meta.minimumCount;
+  if (Number.isSafeInteger(min) && min > 1) {
+    return { kind: 'abstain', reasonCode: 'RANK22_SINGLE_DECISION_BELOW_PROMPT_MINIMUM' };
+  }
+  return { kind: 'select-choices', tokens: [decision.token] };
+}
 function createPolicy({ role, seat, policyVersion, config }) {
   if (role !== 'opponent' || (seat !== 0 && seat !== 1) || policyVersion !== POLICY_VERSION ||
       !config || Array.isArray(config) || Object.keys(config).length !== 0) {
@@ -969,7 +986,8 @@ function createPolicy({ role, seat, policyVersion, config }) {
           request.observation?.actorSeat !== seat) {
         return { kind: 'abstain', reasonCode: 'ROLE_SEAT_BINDING_MISMATCH' };
       }
-      return request.prompt !== null ? promptDecision(request) : bestAction(request);
+      return request.prompt !== null ?
+        normalizeRank22Selection(request.prompt, promptDecision(request)) : bestAction(request);
     }
   });
 }
