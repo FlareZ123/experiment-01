@@ -144,3 +144,43 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'abstain',reasonCode:'UNSUPPORTED_ATTACK_CHOICE_SOURCE'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Dark Patch only with bench Mega and discard Darkness',()=>{
+  const q=root(seat,[play('Dark Patch ASR 139','patch'),pass],{ownPublic:own({
+   active:mon('Budew ASC 16'),bench:[mon('Mega Absol ex MEG 86')],
+   discard:['Darkness Energy MEE 15']})});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'patch'});
+  q.observation.ownPublic.bench=[];
+  q.observation.ownPublic.active=mon('Mega Absol ex MEG 86');
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+ });
+ test('seat '+seat+' Dark Patch discard and bench-target prompts',()=>{
+  const q=prompt(seat,{source:{sourceKind:'card-effect',sourcePrinting:'Dark Patch ASR 139',effectName:'Dark Patch'},
+   choices:[choice('dark','Darkness Energy MEE 15','discard'),choice('wrong','Psychic Energy MEE 13','discard')]},
+   {ownPublic:own({bench:[mon('Mega Absol ex MEG 86')]})});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['dark']});
+  q.prompt.promptType='ChoosePokemonPrompt';
+  q.prompt.publicMetadata={selectionType:'pokemon',minimumCount:1,maximumCount:1,allowCancel:false};
+  q.prompt.choices=[
+   {kind:'pokemon',token:'mega',printing:'Mega Absol ex MEG 86',publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0}},
+   {kind:'pokemon',token:'crobat',printing:'Crobat V DAA 104',publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:1}}
+  ];
+  q.observation.ownPublic.bench.push(mon('Crobat V DAA 104'));
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['mega']});
+ });
+ test('seat '+seat+' VS Seeker searches actual discard Supporter',()=>{
+  const q=prompt(seat,{source:{sourceKind:'card-effect',sourcePrinting:'VS Seeker PHF 109',effectName:'VS Seeker'},
+   choices:[choice('l',"Lillie's Determination MEG 119",'discard'),choice('m','Marnie SSH 169','discard'),
+    choice('g','Guzma BUS 115','discard')]});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['l']});
+ });
+ test('seat '+seat+' Secret Box does not repeat one search category',()=>{
+  const q=prompt(seat,{source:{sourceKind:'card-effect',sourcePrinting:'Secret Box TWM 163',effectName:'Secret Box'},
+   publicMetadata:{minimumCount:4,maximumCount:4},
+   choices:[choice('q','Quick Ball FST 237'),choice('u','Ultra Ball MEG 131'),choice('f','Float Stone BKT 137'),
+    choice('m','Marnie SSH 169'),choice('s','Temple of Sinnoh ASR 155')]},
+   {ownPublic:own({bench:[mon('Garbodor LTR 68')]}),ownHand:[]});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['q','f','m','s']});
+ });
+}
