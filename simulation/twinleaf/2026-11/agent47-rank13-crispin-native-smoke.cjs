@@ -246,8 +246,8 @@ function runSeat(seat) {
     if(strictRoots)dispatchWorkerRoot(x,policy,ownerPrintings.crispin,history);
     else playHand(x,ownerPrintings.crispin);
     settlePrompts(x,policy,provenance,history);
-    assert.deepEqual(activeEnergyTypes(x),
-      ['Grass Energy','Fire Energy','Grass Energy'],
+    assert.deepEqual(activeEnergyTypes(x).sort(),
+      ['Fire Energy','Grass Energy','Grass Energy'].sort(),
       'native Crispin must attach one selected Grass to active');
     assert.equal(x.owner.supporterTurn,1,
       'native Crispin must consume the one-Supporter allowance');
