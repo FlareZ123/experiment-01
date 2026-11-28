@@ -532,6 +532,11 @@ function scoreAction(item, request) {
       if (lightning < 2 && attached.length < 3) return 175;
       return attached.length < 3 ? 85 : 0;
     }
+    if (matches(row.pokemon.printing, PRINT.mega)) {
+      const darkness = attached.filter(e => matches(e, PRINT.dark)).length;
+      if (darkness >= 2 && attached.length < 3) return 165;
+      if (darkness >= 1 && attached.length < 2) return 125;
+    }
     return matches(row.pokemon.printing, PRINT.tapuKoko) ? 90 : 0;
   }
   if ([PRINT.float, PRINT.forest, PRINT.muscle].some(pattern => matches(printing, pattern))) {
