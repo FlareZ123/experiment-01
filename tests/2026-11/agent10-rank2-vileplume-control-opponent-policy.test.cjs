@@ -2156,6 +2156,37 @@ test('Targetless Stealthy Hood protects Gloom from Bide Barricade',()=>{
  assert.deepEqual(checkedDecision(next),{kind:'select-choices',tokens:['gloom']});
 });
 
+
+test('TM Evolution attack selects actual Stage1 Gloom and Herdier from actor deck',()=>{
+ const own=player({active:pokemon('Bunnelby PRC 121',{
+   tools:['Technical Machine: Evolution PAR 178']}),
+   bench:[pokemon('Oddish UNB 5',{lastPlayedOrEvolvedTurn:1}),
+     pokemon('Lillipup CEC 174',{lastPlayedOrEvolvedTurn:1})]});
+ const request=promptRequest({promptType:'ChooseCardsPrompt',
+   source:actorChoiceSource('Technical Machine: Evolution PAR 178','Evolution'),
+   choices:[cardChoice('vileplume','Vileplume AOR 3','deck'),
+     cardChoice('herdier','Herdier SUM 104','deck'),
+     cardChoice('gloom','Gloom UNB 7','deck')],
+   publicMetadata:{selectionType:'card-combination',minimumCount:1,
+     maximumCount:2,allowCancel:false,isSecret:false},
+   observation:{ownPublic:own}});
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-choices',tokens:['gloom','herdier']});
+});
+test('TM Evolution attack refuses Stage2 skip from Basic-only Bench',()=>{
+ const own=player({active:pokemon('Bunnelby PRC 121',{
+   tools:['Technical Machine: Evolution PAR 178']}),
+   bench:[pokemon('Oddish UNB 5',{lastPlayedOrEvolvedTurn:1})]});
+ const request=promptRequest({promptType:'ChooseCardsPrompt',
+   source:actorChoiceSource('Technical Machine: Evolution PAR 178','Evolution'),
+   choices:[cardChoice('vileplume','Vileplume AOR 3','deck')],
+   publicMetadata:{selectionType:'card-combination',minimumCount:1,
+     maximumCount:1,allowCancel:false,isSecret:false},
+   observation:{ownPublic:own}});
+ assert.deepEqual(checkedDecision(request),{
+   kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'});
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
