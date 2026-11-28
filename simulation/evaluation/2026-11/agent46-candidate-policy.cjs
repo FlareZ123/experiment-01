@@ -1287,10 +1287,47 @@ function eligibleCandidateDoor(view, actions) {
     hasName(a.actorPrinting, 'Shadow Rider Calyrex VMAX')) ?? null;
 }
 
+// Do not spend scarce Supporters/Items or draw into an empty deck when the
+// currently offered Max Geist is already a modeled same-turn game winner.
+// This must precede the generic play-card-first ranking and Underworld Door.
+function immediatelyWinningMaxGeist(view, items) {
+  const active=view.ownPublic?.active;
+  const target=view.opponentPublic?.active;
+  if (!active || !target ||
+      !hasName(active.printing, 'Shadow Rider Calyrex VMAX') ||
+      !Array.isArray(active.attacks) ||
+      !Number.isFinite(target.hp) || !Number.isFinite(target.damage) ||
+      !Array.isArray(target.printed?.weakness) ||
+      !Array.isArray(target.printed?.resistance)) return null;
+  const finalByPrizes=Number.isSafeInteger(view.ownPublic.prizeCount) &&
+    view.ownPublic.prizeCount > 0 &&
+    view.ownPublic.prizeCount <= prizeLiability(target);
+  const finalByNoBench=Array.isArray(view.opponentPublic.bench) &&
+    view.opponentPublic.bench.every(p => p === null);
+  if (!finalByPrizes && !finalByNoBench) return null;
+  const nativeAction=items.find(a => a.kind === 'attack' &&
+    a.attackName === 'Max Geist' &&
+    a.publicMetadata?.attackCostPayable !== false &&
+    a.publicMetadata?.hasUnmodeledModifier !== true);
+  const attack=active.attacks.find(a => a.name === 'Max Geist');
+  if (!nativeAction || !attack || !canPayAttack(active, attack, view)) return null;
+  const damage=estimatedDamage(active, attack, view, target);
+  return Number.isFinite(damage) &&
+    damage >= target.hp-target.damage ? nativeAction : null;
+}
+
 function chooseRoot(view, request) {
   const items = request.actionFrontier.items.filter(item =>
     ['play-card', 'attack', 'retreat', 'use-ability', 'use-stadium', 'pass'].includes(item.kind));
   const pass = items.find(item => item.kind === 'pass');
+
+  const terminal=immediatelyWinningMaxGeist(view,items);
+  if (terminal) {
+    setPolicyAuditRule('ROOT_IMMEDIATE_TERMINAL_MAX_GEIST',
+      'FIRST_NATIVE_MATCH');
+    recordPolicyAuditRule(terminal.token,'MAX_GEIST_FINAL_PRIZE_NOW');
+    return {kind:'select-action',token:terminal.token};
+  }
 
   const plays = items.filter(item => item.kind === 'play-card');
   const scoredPlays = plays.map(item => {
