@@ -3,7 +3,8 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {validateDecision,validatePrompt}=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const {POLICY_VERSION,SOURCE_RANK,SOURCE_BLOB_SHA1,SOURCE_PRINTINGS,
-  createPolicy,scoreRoot,choosePrompt,donorScore}=
+  createPolicy,scoreRoot,choosePrompt,donorScore,resolveSourcePrinting,
+  energyCoverage,rank27EnergyAttachScore}=
  require('../../simulation/evaluation/2026-11/agent2-rank27-regidrago-opponent-policy.cjs');
 
 const P={
@@ -459,5 +460,182 @@ test('native source-typed support Ability confirmations complete actual recovery
   const handSix=observation(seat,{ownHand:Array(6).fill('Grass Energy MEE 9')});
   assert.deepEqual(decide(seat,make(handSix,P.crobat,'Dark Asset')),
    {kind:'select-choice',token:'no'});
+ }
+});
+
+test('pinned Twinleaf name+set fullName resolves only unique ledger number',()=>{
+ assert.equal(resolveSourcePrinting('Regidrago VSTAR SIT'),
+   'Regidrago VSTAR SIT 136');
+ assert.equal(resolveSourcePrinting('Net Ball LOT'),'Net Ball LOT 187');
+ assert.equal(resolveSourcePrinting('Eldegoss V RCL'),'Eldegoss V RCL 19');
+ assert.equal(resolveSourcePrinting('Crispin SCR'),'Crispin SCR 133');
+ assert.equal(resolveSourcePrinting('Guzma BUS'),'Guzma BUS 115');
+ assert.equal(resolveSourcePrinting('Grass Energy MEE'),'Grass Energy MEE 9');
+ assert.equal(resolveSourcePrinting('Regidrago VSTAR SIT 136'),
+   'Regidrago VSTAR SIT 136');
+ assert.equal(resolveSourcePrinting('Regidrago VSTAR SIT 201'),null);
+ assert.equal(resolveSourcePrinting('Ultra Ball MEG 130'),null);
+ assert.equal(resolveSourcePrinting('Quick Ball SSH 179'),null);
+ assert.equal(resolveSourcePrinting('Fake Card SIT'),null);
+});
+test('native numberless roots, on-enter prompts and Apex donors remain source-bound',()=>{
+ for(const seat of [0,1]){
+  const obs=observation(seat);
+  const nativeRoots=[
+   action('native-quick','play-card','Quick Ball FST'),
+   action('wrong-number','play-card','Quick Ball FST 238'),
+   action('pass','pass','Pass')];
+  assert.equal(tok(root(seat,obs,nativeRoots)),'native-quick');
+  assert.equal(scoreRoot(nativeRoots[1],
+     rootRequest(seat,obs,nativeRoots)),-Infinity);
+  const haveV=observation(seat,{ownPublic:{...obs.ownPublic,
+    bench:[pokemon('Regidrago V SIT')]}});
+  assert.equal(tok(root(seat,haveV,[
+    action('vstar','play-card','Regidrago VSTAR SIT'),
+    action('pass','pass','Pass')])),'vstar');
+  const discarded=observation(seat,{ownPublic:{...obs.ownPublic,
+    discard:['Dialga-GX UPR','Noivern ex PAL']}});
+  const prompt=promptRequest(seat,discarded,'Apex Dragon',
+    'Regidrago VSTAR SIT','ChooseAttackPrompt',[
+     choice('gx','Dialga-GX UPR',{sourceZone:'discard',
+       sourceAttack:'Timeless-GX'},'attack'),
+     choice('noivern','Noivern ex PAL',{sourceZone:'discard',
+       sourceAttack:'Covert Flight'},'attack'),
+     choice('wrong','Dialga-GX UPR 146',{sourceZone:'discard',
+       sourceAttack:'Timeless-GX'},'attack')
+    ],{selectionType:'attack',count:3,allowCancel:false});
+  const decision=decide(seat,prompt);
+  assert.deepEqual(decision,{kind:'select-choice',token:'gx'});
+  assert.deepEqual(validateDecision(decision,
+     validatePrompt(prompt.prompt,seat),new Set()),decision);
+ }
+});
+
+test('Apex GG+F funding counts Double Dragon as exactly two flexible Energy',()=>{
+ const g='Grass Energy MEE 9',f='Fire Energy MEE 10',
+   d='Double Dragon Energy ROS 97';
+ for(const [energy,expected] of [
+  [[],0],[[g],1],[[f],1],[[g,g],2],[[g,g,f],3],
+  [[d],2],[[d,g],3],[[d,f],3],[[d,d],3],
+  [[f,f],1],[[g,g,g],2],[[f,f,g],2],
+  [[d,'Muscle Band XY 121'],2],[[d,d,g],3]
+ ]){
+   assert.equal(energyCoverage(energy),expected,
+     'funding '+JSON.stringify(energy));
+   assert.equal(energyCoverage(energy.map(x=>x.replace(/ [0-9]+$/,''))),
+      expected,'native numberless '+JSON.stringify(energy));
+ }
+});
+test('rank27 energy target identity is actor-owned active or indexed Bench attacker',()=>{
+ for(const seat of [0,1]){
+  const g='Grass Energy MEE',d='Double Dragon Energy ROS';
+  const initial=observation(seat,{ownPublic:{
+    ...observation(seat).ownPublic,
+    active:pokemon(P.star,{energies:[]}),
+    bench:[pokemon(P.v,{energies:[d]})],
+    discard:[P.dialga]
+  }});
+  const energy=(token,printing,zone,idx,target)=>{
+    return action(token,'play-card',printing,{
+      targetPrinting:target,
+      publicMetadata:{cardType:'energy',targetSeat:'actor',
+       targetZone:zone,targetIndex:idx}});
+  };
+  const offered=[
+   energy('d-active',d,'active',0,P.star),
+   energy('g-bench',g,'bench',0,P.v),
+   energy('g-active',g,'active',0,P.star),
+   energy('d-support',d,'bench',1,'Crobat V DAA 104'),
+   action('pass','pass','Pass')];
+  assert.equal(tok(root(seat,initial,offered)),'g-bench');
+  const byToken=Object.fromEntries(offered.map(x=>[x.token,x]));
+  assert.ok(rank27EnergyAttachScore(byToken['g-bench'],initial)>
+    rank27EnergyAttachScore(byToken['d-active'],initial));
+  assert.equal(rank27EnergyAttachScore(byToken['d-support'],initial),-Infinity);
+  const opp=energy('g-opponent',g,'active',0,P.star);
+  opp.publicMetadata.targetSeat='opponent';
+  assert.equal(rank27EnergyAttachScore(opp,initial),-Infinity);
+  const forged=energy('g-forged',g,'active',0,P.v);
+  assert.equal(rank27EnergyAttachScore(forged,initial),-Infinity);
+  const malformed=energy('g-missing',g,'bench',-1,P.v);
+  assert.equal(rank27EnergyAttachScore(malformed,initial),-Infinity);
+ }
+});
+test('a native two-attachment Apex line outranks unneeded search; no third waste',()=>{
+ for(const seat of [0,1]){
+  const initial=observation(seat,{ownPublic:{
+    ...observation(seat).ownPublic,
+    active:pokemon(P.star,{energies:['Double Dragon Energy ROS']}),
+    bench:[],discard:[P.noivern]
+  }});
+  const energy=action('grass','play-card','Grass Energy MEE',{
+    targetPrinting:P.star,
+    publicMetadata:{cardType:'energy',targetSeat:'actor',
+      targetZone:'active',targetIndex:0}});
+  const offered=[energy,
+   action('quick','play-card',P.quick),
+   action('pass','pass','Pass')];
+  assert.equal(tok(root(seat,initial,offered)),'grass');
+  assert.ok(rank27EnergyAttachScore(energy,initial)>300);
+  const full=observation(seat,{ownPublic:{...initial.ownPublic,
+    active:pokemon(P.star,{energies:[
+      'Double Dragon Energy ROS','Grass Energy MEE']})}});
+  assert.equal(rank27EnergyAttachScore(energy,full),-Infinity);
+  assert.equal(tok(root(seat,full,offered)),'quick');
+ }
+});
+test('Crispin root funding uses real attacker Energy, not whole-board card count',()=>{
+ for(const seat of [0,1]){
+  const basic=observation(seat),own={...basic.ownPublic,
+   active:pokemon(P.star,{energies:[]}),
+   bench:[pokemon('Crobat V DAA 104',{energies:[
+     'Grass Energy MEE','Fire Energy MEE','Grass Energy MEE']})]};
+  const req=rootRequest(seat,observation(seat,{ownPublic:own}),
+    [action('crispin','play-card','Crispin SCR')]);
+  assert.equal(scoreRoot(req.actionFrontier.items[0],req),235);
+  const ready={...own,active:pokemon(P.star,{energies:[
+    'Double Dragon Energy ROS','Fire Energy MEE']})};
+  const req2=rootRequest(seat,observation(seat,{ownPublic:ready}),
+    [action('crispin','play-card','Crispin SCR')]);
+  assert.equal(scoreRoot(req2.actionFrontier.items[0],req2),40);
+ }
+});
+
+test('rank27 consumes a single mandatory source-bound Celestial Roar composite choice',()=>{
+ for(const seat of [0,1]){
+  const obs=observation(seat,{phase:3,ownPublic:{
+   ...observation(seat).ownPublic,
+   active:pokemon('Regidrago V SIT',
+      {energies:['Grass Energy MEE']})
+  }});
+  for(const k of [1,2,3]){
+   const p=promptRequest(seat,obs,'Celestial Roar','Regidrago V SIT',
+    'AttachEnergyPrompt',[{
+     kind:'energy',token:'attach-all-'+k,
+     label:'Attach all '+k+' revealed Basic Energy',
+     publicMetadata:{sourceZone:'effect-revealed',ownerSeat:'actor',
+      isOwnerVisible:true,energyType:'BASIC',zone:'active',
+      choiceIndex:0,selectedCount:k}
+    }],{selectionType:'energy-attachment',count:1,
+      minimumCount:k,maximumCount:k,allowCancel:false,
+      sourceZone:'effect-revealed',ownerSeat:'actor',
+      isOwnerVisible:true,energyType:'BASIC',zone:'active'});
+   const decision=decide(seat,p);
+   assert.deepEqual(decision,
+      {kind:'select-choice',token:'attach-all-'+k});
+   assert.deepEqual(validateDecision(decision,
+      validatePrompt(p.prompt,seat),new Set()),decision);
+   for(const tampered of [
+     {source:{...p.prompt.source,sourcePrinting:'Regidrago V SIT 177'}},
+     {source:{...p.prompt.source,sourceKind:'engine'}},
+     {publicMetadata:{...p.prompt.publicMetadata,minimumCount:k+1}},
+     {publicMetadata:{...p.prompt.publicMetadata,sourceZone:'deck'}},
+     {choices:[{...p.prompt.choices[0],publicMetadata:{
+       ...p.prompt.choices[0].publicMetadata,ownerSeat:'opponent'}}]}
+   ]){
+     const bad=decide(seat,{...p,prompt:{...p.prompt,...tampered}});
+     assert.equal(bad.kind,'abstain');
+   }
+  }
  }
 });
