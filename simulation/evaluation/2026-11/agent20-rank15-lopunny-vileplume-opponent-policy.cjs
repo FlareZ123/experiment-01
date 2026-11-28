@@ -737,10 +737,10 @@ function omegaBarragePrompt(request) {
   const yes=arr(p.choices).find(c=>c.kind==='confirm'&&c.label==='Yes'&&typeof c.token==='string');
   const no=arr(p.choices).find(c=>c.kind==='confirm'&&c.label==='No'&&typeof c.token==='string');
   const own=o.ownPublic;
+  const tmAvailable=arr(own?.active?.tools).some(x=>has(x,P.tmEvolution));
   const ready=has(own?.active,P.bunnelby)&&
-    arr(own.active.tools).some(x=>has(x,P.tmEvolution))&&
     arr(own.active.energies).length>0&&(
-      k1EvoTarget(o)||
+      (tmAvailable&&k1EvoTarget(o))||
       (Number.isSafeInteger(o.opponentPublic?.deckCount)&&o.opponentPublic.deckCount>0)||
       arr(own.discard).length>0);
   if(ready&&yes)return {kind:'select-choice',token:yes.token};
@@ -817,7 +817,8 @@ function rootDecision(request) {
     arr(o.ownPublic?.active?.tools).some(c=>has(c,P.tmEvolution)));
   if(tmAttack&&k1EvoTarget(o))return take(tmAttack);
   const attrition=bunnelbyAttritionAction(items,o);
-  if(attrition)return take(attrition);
+  if(attrition?.attackName==='Rototiller'&&o.ownPublic?.deckCount<=1)
+    return take(attrition);
   const busWindow=busActivePromotionOpportunity(o);
   if(busWindow){
     const jetBus=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.jet)&&
@@ -827,6 +828,7 @@ function rootDecision(request) {
       (!x.targetPrinting||has(x.targetPrinting,P.bus)));
     if(retreatBus)return take(retreatBus);
   }
+  if(attrition)return take(attrition);
   const attachTm=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.tmEvolution)&&
     has(x.targetPrinting,P.bunnelby));
   if(attachTm&&slots(o.ownPublic).some(x=>has(x,P.bunnelby)&&
