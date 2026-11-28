@@ -3554,3 +3554,36 @@ test('Guzma does not select zero-Prize Bench Doll over payable final-Prize Wobbu
       {kind:'select-choices',tokens:['wobb']});
   }
 });
+
+test('Thunder refuses phantom attack access into rank7 Safeguard Mimikyu',()=>{
+  for(const seat of [0,1])for(const [printing,hp,token,score] of [
+    ['Mimikyu PAL 97',70,'flare',0],
+    ['Snorlax PGO 55',150,'thunder',245]
+  ]){
+    const own=player({
+      active:pokemon('Iron Thorns ex TWM 77',{
+        energies:['Double Colorless Energy SUM 136']}),
+      bench:[pokemon('Iron Thorns ex TWM 77')],
+      stadium:['Tropical Beach BCR 147'],prizeCount:1
+    });
+    const opponent=player({
+      active:pokemon(printing,{hp,
+        energies:['Capture Energy RCL 171'],abilities:[]}),
+      bench:[pokemon('Wobbuffet PHF 36',{hp:110})],
+      prizeCount:3
+    });
+    const request=rootRequest({
+      seat,ownPublic:own,opponentPublic:opponent,
+      ownHand:['Thunder Mountain ◇ LOT 191','Team Flare Grunt XY 129'],
+      items:[
+        action('thunder','play-card','Thunder Mountain ◇ LOT 191',{cardType:'stadium'}),
+        action('flare','play-card','Team Flare Grunt XY 129',{cardType:'supporter'}),
+        {token:'pass',kind:'pass'}
+      ]
+    });
+    assert.deepEqual(checkedDecision(request,seat),
+      {kind:'select-action',token});
+    assert.equal(makePolicy(seat).decideWithAudit(request).
+      policyAudit.evaluations.find(row=>row.token==='thunder').score,score);
+  }
+});

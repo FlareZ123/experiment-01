@@ -1760,6 +1760,9 @@ function prospectiveStadiumThornsAttackUnlock(observation,replacingWithThunder=f
   if(!payable)return null;
   const target=opponentActive(observation);
   const visible=target&&visibleVoltCycloneDamage(target);
+  // Enabling the attack cannot justify spending singleton Thunder when
+  // a known public shield makes the actual damage exactly zero.
+  if(visible&&visible.damage<=0)return null;
   const ko=visible?.knockout===true;
   const prizeEnd=ko&&guzmaTargetPrizeValue(target)>=
     (observation.ownPublic?.prizeCount??6);
