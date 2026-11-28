@@ -422,9 +422,13 @@ function projectedClawDamage(action,o){
 function prizeYield(p){
  if(!p)return 1;
  const attrs=list(p.printed?.subtypes).join(' ').toLowerCase();
- if(/vmax|mega/.test(attrs)||/VMAX|^Mega .* ex\b/i.test(p.printing||''))return 3;
- if(/tag team/i.test(attrs)||/ & .*-GX\b/i.test(p.printing||''))return 3;
- if(/\b(?:ex|gx|v)\b/.test(attrs)||/(?:ex|GX|\bV)\b/i.test(p.printing||''))return 2;
+ const printing=name(p.printing),title=printing.replace(/ [A-Z0-9]{2,6} [A-Z0-9♢-]+$/,'');
+ if(/\b(?:vmax|v-union|tag team)\b/i.test(attrs)||
+    /\b(?:VMAX|V-UNION)\b/i.test(title)||
+    /\b.*\s&\s.*GX\b/i.test(title)||
+    /^Mega .+ ex\b/i.test(title))return 3;
+ if(/\b(?:vstar|pokemon v|pokemon ex|pokemon gx|ex|gx)\b/i.test(attrs)||
+    /\b(?:VSTAR|V|ex|GX|EX)\b/i.test(title))return 2;
  return 1;
 }
 function clawProjectedKnockoutScore(action,o){
@@ -948,4 +952,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,activeMimikyuSafeguard,regidragoPayloadCount,karenOwnRecoveryScore,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,liveGarbotoxin};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,prizeYield,activeMimikyuSafeguard,regidragoPayloadCount,karenOwnRecoveryScore,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,liveGarbotoxin};
