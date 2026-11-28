@@ -130,6 +130,8 @@ for(const seat of [0,1]) {
 for(const seat of [0,1]){
   test(`seat ${seat}: native five-Energy Bomb creates a three-Prize VMAX threat rather than Pass`,()=>{
     const view=o(seat);
+    // All useful Energy is in public discard; no attack is funded before Bomb.
+    view.ownPublic.active.energies=[];
     view.ownPublic.prizeCount=6;
     view.opponentPublic.prizeCount=6;
     view.ownPublic.bench=[
