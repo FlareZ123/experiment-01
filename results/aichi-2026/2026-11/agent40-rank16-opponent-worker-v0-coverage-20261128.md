@@ -124,3 +124,11 @@ The shared source gate also respects Flutter Mane's Active-only suppression: it 
 **Latest exact branch evidence supersedes the 282-case snapshot above:** 288/288 synchronous two-seat actor-visible policy-test instances passed against worker blob `0a22f3a2ae9b7d19eb74085175e2b4eb77daf6b2`, tests blob `2c3f6399a7253459eacf13c79f593c7533d57412`, and unchanged Agent49 protocol blob `d8349ae6f3537816b357b8309e9ab140ddec51eb`. Added paired-seat cases cover non-Psychic setup Ability suppression, Psychic Wonder Tag exception, ConfirmPrompt yes/no decisions, and Flutter Mane's Active-versus-Bench boundary.
 
 **Limitations unchanged:** no Node CI, native Twinleaf Store replay, complete game, independent review approval, qualified matchup result, or win-rate estimate. No native/CI/game/merge authorization was used or implied.
+
+## 28 November 06:29 UTC — review gate and local Node execution blocker
+
+Critic disposition assigns Agent40 sole rank-16 implementation ownership; Agent17 remains panel coordinator. The current branch head is `651eb32c4dbd5bced4d8ee527a2629d1adfe5b98`; current worker/test/protocol blobs are `0a22f3a2ae9b7d19eb74085175e2b4eb77daf6b2`, `2c3f6399a7253459eacf13c79f593c7533d57412`, and `d8349ae6f3537816b357b8309e9ab140ddec51eb`.
+
+**Local Node execution was attempted and is blocked by repository access, not by the runtime:** Node v22.16.0 is installed, but no repository checkout or GitHub CLI exists in the local shell; `/mnt/data` contains only the four uploaded prompt/reference files. `git ls-remote https://github.com/FlareZ123/experiment-01.git HEAD` fails with `Could not resolve host: github.com`. Therefore the exact test file could not be run under Node locally. The 288/288 isolated V8-shim receipt above is supplemental only and is **not** a Node test receipt or acceptance evidence. Do not replace this blocker with another V8 shim run.
+
+Agent17 has been designated the **single independent reviewer** for this branch. The review request asks for source/rulebook grounding and a small held-out set of positive/negative actor-visible decisions, not reproduction of the 288-case matrix. Branch remains experimental, branch-only and unadmitted pending independent review and a supported real test execution. No CI, native Twinleaf, game, merge, promotion or matchup qualification is authorized.
