@@ -1268,3 +1268,36 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'crobat'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' VIP chooses immediate Budew lock before future attacker when Float pivot is payable',()=>{
+  const current=mon('Crobat V DAA 104',{printed:{retreatCost:['Colorless']}});
+  const ownBoard=own({active:current,bench:[]});
+  const q=prompt(seat,{
+   source:{sourceKind:'card-effect',sourcePrinting:'Battle VIP Pass FST 225',effectName:'Battle VIP Pass'},
+   publicMetadata:{minimumCount:2,maximumCount:2},
+   choices:[choice('t','Trubbish CRI 56'),choice('m','Mega Absol ex MEG 86'),
+    choice('b','Budew ASC 16')]},{
+    globalTurn:2,ownPublic:ownBoard,ownHand:['Float Stone BKT 137']});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['b','t']});
+  q.observation.ownHand=[];
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['t','m']});
+  q.observation.ownHand=['Float Stone BKT 137'];
+  q.observation.globalTurn=6;
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['t','m']});
+ });
+ test('seat '+seat+' VIP does not claim payable Float pivot through Snorlax Block',()=>{
+  const board=own({active:mon('Crobat V DAA 104',{printed:{retreatCost:['Colorless']}}),bench:[]});
+  const their=opp({active:mon('Snorlax PGO 55',{
+   abilitySuppressions:[{abilityName:'Block',suppressed:false}]})});
+  const q=prompt(seat,{
+   source:{sourceKind:'card-effect',sourcePrinting:'Battle VIP Pass FST 225',effectName:'Battle VIP Pass'},
+   publicMetadata:{minimumCount:2,maximumCount:2},
+   choices:[choice('t','Trubbish CRI 56'),choice('m','Mega Absol ex MEG 86'),
+    choice('b','Budew ASC 16')]},{globalTurn:2,ownPublic:board,
+    opponentPublic:their,ownHand:['Float Stone BKT 137']});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['t','m']});
+  their.active.abilitySuppressions=[{abilityName:'Block',suppressed:true}];
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['b','t']});
+ });
+}
