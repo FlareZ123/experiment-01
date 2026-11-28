@@ -539,6 +539,15 @@ function bombPlanner(o,sourceBenchIndex){
     const payment=safeCosts(h.filter(x=>!match(x,R.ultra)).map(printing=>({printing})),o,2,name(ball));
     return payment.length===2?375:0;
   }
+  function cologneActiveSuppressedView(o) {
+    const opp=o.opponentPublic,target=opp?.active;
+    if(!target)return null;
+    const t={...target,abilitySuppressions:[
+      ...L(target.abilitySuppressions).filter(a=>a.abilityName!=='Safeguard'),
+      {abilityName:'Safeguard',suppressed:true}
+    ]};
+    return {...o,opponentPublic:{...opp,active:t}};
+  }
   function cologneFinalPrize(o) {
     // The singleton Item is justified when it unlocks a proven immediate
     // final-Prize Claw against Active PAL97 Safeguard, not merely because it
@@ -554,10 +563,7 @@ function bombPlanner(o,sourceBenchIndex){
       return false;
     // Strictly model the exact Item's known Active-holder Ability suppression;
     // keep every other defender and global damage-prevention uncertainty.
-    const t={...target,abilitySuppressions:[
-      ...L(target.abilitySuppressions),{abilityName:'Safeguard',suppressed:true}
-    ]};
-    const changed={...o,opponentPublic:{...opp,active:t}};
+    const changed=cologneActiveSuppressedView(o),t=changed?.opponentPublic?.active;
     const damage=printedDamage(changed,attacker,t,'Claw of Darkness');
     return Number.isFinite(damage)&&damage>=remaining(t);
   }
@@ -1088,16 +1094,45 @@ function bombPlanner(o,sourceBenchIndex){
   }
   function createPolicy({role,seat,policyVersion,config}) {
     if(role!=='opponent'||![0,1].includes(seat)||policyVersion!==POLICY_VERSION||!config||Array.isArray(config)||Object.keys(config).length)throw Error('RANK9_INIT_MISMATCH');
-    let chain=null;
+    let chain=null,cologneFollow=null;
     function root(r) {
-      const o=r.observation;chain=null;
+      const o=r.observation;
+      const follow=cologneFollow;cologneFollow=null;chain=null;
       const items=L(r.actionFrontier?.items), own=o.ownPublic, opp=o.opponentPublic;
+      // The producer's printed Item has no prompt. A consecutive root with
+      // the singleton visibly moved hand→discard certifies that our prior
+      // Cologne action actually settled, even if the observation supplies
+      // null rather than an inferred Safeguard suppression status.
+      if(follow&&follow.turn===o.globalTurn&&r.sequence===follow.sequence+1&&
+         o.actorSeat===seat&&own?.prizeCount===1&&
+         name(own?.active)===follow.attackerPrinting&&
+         name(opp?.active)===follow.targetPrinting&&
+         !handHas(o,cologne)&&
+         L(own?.discard).filter(cologne).length===follow.discardBefore+1&&
+         /^Mimikyu PAL(?: 97)?$/i.test(name(opp?.active))&&
+         !L(opp?.active?.tools).length) {
+        const corrected=cologneActiveSuppressedView(o),t=corrected.opponentPublic.active;
+        const attack=items.find(x=>x.kind==='attack'&&
+          (x.attackName??M(x).attackName)==='Claw of Darkness'&&
+          M(x).attackCostPayable!==false);
+        const damage=printedDamage(corrected,own.active,t,'Claw of Darkness');
+        if(attack&&usable(own.active,'Claw of Darkness',corrected)&&
+           Number.isFinite(damage)&&damage>=remaining(t)&&
+           finishesGame(corrected,t))
+          return {kind:'select-action',token:attack.token};
+      }
       const direct=best(items,x=>rootAttack(x,o)), directScore=direct?rootAttack(direct,o):0;
       // A direct final-Prize KO beats spending any connector.
       if(directScore>=1000)return {kind:'select-action',token:direct.token};
       const cologneWin=items.find(x=>x.kind==='play-card'&&cologne(x));
-      if(cologneWin&&cologneFinalPrize(o))
+      if(cologneWin&&cologneFinalPrize(o)){
+        cologneFollow={
+          turn:o.globalTurn,sequence:r.sequence,
+          attackerPrinting:name(own.active),targetPrinting:name(opp.active),
+          discardBefore:L(own.discard).filter(cologne).length
+        };
         return {kind:'select-action',token:cologneWin.token};
+      }
       const ret=best(items.filter(x=>x.kind==='retreat'),x=>retreatPlan(o,x)?.score??0);
       const retPlan=ret?retreatPlan(o,ret):null,retScore=retPlan?.score??0;
       // Guzma forces an own switch if a Bench exists. Only evaluate a powered
@@ -1181,6 +1216,9 @@ function bombPlanner(o,sourceBenchIndex){
       return {kind:'abstain',reasonCode:'NO_SUPPORTED_ROOT_ACTION'};
     }
     function prompt(r) {
+      // Canceling Cologne has no native prompt. Any intervening prompt
+      // invalidates its optimistic one-step follow-up certificate.
+      cologneFollow=null;
       const o=r.observation,p=r.prompt,source=name(p.source?.sourcePrinting);
       const choices=L(p.choices).filter(x=>typeof x.token==='string');
       const fail=code=>{chain=null;return {kind:'abstain',reasonCode:code};};
