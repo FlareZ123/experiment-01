@@ -1242,3 +1242,32 @@ for(const seat of [0,1]) {
       {kind:'select-action',token:'quick'});
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' low-hand VS Seeker retrieves Marnie after no terminal Guzma',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active={printing:clef,energies:[psychic,psychic]};
+    r.observation.opponentPublic.active={printing:'Iron Thorns ex TWM 77',
+      hp:230,damage:0};
+    r.observation.ownPublic.discard=['Marnie SSH 169','Guzma BUS 115'];
+    r.observation.ownHand=['VS Seeker PHF 109'];
+    r.observation.ownTurnResources.supporterPlayedTurn=0;
+    r.actionFrontier.items=[root('play-card','VS Seeker PHF 109','seeker')];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'seeker'});
+    r.prompt={...prompt('discard',[card('Guzma BUS 115','gust'),
+      card('Marnie SSH 169','draw')],0,1),
+      source:{sourcePrinting:'VS Seeker PHF 109',effectName:'VS Seeker'}};
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-choices',tokens:['draw']});
+    r.prompt=null;r.observation.ownHand=['Marnie SSH 169'];
+    r.actionFrontier.items=[root('play-card','Marnie SSH 169','marnie')];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'marnie'});
+    // A preserved critical Clefairy is not tradeable for generic draw.
+    r.observation.ownHand=['VS Seeker PHF 109',clef];
+    r.actionFrontier.items=[root('play-card','VS Seeker PHF 109','seeker')];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    r.observation.ownHand=['VS Seeker PHF 109'];
+    r.observation.ownTurnResources.supporterPlayedTurn=1;
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  });
+}
