@@ -52,7 +52,8 @@ function analyze(source){
   });
  }
  const missing=source.missing_full_lists.map(x=>x.rank).sort((a,b)=>a-b);
- if(missing.some(n=>ranks.has(n))||rows.length+missing.length!==32)
+ if(missing.some(n=>!Number.isInteger(n)||n<1||n>32||ranks.has(n))||
+   new Set(missing).size!==missing.length||rows.length+missing.length!==32)
   throw Error("Source and missing ranks do not partition Top 32");
  rows.sort((a,b)=>a.rank-b.rank);
  const having=pred=>rows.filter(pred).map(r=>r.rank);
