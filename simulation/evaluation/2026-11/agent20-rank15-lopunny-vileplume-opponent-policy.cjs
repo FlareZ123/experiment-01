@@ -231,6 +231,28 @@ function actorPokemonBench(p) {
     x.publicMetadata?.ownerSeat==='actor'&&x.publicMetadata?.targetZone==='bench'&&
     typeof x.token==='string');
 }
+function fanCallPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
+    !actorCardZone(p,'deck')||!Number.isSafeInteger(m.minimumCount)||
+    !Number.isSafeInteger(m.maximumCount)||m.minimumCount>m.maximumCount||
+    m.maximumCount>3)return abstain('UNSUPPORTED_CARD_COMBINATION_SOURCE');
+  const seen=[...slots(o.ownPublic),...arr(o.ownHand)];
+  const priorities=[P.bunnelby,P.pidgey,P.buneary,P.pidgeotto,P.fan];
+  const choiceCandidates=arr(p.choices).filter(c=>c.kind==='card'&&typeof c.token==='string');
+  const selected=[],selectedPatterns=new Set();
+  for(const pat of priorities){
+    if(seen.some(x=>has(x,pat))||selectedPatterns.has(pat))continue;
+    const c=choiceCandidates.find(x=>has(x,pat)&&!selected.some(y=>y.token===x.token));
+    if(c){selected.push(c);selectedPatterns.add(pat);}
+    if(selected.length>=m.maximumCount)break;
+  }
+  if(selected.length>=m.minimumCount&&selected.length)
+    return {kind:'select-choices',tokens:selected.map(c=>c.token)};
+  const empty=arr(p.choices).find(c=>c.kind==='empty-selection'&&typeof c.token==='string');
+  return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
+    abstain('NO_LEGAL_CARD_SET');
+}
 function tagCallPrompt(request) {
   const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
   if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
@@ -438,6 +460,14 @@ function rootDecision(request) {
   const peck=attacks.find(x=>x.attackName==='Peck Off'&&has(o.ownPublic?.active,P.pidgey));
   if(peck && arr(o.opponentPublic?.active?.tools).some(x=>has(x,P.hood))&&
       !doubleBaseCutExposed(request))return take(peck);
+  // First-turn Fan Call is a free actor-owned search for the source's
+  // low-HP Colorless setup basics; only trigger when a useful slot is missing.
+  const fanCall=items.find(x=>x.kind==='use-ability'&&
+    x.publicMetadata?.abilityName==='Fan Call'&&
+    (has(ownPrinting(x),P.fan)||slots(o.ownPublic).some(c=>has(c,P.fan))));
+  const fanNeeds=[P.bunnelby,P.pidgey,P.buneary].some(p=>
+    ![...slots(o.ownPublic),...arr(o.ownHand)].some(c=>has(c,p)));
+  if(fanCall&&fanNeeds&&benchCount(o.ownPublic)<5&&o.globalTurn<=2)return take(fanCall);
   const tmAttack=attacks.find(x=>x.attackName==='Evolution'&&
     has(o.ownPublic?.active,P.bunnelby)&&
     arr(o.ownPublic?.active?.tools).some(c=>has(c,P.tmEvolution)));
@@ -527,6 +557,7 @@ function createPolicy({role,seat,policyVersion,config}) {
       return abstain('ROLE_SEAT_OBSERVATION_MISMATCH');
     if(request.prompt!==null){
       if(has(request.prompt?.source?.sourcePrinting,P.poffin))return poffinPrompt(request);
+      if(has(request.prompt?.source?.sourcePrinting,P.fan))return fanCallPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.tagCall))return tagCallPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.guzmaHala))return ghPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.tmEvolution))return evolutionPrompt(request);
@@ -544,4 +575,4 @@ function createPolicy({role,seat,policyVersion,config}) {
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,
   createPolicy,rootDecision,poffinPrompt,printedDamage,movementEvidence,
-  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
+  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
