@@ -626,10 +626,45 @@ function validateEventAttack(row) {
   if (row.barragePairIndex !== undefined && (!Number.isSafeInteger(row.barragePairIndex) || row.barragePairIndex < 0)) fail('BAD_BARRAGE_INDEX');
   if (row.barragePairRole !== undefined && !['first', 'second'].includes(row.barragePairRole)) fail('BAD_BARRAGE_ROLE');
   if ((row.barragePairIndex === undefined) !== (row.barragePairRole === undefined)) fail('INCOMPLETE_BARRAGE_PAIR');
+  if (/-GX$/i.test(row.attackName) && row.gxAttack === false)
+    fail('MISCLASSIFIED_PRINTED_GX_ATTACK');
 }
 function eventAttackSignature(row) {
   return JSON.stringify([row.turn, row.sourcePrinting, row.attackName, row.gxAttack, row.copycatAttack,
     row.barragePairIndex ?? null, row.barragePairRole ?? null]);
+}
+
+/**
+ * Mimikyu Copycat excludes GX attacks and its own Copycat, NOT all copied
+ * attacks. An ordinary Regidrago VSTAR Apex Dragon or Zoroark Foul Play
+ * remains eligible. Exact printed GX suffix guards inaccurate native flags.
+ */
+function sourceCopycatEligible(row) {
+  if (!row || row.gxAttack !== false ||
+      typeof row.attackName !== 'string' ||
+      /-GX$/i.test(row.attackName)) return false;
+  return !(row.attackName === 'Copycat' &&
+    /^Mimikyu(?:\s|$)/i.test(row.sourcePrinting ?? ''));
+}
+
+/** Reconstruct exactly the choices made by the same-turn native observer. */
+function expectedSourceCopycatChoices(history) {
+  if (!Array.isArray(history)) return null;
+  const last=history[history.length-1];
+  if (!last) return [];
+  if (last.barragePairIndex !== undefined) {
+    const pair=history.filter(row=>
+      row.barragePairIndex===last.barragePairIndex);
+    if(pair.length!==2 ||
+       pair[0].barragePairRole!=='first' ||
+       pair[1].barragePairRole!=='second' ||
+       pair[0].sourcePrinting!==pair[1].sourcePrinting ||
+       pair[0].attackName===pair[1].attackName ||
+       pair[0].turn!==pair[1].turn)
+      fail('BAD_COPYCAT_BARRAGE_PAIR');
+    return pair.filter(sourceCopycatEligible);
+  }
+  return sourceCopycatEligible(last)?[last]:[];
 }
 
 function validatePublicEventReceipt(receipt, view) {
@@ -676,54 +711,29 @@ function validatePublicEventReceipt(receipt, view) {
       const choices = receipt.opponentCopycatChoices;
       if (!Array.isArray(choices) || choices.length > 2 || !Array.isArray(receipt.opponentLastTurnAttacks)) fail('BAD_COPYCAT_CHOICES');
       const choiceSignatures = new Set();
-      for (const row of choices) {
-        validateEventAttack(row);
-        if (row.gxAttack || row.copycatAttack) fail('INELIGIBLE_COPYCAT_ATTACK');
-        const signature = eventAttackSignature(row);
-        if (choiceSignatures.has(signature)) fail('DUPLICATE_COPYCAT_CHOICE');
-        choiceSignatures.add(signature);
-        if (!receipt.opponentLastTurnAttacks.some(attack => eventAttackSignature(attack) === signature)) fail('COPYCAT_CHOICE_NOT_IN_HISTORY');
-      }
-      if (choices.length === 1) {
-        if (choices[0].barragePairIndex !== undefined || choices[0].barragePairRole !== undefined) {
-          fail('BAD_SINGLE_COPYCAT_CHOICE');
-        }
-        const latestEligibleUnpaired = [...receipt.opponentLastTurnAttacks].reverse().find(attack =>
-          attack.barragePairIndex === undefined &&
-          attack.barragePairRole === undefined &&
-          !attack.gxAttack &&
-          !attack.copycatAttack
-        );
-        if (!latestEligibleUnpaired ||
-            eventAttackSignature(latestEligibleUnpaired) !== eventAttackSignature(choices[0])) {
-          fail('STALE_SINGLE_COPYCAT_CHOICE');
-        }
-      }
-      if (choices.length === 2) {
-        const [first, second] = choices;
-        const firstHasPair = first.barragePairIndex !== undefined || first.barragePairRole !== undefined;
-        const secondHasPair = second.barragePairIndex !== undefined || second.barragePairRole !== undefined;
-        if (!firstHasPair || !secondHasPair ||
-            first.barragePairIndex !== second.barragePairIndex ||
-            first.barragePairRole !== 'first' || second.barragePairRole !== 'second' ||
-            first.sourcePrinting !== second.sourcePrinting || first.attackName === second.attackName) {
-          fail('BAD_COPYCAT_BARRAGE_PAIR');
-        }
-        const historyPair = receipt.opponentLastTurnAttacks.filter(
-          attack => attack.barragePairIndex === first.barragePairIndex
-        );
-        const pairIndices = receipt.opponentLastTurnAttacks
-          .filter(attack => attack.barragePairIndex !== undefined)
-          .map(attack => attack.barragePairIndex);
-        const latestPairIndex = pairIndices.length ? Math.max(...pairIndices) : null;
-        if (historyPair.length !== 2 ||
-            first.barragePairIndex !== latestPairIndex ||
-            eventAttackSignature(historyPair[0]) !== eventAttackSignature(first) ||
-            eventAttackSignature(historyPair[1]) !== eventAttackSignature(second)) {
-          fail('BAD_COPYCAT_BARRAGE_PAIR');
-        }
-      }
-      const active = view.ownPublic.active;
+       for (const row of choices) {
+         validateEventAttack(row);
+         if (!sourceCopycatEligible(row))
+           fail('INELIGIBLE_COPYCAT_ATTACK');
+         const signature=eventAttackSignature(row);
+         if (choiceSignatures.has(signature))
+           fail('DUPLICATE_COPYCAT_CHOICE');
+         choiceSignatures.add(signature);
+         if (!receipt.opponentLastTurnAttacks.some(
+           attack=>eventAttackSignature(attack)===signature))
+           fail('COPYCAT_CHOICE_NOT_IN_HISTORY');
+       }
+       // Require exact last attack or the last complete Barrage pair.
+       // A previous Barrage pair cannot outrank a later ordinary attack.
+       // A pair with a GX attack can leave one eligible paired choice.
+       const expected=expectedSourceCopycatChoices(
+         receipt.opponentLastTurnAttacks);
+       if (choices.length!==expected.length ||
+           !choices.every((row,index)=>
+             eventAttackSignature(row)===
+             eventAttackSignature(expected[index])))
+         fail('COPYCAT_CHOICES_NOT_LATEST_ELIGIBLE_SOURCE');
+       const active = view.ownPublic.active;
       const activeHasCopycat = active !== null && active.name === 'Mimikyu' &&
         active.attacks.some(attack => attack.name === 'Copycat');
       const expectedCompatibility = activeHasCopycat && choices.length > 0;
@@ -1134,6 +1144,8 @@ module.exports = {
   validateEventPokemon,
   validateEventAttack,
   eventAttackSignature,
+  sourceCopycatEligible,
+  expectedSourceCopycatChoices,
   validatePublicEventReceipt,
   assertToken,
   uniqueTokens,

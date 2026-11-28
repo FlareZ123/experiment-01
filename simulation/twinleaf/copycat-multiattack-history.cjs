@@ -7,6 +7,7 @@ const {AttackAction}=
 const {ResolvePromptAction}=
   require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
 const {GameMessage}=require('../../vendor/twinleaf/ptcg-server/output/game/game-message');
+const {classifyPrintedGXAttack}=require('./printed-gx-attack-classifier.cjs');
 
 /**
  * Mimikyu's printed Copycat excludes GX attacks and, by official ruling,
@@ -25,8 +26,12 @@ function isMimikyuCopycatAttack(row){
 }
 
 /** @param {object} row @returns {boolean} */
+/** Printed GX classification is shared by actor-visible board and attack-history adapters. */
+/** @param {object} row @returns {boolean} */
 function isMimikyuCopycatEligibleAttack(row){
-  return row?.gxAttack===false&&!isMimikyuCopycatAttack(row);
+  return row?.gxAttack===false&&
+    classifyPrintedGXAttack(row?.attack??row)===false&&
+    !isMimikyuCopycatAttack(row);
 }
 
 /**
@@ -91,7 +96,7 @@ function installCopycatMultiAttackHistory(store){
           sourceCardName:sourceCard.name,
           sourceCardFullName:sourceCard.fullName,
           attackName:attack.name,
-          gxAttack:attack.gxAttack===true,
+          gxAttack:classifyPrintedGXAttack(attack)!==false,
           copycatAttack:attack.copycatAttack===true
         };
       }
@@ -125,7 +130,7 @@ function installCopycatMultiAttackHistory(store){
             sourceCardName:sourceCard.name,
             sourceCardFullName:sourceCard.fullName,
             attackName:attack.name,
-            gxAttack:attack.gxAttack===true,
+            gxAttack:classifyPrintedGXAttack(attack)!==false,
             copycatAttack:attack.copycatAttack===true
           };
         }
@@ -203,14 +208,14 @@ function installCopycatMultiAttackHistory(store){
    */
   const getCopycatChoices=playerId=>{
     const history=getPreviousTurnAttacks(playerId);
-    const paired=history.filter(row=>typeof row.barragePairId==='string');
-    if(paired.length>0){
-      const pairId=paired[paired.length-1].barragePairId;
-      const pair=history.filter(row=>row.barragePairId===pairId);
+    // Do not resurrect an older Barrage pair if a later attack occurred.
+    // The most recent actual attack decides the ordinary Copycat frontier.
+    const last=history[history.length-1];
+    if(last&&typeof last.barragePairId==='string'){
+      const pair=history.filter(row=>row.barragePairId===last.barragePairId);
       if(pair.length===2)
         return pair.filter(isMimikyuCopycatEligibleAttack);
     }
-    const last=history[history.length-1];
     return last&&isMimikyuCopycatEligibleAttack(last)?[last]:[];
   };
 
@@ -273,6 +278,7 @@ function dispatchCopycatWithSelectedHistory(store,copycatPlayerId,selected,actio
 module.exports={
   isMimikyuCopycatAttack,
   isMimikyuCopycatEligibleAttack,
+  classifyPrintedGXAttack,
   installCopycatMultiAttackHistory,
   dispatchCopycatWithSelectedHistory
 };
