@@ -24,9 +24,20 @@ Constructed **actor-visible final-Prize opportunity** (both seats): own Regidrag
 
 ## Actor information limits applied in the actual selector
 
-The latest branch uses the exact source Basic Energy multiset (Grass ×4, Fire ×3) and **declines the Crispin branch when all of either type are already accounted for in actor-visible hand/board/discard/Lost Zone**, with positive and negative controls. It also uses `ownerK1.knownPrintings` **only when exactMembershipKnown=true and invalidationReason=null** to reject a search when the authenticated owner's deck has no Grass or no Fire; stale K1 does not veto. This avoids pretending that a theoretically accessible Supporter can conjure unavailable Basic Energy.
+The latest branch uses the exact source Basic Energy multiset (Grass ×4, Fire ×3) and **declines the Crispin branch when fewer than two cards remain in own deck, or all copies of either type are already accounted for in actor-visible hand/board/discard/Lost Zone**, with positive and negative controls. It also uses `ownerK1.knownPrintings` **only when exactMembershipKnown=true and invalidationReason=null** to reject a search when the authenticated owner's deck has no Grass or no Fire; stale K1 does not veto. This avoids pretending that a theoretically accessible Supporter can conjure unavailable Basic Energy.
 
 **Important native turn-counter correction:** `ownTurnResources.supporterPlayedTurn` counts Supporters already played **this turn**; it is **not a global-turn timestamp**. A nonzero value vetoes recovery, even at global turn 5. The first implementation incorrectly compared the count with the global turn; corrected before handoff/promotion, with a one-Supporter-used negative added. Both improvements are grounded in existing `simulation/twinleaf/actor-k1-search-plan-veto.cjs` and current actor protocol; no extra private deck access.
+
+## Staged genuine-Store executable smoke (owner-run, **unexecuted**)
+
+`simulation/twinleaf/2026-11/agent47-rank13-crispin-native-smoke.cjs` is an executable pinned native-Store integration probe, **not another proposed test case**. It is ready for the Regidrago/V3 owner to run after compiling the existing submodule. It constructs a reduced test position using *actual pinned native card instances*, with an intact Regidrago V → VSTAR evolution stack; resolves VS Seeker and Crispin through native `PlayCardAction`, typed actor choices through the original `dispatchPromptChoice`, exact-source Crispin temporary-CardList `AttachEnergyPrompt`, native `AttackAction('Apex Dragon')`, and the original worker's copied Shred selection; asserts an actual final Prize. It handles **opponent-owned** `ShowCardsPrompt` presentations through the existing host-only resolver **before** entering the owner-bound prompt projector. It is syntax-compilable using V8, but **has not been run against a pinned Store**, so every expected postcondition is hypothetical.
+
+When `AGENT47_STRICT_ROOTS=1`, it additionally uses the existing V3 `agent3-known-cap-free-action-enumerator.cjs` for native-enumerated, preflighted root actions and dispatches the actual worker-selected native action, rather than forcing the three root card/attack plays. The advanced mode is also **unexecuted**. No new workflow, scheduler, registration, Stage-A or production V3 runner modifications were made.
+
+```bash
+node simulation/twinleaf/2026-11/agent47-rank13-crispin-native-smoke.cjs
+AGENT47_STRICT_ROOTS=1 node simulation/twinleaf/2026-11/agent47-rank13-crispin-native-smoke.cjs
+```
 
 ## Bounded integration and honest stopline
 
