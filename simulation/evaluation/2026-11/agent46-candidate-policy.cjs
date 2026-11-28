@@ -443,6 +443,25 @@ function slotForPokemonChoice(view, choice) {
   return { slot, index, ownerSeat: metadata.ownerSeat };
 }
 
+// Differentiate the physical Basic V from VMAX: prefix-only matching of
+// "Shadow Rider Calyrex V" deliberately includes both for established-engine
+// counting, but MUST NOT treat a VMAX in hand as an available Basic V.
+function isBasicShadowRiderVPrinting(printing) {
+  return typeof printing === 'string' &&
+    /^Shadow Rider Calyrex V CRE(?:\\s|$)/.test(printing);
+}
+
+function establishedShadowRiderEngines(view) {
+  return ownBoard(view).filter(slot =>
+    hasName(slot.printing, 'Shadow Rider Calyrex V')).length;
+}
+
+function needsSecondShadowRiderBasic(view) {
+  return establishedShadowRiderEngines(view) === 1 &&
+    countBench(view.ownPublic) <= 3 &&
+    !view.ownHand.some(isBasicShadowRiderVPrinting);
+}
+
 function searchNeedScore(view, printing, effectName = '') {
   if (!isText(printing)) return -Infinity;
   const regidrago = opponentHasRegidrago(view);
@@ -467,8 +486,10 @@ function searchNeedScore(view, printing, effectName = '') {
     if (hasShadowV && !hasShadowVmax && !handHas(view, 'Shadow Rider Calyrex VMAX')) return 94;
     return -5;
   }
-  if (hasName(printing, 'Shadow Rider Calyrex V')) {
-    if (!hasShadowV && !hasShadowVmax && !handHas(view, 'Shadow Rider Calyrex V')) return 100;
+  if (isBasicShadowRiderVPrinting(printing)) {
+    if (!hasShadowV && !hasShadowVmax &&
+        !view.ownHand.some(isBasicShadowRiderVPrinting)) return 100;
+    if (needsSecondShadowRiderBasic(view)) return 82;
     return -5;
   }
   if (hasName(printing, "Lillie's Clefairy ex")) {
@@ -1080,13 +1101,11 @@ function scoreBasicPlay(item, view) {
   const metadata = item.publicMetadata ?? {};
   if (metadata.targetSeat !== 'actor' || metadata.targetZone !== 'bench') return -Infinity;
   const printing = item.actorPrinting ?? '';
-  if (hasName(printing, 'Shadow Rider Calyrex V') &&
-      !hasName(printing, 'VMAX')) {
-    // The fixed source 60 contains 4 Basic V / 4 VMAX. The former
-    // one-copy boardHas test incorrectly made EVERY second V inert.
-    // Both the Basic V and its evolved VMAX consume one engine board slot.
-    const established = ownBoard(view).filter(slot =>
-      hasName(slot.printing, 'Shadow Rider Calyrex V')).length;
+  if (isBasicShadowRiderVPrinting(printing)) {
+    // The fixed source 60 contains 4 Basic V / 4 VMAX. Keep a second
+    // source-printed Basic alive as a second future Underworld Door engine.
+    // Both V and its evolved VMAX count as one engine board slot.
+    const established = establishedShadowRiderEngines(view);
     if (established === 0) return 1000;
     if (established === 1 && countBench(view.ownPublic) === 0) return 900;
     if (established === 1 && countBench(view.ownPublic) <= 3) return 790;
@@ -1166,11 +1185,15 @@ function scoreTrainerPlay(item, view, receipt) {
       !discardHas(view, 'Dialga-GX') && !handHas(view, 'Dialga-GX') &&
       !boardHas(view, 'Dialga-GX') && (boardHas(view, 'Mimikyu') || handHas(view, 'Mimikyu'))) return 860;
   if (hasName(name, 'Fog Crystal') &&
-      (!boardHas(view, 'Shadow Rider Calyrex V') || psychicEnergyCount(view) < 3)) return 820;
+      (!boardHas(view, 'Shadow Rider Calyrex V') ||
+       needsSecondShadowRiderBasic(view) || psychicEnergyCount(view) < 3)) return 820;
   if (hasName(name, 'Mysterious Treasure') && hasDiscardableHand(view, 1) &&
-      (opponentHasRegidrago(view) || !boardHas(view, 'Shadow Rider Calyrex V'))) return 800;
+      (opponentHasRegidrago(view) ||
+       !boardHas(view, 'Shadow Rider Calyrex V') ||
+       needsSecondShadowRiderBasic(view))) return 800;
   if (hasName(name, 'Quick Ball') && hasDiscardableHand(view, 1) &&
       (!boardHas(view, 'Shadow Rider Calyrex V') ||
+       needsSecondShadowRiderBasic(view) ||
        (opponentHasRegidrago(view) && !boardHas(view, 'Mimikyu')))) return 790;
   if (hasName(name, 'Ultra Ball') && hasDiscardableHand(view, 2) &&
       boardHas(view, 'Shadow Rider Calyrex V') &&
