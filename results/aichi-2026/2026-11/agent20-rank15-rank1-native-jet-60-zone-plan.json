@@ -237,5 +237,56 @@
     "opponentActiveTop": "Shadow Rider Calyrex V CRE 74",
     "confirmedActorSourceMultiset": true,
     "confirmedOpponentSourceMultiset": true
+  },
+  "pinnedNativePrintContract": {
+    "pinnedTwinleafCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "status": "source read from this pinned revision; exact native Store/registry not executed",
+    "note": "The canonical source printing and engine PokemonCard.fullName are NOT the same string; do not pass raw native names straight to Agent20's P.mega/P.buneary matchers without a certified source-printing bridge. Stage actual evolution stacks, not bare evolved top cards.",
+    "canonicalToRawNative": [
+      {
+        "source": "Bunnelby PRC 121",
+        "nativeFullName": "Bunnelby PRC",
+        "pinnedSourceBlob": "0932eac9313f1754a95092940941d7ab00e17fe4"
+      },
+      {
+        "source": "Buneary PFL 83",
+        "nativeFullName": "Buneary M2",
+        "pinnedSourceBlob": "9bd316e8a16be40e87cd4e3b98e9c688a0655ff5"
+      },
+      {
+        "source": "Mega Lopunny ex PFL 84",
+        "nativeFullName": "Mega Lopunny ex M2",
+        "pinnedSourceBlob": "e7d819d09ad029db10eecf92ecf576d85439eff4"
+      },
+      {
+        "source": "Pidgey FLF 75",
+        "nativeFullName": "Pidgey FLF",
+        "pinnedSourceBlob": "f20e9308a0ada1b359a152a01faefcb1c4c42902"
+      },
+      {
+        "source": "Pidgeotto TEU 123",
+        "nativeFullName": "Pidgeotto TEU",
+        "pinnedSourceBlob": "f7c6f0caa089c1bed4fdfc71803baf952d47e2c8"
+      },
+      {
+        "source": "Jet Energy PAL 190",
+        "nativeFullName": "Jet Energy PAL",
+        "pinnedSourceBlob": "18894389254e7e66d5acf72af3820094c07032fa"
+      },
+      {
+        "source": "Shadow Rider Calyrex V CRE 74",
+        "nativeFullName": "Shadow Rider Calyrex V CRE",
+        "pinnedSourceBlob": "871b165e291d357f213452e9ad7d713295a0c8de"
+      }
+    ],
+    "actualPinnedNativeMechanics": [
+      "JetEnergy.reduceEffect sees AttachEnergyEffect and calls player.switchPokemon(target) unless special-energy blocking; it does not explicitly test Bench, but Player.switchPokemon is a no-op unless the target is in player.bench.",
+      "Player.switchPokemon records the promoted Pokemon card ID in movedToActiveThisTurn and sets card.movedToActiveThisTurn=true, even when the call omits store/state.",
+      "MegaLopunnyex's Gale Thrust native implementation uses MOVED_TO_ACTIVE_THIS_TURN(effect.player,this) to add 170 to base 60; the compiled Store and card registration must still confirm this path is reachable.",
+      "Native source cards Buneary/Mega have fullName suffix M2 although printed set is PFL. This is a mandatory mapping for an original-source-60 native actor, not a discretionary card substitution."
+    ],
+    "sourceAliasesBeyondVerifiedRawNative": {
+      "Grass Energy MEE 9": "Grass Energy BLW 105 (policy ENGINE_PRINTING_ALIASES; target native class identity still must be established by compiled registry)"
+    }
   }
 }
