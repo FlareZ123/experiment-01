@@ -592,7 +592,19 @@ function scoreAction(item, request) {
       remainingHp(pokemon) <= 90) ? 88 : 42;
   }
   if (matches(card, PRINT.faba)) return opponentHasFabaTarget(opponent) ? 94 : 0;
-  if (matches(card, PRINT.plumeria)) return opponentHasAnyEnergy(opponent) ? 78 : 0;
+  if (matches(card, PRINT.plumeria)) {
+    if (!opponentHasAnyEnergy(opponent)) return 0;
+    const remaining = hand.slice();
+    const index = Number.isSafeInteger(metadata.handIndex) &&
+      matches(remaining[metadata.handIndex], PRINT.plumeria) ?
+      metadata.handIndex : remaining.findIndex(value => matches(value, PRINT.plumeria));
+    if (index < 0) return 0;
+    remaining.splice(index, 1);
+    const afterPlay = { ...observation, ownHand: remaining };
+    const usable = remaining.filter(printing =>
+      discardPriority({ printing }, afterPlay) >= 48);
+    return usable.length >= 2 ? 78 : 0;
+  }
   if (matches(card, PRINT.cassius)) {
     return boardSlots(own).some(row =>
       remainingHp(row.pokemon) > 0 && remainingHp(row.pokemon) <= 40) ? 108 : 12;
@@ -777,12 +789,23 @@ function scorePokemonChoice(choice, observation, context) {
   const owner = choiceOwner(choice);
   const zone = choiceZone(choice);
   const guzmaPrompt = context.includes('guzma') && !context.includes('guzma & hala');
-  const opponentChoice = context.includes('irresistible aroma');
+  const plumeriaPrompt = context.includes('plumeria');
+  const opponentChoice = context.includes('irresistible aroma') || plumeriaPrompt;
   // Guzma has two different prompts: opposing Bench first, then own Bench.
   if (guzmaPrompt ? !['actor', 'opponent'].includes(owner) :
       (owner && owner !== (opponentChoice ? 'opponent' : 'actor'))) return -100;
   if (zone && zone !== 'bench' && !context.includes('irresistible aroma') &&
-      !context.includes('cassius') && !context.includes('grand tree')) return -100;
+      !plumeriaPrompt && !context.includes('cassius') &&
+      !context.includes('grand tree')) return -100;
+  if (plumeriaPrompt) {
+    if (owner !== 'opponent' || !['active', 'bench'].includes(zone)) return -100;
+    const target = choiceBoardPokemon(choice, observation);
+    const attached = list(target?.energies);
+    if (attached.length === 0) return -100;
+    const special = attached.some(printing => !
+      /^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy/i.test(printing));
+    return 100 + (special ? 70 : 0) + (zone === 'active' ? 20 : 0) + attached.length;
+  }
   if (guzmaPrompt) {
     const target = choiceBoardPokemon(choice, observation);
     if (!target || zone !== 'bench') return -100;
