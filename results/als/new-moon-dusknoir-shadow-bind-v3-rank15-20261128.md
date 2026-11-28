@@ -42,6 +42,19 @@ These are **not action-access probabilities**, still less win rates: they ignore
 
 The v3 Dusknoir line's structural gate exceeds v2's complete one-Duskull two-Dusclops-Jammer gate by **16.6891 percentage points**. That gain does not establish superior playability: it trades Prize exposure and self-KO risk for a deeper evolution/three-Energy clock.
 
+## Faster resource bridge: an existing Powerglass, not a third manual attachment
+
+The fixed v3 retains **two Powerglass SFA 63**, which attach a **Basic Energy from the discard** to the Tool's Active holder **at the end of your turn after attacking**. Unlike Tool Jammer v2's specified *Active Dusclops carrying Tool Jammer*, a v3 Active Dusclops can carry **Powerglass** in its only Tool slot, retain that Tool through evolution, and use it without removing BUS's Hood.
+
+One fully conditional two-own-turn sequence is:
+
+1. At candidate turn T, **Active Dusclops SFA 19** has two Psychic-providing attached Energy, Powerglass attached, a **Basic Psychic Energy in discard**, and has been in play long enough for the subsequent turn's evolution. **BUS Vileplume Active with Hood; AOR Vileplume Benched.**
+2. Stage-1 Dusclops is allowed to attack through BUS's Basic-only restriction: **Will-O-Wisp does 50 to BUS**. At end of candidate turn T, **Powerglass attaches one Basic Psychic from discard** to that Active Dusclops, giving it three Energy cards. The three Special Telepathic Psychic Energy copies do **not** qualify as Powerglass discard targets.
+3. If the source leaves BUS Active and uses **Downer Shock**, it does 60 damage: a clean 90-HP Dusclops survives one such attack. Heads causes Asleep, tails Confused; neither is permanent through evolution. Other source attacks, gust, damage modifiers or disruption may defeat this line.
+4. On candidate turn T+1, **evolve that surviving Active Dusclops into Dusknoir** from hand; its attachment/Tool/damage remain, and evolution removes the Special Condition. Attack with **Shadow Bind [P][P][C] for 150**, KOing BUS, without any Cursed Blast self-KO.
+
+This requires a real prior-turn Dusclops, a live Tool, one discard-pile **Basic** Energy, a surviving evolution host, Stage 2 access, and an opponent reply that does not break the chain. It is **not** a claim that the sequence naturally occurs or a qualified game. It materially reduces the apparent third-manual-attachment penalty: **two normal attachments plus one Powerglass after-attack attachment** suffice under these prerequisites. It also exposes a real Tool-slot difference: v2's Active Jammer carrier cannot simultaneously use Powerglass, whereas v3's attacking evolution line can.
+
 ## Concrete exact-source counterplay: Mega Lopunny ex
 
 Rank 15's authenticated source 60 has **two Mega Lopunny ex PFL 84**, two **Guzma BUS 115**, two **Jet Energy**, and a singleton **Double Colorless Energy**. The bundled English printing (ME2 84) gives Mega Lopunny ex 330 HP with **Spiky Hopper [C][C] 160 damage**, explicitly ignoring effects on the opposing Active Pokémon. That 160 is exactly Dusknoir's 160 HP: if the source can fund and attack with Mega Lopunny, a surviving Dusknoir after the BUS KO can be returned-KOed for one Prize. Its **Gale Thrust [C]** reaches **230 damage** only when Mega Lopunny moved from Bench to Active **during the source's current turn**; mere promotion after Dusknoir's KO on the candidate turn does not establish that same-turn condition. A Guzma or suitable Jet switch can establish a later own-turn repositioning under its conditions.
