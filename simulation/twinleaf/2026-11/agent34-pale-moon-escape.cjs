@@ -12,6 +12,10 @@ function pendingPaleMoonGXKnockOut(player, slot) {
   const effects = player?.pendingEndOfTurnEffects;
   if (effects === undefined || effects === null) return null;
   assert.ok(Array.isArray(effects), 'Pale Moon public effect queue must be an array');
+  // Pale Moon-GX affects the Defending Pokemon, not a future Bench target.
+  // The pinned engine retains stale pending records after Active -> Bench;
+  // such a record is NOT a live attack effect under paper switch rules.
+  if (player.active !== slot) return false;
   return effects.some(effect => effect?.type === 'knock_out' &&
     effect?.attack?.name === 'Pale Moon-GX' && effect?.target === slot);
 }
