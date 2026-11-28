@@ -29,7 +29,7 @@ function side(active, bench = [], prizeCount = 3) {
     }
   };
 }
-function request(seat, targets, prizeCount = 3) {
+function request(seat, targets, prizeCount = 3, hasBench = true) {
   // Guzma BUS 115 first gusts the opponent, THEN forces the active to switch.
   // This departing active can deal just 10, but Latias on our Bench can
   // deliver 200 after the switch.  Before the repair the scorer incorrectly
@@ -54,7 +54,7 @@ function request(seat, targets, prizeCount = 3) {
     observation: {
       actorSeat: seat, decisionKind: 'owner-prompt',
       ownHand: [], ownTurnResources: { supporterPlayedTurn: 1 },
-      ownPublic: side(active, [benchAttacker], prizeCount),
+      ownPublic: side(active, hasBench ? [benchAttacker] : [], prizeCount),
       opponentPublic: side(
         mon('Mimikyu GRI 58', 70, 0), targets, 4)
     },
@@ -95,11 +95,13 @@ const cases = [
   ['VSTAR two Prizes beats a single-Prize target',
    [mimikyu(50), drago(50)], 'target-1', 4],
   ['old M Pokémon-EX is only two Prizes: tie goes to earlier VSTAR',
-   [drago(50), oldMega(50)], 'target-0', 4]
+   [drago(50), oldMega(50)], 'target-0', 4],
+  ['no own Bench means the Active actually remains the attacker',
+   [iron(10), mega(150)], 'target-0', 3, false]
 ];
-for (const seat of [0, 1]) for (const [label, targets, expected, prizeCount] of cases) {
+for (const seat of [0, 1]) for (const [label, targets, expected, prizeCount, hasBench = true] of cases) {
   test(label + ' seat ' + seat, () => {
-    const input = request(seat, targets, prizeCount);
+    const input = request(seat, targets, prizeCount, hasBench);
     protocol.validatePrompt(input.prompt, seat);
     const got = policy.createPolicy({
       role: 'candidate', seat, policyVersion: policy.POLICY_VERSION,
