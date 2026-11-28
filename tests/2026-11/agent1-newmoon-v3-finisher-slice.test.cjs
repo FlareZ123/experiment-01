@@ -642,4 +642,61 @@ test('refill protects held Dusknoir when evolved board already exists',()=>{
  assert(f.root().kind,'abstain');
 });
 
+
+test('Lillie Clefairy two-Energy Rondo with public Bench mass',()=>{
+ const f=make();f.own.active.printing="Lillie's Clefairy ex JTG56";
+ f.opp.active.printing='Regidrago VSTAR SIT136';f.opp.bench=[{printing:'Bunnelby'}];
+ f.items.splice(0,f.items.length,{kind:'attack',token:'rondo',
+ actorPrinting:f.own.active.printing,attackName:'Full Moon Rondo',
+ publicMetadata:{attackCostPayable:true,attackSource:{sourceKind:'active-pokemon',
+ sourceSlot:'ACTIVE',sourceIndex:0,sourceCardName:"Lillie's Clefairy ex",
+ sourceCardFullName:f.own.active.printing,attackName:'Full Moon Rondo'}}});
+ assert(f.root().token,'rondo');
+});
+test('Full Moon Rondo withheld with no public Bench targets',()=>{
+ const f=make();f.own.active.printing="Lillie's Clefairy ex JTG56";
+ f.own.bench=[];f.opp.bench=[];
+ f.items.splice(0,f.items.length,{kind:'attack',token:'rondo',
+ actorPrinting:f.own.active.printing,attackName:'Full Moon Rondo',
+ publicMetadata:{attackCostPayable:true,attackSource:{sourceKind:'active-pokemon',
+ sourceSlot:'ACTIVE',sourceIndex:0,sourceCardName:"Lillie's Clefairy ex",
+ sourceCardFullName:f.own.active.printing,attackName:'Full Moon Rondo'}}});
+ assert(f.root().kind,'abstain');
+});
+test('Full Moon Rondo not chosen into certified damage prevention',()=>{
+ const f=make();f.own.active.printing="Lillie's Clefairy ex JTG56";
+ f.items.splice(0,f.items.length,{kind:'attack',token:'rondo',
+ actorPrinting:f.own.active.printing,attackName:'Full Moon Rondo',
+ publicMetadata:{attackCostPayable:true,damagePrevented:true,
+ attackSource:{sourceKind:'active-pokemon',sourceSlot:'ACTIVE',sourceIndex:0,
+ sourceCardName:"Lillie's Clefairy ex",
+ sourceCardFullName:f.own.active.printing,attackName:'Full Moon Rondo'}}});
+ assert(f.root().kind,'abstain');
+});
+test('Klefki Joust strips exposed opponent Active Stealthy Hood',()=>{
+ const f=make();f.own.active.printing='Klefki SVI 96';
+ f.opp.active.printing='Iron Thorns ex TWM 77';f.opp.active.hp=230;
+ f.opp.active.tools=['Stealthy Hood UNB 186'];
+ f.items.splice(0,f.items.length,{kind:'attack',token:'joust',
+ actorPrinting:f.own.active.printing,attackName:'Joust',
+ publicMetadata:{attackCostPayable:true,attackSource:{
+ sourceKind:'active-pokemon',sourceSlot:'ACTIVE',sourceIndex:0,
+ sourceCardName:'Klefki',sourceCardFullName:f.own.active.printing,
+ attackName:'Joust'}}});
+ assert(f.root().token,'joust');
+});
+test('Klefki cannot Joust into live BUS Basic-attack lock',()=>{
+ const f=make();f.own.active.printing='Klefki SVI 96';
+ f.own.bench=[];f.opp.active.printing='Vileplume BUS 6';
+ f.opp.active.hp=140;f.opp.active.tools=['Stealthy Hood UNB 186'];
+ f.opp.active.abilities=['Disgusting Pollen'];
+ f.opp.active.abilitySuppressions=[{abilityName:'Disgusting Pollen',suppressed:false}];
+ f.items.splice(0,f.items.length,{kind:'attack',token:'joust',
+ actorPrinting:f.own.active.printing,attackName:'Joust',
+ publicMetadata:{attackCostPayable:true,attackSource:{sourceKind:'active-pokemon',
+ sourceSlot:'ACTIVE',sourceIndex:0,sourceCardName:'Klefki',
+ sourceCardFullName:f.own.active.printing,attackName:'Joust'}}});
+ assert(f.root().kind,'abstain');
+});
+
 console.log('Agent1 v3 research actor tests: '+checks+' assertions passed');
