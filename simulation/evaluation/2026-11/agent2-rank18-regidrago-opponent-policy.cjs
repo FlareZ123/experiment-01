@@ -158,9 +158,6 @@ function scoreRoot(item,request){
     if(p==='Lillie\'s Determination MEG 119')return g.hand<=3?235:105;
     if(p==='Iono PAL 185')return g.hand<=3?205:85;
     if(p==='Carmine TWM 145')return g.firstTurnCandidate&&g.hand<=3?240:45;
-    if(p==='Megaton Blower SSP 182')return templeUnlocksApex(obs)?560:
-      board(opp).some(mon=>arr(mon.tools).length>0||
-        arr(mon.energies).some(e=>/Double|Special/.test(name(e))))?200:45;
   }
   if(item.kind==='use-ability'){
     const ability=item?.publicMetadata?.sourceEffect??item?.publicMetadata?.abilityName??item?.label??'';
