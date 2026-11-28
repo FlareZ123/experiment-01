@@ -196,7 +196,8 @@ function projectSourcePrintings(observation,frontier,sourceMapsBySeat,options={}
  * physical RNG remain outside this function. This does NOT relax the worker
  * schema or let the policy see a raw Store, and NEVER changes a native token.
  */
-function projectAdmittedWorkerParts(parts,sourceMapsBySeat,protocol){
+function projectAdmittedWorkerParts(parts,sourceMapsBySeat,protocol,
+    {observationAlreadySourcePrinted=false}={}){
   const {observation,prompt,publicEventReceipt,actionFrontier}=parts??{};
   assert.ok(observation&&typeof observation==='object');
   assert.ok(actionFrontier&&Array.isArray(actionFrontier.items));
@@ -210,7 +211,23 @@ function projectAdmittedWorkerParts(parts,sourceMapsBySeat,protocol){
   // the relabeling boundary. All protocol admission errors propagate.
   protocol.validateActorObservation(observation,seat);
   protocol.validatePrompt(prompt??null,seat);
-  protocol.validatePublicEventReceipt(publicEventReceipt??null,observation);
+  // Once wrapSourcePrintedObserver is active, the native fixture driver
+  // hashes and hands off a SOURCE-labeled observation. Event receipts are
+  // still produced from the pinned Store's NATIVE fullNames. Validating
+  // that raw receipt against a source-labeled observer fails with an
+  // EVENT_OWNER_ACTIVE/BENCH_MISMATCH before any worker call. Validate a
+  // schema-identical relabeled receipt against the already-certified
+  // source observation; keep raw/native admission for direct callers.
+  let receiptBefore=publicEventReceipt??null;
+  if(observationAlreadySourcePrinted){
+    const normalizedObservation=projectSourcePrintings(
+      observation,null,sourceMapsBySeat).observation;
+    assert.deepEqual(observation,normalizedObservation,
+      'pre-driver-SHA actor view must already be source-labeled');
+    const mine=sourceMapsBySeat[seat],other=sourceMapsBySeat[1-seat];
+    receiptBefore=mapPublicEventReceipt(receiptBefore,mine,other);
+  }
+  protocol.validatePublicEventReceipt(receiptBefore,observation);
   const beforeTokens=protocol.validateFrontier(actionFrontier);
   const projected=projectSourcePrintings(observation,actionFrontier,
     sourceMapsBySeat,{prompt,publicEventReceipt});
@@ -283,7 +300,8 @@ function createCertifiedSourcePrintedHostBridge({
   return Object.freeze({
     native:wrappedNative,
     projectWorkerParts(parts){
-      return projectAdmittedWorkerParts(parts,maps,protocol);
+      return projectAdmittedWorkerParts(parts,maps,protocol,
+        {observationAlreadySourcePrinted:true});
     }
   });
 }
