@@ -237,3 +237,37 @@ for(const seat of [0,1]) {
     assert.equal(['vs','plumeria'].includes(decide(request).token),true);
   });
 }
+
+for(const seat of [0,1]) {
+  test('rank16 Bench-play Crobat Dark Asset precedes self-locking Tool seat '+seat,()=>{
+    const request=state(seat,{
+      ownHand:['Crobat V DAA 104','Float Stone BKT 137'],
+      ownPublic:{active:poke(P.absol),bench:[poke(P.garbLTR)]},
+      items:[action('play-card','crobat',{actorPrinting:P.crobat}),
+        action('play-card','tool',{actorPrinting:P.float,targetPrinting:P.garbLTR}),
+        action('pass','pass')]
+    });
+    assert.deepEqual(decide(request),{kind:'select-action',token:'crobat'});
+  });
+  test('rank16 no false Dark Asset value after Tool locks own Abilities seat '+seat,()=>{
+    const request=state(seat,{
+      ownHand:['Crobat V DAA 104'],
+      ownPublic:{active:poke(P.absol),bench:[
+        {...poke(P.garbLTR),tools:[tool()]},poke(P.budew)]},
+      items:[action('play-card','crobat',{actorPrinting:P.crobat}),
+        action('pass','pass')]
+    });
+    assert.deepEqual(decide(request),{kind:'select-action',token:'pass'});
+  });
+  test('rank16 topological Bench reserve blocks extra Crobat before Budew seat '+seat,()=>{
+    const request=state(seat,{
+      ownHand:['Crobat V DAA 104'],
+      ownPublic:{active:poke(P.absol),bench:[
+        poke(P.garbLTR),poke(P.crobat),poke('Dedenne-GX UNB 57'),
+        poke('Tapu Lele-GX GRI 60')]},
+      items:[action('play-card','crobat',{actorPrinting:P.crobat}),
+        action('pass','pass')]
+    });
+    assert.deepEqual(decide(request),{kind:'select-action',token:'pass'});
+  });
+}
