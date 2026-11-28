@@ -906,6 +906,33 @@ function chooseCardCombination(view, prompt) {
   return { kind: 'select-choices', tokens: selected.map(choice => choice.token) };
 }
 
+function raihanRecipientScore(view, slot) {
+  if (!slot) return -Infinity;
+  const count = slotEnergyCount(slot);
+  let score = 140 - count * 10;
+  const target = view.opponentPublic.active;
+  if (target) {
+    const before = bestAttackForSlot(slot, view, target);
+    const funded = {
+      ...slot, energies: [...(slot.energies ?? []), 'Psychic Energy MEE 13']
+    };
+    const after = bestAttackForSlot(funded, view, target);
+    if (!before && after) score += 1500;
+    const remaining = Math.max(0, target.hp - target.damage);
+    if (after?.damage !== null && after?.damage >= remaining &&
+        (before?.damage === null || before?.damage < remaining)) score += 3000;
+  }
+  if (slot.printing === 'Shadow Rider Calyrex VMAX CRE 75' && count < 5)
+    score += 400;
+  if (slot.printing === 'Mimikyu GRI 58' &&
+      opponentHasRegidrago(view) && count < 2) score += 900;
+  if (slot.printing === "Lillie's Clefairy ex JTG 56" &&
+      opponentHasDragon(view) && count < 2) score += 700;
+  if (slot.printing === 'Shadow Rider Calyrex V CRE 74' && count < 3)
+    score += 300;
+  return score;
+}
+
 function choosePokemonRecipient(view, prompt) {
   setPolicyAuditRule('POKEMON_TARGET_SCORE', 'SCORE_DESC_NATIVE_TARGET_INDEX');
   const metadata = prompt.publicMetadata;
@@ -942,7 +969,11 @@ function choosePokemonRecipient(view, prompt) {
   const opponentChoices = visible.filter(row => row.target.ownerSeat === 'opponent');
 
   let ranked;
-  if (effectName === 'Acerola' && actorChoices.length > 0) {
+  if (effectName === 'Raihan' && actorChoices.length > 0) {
+    ranked = actorChoices.map(row => ({
+      ...row, score: raihanRecipientScore(view, row.target.slot)
+    }));
+  } else if (effectName === 'Acerola' && actorChoices.length > 0) {
     ranked = actorChoices.map(row => {
       const slot = row.target.slot;
       const safeToRemoveActive = slot !== view.ownPublic.active ||
