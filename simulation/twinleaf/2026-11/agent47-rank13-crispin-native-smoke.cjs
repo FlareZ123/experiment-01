@@ -11,6 +11,10 @@
  *   node simulation/twinleaf/2026-11/agent47-rank13-crispin-native-smoke.cjs
  * Optional stricter owner-root check (no V3 fixture):
  *   AGENT47_STRICT_ROOTS=1 node simulation/twinleaf/2026-11/agent47-rank13-crispin-native-smoke.cjs
+ * Optional exact-source-60 late-position inventory check (no dealt game):
+ *   AGENT47_SOURCE_60=1 node simulation/twinleaf/2026-11/agent47-rank13-crispin-native-smoke.cjs
+ * Optional combined smoke:
+ *   AGENT47_SOURCE_60=1 AGENT47_STRICT_ROOTS=1 node simulation/twinleaf/2026-11/agent47-rank13-crispin-native-smoke.cjs
  *
  * It uses the existing host's native Store, native prompt origin hook,
  * typed owner prompt projector (with one opt-in Crispin extension), native
@@ -113,6 +117,87 @@ function setup(seat) {
   assert.equal(x.owner.prizes.length,1);
   assert.equal(x.opponent.active.getPokemonCard(),mimikyu);
   return {...x,source:ownerPrintings,card};
+}
+
+
+/**
+ * Optional stronger staged source-preserving own-field mode. Every one of
+ * rank13's original 60 card copies must resolve under the same *explicit*
+ * same-set Basic Energy alias permission as the existing field resolver.
+ * It is a late-game board construction, not a replay of how those 60 reached
+ * those zones, and the defending Mimikyu/Pidgey are still a synthetic foe.
+ */
+function stageOriginalRank13Source60(x) {
+  const manifest=require('../../../results/aichi-2026/full-decklists.json');
+  const {resolveManifest}=require('../resolve-field.cjs');
+  const {CardList}=native('game/store/state/card-list');
+  const all=resolveManifest(manifest,{
+    allowEquivalentBasicEnergies:true,
+    allowJapanesePromoHooks:true
+  });
+  const source=all.decks.find(deck=>deck.rank===13);
+  assert.ok(source,'Aichi rank13 source missing from field manifest');
+  assert.equal(source.playableUnderEngine,true,
+    'Original rank13 must resolve under pinned native engine');
+  assert.equal(source.cardIds.length,60);
+  const remaining=source.cardIds.map(printing=>({
+    printing,card:x.card(printing),used:false
+  }));
+  const take=printing=>{
+    const slot=remaining.find(row=>!row.used && row.printing===printing);
+    assert.ok(slot,'Source rank13 card is unavailable or already used: '+printing);
+    slot.used=true;return slot.card;
+  };
+  const owner=x.owner;
+  for(const zone of [owner.hand,owner.deck,owner.discard,owner.lostzone,
+    owner.supporter,owner.stadium])zone.cards.length=0;
+  owner.active.cards.length=0;
+  owner.active.energies.cards.length=0;
+  owner.active.tools.length=0;
+  owner.active.damage=0;
+  for(const slot of owner.bench){
+    slot.cards.length=0;slot.energies.cards.length=0;
+    slot.tools.length=0;slot.damage=0;
+  }
+  owner.prizes.length=0;
+  const basic=take('Regidrago V SIT'),vstar=take('Regidrago VSTAR SIT');
+  const grass=take('Grass Energy MEE'),fire=take('Fire Energy MEE');
+  owner.active.cards.push(basic,vstar,grass,fire);
+  owner.active.energies.cards.push(grass,fire);
+  owner.active.pokemonPlayedTurn=2;
+  assert.equal(owner.active.isEvolved(),true);
+  owner.bench[0].cards.push(take('Budew ASC'));
+  owner.discard.cards.push(take('Dialga-GX UPR'),
+    take('Crispin SCR'),take('Guzma BUS'));
+  owner.hand.cards.push(take('VS Seeker PHF'));
+  const prize=new CardList();
+  prize.cards.push(take('Battle VIP Pass FST'));
+  owner.prizes.push(prize);
+  for(const row of remaining){
+    if(!row.used){owner.deck.cards.push(row.card);row.used=true;}
+  }
+  assert.ok(remaining.every(row=>row.used));
+  const physical=[
+    ...owner.active.cards,
+    ...owner.bench.flatMap(slot=>slot.cards),
+    ...owner.hand.cards,...owner.deck.cards,
+    ...owner.discard.cards,...owner.lostzone.cards,
+    ...owner.supporter.cards,...owner.stadium.cards,
+    ...owner.prizes.flatMap(slot=>slot.cards)
+  ];
+  assert.equal(physical.length,60);
+  const key=cards=>cards.map(c=>c.fullName).sort();
+  assert.deepEqual(key(physical),source.cardIds.slice().sort(),
+    'Staged source position must conserve the exact resolved rank13 60');
+  const view=actorObservation(x.store.state,x.seat);
+  assert.equal(view.ownPublic.prizeCount,1);
+  assert.equal(view.ownPublic.active.printing,'Regidrago VSTAR SIT');
+  assert.ok(view.ownPublic.deckCount>=2);
+  return {sourceRank:13,sourceDeckCount:physical.length,
+    sourceCardIdsLength:source.cardIds.length,
+    engineBasicEnergyAliasPermission:all.permissions.allowEquivalentBasicEnergies,
+    stagedOwnerDeckCount:view.ownPublic.deckCount,
+    stagedOwnerPrizesRemaining:view.ownPublic.prizeCount};
 }
 
 function pending(store) {
@@ -233,7 +318,10 @@ function activeEnergyTypes(x){
 
 function runSeat(seat) {
   assert.ok(seat===0||seat===1);
-  const x=setup(seat),history=[],provenance=installPromptProvenanceHook(x.store);
+  const x=setup(seat),history=[];
+  const source60=process.env.AGENT47_SOURCE_60==='1'?
+    stageOriginalRank13Source60(x):null;
+  const provenance=installPromptProvenanceHook(x.store);
   const strictRoots=process.env.AGENT47_STRICT_ROOTS==='1';
   const policy=workerModule.createPolicy({role:'opponent',seat,
     policyVersion:workerModule.POLICY_VERSION,config:{}});
@@ -268,7 +356,8 @@ function runSeat(seat) {
     return {seat,nativeStoreActionSeq:['VS Seeker','Crispin','Apex Dragon'],
       nativeOwnerPromptHistory:history,
       finalOwnerPrizes:x.owner.prizes.length,
-      nativeStagedLastPrize:true,strictRoots,qualifiedGame:false,
+      nativeStagedLastPrize:true,strictRoots,
+      source60StagedInventory:source60,qualifiedGame:false,
       originalFull60:false,paperSetupLegal:false};
   }finally{
     provenance.restore();
@@ -285,4 +374,5 @@ if(require.main===module){
   catch(e){console.error('AGENT47_CRISPIN_NATIVE_SMOKE_FAILED',e.stack??String(e));
     process.exitCode=1;}
 }
-module.exports={main,runSeat,setup,settlePrompts,resolveOne};
+module.exports={main,runSeat,setup,stageOriginalRank13Source60,
+  settlePrompts,resolveOne};
