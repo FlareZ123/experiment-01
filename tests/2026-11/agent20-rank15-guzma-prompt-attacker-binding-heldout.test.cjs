@@ -83,3 +83,30 @@ for(const seat of [0,1]){
     });
   }
 }
+
+
+for(const seat of [0,1]){
+  for(const [prizeCount,expected] of [[2,true],[3,false]]){
+    test('seat '+seat+': BUS lock active permits only terminal Guzma, prizes '+prizeCount,()=>{
+      const observation={actorSeat:seat,globalTurn:9,
+        ownTurnResources:{supporterPlayedTurn:8},ownHand:[GUZMA],
+        ownPublic:{
+          active:card('Vileplume BUS 6',{printed:{stage:'STAGE_2'}}),
+          bench:[card(MEGA)],prizeCount,stadium:[]
+        },
+        opponentPublic:{active:card('Pidgey FLF 75'),
+          bench:[card('Shadow Rider Calyrex V CRE 74',{hp:210,damage:30})],
+          prizeCount:3,stadium:[]}
+      };
+      const {rootDecision}=require(
+        '../../simulation/evaluation/2026-11/agent20-rank15-lopunny-vileplume-opponent-policy.cjs');
+      assert.equal(!!guzmaOpportunity(observation),expected);
+      const r=rootDecision({role:'opponent',seat,prompt:null,
+        observation,actionFrontier:{items:[
+          {kind:'play-card',token:'guzma',actorPrinting:GUZMA}
+        ]}});
+      assert.equal(r.kind==='select-action',expected);
+      if(expected)assert.equal(r.token,'guzma');
+    });
+  }
+}
