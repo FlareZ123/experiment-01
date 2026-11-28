@@ -1608,3 +1608,46 @@ for(const seat of [0,1]) {
     assert.equal(policy(seat).decide(r).reasonCode,'UNSUPPORTED_CARD_COMBINATION_SOURCE');
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' Heavy Ball root is used when a second Clefairy is needed',()=>{
+    const r=request(seat);
+    r.observation.ownHand=['Hisuian Heavy Ball ASR 146'];
+    r.actionFrontier.items=[root('play-card','Hisuian Heavy Ball ASR 146','heavy'),
+      root('pass','','pass')];
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'heavy'});
+    r.observation.ownPublic.prizeCount=0;
+    assert.notDeepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'heavy'});
+  });
+  test('seat '+seat+' Heavy Ball chooses the best owner-visible Prize Basic',()=>{
+    const r=request(seat);
+    r.prompt={
+      promptType:'ChooseCardsPrompt',
+      source:{sourcePrinting:'Hisuian Heavy Ball ASR 146',effectName:'HisuianHeavyBall'},
+      publicMetadata:{selectionType:'card-combination',sourceZone:'prizes',
+        ownerSeat:'actor',isOwnerVisible:true,minimumCount:0,maximumCount:1},
+      choices:[
+        card(clef,'prize-clef'),
+        card('Latias ex SSP 76','prize-latias'),
+        {kind:'empty-selection',token:'empty'}
+      ]
+    };
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choices',tokens:['prize-clef']});
+  });
+  test('seat '+seat+' Heavy Ball chooses the legal empty selection when no useful Basic is offered',()=>{
+    const r=request(seat);
+    r.prompt={
+      promptType:'ChooseCardsPrompt',
+      source:{sourcePrinting:'Hisuian Heavy Ball ASR 146',effectName:'HisuianHeavyBall'},
+      publicMetadata:{selectionType:'card-combination',sourceZone:'prizes',
+        ownerSeat:'actor',isOwnerVisible:true,minimumCount:0,maximumCount:1},
+      choices:[{kind:'empty-selection',token:'empty'}]
+    };
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choice',token:'empty'});
+  });
+}
