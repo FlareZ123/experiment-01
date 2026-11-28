@@ -494,7 +494,14 @@ function cardChoiceScore(choice, observation, context) {
         canPayPlumeria(observation)) return 275;
     if (matches(printing, PRINT.lusamine) && hasUsefulDiscardForLusamine(observation)) return 265;
     if (matches(printing, PRINT.handiwork)) return 215;
-    if (matches(printing, PRINT.guzma)) return 200;
+    if (matches(printing, PRINT.guzma)) {
+      const winningGust = supporterAvailable(observation) &&
+        !ownHand(observation).some(card=>matches(card, PRINT.guzma)) ?
+        slots(observation?.opponentPublic).filter(row=>row.zone==='bench')
+          .reduce((best,row)=>Math.max(best,
+            guzmaKnockoutValue(observation,row.pokemon)),0) : 0;
+      return winningGust > 0 ? 400 + winningGust : 200;
+    }
     if (matches(printing, PRINT.guzmaHala)) return 190;
     if (matches(printing, PRINT.lillie) && ownHand(observation).length <= 2) return 180;
     if ([PRINT.cynthiaCaitlin, PRINT.eri, PRINT.sidney, PRINT.teamSkull,
