@@ -159,3 +159,83 @@ test('KO Supporter alternatives require the exact preceding-turn stamp',()=>{
   receipt.priorOpponentTurnKO={turn:3,any:null,byAttack:null};
   assert.deepEqual(previousTurnResponseOptions(view,receipt,basic),[]);
 });
+
+test('opponent extra turn without a KO supersedes the earlier KO despite stale native Boolean',()=>{
+  const tracker=createKnockoutTurnTracker(0);
+  tracker.record({turn:2,victimPlayerId:'B',attackerPlayerId:'A',byAttack:true});
+  tracker.completeTurn(2,'A');
+  tracker.completeTurn(3,'A'); // A receives a second, empty turn.
+  assert.deepEqual(tracker.snapshotLastOpponentTurn('B','A',4),
+    {turn:3,events:[]});
+  // Chronological legacy snapshot remains known-empty, too.
+  assert.deepEqual(tracker.snapshot('B','A',4),[]);
+});
+
+test('owner extra turn retains the last completed opponent-owned KO, not currentTurn minus one',()=>{
+  const tracker=createKnockoutTurnTracker(0);
+  tracker.record({turn:2,victimPlayerId:'B',attackerPlayerId:'A',byAttack:true});
+  tracker.completeTurn(2,'A');
+  tracker.completeTurn(3,'B'); // B receives a subsequent extra turn.
+  assert.deepEqual(tracker.snapshotLastOpponentTurn('B','A',4),
+    {turn:2,events:[{turn:2,victimPlayerId:'B',attackerPlayerId:'A',byAttack:true}]});
+  assert.deepEqual(tracker.snapshot('B','A',4),[]);
+});
+
+test('multiple owner turns and an older opponent turn preserve correct last-opponent evidence',()=>{
+  const tracker=createKnockoutTurnTracker(0);
+  tracker.record({turn:2,victimPlayerId:'B',attackerPlayerId:'A',byAttack:false});
+  tracker.completeTurn(2,'A');
+  tracker.completeTurn(3,'B');
+  tracker.completeTurn(4,'B');
+  assert.deepEqual(tracker.snapshotLastOpponentTurn('B','A',5),
+    {turn:2,events:[{turn:2,victimPlayerId:'B',attackerPlayerId:'A',byAttack:false}]});
+});
+
+test('unaccounted-for intervening turn, uncertain turn or unknown owner fails closed',()=>{
+  const incomplete=createKnockoutTurnTracker(0);
+  incomplete.completeTurn(2,'A');
+  assert.equal(incomplete.snapshotLastOpponentTurn('B','A',4),null);
+  const unknown=createKnockoutTurnTracker(0);
+  unknown.completeTurn(2,'A');
+  unknown.completeTurn(3); // Legacy callers do not supply trusted actor.
+  assert.equal(unknown.snapshotLastOpponentTurn('B','A',4),null);
+  const uncertain=createKnockoutTurnTracker(0);
+  uncertain.completeTurn(2,'A');
+  uncertain.completeTurn(3,'B');
+  uncertain.markUncertain(3);
+  assert.equal(uncertain.snapshotLastOpponentTurn('B','A',4),null);
+  const foreign=createKnockoutTurnTracker(0);
+  foreign.completeTurn(2,'A');
+  foreign.completeTurn(3,'unexpected-seat');
+  assert.equal(foreign.snapshotLastOpponentTurn('B','A',4),null);
+});
+
+test('native EndTurn hook binds pre-reducer actor even after reducer switches active seat',()=>{
+  const {store,a,b}=storeAt(0);
+  const original=store.reduceEffect;
+  store.reduceEffect=function(stateArg,effect){
+    const result=original.call(this,stateArg,effect);
+    if(effect instanceof EndTurnEffect)stateArg.activePlayer=1-stateArg.activePlayer;
+    return result;
+  };
+  const {tracker,uninstall}=installStoreKnockoutTurnTracker(store,{
+    KnockOutEffect,EndTurnEffect,GamePhase});
+  store.state.turn=2;
+  store.state.activePlayer=0;
+  store.state.phase=GamePhase.ATTACK;
+  store.reduceEffect(store.state,new KnockOutEffect(b));
+  store.reduceEffect(store.state,new EndTurnEffect(a)); // A ends and B starts.
+  store.state.phase=GamePhase.PLAYER_TURN;
+  store.reduceEffect(store.state,new EndTurnEffect(b)); // B ends and A starts.
+  assert.deepEqual(tracker.snapshotLastOpponentTurn('B','A',4),
+    {turn:2,events:[{turn:2,victimPlayerId:'B',attackerPlayerId:'A',byAttack:true}]});
+  assert.equal(tracker.audit().completedActorKnownTurns,2);
+  uninstall();
+});
+
+test('turn-ownership receipt cannot be silently reassigned after completion',()=>{
+  const tracker=createKnockoutTurnTracker(0);
+  tracker.completeTurn(2,'A');
+  assert.throws(()=>tracker.completeTurn(2,'B'),/ownership cannot change/);
+  assert.deepEqual(tracker.audit().completedTurns,[2]);
+});
