@@ -522,8 +522,10 @@ function scoreAttack(item, observation) {
   const opponentDiscard = list(opponent.discard);
 
   if (name === 'Evolution') {
+    // Availability of a TM on *some* Bunnelby is insufficient. Only the
+    // Active Pokémon's attached TM grants this attack right now.
     const ready = bunnelbyActive(observation) &&
-      bunnelbyHasTool(observation, PRINT.tmEvolution) &&
+      list(own.active?.tools).some(tool => matches(tool, PRINT.tmEvolution)) &&
       hasK0PossibleBenchEvolutionTarget(observation) && opponentDeck > 1;
     return ready ? (ownDeck <= 4 ? 140 : 155) : 20;
   }
