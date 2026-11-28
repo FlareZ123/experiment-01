@@ -139,6 +139,66 @@ for(const seat of [0,1]) {
     });
   });
 }
+for(const seat of [0,1]) {
+  test(`seat ${seat}: Active Electrode's Bomb transfers and promotes in sequence`,()=>{
+    const o=state(seat,{activeBomb:true}),worker=policy(seat);
+    const b=rank9.bombPlanner(o,-1);
+    assert.ok(b);
+    assert.equal(b.score,635);
+    assert.equal(b.mobility.promotionIndex,0);
+    assert.deepEqual(worker.decide({
+      role:'opponent',seat,observation:o,prompt:null,sequence:3,
+      actionFrontier:{items:[
+        {
+          kind:'use-ability',printing:'Electrode-GX CES 48',
+          token:'active-bomb',
+          publicMetadata:{abilityName:'Extra Energy Bomb',sourceZone:'active'}
+        },
+        {kind:'pass',token:'root-pass'}
+      ]}
+    }),{kind:'select-action',token:'active-bomb'});
+    // The Active source KOs itself, so the transfer targets are only Bench.
+    const energyPrompt=offeredBombPrompt(o);
+    energyPrompt.choices=o.ownPublic.discard.flatMap((printing,di)=>
+      [0,1,2,3,4].map(index=>({
+        kind:'energy',printing,token:`e${di}-bench${index}`,
+        publicMetadata:{
+          ownerSeat:'actor',isOwnerVisible:true,sourceZone:'discard',
+          selectionIndex:di,zone:'bench',slotIndex:index
+        }
+      }))
+    );
+    assert.deepEqual(worker.decide({
+      role:'opponent',seat,observation:o,prompt:energyPrompt,sequence:4
+    }),{
+      kind:'select-choices',
+      tokens:['e0-bench0','e1-bench0','e4-bench1','e5-bench1','e6-bench0']
+    });
+    const after={...o,ownPublic:{...o.ownPublic,active:null}};
+    const promotePrompt={
+      promptType:'ChoosePokemonPrompt',
+      source:{
+        sourceKind:'engine',sourcePrinting:null,
+        effectName:'CHOOSE_NEW_ACTIVE_POKEMON',classification:'actor-choice'
+      },
+      publicMetadata:{
+        selectionType:'pokemon',minimumCount:1,maximumCount:1,
+        allowCancel:false
+      },
+      choices:o.ownPublic.bench.map((p,index)=>({
+        kind:'pokemon',printing:p.printing,token:`promote${index}`,
+        publicMetadata:{
+          ownerSeat:'actor',isOwnerVisible:true,
+          targetZone:'bench',benchIndex:index
+        }
+      }))
+    };
+    assert.deepEqual(worker.decide({
+      role:'opponent',seat,observation:after,prompt:promotePrompt,sequence:5
+    }),{kind:'select-choices',tokens:['promote0']});
+  });
+}
+
 test('same-print discard copies use distinct physical source indices',()=>{
   // Nonadjacent copies confirm the symmetry rule is based on printing,
   // never on adjacency in the visible discard.
