@@ -197,8 +197,11 @@ function createSlice({seat}){
    // A printed GX uses Mewtwo's own attack; the non-GX Night Watch
    // requires present and live Perfection plus a correctly indexed Bench donor.
    const paid=offeredMewtwoAttack(own,items,check.def.attackName);
-   if(!paid||paid.publicMetadata?.damagePrevented===true||
-      paid.publicMetadata?.hasUnmodeledModifier===true)continue;
+   // An opponent's *current Active* might prevent Basic attack damage.
+   // That does not prevent paid use of an attack after Counter Catcher gusts
+   // a different target. Do not import a pre-gust damagePrevented flag into
+   // the new Active; revalidate actual damage once the target is promoted.
+   if(!paid||paid.publicMetadata?.hasUnmodeledModifier===true)continue;
    pending={turn:v.globalTurn,phase:'blast-target',
     benchIndex:i,targetPrinting:t.printing,hp:t.hp,startDamage:t.damage,
     attackName:check.def.attackName,
