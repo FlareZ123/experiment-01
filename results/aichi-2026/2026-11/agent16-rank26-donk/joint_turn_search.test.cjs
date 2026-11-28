@@ -53,3 +53,14 @@ test('never accepts mismatch between physical Dowsing and power planner',()=>{
  const s=scenario();s.physical.dowsingAvailable=false;
  assert.equal(planJointKnownTurn(s).status,'invalid');
 });
+
+test('partial-Prize state needs zero donated Prizes and burns no Pump or Dowsing',()=>{
+ const s=scenario({float:true});const original=s.makeDonationInput;
+ s.makeDonationInput=(final,actions)=>({...original(final,actions),opponentPrizes:1});
+ const r=planJointKnownTurn(s);
+ assert.equal(r.status,'feasible-joint-resource-trace');
+ assert.equal(r.pumpBudget,0);
+ assert.equal(r.donation.actions.length,0);
+ assert.equal(r.physical.spent.pump??0,0);
+ assert.equal(r.physical.dowsingUsed,false);
+});
