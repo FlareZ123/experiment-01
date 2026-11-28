@@ -35,6 +35,126 @@ const target=(token,printing,ownerSeat,targetZone='active')=>({token,kind:'pokem
 const sel=o=>o.decision.token??o.decision.tokens?.join(',')??o.decision.kind;
 let checks=0;
 function check(name,fn){fn(); checks++; console.log('PASS',name);}
+function setupPrompt(desc,promptType,meta,choices,opts={}) {
+ const v=view({hand:opts.hand??[]});
+ v.phase=opts.phase??1;
+ return policy.decideWithAudit({role:'candidate',seat:0,
+  observation:{...v,decisionKind:'owner-prompt'},
+  prompt:{actingSeat:0,promptType,description:desc,
+   source:{sourceKind:'engine',classification:'actor-choice',
+     sourcePrinting:null,effectName:desc},publicMetadata:meta,choices}});
+}
+const starter=(token,printing,index)=>({kind:'card',token,printing,
+  publicMetadata:{selectionIndex:index,selectedCount:1,sourceZone:'hand',
+    ownerSeat:'actor',isOwnerVisible:true}});
+check('newmoon engine coin decision explicitly chooses GO SECOND',()=>{
+ const r=setupPrompt('GO_FIRST','ConfirmPrompt',{selectionType:'confirm'},
+ [{kind:'confirm',token:'yes',label:'Yes'},{kind:'confirm',token:'no',label:'No'}]);
+ assert.equal(sel(r),'no');
+ assert.equal(r.policyAudit.selectionRuleCode,'NEWMOON_PREFER_GO_SECOND_FOR_FIRST_HORROR_HOUSE');
+});
+check('first-turn starter prefers native Gengar with energy and keeps two backups',()=>{
+ const meta={selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+ isOwnerVisible:true,isSecret:false,allowCancel:false,minimumCount:1,maximumCount:6};
+ const choices=[starter('dusk','Duskull VIV 069',0),
+ starter('mew','Mewtwo & Mew-GX UNM 071',1),
+ starter('gengar','Gengar & Mimikyu-GX TEU 053',2),
+ starter('sol','Solrock CES 062',3)];
+ const r=setupPrompt('CHOOSE_STARTING_POKEMONS','ChooseCardsPrompt',meta,choices,
+   {hand:['Basic Psychic Energy']});
+ assert.equal(sel(r),'gengar,mew,dusk');
+ const dry=setupPrompt('CHOOSE_STARTING_POKEMONS','ChooseCardsPrompt',meta,choices,
+   {hand:['Powerglass SFA 063']});
+ assert.equal(sel(dry),'mew,gengar,dusk');
+});
+check('setup Bench phase retains space for Telepathic Psychic Energy',()=>{
+ const meta={selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+  isOwnerVisible:true,isSecret:false,allowCancel:false,minimumCount:0,maximumCount:5};
+ const choices=[starter('a','Unown AOR 030',0),starter('b','Solrock CES 062',1),
+  starter('c','Duskull VIV 069',2),
+  {kind:'empty-selection',token:'empty',label:'Choose no items'}];
+ const r=setupPrompt('CHOOSE_STARTING_POKEMONS','ChooseCardsPrompt',meta,choices);
+ assert.equal(sel(r),'c,a');
+ const none=setupPrompt('CHOOSE_STARTING_POKEMONS','ChooseCardsPrompt',meta,
+   [{kind:'empty-selection',token:'empty',label:'Choose no items'}]);
+ assert.equal(sel(none),'empty');
+});
+check('mulligan offer draws maximum allowed, never a fabricated option',()=>{
+ const cs=[{kind:'option',token:'2',label:'Draw 2 card(s)',publicMetadata:{choiceIndex:0}},
+ {kind:'option',token:'1',label:'Draw 1 card(s)',publicMetadata:{choiceIndex:1}},
+ {kind:'option',token:'0',label:'Draw 0 card(s)',publicMetadata:{choiceIndex:2}}];
+ assert.equal(sel(setupPrompt('WANT_TO_DRAW_CARDS','SelectPrompt',
+   {selectionType:'option',allowCancel:false,count:3},cs)),'2');
+ cs[0].label='Draw 999 card(s)';
+ assert.equal(sel(setupPrompt('WANT_TO_DRAW_CARDS','SelectPrompt',
+   {selectionType:'option',allowCancel:false,count:3},cs)),'abstain');
+});
+check('never accept setup prompt on normal attack phase',()=>{
+ const r=setupPrompt('GO_FIRST','ConfirmPrompt',{selectionType:'confirm'},
+  [{kind:'confirm',token:'yes',label:'Yes'},{kind:'confirm',token:'no',label:'No'}],{phase:4});
+ assert.equal(sel(r),'abstain');
+});
+
+function earlyStart(active,extra={}) {
+ const v=view({active,bench:extra.bench??[],bus:makeSlot('Bunnelby PRC 121',{hp:60}),
+   opponentBench:[],oppHandCount:extra.handCount??5});
+ v.globalTurn=extra.globalTurn??2;
+ v.ownPublic.publicTurnRestrictions.gxUsed=extra.gxUsed??false;
+ if(extra.discard) v.ownPublic.discard=extra.discard;
+ return v;
+}
+const hh=action('attack','horror-house',{}, {attackName:'Horror House-GX'});
+const poltergeist=action('attack','poltergeist',{}, {attackName:'Poltergeist'});
+check('native Gengar first-turn legal Horror House beats generic printed damage tactic',()=>{
+ const v=earlyStart(makeSlot('Gengar & Mimikyu-GX TEU 053',
+    {energies:['Basic Psychic Energy']}));
+ assert.equal(sel(root(v,[poltergeist,hh,pass()])),'horror-house');
+});
+check('Horror House is not selected if GX spent, too late or only one source hand card',()=>{
+ const start=()=>earlyStart(makeSlot('Gengar & Mimikyu-GX TEU 053',
+    {energies:['Basic Psychic Energy']}));
+ const spent=start();spent.ownPublic.publicTurnRestrictions.gxUsed=true;
+ assert.equal(sel(root(spent,[hh,pass()])),'abstain');
+ const late=start();late.globalTurn=9;
+ assert.equal(sel(root(late,[hh,pass()])),'abstain');
+ const small=start();small.opponentPublic.handCount=1;
+ assert.equal(sel(root(small,[hh,pass()])),'abstain');
+});
+check('Horror House with extra Psychic energy must not auto-refill enemy hand',()=>{
+ const v=earlyStart(makeSlot('Gengar & Mimikyu-GX TEU 053',
+   {energies:['Basic Psychic Energy','Telepathic Psychic Energy']}));
+ assert.equal(sel(root(v,[hh,pass()])),'abstain');
+});
+check('early Mewtwo Perfection route uses actually live ability and Gengar donor',()=>{
+ const active=makeSlot('Mewtwo & Mew-GX UNM 071',{abilities:['Perfection'],
+  energies:['Telepathic Psychic Energy']});
+ const v=earlyStart(active,{discard:['Gengar & Mimikyu-GX TEU 053']});
+ const offer=action('use-ability','perfection',{abilityName:'Perfection',sourceZone:'active'});
+ assert.equal(sel(root(v,[offer,pass()])),'perfection');
+ const noDonor=earlyStart(active);
+ assert.equal(sel(root(noDonor,[offer,pass()])),'abstain');
+ v.ownPublic.active.abilitySuppressions=[{abilityName:'Perfection',suppressed:true}];
+ assert.equal(sel(root(v,[offer,pass()])),'abstain');
+});
+check('Perfection choose prompt targets Gengar Horror House and refuses another GX',()=>{
+ const active=makeSlot('Mewtwo & Mew-GX UNM 071',{abilities:['Perfection'],
+   energies:['Basic Psychic Energy']});
+ const v=earlyStart(active,{discard:['Gengar & Mimikyu-GX TEU 053']});
+ const candidates=[
+  {kind:'attack',token:'duo',printing:'Mewtwo & Mew-GX UNM 071',publicMetadata:{sourceAttack:'Miraculous Duo-GX',ownerSeat:'actor',isOwnerVisible:true}},
+  {kind:'attack',token:'horror',printing:'Gengar & Mimikyu-GX TEU 053',publicMetadata:{sourceAttack:'Horror House-GX',ownerSeat:'actor',isOwnerVisible:true}}
+ ];
+ assert.equal(sel(prompt(v,'Perfection','ChooseAttackPrompt',{selectionType:'attack'},candidates)),'horror');
+ assert.equal(sel(prompt(v,'Perfection','ChooseAttackPrompt',{selectionType:'attack'},candidates.slice(0,1))),'abstain');
+});
+check('Perfection prompt rejects a hidden or foreign Horror House selection',()=>{
+ const active=makeSlot('Mewtwo & Mew-GX UNM 071',{abilities:['Perfection'],energies:['Basic Psychic Energy']});
+ const v=earlyStart(active,{discard:['Gengar & Mimikyu-GX TEU 053']});
+ const item={kind:'attack',token:'horror',printing:'Gengar & Mimikyu-GX TEU 053',
+   publicMetadata:{sourceAttack:'Horror House-GX',ownerSeat:'opponent',isOwnerVisible:false}};
+ assert.equal(sel(prompt(v,'Perfection','ChooseAttackPrompt',{selectionType:'attack'},[item])),'abstain');
+});
+
 check('production worker empty-config and role bind',()=>{
  assert.throws(()=>createPolicy({role:'candidate',seat:0,policyVersion:POLICY_VERSION,config:{deckIdentityHash:'other'}}));
  assert.throws(()=>createPolicy({role:'opponent',seat:0,policyVersion:POLICY_VERSION,config:{}}));

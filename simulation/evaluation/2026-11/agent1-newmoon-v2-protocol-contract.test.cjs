@@ -184,6 +184,77 @@ function test() {
  const v7=view({active:dus(['Tool Jammer BST 136']),oppStadium:['Jamming Tower TWM 153']});
  same(run(v7,[use('blast','Cursed Blast','bench',0),pass()]),
   {kind:'abstain',reasonCode:'NO_SUPPORTED_ACTION'},'blank Tool Jammer');
+ const engineSetup=view({});
+ engineSetup.phase=1;engineSetup.globalTurn=0;engineSetup.ownPublic.active=null;
+ engineSetup.ownPublic.bench=[];engineSetup.opponentPublic.active=null;
+ engineSetup.opponentPublic.bench=[];
+ const enginePrompt=(effect,promptType,meta,choices)=>({
+   schema:P.PROMPT_SCHEMA,actingSeat:0,promptType,description:effect,
+   source:{classification:'actor-choice',sourceKind:'engine',sourcePrinting:null,effectName:effect},
+   choices,publicMetadata:meta
+ });
+ const chooseOrder=enginePrompt('GO_FIRST','ConfirmPrompt',
+    {selectionType:'confirm'},[
+     {kind:'confirm',token:'yes',label:'Yes'},
+     {kind:'confirm',token:'no',label:'No'}]);
+ same(run(engineSetup,[],chooseOrder),
+   {kind:'select-choice',token:'no'},'engine coin turn order must choose second');
+ const starter=(token,printing,index)=>({token,kind:'card',printing,label:printing,
+   publicMetadata:{selectionType:'card-combination',selectionIndex:index,selectedCount:1,
+   sourceZone:'hand',ownerSeat:'actor',isOwnerVisible:true}});
+ const starters=enginePrompt('CHOOSE_STARTING_POKEMONS','ChooseCardsPrompt',
+   {selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+    isOwnerVisible:true,isSecret:false,allowCancel:false,minimumCount:1,maximumCount:6},
+   [starter('gengar','Gengar & Mimikyu-GX TEU 053',0),
+    starter('mew','Mewtwo & Mew-GX UNM 071',1),
+    starter('dusk','Duskull VIV 069',2),
+    starter('sol','Solrock CES 062',3)]);
+ engineSetup.ownHand=['Gengar & Mimikyu-GX TEU 053','Mewtwo & Mew-GX UNM 071',
+   'Duskull VIV 069','Solrock CES 062','Basic Psychic Energy'];
+ same(run(engineSetup,[],starters),
+   {kind:'select-choices',tokens:['gengar','mew','dusk']},
+   'opening Active Gengar + two restrained backups');
+ const draw=enginePrompt('WANT_TO_DRAW_CARDS','SelectPrompt',
+   {selectionType:'option',allowCancel:false,count:3},[
+   {kind:'option',token:'two',label:'Draw 2 card(s)',publicMetadata:{choiceIndex:0}},
+   {kind:'option',token:'one',label:'Draw 1 card(s)',publicMetadata:{choiceIndex:1}},
+   {kind:'option',token:'zero',label:'Draw 0 card(s)',publicMetadata:{choiceIndex:2}}
+ ]);
+ same(run(engineSetup,[],draw),{kind:'select-choice',token:'two'},
+    'mulligan compensation picks maximum allowable draws');
+ const nativeGengar=slot('Gengar & Mimikyu-GX TEU 053','Gengar & Mimikyu-GX',[],[],1);
+ nativeGengar.printed.stage='Basic';nativeGengar.printed.subtypes=['Basic','TAG TEAM','GX'];
+ const earlyNative=view({active:nativeGengar,bench:[],
+   bus:slot('Bunnelby PRC 121','Bunnelby'),oppBench:[]});
+ earlyNative.globalTurn=2;
+ same(run(earlyNative,[{token:'poltergeist',kind:'attack',attackName:'Poltergeist'},
+   {token:'horror-house',kind:'attack',attackName:'Horror House-GX'},pass()]),
+   {kind:'select-action',token:'horror-house'},'native Gengar hand lock over raw damage');
+ const mew=slot('Mewtwo & Mew-GX UNM 071','Mewtwo & Mew-GX',['Perfection'],[],1);
+ mew.printed.stage='Basic';mew.printed.subtypes=['Basic','TAG TEAM','GX'];
+ const earlyMew=view({active:mew,bench:[],
+   bus:slot('Bunnelby PRC 121','Bunnelby'),oppBench:[]});
+ earlyMew.globalTurn=2;earlyMew.ownPublic.discard=['Gengar & Mimikyu-GX TEU 053'];
+ same(run(earlyMew,[use('perfection','Perfection','active'),pass()]),
+  {kind:'select-action',token:'perfection'},'Perfection active donor route');
+ const attackChoice=(token,printing,sourceAttack,index)=>({token,kind:'attack',
+   printing,label:sourceAttack,
+   publicMetadata:{selectionType:'attack',choiceIndex:index,sourceAttack,
+     sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true}});
+ const perfectionPrompt={schema:P.PROMPT_SCHEMA,actingSeat:0,
+   promptType:'ChooseAttackPrompt',description:'Choose an attack',
+   source:{classification:'actor-choice',sourceKind:'card-effect',
+     sourcePrinting:'Mewtwo & Mew-GX UNM 071',effectName:'Perfection'},
+   choices:[attackChoice('horror','Gengar & Mimikyu-GX TEU 053','Horror House-GX',0),
+     attackChoice('poltergeist','Gengar & Mimikyu-GX TEU 053','Poltergeist',0)],
+   publicMetadata:{selectionType:'attack',count:2,allowCancel:false}};
+ same(run(earlyMew,[],perfectionPrompt),
+  {kind:'select-choice',token:'horror'},'Perfection native prompt chooses correct GX attack');
+ const extra=view({active:slot('Gengar & Mimikyu-GX TEU 053','Gengar & Mimikyu-GX',
+     [],[],2),bench:[],bus:slot('Bunnelby PRC 121','Bunnelby'),oppBench:[]});
+ extra.globalTurn=2;
+ same(run(extra,[{token:'horror-house',kind:'attack',attackName:'Horror House-GX'},pass()]),
+   {kind:'abstain',reasonCode:'NO_SUPPORTED_ACTION'},'2-Psychic bonus cannot be silently chosen');
  const escaped=view({active:dus(['Tool Jammer BST 136']),
   oppBench:[aor(),bus()],bus:slot('Bunnelby PRC 121','Bunnelby',[],[],0,10)});
  escaped.opponentPublic.active.hp=60;

@@ -1,6 +1,6 @@
 'use strict';
 /* Research-only actor-visible decision slice; NOT a full candidate worker or game policy. */
-const POLICY_VERSION = 'agent1-newmoon-tool-jammer-v2-slice-v0';
+const POLICY_VERSION = 'agent1-newmoon-tool-jammer-v2-slice-v1';
 const DECK_SHA = 'aebe9a142e8492be929316bff4b871375e3e478945e01f8c5844037332634fe6';
 const has = (s,n) => typeof s === 'string' && s.includes(n);
 const slots = p => [p?.active,...(Array.isArray(p?.bench)?p.bench:[])].filter(Boolean);
@@ -56,13 +56,72 @@ function position(view) {
   const benchDus=own.bench.map((s,i)=>({s,i})).filter(x=>isDusclops(x.s));
   return {own,opp,bus,active,benchDus,activeDus:isDusclops(active),jammerActive:hasTool(active,'Tool Jammer')};
 }
+
+function psychicSupply(slot) {
+  // Telepathic Psychic Energy also provides Psychic Energy. This check is
+  // separate from the Basic-Energy-only requirement of Powerglass.
+  return Array.isArray(slot?.energies) ? slot.energies.filter(x=>
+    has(x,'Basic Psychic Energy') || has(x,'Telepathic Psychic Energy')).length : 0;
+}
+function earlyHorrorHouseWindow(view) {
+  const own=view?.ownPublic,opp=view?.opponentPublic;
+  if (!own || !opp || !Number.isSafeInteger(view.globalTurn) ||
+      view.globalTurn<1 || view.globalTurn>4 ||
+      !Number.isSafeInteger(own.prizeCount) || own.prizeCount<3 ||
+      !Number.isSafeInteger(opp.handCount) || opp.handCount<3 ||
+      own.publicTurnRestrictions?.gxUsed!==false) return false;
+  // This deliberately narrow attack avoids the 2-Psychic bonus that would
+  // refill both players to seven cards and potentially fuel the opponent.
+  return psychicSupply(own.active)===1 && !attackRisk(own.active);
+}
+function chooseEarlyHorrorHouse(view,items) {
+  if (!earlyHorrorHouseWindow(view)) return null;
+  const own=view.ownPublic,active=own.active;
+  if (has(active?.printing,'Gengar & Mimikyu-GX')) {
+    const attack=items.find(x=>x.kind==='attack' &&
+      x.attackName==='Horror House-GX' &&
+      (!x.actorPrinting || x.actorPrinting===active.printing));
+    return attack ? {decision:{kind:'select-action',token:attack.token},
+      reason:'EARLY_NATIVE_HORROR_HOUSE_HAND_LOCK'}:null;
+  }
+  const hasDonor=(own.discard??[]).some(x=>has(x,'Gengar & Mimikyu-GX')) ||
+    own.bench.some(x=>has(x?.printing,'Gengar & Mimikyu-GX'));
+  if (has(active?.printing,'Mewtwo & Mew-GX') && hasDonor &&
+      abilityLive(active,'Perfection')) {
+    const ability=items.find(x=>x.kind==='use-ability' &&
+      x.publicMetadata?.abilityName==='Perfection' &&
+      x.publicMetadata?.sourceZone==='active');
+    return ability ? {decision:{kind:'select-action',token:ability.token},
+      reason:'EARLY_PERFECTION_TO_HORROR_HOUSE'}:null;
+  }
+  return null;
+}
+function chooseEarlyPerfectionPrompt(view,prompt) {
+  if (!earlyHorrorHouseWindow(view) ||
+      !has(view?.ownPublic?.active?.printing,'Mewtwo & Mew-GX') ||
+      !abilityLive(view.ownPublic.active,'Perfection') ||
+      prompt?.source?.effectName!=='Perfection' ||
+      prompt?.promptType!=='ChooseAttackPrompt' ||
+      prompt?.publicMetadata?.selectionType!=='attack') return null;
+  const own=view.ownPublic;
+  if (!(own.discard??[]).some(x=>has(x,'Gengar & Mimikyu-GX')) &&
+      !own.bench.some(x=>has(x?.printing,'Gengar & Mimikyu-GX'))) return null;
+  const choice=prompt.choices.find(x=>x.kind==='attack' &&
+      x.publicMetadata?.sourceAttack==='Horror House-GX' &&
+      has(x.printing,'Gengar & Mimikyu-GX') &&
+      x.publicMetadata?.ownerSeat==='actor' &&
+      x.publicMetadata?.isOwnerVisible===true);
+  return choice ? {decision:{kind:'select-choice',token:choice.token},
+     reason:'PERFECTION_CHOOSE_GENGAR_HORROR_HOUSE'}:null;
+}
+
 const cardAction=(x,n)=>x?.kind==='play-card' && has(x.actorPrinting,n);
 const useAbility=(x,n)=>x?.kind==='use-ability' && x.publicMetadata?.abilityName===n;
 function chooseRoot(view,frontier) {
   const items=frontier?.items;
   if (!Array.isArray(items)) return null;
   const p=position(view);
-  if (!p) return chooseEscapedBusResponse(view,items);
+  if (!p) return chooseEscapedBusResponse(view,items) ?? chooseEarlyHorrorHouse(view,items);
   const choose=(row,reason)=>row ? {decision:{kind:'select-action',token:row.token},reason}:null;
   const canSelfKO = Number.isSafeInteger(p.opp.prizeCount) &&
     p.opp.prizeCount > 1 && Number.isSafeInteger(p.own.prizeCount) &&
@@ -126,10 +185,85 @@ function chooseRoot(view,frontier) {
   }
   return null;
 }
+
+function chooseEngineSetup(view,prompt) {
+  if(view.phase!==1 || prompt?.source?.sourceKind!=='engine' ||
+     prompt.source.sourcePrinting!==null ||
+     prompt.source.effectName!==prompt.description) return null;
+  const m=prompt.publicMetadata;
+  if(prompt.promptType==='ConfirmPrompt' &&
+      prompt.description==='GO_FIRST' && m?.selectionType==='confirm' &&
+      prompt.choices.length===2){
+    const yes=prompt.choices.filter(x=>x.kind==='confirm' && x.label==='Yes');
+    const no=prompt.choices.filter(x=>x.kind==='confirm' && x.label==='No');
+    if(yes.length!==1 || no.length!==1 || yes[0].token===no[0].token)return null;
+    return {decision:{kind:'select-choice',token:no[0].token},
+      reason:'NEWMOON_PREFER_GO_SECOND_FOR_FIRST_HORROR_HOUSE'};
+  }
+  if(prompt.promptType==='SelectPrompt' &&
+      prompt.description==='WANT_TO_DRAW_CARDS' && m?.selectionType==='option' &&
+      m.allowCancel===false && Number.isSafeInteger(m.count)){
+    const rows=prompt.choices.filter(x=>x.kind==='option' &&
+      Number.isSafeInteger(x.publicMetadata?.choiceIndex) &&
+      x.label===('Draw '+(m.count-1-x.publicMetadata.choiceIndex)+' card(s)'));
+    if(rows.length!==prompt.choices.length || rows.length===0)return null;
+    const best=rows.slice().sort((a,b)=>
+      a.publicMetadata.choiceIndex-b.publicMetadata.choiceIndex)[0];
+    return {decision:{kind:'select-choice',token:best.token},
+      reason:'MULLIGAN_MAXIMUM_EXTRA_CARDS'};
+  }
+  if(prompt.promptType!=='ChooseCardsPrompt' ||
+      prompt.description!=='CHOOSE_STARTING_POKEMONS' ||
+      m?.selectionType!=='card-combination' || m.sourceZone!=='hand' ||
+      m.ownerSeat!=='actor' || m.isOwnerVisible!==true || m.isSecret!==false ||
+      m.allowCancel!==false || ![0,1].includes(m.minimumCount) ||
+      !Number.isSafeInteger(m.maximumCount) ||
+      m.maximumCount<m.minimumCount)return null;
+  const cards=prompt.choices.filter(x=>x.kind==='card' &&
+      typeof x.printing==='string' && Number.isSafeInteger(x.publicMetadata?.selectionIndex) &&
+      x.publicMetadata.sourceZone==='hand' && x.publicMetadata.ownerSeat==='actor' &&
+      x.publicMetadata.isOwnerVisible===true);
+  if(cards.length===0){
+    const empty=prompt.choices.find(x=>x.kind==='empty-selection');
+    return m.minimumCount===0 && empty ?
+      {decision:{kind:'select-choice',token:empty.token},
+       reason:'NO_STARTING_BASIC_ELIGIBLE'}:null;
+  }
+  if(cards.length+Number(m.minimumCount===0)!==prompt.choices.length)return null;
+  const energy=(view.ownHand??[]).some(x=>has(x,'Psychic Energy'));
+  const starterScore=name=>{
+    if(has(name,'Gengar & Mimikyu-GX'))return energy?115:88;
+    if(has(name,'Mewtwo & Mew-GX'))return 100;
+    if(has(name,'Duskull'))return 85;
+    if(has(name,'Galarian Articuno V'))return 81;
+    if(has(name,'Latias ex'))return 78;
+    if(has(name,"Lillie's Clefairy ex"))return 72;
+    if(has(name,'Unown'))return 65;
+    if(has(name,'Squawkabilly ex'))return 63;
+    if(has(name,'Solrock'))return 58;
+    if(has(name,'Lunatone'))return 55;
+    if(has(name,'Klefki'))return 52;
+    return 0;
+  };
+  const ordered=cards.slice().sort((a,b)=>
+    starterScore(b.printing)-starterScore(a.printing) ||
+    a.publicMetadata.selectionIndex-b.publicMetadata.selectionIndex);
+  // Keep Bench capacity for Telepathic Psychic Energy while retaining
+  // one or two backups against the opponent's first attack.
+  const maximum=Math.min(m.maximumCount,m.minimumCount===1?3:2);
+  const count=Math.max(m.minimumCount,Math.min(maximum,ordered.length));
+  const picked=ordered.slice(0,count).map(x=>x.token);
+  return picked.length ? {decision:{kind:'select-choices',tokens:picked},
+    reason:'STARTER_GENGAR_PERFECTION_AND_BACKUP'}:null;
+}
+
 function choosePrompt(view,prompt) {
   const p=position(view);
-  if (!p || prompt?.source?.classification!=='actor-choice' ||
-      prompt.source?.sourceKind!=='card-effect' || !Array.isArray(prompt.choices)) return null;
+  if (prompt?.source?.classification!=='actor-choice' ||
+      !Array.isArray(prompt.choices)) return null;
+  if(prompt.source?.sourceKind==='engine') return chooseEngineSetup(view,prompt);
+  if(prompt.source?.sourceKind!=='card-effect') return null;
+  if (!p) return chooseEarlyPerfectionPrompt(view,prompt);
   const m=prompt.publicMetadata;
   const effect=prompt.source.effectName;
   if (prompt.promptType==='ChoosePokemonPrompt' && m?.selectionType==='pokemon' &&
