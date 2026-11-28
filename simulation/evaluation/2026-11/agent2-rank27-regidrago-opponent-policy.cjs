@@ -249,7 +249,7 @@ function rank27EnergyAttachScore(item,obs){
 function publicPrizeValue(pokemon){
   const subtypes=arr(pokemon?.printed?.subtypes).map(String);
   const p=name(pokemon?.printing);
-  if(subtypes.some(x=>['VMAX','TAG TEAM','V-UNION','Mega Evolution'].includes(x))||
+  if(subtypes.some(x=>['VMAX','TAG TEAM','V-UNION','MEGA','Mega Evolution'].includes(x))||
      /(?:VMAX|TAG TEAM|V-UNION|Mega Evolution)/i.test(p))return 3;
   if(subtypes.some(x=>['V','VSTAR','GX','ex'].includes(x))||
      /(?:-GX|\bVSTAR\b|\bV\b|\bex\b)/i.test(p))return 2;
