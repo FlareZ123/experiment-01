@@ -121,3 +121,33 @@ for(const seat of [0,1]){
       {kind:'select-choices',tokens:['bench1']});
   });
 }
+
+
+for(const seat of [0,1]){
+  test('rank3 native root retreat scores each identical-print Bench by targetIndex, seat '+seat,()=>{
+    const req=root(seat,[snorlax(0),{
+      ...snorlax(0),tools:['Tool Jammer BST 136']
+    }]);
+    const base={kind:'retreat',token:'retreat',
+      targetPrinting:'Snorlax PGO 55'};
+    const scoreAt=index=>rank3.scoreAction({
+      ...base,publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:index}
+    },req);
+    assert.equal(scoreAt(0),110);
+    assert.equal(scoreAt(1),180);
+    assert.equal(rank3.scoreAction({...base,targetPrinting:'Snorlax PGO 999',
+      publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:1}},req),0);
+  });
+  test('rank3 Capture Energy Bench action is not misread as identical-print Active, seat '+seat,()=>{
+    const req=root(seat,[snorlax(0),snorlax(0)]);
+    const base={kind:'play-card',token:'energy',
+      actorPrinting:'Capture Energy RCL 171',
+      targetPrinting:'Snorlax PGO 55'};
+    const score=(zone,index)=>rank3.scoreAction({...base,publicMetadata:{
+      cardType:'energy',targetSeat:'actor',targetZone:zone,targetIndex:index
+    }},req);
+    assert.equal(score('active',0),150);
+    assert.equal(score('bench',0),105);
+    assert.equal(score('bench',1),105);
+  });
+}
