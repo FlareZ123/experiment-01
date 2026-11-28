@@ -281,5 +281,92 @@ for(const seat of [0,1]){
     assert.deepEqual(checkedDecision(jetRoot,seat),{
       kind:'select-action',token:'jet-to-second-mega'
     });
+    // Complete owner sequence: Guzma gust, own unpowered Bench Mega,
+    // manual Grass from hand, and a moved 230-Gale last-Prize knockout.
+    const busG=pokemon('Vileplume BUS 6','Vileplume',{hp:140,stage:'STAGE_2'});
+    const megaG=pokemon('Mega Lopunny ex PFL 84','Mega Lopunny ex',{hp:330,
+      stage:'STAGE_1',energy:[]});
+    const ironG=pokemon('Iron Thorns ex TEF 77','Iron Thorns ex',{
+      hp:230,damage:10});
+    const oldG=pokemon('Pidgey FLF 75','Pidgey',{hp:60});
+    const gustRoot=envelope(seat,busG,[megaG,pidgeotto],oldG,[],'owner-root');
+    gustRoot.observation.ownHand=['Guzma BUS 115','Grass Energy BLW 105'];
+    gustRoot.observation.ownTurnResources.supporterPlayedTurn=5;
+    gustRoot.observation.ownTurnResources.energyPlayedTurn=5;
+    gustRoot.observation.opponentPublic.bench=[ironG];
+    gustRoot.actionFrontier.items=[
+      {kind:'play-card',token:'guzma',actorPrinting:'Guzma BUS 115'},
+      {kind:'use-ability',token:'air-mail',actorPrinting:'Pidgeotto TEU 123',
+        publicMetadata:{abilityName:'Air Mail'}}];
+    assert.deepEqual(checkedDecision(gustRoot,seat),{
+      kind:'select-action',token:'guzma'});
+    const themPrompt=envelope(seat,busG,[megaG,pidgeotto],oldG,[],
+      'owner-prompt');
+    themPrompt.observation.ownHand=['Grass Energy BLW 105'];
+    themPrompt.observation.opponentPublic.bench=[ironG];
+    themPrompt.observation.ownTurnResources.supporterPlayedTurn=6;
+    themPrompt.observation.ownTurnResources.energyPlayedTurn=5;
+    themPrompt.prompt={schema:protocol.PROMPT_SCHEMA,actingSeat:seat,
+      promptType:'ChoosePokemonPrompt',description:null,
+      source:{classification:'actor-choice',sourceKind:'card-effect',
+        sourcePrinting:'Guzma BUS 115',effectName:'Guzma'},
+      choices:[{kind:'pokemon',token:'enemy-iron',printing:ironG.printing,
+        publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:0}}],
+      publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+        allowCancel:false,ownerSeat:'opponent',targetZone:'bench'}};
+    assert.deepEqual(checkedDecision(themPrompt,seat),{
+      kind:'select-choices',tokens:['enemy-iron']});
+    const ownPrompt=envelope(seat,busG,[megaG,pidgeotto],ironG,[],
+      'owner-prompt');
+    ownPrompt.observation.ownHand=['Grass Energy BLW 105'];
+    ownPrompt.observation.opponentPublic.bench=[oldG];
+    ownPrompt.observation.ownTurnResources.supporterPlayedTurn=6;
+    ownPrompt.observation.ownTurnResources.energyPlayedTurn=5;
+    ownPrompt.prompt={schema:protocol.PROMPT_SCHEMA,actingSeat:seat,
+      promptType:'ChoosePokemonPrompt',description:null,
+      source:{classification:'actor-choice',sourceKind:'card-effect',
+        sourcePrinting:'Guzma BUS 115',effectName:'Guzma'},
+      choices:[
+        {kind:'pokemon',token:'own-mega',printing:megaG.printing,
+          publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0}},
+        {kind:'pokemon',token:'own-pidgeotto',printing:pidgeotto.printing,
+          publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:1}}],
+      publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+        allowCancel:false,ownerSeat:'actor',targetZone:'bench'}};
+    assert.deepEqual(checkedDecision(ownPrompt,seat),{
+      kind:'select-choices',tokens:['own-mega']});
+    const payment=envelope(seat,megaG,[busG,pidgeotto],ironG,[],'owner-root');
+    payment.observation.ownHand=['Grass Energy BLW 105'];
+    payment.observation.ownTurnResources.energyPlayedTurn=5;
+    payment.observation.ownTurnResources.supporterPlayedTurn=6;
+    payment.publicEventReceipt.ownerActive=eventPokemon(megaG,true);
+    class GrassCard{constructor(){
+      this.fullName='Grass Energy BLW 105';this.name='Grass Energy';}}
+    const gs={players:[null,null],phase:2};
+    gs.players[seat]={active:nativeSlot(megaG),bench:[busG,pidgeotto].map(nativeSlot),
+      hand:{cards:[new GrassCard()]}};
+    gs.players[1-seat]={active:nativeSlot(ironG),bench:[]};
+    const projectedGrass=projectNativeAction({
+      type:'PLAY_CARD_ACTION',handIndex:0,
+      target:{player:0,slot:1,index:0}
+    },gs,seat,{EnergyCard:GrassCard,
+      PlayerType:{BOTTOM_PLAYER:0,TOP_PLAYER:1},
+      SlotType:{BENCH:0,ACTIVE:1}},'grass-to-mega');
+    assert.equal(projectedGrass.publicMetadata.targetZone,'active');
+    assert.equal(projectedGrass.targetPrinting,megaG.printing);
+    payment.actionFrontier.items=[projectedGrass,{
+      kind:'use-ability',token:'air-mail',actorPrinting:'Pidgeotto TEU 123',
+      publicMetadata:{abilityName:'Air Mail'}}];
+    assert.deepEqual(checkedDecision(payment,seat),{
+      kind:'select-action',token:'grass-to-mega'});
+    const paidG=pokemon(megaG.printing,'Mega Lopunny ex',{hp:330,
+      stage:'STAGE_1',energy:['Grass Energy BLW 105']});
+    const strike=envelope(seat,paidG,[busG,pidgeotto],ironG,[],'owner-root');
+    strike.publicEventReceipt.ownerActive=eventPokemon(paidG,true);
+    strike.actionFrontier.items=[{
+      kind:'attack',token:'moved-gale',actorPrinting:megaG.printing,
+      attackName:'Gale Thrust'}];
+    assert.deepEqual(checkedDecision(strike,seat),{
+      kind:'select-action',token:'moved-gale'});
   });
 }
