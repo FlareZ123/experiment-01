@@ -285,3 +285,44 @@ test('do not promote BUS into irrelevant Evolution attacker or when suppressed',
   r.observation.ownPublic.bench[0].abilitySuppressions=[{abilityName:'Disgusting Pollen',suppressed:true}];
   assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
 });
+
+test('V3-compatible Tag Call search accepts actor choice-level zone without top-level zone keys',()=>{
+  const r=ghRoot(0);
+  r.prompt={promptType:'ChooseCardsPrompt',source:{sourcePrinting:tag,effectName:'Tag Call'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:2},
+    choices:[{...card(gh,'gh'),publicMetadata:{sourceZone:'deck',ownerSeat:'actor'}},
+      {...card('Guzma BUS 115','guzma'),publicMetadata:{sourceZone:'deck',ownerSeat:'actor'}}]};
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['gh']});
+});
+test('V3-compatible GH search and payment derive deck/hand zone from actor-only choices',()=>{
+  const r=ghRoot(0);r.observation.ownHand=[xt,xt];
+  r.prompt={promptType:'ChooseCardsPrompt',source:{sourcePrinting:gh,effectName:'Guzma & Hala'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:2,maximumCount:2},
+    choices:[{...card(xt,'x1'),publicMetadata:{sourceZone:'hand',ownerSeat:'actor'}},
+      {...card(xt,'x2'),publicMetadata:{sourceZone:'hand',ownerSeat:'actor'}}]};
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['x1','x2']});
+  r.prompt.publicMetadata={selectionType:'card-combination',minimumCount:3,maximumCount:3};
+  r.prompt.choices=[{...card(grand,'s'),publicMetadata:{sourceZone:'deck',ownerSeat:'actor'}},
+    {...card(tm,'t'),publicMetadata:{sourceZone:'deck',ownerSeat:'actor'}},
+    {...card(jet,'j'),publicMetadata:{sourceZone:'deck',ownerSeat:'actor'}}];
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['t','j','s']});
+});
+test('actor prompt with contradictory opponent-zone card fails closed',()=>{
+  const r=ghRoot(0);
+  selection(r,tag,'deck',[
+    {...card(gh,'gh'),publicMetadata:{sourceZone:'deck',ownerSeat:'opponent'}}],0,2);
+  assert.equal(decision(r).reasonCode,'UNSUPPORTED_CARD_COMBINATION_SOURCE');
+  r.prompt.publicMetadata={selectionType:'card-combination',minimumCount:0,maximumCount:2};
+  assert.equal(decision(r).reasonCode,'UNSUPPORTED_CARD_COMBINATION_SOURCE');
+});
+test('owner Bench prompt without top-level targetZone may choose two separate Gloom slots',()=>{
+  const r=secondBarrageFixture();r.prompt={
+    promptType:'ChoosePokemonPrompt',source:{sourcePrinting:tm,effectName:'Evolution'},
+    publicMetadata:{selectionType:'pokemon',minimumCount:0,maximumCount:2},
+    choices:[
+      {kind:'pokemon',token:'g1',printing:'Gloom UNB 7',publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0}},
+      {kind:'pokemon',token:'g2',printing:'Gloom UNB 7',publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:1}}]};
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['g1','g2']});
+  r.prompt.choices[1].publicMetadata.benchIndex=0;
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['g1']});
+});
