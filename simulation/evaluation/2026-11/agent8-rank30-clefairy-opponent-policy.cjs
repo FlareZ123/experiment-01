@@ -843,6 +843,27 @@ function candidateCanUseBoardHeldStarAlchemy(observation) {
 // Tapu Lele-GX GRI 60: Energy Drive counts Energy supplied by both Active,
 // ignoring Weakness and Resistance. Physical card count is a conservative
 // lower bound for units supplied by valid attached Energy.
+// Latias ex SSP 76: Eon Blade is a printed 200 Psychic-damage attack,
+// useful as an actual finisher and not just a Skyliner Bench support.
+// Only a certified live Fairy Zone doubles damage against Dragon targets;
+// a native offered Eon Blade root provides payment and attack permission.
+function latiasEonBladeKO(o) {
+  const attacker=o?.ownPublic?.active,target=o?.opponentPublic?.active;
+  if(!has(attacker,P.latias)||!target||
+     !safeInt(target.hp)||!safeInt(target.damage)||
+     target.effectUnknown===true||target.damageModifiersUnknown===true||
+     attacker.effectUnknown===true||attacker.damageModifiersUnknown===true)
+    return null;
+  // Unknown attached defensive Tools can alter damage. This restricted
+  // certifier does not claim such damage is guaranteed.
+  const knownNondefensive=/^(?:Stealthy Hood|Forest Seal Stone|Float Stone|Air Balloon|Rescue Board|Hero's Medal|Life Dew|Ribbon Badge|Island Challenge Amulet|Choice Belt|Choice Band)\b/i;
+  if(arr(target.tools).some(t=>!knownNondefensive.test(text(t))))return null;
+  const damage=clefairyRondoDamage(o,target,200);
+  const remaining=target.hp-target.damage;
+  return safeInt(damage)&&remaining>0&&damage>=remaining?
+    Object.freeze({damage,remaining,
+      prizeLowerBound:minimumPrizesOnAttackKnockout(target)}):null;
+}
 function tapuLeleEnergyDriveKO(o) {
   const attacker=o?.ownPublic?.active,target=o?.opponentPublic?.active;
   if(!has(attacker,P.lele)||!target||
@@ -1723,6 +1744,9 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
     !(a.kind==='play-card'&&[P.guzma,P.marnie,P.raihan].some(p=>
       has(ownPrinting(a),p))));
   if(!items.length)return no('R30_NO_OFFERED_ROOT');
+  const latiasBlade=items.find(a=>a.kind==='attack'&&
+    a.attackName==='Eon Blade'&&has(ownPrinting(a),P.latias));
+  if(latiasBlade&&latiasEonBladeKO(o))return act(latiasBlade);
   const leleDrive=items.find(a=>a.kind==='attack'&&
     a.attackName==='Energy Drive'&&has(ownPrinting(a),P.lele));
   if(leleDrive&&tapuLeleEnergyDriveKO(o))return act(leleDrive);
@@ -1919,4 +1943,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,sourceCardPatternCoverage,heavyBallBasicCoverage,createPolicy,
-  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,certifiedPsychicBenchTargets,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,minimumPrizesOnAttackKnockout,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,tapuLeleEnergyDriveKO,guaranteedMimikyuCopycatKO,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy,hasFreshPriorOpponentTurnKO,raihanOpportunity,raihanAttachPrompt,raihanSearchPrompt,raihanPrompt,hisuianHeavyBallOpportunity,hisuianHeavyBallPrompt};
+  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,certifiedPsychicBenchTargets,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,minimumPrizesOnAttackKnockout,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,latiasEonBladeKO,tapuLeleEnergyDriveKO,guaranteedMimikyuCopycatKO,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy,hasFreshPriorOpponentTurnKO,raihanOpportunity,raihanAttachPrompt,raihanSearchPrompt,raihanPrompt,hisuianHeavyBallOpportunity,hisuianHeavyBallPrompt};
