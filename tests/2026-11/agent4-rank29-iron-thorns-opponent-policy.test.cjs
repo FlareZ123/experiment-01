@@ -2298,3 +2298,77 @@ test('publicly revealed zero-target Thorns mirror hand overrides source-category
       {kind:'select-action',token:'pass'});
   }
 });
+
+
+test('Duplicate Gust prompt uses physical benchIndex, never reversed selectionIndex',()=>{
+  for(const seat of [0,1]){
+    const healthy=pokemon('Tapu Lele-GX GRI 60',{hp:170,damage:0,
+      retreatCost:['Colorless','Colorless']});
+    const vulnerable=pokemon('Tapu Lele-GX GRI 60',{hp:170,damage:100});
+    const choiceFor=(token,slot,ordinal)=>({
+      ...pokemonChoice(token,'Tapu Lele-GX GRI 60','opponent','bench',slot),
+      publicMetadata:{
+        ...pokemonChoice(token,'Tapu Lele-GX GRI 60','opponent','bench',slot).publicMetadata,
+        selectionIndex:ordinal,benchIndex:slot
+      }
+    });
+    const req=promptRequest({
+      seat,promptType:'ChoosePokemonPrompt',
+      source:actorChoiceSource('Guzma BUS 115','Guzma'),
+      publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+        allowCancel:false,isSecret:false},
+      observation:{
+        ownPublic:player({
+          active:pokemon('Iron Thorns ex TWM 77'),
+          bench:[pokemon('Iron Thorns ex TWM 77',{
+            energies:['Double Colorless Energy SUM 136']})],
+          stadium:['Thunder Mountain ♢ LOT 191']
+        }),
+        opponentPublic:player({
+          active:pokemon('Shadow Rider Calyrex VMAX CRE 75'),
+          bench:[healthy,vulnerable]
+        })
+      },
+      choices:[
+        choiceFor('injured-slot-one',1,0),
+        choiceFor('healthy-slot-zero',0,1)
+      ]
+    });
+    assert.deepEqual(checkedDecision(req,seat),
+      {kind:'select-choices',tokens:['injured-slot-one']});
+    const forged=promptRequest({
+      ...req,seat,choices:[{
+        ...req.prompt.choices[0],
+        publicMetadata:{...req.prompt.choices[0].publicMetadata,benchIndex:8}
+      },req.prompt.choices[1]]
+    });
+    assert.deepEqual(checkedDecision(forged,seat),
+      {kind:'select-choices',tokens:['healthy-slot-zero']});
+  }
+});
+
+test('Duplicate own-switch prompt chooses genuinely powered slot regardless of choice ordinal',()=>{
+  for(const seat of [0,1]){
+    const bench=[
+      pokemon('Iron Thorns ex TWM 77',{energies:['Capture Energy RCL 171']}),
+      pokemon('Iron Thorns ex TWM 77',{energies:['Double Colorless Energy SUM 136']})
+    ];
+    const a=pokemonChoice('powered','Iron Thorns ex TWM 77','actor','bench',1);
+    const b=pokemonChoice('stranded','Iron Thorns ex TWM 77','actor','bench',0);
+    a.publicMetadata.selectionIndex=0;
+    b.publicMetadata.selectionIndex=1;
+    const req=promptRequest({
+      seat,promptType:'ChoosePokemonPrompt',
+      source:actorChoiceSource('Guzma BUS 115','Guzma'),
+      publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+        allowCancel:false,isSecret:false},
+      observation:{ownPublic:player({
+        active:pokemon('Iron Thorns ex TWM 77'),
+        bench,stadium:['Thunder Mountain ♢ LOT 191']
+      })},
+      choices:[a,b]
+    });
+    assert.deepEqual(checkedDecision(req,seat),
+      {kind:'select-choices',tokens:['powered']});
+  }
+});
