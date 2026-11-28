@@ -66,7 +66,11 @@ function request(seat, { labyrinth = false, mimicEnergy = 2,
       actorSeat: seat, globalTurn: 8, decisionKind: 'owner-root', ownHand: [],
       ownPublic: publicSide(vmax(), [mimikyu(mimicEnergy), clefairy()],
         [], ['Dialga-GX UPR 100'], gxUsed, suppression),
-      opponentPublic: publicSide(regidrago(), [],
+      // A lone Regidrago VSTAR is already a Max Geist terminal KO under
+      // active Fairy Zone (Psychic Weakness). Keep a real second Pokémon so
+      // the counter-ALS choice remains a NONterminal tactical comparison.
+      opponentPublic: publicSide(regidrago(),
+        [slot('Regidrago V SIT 135', 220, 'Dragon', 0, [])],
         labyrinth ? ['Wondrous Labyrinth ◇ TEU 158'] : [], [], false, suppression),
       ownTurnResources: { supporterPlayedTurn: 0 }
     },
