@@ -26,7 +26,8 @@ function pendingPaleMoonGXKnockOut(player, slot) {
 function choosePaleMoonEscapeRetreat(view, items) {
   if (view?.decisionKind !== 'owner-root' ||
       view?.ownPublic?.active?.publicRestrictions?.pendingPaleMoonGXKnockOut !== true ||
-      !Array.isArray(items) || items.some(item => item?.kind === 'attack')) return null;
+      !Array.isArray(items) ||
+      items.some(item => !['pass','retreat'].includes(item?.kind))) return null;
   const benches = view.ownPublic.bench;
   if (!Array.isArray(benches)) return null;
   const occupied = benches.map((slot, index) => slot ? index : -1).filter(index => index >= 0);
