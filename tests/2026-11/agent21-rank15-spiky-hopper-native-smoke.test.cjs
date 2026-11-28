@@ -61,7 +61,8 @@ test('native printed Spiky Hopper gives baseline 160 and attached +20/+30',
       if(belt) {
         const tool=new ChoiceBelt();
         tool.id=103;
-        own.active.cards.push(tool);
+        // Pinned AttachPokemonToolEffect places Tools ONLY in slot.tools;
+        // unlike Energy, Tools must not be duplicated in slot.cards.
         own.active.tools.push(tool);
       }
       const store=new Store({gameSettings:state.gameSettings,
