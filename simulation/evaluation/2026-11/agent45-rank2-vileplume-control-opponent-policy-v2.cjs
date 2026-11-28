@@ -133,7 +133,15 @@ function visibleSourceCopies(observation, pattern) {
 
 function sourceCopyPossible(observation, pattern) {
   const source = SOURCE_COPIES.find(([candidate]) => candidate === pattern);
-  return Boolean(source && source[1] - visibleSourceCopies(observation, pattern) > 0);
+  if (!source) return false;
+  // K0 can only bound unobserved copies. Certified K1 instead names exact
+  // owner DECK membership, so a Prized-only ACE SPEC is not searchable.
+  const k1 = observation?.ownerK1;
+  if (k1?.exactMembershipKnown === true && Array.isArray(k1.knownPrintings)) {
+    return k1.knownPrintings.some(row => matches(row.printing, pattern) &&
+      Number.isSafeInteger(row.copies) && row.copies > 0);
+  }
+  return source[1] - visibleSourceCopies(observation, pattern) > 0;
 }
 
 function hasK0PossibleStageFor(observation, printing) {
