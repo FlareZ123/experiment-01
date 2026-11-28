@@ -214,3 +214,13 @@ The common `templeThornsAttackUnlock()` now counts the *known physical rank29 ei
 - Worker `222dbeaaaf41cb1e37b6052636eab0f0c84ce416`, existing both-seat regression expanded by four focused groups `4b62872193b607adb7e994adb7b0a93255862d71`; **16/16 V8-executed module groups** passed under the exact branch source.
 - Native Engine/Store admission, stadium/reducer settlement, valid policy matchups and field-wide win rate remain **unmeasured**. Need actual host-controlled rooted test before comparing rank29 competitive performance.
 
+## 2026-11-28 sixth source-rank29 correctness fix: discarding a *second* Plumeria is legal
+
+Original rank29 registers **four copies** of `Plumeria BUS120`, a Supporter that costs discarding **two other cards** to remove an opposing Energy. The prior `canPayPlumeria(observation)` code used `ownHand.filter(card => !matches(card,PRINT.plumeria))`, excluding **every** physical Plumeria copy as though all were already played. This falsely classified a legal, strategically worthwhile discard as impossible, violating hand-specific DCI/UDP reasoning. The real game uses at most one Supporter and removes only the **one physical copy played**; remaining duplicates are valid cost targets, though their opportunity cost still matters.
+
+**Exact policy choice reversal against source-rank1 Shadow Rider:** hand = `Plumeria BUS120 ×2`, `Trainers' Mail ROS92 ×1`, protected `Thunder Mountain LOT191 ×1`; opponent Active Shadow Rider V holds one visible Psychic Energy. Native-offered Plumeria + Pass. Old worker: after deleting *both* Plumeria, only one discardable Trainers' Mail remains; Plumeria scored **0**, selects Pass. Revised: removes only the **played first Plumeria** from cost candidates; second Plumeria and Trainers' Mail each satisfy the two physical discard slots, preserve Thunder; scores Plumeria **190** and selects it. **Negative:** with a *single* Plumeria and only Trainers' Mail + protected Thunder, it stays score0/Pass; likewise two Plumeria and only protected Thunder cannot pay two cards. The branch's existing discard-priority cost chooser separately ranks spare Plumeria as discardable only when hand has duplicates.
+
+- Owned worker commit **`2d7f99f19fc0593bc813c4c352f2dc87fd15383a`**.
+- New focused both-seat, 6/6 exact-source V8 groups **`fdac2f53439de9ee425bae26dd9b18c74c67e900`**, file `tests/2026-11/agent4-rank29-plumeria-duplicate-discard-realism.test.cjs`.
+- This establishes only a legal/actor-choice correction; no actual native Plumeria discard prompt or deck/matchplay outcome is asserted.
+
