@@ -678,6 +678,37 @@ function isItem(printing) {
   return hasAnyName(printing, ITEM_NAMES);
 }
 
+function heavyBallPrizePriority(view, printing) {
+  // The native owner-choice prompt enumerates eligible BASIC Prize cards.
+  // Value is actor/matchup-relative; never inspect unrevealed Prize identities.
+  if (printing === 'Mimikyu GRI 58' && opponentHasRegidrago(view) &&
+      !boardHas(view, 'Mimikyu') && !handHas(view, 'Mimikyu')) return 1400;
+  if (printing === 'Shadow Rider Calyrex V CRE 74' &&
+      needShadowRiderBasic(view)) return 1300;
+  if (printing === "Lillie's Clefairy ex JTG 56" &&
+      opponentHasDragon(view) && !boardHas(view, "Lillie's Clefairy ex"))
+    return 1200;
+  if (printing === 'Tapu Lele-GX GRI 60' &&
+      !boardHas(view, 'Tapu Lele-GX') &&
+      !view.ownHand.some(name => hasAnyName(name, [
+        'Arven', "Lillie's Determination", 'Iono', 'Guzma'])))
+    return 1000;
+  if (printing === 'Radiant Eternatus CRZ 105' &&
+      shadowRiderLine(view).vmax === 0 &&
+      countBench(view.ownPublic) <= 3) return 950;
+  if (printing === 'Girafarig LOT 94' && opponentHasRegidrago(view))
+    return 850;
+  if (printing === 'Latias ex SSP 76' && !boardHas(view, 'Latias ex'))
+    return 800;
+  if (printing === 'Dialga-GX UPR 100' && opponentHasRegidrago(view))
+    return 700;
+  if (printing === 'Marshadow UNB 81' &&
+      view.opponentPublic.stadium.length > 0) return 650;
+  // The native prompt has already limited choices to Basic Pokémon;
+  // picking an otherwise ordinary Basic beats surrendering the free rescue.
+  return 100;
+}
+
 function searchCandidates(view, prompt, choices) {
   const effectName = prompt.source?.effectName ?? '';
   const sourceZone = prompt.publicMetadata?.sourceZone;
@@ -691,6 +722,12 @@ function searchCandidates(view, prompt, choices) {
       prompt.source?.sourcePrinting === 'Night Stretcher ASC 196') {
     rows = choices.map(choice => ({
       choice, score: nightStretcherRecoveryScore(view, choice.printing)
+    }));
+  } else if (sourceZone === 'prizes' &&
+      effectName === 'Hisuian Heavy Ball' &&
+      prompt.source?.sourcePrinting === 'Hisuian Heavy Ball ASR 146') {
+    rows = choices.map(choice => ({
+      choice, score: heavyBallPrizePriority(view, choice.printing)
     }));
   } else if (sourceZone === 'deck' && effectName === 'Wonder Tag' &&
       prompt.source?.sourcePrinting === 'Tapu Lele-GX GRI 60') {
@@ -740,6 +777,7 @@ function chooseCardCombination(view, prompt) {
     'Get Lost': 'Girafarig LOT 94',
     'VS Seeker': 'VS Seeker PHF 109',
     'Night Stretcher': 'Night Stretcher ASC 196',
+    'Hisuian Heavy Ball': 'Hisuian Heavy Ball ASR 146',
     'Star Alchemy': 'Forest Seal Stone SIT 156',
     'Arven': 'Arven SVI 166',
     'Teammates': 'Teammates PRC 141'
@@ -782,6 +820,19 @@ function chooseCardCombination(view, prompt) {
   }
 
   if (metadata.sourceZone === 'prizes' && choices.length === 0) {
+    // A valid Heavy Ball may find no Basic; its optional empty selection
+    // must complete so the ball is discarded. Hidden prize identities,
+    // however, must never be reconstructed from public card counts.
+    const empty = prompt.choices.find(choice =>
+      choice.kind === 'empty-selection');
+    if (prompt.source?.effectName === 'Hisuian Heavy Ball' &&
+        prompt.source?.sourcePrinting === 'Hisuian Heavy Ball ASR 146' &&
+        metadata.minimumCount === 0 && empty) {
+      setPolicyAuditRule('HEAVY_BALL_EMPTY_OWNER_PRIZE_SELECTION',
+        'ONLY_LEGAL_EMPTY_CHOICE');
+      recordPolicyAuditRule(empty.token, 'NO_BASIC_PRIZE_FOUND');
+      return { kind: 'select-choice', token: empty.token };
+    }
     return abstain('HIDDEN_PRIZE_IDENTITY');
   }
 
@@ -1573,6 +1624,8 @@ function scoreTrainerPlay(item, view, receipt) {
   if (hasName(name, 'Night Stretcher') &&
       view.ownPublic.discard.some(printing =>
         nightStretcherRecoveryScore(view, printing) > 0)) return 690;
+  if (name === 'Hisuian Heavy Ball ASR 146' &&
+      view.ownPublic.prizeCount > 0) return 835;
   if (hasName(name, 'Field Blower') && hasStadiumRemovalTarget(view)) return 950;
   if (hasName(name, 'Battle Compressor') && opponentHasRegidrago(view) &&
       !discardHas(view, 'Dialga-GX') && !handHas(view, 'Dialga-GX') &&
