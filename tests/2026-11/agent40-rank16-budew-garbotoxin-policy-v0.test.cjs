@@ -1400,17 +1400,34 @@ for(const seat of [0,1]){
   q.observation.ownTurnResources.vstarUsed=true;
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
  });
- test('seat '+seat+' Iron Thorns and Wobbuffet Active suppress Crobat-granted Star Alchemy',()=>{
+ test('seat '+seat+' Pokemon Ability locks do not suppress Tool-granted Star Alchemy',()=>{
   const crobat=mon('Crobat V DAA 104',{tools:['Forest Seal Stone SIT 156']});
+  const board=own({active:mon('Budew ASC 16'),bench:[crobat]});
   const q=root(seat,[ability('Star Alchemy','star'),pass],{
-   ownPublic:own({active:mon('Budew ASC 16'),bench:[crobat]}),
-   opponentPublic:opp({active:mon('Iron Thorns ex TWM 77',{
-    abilitySuppressions:[{abilityName:'Initialization',suppressed:false}]})})});
-  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
-  q.observation.opponentPublic.active=mon('Wobbuffet PHF 36',{
-   abilitySuppressions:[{abilityName:'Bide Barricade',suppressed:false}]});
-  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
-  q.observation.opponentPublic.active=mon('Regidrago VSTAR SIT 136');
+   ownPublic:board,opponentPublic:opp({active:mon('Iron Thorns ex TWM 77',{
+    abilitySuppressions:[{abilityName:'Initialization',suppressed:false}]})}),
+   ownTurnResources:{vstarUsed:false}});
+  const locks=[
+   mon('Wobbuffet PHF 36',{abilitySuppressions:null}),
+   mon('Klefki SVI 96',{abilitySuppressions:null}),
+   mon('Flutter Mane TEF 78',{abilitySuppressions:null}),
+   mon('Regidrago VSTAR SIT 136')
+  ];
+  for(const active of locks){
+   q.observation.opponentPublic.active=active;
+   assert.equal(policy.forestSealStoneUsable(q.observation),true);
+   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
+  }
+  for(const stadium of ['Path to the Peak CRE 148','Silent Lab PRC 140']){
+   q.observation.opponentPublic.stadium=[stadium];
+   assert.equal(policy.forestSealStoneUsable(q.observation),true);
+   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
+  }
+  q.observation.opponentPublic.stadium=[];
+  board.bench.push(mon('Garbodor LTR 68',{tools:['Float Stone BKT 137'],
+   abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]}));
+  assert.equal(policy.garbotoxinStatus(q.observation),'live');
+  assert.equal(policy.forestSealStoneUsable(q.observation),true);
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
  });
 }
@@ -1765,7 +1782,7 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
   enemy.stadium=[];
   assert.equal(policy.opponentGarbotoxinStatus(q.observation),'live');
-  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
   enemyGarb.tools=[];
   assert.equal(policy.opponentGarbotoxinStatus(q.observation),'inactive');
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
@@ -1911,29 +1928,28 @@ for(const seat of [0,1]){
    abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]}));
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
  });
- test('seat '+seat+' Klefki Basic lock suppresses Dedechange and Star Alchemy until Garbotoxin',()=>{
+ test('seat '+seat+' Klefki suppresses Basic Pokemon Abilities but not Forest Seal Stone',()=>{
   const crobat=mon('Crobat V DAA 104',{tools:['Forest Seal Stone SIT 156']});
   const board=own({active:mon('Budew ASC 16'),bench:[crobat]});
   const their=opp({active:mon('Klefki SVI 96')});
   const q=root(seat,[ability('Star Alchemy','star'),pass],{
-   ownPublic:board,opponentPublic:their,
-   ownTurnResources:{vstarUsed:false}});
+   ownPublic:board,opponentPublic:their,ownTurnResources:{vstarUsed:false}});
   assert.equal(policy.activeKlefkiLock(q.observation),true);
   assert.equal(policy.benchSupportAbilityUsable('Crobat V DAA 104',q.observation),false);
   assert.equal(policy.benchSupportAbilityUsable('Tapu Lele-GX GRI 60',q.observation),false);
-  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
   const garb=mon('Garbodor LTR 68',{tools:['Muscle Band XY 121'],
    abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]});
   board.bench.push(garb);
   assert.equal(policy.activeKlefkiLock(q.observation),false);
-  // Our own Garbotoxin also suppresses Crobat's Ability, so Star
-  // remains unusable until that competing lock stops.
-  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
   board.bench.pop();their.active.tools=['Stealthy Hood UNB 186'];
   board.bench.push(garb);
   assert.equal(policy.activeKlefkiLock(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
   their.stadium=['Jamming Tower TWM 153'];
   assert.equal(policy.activeKlefkiLock(q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
  });
  test('seat '+seat+' Path removal without live own support gets lower Temple priority',()=>{
   const board=own({active:mon('Budew ASC 16'),bench:[mon('Mega Absol ex MEG 86')]});
@@ -1948,7 +1964,7 @@ for(const seat of [0,1]){
 }
 
 for(const seat of [0,1]){
- test('seat '+seat+' Silent Lab stops Basic Rule-Box draw and FSS, Temple restores abilities',()=>{
+ test('seat '+seat+' Silent Lab suppresses Basic Pokemon Abilities but not Forest Seal Stone',()=>{
   const crobat=mon('Crobat V DAA 104',{tools:['Forest Seal Stone SIT 156']});
   const board=own({active:mon('Budew ASC 16'),bench:[crobat]});
   const their=opp({active:mon('Regidrago VSTAR SIT 136'),
@@ -1961,6 +1977,7 @@ for(const seat of [0,1]){
   assert.equal(policy.silentLabInPlay(q.observation),true);
   assert.equal(policy.pathToThePeakInPlay(q.observation),false);
   assert.equal(policy.benchSupportAbilityUsable('Tapu Lele-GX GRI 60',q.observation),false);
+  assert.equal(policy.forestSealStoneUsable(q.observation),true);
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
   their.stadium=[];
   assert.equal(policy.benchSupportAbilityUsable('Tapu Lele-GX GRI 60',q.observation),true);
@@ -1980,23 +1997,24 @@ for(const seat of [0,1]){
 }
 
 for(const seat of [0,1]){
- test('seat '+seat+' Flutter Mane suppresses Active Crobat Star Alchemy only, not Bench Crobat',()=>{
+ test('seat '+seat+' Flutter Mane does not suppress Tool-granted Star Alchemy',()=>{
   const crobat=mon('Crobat V DAA 104',{tools:['Forest Seal Stone SIT 156']});
   const board=own({active:crobat,bench:[]});
-  const their=opp({active:mon('Flutter Mane TEF 78')});
+  const their=opp({active:mon('Flutter Mane TEF 78',{abilitySuppressions:null})});
   const q=root(seat,[ability('Star Alchemy','star'),pass],{
-   ownPublic:board,opponentPublic:their,
-   ownTurnResources:{vstarUsed:false}});
+   ownPublic:board,opponentPublic:their,ownTurnResources:{vstarUsed:false}});
   assert.equal(policy.activeFlutterManeLock(q.observation),true);
-  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  assert.equal(policy.forestSealStoneUsable(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
   board.active=mon('Budew ASC 16');board.bench=[crobat];
+  assert.equal(policy.forestSealStoneUsable(q.observation),true);
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
   their.active=mon('Regidrago VSTAR SIT 136');
   board.active=crobat;board.bench=[];
   assert.equal(policy.activeFlutterManeLock(q.observation),false);
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
  });
- test('seat '+seat+' Forest Seal Stone attachment avoids Flutter-locked Active Crobat',()=>{
+ test('seat '+seat+' Forest Seal Stone attaches to Active Crobat under Flutter Mane',()=>{
   const crobat=mon('Crobat V DAA 104');
   const board=own({active:crobat,bench:[]});
   const their=opp({active:mon('Flutter Mane TEF 78')});
@@ -2004,8 +2022,6 @@ for(const seat of [0,1]){
    targetSeat:'actor',targetZone:'active'}),pass],{
    ownPublic:board,opponentPublic:their,
    ownHand:['Forest Seal Stone SIT 156'],ownTurnResources:{vstarUsed:false}});
-  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
-  their.active=mon('Regidrago VSTAR SIT 136');
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'forest'});
  });
 }
@@ -2232,5 +2248,56 @@ for(const seat of [0,1]){
    ownPublic:own({active:mon('Budew ASC 16'),bench:[mon('Dedenne-GX UNB 57')]}),
    opponentPublic:opp({active:flutter}),ownHand:['Darkness Energy MEE 15']});
   assert.deepEqual(decide(seat,benchSource),{kind:'select-action',token:'dede'});
+ });
+}
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Tool Jammer disables Forest Seal only on our Active host',()=>{
+  const crobat=mon('Crobat V DAA 104',{tools:['Forest Seal Stone SIT 156']});
+  const board=own({active:mon('Budew ASC 16'),bench:[crobat]});
+  const jammer=mon('Regidrago VSTAR SIT 136',{tools:['Tool Jammer BRS 136']});
+  const enemy=opp({active:jammer});
+  const q=root(seat,[ability('Star Alchemy','star'),pass],{
+   ownPublic:board,opponentPublic:enemy,ownTurnResources:{vstarUsed:false}});
+  assert.equal(policy.forestSealStoneUsable(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
+  board.active=crobat;board.bench=[];
+  assert.equal(policy.forestSealStoneUsable(q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  board.active=mon('Budew ASC 16');board.bench=[crobat];
+  enemy.active=mon('Regidrago VSTAR SIT 136');
+  enemy.bench=[mon('Snorlax PGO 55',{tools:['Tool Jammer BRS 136']})];
+  assert.equal(policy.forestSealStoneUsable(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
+ });
+ test('seat '+seat+' Tool Jammer blocks attaching Forest Seal to Active Crobat but not Bench Crobat',()=>{
+  const crobat=mon('Crobat V DAA 104');
+  const board=own({active:crobat,bench:[]});
+  const enemy=opp({active:mon('Regidrago VSTAR SIT 136',{tools:['Tool Jammer BRS 136']})});
+  const q=root(seat,[play('Forest Seal Stone SIT 156','forest',{
+   targetSeat:'actor',targetZone:'active'}),pass],{
+   ownPublic:board,opponentPublic:enemy,ownHand:['Forest Seal Stone SIT 156'],
+   ownTurnResources:{vstarUsed:false}});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  board.active=mon('Budew ASC 16');board.bench=[crobat];
+  const bench=root(seat,[play('Forest Seal Stone SIT 156','forest',{
+   targetSeat:'actor',targetZone:'bench',targetIndex:0}),pass],{
+   ownPublic:board,opponentPublic:enemy,ownHand:['Forest Seal Stone SIT 156'],
+   ownTurnResources:{vstarUsed:false}});
+  assert.deepEqual(decide(seat,bench),{kind:'select-action',token:'forest'});
+ });
+ test('seat '+seat+' Star Alchemy ConfirmPrompt uses Tool effects, not Pokemon Ability locks',()=>{
+  const crobat=mon('Crobat V DAA 104',{tools:['Forest Seal Stone SIT 156']});
+  const board=own({active:mon('Budew ASC 16'),bench:[crobat]});
+  const enemy=opp({active:mon('Wobbuffet PHF 36',{abilitySuppressions:null})});
+  const q=prompt(seat,{promptType:'ConfirmPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Forest Seal Stone SIT 156',effectName:'Star Alchemy'},
+   publicMetadata:{selectionType:'confirm'},
+   choices:[{kind:'confirm',token:'yes',label:'Yes'},{kind:'confirm',token:'no',label:'No'}]},{
+   ownPublic:board,opponentPublic:enemy,ownTurnResources:{vstarUsed:false}});
+  assert.deepEqual(decide(seat,q),{kind:'select-choice',token:'yes'});
+  enemy.active=mon('Regidrago VSTAR SIT 136',{tools:['Tool Jammer BRS 136']});
+  board.active=crobat;board.bench=[];
+  assert.deepEqual(decide(seat,q),{kind:'select-choice',token:'no'});
  });
 }
