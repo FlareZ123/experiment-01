@@ -1996,26 +1996,25 @@ paired('Agent46: inert source Stadium must not mask a payable direct final Prize
 paired('Agent46: opponent control locks do not by themselves negate a funded direct Prize KO',(seat,profile)=>{
   const candidate=vmax(Array(9).fill(P));
   const view=observation(seat,{active:candidate,opponentActive:defender({hp:280})});
-  view.globalTurn=8;view.ownPublic.prizeCount=2;
+  view.globalTurn=8;view.ownPublic.prizeCount=1;
   const max={token:'max',kind:'attack',attackName:'Max Geist'};
   const policy=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile});
   const rule=()=>policy.decideWithAudit(root(seat,view,[max])).policyAudit.selectionRuleCode;
   const lockHolders=[
-    ['Iron Thorns ex TWM','Initialization',true],
-    ['Wobbuffet PHF','Bide Barricade',true],
-    ['Vileplume AOR','Irritating Pollen',false],
-    ['Vileplume BUS','Disgusting Pollen',true],
-    ['Stoutland BCR','Sentinel',true],
-    ['Klefki SVI','Mischievous Lock',true],
-    ['Galarian Weezing RCL','Neutralizing Gas',true],
-    ['Alolan Muk SUM','Power of Alchemy',false],
-    ['Flutter Mane TEF','Midnight Fluttering',true]
+    ['Iron Thorns ex TWM','Initialization',true,230,['Basic','ex','Future']],
+    ['Wobbuffet PHF','Bide Barricade',true,110,['Basic']],
+    ['Vileplume AOR','Irritating Pollen',false,130,['Stage 2']],
+    ['Vileplume BUS','Disgusting Pollen',true,140,['Stage 2']],
+    ['Stoutland BCR','Sentinel',true,140,['Stage 2']],
+    ['Klefki SVI','Mischievous Lock',true,70,['Basic']],
+    ['Galarian Weezing RCL','Neutralizing Gas',true,130,['Stage 1']],
+    ['Alolan Muk SUM','Power of Alchemy',false,120,['Stage 1']],
+    ['Flutter Mane TEF','Midnight Fluttering',true,90,['Basic','Ancient']]
   ];
-  for(const [printing,ability,active] of lockHolders){
-    const lock=pokemon({printing,name:printing,abilities:[ability],suppression:false});
+  for(const [printing,ability,active,hp,subtypes] of lockHolders){
+    const lock=pokemon({printing,name:printing,hp,subtypes,
+      abilities:[ability],suppression:false});
     if(active){
-      lock.hp=300;lock.damage=0;
-      lock.printed.subtypes=['Basic','ex'];
       view.opponentPublic.active=lock;
       view.opponentPublic.bench=[null,null,null,null,null];
     } else {
