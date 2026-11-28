@@ -506,9 +506,16 @@ function guzmaHalaPaymentRealism(observation) {
 }
 
 function canPayPlumeria(observation) {
-  const hand = ownHand(observation).filter(card => !matches(card, PRINT.plumeria));
-  const eligible = hand.filter(card => discardPriority(card, observation) >= 0);
-  return eligible.length >= 2;
+  const hand=ownHand(observation);
+  // Remove only the SINGLE copy being played, not every other physical
+  // Plumeria copy. Rank29 registers four: an additional copy is a legal
+  // discard when one has already consumed this turn's Supporter slot.
+  // VS Seeker into Plumeria may originate outside hand, in which case
+  // none of the existing hand cards is the played Supporter.
+  const playedIndex=hand.findIndex(card=>matches(card,PRINT.plumeria));
+  const remaining=hand.filter((_,index)=>index!==playedIndex);
+  return remaining.filter(card=>
+    discardPriority(card,observation)>=0).length>=2;
 }
 
 function choiceOwner(choice) {
