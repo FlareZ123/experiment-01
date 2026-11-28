@@ -827,13 +827,23 @@ function choosePokemonRecipient(view, prompt) {
       };
     });
   } else if (effectName === 'Guzma' && opponentChoices.length > 0) {
-    const attacker = view.ownPublic.active;
+    // Pinned Guzma first gusts the selected opponent Bench Pokémon, then
+    // requires our Active to switch to OUR Bench. The current Active's
+    // attack is therefore not the attack that can follow the Supporter.
+    // Evaluate the best *post-switch* attacker; preserve original Active
+    // only when no own Bench Pokémon exists (native skips that switch).
+    const benchAttackers = view.ownPublic.bench.filter(Boolean);
+    const attackers = benchAttackers.length > 0
+      ? benchAttackers : [view.ownPublic.active].filter(Boolean);
     ranked = opponentChoices.map(row => {
-      const attack = bestAttackForSlot(attacker, view, row.target.slot);
+      const attackScores = attackers.map(attacker =>
+        bestAttackForSlot(attacker, view, row.target.slot));
+      const score = Math.max(-1000, ...attackScores.map(attack =>
+        attack?.score ?? -1000));
       const liability = prizeLiability(row.target.slot);
       return {
         ...row,
-        score: (attack?.score ?? -1000) + liability * 1200 -
+        score: score + liability * 1200 -
           Math.max(0, row.target.slot.hp - row.target.slot.damage)
       };
     });
