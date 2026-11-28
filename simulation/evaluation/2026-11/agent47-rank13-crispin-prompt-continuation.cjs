@@ -12,8 +12,11 @@
  */
 
 const CRISPIN = /^Crispin SCR(?: 133)?$/i;
-const GRASS = /^Grass Energy MEE(?: 9)?$/i;
-const FIRE = /^Fire Energy MEE(?: 10)?$/i;
+// Source rank13 lists MEE #9/#10; the pinned Twinleaf Basic Energy
+// classes are canonical MEE #1/#2. Equivalent Basic printings are
+// recognized as aliases for energy *type* only, not source inventory copies.
+const GRASS = /^Grass Energy MEE(?: (?:1|9))?$/i;
+const FIRE = /^Fire Energy MEE(?: (?:2|10))?$/i;
 
 function str(v) {
   return typeof v === 'string' ? v : typeof v?.printing === 'string' ?
