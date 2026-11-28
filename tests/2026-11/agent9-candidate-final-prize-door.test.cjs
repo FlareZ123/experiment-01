@@ -30,7 +30,9 @@ function request(seat,opts={}){
   const reserve=mon(V,['Psychic'],[],[],210,0,['V']);
   const other=mon(DRAGO,['Dragon'],[],[],280,damage,['VSTAR']);
   const boss=enemy==='MEGA'?
-    mon(MEGA,['Darkness'],[],[],280,damage,['Basic','MEGA','ex']):other;
+    mon(MEGA,['Darkness'],[],[],280,damage,['Basic','MEGA','ex']):
+    enemy==='LEGACY_MEGA'?
+      mon('M Gardevoir-EX STS 79',['Fairy'],[],[],210,damage,['MEGA','EX']):other;
   const visibleBench=enemyBench?Array(enemyBench).fill(
     mon('Mimikyu GRI 58',['Psychic'],[],[],70,0,['Basic'])):[];
   const items=[
@@ -66,6 +68,10 @@ for(const seat of [0,1]){
       {deck:2,damage:150,prizes:3,enemyBench:1},'geist'],
     ['two deck cards, Mega ex prizes do not finish game',
       {deck:2,damage:150,prizes:4,enemyBench:1,enemy:'MEGA'},'geist'],
+    ['legacy Mega-EX is two Prizes, three remaining is not final',
+      {deck:2,damage:80,prizes:3,enemyBench:1,enemy:'LEGACY_MEGA'},'geist'],
+    ['legacy Mega-EX is still two Prizes when two are remaining',
+      {deck:2,damage:80,prizes:2,enemyBench:1,enemy:'LEGACY_MEGA'},'door'],
     ['one deck card, policy keeps conservative deck floor',
       {deck:1,damage:150,prizes:2,enemyBench:1},'geist'],
     ['no hand Psychic, cannot pay Door',
