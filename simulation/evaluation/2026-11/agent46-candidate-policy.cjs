@@ -367,6 +367,7 @@ function attackScore(attacker, attack, view, target, options = {}) {
 
   if (attack.name === 'Copycat') {
     const receipt = options.publicEventReceipt ?? null;
+    if (hasCopycatPowerBeamFinisher(view, receipt)) return 50000;
     const eligible = receipt?.opponentCopycatChoices;
     const dialgaReady = discardHas(view, 'Dialga-GX') &&
       !view.ownPublic.publicTurnRestrictions.gxUsed &&
@@ -781,6 +782,48 @@ function hasCopycatTwoTurnPowerBeamLine(view, receipt) {
     row.gxAttack===false);
 }
 
+/**
+ * Second consecutive Mimikyu turn after the source-legal copied Timeless-GX.
+ * The GX is already consumed; copy the opponent's old *ordinary* Apex
+ * declaration a second time, now selecting the non-GX Radiant Eternatus
+ * Power Beam 200 to finish the 150+200 two-turn KO. Guard actor-visible
+ * source, last-opponent-turn receipt, exact target, and GX/extra-turn state.
+ *
+ * Heuristic only: an unknown prevention or damage-reduction modifier may
+ * invalidate the outcome; the host's native action frontier remains binding.
+ */
+function hasCopycatPowerBeamFinisher(view, receipt) {
+  const active=view?.ownPublic?.active;
+  const target=view?.opponentPublic?.active;
+  const discard=view?.ownPublic?.discard;
+  const restrictions=view?.ownPublic?.publicTurnRestrictions;
+  const turnResources=view?.ownTurnResources;
+  if(!active||!target||
+     active.printing!=='Mimikyu GRI'||
+     target.printing!=='Regidrago VSTAR SIT'||
+     target.hp!==280||!Number.isSafeInteger(target.damage)||
+     target.damage<150||target.damage>=280||
+     target.hp-target.damage>200||
+     !Array.isArray(target.tools)||target.tools.length!==0||
+     !Array.isArray(active.attacks)||
+     !active.attacks.some(row=>row?.name==='Copycat')||
+     !Array.isArray(discard)||!restrictions||
+     restrictions.gxUsed!==true||
+     turnResources?.extraTurnActive!==true||
+     !discard.some(printing=>printing==='Radiant Eternatus CRZ')||
+     receipt?.actorSeat!==view.actorSeat||
+     receipt?.turn!==view.globalTurn||
+     receipt?.mimikyuCopycatCompatible!==true||
+     !Number.isSafeInteger(receipt?.opponentLastTurnTurn)||
+     receipt.opponentLastTurnTurn>=view.globalTurn||
+     !Array.isArray(receipt?.opponentCopycatChoices))
+    return false;
+  return receipt.opponentCopycatChoices.some(row=>
+    row?.attackName==='Apex Dragon'&&
+    row.sourcePrinting==='Regidrago VSTAR SIT'&&
+    row.gxAttack===false);
+}
+
 function chooseAttackPrompt(view, prompt, receipt) {
   setPolicyAuditRule('ATTACK_CHOICE_SCORE_DESC', 'SCORE_DESC_TOKEN_ASC');
   const choices = prompt.choices.filter(choice =>
@@ -804,7 +847,8 @@ function chooseAttackPrompt(view, prompt, receipt) {
         receipt.opponentCopycatChoices.some(row =>
           row.attackName === 'Apex Dragon' &&
           hasName(row.sourcePrinting, 'Regidrago VSTAR')) &&
-        hasDialga && gxUnused) score = 50000;
+        ((hasDialga && gxUnused) ||
+         hasCopycatPowerBeamFinisher(view, receipt))) score = 50000;
     else if (attackName === 'Power Beam') score = 200;
     else if (attackName === 'Timeless-GX' && hasDialga && gxUnused) score = 150;
     else if (attackName === 'Max Geist') score = 10 + 30 * psychicEnergyCount(view);
