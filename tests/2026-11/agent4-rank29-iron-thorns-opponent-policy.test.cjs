@@ -2554,3 +2554,58 @@ test('Thorns mirror Sidney counts public Special Energy, attached Tools and Stad
   assert.deepEqual(checkedDecision(root(targetPublic.slice(0,2))),
     {kind:'select-action',token:'sidney'});
 });
+
+
+test('Volt Cyclone chooses DCE over Speed when DCE completes Bench Lightning attacker, both seats',()=>{
+  for(const seat of [0,1]){
+    const req=promptRequest({
+      seat,promptType:'AttachEnergyPrompt',
+      source:actorChoiceSource('Iron Thorns ex TWM','Volt Cyclone'),
+      publicMetadata:{
+        selectionType:'energy-attachment',count:2,
+        minimumCount:1,maximumCount:1,allowCancel:false,
+        sourceZone:'active',ownerSeat:'actor',isOwnerVisible:true,zone:'bench'
+      },
+      observation:{ownPublic:player({
+        active:pokemon('Iron Thorns ex TWM 77',{energies:[
+          'Speed Lightning Energy RCL 173','Double Colorless Energy SUM 136'
+        ]}),
+        bench:[pokemon('Iron Thorns ex TWM 77',{energies:[
+          'Speed Lightning Energy RCL 173'
+        ]})]
+      })},
+      choices:[
+        voltChoice('speed','Speed Lightning Energy RCL 173',0),
+        voltChoice('dce','Double Colorless Energy SUM 136',0)
+      ]
+    });
+    assert.deepEqual(checkedDecision(req,seat),
+      {kind:'select-choice',token:'dce'});
+  }
+});
+
+test('Volt Cyclone still chooses Speed over DCE when Speed completes DCE-bearing Bench attacker',()=>{
+  const req=promptRequest({
+    promptType:'AttachEnergyPrompt',
+    source:actorChoiceSource('Iron Thorns ex TWM','Volt Cyclone'),
+    publicMetadata:{
+      selectionType:'energy-attachment',count:2,
+      minimumCount:1,maximumCount:1,allowCancel:false,
+      sourceZone:'active',ownerSeat:'actor',isOwnerVisible:true,zone:'bench'
+    },
+    observation:{ownPublic:player({
+      active:pokemon('Iron Thorns ex TWM 77',{energies:[
+        'Speed Lightning Energy RCL 173','Double Colorless Energy SUM 136'
+      ]}),
+      bench:[pokemon('Iron Thorns ex TWM 77',{energies:[
+        'Double Colorless Energy SUM 136'
+      ]})]
+    })},
+    choices:[
+      voltChoice('dce','Double Colorless Energy SUM 136',0),
+      voltChoice('speed','Speed Lightning Energy RCL 173',0)
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),
+    {kind:'select-choice',token:'speed'});
+});
