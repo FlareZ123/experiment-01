@@ -265,6 +265,17 @@ function test() {
  vipReady.globalTurn=2;
  const vipRoot={kind:'play-card',token:'vip',actorPrinting:'Battle VIP Pass FST 225',
    publicMetadata:{cardType:'trainer',handIndex:0}};
+ const beforeVip=view({active:slot('Gengar & Mimikyu-GX TEU 053',
+  'Gengar & Mimikyu-GX',[],[],0),bench:[],
+  bus:slot('Bunnelby PRC 121','Bunnelby'),oppBench:[]});
+ beforeVip.globalTurn=2;
+ const tpeFirst={token:'tpe',kind:'play-card',actorPrinting:'Telepathic Psychic Energy MEG 088',
+  targetPrinting:beforeVip.ownPublic.active.printing,
+  publicMetadata:{cardType:'energy',handIndex:0,targetSeat:'actor',
+   targetZone:'active',targetIndex:0,isOwnerVisible:true}};
+ same(run(beforeVip,[vipRoot,tpeFirst,pass()]),
+   {kind:'select-action',token:'tpe'},
+   'TPE before VIP preserves two Bench slots and funds earliest GX');
  same(run(vipReady,[vipRoot,
   {kind:'attack',token:'horror',attackName:'Horror House-GX'},pass()]),
   {kind:'select-action',token:'vip'},'VIP before funded opening Horror House');

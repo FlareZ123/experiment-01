@@ -107,6 +107,19 @@ const hh=action('attack','horror-house',{}, {attackName:'Horror House-GX'});
 const poltergeist=action('attack','poltergeist',{}, {attackName:'Poltergeist'});
 const deckChoice=(token,printing,index)=>({kind:'card',token,printing,publicMetadata:{
   sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true,selectionIndex:index}});
+check('TPE Energy attachment preempts VIP when it can both power Gengar and search',()=>{
+ const v=earlyStart(makeSlot('Gengar & Mimikyu-GX TEU 053',{energies:[]}),{bench:[]});
+ v.ownTurnResources.energyPlayedTurn=0;
+ const vip=action('play-card','vip',{}, {actorPrinting:'Battle VIP Pass FST 225'});
+ const tpe=action('play-card','tpe',{cardType:'energy',targetSeat:'actor',
+   targetZone:'active',targetIndex:0},
+   {actorPrinting:'Telepathic Psychic Energy MEG 088',
+   targetPrinting:'Gengar & Mimikyu-GX TEU 053'});
+ assert.equal(sel(root(v,[vip,tpe,pass()])),'tpe');
+ v.ownPublic.active.energies=['Telepathic Psychic Energy MEG 088'];
+ v.ownTurnResources.energyPlayedTurn=1;
+ assert.equal(sel(root(v,[vip,hh,pass()])),'vip');
+});
 check('first-turn VIP is played before an already-funded native Horror House',()=>{
  const v=earlyStart(makeSlot('Gengar & Mimikyu-GX TEU 053',
   {energies:['Basic Psychic Energy']}),{bench:[]});

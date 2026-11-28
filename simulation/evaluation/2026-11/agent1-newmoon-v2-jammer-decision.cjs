@@ -1,6 +1,6 @@
 'use strict';
 /* Research-only actor-visible decision slice; NOT a full candidate worker or game policy. */
-const POLICY_VERSION = 'agent1-newmoon-tool-jammer-v2-slice-v3';
+const POLICY_VERSION = 'agent1-newmoon-tool-jammer-v2-slice-v4';
 const DECK_SHA = 'aebe9a142e8492be929316bff4b871375e3e478945e01f8c5844037332634fe6';
 const has = (s,n) => typeof s === 'string' && s.includes(n);
 const slots = p => [p?.active,...(Array.isArray(p?.bench)?p.bench:[])].filter(Boolean);
@@ -122,8 +122,8 @@ function chooseRoot(view,frontier) {
   if (!Array.isArray(items)) return null;
   const p=position(view);
   if (!p) return chooseEscapedBusResponse(view,items) ??
-    chooseEarlyResourceAction(view,items) ??
-    chooseActivePsychicAttachment(view,items) ?? chooseEarlyHorrorHouse(view,items);
+    chooseActivePsychicAttachment(view,items) ??
+    chooseEarlyResourceAction(view,items) ?? chooseEarlyHorrorHouse(view,items);
   const choose=(row,reason)=>row ? {decision:{kind:'select-action',token:row.token},reason}:null;
   const canSelfKO = Number.isSafeInteger(p.opp.prizeCount) &&
     p.opp.prizeCount > 1 && Number.isSafeInteger(p.own.prizeCount) &&
