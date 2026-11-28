@@ -44,6 +44,8 @@ function assessRondoAfterBlast(v){
      p.sourcePrizesRemaining<1||p.sourcePrizesRemaining>6)
     return unsupported('INVALID_PUBLIC_STATE');
   if(p.sourcePrizesRemaining===1)return blocked('OPPONENT_FINAL_PRIZE_FROM_SELF_KO');
+  if(p.sourceDamage+130>=p.sourceHp)
+    return blocked('CURSED_BLAST_ALONE_ALREADY_KOS_TARGET');
   if(!a.reactivesResolved)return blocked('UNMODELED_REACTIVE_EFFECTS');
   if(!a.cursedBlastAbilityLegal||!a.cursedBlastAffectsTarget)
     return blocked('CURSED_BLAST_UNAVAILABLE');
@@ -111,6 +113,8 @@ function assessDragonRondoAfterBlast(v){
    return unsupported('INVALID_DRAGON_BOARD');
  if(p.sourcePrizesRemaining===1)
    return blocked('SOURCE_FINAL_PRIZE_ON_DUSK_SELF_KO');
+ if(p.sourceDamage+130>=p.sourceHp)
+   return blocked('CURSED_BLAST_ALONE_ALREADY_KOS_TARGET');
  if(!p.dragonType||!p.fairyZoneWeaknessX2)
    return blocked('NO_ACTUAL_DRAGON_PSYCHIC_WEAKNESS');
  if(p.basicAttackDamagePrevented)
