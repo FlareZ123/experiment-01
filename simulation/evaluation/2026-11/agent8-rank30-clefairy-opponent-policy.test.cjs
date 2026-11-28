@@ -392,3 +392,44 @@ for(const seat of [0,1]) {
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   });
 }
+
+
+for(const seat of [0,1]){
+  test('seat '+seat+': numeric prior-turn Energy protects the final Clefairy Psychic from Secret Box',()=>{
+    for(const [stamp,expected] of [[-1,'energy'],[0,'energy'],[3,'energy'],[4,'box']]){
+      const r=request(seat);
+      r.observation.ownPublic.active.energies=[];
+      r.observation.ownPublic.bench=[b('Latias ex SSP 76')];
+      r.observation.ownHand=[box,psychic,vip,vip];
+      r.observation.ownTurnResources.energyPlayedTurn=stamp;
+      r.actionFrontier.items=[root('play-card',box,'box'),
+        {...root('play-card',psychic,'energy'),targetPrinting:clef},
+        root('pass','','pass')];
+      assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:expected});
+      r.prompt=prompt('hand',[card(psychic,'psy'),card(vip,'vip1'),card(vip,'vip2')],3,3);
+      const got=policy(seat).decide(r);
+      if(stamp===4)assert.deepEqual(got,{kind:'select-choices',tokens:['vip1','vip2','psy']});
+      else assert.deepEqual(got,{kind:'abstain',reasonCode:'NO_LEGAL_CARD_SET'});
+    }
+  });
+  test('seat '+seat+': Supporter count one or lock blocks VS Seeker waste',()=>{
+    for(const [used,locked,expected] of [[0,false,'seeker'],[1,false,'energy'],[0,true,'energy']]){
+      const r=request(seat);
+      r.observation.ownPublic.active.energies=[];
+      r.observation.ownPublic.bench=[{printing:clef,energies:[psychic,psychic]}];
+      r.observation.ownPublic.discard=['Guzma BUS 115'];
+      r.observation.opponentPublic.bench=[{
+        printing:'Shadow Rider Calyrex V CRE 74',hp:210,damage:150,energies:[]
+      }];
+      r.observation.ownHand=['VS Seeker PHF 109',psychic];
+      r.observation.ownTurnResources.supporterPlayedTurn=used;
+      r.observation.ownTurnResources.supporterPlayLocked=locked;
+      r.observation.ownTurnResources.energyPlayedTurn=3;
+      r.actionFrontier.items=[
+        root('play-card','VS Seeker PHF 109','seeker'),
+        {...root('play-card',psychic,'energy'),targetPrinting:clef},
+        root('pass','','pass')];
+      assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:expected});
+    }
+  });
+}
