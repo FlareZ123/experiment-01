@@ -1231,6 +1231,33 @@ function chooseRoot(view, request) {
     return { kind: 'select-action', token: usefulAbility.token };
   }
 
+  // Forest Seal Stone gives a Pokémon V the one-use Star Alchemy search.
+  // The pinned cap-free action enumerator emits this attached-Tool power as
+  // USE_ABILITY_ACTION targeting that Pokémon. The ordinary printed Pokémon
+  // ability list does not include the Tool power, so validate the visible
+  // attached Tool and V line rather than requiring its name in abilities.
+  // With no funded development/attack remaining, a low hand and live search
+  // make an otherwise unused VSTAR Power meaningfully better than passing.
+  const starAlchemy = abilities.find(item =>
+    item.publicMetadata?.abilityName === 'Star Alchemy' &&
+    isText(item.actorPrinting) &&
+    view.ownPublic.publicTurnRestrictions.vstarUsed === false &&
+    Number.isSafeInteger(view.ownPublic.deckCount) &&
+    view.ownPublic.deckCount >= 2 &&
+    Array.isArray(view.ownHand) && view.ownHand.length <= 3 &&
+    ownBoard(view).some(slot =>
+      slot.printing === item.actorPrinting &&
+      Array.isArray(slot.printed?.subtypes) &&
+      slot.printed.subtypes.includes('V') &&
+      Array.isArray(slot.tools) &&
+      slot.tools.includes('Forest Seal Stone SIT 156'))
+  );
+  if (starAlchemy) {
+    recordPolicyAuditRule(starAlchemy.token, 'STAR_ALCHEMY_RESOURCE_RECOVERY');
+    setPolicyAuditRule('ROOT_LAST_RESORT_STAR_ALCHEMY', 'FIRST_CERTIFIED_ATTACHED_TOOL_ABILITY');
+    return { kind: 'select-action', token: starAlchemy.token };
+  }
+
   // Tropical Beach is a globally usable Stadium: the physical opponent may
   // own the Stadium in play, yet the candidate can still use its optional
   // effect. The actor frontier already vouches for native playability.
