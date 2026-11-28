@@ -72,8 +72,73 @@ function choosePaleMoonEscapeRanger(view, items) {
   return { token: ranger.token, reason: 'PUBLIC_PALE_MOON_PENDING_KO_ONLY_RANGER_ROOT' };
 }
 
+
+/**
+ * Single-target, last-Prize Guzma fallback. Guzma's two mandatory Pokemon
+ * selections are handled separately with authenticated prompt tokens below.
+ * Only Pass+one exact Guzma root qualifies. This is not a replacement for
+ * an existing multi-axis Guzma planner in richer states.
+ */
+function choosePaleMoonEscapeGuzmaRoot(view, items) {
+  if(view?.decisionKind !== 'owner-root' ||
+      view?.ownPublic?.active?.publicRestrictions?.pendingPaleMoonGXKnockOut !== true ||
+      view?.opponentPublic?.prizeCount !== 1 ||
+      !Array.isArray(items) ||
+      items.some(item => !['pass','play-card'].includes(item?.kind))) return null;
+  const benches = [view.ownPublic?.bench,view.opponentPublic?.bench];
+  if(benches.some(rows=>!Array.isArray(rows) || rows.filter(Boolean).length!==1))return null;
+  const supporter=view.ownTurnResources;
+  if(supporter?.supporterPlayLocked!==false ||
+     supporter?.supporterPlayedTurn!==0)return null;
+  const plays=items.filter(item=>item?.kind==='play-card');
+  if(plays.length!==1)return null;
+  const guzma=plays[0];
+  if(guzma.actorPrinting!=='Guzma BUS' ||
+     !(typeof guzma.token==='string' || Number.isSafeInteger(guzma.token)))return null;
+  return {token:guzma.token,reason:'PUBLIC_PALE_MOON_LAST_PRIZE_ONLY_GUZMA_ROOT'};
+}
+
+/**
+ * Authenticated card-effect ChoosePokemonPrompt after an accepted Guzma
+ * root. Choose exactly one physical Bench target by HOST OFFER TOKEN;
+ * never confuse a filtered selection ordinal with a real Bench index.
+ * Returning null for ambiguous prompts prevents speculative resolution.
+ */
+function choosePaleMoonEscapeGuzmaPrompt(view, prompt) {
+  if(view?.decisionKind!=='owner-prompt' ||
+     view?.ownPublic?.active?.publicRestrictions?.pendingPaleMoonGXKnockOut!==true ||
+     view?.opponentPublic?.prizeCount!==1 ||
+     prompt?.promptType!=='ChoosePokemonPrompt' ||
+     prompt?.source?.sourceKind!=='card-effect' ||
+     prompt.source.effectName!=='Guzma' ||
+     prompt.source.sourcePrinting!=='Guzma BUS' ||
+     prompt?.publicMetadata?.selectionType!=='pokemon' ||
+     prompt.publicMetadata.minimumCount!==1 ||
+     prompt.publicMetadata.maximumCount!==1 ||
+     prompt.publicMetadata.allowCancel!==false ||
+     !Array.isArray(prompt.choices)) return null;
+  const valid=prompt.choices.filter(choice=>{
+    if(choice?.kind!=='pokemon' ||
+       choice.publicMetadata?.targetZone!=='bench' ||
+       !['actor','opponent'].includes(choice.publicMetadata.ownerSeat) ||
+       !Number.isSafeInteger(choice.publicMetadata.benchIndex) ||
+       choice.publicMetadata.benchIndex<0 ||
+       !(typeof choice.token==='string'||Number.isSafeInteger(choice.token)))return false;
+    const physical=choice.publicMetadata.ownerSeat==='actor'?
+      view.ownPublic.bench: view.opponentPublic.bench;
+    return Array.isArray(physical) &&
+      physical[choice.publicMetadata.benchIndex]?.printing===choice.printing;
+  });
+  if(valid.length!==1 || prompt.choices.some(choice=>
+      choice?.kind==='pokemon'&&!valid.includes(choice)))return null;
+  return {token:valid[0].token,
+    reason:'PUBLIC_PALE_MOON_GUZMA_EXACT_SINGLE_BENCH_PROMPT'};
+}
+
 module.exports = {
   pendingPaleMoonGXKnockOut,
   choosePaleMoonEscapeRetreat,
-  choosePaleMoonEscapeRanger
+  choosePaleMoonEscapeRanger,
+  choosePaleMoonEscapeGuzmaRoot,
+  choosePaleMoonEscapeGuzmaPrompt
 };
