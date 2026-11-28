@@ -24,8 +24,8 @@ function fixture(seat=0){
  const bench=remove(all,'Dusclops');
  const hand=[remove(all,'Gladion'),...Array.from({length:6},()=>all.shift())];
  const own={
-  active:{printing:active,evolutionPrintings:[],energies:[],tools:[]},
-  bench:[{printing:bench,evolutionPrintings:['Duskull VIV 069'],energies:[],tools:[]}],
+  active:{printing:active,evolutionPrintings:[active],energies:[],tools:[]},
+  bench:[{printing:bench,evolutionPrintings:[bench],energies:[],tools:[]}],
   prizeCount:6,prizeSlots:Array.from({length:6},(_,i)=>({index:i})),
   deckCount:all.length,handCount:hand.length,discard:[],lostZone:[],
   resolvingSupporter:[],stadium:[],
@@ -33,7 +33,7 @@ function fixture(seat=0){
  // A Stage1 requires one underlying physical Duskull. Move it from deck
  // to the in-play evolution stack, keeping the exact 60-card census.
  const underneath=remove(all,'Duskull');
- own.bench[0].evolutionPrintings=[underneath];
+ own.bench[0].evolutionPrintings=[underneath,bench];
  own.deckCount=all.length;
  const known=Object.entries(all.reduce((acc,x)=>{
   acc[x]=(acc[x]??0)+1;return acc;},{})).map(([printing,copies])=>({printing,copies}));
@@ -135,4 +135,19 @@ test('source mismatch cannot impersonate Gladion owner prompt',()=>{
  const f=fixture();check(f.root().token,'gladion');
  f.prizePrompt({printing:'Other'});check(f.prizePrompt().kind,'abstain');
 });
+
+test('native evolutionStack includes current Stage1 and active Basic',()=>{
+ const f=fixture();
+ check(f.obs.ownPublic.active.evolutionPrintings.includes(
+  f.obs.ownPublic.active.printing),true);
+ check(f.obs.ownPublic.bench[0].evolutionPrintings.includes(
+  f.obs.ownPublic.bench[0].printing),true);
+ check(fullyPrizedDusknoir(f.obs),true);
+});
+test('malformed stack omitting current Stage1 fails physical census',()=>{
+ const f=fixture();f.obs.ownPublic.bench[0].evolutionPrintings.pop();
+ check(fullyPrizedDusknoir(f.obs),false);
+ check(f.root().kind,'abstain');
+});
+
 console.log('v3g Gladion physical-census research assertions passed: '+assertions);
