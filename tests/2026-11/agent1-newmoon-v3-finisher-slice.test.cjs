@@ -699,4 +699,91 @@ test('Klefki cannot Joust into live BUS Basic-attack lock',()=>{
  assert(f.root().kind,'abstain');
 });
 
+
+function perfectionPromptFixture({from='bench',seat=0,spent=false,activeStatus=[]}={}){
+ const f=make('Regidrago VSTAR SIT136',seat);
+ f.own.active.specialConditions=activeStatus;
+ f.own.publicTurnRestrictions.gxUsed=spent;
+ const donor='Trevenant & Dusknoir-GX SM217';
+ f.own.bench=from==='bench'?[{printing:donor}]:[];
+ f.own.discard=from==='discard'?[donor]:[];
+ f.obs.decisionKind='owner-prompt';
+ const options=(names)=>names.map(([token,printing,attack,zone])=>({
+  kind:'attack',token,printing,publicMetadata:{
+   sourceZone:zone??from,sourceAttack:attack,
+   isOwnerVisible:true,ownerSeat:'actor',choiceIndex:0}}));
+ const prompt={actingSeat:seat,promptType:'ChooseAttackPrompt',
+  source:{classification:'actor-choice',sourceKind:'card-effect',
+  effectName:'Perfection',sourcePrinting:f.own.active.printing},
+  publicMetadata:{selectionType:'attack',count:4},
+  choices:options([
+   ['night',donor,'Night Watch'],
+   ['pale',donor,'Pale Moon-GX'],
+   ['other','Gengar & Mimikyu-GX TEU53','Poltergeist'],
+   ['horror','Gengar & Mimikyu-GX TEU53','Horror House-GX']
+  ])};
+ f.own.discard.push('Gengar & Mimikyu-GX TEU53');
+ const select=()=>f.p.decide({role:'candidate',seat,observation:f.obs,
+  actionFrontier:null,prompt});
+ return {...f,prompt,select};
+}
+test('real Perfection copied Night Watch from own Bench choice',()=>{
+ const f=perfectionPromptFixture();f.opp.active.damage=160;
+ assert(f.select().token,'night');
+});
+test('real Perfection copied Night Watch from own discard choice',()=>{
+ const f=perfectionPromptFixture({from:'discard'});f.opp.active.damage=160;
+ assert(f.select().token,'night');
+});
+test('owner Mewtwo Perfection spent GX bypasses GX choices',()=>{
+ const f=perfectionPromptFixture({spent:true});f.opp.active.damage=160;
+ assert(f.select().token,'night');
+});
+test('late high opponent hand still prioritizes certain Night Watch over Poltergeist',()=>{
+ const f=perfectionPromptFixture();f.opp.handCount=11;f.obs.globalTurn=9;
+ assert(f.select().token,'night');
+});
+test('early large hand chooses optional printed Horror House GX',()=>{
+ const f=perfectionPromptFixture();f.obs.globalTurn=3;
+ f.opp.handCount=7;assert(f.select().token,'horror');
+});
+test('one can never choose borrowed unknown or opponent-only donor',()=>{
+ const f=perfectionPromptFixture();f.prompt.choices[0].printing='Opponents Dragon-GX';
+ f.prompt.choices[1].printing='Opponents Dragon-GX';
+ f.prompt.choices[2].printing='Opponents Dragon-GX';
+ f.prompt.choices[3].printing='Opponents Dragon-GX';
+ assert(f.select().kind,'abstain');
+});
+test('Perfection blocks donor from wrongly attributed opponent visible zone',()=>{
+ const f=perfectionPromptFixture();f.prompt.choices[0].publicMetadata.ownerSeat='opponent';
+ f.prompt.choices[1].publicMetadata.ownerSeat='opponent';
+ assert(f.select().token,'other');
+});
+test('disabled Perfection cannot choose any copied attack',()=>{
+ const f=perfectionPromptFixture();f.own.active.abilitySuppressions[0].suppressed=true;
+ assert(f.select().kind,'abstain');
+});
+test('non-Perfection source cannot spoof owner copy menu',()=>{
+ const f=perfectionPromptFixture();f.prompt.source.effectName='Foul Play';
+ assert(f.select().kind,'abstain');
+});
+test('no owner or mixed-zone provenance means abstain',()=>{
+ const f=perfectionPromptFixture();
+ for(const c of f.prompt.choices)c.publicMetadata.sourceZone='opponentDiscard';
+ assert(f.select().kind,'abstain');
+});
+test('early GX use prohibited if already spent',()=>{
+ const f=perfectionPromptFixture({spent:true});f.obs.globalTurn=3;
+ f.opp.handCount=7;assert(f.select().token,'night');
+});
+test('real owner ChooseAttack prompt can be mixed bench/discard',()=>{
+ const f=perfectionPromptFixture();for(const c of f.prompt.choices)
+ c.publicMetadata.sourceZone='mixed';
+ assert(f.select().token,'night');
+});
+test('wrong actor seat cannot receive another seat donor prompt',()=>{
+ const f=perfectionPromptFixture({seat:1});f.prompt.actingSeat=0;
+ assert(f.select().kind,'abstain');
+});
+
 console.log('Agent1 v3 research actor tests: '+checks+' assertions passed');
