@@ -87,6 +87,15 @@ const drago = (remain) => mon('Regidrago VSTAR SIT 136', 280, 280 - remain,
 const mimikyu = (remain) => mon('Mimikyu GRI 58', 70, 70 - remain);
 const oldMega = (remain) => mon('M Rayquaza-EX ROS 76', 220, 220 - remain,
   ['MEGA', 'EX']);
+const vmax = (remain) => mon('Shadow Rider Calyrex VMAX CRE 75', 320,
+  320 - remain, ['VMAX']);
+const safeguard = (remain) => mon('Mimikyu PAL 97', 70, 70 - remain);
+const withLegacy = card => ({
+  ...card, energies: ['Legacy Energy TWM 167']
+});
+const withLifeDew = card => ({
+  ...card, tools: ['Life Dew PLF 107']
+});
 const cases = [
   ['Guzma uses post-switch Bench Latias rather than departing active',
    [iron(10), mega(150)], 'target-1', 3],
@@ -97,7 +106,15 @@ const cases = [
   ['old M Pokémon-EX is only two Prizes: tie goes to earlier VSTAR',
    [drago(50), oldMega(50)], 'target-0', 4],
   ['no own Bench means the Active actually remains the attacker',
-   [iron(10), mega(150)], 'target-0', 3, false]
+   [iron(10), mega(150)], 'target-0', 3, false],
+  ['Guzma should not prefer reduced Legacy Mega over naked VMAX',
+   [withLegacy(mega(50)), vmax(50)], 'target-1', 3],
+  ['Guzma should not prefer Life Dew Mega over naked VMAX',
+   [withLifeDew(mega(50)), vmax(50)], 'target-1', 3],
+  ['Guzma should not prefer double-reduced Mega over two-Prize ex',
+   [withLifeDew(withLegacy(mega(50))), latias(50)], 'target-1', 3],
+  ['Guzma terminal forecast cannot assign VMAX hit through Safeguard',
+   [safeguard(50), mimikyu(50)], 'target-1', 1]
 ];
 for (const seat of [0, 1]) for (const [label, targets, expected, prizeCount, hasBench = true] of cases) {
   test(label + ' seat ' + seat, () => {
