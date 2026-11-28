@@ -238,6 +238,7 @@ for(const seat of [0,1]){
     const hook=installPromptProvenanceHook(store);
     let projectedPrompt=null,chosenPromptToken=null,promptCount=0;
     let promptDecisionAudit=null,promptNativeValidation=null;
+    let detachedValidatorCalls=0;
     try{
       store.dispatch(physicalAction);
       for(let i=0;i<32;i++){
@@ -296,7 +297,6 @@ for(const seat of [0,1]){
           abilities:player.playableHandAbilityCardIds
         }));
         const nativePromptValidate=pending.validate;
-        let detachedValidatorCalls=0;
         pending.validate=(assignment,validationState)=>{
           const verdict=nativePromptValidate(assignment,validationState);
           if(validationState&&validationState!==state){
@@ -411,7 +411,7 @@ for(const seat of [0,1]){
           mode:promptNativeValidation?.nativeValidationStoreMode,
           originalStoreUnchanged:promptNativeValidation?.fullOriginalStoreStateUnchanged,
           clonedPromptResolved:promptNativeValidation?.clonedPromptResolved,
-          detachedValidatorCalls:1,
+          detachedValidatorCalls,
           livePlayabilityArrayIdentityPreserved:true
         },
         strictRootDecision:{
