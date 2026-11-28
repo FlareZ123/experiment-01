@@ -2224,10 +2224,10 @@ for(const seat of [0,1]){
 for(const seat of [0,1]){
  test('seat '+seat+' Flutter Mane suppresses only an Active setup Ability source',()=>{
   const flutter=mon('Flutter Mane TEF 78',{abilitySuppressions:null});
-  const activeSource=root(seat,[ability('Dedechange','dede'),attack('Itchy Pollen','pollen'),pass],{
+  const activeSource=root(seat,[ability('Dedechange','dede'),pass],{
    ownPublic:own({active:mon('Dedenne-GX UNB 57'),bench:[]}),
    opponentPublic:opp({active:flutter}),ownHand:['Darkness Energy MEE 15']});
-  assert.deepEqual(decide(seat,activeSource),{kind:'select-action',token:'pollen'});
+  assert.deepEqual(decide(seat,activeSource),{kind:'select-action',token:'pass'});
   const benchSource=root(seat,[ability('Dedechange','dede'),attack('Itchy Pollen','pollen'),pass],{
    ownPublic:own({active:mon('Budew ASC 16'),bench:[mon('Dedenne-GX UNB 57')]}),
    opponentPublic:opp({active:flutter}),ownHand:['Darkness Energy MEE 15']});
