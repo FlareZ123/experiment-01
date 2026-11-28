@@ -2121,6 +2121,19 @@ function compressorRaihanFuelNeed(view,receipt) {
     discard:[...view.ownPublic.discard,'Psychic Energy SVE']}};
   return raihanNeed(projected,receipt);
 }
+// A hand-contained two-Item access channel: Compressor sends a Basic Psychic
+// from the *actual searched deck* to discard, then held Night Stretcher
+// recovers it into hand for a manual attachment or live Underworld Door.
+function compressorStretcherEnergyNeed(view,receipt) {
+  if(!handHas(view,'Night Stretcher') ||
+     handHas(view,'Psychic Energy') ||
+     discardHas(view,'Psychic Energy') ||
+     view.ownPublic.deckCount<2)return -Infinity;
+  const projected={...view,ownPublic:{...view.ownPublic,
+    discard:[...view.ownPublic.discard,'Psychic Energy SVE']}};
+  const need=recoveryNeedScore(projected,'Psychic Energy SVE',receipt);
+  return Number.isFinite(need)&&need>=70?need:-Infinity;
+}
 function searchCandidates(view, prompt, choices, receipt = null) {
   const effectName = prompt.source?.effectName ?? '';
   const sourcePrinting = prompt.source?.sourcePrinting ?? '';
@@ -2134,7 +2147,8 @@ function searchCandidates(view, prompt, choices, receipt = null) {
       hasName(sourcePrinting, 'Battle Compressor')) {
     // Choose exactly one needed singleton Supporter, not three arbitrary
     // low-discard-value cards. The actor can recover it with VS Seeker.
-    const fuel=compressorRaihanFuelNeed(view,receipt);
+    const fuel=Math.max(compressorRaihanFuelNeed(view,receipt),
+      compressorStretcherEnergyNeed(view,receipt));
     rows = choices.map(choice => {
       const need=compressorSeekerSupporterNeed(view,choice.printing,receipt);
       const isPsychic=isBasicEnergyPrinting(choice.printing) &&
@@ -3641,14 +3655,14 @@ function scoreTrainerPlay(item, view, receipt, profile) {
   }
   // Source-real singleton retrieval or a funded Raihan recovery. Never
   // voluntarily thin or discard protected cards without a supported line.
-  if(hasName(name,'Battle Compressor') && !supporterUsed &&
-      view.ownPublic.deckCount>0) {
+  if(hasName(name,'Battle Compressor') && view.ownPublic.deckCount>0) {
     const candidates=COMPRESSOR_SEEKER_SUPPORTERS.filter(name=>
       name!=='Pokémon Ranger'||profile?.profileId==='hood-shield-shadow-rider-v1');
     const seeker=Math.max(-Infinity,...candidates.map(printing=>
       compressorSeekerSupporterNeed(view,printing,receipt)));
-    const fuel=compressorRaihanFuelNeed(view,receipt);
-    const needed=Math.max(seeker,fuel);
+    const raihanFuel=compressorRaihanFuelNeed(view,receipt);
+    const stretcherFuel=compressorStretcherEnergyNeed(view,receipt);
+    const needed=Math.max(seeker,raihanFuel,stretcherFuel);
     if(Number.isFinite(needed))return 1000+needed;
   }
   const missingBasicV = !knownFullyPrized(view,'Shadow Rider Calyrex V') && !hasBasicShadowRiderV(view) &&
