@@ -192,6 +192,11 @@ function scoreRoot(item,request){
   const obs=request?.observation??{},own=obs.ownPublic??{},opp=obs.opponentPublic??{};
   const p=name(item?.actorPrinting??item?.publicMetadata?.sourcePrinting??item?.label);
   if(!EXECUTABLE.has(item?.kind))return -Infinity;
+  const explicit=item?.actorPrinting??item?.publicMetadata?.sourcePrinting;
+  // Host-frontier attack/Ability identities are not exempt from the original
+  // rank18 sixty. Reject any *explicit* foreign actor before shared fallback.
+  if(item.kind!=='pass'&&explicit!==undefined&&explicit!==null&&
+     !SOURCE_SET.has(name(explicit)))return -Infinity;
   if(item.kind==='play-card'&&!SOURCE_SET.has(p))return -Infinity;
   const g=goal(obs);
   if(item.kind==='play-card'){
