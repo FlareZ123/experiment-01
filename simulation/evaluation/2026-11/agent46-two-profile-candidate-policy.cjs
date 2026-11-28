@@ -1348,12 +1348,19 @@ function visibleTempleRegidragoFundingPairBonus(view,names){
   if(!Array.isArray(names)||names.length!==2||templeLive(view)!==true)return 0;
   const opp=view?.opponentPublic,active=opp?.active;
   if(!active||!hasName(active.printing,'Regidrago VSTAR')||
-     !Array.isArray(active.energies)||active.energies.length!==2||
+     !Array.isArray(active.energies)||active.energies.length<2||
+     active.energies.length>5||
      !Array.isArray(opp.discard)||!Array.isArray(opp.lostZone)||
      opp.publicTurnRestrictions?.vstarUsed!==false)return 0;
   const isGrass=e=>/^(?:Basic )?Grass Energy(?: |$)/.test(e);
+  // One Basic Grass plus 1–4 Double Dragon cards are all Colorless under
+  // Temple, but any DDE can provide both missing Apex colors if Temple
+  // is removed. Extra DDE copies do not create an alternate colored path
+  // while Temple remains active.
   if(active.energies.filter(isGrass).length!==1||
-     active.energies.filter(e=>hasName(e,'Double Dragon Energy')).length!==1)return 0;
+     !active.energies.some(e=>hasName(e,'Double Dragon Energy'))||
+     active.energies.some(e=>!isGrass(e)&&!hasName(e,'Double Dragon Energy')))
+    return 0;
   if(!opp.lostZone.some(e=>hasName(e,'Silent Lab'))||
      !opp.lostZone.some(e=>hasName(e,'Parallel City')))return 0;
   if(opp.discard.filter(e=>hasName(e,'Megaton Blower')).length!==1||
