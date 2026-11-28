@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {pendingPaleMoonGXKnockOut,choosePaleMoonEscapeRetreat,choosePaleMoonEscapeRanger,choosePaleMoonEscapeGuzmaRoot,choosePaleMoonEscapeGuzmaPrompt,rescuePaleMoonTerminalPass,choosePaleMoonFloatStonePreparation,knownNoPrizeAwardOnPaleMoonKO,terminalPaleMoonPrizeRisk}=require('../../simulation/twinleaf/2026-11/agent34-pale-moon-escape.cjs');
+const {pendingPaleMoonGXKnockOut,choosePaleMoonEscapeRetreat,choosePaleMoonEscapeRanger,choosePaleMoonEscapeGuzmaRoot,choosePaleMoonEscapeGuzmaPrompt,rescuePaleMoonTerminalPass,choosePaleMoonFloatStonePreparation,knownNoPrizeAwardOnPaleMoonKO,terminalPaleMoonPrizeRisk,preferredPaleMoonDiscardSupporter,choosePaleMoonVSSeekerPreparation,choosePaleMoonVSSeekerPrompt}=require('../../simulation/twinleaf/2026-11/agent34-pale-moon-escape.cjs');
 const {actorObservation}=require('../../simulation/twinleaf/actor-observation-contract.cjs');
 const {validateActorObservation}=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 
@@ -296,4 +296,64 @@ test('paper Prize-denial removes false terminal premise, but multi-Prize targets
       energies:['Legacy Energy TWM']}}};
   assert.equal(terminalPaleMoonPrizeRisk(legacy),true,
     'Legacy Energy only reduces Prizes on KO by attack damage, not KO effect');
+});
+
+const seekerView=()=>({
+  ...rangerView(),
+  ownPublic:{...rangerView().ownPublic,discard:['Pokemon Ranger STS'],
+    publicTurnRestrictions:{...rangerView().ownPublic.publicTurnRestrictions,itemPlayLocked:false}},
+  ownTurnResources:{...rangerView().ownTurnResources,itemPlayLocked:false}
+});
+const seekerPrompt=()=>({
+  promptType:'ChooseCardsPrompt',
+  source:{classification:'actor-choice',sourceKind:'card-effect',
+    sourcePrinting:'VS Seeker PHF',effectName:'VS Seeker'},
+  publicMetadata:{selectionType:'card-combination',minimumCount:1,maximumCount:1,
+    allowCancel:false,sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true},
+  choices:[{token:'recovered-ranger',kind:'card',printing:'Pokemon Ranger STS',
+    publicMetadata:{ownerSeat:'actor',sourceZone:'discard',isOwnerVisible:true}},
+    {token:'other',kind:'card',printing:'Iono PAL',
+      publicMetadata:{ownerSeat:'actor',sourceZone:'discard',isOwnerVisible:true}}]
+});
+test('VS Seeker source-dealt chain: Pass→Item→owned discard prompt→Ranger root',()=>{
+  const root=[{token:'pass',kind:'pass'},{token:'seeker',kind:'play-card',
+    actorPrinting:'VS Seeker PHF'},{token:'attack',kind:'attack'}];
+  const view=seekerView();
+  assert.equal(preferredPaleMoonDiscardSupporter(view),'Pokemon Ranger STS');
+  assert.equal(choosePaleMoonVSSeekerPreparation(view,root)?.token,'seeker');
+  assert.deepEqual(rescuePaleMoonTerminalPass(view,root,'pass'),{
+    token:'seeker',reason:'PUBLIC_PALE_MOON_TERMINAL_PASS_PREPARATION',
+    selectedSourceReason:'PUBLIC_PALE_MOON_VS_SEEKER_PREPARE_DISCARD_SUPPORTER'});
+  const promptView={...view,decisionKind:'owner-prompt'};
+  assert.deepEqual(choosePaleMoonVSSeekerPrompt(promptView,seekerPrompt()),{
+    tokens:['recovered-ranger'],reason:'PUBLIC_PALE_MOON_VS_SEEKER_RANGER_GUZMA_PROMPT'});
+  const next={...view,ownPublic:{...view.ownPublic,discard:[]},
+    ownHand:['Pokemon Ranger STS']};
+  const finale=[root[0],ranger('native-ranger')];
+  assert.equal(rescuePaleMoonTerminalPass(next,finale,'pass')?.token,'native-ranger');
+});
+test('VS Seeker rejects wrong provenance, concealed prompt and unavailable Supporter',()=>{
+  const root=[{token:'pass',kind:'pass'},
+    {token:'seeker',kind:'play-card',actorPrinting:'VS Seeker PHF'}];
+  const view=seekerView();
+  assert.equal(choosePaleMoonVSSeekerPreparation({...view,ownPublic:{
+    ...view.ownPublic,discard:[]}},root),null);
+  assert.equal(choosePaleMoonVSSeekerPreparation({...view,ownTurnResources:{
+    ...view.ownTurnResources,supporterPlayedTurn:1}},root),null);
+  assert.equal(choosePaleMoonVSSeekerPreparation({...view,ownTurnResources:{
+    ...view.ownTurnResources,itemPlayLocked:true}},root),null);
+  const pv={...view,decisionKind:'owner-prompt'};
+  const actual=seekerPrompt();
+  assert.equal(choosePaleMoonVSSeekerPrompt(pv,{...actual,
+    source:{...actual.source,sourcePrinting:'Computer Search BCR'}}),null);
+  assert.equal(choosePaleMoonVSSeekerPrompt(pv,{...actual,
+    publicMetadata:{...actual.publicMetadata,isOwnerVisible:false}}),null);
+  assert.equal(choosePaleMoonVSSeekerPrompt(pv,{...actual,
+    publicMetadata:{...actual.publicMetadata,sourceZone:'deck'}}),null);
+  assert.equal(choosePaleMoonVSSeekerPrompt(pv,{...actual,
+    choices:actual.choices.filter(item=>item.printing!=='Pokemon Ranger STS')}),null);
+  const guzma={...view,ownPublic:{...view.ownPublic,discard:['Guzma BUS'],
+    bench:[{printing:'Mimikyu GRI 58'}]},
+    opponentPublic:{...view.opponentPublic,bench:[{printing:'Regidrago V SIT'}]}};
+  assert.equal(preferredPaleMoonDiscardSupporter(guzma),'Guzma BUS');
 });
