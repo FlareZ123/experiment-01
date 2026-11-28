@@ -240,9 +240,14 @@ function supporterAvailable(observation) {
     observation?.ownPublic?.publicTurnRestrictions?.supporterPlayLocked !== true;
 }
 
-function hasUnevolvedBasicFromPriorTurn(player, globalTurn) {
+// Grand Tree can only start its Stage1 -> Stage2 line on an eligible Basic
+// that was already in play on a prior turn. Native Stage is an enum (not the
+// synthetic string 'BASIC'), and source rank2 contains unevolving Basics such
+// as Bunnelby; exact visible printing is the correct admission check here.
+function hasGrandTreeEligibleBasicFromPriorTurn(player, globalTurn) {
   return boardSlots(player).some(({ pokemon }) =>
-    pokemon.printed?.stage === 'BASIC' &&
+    [PRINT.oddish, PRINT.lillipup, PRINT.pidgey].some(pattern =>
+      matches(pokemon.printing, pattern)) &&
     Number.isSafeInteger(pokemon.lastPlayedOrEvolvedTurn) &&
     pokemon.lastPlayedOrEvolvedTurn < globalTurn);
 }
@@ -742,7 +747,7 @@ function scoreAction(item, request) {
       !ownToolLocked(observation) ? 205 : 65;
   }
   if (matches(card, PRINT.grandTree)) {
-    return hasUnevolvedBasicFromPriorTurn(own, observation.globalTurn) &&
+    return hasGrandTreeEligibleBasicFromPriorTurn(own, observation.globalTurn) &&
       missingLinePriority(observation) > 0 ? 180 : 95;
   }
   if (matches(card, PRINT.artazon)) {
