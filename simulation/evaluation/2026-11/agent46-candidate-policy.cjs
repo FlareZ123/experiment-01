@@ -1184,6 +1184,12 @@ function scoreBasicPlay(item, view, receipt) {
   if (metadata.targetSeat !== 'actor' || metadata.targetZone !== 'bench') return -Infinity;
   const printing = item.actorPrinting ?? '';
   if (hasName(printing, 'Radiant Eternatus CRZ')) {
+    // Active Iron Thorns ex's Initialization removes non-Future Pokémon
+    // Abilities, including this Radiant's on-Bench entry. Do not spend a
+    // precious Bench slot expecting a disabled Climactic Gate trigger.
+    if (hasName(view.opponentPublic.active?.printing, 'Iron Thorns ex')) {
+      return -Infinity;
+    }
     // Climactic Gate is a turn-ending line; finish search, evolution, and
     // normal energy first. Radiant takes one Bench slot and needs at least
     // one more for a VMAX searched directly onto the Bench.
