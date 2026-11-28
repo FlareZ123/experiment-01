@@ -781,14 +781,17 @@ function bombPlanner(o,sourceBenchIndex){
         return mega(p)?315:200;
       }
       // When the main attack is already funded, Telepathic can bank two
-      // source-bound Psychic Basics on an empty-Bench Unown before attacking.
+      // source-bound Psychic Basics on a clean Benched Unown or on an
+      // already-in-play Gengar & Mimikyu-GX before attacking. The latter
+      // additionally powers a backup Psychic attacker without placing a
+      // new three-Prize Gengar onto Bench. This is a contingent preference.
       // Count only actor-visible cards and certified owner-K1 Prize membership;
       // unknown Prizes never become an assumed available card.
-      if(isUn(p)&&m.targetZone==='bench'&&/^Telepathic Psychic Energy POR 88\b/i.test(name(x))&&
+      if((isUn(p)||isGengar(p))&&m.targetZone==='bench'&&/^Telepathic Psychic Energy POR 88\b/i.test(name(x))&&
          !liveStadium(o,/Temple of Sinnoh|Silent Lab/i)&&
-         abilityLive(p,'Farewell Letter')&&
+         (isGengar(p)||abilityLive(p,'Farewell Letter'))&&
          cap(o)>0&&Number(o.ownPublic?.deckCount)>8&&
-         !L(p.energies).length&&!L(p.tools).length&&
+         !L(p.energies).length&&(!isUn(p)||!L(p.tools).length)&&
          mega(o.ownPublic?.active)&&usable(o.ownPublic.active,'Claw of Darkness',o)){
         const known=[...slots(o.ownPublic).map(row=>row.p),...L(o.ownHand),...L(o.ownPublic?.discard)];
         const k=o.ownerK1;
@@ -797,7 +800,7 @@ function bombPlanner(o,sourceBenchIndex){
         const possibleUnown=4-known.filter(isUn).length-counted(isUn);
         // Do not spend a singleton Energy merely to expose a three-Prize
         // Gengar while an already-funded Mega can take the normal attack.
-        if(possibleUnown>0)return 345;
+        if(possibleUnown>0)return isGengar(p)?355:345;
       }
       if(isGengar(p)&&first(o)&&o.ownPublic?.publicTurnRestrictions?.gxUsed!==true&&payable(p,['psychic'],-1,o)!==true&&payable(next,['psychic'],-1,o)===true)return 300;
       return 0;
