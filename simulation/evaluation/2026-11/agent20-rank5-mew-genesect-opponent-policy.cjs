@@ -528,10 +528,10 @@ function secretBoxDecision(prompt, choices, observation, minimum, maximum) {
     if (candidates.length) selected.push(candidates[0].choice);
   }
   if (selected.length < minimum) {
-    return { kind: 'abstain', reasonCode: 'SECRET_BOX_REQUIRED_CATEGORY_MISSING' };
+    return { kind: 'abstain', reasonCode: 'NO_SUPPORTED_CARD_SELECTION' };
   }
   const bounded = selected.slice(0, maximum);
-  if (!bounded.length) return { kind: 'abstain', reasonCode: 'SECRET_BOX_NO_SEARCH_TARGETS' };
+  if (!bounded.length) return { kind: 'abstain', reasonCode: 'NO_SUPPORTED_CARD_SELECTION' };
   return { kind: 'select-choices', tokens: bounded.map(choice => choice.token) };
 }
 
@@ -564,7 +564,7 @@ function promptDecision(request) {
         remainingHp(observation.ownPublic?.active) <= 210) {
       return { kind: 'select-choice', token: leap.token };
     }
-    return { kind: 'abstain', reasonCode: 'NO_SUPPORTED_COPIED_ATTACK' };
+    return { kind: 'abstain', reasonCode: 'NO_VISIBLE_ATTACK_CHOICE' };
   }
 
   if (prompt.promptType === 'ChooseCardsPrompt') {
@@ -578,7 +578,7 @@ function promptDecision(request) {
           choiceOwner(choice) === 'actor' && choiceZone(choice) === 'hand');
         return multiSelectDecision(prompt, handChoices.map(choice => ({
           choice, score: scoreDiscardCard(choice, observation)
-        })), minimum, maximum, 'NO_SAFE_DISCARD_COST');
+        })), minimum, maximum, 'NO_LEGAL_CARD_SET');
       }
 
       if (/secret box/i.test(source) &&
@@ -587,7 +587,7 @@ function promptDecision(request) {
           choiceOwner(choice) === 'actor' && choiceZone(choice) === 'hand');
         return multiSelectDecision(prompt, handChoices.map(choice => ({
           choice, score: scoreDiscardCard(choice, observation)
-        })), minimum, maximum, 'SECRET_BOX_COST_UNAVAILABLE');
+        })), minimum, maximum, 'NO_LEGAL_CARD_SET');
       }
 
       if (/star alchemy|forest seal stone/i.test(source)) {
@@ -595,7 +595,7 @@ function promptDecision(request) {
           choiceZone(choice) === 'deck');
         return multiSelectDecision(prompt, targets.map(choice => ({
           choice, score: scoreSearchChoice(choice, observation, 'forest-seal-stone')
-        })), minimum, maximum, 'NO_FOREST_SEAL_SEARCH_TARGET');
+        })), minimum, maximum, 'NO_USEFUL_CARD_CHOICE');
       }
 
       if (/battle vip pass/i.test(source)) {
@@ -603,7 +603,7 @@ function promptDecision(request) {
           choiceZone(choice) === 'deck');
         return multiSelectDecision(prompt, targets.map(choice => ({
           choice, score: scoreSearchChoice(choice, observation, 'battle-vip-pass')
-        })), minimum, maximum, 'NO_BENCH_SETUP_TARGETS');
+        })), minimum, maximum, 'NO_USEFUL_CARD_CHOICE');
       }
 
       if (/secret box/i.test(source)) {
@@ -616,7 +616,7 @@ function promptDecision(request) {
         const targets = choices.filter(choice => choiceOwner(choice) === 'opponent');
         return multiSelectDecision(prompt, targets.map(choice => ({
           choice, score: targetToolScore(choice, observation)
-        })), minimum, maximum, 'NO_FIELD_BLOWER_TARGETS');
+        })), minimum, maximum, 'NO_USEFUL_CARD_CHOICE');
       }
 
       if (/special charge/i.test(source)) {
@@ -624,7 +624,7 @@ function promptDecision(request) {
           choiceZone(choice) === 'discard');
         return multiSelectDecision(prompt, targets.map(choice => ({
           choice, score: scoreSearchChoice(choice, observation, 'special-charge')
-        })), minimum, maximum, 'NO_DCE_TO_RECOVER');
+        })), minimum, maximum, 'NO_USEFUL_CARD_CHOICE');
       }
 
       if (/energy mix/i.test(source)) {
@@ -632,10 +632,10 @@ function promptDecision(request) {
           choiceZone(choice) === 'deck');
         return multiSelectDecision(prompt, targets.map(choice => ({
           choice, score: scoreSearchChoice(choice, observation, 'energy-mix')
-        })), minimum, maximum, 'NO_DCE_IN_DECK');
+        })), minimum, maximum, 'NO_USEFUL_CARD_CHOICE');
       }
 
-      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_MULTI_SELECT_SOURCE' };
+      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_COMBINATION_SOURCE' };
     }
 
     if (/quick ball|lost vacuum/i.test(source) &&
@@ -643,62 +643,62 @@ function promptDecision(request) {
       const handChoices = choices.filter(choice =>
         choiceOwner(choice) === 'actor' && choiceZone(choice) === 'hand');
       return singleChoice(prompt, handChoices,
-        choice => scoreDiscardCard(choice, observation), 'NO_SAFE_DISCARD_COST');
+        choice => scoreDiscardCard(choice, observation), 'NO_LEGAL_CARD_SET');
     }
     if (/ultra ball/i.test(source) &&
         choices.some(choice => choiceOwner(choice) === 'actor' && choiceZone(choice) === 'hand')) {
       const handChoices = choices.filter(choice =>
         choiceOwner(choice) === 'actor' && choiceZone(choice) === 'hand');
       return singleChoice(prompt, handChoices,
-        choice => scoreDiscardCard(choice, observation), 'NO_SAFE_DISCARD_COST');
+        choice => scoreDiscardCard(choice, observation), 'NO_LEGAL_CARD_SET');
     }
     if (/star alchemy|forest seal stone/i.test(source)) {
       return singleChoice(prompt, choices.filter(choice =>
         choiceOwner(choice) === 'actor' && choiceZone(choice) === 'deck'),
       choice => scoreSearchChoice(choice, observation, 'forest-seal-stone'),
-      'NO_FOREST_SEAL_SEARCH_TARGET');
+      'NO_USEFUL_CARD_CHOICE');
     }
     if (/wally/i.test(source)) {
       return singleChoice(prompt, choices, choice =>
-        scoreSearchChoice(choice, observation, 'wally'), 'NO_MEW_VMAX_WALLY_TARGET');
+        scoreSearchChoice(choice, observation, 'wally'), 'NO_USEFUL_CARD_CHOICE');
     }
     if (/ultra ball/i.test(source)) {
       return singleChoice(prompt, choices, choice =>
-        scoreSearchChoice(choice, observation, 'ultra-ball'), 'NO_POKEMON_SEARCH_TARGET');
+        scoreSearchChoice(choice, observation, 'ultra-ball'), 'NO_USEFUL_CARD_CHOICE');
     }
     if (/quick ball/i.test(source)) {
       return singleChoice(prompt, choices, choice =>
-        scoreSearchChoice(choice, observation, 'quick-ball'), 'NO_BASIC_SEARCH_TARGET');
+        scoreSearchChoice(choice, observation, 'quick-ball'), 'NO_USEFUL_CARD_CHOICE');
     }
     if (/battle vip pass/i.test(source)) {
       return singleChoice(prompt, choices, choice =>
-        scoreSearchChoice(choice, observation, 'battle-vip-pass'), 'NO_BENCH_SETUP_TARGET');
+        scoreSearchChoice(choice, observation, 'battle-vip-pass'), 'NO_USEFUL_CARD_CHOICE');
     }
     if (/trainers' mail/i.test(source)) {
       return singleChoice(prompt, choices, choice =>
-        scoreSearchChoice(choice, observation, 'trainers-mail'), 'NO_TRAINER_MAIL_TARGET');
+        scoreSearchChoice(choice, observation, 'trainers-mail'), 'NO_USEFUL_CARD_CHOICE');
     }
     if (/vs seeker/i.test(source)) {
       return singleChoice(prompt, choices, choice =>
-        scoreSearchChoice(choice, observation, 'vs-seeker'), 'NO_SUPPORTER_RECOVERY_TARGET');
+        scoreSearchChoice(choice, observation, 'vs-seeker'), 'NO_USEFUL_CARD_CHOICE');
     }
     if (/special charge/i.test(source)) {
       return singleChoice(prompt, choices, choice =>
-        scoreSearchChoice(choice, observation, 'special-charge'), 'NO_DCE_TO_RECOVER');
+        scoreSearchChoice(choice, observation, 'special-charge'), 'NO_USEFUL_CARD_CHOICE');
     }
     if (/hisui(an)? heavy ball/i.test(source)) {
       return singleChoice(prompt, choices, choice =>
-        scoreSearchChoice(choice, observation, 'hisui-heavy-ball'), 'NO_BASIC_POKEMON_IN_PRIZES');
+        scoreSearchChoice(choice, observation, 'hisui-heavy-ball'), 'HIDDEN_PRIZE_IDENTITY');
     }
     if (/energy mix/i.test(source)) {
       return singleChoice(prompt, choices, choice =>
-        scoreSearchChoice(choice, observation, 'energy-mix'), 'NO_DCE_IN_DECK');
+        scoreSearchChoice(choice, observation, 'energy-mix'), 'NO_USEFUL_CARD_CHOICE');
     }
     if (/field blower|lost vacuum/i.test(source)) {
       return singleChoice(prompt, choices, choice => targetToolScore(choice, observation),
-        'NO_OPPONENT_TOOL_OR_STADIUM');
+        'NO_USEFUL_CARD_CHOICE');
     }
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_SINGLE_CARD_PROMPT' };
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_COMBINATION_SOURCE' };
   }
 
   if (prompt.promptType === 'ChoosePokemonPrompt') {
@@ -711,25 +711,25 @@ function promptDecision(request) {
           if (matches(row.pokemon.printing, PRINT.mewV)) return 160;
           if (matches(row.pokemon.printing, PRINT.genesect)) return 80;
           return 0;
-        }, 'NO_FUSION_STRIKE_ENERGY_TARGET');
+        }, 'NO_VISIBLE_POKEMON_TARGET');
     }
     if (/guzma/i.test(source)) {
       const opponentChoices = choices.filter(choice => choiceOwner(choice) === 'opponent');
       if (opponentChoices.length) {
         return singleChoice(prompt, opponentChoices,
-          choice => opponentPokemonScore(choice, observation, expectedMewDamage(observation)), 'NO_GUZMA_TARGET');
+          choice => opponentPokemonScore(choice, observation, expectedMewDamage(observation)), 'NO_VISIBLE_POKEMON_TARGET');
       }
       return singleChoice(prompt, choices,
-        choice => ownSwitchScore(choice, observation), 'NO_GUZMA_SWITCH_TARGET');
+        choice => ownSwitchScore(choice, observation), 'NO_VISIBLE_POKEMON_TARGET');
     }
     if (/escape rope/i.test(source)) {
       const opponentChoices = choices.filter(choice => choiceOwner(choice) === 'opponent');
       if (opponentChoices.length) {
         return singleChoice(prompt, opponentChoices,
-          choice => opponentPokemonScore(choice, observation, expectedMewDamage(observation)), 'NO_ESCAPE_ROPE_TARGET');
+          choice => opponentPokemonScore(choice, observation, expectedMewDamage(observation)), 'NO_VISIBLE_POKEMON_TARGET');
       }
       return singleChoice(prompt, choices,
-        choice => ownSwitchScore(choice, observation), 'NO_ESCAPE_ROPE_SWITCH_TARGET');
+        choice => ownSwitchScore(choice, observation), 'NO_VISIBLE_POKEMON_TARGET');
     }
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_POKEMON_PROMPT' };
   }
@@ -738,9 +738,9 @@ function promptDecision(request) {
     if (/energy mix/i.test(source)) {
       return singleChoice(prompt, choices.filter(choice =>
         choiceOwner(choice) === 'actor' && choiceZone(choice) === 'deck'),
-      choice => matches(choice, PRINT.dce) ? 220 : 0, 'NO_DCE_IN_DECK');
+      choice => matches(choice, PRINT.dce) ? 220 : 0, 'NO_USEFUL_CARD_CHOICE');
     }
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_ENERGY_PROMPT' };
+    return { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ENERGY_PAYMENT' };
   }
 
   if (prompt.promptType === 'ChoosePrizePrompt') {
@@ -749,7 +749,7 @@ function promptDecision(request) {
       if (matches(printing, PRINT.mewVMAX)) return 230;
       if (matches(printing, PRINT.genesect) || matches(printing, PRINT.mewV)) return 180;
       return 20;
-    }, 'NO_KNOWN_PRIZE_IDENTITY');
+    }, 'HIDDEN_PRIZE_IDENTITY');
   }
 
   if (prompt.promptType === 'ConfirmPrompt' ||
@@ -765,7 +765,7 @@ function promptDecision(request) {
       (/dark asset/i.test(source) && handCount(observation) < 6 && ownDeckCount(observation) > 0);
     if (accept && yes) return { kind: 'select-choice', token: yes.token };
     if (no) return { kind: 'select-choice', token: no.token };
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_OPTIONAL_PROMPT' };
+    return { kind: 'abstain', reasonCode: 'UNRECOGNIZED_SIMPLE_PROMPT' };
   }
 
   return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
@@ -1072,6 +1072,18 @@ function bestAction(request) {
     { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ACTION' };
 }
 
+// The current actor protocol requires select-choices for multi-select
+// classes (cards, Pokémon, Energy payment), even at cardinality one.
+function currentPromptDecision(prompt,decision) {
+  if(!prompt||decision?.kind!=='select-choice')return decision;
+  const chosen=prompt.choices.find(choice=>choice.token===decision.token);
+  if(!chosen||chosen.kind==='cancel'||chosen.kind==='empty-selection')return decision;
+  const type=prompt.publicMetadata?.selectionType;
+  if(['card-combination','pokemon','energy-payment','prize-slots','card-order'].includes(type))
+    return {kind:'select-choices',tokens:[decision.token]};
+  return decision;
+}
+
 function createPolicy({ role, seat, policyVersion, config }) {
   if (role !== 'opponent' || (seat !== 0 && seat !== 1) ||
       policyVersion !== POLICY_VERSION || !config ||
@@ -1086,7 +1098,7 @@ function createPolicy({ role, seat, policyVersion, config }) {
           request.observation?.actorSeat !== seat) {
         return { kind: 'abstain', reasonCode: 'ROLE_SEAT_BINDING_MISMATCH' };
       }
-      if (request.prompt !== null) return promptDecision(request);
+      if (request.prompt !== null) return currentPromptDecision(request.prompt,promptDecision(request));
       return bestAction(request);
     }
   });
