@@ -61,6 +61,12 @@ Rank 15's authenticated source 60 has **two Mega Lopunny ex PFL 84**, two **Guzm
 
 Thus the proposed KO may create a **one-Prize-for-one-Prize exchange while AOR Item lock remains**, not a winning lock-release. The correct follow-up evaluation must classify the source's funded Mega Lopunny reply and remaining lock support. The source's Energy availability, hand, turn, attack choice and usable switch effects cannot be inferred from list membership alone.
 
+## Second source family: rank-2 Stoutland Supporter lock
+
+The same Stage-2 attack condition is not restricted to rank 15. Authenticated **rank 2 Vileplume Control** has **2 AOR Vileplume** (Item lock) and **1 Stoutland BCR 122**. Stoutland is a **140-HP Stage 2** whose **Sentinel** prevents the opponent from playing Supporters while it is Active. An already funded Active Dusknoir can use **Shadow Bind 150** to Knock Out that Stoutland *without playing an Item or Supporter*, restoring Supporter access when the Stoutland lock source leaves play. Item lock can remain via AOR.
+
+The timing fork is particularly harsh here: Stoutland's printed **Wild Tackle [C][C][C] 90** reaches **exactly the 90 HP of an Active Dusclops SFA 19**. A funded Stoutland can therefore KO the Stage-1 Powerglass carrier **before** the candidate evolves it on the following turn (irrespective of Wild Tackle's optional 20 self-damage coin flip). A ready *Benched* Dusclops can avoid being the Active attack target until it is prepared to evolve/promote, subject to rank-2 gust, retreat, Item lock, Tool access and Energy-development constraints. This is a new conditional cross-rank reason to consider v3, **not** evidence that the line is commonly available or actually overcomes rank 2.
+
 ## Minimum decisive experiment
 
 Keep v2 and v3 fixed, use the **exact original rank-15 60**, both physical seats and actual first-turn strata, and an **actor-visible policy** capable of choosing between evolve/attach/promote/Shadow Bind and the original Jammer/Cursed Blast attack sequence. The source must actively pursue AOR+BUS+Hood where legal, make sensible retreat/gust choices, and exploit the opponent's Prize clock. Classify: (a) natural joint-lock exposure; (b) whether Dusknoir could legally evolve and pay [P][P][C] before opponent closure; (c) legal alternative responses including Hooded Clefairy and gust; (d) exact self-KO Prize consumption; (e) naturally adjudicated outcome with complete traces. A staged proof of the 150-damage attack alone is mechanics evidence, not matchup competence.
