@@ -158,6 +158,33 @@ test('rank14 setup keeps Squawkabilly, Oricorio and Tapu Lele as future on-play 
 });
 
 
+test('rank14 VS Seeker recovers playable late Carmine instead of dead Guzma',()=>{
+  for(const seat of [0,1]) {
+    const own=board({active:pokemon(R,{energies:[E,'Grass Energy MEE 9']}),
+      discard:['Carmine TWM 145','Guzma BUS 115']});
+    const items=[action('vs','play-card','VS Seeker PHF 109'),action('pass','pass')];
+    const req=request({seat,turn:5,own,hand:['VS Seeker PHF 109'],items});
+    assert.deepEqual(rank14.bestAction(req),{kind:'select-action',token:'vs'});
+    const prompt={
+      promptType:'ChooseCardsPrompt',
+      source:{sourcePrinting:'VS Seeker PHF 109',effectName:'VS Seeker'},
+      choices:[
+        {token:'g',kind:'card',printing:'Guzma BUS 115'},
+        {token:'c',kind:'card',printing:'Carmine TWM 145'}
+      ],
+      publicMetadata:{selectionType:'card-combination',sourceZone:'discard',
+        minimumCount:1,maximumCount:1}
+    };
+    assert.deepEqual(rank14.promptDecision({...req,prompt}),
+      {kind:'select-choices',tokens:['c']});
+    own.discard=['Guzma BUS 115'];
+    assert.deepEqual(rank14.bestAction(req),{kind:'select-action',token:'pass'});
+    own.discard=['Carmine TWM 145'];
+    req.observation.ownHand=['VS Seeker PHF 109',E];
+    assert.deepEqual(rank14.bestAction(req),{kind:'select-action',token:'pass'});
+  }
+});
+
 test('Carmine remains a low-hand Supporter after turn one, with DDE protection',()=>{
   const items=[action('carmine','play-card','Carmine TWM 145'),
     action('pass','pass')];
