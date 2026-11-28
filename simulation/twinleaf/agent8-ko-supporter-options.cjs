@@ -12,8 +12,14 @@ function previousTurnResponseOptions(view,receipt,isBasicEnergy){
   assert.equal(view.actorSeat,receipt.actorSeat);
   assert.equal(view.globalTurn,receipt.turn);
   const ko=receipt.priorOpponentTurnKO;
-  const hasFreshPriorOpponentTurnKO=Number.isSafeInteger(view.globalTurn)&&
-    view.globalTurn>1&&ko?.any===true&&ko.turn===view.globalTurn-1;
+  // Freshness is relative to the *latest completed opponent-owned turn*.
+  // The actor may have taken an extra turn since that event.
+  const certified=receipt.opponentLastTurnOwnerCertified===true &&
+    Number.isSafeInteger(receipt.opponentLastTurnTurn)&&
+    receipt.opponentLastTurnTurn>=0&&
+    receipt.opponentLastTurnTurn<view.globalTurn;
+  const hasFreshPriorOpponentTurnKO=certified&&ko?.any===true&&
+    ko.turn===receipt.opponentLastTurnTurn;
   if(view.decisionKind!=='owner-root'||
      !hasFreshPriorOpponentTurnKO||
      view.ownTurnResources.supporterPlayedTurn>0||
