@@ -622,9 +622,18 @@ function chooseCardCombination(view, prompt) {
     choice.publicMetadata?.ownerSeat === 'actor' &&
     choice.publicMetadata?.isOwnerVisible === true);
   const minimum = metadata.minimumCount;
-  const maximum = metadata.maximumCount;
+  let maximum = metadata.maximumCount;
   if (!Number.isSafeInteger(minimum) || !Number.isSafeInteger(maximum) ||
       minimum < 0 || maximum < minimum) return abstain('BAD_CARD_SELECTION_BOUNDS');
+  if (prompt.source?.effectName === 'Climactic Gate' &&
+      prompt.source?.sourcePrinting === 'Radiant Eternatus CRZ 105') {
+    // Radiant is already Benched at this native prompt; do not choose more
+    // VMAX than the remaining ordinary Bench slots (Sky Field can expand it).
+    const skyField = [...view.ownPublic.stadium, ...view.opponentPublic.stadium]
+      .some(name => hasName(name, 'Sky Field'));
+    const cap = skyField ? 8 : 5;
+    maximum = Math.min(maximum, Math.max(0, cap - countBench(view.ownPublic)));
+  }
 
   if (metadata.sourceZone === 'prizes' && choices.length === 0) {
     return abstain('HIDDEN_PRIZE_IDENTITY');
