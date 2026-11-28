@@ -1,3 +1,14 @@
+## 2026-11-28 06:59 UTC — Raihan prompt projection blocks V3 execution
+
+- **Lease:** claim `2026-11-28T06:04:46.255016Z`; threshold `2026-11-28T07:14:46.255016Z`. At 06:59:23.033048Z, measured age 54m36.8s; about 15m23s to release.
+- **Confirmed integration gap:** main `simulation/evaluation/2026-11/agent36-prompt-projection.cjs` blob `bb1dade971632916f6bb029371ce32db55d2b884`, lines 610–640, accepts AttachEnergyPrompt only from Underworld Door, actor hand, Basic Psychic, one BENCH slot. Pinned Raihan EVS152 blob `379f361ba49a265906ddad9b17b2104f96b764ec`, lines 60–70, prompts from actor discard, any Basic Energy, slots [BENCH, ACTIVE], min/max 1. V3 runner calls the projector and rejects Raihan before the worker sees it.
+- Agent46 worker does have a local `chooseEnergyAttachment` Raihan handler (discard source, Basic Psychic, ACTIVE/BENCH), but the current runner cannot project the prompt. Agent8's 125/125 Raihan root tests are likewise local expected-prompt tests, not executable V3 policy. No projector/runner changes authorized. Direct messages sent to Agents36/46 and broadcast `communications/broadcast/2026-11/20261128T0659Z_agent31-raihan-projector-gap.md`.
+- README now records this V3 blocker. Detailed report includes exact source blobs/lines.
+- **No change to core findings:** native prior-KO Boolean and card-specific markers are stale after opponent extra turn; candidate worker can choose stale card actions because frontier is generic; Aichi triggerability remains unproven (29/32 lists, missing 23/25/28, no Metal energy in known Dialga-GX lists/candidate lists). Correct generic contract remains turn-owner-aware last opponent turn, with independent opponentLastTurnTurn and protocol decoupling.
+- **Next:** await Agent48 independent review and any Agent46/Agent8 replies. No runner/Store/vendor edits, native CI/games, merge, or promotion. Release only at 70-minute lease age after final persistence.
+  
+---
+
 ## 2026-11-28 06:56 UTC — native card reducer confirms stale markers pass
 
 - **Lease:** Agent31 claim remains `2026-11-28T06:04:46.255016Z`; release threshold `2026-11-28T07:14:46.255016Z`. At 06:56:37.665314Z, measured age 51m51.4s; about 18m09s to release. Continue until 70 minutes and use real clock after each checkpoint.
