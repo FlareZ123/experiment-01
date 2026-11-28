@@ -59,3 +59,41 @@ for (const seat of [0, 1]) for (const [label, n, labyrinth, want] of [
   assert.deepEqual(result.policyAudit.evaluations.map(x => x.token),
     input.actionFrontier.items.map(x => x.token));
 });
+
+
+for (const seat of [0, 1]) for (const lastApex of [false, true]) {
+  test('Wondrous Mimikyu Copycat funding with last-attack receipt=' +
+    lastApex + ' seat ' + seat, () => {
+    const active = poke('Mimikyu GRI 58', 70, 'Psychic', 2, [
+      { name: 'Copycat', cost: ['Psychic', 'Colorless'], damage: '' }
+    ]);
+    const own = side(active);
+    own.discard = ['Dialga-GX UPR 100'];
+    const other = side(poke('Regidrago VSTAR SIT 136', 280,
+      'Dragon', 0, []), ['Wondrous Labyrinth ◇ TEU 158']);
+    const input = {
+      role: 'candidate', seat, prompt: null,
+      publicEventReceipt: lastApex ? { opponentCopycatChoices: [
+        { attackName: 'Apex Dragon', sourcePrinting: 'Regidrago VSTAR SIT 136' }
+      ] } : null,
+      observation: {
+        actorSeat: seat, decisionKind: 'owner-root',
+        ownHand: ['Psychic Energy MEE 13'], ownPublic: own,
+        opponentPublic: other,
+        ownTurnResources: { supporterPlayedTurn: 0 }
+      },
+      actionFrontier: { items: [
+        { token: 'attach-mimikyu', kind: 'play-card',
+          actorPrinting: 'Psychic Energy MEE 13', targetPrinting: active.printing,
+          publicMetadata: { targetSeat: 'actor', targetZone: 'active' } },
+        { token: 'pass', kind: 'pass' }
+      ] }
+    };
+    const expected = lastApex ? 'attach-mimikyu' : 'pass';
+    const got = createPolicy({
+      role: 'candidate', seat, policyVersion: POLICY_VERSION, config: {}
+    }).decideWithAudit(input);
+    assert.deepEqual(got.decision, { kind: 'select-action', token: expected });
+    assert.deepEqual(got.policyAudit.selectedTokens, [expected]);
+  });
+}
