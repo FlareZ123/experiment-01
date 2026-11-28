@@ -209,6 +209,13 @@ check('Benched Dusclops receives second Psychic rather than promoting unpaid att
  targetIndex:0},{targetPrinting:'Dusclops SFA 019'});
  assert.equal(sel(root(v,[retreat,attach,pass()])),'attach-2');
 });
+const copiedHorror=(index=0,token='copied-horror')=>
+ action('attack',token,{attackCostPayable:true,attackSource:{
+ sourceKind:'bench-pokemon',sourceSlot:'BENCH',sourceIndex:index,
+ sourceCardName:'Gengar & Mimikyu-GX',
+ sourceCardFullName:'Gengar & Mimikyu-GX TEU 053',
+ attackName:'Horror House-GX'
+ }},{actorPrinting:'Gengar & Mimikyu-GX TEU 053',attackName:'Horror House-GX'});
 check('Mewtwo benches its actual held Gengar before Fog, FSS or Perfection',()=>{
  const v=earlyStart(makeSlot('Mewtwo & Mew-GX UNM 071',
   {abilities:['Perfection'],energies:['Basic Psychic Energy']}),
@@ -219,8 +226,10 @@ check('Mewtwo benches its actual held Gengar before Fog, FSS or Perfection',()=>
  const fog=action('play-card','fog',{}, {actorPrinting:'Fog Crystal CRE 140'});
  assert.equal(sel(root(v,[fog,donor,pass()])),'donor');
  v.ownPublic.bench.push(makeSlot('Gengar & Mimikyu-GX TEU 053'));
- const perf=action('use-ability','perf',{abilityName:'Perfection',sourceZone:'active'});
- assert.equal(sel(root(v,[perf,pass()])),'perf');
+ const copy=copiedHorror(1);
+ const falseAbility=action('use-ability','perf',{abilityName:'Perfection',sourceZone:'active'});
+ assert.equal(sel(root(v,[copy,falseAbility,pass()])),'copied-horror');
+ assert.equal(sel(root(v,[falseAbility,pass()])),'abstain');
 });
 check('Mewtwo does not bench held donor on an already-full Bench',()=>{
  const v=earlyStart(makeSlot('Mewtwo & Mew-GX UNM 071',
@@ -428,18 +437,39 @@ check('Horror House with extra Psychic energy must not auto-refill enemy hand',(
    {energies:['Basic Psychic Energy','Telepathic Psychic Energy']}));
  assert.equal(sel(root(v,[hh,pass()])),'abstain');
 });
-check('early Mewtwo Perfection route uses actually live ability and Gengar donor',()=>{
+check('Mewtwo copies a Benched Gengar direct native attack, never an announced Perfection Ability',()=>{
  const active=makeSlot('Mewtwo & Mew-GX UNM 071',{abilities:['Perfection'],
   energies:['Telepathic Psychic Energy']});
- const v=earlyStart(active,{discard:['Gengar & Mimikyu-GX TEU 053']});
- const offer=action('use-ability','perfection',{abilityName:'Perfection',sourceZone:'active'});
- assert.equal(sel(root(v,[offer,pass()])),'perfection');
+ const v=earlyStart(active,{bench:[makeSlot('Gengar & Mimikyu-GX TEU 053')]});
+ const actualCopy=copiedHorror(0);
+ const fakeAbility=action('use-ability','bad-perf',{abilityName:'Perfection',sourceZone:'active'});
+ assert.equal(sel(root(v,[fakeAbility,actualCopy,pass()])),'copied-horror');
+ assert.equal(sel(root(v,[fakeAbility,pass()])),'abstain');
  const noDonor=earlyStart(active);
- assert.equal(sel(root(noDonor,[offer,pass()])),'abstain');
+ assert.equal(sel(root(noDonor,[actualCopy,pass()])),'abstain');
  v.ownPublic.active.abilitySuppressions=[{abilityName:'Perfection',suppressed:true}];
- assert.equal(sel(root(v,[offer,pass()])),'abstain');
+ assert.equal(sel(root(v,[actualCopy,pass()])),'abstain');
 });
-check('Perfection choose prompt targets Gengar Horror House and refuses another GX',()=>{
+check('Mewtwo copied attack requires exact donor Bench index and native attack source',()=>{
+ const active=makeSlot('Mewtwo & Mew-GX UNM 071',{abilities:['Perfection'],
+  energies:['Basic Psychic Energy']});
+ const v=earlyStart(active,{bench:[makeSlot('Galarian Articuno V CRE 058'),
+  makeSlot('Gengar & Mimikyu-GX TEU 053')]});
+ assert.equal(sel(root(v,[copiedHorror(0),pass()])),'abstain');
+ assert.equal(sel(root(v,[copiedHorror(1),pass()])),'copied-horror');
+ const bad=copiedHorror(1,'bad-source');
+ bad.publicMetadata.attackSource.sourceCardFullName='Unown AOR 030';
+ assert.equal(sel(root(v,[bad,pass()])),'abstain');
+});
+check('Perfection donor in discard is legal on paper but currently unprojected by native attack adapter',()=>{
+ const active=makeSlot('Mewtwo & Mew-GX UNM 071',{abilities:['Perfection'],
+  energies:['Basic Psychic Energy']});
+ const v=earlyStart(active,{discard:['Gengar & Mimikyu-GX TEU 053']});
+ const madeUp=action('attack','unproven',{attackCostPayable:true},
+  {actorPrinting:'Gengar & Mimikyu-GX TEU 053',attackName:'Horror House-GX'});
+ assert.equal(sel(root(v,[madeUp,pass()])),'abstain');
+});
+check('Passive Perfection does not cause an invented ChooseAttackPrompt',()=>{
  const active=makeSlot('Mewtwo & Mew-GX UNM 071',{abilities:['Perfection'],
    energies:['Basic Psychic Energy']});
  const v=earlyStart(active,{discard:['Gengar & Mimikyu-GX TEU 053']});
@@ -447,7 +477,7 @@ check('Perfection choose prompt targets Gengar Horror House and refuses another 
   {kind:'attack',token:'duo',printing:'Mewtwo & Mew-GX UNM 071',publicMetadata:{sourceAttack:'Miraculous Duo-GX',ownerSeat:'actor',isOwnerVisible:true}},
   {kind:'attack',token:'horror',printing:'Gengar & Mimikyu-GX TEU 053',publicMetadata:{sourceAttack:'Horror House-GX',ownerSeat:'actor',isOwnerVisible:true}}
  ];
- assert.equal(sel(prompt(v,'Perfection','ChooseAttackPrompt',{selectionType:'attack'},candidates)),'horror');
+ assert.equal(sel(prompt(v,'Perfection','ChooseAttackPrompt',{selectionType:'attack'},candidates)),'abstain');
  assert.equal(sel(prompt(v,'Perfection','ChooseAttackPrompt',{selectionType:'attack'},candidates.slice(0,1))),'abstain');
 });
 check('Perfection prompt rejects a hidden or foreign Horror House selection',()=>{

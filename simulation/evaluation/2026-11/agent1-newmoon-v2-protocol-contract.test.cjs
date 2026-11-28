@@ -76,6 +76,14 @@ const play=(token,printing,zone=null)=>({
 const willow=()=>({token:'willow',kind:'attack',attackName:'Will-O-Wisp',
  actorPrinting:'Dusclops SFA 019',publicMetadata:{attackCostPayable:true}});
 const pass=()=>({token:'pass',kind:'pass'});
+const copiedGengarHorror=(token,index)=>({token,kind:'attack',
+ actorPrinting:'Gengar & Mimikyu-GX TEU 053',attackName:'Horror House-GX',
+ publicMetadata:{attackCostPayable:true,attackSource:{
+   sourceKind:'bench-pokemon',sourceSlot:'BENCH',sourceIndex:index,
+   sourceCardName:'Gengar & Mimikyu-GX',
+   sourceCardFullName:'Gengar & Mimikyu-GX TEU 053',attackName:'Horror House-GX'
+ }}});
+
 function pokemonPrompt(effectName,sourcePrinting,choices) {
  return {schema:P.PROMPT_SCHEMA,actingSeat:0,promptType:'ChoosePokemonPrompt',
   description:'Choose a target',
@@ -333,11 +341,20 @@ function test() {
    {kind:'select-action',token:'horror-house'},'native Gengar hand lock over raw damage');
  const mew=slot('Mewtwo & Mew-GX UNM 071','Mewtwo & Mew-GX',['Perfection'],[],1);
  mew.printed.stage='Basic';mew.printed.subtypes=['Basic','TAG TEAM','GX'];
- const earlyMew=view({active:mew,bench:[],
+ const earlyMew=view({active:mew,
+   bench:[slot('Gengar & Mimikyu-GX TEU 053','Gengar & Mimikyu-GX')],
    bus:slot('Bunnelby PRC 121','Bunnelby'),oppBench:[]});
- earlyMew.globalTurn=2;earlyMew.ownPublic.discard=['Gengar & Mimikyu-GX TEU 053'];
+ earlyMew.globalTurn=2;
+ same(run(earlyMew,[use('perfection','Perfection','active'),
+   copiedGengarHorror('horror-copy',0),pass()]),
+  {kind:'select-action',token:'horror-copy'},
+  'Passive Perfection selects native copied ATTACK_ACTION from actual Gengar Bench');
  same(run(earlyMew,[use('perfection','Perfection','active'),pass()]),
-  {kind:'select-action',token:'perfection'},'Perfection active donor route');
+  {kind:'abstain',reasonCode:'NO_SUPPORTED_ACTION'},
+  'Perfection is not an activateable Ability action');
+ same(run(earlyMew,[copiedGengarHorror('stale-copy',1),pass()]),
+  {kind:'abstain',reasonCode:'NO_SUPPORTED_ACTION'},
+  'reject wrong donor Bench source index');
  const attackChoice=(token,printing,sourceAttack,index)=>({token,kind:'attack',
    printing,label:sourceAttack,
    publicMetadata:{selectionType:'attack',choiceIndex:index,sourceAttack,
@@ -350,7 +367,8 @@ function test() {
      attackChoice('poltergeist','Gengar & Mimikyu-GX TEU 053','Poltergeist',0)],
    publicMetadata:{selectionType:'attack',count:2,allowCancel:false}};
  same(run(earlyMew,[],perfectionPrompt),
-  {kind:'select-choice',token:'horror'},'Perfection native prompt chooses correct GX attack');
+  {kind:'abstain',reasonCode:'NO_SUPPORTED_ACTION'},
+  'passive Perfection cannot fabricate a ChooseAttackPrompt');
  const extra=view({active:slot('Gengar & Mimikyu-GX TEU 053','Gengar & Mimikyu-GX',
      [],[],2),bench:[],bus:slot('Bunnelby PRC 121','Bunnelby'),oppBench:[]});
  extra.globalTurn=2;
@@ -505,9 +523,10 @@ function test() {
   {kind:'select-action',token:'gengar-from-hand'},
   'Mewtwo plays held donor, does not waste global FSS search');
  donorInHand.ownPublic.bench.push(slot('Gengar & Mimikyu-GX TEU 053','Gengar & Mimikyu-GX'));
- same(run(donorInHand,[use('perfection','Perfection','active'),pass()]),
-  {kind:'select-action',token:'perfection'},
-  'Perfection becomes live after actual donor Bench transition');
+ same(run(donorInHand,[copiedGengarHorror('copied-after-bench',1),
+    use('perfection','Perfection','active'),pass()]),
+  {kind:'select-action',token:'copied-after-bench'},
+  'after Benching donor, passive Perfection copies direct native Gengar attack');
  const heldJammer=view({active:dus(),bench:[dus(),sealHost],
   hand:['Tool Jammer BST 136']});
  same(run(heldJammer,[use('star','Star Alchemy','bench',1),pass()]),

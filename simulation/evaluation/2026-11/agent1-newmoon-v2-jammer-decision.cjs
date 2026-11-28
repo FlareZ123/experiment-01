@@ -1,6 +1,6 @@
 'use strict';
 /* Research-only actor-visible decision slice; NOT a full candidate worker or game policy. */
-const POLICY_VERSION = 'agent1-newmoon-tool-jammer-v2-slice-v6';
+const POLICY_VERSION = 'agent1-newmoon-tool-jammer-v2-slice-v7';
 const DECK_SHA = 'aebe9a142e8492be929316bff4b871375e3e478945e01f8c5844037332634fe6';
 const has = (s,n) => typeof s === 'string' && s.includes(n);
 const slots = p => [p?.active,...(Array.isArray(p?.bench)?p.bench:[])].filter(Boolean);
@@ -80,39 +80,38 @@ function chooseEarlyHorrorHouse(view,items) {
   if (has(active?.printing,'Gengar & Mimikyu-GX')) {
     const attack=items.find(x=>x.kind==='attack' &&
       x.attackName==='Horror House-GX' &&
-      (!x.actorPrinting || x.actorPrinting===active.printing));
+      (!x.actorPrinting || x.actorPrinting===active.printing) &&
+      (!x.publicMetadata?.attackSource ||
+       (x.publicMetadata.attackSource.sourceKind==='active-pokemon' &&
+        x.publicMetadata.attackSource.sourceSlot==='ACTIVE' &&
+        x.publicMetadata.attackSource.sourceCardFullName===active.printing)));
     return attack ? {decision:{kind:'select-action',token:attack.token},
       reason:'EARLY_NATIVE_HORROR_HOUSE_HAND_LOCK'}:null;
   }
-  const hasDonor=(own.discard??[]).some(x=>has(x,'Gengar & Mimikyu-GX')) ||
-    own.bench.some(x=>has(x?.printing,'Gengar & Mimikyu-GX'));
-  if (has(active?.printing,'Mewtwo & Mew-GX') && hasDonor &&
+  // Perfection is a *continuous passive Ability* (read actual sm11-71 text):
+  // it has no announceable USE_ABILITY_ACTION. The actual native attack
+  // projection publishes a direct ATTACK_ACTION with the borrowed Bench
+  // Pokémon as attackSource. Never fabricate an "activate Perfection" action.
+  if (has(active?.printing,'Mewtwo & Mew-GX') &&
       abilityLive(active,'Perfection')) {
-    const ability=items.find(x=>x.kind==='use-ability' &&
-      x.publicMetadata?.abilityName==='Perfection' &&
-      x.publicMetadata?.sourceZone==='active');
-    return ability ? {decision:{kind:'select-action',token:ability.token},
-      reason:'EARLY_PERFECTION_TO_HORROR_HOUSE'}:null;
+    const donors=own.bench.map((s,i)=>({s,i}))
+       .filter(x=>has(x.s?.printing,'Gengar & Mimikyu-GX'));
+    const attack=items.find(x=>x.kind==='attack' &&
+      x.attackName==='Horror House-GX' &&
+      donors.some(d=>x.actorPrinting===d.s.printing &&
+        x.publicMetadata?.attackCostPayable===true &&
+        x.publicMetadata?.attackSource?.sourceKind==='bench-pokemon' &&
+        x.publicMetadata.attackSource.sourceSlot==='BENCH' &&
+        x.publicMetadata.attackSource.sourceIndex===d.i &&
+        x.publicMetadata.attackSource.sourceCardFullName===d.s.printing &&
+        x.publicMetadata.attackSource.attackName==='Horror House-GX'));
+    return attack?{decision:{kind:'select-action',token:attack.token},
+      reason:'PERFECTION_DIRECT_COPIED_GENGAR_ATTACK'}:null;
   }
+  // Discard-pile donors are valid in paper rules, but the current pinned
+  // actor-frontier adapter does not project their attack source provenance.
+  // Do not pretend an unavailable pathway is a legal native action.
   return null;
-}
-function chooseEarlyPerfectionPrompt(view,prompt) {
-  if (!earlyHorrorHouseWindow(view) ||
-      !has(view?.ownPublic?.active?.printing,'Mewtwo & Mew-GX') ||
-      !abilityLive(view.ownPublic.active,'Perfection') ||
-      prompt?.source?.effectName!=='Perfection' ||
-      prompt?.promptType!=='ChooseAttackPrompt' ||
-      prompt?.publicMetadata?.selectionType!=='attack') return null;
-  const own=view.ownPublic;
-  if (!(own.discard??[]).some(x=>has(x,'Gengar & Mimikyu-GX')) &&
-      !own.bench.some(x=>has(x?.printing,'Gengar & Mimikyu-GX'))) return null;
-  const choice=prompt.choices.find(x=>x.kind==='attack' &&
-      x.publicMetadata?.sourceAttack==='Horror House-GX' &&
-      has(x.printing,'Gengar & Mimikyu-GX') &&
-      x.publicMetadata?.ownerSeat==='actor' &&
-      x.publicMetadata?.isOwnerVisible===true);
-  return choice ? {decision:{kind:'select-choice',token:choice.token},
-     reason:'PERFECTION_CHOOSE_GENGAR_HORROR_HOUSE'}:null;
 }
 
 const cardAction=(x,n)=>x?.kind==='play-card' && has(x.actorPrinting,n);
@@ -656,7 +655,7 @@ function choosePrompt(view,prompt) {
   if(fog)return fog;
   const starSearch=chooseStarAlchemyMissingResource(view,prompt);
   if(starSearch)return starSearch;
-  if (!p) return chooseEarlyPerfectionPrompt(view,prompt);
+  if (!p) return null; // passive Perfection copies attacks via root ATTACK_ACTION
   const m=prompt.publicMetadata;
   const effect=prompt.source.effectName;
   if (prompt.promptType==='ChoosePokemonPrompt' && m?.selectionType==='pokemon' &&
