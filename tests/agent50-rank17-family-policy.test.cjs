@@ -134,7 +134,9 @@ function runCases(policy,protocol) {
     same(runRoot(p,v,[play('second-unown',A.unown),play('research',A.research),
       ability('letter',A.unown,'Farewell Letter',2),pass]),action('letter'),tag+'Farewell before destructive hand draw');
     const withTool={...v,ownPublic:player({bench:[slot(A.voltorb),slot(A.pikachu),slot(A.unown,{tools:[A.uturn]})]})};
-    same(runRoot(p,withTool,[ability('letter',A.unown,'Farewell Letter',2),pass]),action('pass'),tag+'do not discard attached Tool');
+    same(runRoot(p,withTool,[ability('letter',A.unown,'Farewell Letter',2),pass]),action('letter'),tag+'U-Turn recycles through Farewell');
+    const unknownTool={...v,ownPublic:player({bench:[slot(A.voltorb),slot(A.pikachu),slot(A.unown,{tools:['Float Stone BKT']})]})};
+    same(runRoot(p,unknownTool,[ability('letter',A.unown,'Farewell Letter',2),pass]),action('pass'),tag+'other Tool guarded');
     const withEnergy={...v,ownPublic:player({bench:[slot(A.voltorb),slot(A.pikachu),slot(A.unown,{energies:[A.unit]})]})};
     same(runRoot(p,withEnergy,[ability('letter',A.unown,'Farewell Letter',2),pass]),action('pass'),tag+'do not discard attached Energy');
     const withKlefki={...v,ownPublic:player({active:slot(A.klefki),bench:[slot(A.unown)]})};
@@ -517,6 +519,18 @@ function runCases(policy,protocol) {
       ownPublic:player({active:rain,bench:[elec,elec],discard:[R,R,R,R,C,C,C]}),opponentPublic:double});
     same(policy.rainProjection(loading,rain)?.terminalProjection,false,tag+'18 existing units cannot hit two VMAX');
     same(policy.activeLoadPlan(loading)?.now,['counter','unit'],tag+'minimal two-card 21-hit load');
+    const legacyBase=view(seat,{globalTurn:4,
+      ownPublic:player({active:slot(A.raichu,{hp:110}),bench:[elec,elec],discard:[R,R,R,R,C,C,C,C],prizeCount:6}),
+      opponentPublic:player({active:slot(V,{hp:320,damage:50}),
+        bench:[slot(V,{hp:320,damage:50}),slot('Solrock CES 62',{hp:90})],prizeCount:6})});
+    same(policy.rainProjection(legacyBase,legacyBase.ownPublic.active)?.terminalProjection,true,
+      tag+'two VMAX six Prize baseline with 20 Rain packets');
+    const legacyThreat={...legacyBase,opponentPublic:{...legacyBase.opponentPublic,
+      active:{...legacyBase.opponentPublic.active,energies:['Legacy Energy TWM 167']}}};
+    same(policy.rainProjection(legacyThreat,legacyThreat.ownPublic.active)?.terminalProjection,false,
+      tag+'Legacy denies Prize so 20 packets cannot finish three targets');
+    same(policy.rainProjection({...legacyThreat,opponentPublic:{...legacyThreat.opponentPublic,active:{...legacyThreat.opponentPublic.active,energies:[]}}},legacyThreat.ownPublic.active)?.terminalProjection,true,
+      tag+'removing Legacy restores terminal Rain');
     same(runRoot(p,loading,[play('compress',A.compressor),pass]),action('compress'),tag+'same-turn loader root');
     same(runPrompt(p,{...loading,ownHand:[]},cards(loading,A.compressor,'Battle Compressor','deck',
       [U,C,U,A.unown],0,3)),choose('c1','c0'),tag+'loader chooses exact two physical cards');

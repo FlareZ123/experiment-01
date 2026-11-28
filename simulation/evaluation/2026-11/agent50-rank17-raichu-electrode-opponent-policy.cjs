@@ -1882,8 +1882,13 @@ function r17VisibleRainTargets(view,p,forceSight=false) {
       const modifier=zone==='bench'&&sight&&row[2]?30:0;
       const maxHp=/^Lunatone OBF(?: 92)?$/i.test(printingValue(q))&&r17NewMoonSunbeamLive(view)?
         Math.max(q.hp,130):q.hp;
-      targets.push({zone,index,printing:printingValue(q),prizes:row[1],
-        hits:Math.max(1,Math.ceil((maxHp-q.damage-modifier)/30))});
+      // Without a certified once-per-game-used receipt, conservatively budget
+       // one fewer Prize for a visible Legacy Energy on an attack-damage KO.
+       const legacyLive=list(q.energies).some(c=>
+         /^Legacy Energy TWM(?: 167)?$/i.test(printingValue(c)));
+       targets.push({zone,index,printing:printingValue(q),
+         prizes:Math.max(0,row[1]-Number(legacyLive)),
+         hits:Math.max(1,Math.ceil((maxHp-q.damage-modifier)/30))});
     }
   }
   return targets.length?targets:null;
@@ -2188,7 +2193,8 @@ function r17ScoreAbility(item,view) {
   if(key==='unown'&&name==='Farewell Letter') {
     const slot=r17OwnAbilitySlot(item,view);
     return slot&&r17UnownUseful(view)&&!r17Suppressed(slot,name)&&
-      list(slot.energies).length===0&&list(slot.tools).length===0?420:0;
+      list(slot.energies).length===0&&
+       list(slot.tools).every(c=>r17Key(c)==='uturn')?420:0;
   }
   if(key==='marshadow'&&name==='Resetting Hole') {
     const slot=r17OwnAbilitySlot(item,view);

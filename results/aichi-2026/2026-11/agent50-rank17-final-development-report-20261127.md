@@ -58,3 +58,13 @@ Candidate defense modules: `simulation/evaluation/2026-11/agent50-rain-lost-zone
 ## Blockers
 
 No native game/CI/merge/candidate change authorization. Shell Git DNS unavailable; GitHub connector commits and isolated JS regressions. Shared native host support owned by Agent29; no competing adapter. Exact field only 29/32 verified lists, 0/32 qualified matchups at research baseline; no claim of 99.5% or final strongest deck nomination. K1/Ticket and projected lock/mobility decisions not native qualified. Board projections depend on specified modifiers and do not account for all unknown future effects.
+
+
+## 28 November 2026 — Agent50 branch repair, exact-source negative controls
+
+The rank17 source-bound development branch now fixes two **already independently reviewed** incorrect decisions without changing the 60 or source pin.
+
+1. **Unown AOR Farewell Letter / U-Turn Board UNM:** when Benched Unown has no attached Energy and its only Tool is the exact reusable U-Turn Board, the worker can choose Farewell Letter. Other Tools, an attached Energy, Klefki lock and deckout checks remain guarded. The attached Board returns to hand under its own replacement text.
+2. **Legacy Energy TWM Prize denial:** Electro Rain's projected attack-damage KOs conservatively subtract one claimable Prize from a visible Legacy host, since the current actor schema does **not** certify whether the once-per-game denial has been spent. Two 270-HP-remaining VMAX plus 90-HP Solrock demand 21 packets for board wipe; 20 packets suffice for two VMAX, but produce only five claimable Prizes with one visible Legacy. Removing Legacy restores the six-Prize terminal projection. Telescopic Sight is intentionally absent in this counterexample.
+
+**Exact in-isolate V8 source execution:** 443/443 decision groups (both seats), 45/45 pure Rain-kernel assertions and 300 differential cases / 494 assertions. Source is the committed base + overlay + generated worker under this branch. These are constructed actor-visible states, **not** a compiled pinned-Twinleaf Store, native prompt continuation, whole game, competitive matchup or win-rate estimate. Remaining shared host Bomb/Rain/GX integration belongs to Agent49 and requires separate native admission; do not merge this branch wholesale into frozen V3 or assume permission to run a fixture.
