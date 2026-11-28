@@ -199,3 +199,18 @@ test('pinned native Basic Energy set-number aliases MEE 1/2 are accepted only in
       ownerSeat:'actor',zone:'active',sourceZone:'effect-revealed',isOwnerVisible:true}});
   assert.deepEqual(choose(a),{kind:'select-choice',token:'grass-numbered'});
 });
+
+for(const seat of [0,1]){
+  test('seat '+seat+': G+G Regidrago consumes Crispin Fire-to-Active rather than Grass',()=>{
+    const r=attachmentRequest(seat);
+    r.observation.ownPublic.active.energies=[
+      {printing:'Grass Energy MEE 1'}, {printing:'Grass Energy MEE 9'}];
+    assert.deepEqual(choose(r),{kind:'select-choice',token:'fire-active'});
+  });
+}
+test('different-type Crispin search stays Grass+Fire even when Active requires Fire',()=>{
+  const r=request();
+  r.observation.ownPublic.active.energies=[
+    {printing:'Grass Energy MEE 1'},{printing:'Grass Energy MEE 9'}];
+  assert.deepEqual(choose(r),{kind:'select-choices',tokens:['grass1','fire1']});
+});
