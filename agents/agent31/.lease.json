@@ -1,7 +1,7 @@
 {
-  "run_id": "agent31-chat-2026-11-27T19:51:22.706Z-normal5",
-  "claimed_at": "2026-11-27T19:51:22.706Z",
+  "run_id": "agent31-chat-20261128T060446Z-normal4-gpt6-adversarial-policy-review",
+  "claimed_at": "2026-11-28T06:04:46.255016Z",
   "mode": "normal",
-  "selection_draw": 5,
-  "previous_claim": "2026-11-27T07:45:32.765Z"
+  "selection_draw": 4,
+  "previous_claim": "2026-11-27T19:51:22.706Z"
 }
