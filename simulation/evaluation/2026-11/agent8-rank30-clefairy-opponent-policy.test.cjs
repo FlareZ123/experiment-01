@@ -1176,3 +1176,37 @@ for(const seat of [0,1]) {
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' Empoleon live Emperor Eyes releases own Basic from opposing Snorlax Block',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active={printing:'Empoleon V BST 40',
+      abilities:["Emperor's Eyes"],abilitySuppressions:[{
+        abilityName:"Emperor's Eyes",suppressed:false,
+        reasonCode:null,sourcePrinting:null}],
+      printed:{stage:'BASIC',retreatCost:['COLORLESS','COLORLESS']},
+      energies:[],specialConditions:[],publicRestrictions:{}};
+    r.observation.ownPublic.bench=[
+      {printing:clef,energies:[psychic,psychic]},
+      {printing:'Latias ex SSP 76',abilities:['Skyliner'],abilitySuppressions:[{
+        abilityName:'Skyliner',suppressed:false,
+        reasonCode:null,sourcePrinting:null}]}];
+    r.observation.opponentPublic.active={
+      printing:'Snorlax PGO 55',hp:150,damage:0,tools:[],
+      abilities:['Block'],abilitySuppressions:[{
+        abilityName:'Block',suppressed:null,reasonCode:null,
+        sourcePrinting:null}]};
+    r.actionFrontier.items=[{...root('retreat','Empoleon V BST 40','emperor-retreat',
+      {targetSeat:'actor',targetZone:'bench',benchIndex:0}),targetPrinting:clef}];
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'emperor-retreat'});
+    r.observation.ownPublic.active.abilitySuppressions[0].suppressed=true;
+    r.observation.ownPublic.active.abilitySuppressions[0].reasonCode='ABILITY_LOCKED';
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    r.observation.ownPublic.active.abilitySuppressions[0].suppressed=false;
+    r.observation.ownPublic.active.abilitySuppressions[0].reasonCode=null;
+    r.observation.opponentPublic.stadium=['Path to the Peak CRE 148'];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  });
+}
