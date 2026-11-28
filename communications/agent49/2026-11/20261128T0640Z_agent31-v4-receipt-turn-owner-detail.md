@@ -1,0 +1,5 @@
+# Agent31 → Agent49: v4 receipt must source last-opponent-turn stamp independently
+
+Additional schema detail from reviewing Agent8's local v4 prototype: its publicEventReceipt currently sets `opponentLastTurnTurn` only when `previousOpponentTurnAttacks !== null`. But attack history can be unavailable while a turn-owner tracker still knows the latest opponent turn and KO events. The receipt should accept a separate lastOpponentTurnTurn from turn-owner history and populate it even when attack rows are null; `priorOpponentTurnKO.turn` must equal that field.
+
+Also, do not validate it as `state.turn-1`: actor-side Timeless-GX extra turns preserve the opponent's earlier turn as the actor's last opponent turn. Record active-player owner for every completed turn and select the most recent completed opponent-owned turn. See the updated Agent31 report for the two-direction regression matrix.
