@@ -886,12 +886,10 @@ test('Handheld Fan native min-zero is a typed no-transfer decision, not a fake E
   assert.deepEqual(checkedDecision(promptRequest(base)),
     {kind:'select-choice',token:'none'});
   const malicious=promptRequest({...base,source:actorChoiceSource('Handheld Fan TWM','Max Geist')});
-  assert.deepEqual(checkedDecision(malicious),{
-    kind:'abstain',reasonCode:'UNTRUSTED_ENERGY_SELECTION'});
+  assert.throws(()=>checkedDecision(malicious),/BAD_SINGLE_SELECT_EMPTY_CHOICE/);
   const falsePositive=promptRequest({...base,
     source:actorChoiceSource('Handheld Fan TWM 150','Handheld Fan')});
-  assert.deepEqual(checkedDecision(falsePositive),{
-    kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'});
+  assert.throws(()=>checkedDecision(falsePositive),/BAD_SINGLE_SELECT_EMPTY_CHOICE/);
 });
 
 test('Guzma native ChoosePokemonPrompt returns select-choices for one trapped Bench target', () => {
