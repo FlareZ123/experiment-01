@@ -378,3 +378,74 @@ test('Bench-only Marshadow Resetting Hole is a distinct Temple/Path unlock',()=>
   assert.equal(resettingHoleScore(wide),-Infinity);
  }
 });
+
+
+test('VIP deck-to-Bench never grants from-hand Dedechange or Wonder Tag',()=>{
+ for(const seat of [0,1]){
+  const ob=obs(seat);
+  // Dedechange and Wonder Tag only trigger when played from hand.
+  // Squawk and Seize, in contrast, is usable on first turn even after VIP.
+  const dedenne='Dedenne-GX UNB 57',tapu='Tapu Lele-GX GRI 60',
+    squawk='Squawkabilly ex PAL 169';
+  assert.equal(searchValue(P.vip,dedenne,ob),5);
+  assert.equal(searchValue(P.vip,tapu,ob),5);
+  assert.equal(searchValue(P.vip,squawk,ob)>200,true);
+  assert.equal(searchValue(P.quick,dedenne,ob)>200,true);
+  assert.equal(searchValue(P.quick,tapu,ob)>100,true);
+  const request=prompt(seat,ob,'Battle VIP Pass FST','Battle VIP Pass',
+   'ChooseCardsPrompt',[
+    choice('dede','Dedenne-GX UNB'),
+    choice('tapu','Tapu Lele-GX GRI'),
+    choice('squawk','Squawkabilly ex PAL'),
+    choice('v','Regidrago V SIT')],
+    {minimumCount:1,maximumCount:2});
+  assert.deepEqual(decide(seat,request),{kind:'select-choices',tokens:['v','squawk']});
+  assert.deepEqual(nativeValid(seat,request,decide(seat,request)),
+    decide(seat,request));
+ }
+});
+test('VIP free Item before Carmine discards hand and Turbo draws',()=>{
+ for(const seat of [0,1]){
+  const original=obs(seat);
+  const live=obs(seat,{ownHand:['Carmine TWM 145',
+   'Hisuian Goodra VSTAR LOR 136','Dragapult ex TWM 130',
+   'Sky Field ROS 89','Guzma BUS 115'],ownPublic:{
+    ...original.ownPublic,active:pokemon(P.v),bench:[pokemon(P.v)]}});
+  const options=[action('vip',P.vip),action('carmine','Carmine TWM 145'),
+    action('pass','Pass','pass')];
+  assert.equal(carmineScore(live)>300,true);
+  assert.deepEqual(root(seat,live,options),
+    {kind:'select-action',token:'vip'});
+ }
+});
+test('VIP selection caps at open Bench slots even with host max2 deck offer',()=>{
+ for(const seat of [0,1]){
+  const original=obs(seat);
+  const four=obs(seat,{ownPublic:{...original.ownPublic,
+   bench:Array.from({length:4},()=>pokemon(P.budew))}});
+  assert.equal(benchAvailable(four),1);
+  const request=prompt(seat,four,'Battle VIP Pass FST','Battle VIP Pass',
+   'ChooseCardsPrompt',[
+    choice('v','Regidrago V SIT'),choice('squawk','Squawkabilly ex PAL'),
+    choice('dede','Dedenne-GX UNB')],
+   {minimumCount:1,maximumCount:2});
+  assert.deepEqual(decide(seat,request),
+    {kind:'select-choices',tokens:['v']});
+  assert.deepEqual(nativeValid(seat,request,decide(seat,request)),
+    decide(seat,request));
+  const roadblock=obs(seat,{ownPublic:{...four.ownPublic,
+   bench:Array.from({length:4},()=>pokemon(P.v)),
+   stadium:[P.sky]},opponentPublic:{...original.opponentPublic,
+   bench:[pokemon(P.sudowoodo,{
+    abilities:['Roadblock'],
+    abilitySuppressions:[{abilityName:'Roadblock',suppressed:true}]
+   })]}});
+  assert.equal(benchAvailable(roadblock),4);
+  const stillActive=obs(seat,{opponentPublic:{...roadblock.opponentPublic,
+   bench:[pokemon(P.sudowoodo,{
+    abilities:['Roadblock'],
+    abilitySuppressions:[{abilityName:'Roadblock',suppressed:false}]
+   })]},ownPublic:roadblock.ownPublic});
+  assert.equal(benchAvailable(stillActive),0);
+ }
+});
