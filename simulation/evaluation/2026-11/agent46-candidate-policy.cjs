@@ -257,15 +257,19 @@ function prizeLiability(slot) {
   if (!slot) return 1;
   const subtypes = slot.printed?.subtypes ?? [];
   const printing = slot.printing ?? '';
-  // ME1 Mega Evolution ex (e.g. Mega Absol ex ME1 86) has an explicit
-  // three-Prize Rule Box despite being a Basic Pokemon with an ex subtype.
-  // Treating it as a regular two-Prize ex loses final-Prize tactical KOs.
-  if (subtypes.some(value => ['VMAX', 'V-UNION', 'TAG TEAM', 'MEGA'].includes(value)) ||
+  // 2025+ MEGA Pokemon ex (e.g. Mega Absol ex ME1 86) give three
+  // Prizes. Earlier XY MEGA Pokemon-EX (e.g. M Gardevoir-EX STS 79)
+  // have the distinct Pokemon-EX TWO-Prize rule. Both share MEGA as
+  // a subtype, so requiring lowercase 'ex' avoids a cross-era mistake.
+  const modernMegaEx = (subtypes.includes('MEGA') && subtypes.includes('ex')) ||
+    /^Mega .+ ex(?: |$)/.test(printing);
+  if (modernMegaEx ||
+      subtypes.some(value => ['VMAX', 'V-UNION', 'TAG TEAM'].includes(value)) ||
       hasName(printing, 'VMAX') || hasName(printing, 'V-UNION') ||
       hasName(printing, ' & ') && hasName(printing, '-GX')) return 3;
-  if (subtypes.some(value => ['ex', 'GX', 'V'].includes(value)) ||
-      hasName(printing, '-GX') || / ex(?: |$)/.test(printing) ||
-      / V(?: |$)/.test(printing)) return 2;
+  if (subtypes.some(value => ['EX', 'ex', 'GX', 'V'].includes(value)) ||
+      /-EX(?: |$)/.test(printing) || hasName(printing, '-GX') ||
+      / ex(?: |$)/.test(printing) || / V(?: |$)/.test(printing)) return 2;
   return 1;
 }
 
