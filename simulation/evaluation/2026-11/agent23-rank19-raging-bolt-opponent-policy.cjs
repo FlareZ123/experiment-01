@@ -6,6 +6,8 @@
  * Deterministic and actor-view-only. It is a research prototype, not a
  * competence attestation. The exact source-60 identity is bound below.
  * Native Twinleaf legality remains authoritative; unsupported prompts abstain.
+ * First actor turn includes global turns 1 and 2; Wait and See Hammer is
+ * limited specifically to the second player's first turn (global turn 2).
  */
 
 const POLICY_VERSION = 'agent23-rank19-raging-bolt-opponent-v1';
@@ -299,7 +301,7 @@ function promptBounds(prompt) {
 }
 function selectMany(prompt, score, reasonCode, limitOverride) {
   const bounds = promptBounds(prompt);
-  if (!bounds) return { kind: 'abstain', reasonCode: 'UNSUPPORTED_MULTI_SELECT_BOUNDS' };
+  if (!bounds) return { kind: 'abstain', reasonCode: 'BAD_CARD_SELECTION_BOUNDS' };
   const limit = Math.min(bounds.maximumCount, Number.isSafeInteger(limitOverride) ? limitOverride : bounds.maximumCount);
   const selected = rankChoices(prompt.choices, score, limit).map(row => row.choice.token);
   if (selected.length < bounds.minimumCount) {
@@ -408,7 +410,7 @@ function searchTargetPriority(choice, request, context) {
   if (PRINT.adp.test(value) && !inPlay(PRINT.adp)) return 225;
   if (PRINT.dedenne.test(value) && hand <= 3 && !inPlay(PRINT.dedenne)) return 180;
   if (PRINT.crobat.test(value) && hand <= 3 && !inPlay(PRINT.crobat)) return 175;
-  if (PRINT.squawk.test(value) && observation.globalTurn === 1 && hand <= 4 && !inPlay(PRINT.squawk)) return 160;
+  if (PRINT.squawk.test(value) && observation.globalTurn <= 2 && hand <= 4 && !inPlay(PRINT.squawk)) return 160;
   if (PRINT.tapuLele.test(value) && !hasSupporterInHand(observation) && !inPlay(PRINT.tapuLele)) return 165;
   if (PRINT.latias.test(value) && !inPlay(PRINT.latias)) return 150;
   if (PRINT.tapuKoko.test(value) && discardEnergyTypes(own).has('lightning') && !inPlay(PRINT.tapuKoko)) return 145;
@@ -436,7 +438,7 @@ function discardPriority(choice, request, context) {
   if (PRINT.floatStone.test(value) && !boardHas(own, PRINT.latias)) return 0;
   if (PRINT.forestSealStone.test(value) && own.publicTurnRestrictions?.vstarUsed === false) return 0;
   if (/Energy/i.test(value)) return 20;
-  if (/Battle VIP Pass/i.test(value) && observation.globalTurn === 1) return 0;
+  if (/Battle VIP Pass/i.test(value) && observation.globalTurn <= 2) return 0;
   if (/Quick Ball|Battle Compressor|VS Seeker|Night Stretcher/i.test(value)) return 10;
   if (context.includes('secret box')) return 100;
   return 60;
@@ -527,26 +529,26 @@ function bellowingEnergyDecision(prompt, request) {
   const own = request.observation.ownPublic;
   const active = own.active;
   if (!matches(active, PRINT.ragingBolt)) {
-    return { kind: 'abstain', reasonCode: 'BELLOWING_ACTIVE_NOT_RAGING_BOLT' };
+    return { kind: 'abstain', reasonCode: 'UNTRUSTED_ENERGY_SELECTION' };
   }
   if (nonActiveBasicEnergyCount(own) > 0) {
-    return { kind: 'abstain', reasonCode: 'BELLOWING_ENERGY_OWNER_UNATTRIBUTED' };
+    return { kind: 'abstain', reasonCode: 'UNTRUSTED_ENERGY_SELECTION' };
   }
   const target = opponentActive(request.observation);
   const hp = remainingHp(target);
   const damageModel = bellowingDamageModel(target);
   if (own.publicTurnRestrictions?.gxUsed !== false || opponentHasVisibleAbility(request.observation)) {
-    return { kind: 'abstain', reasonCode: 'BELLOWING_DAMAGE_MODIFIER_STATE_UNKNOWN' };
+    return { kind: 'abstain', reasonCode: 'UNTRUSTED_ENERGY_SELECTION' };
   }
-  if (hp <= 0 || damageModel === null) return { kind: 'abstain', reasonCode: 'BELLOWING_TARGET_OR_MODIFIER_UNKNOWN' };
+  if (hp <= 0 || damageModel === null) return { kind: 'abstain', reasonCode: 'UNTRUSTED_ENERGY_SELECTION' };
   const required = Math.max(1, Math.ceil((hp + damageModel.resistance) / (70 * damageModel.multiplier)));
   const availableBasic = choices.filter(choice => isBasicEnergy(choice.printing ?? choice.label));
-  if (availableBasic.length === 0) return { kind: 'abstain', reasonCode: 'NO_BASIC_ENERGY_TO_DISCARD' };
+  if (availableBasic.length === 0) return { kind: 'abstain', reasonCode: 'NO_VISIBLE_ENERGY_CHOICE' };
   const bounds = promptBounds(prompt);
-  if (!bounds) return { kind: 'abstain', reasonCode: 'BELLOWING_ENERGY_BOUNDS_UNKNOWN' };
+  if (!bounds) return { kind: 'abstain', reasonCode: 'ENERGY_COST_EXCEEDS_VISIBLE_CHOICES' };
   const count = Math.min(bounds.maximumCount, required, availableBasic.length);
   const chosen = availableBasic.slice(0, count).map(choice => choice.token);
-  if (chosen.length < bounds.minimumCount) return { kind: 'abstain', reasonCode: 'BELLOWING_MINIMUM_UNMET' };
+  if (chosen.length < bounds.minimumCount) return { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ENERGY_PAYMENT' };
   return { kind: 'select-choices', tokens: chosen };
 }
 function scoreAttack(item, request) {
@@ -641,7 +643,7 @@ function scoreAction(item, request) {
       discardEnergyTypes(own).has('fighting') ? 200 : 0;
     if (effect.includes('dedechange')) return hand <= 3 && !hasSupporterInHand(observation) ? 170 : 0;
     if (effect.includes('dark asset')) return hand <= 4 ? 180 : 0;
-    if (effect.includes('squawk and seize')) return turn === 1 && hand <= 4 && !hasSupporterInHand(observation) ? 165 : 0;
+    if (effect.includes('squawk and seize')) return turn <= 2 && hand <= 4 && !hasSupporterInHand(observation) ? 165 : 0;
     if (effect.includes('wonder tag')) return !hasSupporterInHand(observation) ? 190 : 0;
     if (effect.includes('resetting hole')) return hasHostileStadium(observation) ? 135 : 0;
     return 0;
@@ -658,14 +660,14 @@ function scoreAction(item, request) {
 
   if (item.kind !== 'play-card') return 0;
 
-  if (PRINT.vipPass.test(printing)) return turn === 1 && hasBenchSpace(own) ? 230 : 0;
+  if (PRINT.vipPass.test(printing)) return turn <= 2 && hasBenchSpace(own) ? 230 : 0;
   if (PRINT.ragingBolt.test(printing)) {
     const count = boardCount(own, PRINT.ragingBolt);
     return count < 2 && hasBenchSpace(own) ? (count === 0 ? 220 : 145) : 0;
   }
   if (PRINT.adp.test(printing)) return !boardHas(own, PRINT.adp) && hasBenchSpace(own) ? 205 : 0;
   if (PRINT.sada.test(printing)) return discardEnergyTypes(own).size > 0 && ancientBoardCount(own) > 0 ? 250 : 0;
-  if (PRINT.carmine.test(printing)) return turn === 1 && hand <= 5 ? 225 : 0;
+  if (PRINT.carmine.test(printing)) return turn <= 2 && hand <= 5 ? 225 : 0;
   if (PRINT.raihan.test(printing)) return priorOpponentTurnKo(request) && discardEnergyTypes(own).size > 0 ? 235 : 0;
   if (PRINT.guzma.test(printing)) return benchCount(opponent) > 0 && benchCount(own) > 0 ? 200 : 0;
   if (PRINT.iono.test(printing)) return hand <= 3 || opponent.handCount >= hand + 3 ? 165 : 0;
@@ -687,7 +689,7 @@ function scoreAction(item, request) {
   if (PRINT.vsSeeker.test(printing)) return list(own.discard).some(card => SUPPORTER_PATTERNS.some(pattern => pattern.test(printingValue(card)))) ? 130 : 0;
   if (PRINT.nightStretcher.test(printing)) return list(own.discard).some(card =>
     PRINT.ragingBolt.test(card) || PRINT.hoOh.test(card) || isBasicEnergy(card)) ? 125 : 0;
-  if (PRINT.hammer.test(printing)) return turn === 1 && opponentHasAttachedEnergy(observation) ? 150 : 0;
+  if (PRINT.hammer.test(printing)) return turn === 2 && opponentHasAttachedEnergy(observation) ? 150 : 0;
   if (PRINT.fieldBlower.test(printing)) return opponentHasToolsOrStadium(request.observation) ? 135 : 0;
   if (PRINT.cherishBall.test(printing)) return !boardHas(own, PRINT.adp) || !boardHas(own, PRINT.dedenne) ? 150 : 0;
   if (PRINT.heavyBall.test(printing)) return 0; // The current prize projector hides identities; fail closed.
@@ -718,7 +720,7 @@ function scoreAction(item, request) {
   if (PRINT.dedenne.test(printing)) return !boardHas(own, PRINT.dedenne) && hand <= 3 &&
     !hasSupporterInHand(observation) && hasBenchSpace(own) ? 150 : 0;
   if (PRINT.crobat.test(printing)) return !boardHas(own, PRINT.crobat) && hand <= 4 && hasBenchSpace(own) ? 155 : 0;
-  if (PRINT.squawk.test(printing)) return !boardHas(own, PRINT.squawk) && turn === 1 && hand <= 4 &&
+  if (PRINT.squawk.test(printing)) return !boardHas(own, PRINT.squawk) && turn <= 2 && hand <= 4 &&
     !hasSupporterInHand(observation) && hasBenchSpace(own) ? 145 : 0;
   if (PRINT.tapuLele.test(printing)) return !boardHas(own, PRINT.tapuLele) && !hasSupporterInHand(observation) && hasBenchSpace(own) ? 160 : 0;
 
@@ -742,7 +744,7 @@ function scoreAction(item, request) {
 }
 function promptDecision(request) {
   const prompt = request?.prompt;
-  if (!prompt) return { kind: 'abstain', reasonCode: 'MISSING_PROMPT' };
+  if (!prompt) return { kind: 'abstain', reasonCode: 'UNTRUSTED_PROMPT' };
   const context = sourceContext(prompt);
   const lower = context.toLowerCase();
   const meta = prompt.publicMetadata ?? {};
@@ -771,7 +773,7 @@ function promptDecision(request) {
       }, 3).map(row => row.choice.token);
       return selected.length === 3
         ? { kind: 'select-choices', tokens: selected }
-        : { kind: 'abstain', reasonCode: 'REBIRTH_NEEDS_THREE_DISTINCT_BASIC_TYPES' };
+        : { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ENERGY_PAYMENT' };
     }
     if (lower.includes('professor sada')) {
       return selectMany(prompt, choice => {
@@ -798,7 +800,7 @@ function promptDecision(request) {
         return 45;
       }, 'NO_ULTIMATE_RAY_BASIC_ENERGY', 3);
     }
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_ENERGY_PAYMENT_CONTEXT' };
+    return { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ENERGY_PAYMENT' };
   }
 
   if (prompt.promptType === 'ChoosePokemonPrompt') {
@@ -823,11 +825,11 @@ function promptDecision(request) {
       return selectMany(prompt, choice => metadata(choice).ownerSeat === 'actor' &&
         attachTargetPriority(choice, request, lower), 'NO_ULTIMATE_RAY_TARGETS');
     }
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_POKEMON_PROMPT_SOURCE' };
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_POKEMON_PROMPT' };
   }
 
   if (prompt.promptType === 'ChooseEnergyPrompt') {
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_ENERGY_PAYMENT_CONTEXT' };
+    return { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ENERGY_PAYMENT' };
   }
 
   if (prompt.promptType === 'ChooseCardsPrompt') {
@@ -870,7 +872,7 @@ function promptDecision(request) {
         return 0;
       }, 'NO_FIELD_BLOWER_TARGET');
     }
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_SELECTION_SOURCE' };
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_COMBINATION_SOURCE' };
   }
 
   if (prompt.promptType === 'ChooseAttackPrompt') {
@@ -887,10 +889,10 @@ function promptDecision(request) {
 
   if (prompt.promptType === 'ChoosePrizePrompt') {
     if (!lower.includes('hisuian heavy ball')) {
-      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PRIZE_PROMPT_SOURCE' };
+      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PRIZE_SELECTION' };
     }
     return selectMany(prompt, choice => prizeTargetPriority(choice, request),
-      'NO_VISIBLE_BASIC_POKEMON_PRIZE');
+      'NO_VISIBLE_PRIZE_SLOT');
   }
 
   if (prompt.promptType === 'ConfirmPrompt') {
@@ -911,11 +913,11 @@ function promptDecision(request) {
       return { kind: 'select-choice', token: yes.token };
     }
     if (no) return { kind: 'select-choice', token: no.token };
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_OPTIONAL_CONFIRM' };
+    return { kind: 'abstain', reasonCode: 'UNRECOGNIZED_SIMPLE_PROMPT' };
   }
 
   if (prompt.promptType === 'SelectPrompt' || prompt.promptType === 'SelectOptionPrompt') {
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_OPTION_PROMPT' };
+    return { kind: 'abstain', reasonCode: 'UNRECOGNIZED_SIMPLE_PROMPT' };
   }
 
   return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
