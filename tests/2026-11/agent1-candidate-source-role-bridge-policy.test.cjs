@@ -106,7 +106,7 @@ function make(seat,mode){
     actions=[
       {token:'native-attach',kind:'play-card',actorPrinting:E,
         targetPrinting:VMAX,publicMetadata:{
-          targetSeat:'actor',targetZone:'active',targetIndex:0}},
+          targetSeat:'actor',targetZone:'active',targetIndex:0,isOwnerVisible:true}},
       {token:'native-attack',kind:'attack',attackName:'Max Geist'},
       {token:'pass',kind:'pass'}
     ];
@@ -114,7 +114,7 @@ function make(seat,mode){
   }else if(mode==='second-v'){
     actions=[
       {token:'native-bench-v',kind:'play-card',actorPrinting:V,
-        publicMetadata:{targetSeat:'actor',targetZone:'bench'}},
+        publicMetadata:{targetSeat:'actor',targetZone:'bench',isOwnerVisible:true}},
       {token:'pass',kind:'pass'}
     ];
     want={kind:'select-action',token:'native-bench-v'};
