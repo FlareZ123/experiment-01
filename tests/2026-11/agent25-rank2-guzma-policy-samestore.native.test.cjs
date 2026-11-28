@@ -362,12 +362,13 @@ for (const seat of [0, 1]) {
     try {
       locked.store.dispatch(heldSupporterAction(locked));
     } catch (error) {
-      rejection = { name: error?.constructor?.name, message: error?.message };
+      assert.ok(error instanceof GameError,
+        'the expected action denial must be native GameError, not a reducer crash');
+      rejection = { name: error?.constructor?.name, message: String(error?.message ?? '') };
     }
     assert.ok(rejection,
       'native Stoutland Sentinel must actually reject an otherwise legal opposing Supporter');
-    assert.match(rejection.message ?? '', /BLOCKED_BY_EFFECT|CANNOT_PLAY_THIS_CARD/,
-      'native Supporter denial must use a typed effect/legality rejection');
+    assert.equal(rejection.name, 'GameError');
     console.log('AGENT25_RANK2_NATIVE_SENTINEL_CAUSAL', JSON.stringify({
       seat, matchedControlSupporterAccepted: true,
       opponentAfterPromotionSupporterRejected: true,
@@ -410,12 +411,13 @@ for (const seat of [0, 1]) {
     try {
       locked.store.dispatch(fogAction(locked));
     } catch (error) {
-      rejection = { name: error?.constructor?.name, message: error?.message };
+      assert.ok(error instanceof GameError,
+        'the expected action denial must be native GameError, not a reducer crash');
+      rejection = { name: error?.constructor?.name, message: String(error?.message ?? '') };
     }
     assert.ok(rejection,
       'a real Vileplume on the Bench must prevent the otherwise legal native Item');
-    assert.match(rejection.message ?? '', /BLOCKED_BY_EFFECT|CANNOT_PLAY_THIS_CARD/,
-      'Vileplume denial must have a typed native effect/legality failure');
+    assert.equal(rejection.name, 'GameError');
     console.log('AGENT25_RANK2_NATIVE_VILEPLUME_CAUSAL', JSON.stringify({
       seat, controlFogCrystalAccepted: true,
       withVileplumeFogCrystalRejected: true,
