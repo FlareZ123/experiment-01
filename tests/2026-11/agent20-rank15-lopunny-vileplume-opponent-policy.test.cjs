@@ -415,3 +415,54 @@ test('Quick Search unrestricted owner-deck search returns a legal physical card 
     choices:[{...card('Karen XYP 177','karen'),publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}}]};
   assert.deepEqual(decision(r),{kind:'select-choices',tokens:['karen']});
 });
+
+function grandRoot(){
+ const r=ghRoot(0);r.observation.globalTurn=5;
+ r.observation.ownPublic=p(pokemon('Bunnelby PRC 121',{hp:60}),[
+   {...pokemon(oddish,{hp:50}),lastPlayedOrEvolvedTurn:2}]);
+ r.observation.opponentPublic=p(pokemon('Shadow Rider Calyrex VMAX CRE 75',{hp:320}));
+ r.observation.ownHand=[];
+ r.actionFrontier.items=[{kind:'use-stadium',token:'tree',actorPrinting:'Grand Tree SCR 136'},
+   {kind:'pass',token:'pass'}];return r;
+}
+test('Grand Tree initiates only on prior-turn Basic and resolves owned Basic->Stage1->Stage2 search',()=>{
+  const r=grandRoot();assert.deepEqual(decision(r),{kind:'select-action',token:'tree'});
+  r.prompt={promptType:'ChoosePokemonPrompt',source:{sourcePrinting:grand,effectName:'Grand Tree'},
+    publicMetadata:{selectionType:'pokemon',minimumCount:0,maximumCount:1},
+    choices:[{kind:'pokemon',token:'o',printing:oddish,
+      publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0}}]};
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['o']});
+  r.prompt={promptType:'ChooseCardsPrompt',source:{sourcePrinting:grand,effectName:'Grand Tree'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:1},
+    choices:[{...card('Gloom UNB 7','gloom'),publicMetadata:{sourceZone:'deck',ownerSeat:'actor'}},
+      {...card('Pidgeotto TEU 123','pidgeotto'),publicMetadata:{sourceZone:'deck',ownerSeat:'actor'}}]};
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['gloom']});
+  r.observation.ownPublic.bench[0]=pokemon('Gloom UNB 7',{hp:80});
+  r.prompt.choices=[{...card('Vileplume AOR 3','aor'),publicMetadata:{sourceZone:'deck',ownerSeat:'actor'}},
+    {...card('Vileplume BUS 6','bus'),publicMetadata:{sourceZone:'deck',ownerSeat:'actor'}}];
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['aor']});
+});
+test('Grand Tree refuses fresh Basics or turn one and cannot touch opponent Bench',()=>{
+  const r=grandRoot();r.observation.ownPublic.bench[0].lastPlayedOrEvolvedTurn=5;
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  r.observation.ownPublic.bench[0].lastPlayedOrEvolvedTurn=1;
+  r.observation.globalTurn=1;
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  r.observation.globalTurn=5;
+  r.prompt={promptType:'ChoosePokemonPrompt',source:{sourcePrinting:grand,effectName:'Grand Tree'},
+    publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+    choices:[{kind:'pokemon',token:'opp',printing:oddish,
+      publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:0}}]};
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_POKEMON_CHOICE');
+});
+test('Grand Tree chooses BUS when AOR already established and rejects opponent deck search',()=>{
+  const r=grandRoot();r.observation.ownPublic.bench=[pokemon('Gloom UNB 7',{hp:80}),
+    pokemon('Vileplume AOR 3',{hp:130})];
+  r.prompt={promptType:'ChooseCardsPrompt',source:{sourcePrinting:grand,effectName:'Grand Tree'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:1},
+    choices:[{...card('Vileplume AOR 3','aor'),publicMetadata:{sourceZone:'deck',ownerSeat:'actor'}},
+      {...card('Vileplume BUS 6','bus'),publicMetadata:{sourceZone:'deck',ownerSeat:'actor'}}]};
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['bus']});
+  r.prompt.choices[1].publicMetadata.ownerSeat='opponent';
+  assert.equal(decision(r).reasonCode,'UNSUPPORTED_CARD_COMBINATION_SOURCE');
+});
