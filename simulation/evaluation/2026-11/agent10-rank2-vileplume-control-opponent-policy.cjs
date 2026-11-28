@@ -718,6 +718,15 @@ function cardPriority(printing, observation, context) {
     return 40;
   }
   if (context.includes('get lost')) {
+    const regidragoEstablished = boardSlots(observation.opponentPublic).some(
+      ({ pokemon }) => /^Regidrago (?:VSTAR|V) SIT(?: \\d+)?/i.test(pokemon.printing));
+    // The published Aichi Regidrago lists repeatedly use these Dragon
+    // attack payloads in discard; Apex Dragon loses access if they are Lost.
+    if (regidragoEstablished) {
+      if (/^Dialga-GX UPR(?: \\d+)?/i.test(printing)) return 250;
+      if (/^Dragapult ex TWM(?: \\d+)?/i.test(printing)) return 245;
+      if (/^(?:Kyurem SFA|Noivern ex PAL|Hisuian Goodra VSTAR LOR|Koraidon ex TEF|Mega Dragonite ex ASC|Salamence ex JTG)(?: \\d+)?/i.test(printing)) return 215;
+    }
     if (/VS Seeker|Lusamine|Team Yell|Karen|Guzma|Guzma & Hala|Special Charge/i.test(printing)) return 150;
     if (/Double Dragon Energy|Double Colorless Energy|Special Energy/i.test(printing)) return 125;
     if (/Forest Seal Stone|Rare Candy|Battle Compressor/i.test(printing)) return 110;
