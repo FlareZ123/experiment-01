@@ -844,7 +844,26 @@ function promptDecision(req){
       (zone(c)!=='bench'||x.index===(c.publicMetadata?.benchIndex??c.publicMetadata?.targetIndex)));
     if(!q||list(q.pokemon.tools).length!==0)return 0;
     if(/forest seal/.test(src))return match(q.pokemon.printing,PRINT.crobat)?200:0;
-    if(match(q.pokemon.printing,PRINT.garbodor)&&toolEnabled(o))return 180;
+    if(/float stone/.test(src)){
+     if(!toolEnabled(o))return 0;
+     // This native target prompt follows playing Float Stone: the Tool is
+     // no longer in ownHand, so readyToPivotIntoBudew() cannot be used here.
+     // Match the earlier root action's reachable pivot using only board state.
+     const active=q.zone==='active';
+     const cost=q.pokemon.printed?.retreatCost;
+     const needsFloat=Array.isArray(cost)&&
+      list(q.pokemon.energies).length<cost.length;
+     const pivot=active&&!match(q.pokemon.printing,PRINT.budew)&&
+      o.globalTurn<=4&&onBoard(o.ownPublic,PRINT.budew)&&
+      o.ownTurnResources?.retreatedTurn!==o.globalTurn&&
+      q.pokemon.publicRestrictions?.cannotRetreat!==true&&
+      !opponentSnorlaxBlock(o)&&needsFloat;
+     if(pivot)return match(q.pokemon.printing,PRINT.trubbish)?330:300;
+     if(match(q.pokemon.printing,PRINT.garbodor))return 180;
+     // An unevolved Trubbish may become a Garbotoxin user next turn.
+     if(match(q.pokemon.printing,PRINT.trubbish))return 165;
+     return 0;
+    }
     if(match(q.pokemon.printing,PRINT.mega)&&/muscle band/.test(src))return 80;
     return 0;
    };
