@@ -283,3 +283,28 @@ for(const seat of [0,1]){
   assert.equal(policy.__test.apexHazard(v).direct,0);
  });
 }
+
+for(const seat of [0,1]){
+ for(const donor of ['Koraidon ex TEF','Salamence ex JTG']){
+  test('source-backed donor triggers actual Get Lost root: '+donor+', seat '+seat,()=>{
+   const v=view(seat);
+   v.ownPublic.stadium=[];v.opponentPublic.active.energies=[
+    'Grass Energy SVE','Grass Energy SVE','Fire Energy SVE'];
+   v.opponentPublic.discard=[donor,'Battle VIP Pass FST','Psychic Energy SVE'];
+   assert.deepEqual(decision(root(seat,v)),
+    {kind:'select-action',token:'attack-getlost'});
+   const selected=decision(prompt(seat,v));
+   assert.equal(selected.kind,'select-choices');
+   assert.equal(selected.tokens.includes('card-0'),true);
+  });
+ }
+ test('Fighting Koraidon SSP cannot trigger phantom Apex donor root, seat '+seat,()=>{
+  const v=view(seat);
+  v.ownPublic.stadium=[];v.opponentPublic.active.energies=[
+   'Grass Energy SVE','Grass Energy SVE','Fire Energy SVE'];
+  v.opponentPublic.discard=[
+   'Koraidon SSP','Battle VIP Pass FST','Psychic Energy SVE'];
+  assert.deepEqual(decision(root(seat,v)),
+   {kind:'select-action',token:'pass'});
+ });
+}
