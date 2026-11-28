@@ -558,7 +558,7 @@ function cardChoiceScore(choice, observation, context) {
     if (/Stealthy Hood/i.test(printing)) return 300;
     if (/Tool Jammer|Forest Seal Stone/i.test(printing)) return 250;
     if (/Float Stone|Palace Belt|Handheld Fan/i.test(printing)) return 220;
-    if (/Tool\\b/i.test(printing)) return 175;
+    if (/Tool\b/i.test(printing)) return 175;
     if (choiceZone(choice) === 'stadium' || choice.kind === 'stadium') return 100;
     return 0;
   }
