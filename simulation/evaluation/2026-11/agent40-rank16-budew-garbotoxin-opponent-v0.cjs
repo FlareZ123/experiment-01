@@ -76,14 +76,26 @@ function liveGarbotoxin(o){
   return s&&s.suppressed===false;
  });
 }
+function hasProtectedHand(o){
+ const h=list(o.ownHand),p=o.ownPublic;
+ if(h.some(c=>match(c,PRINT.secret)))return true;
+ if(!onBoard(p,PRINT.mega)&&h.some(c=>match(c,PRINT.mega)))return true;
+ if(onBoard(p,PRINT.trubbish)&&!onBoard(p,PRINT.garbodor)&&h.some(c=>match(c,PRINT.garbodor)))return true;
+ if(onBoard(p,PRINT.garbodor)&&!liveGarbotoxin(o)&&h.some(c=>match(c,PRINT.float)))return true;
+ if(h.some(c=>match(c,PRINT.forest))&&!o.ownTurnResources?.vstarUsed)return true;
+ return false;
+}
+function canRiskFullHandDiscard(o){
+ return handCount(o)<=3&&!hasProtectedHand(o)&&deckCount(o)>0;
+}
 function setupAbilityPending(items,o){
  if(liveGarbotoxin(o))return false;
  const h=handCount(o),turn=o.globalTurn;
  return list(items).some(i=>i.kind==='use-ability'&&(
-  (/^Dedechange$/i.test(i.publicMetadata?.abilityName||'')&&h<=4)||
+  (/^Dedechange$/i.test(i.publicMetadata?.abilityName||'')&&canRiskFullHandDiscard(o))||
   (/^Dark Asset$/i.test(i.publicMetadata?.abilityName||'')&&h<=4)||
   (/^Wonder Tag$/i.test(i.publicMetadata?.abilityName||'')&&o.ownTurnResources?.supporterPlayedTurn===0)||
-  (/^Squawk and Seize$/i.test(i.publicMetadata?.abilityName||'')&&turn<=2&&h<=3)
+  (/^Squawk and Seize$/i.test(i.publicMetadata?.abilityName||'')&&turn<=2&&canRiskFullHandDiscard(o))
  ));
 }
 function hasFundedAttack(items){
@@ -98,11 +110,11 @@ function score(action,req){
  if(action.kind==='use-ability'){
   if(liveGarbotoxin(o))return 0;
   const a=meta.abilityName||'';
-  if(/^Dedechange$/i.test(a)&&handCount(o)<=4&&deckCount(o)>0)return 675;
+  if(/^Dedechange$/i.test(a)&&canRiskFullHandDiscard(o))return 675;
   if(/^Dark Asset$/i.test(a)&&handCount(o)<=4&&deckCount(o)>0)return 660;
   if(/^Wonder Tag$/i.test(a)&&o.ownTurnResources?.supporterPlayedTurn===0&&deckCount(o)>0)return 610;
-  if(/^Squawk and Seize$/i.test(a)&&o.globalTurn<=2&&handCount(o)<=3&&deckCount(o)>0)return 625;
-  if(/^Star Alchemy$/i.test(a)&&!o.ownTurnResources?.vstarUsed&&deckCount(o)>0)return 460;
+  if(/^Squawk and Seize$/i.test(a)&&o.globalTurn<=2&&canRiskFullHandDiscard(o))return 625;
+  if(/^Star Alchemy$/i.test(a)&&!o.ownTurnResources?.vstarUsed&&deckCount(o)>0)return 650;
   return 0;
  }
  if(action.kind==='attack'){
@@ -134,10 +146,17 @@ function score(action,req){
  }
  if(action.kind==='use-stadium')return 0;
  if(action.kind!=='play-card')return 0;
- if(match(p,PRINT.garbodor)){
-  return onBoard(own,PRINT.trubbish)&&!onBoard(own,PRINT.garbodor)?505:235;
+ if(match(p,PRINT.crobat)||match(p,PRINT.dedenne)||match(p,PRINT.tapu)||match(p,PRINT.squawk)){
+  if(benchCount(own)>=5||liveGarbotoxin(o)||own.publicTurnRestrictions?.abilityPokemonPlayLocked===true)return 0;
+  if(match(p,PRINT.crobat))return handCount(o)<=4&&deckCount(o)>0?710:0;
+  if(match(p,PRINT.tapu))return o.ownTurnResources?.supporterPlayedTurn===0&&deckCount(o)>0?645:0;
+  if(match(p,PRINT.dedenne))return canRiskFullHandDiscard(o)?705:0;
+  if(match(p,PRINT.squawk))return o.globalTurn<=2&&canRiskFullHandDiscard(o)?655:0;
  }
- if(match(p,PRINT.trubbish))return benchCount(own)<5&&!onBoard(own,PRINT.trubbish)?475:20;
+ if(match(p,PRINT.garbodor)){
+  return onBoard(own,PRINT.trubbish)&&!onBoard(own,PRINT.garbodor)?620:235;
+ }
+ if(match(p,PRINT.trubbish))return benchCount(own)<5&&!onBoard(own,PRINT.trubbish)?555:20;
  if(match(p,PRINT.budew))return benchCount(own)<5&&!onBoard(own,PRINT.budew)?300:25;
  if(match(p,PRINT.mega))return benchCount(own)<5&&!onBoard(own,PRINT.mega)?300:15;
  if(match(p,PRINT.float)||match(p,PRINT.muscle)||match(p,PRINT.forest)){
@@ -146,7 +165,7 @@ function score(action,req){
    return match(t.pokemon.printing,PRINT.crobat)&&!o.ownTurnResources?.vstarUsed?440:0;
   }
   if(match(t.pokemon.printing,PRINT.garbodor)&&canTool&&!liveGarbotoxin(o)){
-   return setupAbilityPending(items,o)?130:520;
+   return setupAbilityPending(items,o)?130:600;
   }
   if(match(t.pokemon.printing,PRINT.trubbish)&&canTool&&match(p,PRINT.float))return 240;
   if(match(t.pokemon.printing,PRINT.mega)&&match(p,PRINT.muscle))return 200;
@@ -298,7 +317,7 @@ function promptDecision(req){
   const yes=cs.find(c=>/^yes|confirm|true$/i.test(c.label||''));
   const no=cs.find(c=>/^no|decline|false$/i.test(c.label||''));
   if(/wonder tag|dark asset|dedechange|squawk and seize|star alchemy/.test(src)){
-   const choice=!liveGarbotoxin(o)&&deckCount(o)>0?yes:no;
+   const choice=!liveGarbotoxin(o)&&deckCount(o)>0&&(!/dedechange|squawk and seize/.test(src)||canRiskFullHandDiscard(o))?yes:no;
    return choice?{kind:'select-choice',token:choice.token}:{kind:'abstain',reasonCode:'UNSUPPORTED_CONFIRMATION_SOURCE'};
   }
  }
