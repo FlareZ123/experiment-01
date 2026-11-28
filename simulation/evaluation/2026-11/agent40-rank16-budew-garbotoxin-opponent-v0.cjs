@@ -125,7 +125,7 @@ function pokemonIsBasic(pokemon){
  const subtypes=list(pokemon?.printed?.subtypes).map(x=>String(x).toLowerCase());
  if(subtypes.length)return subtypes.includes('basic');
  // Exact Basic lock-bearing identities in the supported Aichi policy slice.
- return /^(?:Snorlax PGO 55|Wobbuffet PHF 36|Mimikyu PAL 97|Iron Thorns ex TWM 77)\b/i.test(name(pokemon?.printing));
+ return /^(?:Snorlax PGO 55|Wobbuffet PHF 36|Mimikyu PAL 97|Iron Thorns ex TWM 77|Klefki (?:SVI 96|PAF 159)|Flutter Mane (?:TEF 78|PAF 43|SVP 97))\b/i.test(name(pokemon?.printing));
 }
 function usableOwnAbilities(o){
  // All explicitly supported activated Abilities in this rank16 list
