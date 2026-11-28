@@ -1437,13 +1437,16 @@ function raihanOpportunity(request) {
 }
 function raihanAttachPrompt(request) {
   const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
-  const promptZones=String(m.zone??m.targetZone??'').split(',');
+  // The pinned Raihan projector records 'active'/'bench' separately on
+  // each energy-assignment choice, not in a synthesized prompt-level zone.
+  // Requiring a fake top-level 'bench,active' field vetoed *all* real offers.
   if(p.promptType!=='AttachEnergyPrompt'||
+     !sameSource(p,P.raihan)||p.source?.effectName!=='Raihan'||
      m.selectionType!=='energy-attachment'||m.ownerSeat!=='actor'||
      m.isOwnerVisible!==true||m.sourceZone!=='discard'||
-     m.energyType!=='BASIC'||!promptZones.includes('bench')||
-     !promptZones.includes('active')||
+     m.energyType!=='BASIC'||
      m.minimumCount!==1||m.maximumCount!==1||
+     m.allowCancel!==false||
      !hasFreshPriorOpponentTurnKO(request))
     return no('R30_RAIHAN_ATTACH_UNSUPPORTED');
   const options=arr(p.choices).filter(c=>{
