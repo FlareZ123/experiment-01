@@ -61,7 +61,12 @@ const P = Object.freeze({
   artazon:/^Artazon PAL(?: 171)?\b/i,
   pathPeak:/^Path to the Peak CRE(?: 148)?\b/i,
   silentLab:/^Silent Lab PRC(?: 140)?\b/i,
-  thorns:/^Iron Thorns ex TWM(?: 77)?\b/i,
+  thorns:/^Iron Thorns ex TEF(?: 77)?\b/i,
+  galarianWeezing:/^Galarian Weezing RCL(?: 113)?\b/i,
+  wobbuffet:/^Wobbuffet PHF(?: 36)?\b/i,
+  klefki:/^Klefki SVI(?: 96)?\b/i,
+  alolanMuk:/^Alolan Muk SUM(?: 58)?\b/i,
+  garbotoxinGarbodor:/^Garbodor (?:BKP(?: 57)?|DRX(?: 54)?)\b/i,
   grass:/^Grass Energy (?:(?:MEE(?: 9)?)|(?:BLW(?: 105)?)|(?:BW(?: 105)?))\b/i,
   hood:/^Stealthy Hood UNB(?: 186)?\b/i,
   floatStone:/^Float Stone BKT(?: 137)?\b/i,
@@ -704,6 +709,23 @@ function eldSupporterPriority(card,o) {
   if(has(card,P.n))return 50;
   return 0;
 }
+function hasLiveLockAbility(pokemon,printing,abilityName) {
+  if(!has(pokemon,printing))return false;
+  return !arr(pokemon?.abilitySuppressions).some(x=>
+    x?.abilityName===abilityName&&x?.suppressed===true);
+}
+function opponentDisablesEldegossAbility(o) {
+  const opponent=o?.opponentPublic,active=opponent?.active;
+  if(hasLiveLockAbility(active,P.thorns,'Initialization')||
+     hasLiveLockAbility(active,P.galarianWeezing,'Neutralizing Gas')||
+     hasLiveLockAbility(active,P.wobbuffet,'Bide Barricade')||
+     hasLiveLockAbility(active,P.klefki,'Mischievous Lock'))
+    return true;
+  return [active,...arr(opponent?.bench)].some(x=>
+    hasLiveLockAbility(x,P.alolanMuk,'Power of Alchemy')||
+    (hasLiveLockAbility(x,P.garbotoxinGarbodor,'Garbotoxin')&&
+     arr(x?.tools).length>0));
+}
 function eldCanBench(o) {
   const own=o?.ownPublic;
   if(!own||benchCount(own)>=5)return false;
@@ -716,7 +738,7 @@ function eldCanBench(o) {
   const stadiums=[...arr(own.stadium),...arr(o.opponentPublic?.stadium)];
   if(!stadiumAndToolEffectsMuted(o)&&
     stadiums.some(x=>has(x,P.pathPeak)||has(x,P.silentLab)))return false;
-  if(has(o.opponentPublic?.active,/^Iron Thorns ex TWM(?: 77)?\b/i))return false;
+  if(opponentDisablesEldegossAbility(o))return false;
   return arr(own.discard).some(card=>eldSupporterPriority(card,o)>0);
 }
 function floatUpPrompt(request) {
