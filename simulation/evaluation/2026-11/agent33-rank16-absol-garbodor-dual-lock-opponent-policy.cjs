@@ -912,6 +912,29 @@ function promptDecision(request) {
   const choices = list(prompt?.choices);
   const source = [prompt?.source?.sourcePrinting ?? '', prompt?.source?.effectName ?? '',
     prompt?.source?.copiedAttackName ?? '', prompt?.description ?? ''].join(' ').toLowerCase();
+  if(prompt.promptType==='AttachEnergyPrompt') {
+    // Pinned Twinleaf DarkPatch ASR139 emits a single typed attachment
+    // from own discard, not separate ChooseCards/ChoosePokemon prompts.
+    // The research projector exposes only native-validated legal choices.
+    const name=prompt.source?.effectName??'';
+    const printing=prompt.source?.sourcePrinting??'';
+    if(name!=='Dark Patch'||!/^Dark Patch ASR(?: 139)?$/.test(printing)||
+       prompt.publicMetadata?.selectionType!=='energy-attachment'||
+       prompt.publicMetadata?.sourceZone!=='discard')
+      return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};
+    const ownBench=list(observation?.ownPublic?.bench);
+    return singleChoice(prompt,choices.filter(choice=>
+      choice.kind==='energy'&&owner(choice)==='actor'&&
+      zone(choice)==='discard'&&choice.publicMetadata?.zone==='bench'),
+      choice=>{
+        const idx=choice.publicMetadata?.benchIndex;
+        if(!Number.isSafeInteger(idx)||idx<0||idx>=ownBench.length)return 0;
+        const pokemon=ownBench[idx];
+        if(!matches(pokemon?.printing??'',PRINT.mega))return 0;
+        const existing=energyCount(pokemon);
+        return existing>=3?0:300-existing*50;
+      },'NO_SUPPORTED_POKEMON_CHOICE');
+  }
   if (prompt.promptType === 'ChooseCardsPrompt') {
     const hand = choices.filter(choice => owner(choice) === 'actor' && zone(choice) === 'hand');
     const deck = choices.filter(choice => owner(choice) === 'actor' && zone(choice) === 'deck');
