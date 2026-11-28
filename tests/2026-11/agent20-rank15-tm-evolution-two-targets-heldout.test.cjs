@@ -58,7 +58,7 @@ for(const seat of [0,1]){
   test('seat '+seat+': indexless identical physical Bench choices fail closed',()=>{
     const r=evolutionPrompt(request(seat,
       ['Oddish UNB 5','Oddish UNB 5'],[0,1],{indexless:true}));
-    assert.deepEqual(r,{kind:'abstain',reasonCode:'NO_SUPPORTED_EVOLUTION_TARGET'});
+    assert.deepEqual(r,{kind:'abstain',reasonCode:'NO_SUPPORTED_POKEMON_CHOICE'});
   });
   test('seat '+seat+': one unique printing may accept legacy indexless choice',()=>{
     const r=evolutionPrompt(request(seat,['Oddish UNB 5'],[0],{indexless:true}));
