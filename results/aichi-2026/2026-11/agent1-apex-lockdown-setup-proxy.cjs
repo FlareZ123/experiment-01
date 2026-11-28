@@ -51,6 +51,10 @@ function one(rows,seed,opts={}){
  // Temple survives; other scenario paths must remain byte-for-byte equivalent.
  let templeActive=scenario==='temple'&&second;
  const templeOutFirst=opts.templeOutFirst!==false;
+ // Explicit separate policy fork: a turn-1 Chaotic Swell can intercept the
+ // opponent's next Stadium attempt; this is never assumed in hard-adversarial
+ // Temple screens unless the caller opts in.
+ const templePreemptSwell=opts.templePreemptSwell===true;
  const attackPaid=es=>templeActive?count(es,N.GR)>=2&&count(es,N.FI)>=1:cost(es);
  const energyUnits=es=>es.reduce((s,x)=>s+(x===N.DD&&!templeActive?2:1),0);
  const energyLevel=es=>Math.min(3,energyUnits(es))+(attackPaid(es)?3:0);
@@ -194,6 +198,15 @@ function one(rows,seed,opts={}){
  function banked(){if(scenario==='temple'&&templeOutFirst)return false;let b=reg();return turn===1&&b&&b.energy.length>0&&has(N.S)&&(attackPaid(b.energy)||handE().some(x=>attackPaid([...b.energy,x])))&&!missingDonor()&&!needACE()&&mobility()}
  function step(){
    let b=reg();
+   // Going first, place naturally held Chaotic Swell proactively before
+   // the opponent's modeled first Stadium. This consumes our Stadium play,
+   // and the opponent's next Stadium will discard both but not take effect.
+   if(scenario==='temple'&&templePreemptSwell&&turn===1&&!second&&
+      !templeActive&&!stadiumPlayed&&has(N.SW)){
+     if(stad)discard.push(stad);
+     stad=take(hand,N.SW);stadiumPlayed=true;
+     note('stadium',N.SW);note('swell preempt',N.SW);return true;
+   }
    // When the opposing Temple is active, clearing it first restores the
    // Dragon multi-type contribution before our attack/payment decisions.
    if(templeOutFirst&&templeActive&&canItem()&&has('Field Blower')){
@@ -319,9 +332,16 @@ function one(rows,seed,opts={}){
  let first={};
  for(turn=1;turn<=2;turn++){
    if(scenario==='temple'&&(turn===2||second&&turn===1)){
-     if(turn===2&&stad){discard.push(stad);stad=null}
-     templeActive=true;
-     note('opponent stadium','Temple of Sinnoh');
+     if(templePreemptSwell&&stad===N.SW) {
+       // Printed Chaotic Swell: the newly played Stadium has no effect;
+       // discard that attempted Stadium after discarding Chaotic Swell.
+       discard.push(stad);stad=null;templeActive=false;
+       note('temple blocked by swell','Temple of Sinnoh');
+     } else {
+       if(turn===2&&stad){discard.push(stad);stad=null}
+       templeActive=true;
+       note('opponent stadium','Temple of Sinnoh');
+     }
    }
    manual=true;supp=false;retreated=false;stadiumPlayed=false;hearthUsed=false;draw(1);loops=0;
    while(step()){if(++loops>80)throw Error("loop cap "+seed)}
