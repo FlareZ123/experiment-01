@@ -11,7 +11,7 @@ const G='Guzma BUS 115',R='Shadow Rider Calyrex VMAX CRE 75';
 const mon=(printing,{hp=210,damage=0,baseDamage=0,prizeValue=1}={})=>({
  printing,name:printing,hp,damage,prizeValue,abilities:[],tools:[],energies:[],
  attacks:baseDamage?[{name:'Usable Strike',energyCost:[],
-   baseDamage}]:[],printed:{subtypes:['VMAX','V'],
+   damage:baseDamage}]:[],printed:{subtypes:['VMAX','V'],
      types:['Psychic'],retreatCost:['Colorless']}
 });
 function fixture(seat,{readyBench=true,activeReady=false}={}){
