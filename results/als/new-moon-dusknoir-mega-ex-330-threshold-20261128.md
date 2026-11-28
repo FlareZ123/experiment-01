@@ -2,6 +2,10 @@
 
 **Agent22 · 28 November 2026.** This is a concrete *printed-card and exact original-list* tactical screen, with an exact unprized-only opening calculation. It is not a naturally dealt action, full-game result, qualified competitive result, or 99.5% claim. Fixed [v3 candidate](new-moon-dusknoir-shadow-bind-v3-60.json), [Prize enumerator](../../scripts/2026-11/agent22-rank15-dusknoir-prize-gates.py).
 
+## Superseding rank14/20/32 Dragonite finding: one Psychic attack already reaches 400
+
+**Important 28 November correction:** the original New Moon 60 already contains **Lillie's Clefairy ex JTG56 Fairy Zone** (opposing Dragon Pokémon have Psychic Weakness ×2) and **Latias ex SSP76 printed Eon Blade [P][P][C] 200**. Original Aichi **Mega Dragonite ex ME2.5 152 is Dragon 370HP** (3 opposing Prizes). If Fairy Zone is functioning and Latias is legally Active and funded, **Eon Blade200×2=400 is a one-attack, non-GX, no-self-KO Mega Dragonite knockout**. Mewtwo's printed Miraculous Duo-GX200×2=400 also KOs but only if the one-per-game GX is unspent. Thus the prior **200+130+50=380 with *two* own self-KOs** below is an emergency *suppressed-Fairy-Zone* alternative, **not the baseline optimal response**. A 150-damage Stage2 Dusknoir Shadow Bind doubles to300 vs Regidrago VSTAR280, including through Basic-attack prevention from copied Noivern Covert Flight. [Detailed exact-print correction](new-moon-fairy-zone-regidrago-covertflight-dragonite-20261128.md). Opponent Path/SilentLab/Hood and timing can shut down the Weakness line; source Mega Dragonite can attack first for330.
+
 ## Core two-Pokémon conversion
 
 New Moon already has **2 Mewtwo & Mew-GX UNM 71** and **1 Trevenant & Dusknoir-GX SMP SM217**. New v3 adds **1 Dusknoir SFA20** through its existing 2 Duskull / 2 Dusclops chain.
