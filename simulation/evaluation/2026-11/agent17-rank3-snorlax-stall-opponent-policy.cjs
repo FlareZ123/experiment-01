@@ -1152,6 +1152,15 @@ function bestAction(request) {
     { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ACTION' };
 }
 
+function currentPromptDecision(prompt,decision) {
+  if(!prompt||decision?.kind!=='select-choice')return decision;
+  const selected=prompt.choices.find(choice=>choice.token===decision.token);
+  if(!selected||selected.kind==='cancel'||selected.kind==='empty-selection')return decision;
+  if(['card-combination','pokemon','energy-payment','prize-slots','card-order'].includes(prompt.publicMetadata?.selectionType))
+    return {kind:'select-choices',tokens:[decision.token]};
+  return decision;
+}
+
 function createPolicy({ role, seat, policyVersion, config }) {
   // The shared worker accepts only a zero-key config. Exact rank/source/candidate
   // identity is immutable in this module and its dependency manifest.
@@ -1167,7 +1176,8 @@ function createPolicy({ role, seat, policyVersion, config }) {
           request.observation?.actorSeat !== seat) {
         return { kind: 'abstain', reasonCode: 'ROLE_SEAT_BINDING_MISMATCH' };
       }
-      if (request.prompt !== null) return promptDecision(request);
+      if (request.prompt !== null)
+        return currentPromptDecision(request.prompt,promptDecision(request));
       return bestAction(request);
     }
   });
