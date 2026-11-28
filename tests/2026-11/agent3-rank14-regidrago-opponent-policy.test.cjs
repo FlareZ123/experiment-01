@@ -157,6 +157,23 @@ test('rank14 setup keeps Squawkabilly, Oricorio and Tapu Lele as future on-play 
   assert.deepEqual(rank14.promptDecision(req),{kind:'select-choices',tokens:['s2','s4']});
 });
 
+
+test('Carmine remains a low-hand Supporter after turn one, with DDE protection',()=>{
+  const items=[action('carmine','play-card','Carmine TWM 145'),
+    action('pass','pass')];
+  for(const seat of [0,1]){
+    const later=request({seat,turn:5,items,hand:['Carmine TWM 145','Grass Energy MEE 9']});
+    assert.deepEqual(rank14.bestAction(later),{kind:'select-action',token:'carmine'});
+    const first=request({seat,turn:2,items,hand:['Carmine TWM 145','Grass Energy MEE 9']});
+    assert.deepEqual(rank14.bestAction(first),{kind:'select-action',token:'carmine'});
+    const protect=request({seat,turn:5,items,hand:['Carmine TWM 145',E]});
+    assert.deepEqual(rank14.bestAction(protect),{kind:'select-action',token:'pass'});
+    const large=request({seat,turn:5,items,hand:['Carmine TWM 145',
+      'Grass Energy MEE 9','Fire Energy MEE 10','Guzma BUS 115','Raihan EVS 152']});
+    assert.deepEqual(rank14.bestAction(large),{kind:'select-action',token:'pass'});
+  }
+});
+
 test('rank14 factory binds both seats without drawing RNG',()=>{
   for(const seat of [0,1]){
     let draws=0;
