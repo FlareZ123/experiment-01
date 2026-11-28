@@ -119,6 +119,11 @@ for(const seat of [0,1]){
        v.ownPublic.active.energies=[D,D,Pr];
        v.opponentPublic.stadium=['Temple of Sinnoh ASR 155'];
        return v},T,true],
+    ['Silent Lab blocks Farewell Letter',v=>{
+       v.opponentPublic.stadium=['Silent Lab PRC 140'];return v},T,true],
+    ['explicit Unown ability suppression',v=>{
+       v.ownPublic.bench[0].abilitySuppressions=[
+         {abilityName:'Farewell Letter',suppressed:true}];return v},T,true],
     ['attacker not funded',v=>{v.ownPublic.active.energies=[D];return v},T,false],
     ['final Prize attack',v=>{v.ownPublic.prizeCount=3;
         v.opponentPublic.active.hp=190;return v},T,true]
