@@ -550,7 +550,10 @@ function actorPokemonBench(p) {
 function grandTreeTarget(o) {
   if(!Number.isSafeInteger(o?.globalTurn)||o.globalTurn<=2)return null;
   const own=o.ownPublic;
-  const established=arr(own?.bench).filter(x=>x&&
+  // Grand Tree can evolve an eligible Active Basic too. Prefer an established
+  // Benched target when available to preserve the rank15 Bench lock plan.
+  const board=[...arr(own?.bench),own?.active];
+  const established=board.filter(x=>x&&
     Number.isSafeInteger(x.lastPlayedOrEvolvedTurn)&&
     x.lastPlayedOrEvolvedTurn<o.globalTurn);
   return established.find(x=>has(x,P.oddish)&&k1Available(o,[P.gloom])!==false)||
@@ -566,12 +569,20 @@ function grandTreePrompt(request) {
     const target=grandTreeTarget(o);
     const bench=arr(own.bench);
     const targetIndex=target?bench.indexOf(target):-1;
-    // Grand Tree can act on either physical copy of a Basic. A newly put
-    // down Oddish is ineligible to evolve, even if another identical copy is
-    // established. The printed name alone is not a valid Bench identity.
+    const activeTarget=!!target&&target===own.active;
+    // A freshly played Oddish is ineligible even when its printing is
+    // identical to an established copy elsewhere. Match the physical zone,
+    // owner and Bench index. An Active selection is unambiguous by zone.
     const sameNameCount=target?bench.filter(x=>x&&txt(x)===txt(target)).length:0;
-    const c=actorPokemonBench(p).find(c=>{
-      if(targetIndex<0||!target||txt(c)!==txt(target))return false;
+    const c=arr(p.choices).find(c=>{
+      if(!target||c.kind!=='pokemon'||typeof c.token!=='string'||
+        c.publicMetadata?.ownerSeat!=='actor'||txt(c)!==txt(target))return false;
+      if(activeTarget){
+        return c.publicMetadata?.targetZone==='active'&&
+          (m.targetZone===undefined||m.targetZone==='active');
+      }
+      if(targetIndex<0||c.publicMetadata?.targetZone!=='bench'||
+         (m.targetZone!==undefined&&m.targetZone!=='bench'))return false;
       const index=c.publicMetadata?.benchIndex;
       return Number.isSafeInteger(index) ? index===targetIndex:
         sameNameCount===1;
