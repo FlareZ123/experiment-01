@@ -1005,6 +1005,45 @@ function promptDecision(request) {
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_POKEMON_PROMPT' };
   }
 
+  if (prompt.promptType === 'AttachEnergyPrompt') {
+    // Volt Cyclone's mandatory post-attack move is a single attached Energy
+    // from our Active Iron Thorns ex to a live actor-owned Bench target.
+    // The host projector has verified every offered pair against the native
+    // prompt; the policy only ranks actor-visible, source-bound choices.
+    if (prompt.source?.sourceKind !== 'card-effect' ||
+        prompt.source.effectName !== 'Volt Cyclone' ||
+        prompt.source.sourcePrinting !== 'Iron Thorns ex TWM' ||
+        metadata.selectionType !== 'energy-attachment' ||
+        metadata.sourceZone !== 'active' ||
+        metadata.ownerSeat !== 'actor' ||
+        metadata.zone !== 'bench' ||
+        metadata.minimumCount !== 1 || metadata.maximumCount !== 1 ||
+        metadata.allowCancel !== false)
+      return {kind:'abstain',reasonCode:'UNTRUSTED_ENERGY_SELECTION'};
+    return singleChoice(choices, choice => {
+      const meta = choice?.publicMetadata ?? {};
+      const index = meta.benchIndex;
+      const recipient = Number.isSafeInteger(index) &&
+        index >= 0 && index < list(observation?.ownPublic?.bench).length ?
+        observation.ownPublic.bench[index] : null;
+      if (choice.kind !== 'energy' || meta.sourceZone !== 'active' ||
+          meta.ownerSeat !== 'actor' || meta.zone !== 'bench' ||
+          meta.isOwnerVisible !== true || meta.selectedCount !== 1 ||
+          !matches(recipient?.printing, PRINT.ironThorns))
+        return 0;
+      const printing=choicePrinting(choice);
+      // Preserve DCE on the Active attacker where an alternative Energy
+      // can satisfy the compulsory transfer; prefer a prepared Bench Thorns.
+      const priority = matches(printing, PRINT.speedLightning) ? 300 :
+        matches(printing, PRINT.captureEnergy) ? 275 :
+        matches(printing, PRINT.spikyEnergy) ? 250 :
+        matches(printing, PRINT.doubleColorless) ? 120 :
+        isBasicEnergy(printing) ? 285 : 90;
+      return priority + 10 * energyCount(recipient) -
+        Math.min(40, recipient.damage ?? 0) / 10;
+    }, 'NO_VISIBLE_ENERGY_CHOICE');
+  }
+
   if (prompt.promptType === 'ChooseEnergyPrompt') {
     const context = source.includes('enhanced hammer') ? 'enhanced-hammer' :
       source.includes('team flare') ? 'team-flare-energy' :
