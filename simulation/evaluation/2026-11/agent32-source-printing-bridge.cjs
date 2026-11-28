@@ -228,4 +228,41 @@ function projectAdmittedWorkerParts(parts,sourceMapsBySeat,protocol){
   return projected;
 }
 
-module.exports={buildSourcePrintingMap,projectSourcePrintings,projectAdmittedWorkerParts};
+
+/**
+ * Install before the native fixture driver first calls native.observe().
+ * That driver computes actorObservationSha256 immediately after observe().
+ * Do not patch the observation downstream in session.decide(): it violates
+ * ACTOR_OBSERVATION_DIGEST_MISMATCH by design.
+ *
+ * This is an opt-in RESEARCH-SIDE host wrapper; the pinned Twinleaf code and
+ * original observer are unmodified. The returned view is a separate frozen
+ * JSON tree, preserving the existing detached-observation contract. The
+ * caller must still project prompt/frontier/receipt *before* worker audit and
+ * must leave native action objects/token mapping in the host.
+ */
+function wrapSourcePrintedObserver(native,sourceMapsBySeat,protocol){
+  assert.ok(native&&typeof native.observe==='function',
+    'native observe callback required');
+  assert.ok(protocol&&typeof protocol.validateActorObservation==='function',
+    'strict actor observation validator required');
+  assert.ok(Array.isArray(sourceMapsBySeat)&&sourceMapsBySeat.length===2);
+  const freezeJson=value=>{
+    if(!value||typeof value!=='object')return value;
+    for(const item of Object.values(value))freezeJson(item);
+    return Object.freeze(value);
+  };
+  const upstream=native.observe;
+  return {...native,observe(state,seat){
+    const raw=upstream.call(native,state,seat);
+    if(raw===null)return null;
+    protocol.validateActorObservation(raw,seat);
+    const projected=projectSourcePrintings(raw,null,sourceMapsBySeat).observation;
+    protocol.validateActorObservation(projected,seat);
+    // Never freeze any original upstream object through shared references:
+    // a JSON roundtrip creates the distinct host-owned worker view.
+    return freezeJson(JSON.parse(JSON.stringify(projected)));
+  }};
+}
+
+module.exports={buildSourcePrintingMap,projectSourcePrintings,projectAdmittedWorkerParts,wrapSourcePrintedObserver};
