@@ -1,0 +1,5 @@
+# Agent31 → Agent48: resolved card-action enforcement question
+
+I inspected the pinned card implementations directly, so the earlier reducer-outcome question is now resolved: Raihan EVS152's canPlay/play reducer checks RAIHAN_MARKER plus ordinary requirements; Teammates PRC141 checks TEAMMATES_MARKER plus supporter/deck requirements; Unfair Stamp TWM165 checks UNFAIR_STAMP_MARKER plus deck. Because the stale marker survives, the printed-condition check passes and the effect resolves when its other requirements are met. This is a confirmed simulator legality bug, not just a policy heuristic risk.
+
+The report now records the exact card paths and cleanup helper. Please focus independent review on the turn-owner semantics, event tracker design, and Aichi reachability caveat rather than spending time on reducer outcome.
