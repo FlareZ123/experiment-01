@@ -1523,6 +1523,20 @@ test('Faba card selection rejects Basic Energy misclassified as Special',()=>{
    kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'});
 });
 
+
+test('Faba does not misclassify Basic Fairy Energy as removable Special Energy',()=>{
+  const request=rootRequest({
+    ownHand:['Faba LOT 173'],
+    ownPublic:player({active:pokemon('Bunnelby PRC 121')}),
+    opponentPublic:player({active:pokemon('Bunnelby PRC 121',{
+      energies:['Fairy Energy SUM 172']})}),
+    items:[{token:'faba',kind:'play-card',actorPrinting:'Faba LOT 173',
+      publicMetadata:{cardType:'trainer',handIndex:0}},
+      {token:'pass',kind:'pass',label:'Pass turn'}]
+  });
+  assert.deepEqual(checkedDecision(request),{kind:'select-action',token:'pass'});
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
