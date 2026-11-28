@@ -141,3 +141,8 @@ The policy is a two-own-turn setup proxy, not gameplay. It deals physical openin
 
 ## Decision
 Retain the print-locked wide proposal as an unqualified structural challenger. Do not nominate a proxy-selected variant or claim superiority on full games. The required next step is actual symmetric policy competence and legal native game evidence after owner approval. The candidate and proxy have not modified the frozen worker or dispatched live fixtures.
+
+
+## New falsifying field counterplay screen (28 November 2026)
+
+[Executable original-29 source census and adversarial action forks](agent1-apex-lock-counterplay-screen-20261128.md) uses the 29 unchanged original Aichi printed 60s and identifies seven all-Special-Energy ranks (4/5/6/7/17/24/29), AOR Item-lock obstacles at 2/15, and the exact four printed Garbotoxin Tool-restart ranks 8/11/16/22 where Chaos Wheel and Dominating Echo materially differ. Three all-Special Iron Thorns lists (6/24/29) have neither named Ranger nor Electrode-GX, but that does **not** prove an inevitable lock. Printed 230HP Iron Thorns also creates a 2-hit Echo versus 3-hit Chaos damage frontier absent modifiers/recovery. This improves which **actual counterplay states to test** and what would falsify the concept, not its measured game strength. Source screen plus six V8 stand-in cases passed; Node/native games remain unexecuted.
