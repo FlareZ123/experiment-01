@@ -8,7 +8,7 @@
 const SUPPORTER='Guzma & Hala';
 const ROLES=['stadium','tool','specialEnergy'];
 const KNOWN={
-  stadium:['Sky Field','Path to the Peak'],
+  stadium:['Sky Field','Path to the Peak','Dimension Valley'],
   tool:['Stealthy Hood','Powerglass','Forest Seal Stone'],
   specialEnergy:['Telepathic Psychic Energy']
 };
@@ -26,6 +26,16 @@ function eligibleRoot(view) {
        !Array.isArray(plan.wanted) || plan.wanted.some(x=>
          !x || !ROLES.includes(x.role) || !KNOWN[x.role].includes(x.name)))
     return {status:'unsupported',reason:'UNCERTIFIED_ACTOR_FIELDS'};
+  // The same deck's live Solrock+Lunatone New Moon protects our Pokémon
+  // from ALL Stadium effects, including beneficial Dimension Valley reduction.
+  // Do not waste G&H on a purported one-energy Rondo line that cannot work.
+  if(plan.wanted.some(x=>x.role==='stadium'&&x.name==='Dimension Valley')) {
+    if(typeof pub.ownNewMoonActive!=='boolean' ||
+       typeof plan.rondoAttackNeedsValleyDiscount!=='boolean')
+      return {status:'unsupported',reason:'VALLEY_NEW_MOON_ORDER_UNCERTIFIED'};
+    if(pub.ownNewMoonActive && plan.rondoAttackNeedsValleyDiscount)
+      return {status:'blocked',reason:'OWN_NEW_MOON_NULLIFIES_VALLEY_DISCOUNT'};
+  }
   if(new Set(own.hand.map(x=>x.token)).size!==own.hand.length)
     return {status:'unsupported',reason:'DUPLICATE_HAND_TOKEN'};
   if(own.supporterUsed||own.supporterLocked)
