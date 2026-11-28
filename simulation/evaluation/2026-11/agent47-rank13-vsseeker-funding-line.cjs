@@ -82,7 +82,10 @@ function chooseRank13VsSeekerFundingLine(request) {
       own?.prizeCount !== 1 ||
       !Number.isSafeInteger(turn) || turn < 2 ||
       !Number.isSafeInteger(view?.ownTurnResources?.supporterPlayedTurn) ||
-      view.ownTurnResources.supporterPlayedTurn >= turn ||
+      // In native Twinleaf this is the per-turn NUMBER of Supporters played,
+      // not the global-turn stamp. Any positive value exhausts the quota.
+      view.ownTurnResources.supporterPlayedTurn !== 0 ||
+      view.ownTurnResources.supporterPlayLocked === true ||
       !Array.isArray(energy) || energy.length !== 2 ||
       energy.filter(e => isPrint(e, GRASS)).length !== 1 ||
       energy.filter(e => isPrint(e, FIRE)).length !== 1 ||
