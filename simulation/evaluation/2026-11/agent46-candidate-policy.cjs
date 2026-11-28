@@ -248,13 +248,21 @@ function slotByPrinting(player, printing) {
 function prizeLiability(slot) {
   if (!slot) return 1;
   const subtypes = slot.printed?.subtypes ?? [];
+  const stage = slot.printed?.stage ?? null;
   const printing = slot.printing ?? '';
-  if (subtypes.some(value => ['VMAX', 'V-UNION', 'TAG TEAM'].includes(value)) ||
-      hasName(printing, 'VMAX') || hasName(printing, 'V-UNION') ||
-      hasName(printing, ' & ') && hasName(printing, '-GX')) return 3;
-  if (subtypes.some(value => ['ex', 'GX', 'V'].includes(value)) ||
-      hasName(printing, '-GX') || / ex(?: |$)/.test(printing) ||
-      / V(?: |$)/.test(printing)) return 2;
+  const printedMegaEx = /^Mega\s+.+\sex(?:\s|$)/i.test(printing);
+  if (subtypes.some(value =>
+        ['VMAX', 'V-UNION', 'TAG TEAM', 'Mega Evolution ex', 'Mega ex'].includes(value)) ||
+      stage === 'VMAX' || stage === 'V-UNION' ||
+      printedMegaEx ||
+      /\sVMAX(?:\s|$)/i.test(printing) ||
+      /\sV-UNION(?:\s|$)/i.test(printing) ||
+      (printing.includes(' & ') && /-GX(?:\s|$)/i.test(printing))) return 3;
+  if (subtypes.some(value => ['ex', 'EX', 'GX', 'V', 'VSTAR'].includes(value)) ||
+      stage === 'VSTAR' ||
+      /-(?:EX|GX)(?:\s|$)/i.test(printing) ||
+      /\sex(?:\s|$)/.test(printing) ||
+      /\sV(?:STAR)?(?:\s|$)/i.test(printing)) return 2;
   return 1;
 }
 
@@ -509,7 +517,9 @@ function wonderTagSupporterScore(view, printing, receipt = null) {
   if (hasName(printing, "Lillie's Determination"))
     return view.ownPublic.handCount <= 5 ? 1200 : 520;
   if (hasName(printing, 'Guzma'))
-    return canGuzmaForAttack(view, null) ? 1270 : 200;
+    // A speculative gust must not consume our sole Supporter when the
+    // forced replacement attacker cannot actually convert it to a KO.
+    return canGuzmaForAttack(view, receipt) ? 1270 : -Infinity;
   if (hasName(printing, 'Acerola'))
     return ownBoard(view).some(slot => slot.damage > 0)
       ? (ownBoard(view).some(slot => slot.damage >= 80) ? 850 : 400)
@@ -1709,7 +1719,11 @@ function freeRetreatKnown(view) {
       view.opponentPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining;
     if (ownSuppression === 0 && opponentSuppression === 0) return true;
   }
-  const isBasic = active.printed.subtypes.includes('Basic');
+  // Pinned Twinleaf Stage.BASIC is numeric 2; PR94's public adapter
+  // canonicalizes it to 'BASIC'. Do not infer evolutionary stage from
+  // Card.tags/subtypes, which may be empty in native actor projections.
+  const stage = active.printed?.stage;
+  const isBasic = stage === 2 || stage === 'BASIC';
   return isBasic && skylinerStatus(view) === true;
 }
 
