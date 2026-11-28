@@ -795,7 +795,13 @@ function multiSelectBounds(prompt) {
       maximumCount = metadata.maximumCount;
       break;
     case 'energy-payment':
-      minimumCount = 1;
+      // Only the exact paper-corrected CES48 any-amount GX attack has a
+      // zero-payment option. Existing ChooseEnergyPrompt costs stay min1.
+      minimumCount = prompt.promptType==='DiscardEnergyPrompt'&&
+        prompt.source?.sourceKind==='card-effect'&&
+        prompt.source?.sourcePrinting==='Electrode-GX CES'&&
+        prompt.source?.effectName==='Crush and Burn-GX'&&
+        metadata.minimumCount===0 ? 0 : 1;
       maximumCount = metadata.energyCount ?? metadata.count;
       break;
     case 'prize-slots':
