@@ -864,6 +864,33 @@ function chooseTrifrostTargets(prompt,observation) {
     return {kind:'abstain',reasonCode:'RANK32_TRIFROST_POKEMON_CHOICE_UNAVAILABLE'};
   return {kind:'select-choices',tokens:ranked.slice(0,needed).map(row=>row.choice.token)};
 }
+function raihanAttachPriority(choice,observation) {
+  const meta=choice?.publicMetadata??{},own=observation?.ownPublic??{};
+  if(choice?.kind!=='energy'||typeof choice.token!=='string'||
+      meta.sourceZone!=='discard'||meta.ownerSeat!=='actor' ||
+      meta.isOwnerVisible!==true)return 0;
+  const target=meta.zone==='active'?own.active:
+    (meta.zone==='bench'&&Number.isSafeInteger(meta.benchIndex)?
+      list(own.bench)[meta.benchIndex]:null);
+  if(!target || typeof meta.targetPrinting!=='string' ||
+      print(target)!==meta.targetPrinting)return 0;
+  const card=print(choice);
+  if(!/^(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy\b/i.test(card))
+    return 0;
+  const action={
+    kind:'play-card',actorPrinting:card,targetPrinting:print(target),
+    publicMetadata:{targetSeat:'actor',targetZone:meta.zone,
+      ...(meta.zone==='bench'?{targetIndex:meta.benchIndex}:{})}
+  };
+  const scored=scoreEnergyAttachment(action,observation);
+  if(scored>0)return scored;
+  if(/^Regidrago V(?:STAR)? SIT 13[56]\b/i.test(print(target)))
+    return 95;
+  // Native selection can require an otherwise suboptimal attachment.
+  // Choose from the actor's actual targets rather than abstaining or
+  // inventing an illegal typed-energy assignment.
+  return 15;
+}
 function promptDecision(request) {
   const p = request?.prompt ?? {};
   const choices = list(p.choices);
@@ -964,6 +991,13 @@ function promptDecision(request) {
         {kind:'abstain',reasonCode:'UNRECOGNIZED_SIMPLE_PROMPT'};
     }
     return {kind:'abstain',reasonCode:'RANK32_CYNTHIA_PROMPT_UNPROJECTED'};
+  }
+  if (/raihan/.test(source) &&
+      p.promptType==='AttachEnergyPrompt' &&
+      meta.selectionType==='energy-attachment'&&
+      meta.sourceZone==='discard'&&meta.ownerSeat==='actor') {
+    return chooseMany(choices,c=>raihanAttachPriority(c,obs),1,1,
+      'RANK32_RAIHAN_NO_SAFE_PUBLIC_ASSIGNMENT');
   }
   if (/vs seeker/.test(source) &&
       p.promptType==='ChooseCardsPrompt' &&
@@ -1082,4 +1116,4 @@ module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
   aceSpecBlowerPriority,muscleBandPriority,evolveRegidragoPriority,retreatToAttackerPriority,
   prizeValue,crispinAccelerationPriority,crispinDeckEnergyChoice,
   chooseTrifrostTargets,protectedDdeInHand,seekerSupporterPriority,
-  readyMimikyuCounterAls};
+  readyMimikyuCounterAls,raihanAttachPriority};
