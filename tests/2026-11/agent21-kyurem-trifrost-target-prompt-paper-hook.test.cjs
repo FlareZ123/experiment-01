@@ -175,28 +175,40 @@ test('other prompts created while original Trifrost resolves are untouched',()=>
     this.prompt(state,other,()=>{});
     return state;
   };
-  fire(f); // one damage prompt plus one unrelated prompt
+  const nativePrompt=f.store.prompt;
+  withHook(()=>f.card.reduceEffect(f.store,f.state,f.effect));
+  assert.equal(f.store.prompt,nativePrompt);
+  assert.equal(f.captured.length,2);
+  const irrelevant=f.captured[0].prompt;
+  const corrected=f.captured[1].prompt;
+  assert.equal(irrelevant.options.min,1);
+  assert.equal(irrelevant.options.max,2);
+  assert.equal(corrected.options.min,3);
+  assert.equal(corrected.options.max,3);
 });
 test('untrusted changed pinned prompt contract fails closed and restores Store',()=>{
-  const f=fixture();
-  const first=f.store.prompt;
-  const old=Kyurem.prototype.reduceEffect;
-  const original=ChoosePokemonPrompt.prototype.validate;
-  assert.throws(()=>withHook(()=>{
-    const proto=Kyurem.prototype.reduceEffect;
-    const altered=f.card.reduceEffect;
-    f.card.reduceEffect=function(store,state,effect){
-      return store.prompt(state,new ChoosePokemonPrompt(effect.player.id,
-        GameMessage.CHOOSE_POKEMON_TO_DAMAGE,PlayerType.TOP_PLAYER,
-        [SlotType.ACTIVE,SlotType.BENCH],
-        {min:0,max:3,allowCancel:false}),()=>{});
-    };
-    try{return f.card.reduceEffect(f.store,f.state,f.effect)}
-    finally{delete f.card.reduceEffect}
-  }),/Trifrost/);
-  assert.equal(Kyurem.prototype.reduceEffect,old);
-  assert.equal(f.store.prompt,first);
-  assert.equal(ChoosePokemonPrompt.prototype.validate,original);
+  const f=fixture(),first=f.store.prompt;
+  const original=Kyurem.prototype.reduceEffect;
+  const originalPromptValidator=ChoosePokemonPrompt.prototype.validate;
+  // Simulate an incompatible pinned Kyurem revision BEFORE installing hook,
+  // so its original reducer emits a changed target prompt signature.
+  const incompatible=function(store,state,effect){
+    return store.prompt(state,new ChoosePokemonPrompt(effect.player.id,
+      GameMessage.CHOOSE_POKEMON_TO_DAMAGE,PlayerType.TOP_PLAYER,
+      [SlotType.ACTIVE,SlotType.BENCH],
+      {min:0,max:3,allowCancel:false}),()=>{});
+  };
+  Kyurem.prototype.reduceEffect=incompatible;
+  try {
+    assert.throws(()=>withHook(()=>
+      f.card.reduceEffect(f.store,f.state,f.effect)),
+      /expected 1,got 0/);
+    assert.equal(Kyurem.prototype.reduceEffect,incompatible);
+    assert.equal(f.store.prompt,first);
+    assert.equal(ChoosePokemonPrompt.prototype.validate,originalPromptValidator);
+  } finally {
+    Kyurem.prototype.reduceEffect=original;
+  }
 });
 test('exception and async returns restore Kyurem prototype',()=>{
   const original=Object.getOwnPropertyDescriptor(
