@@ -1482,3 +1482,25 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' six counters on Safeguarded Mimikyu unlock Terminal Period effect KO',()=>{
+  const board=own({active:mon('Crobat V DAA 104'),bench:[mon('Budew ASC 16'),
+   mon('Mega Absol ex MEG 86',{energies:[
+    'Darkness Energy MEE 15','Darkness Energy MEE 15']})]});
+  const target=mon('Mimikyu PAL 97',{hp:70,damage:60,
+   abilitySuppressions:[{abilityName:'Safeguard',suppressed:false}]});
+  const q=prompt(seat,{promptType:'ChoosePokemonPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Guzma BUS 115',effectName:'Guzma'},
+   publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+   choices:[{kind:'pokemon',token:'budew',printing:'Budew ASC 16',
+    publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0}},
+    {kind:'pokemon',token:'mega',printing:'Mega Absol ex MEG 86',
+    publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:1}}]},
+   {ownPublic:board,opponentPublic:opp({active:target})});
+  assert.equal(policy.activeMimikyuSafeguard(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['mega']});
+  target.damage=50;
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['budew']});
+ });
+}
