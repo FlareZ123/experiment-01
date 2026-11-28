@@ -1699,7 +1699,9 @@ function candidateTerminalAttack(view, items, receipt) {
   const prizes = view.ownPublic.prizeCount;
   const finalPrizeKO = Number.isSafeInteger(prizes) &&
     prizes > 0 && prizes <= prizeLiability(defender);
-  const boardWipe = (view.opponentPublic.bench ?? []).every(slot => !slot);
+  // Never reinterpret an omitted/unknown opponent Bench as a known empty one.
+  const boardWipe = Array.isArray(view.opponentPublic.bench) &&
+    view.opponentPublic.bench.every(slot => !slot);
   if (!finalPrizeKO && !boardWipe) return null;
 
   // Original Aichi ranks 6 and 29 include Spiky Energy, which puts two
