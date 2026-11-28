@@ -1572,7 +1572,7 @@ for(const seat of [0,1]) {
       promptType:'AttachEnergyPrompt',
       source:{sourcePrinting:'Raihan EVS 152',effectName:'Raihan'},
       publicMetadata:{selectionType:'energy-attachment',ownerSeat:'actor',
-        isOwnerVisible:true,sourceZone:'discard',energyType:'BASIC',zone:'bench,active',minimumCount:1,maximumCount:1},
+        isOwnerVisible:true,sourceZone:'discard',energyType:'BASIC',allowCancel:false,minimumCount:1,maximumCount:1},
       choices:[
         {kind:'energy',printing:'Telepathic Psychic Energy POR 88',token:'special-active',
           publicMetadata:{sourceZone:'discard',ownerSeat:'actor',
