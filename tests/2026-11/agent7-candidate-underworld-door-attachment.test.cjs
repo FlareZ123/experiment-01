@@ -5,6 +5,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {createPolicy,POLICY_VERSION}=require('../../simulation/evaluation/2026-11/agent46-candidate-policy.cjs');
+const protocol=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const VMAX='Shadow Rider Calyrex VMAX CRE 75';
 const BASIC='Shadow Rider Calyrex V CRE 74';
 const PSI='Psychic Energy MEE 13';
@@ -115,5 +116,29 @@ for(const seat of [0,1]){
     view.decisionKind='owner-prompt';
     request.prompt=attachPrompt(seat,[{kind:'cancel',token:'cancel',label:'Cancel selection'}]);
     assert.deepEqual(policy.decide(request),{kind:'select-choice',token:'cancel'});
+  });
+}
+
+for(const seat of [0,1]){
+  test('strict worker ABI admits Underworld native prompt and selected energy, seat='+seat,()=>{
+    const {policy,request,view}=game(seat);
+    view.decisionKind='owner-prompt';
+    view.pendingPromptType='AttachEnergyPrompt';
+    request.prompt=attachPrompt(seat,[
+      {...cardChoice('psychic',0),label:'Attach Basic Psychic to Bench 1'},
+      {kind:'cancel',token:'cancel',label:'Cancel selection'}
+    ]);
+    request.prompt.schema=protocol.PROMPT_SCHEMA;
+    assert.doesNotThrow(()=>protocol.validatePrompt(request.prompt,seat));
+    const chosen=policy.decide(request);
+    assert.deepEqual(chosen,{kind:'select-choice',token:'psychic'});
+    assert.deepEqual(protocol.validateDecision(
+      chosen,request.prompt,new Set()),chosen);
+    const cancel=attachPrompt(seat,[{kind:'cancel',token:'cancel',label:'Cancel selection'}]);
+    cancel.schema=protocol.PROMPT_SCHEMA;
+    assert.doesNotThrow(()=>protocol.validatePrompt(cancel,seat));
+    assert.deepEqual(protocol.validateDecision(
+      {kind:'select-choice',token:'cancel'},cancel,new Set()),
+      {kind:'select-choice',token:'cancel'});
   });
 }
