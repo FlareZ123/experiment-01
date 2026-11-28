@@ -834,7 +834,16 @@ function bombPlanner(o,sourceBenchIndex){
     }
     if(match(x,R.vip)&&first(o)&&cap(o)>0)return 440;
     if(match(x,R.mail)&&Number(o.ownPublic?.deckCount)>0)return 330;
-    if(match(x,R.carrier)&&cap(o)>0&&d.some(c=>[isVol,isToed,isUn].some(f=>f(c))&&pokemonSearch(c,o)>0))return 320;
+    if(match(x,R.carrier)&&cap(o)>0&&d.some(c=>[isVol,isToed,isUn].some(f=>f(c))&&pokemonSearch(c,o)>0)){
+      // Recovering original Unown and then replaying Farewell is a
+      // non-turn-ending draw before a paid, non-final Claw KO.
+      if(d.some(isUn)&&!liveStadium(o,/Silent Lab/i)&&Number(o.ownPublic?.deckCount)>8&&
+         mega(o.ownPublic?.active)&&usable(o.ownPublic?.active,'Claw of Darkness',o)){
+        const ko=knockoutScore(o,o.ownPublic.active,o.opponentPublic?.active,'Claw of Darkness');
+        if(ko>0&&ko<1000)return ko+13;
+      }
+      return 320;
+    }
     if(match(x,R.stretcher)&&d.some(c=>pokemonSearch(c,o)>0))return 305;
     if(match(x,R.compressor)&&!deferCompressor(o)&&bombPossible(o)&&d.filter(ePred).length<5&&Number(o.ownPublic?.deckCount)>4)return 325;
     if(match(x,R.ultra)&&fundCost(h.map(printing=>({printing})),o,2,x).length===2){
@@ -896,7 +905,22 @@ function bombPlanner(o,sourceBenchIndex){
         return pick(deck,c=>pokemonSearch(c,o),1);
       }
       if(match(x,R.mail))return pick(deck,c=>trainerSearch(c,o),1);
-      if(match(x,R.carrier))return pick(discard.filter(c=>[isUn,isVol,isToed].some(f=>f(c))),c=>pokemonSearch(c,o),2);
+      if(match(x,R.carrier)){
+        const eligible=discard.filter(c=>[isUn,isVol,isToed].some(f=>f(c)));
+        const ko=mega(o.ownPublic?.active)&&usable(o.ownPublic?.active,'Claw of Darkness',o)?
+          knockoutScore(o,o.ownPublic.active,o.opponentPublic?.active,'Claw of Darkness'):0;
+        if(ko>0&&ko<1000&&!liveStadium(o,/Silent Lab/i)&&Number(o.ownPublic?.deckCount)>8){
+          // With a paid non-final KO, recover source Unown before other
+          // plausible Carrier targets so its hand-play Farewell can resolve.
+          const unowns=eligible.filter(isUn).slice(0,Math.min(2,m.maximumCount));
+          if(unowns.length){
+            const other=eligible.filter(c=>!unowns.includes(c)).sort((a,b)=>pokemonSearch(b,o)-pokemonSearch(a,o));
+            const chosen=[...unowns,...other.slice(0,Math.min(m.maximumCount,2)-unowns.length)];
+            if(chosen.length>=m.minimumCount)return select(p,chosen,chosen.length,'NO_SUPPORTED_CARD_SELECTION');
+          }
+        }
+        return pick(eligible,c=>pokemonSearch(c,o),2);
+      }
       if(match(x,R.stretcher))return pick(discard,c=>pokemonSearch(c,o),m.maximumCount===3?3:1);
       if(match(x,R.vs))return pick(discard,c=>supporterSearch(c,o),1);
       if(match(x,R.compressor)){
@@ -1177,7 +1201,8 @@ function bombPlanner(o,sourceBenchIndex){
           // it preserves the already funded direct, non-final attack.
           development.kind==='play-card'&&/^Telepathic Psychic Energy POR 88\b/i.test(name(development))&&
           developmentScore>directScore||
-          development.kind==='play-card'&&isUn(development)&&developmentScore>directScore
+          development.kind==='play-card'&&isUn(development)&&developmentScore>directScore||
+          development.kind==='play-card'&&match(development,R.carrier)&&developmentScore>directScore
         ))return {kind:'select-action',token:development.token};
         return {kind:'select-action',token:direct.token};
       }
