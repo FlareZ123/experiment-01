@@ -331,7 +331,14 @@ function canPayAttack(slot, attack, view) {
 }
 
 function weaknessMultiplier(attacker, target, view) {
-  if (isDragon(target) && fairyZoneStatus(view) === true) return 2;
+  // Aichi rank 32 has original Stealthy Hood UNB 186. Its effect blocks
+  // our Clefairy ex's opponent-facing Fairy Zone Ability *on that Dragon*.
+  // Never manufacture the Ability-imposed Psychic Weakness under a visible
+  // Hood. Fall through to genuine printed Weakness if there is one.
+  const hoodProtectsFromFairyZone=(target?.tools??[])
+    .includes('Stealthy Hood UNB 186');
+  if (isDragon(target) && fairyZoneStatus(view) === true &&
+      !hoodProtectsFromFairyZone) return 2;
   const types = attacker?.printed?.types ?? [];
   const weakness = (target?.printed?.weakness ?? []).find(row =>
     types.includes(row.type));
