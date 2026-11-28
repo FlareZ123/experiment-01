@@ -281,7 +281,7 @@ function attachedEnergyUnits(slot) {
 // Two copies of Mega Lopunny (or Bunnelby) can share a printing but
 // occupy different physical slots. Native projected actions carry the exact
 // actor-relative target zone/index; use them before any name-only fallback.
-function energyActionTarget(item,own) {
+function ownActionTarget(item,own) {
   const meta=item?.publicMetadata??{};
   if(meta.targetSeat!==undefined&&meta.targetSeat!=='actor')return null;
   const printing=item?.targetPrinting;
@@ -308,7 +308,7 @@ function energyActionScore(item,o) {
   if(item?.kind!=='play-card'||
     ![P.jet,P.capture,P.doubleColorless,P.powerful,P.grass].some(p=>has(ownPrinting(item),p)))return 0;
   const own=o?.ownPublic,energy=ownPrinting(item);
-  const target=energyActionTarget(item,own);
+  const target=ownActionTarget(item,own);
   if(!target||!item.targetPrinting)return 0;
   const used=attachedEnergyUnits(target),available=5-benchCount(own);
   if(has(target,P.bus)&&has(energy,P.jet)&&has(own.active,P.bunnelby)&&
@@ -371,15 +371,34 @@ function retreatPrompt(request) {
   return found?{kind:'select-choices',tokens:[found.token]}:
     abstain('NO_SUPPORTED_POKEMON_CHOICE');
 }
+// RetreatAction is already bound to an actual Bench slot. A repeated
+// printing is not an interchangeable destination; check the native index.
+function retreatActionTargets(item,target,own) {
+  if(item?.kind!=='retreat')return false;
+  if(item.targetPrinting&&item.targetPrinting!==target.printing)return false;
+  const meta=item.publicMetadata??{};
+  if(meta.targetZone!==undefined||meta.targetIndex!==undefined||
+      meta.benchIndex!==undefined) {
+    return meta.targetSeat==='actor'&&meta.targetZone==='bench'&&
+      meta.targetIndex===target.index&&
+      (meta.benchIndex===undefined||meta.benchIndex===target.index);
+  }
+  // Metadata-free constructed legacy inputs are safe only when a single
+  // Bench slot corresponds to the requested destination.
+  const bench=arr(own?.bench);
+  if(item.targetPrinting)return bench.filter(x=>x&&txt(x)===target.printing).length===1;
+  return bench.filter(Boolean).length===1&&bench[target.index]!==null;
+}
+
 function mobilityActions(items,o) {
+  const own=o?.ownPublic;
   const target=positionTarget(o);
   if(!target)return null;
-  const retreat=items.find(x=>x.kind==='retreat'&&
-    (!x.targetPrinting||x.targetPrinting===target.printing));
+  const retreat=items.find(x=>retreatActionTargets(x,target,own));
   if(retreat)return retreat;
   const float=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.floatStone)&&
-    x.targetPrinting===o.ownPublic.active.printing&&
-    arr(o.ownPublic.active.tools).length===0);
+    ownActionTarget(x,own)===own.active&&
+    arr(own.active.tools).length===0);
   return float??null;
 }
 function capturePrompt(request) {
