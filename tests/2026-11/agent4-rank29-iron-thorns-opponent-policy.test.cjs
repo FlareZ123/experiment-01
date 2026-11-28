@@ -2072,3 +2072,52 @@ test('Guzma target ranks unprotected 2-Prize KO over public HP Cape or preventio
   assert.deepEqual(checkedDecision(req),
     {kind:'select-choices',tokens:['dedenne']});
 });
+
+
+test('VS Seeker connector prioritizes actual currently winning Guzma over Flare and Lusamine',()=>{
+  for(const seat of [0,1]){
+    const base={
+      seat,promptType:'ChooseCardsPrompt',
+      source:actorChoiceSource('VS Seeker PHF 109','VS Seeker'),
+      publicMetadata:multiMetadata(1,1),
+      choices:[
+        cardChoice('flare','Team Flare Grunt XY 129','discard','actor'),
+        cardChoice('guzma','Guzma BUS 115','discard','actor'),
+        cardChoice('lusamine','Lusamine CIN 96','discard','actor')
+      ]
+    };
+    const req=promptRequest({...base,observation:{
+      ownPublic:player({
+        active:pokemon('Iron Thorns ex TWM 77'),
+        bench:[pokemon('Iron Thorns ex TWM 77',{energies:[
+          'Double Colorless Energy SUM 136'
+        ]})],
+        stadium:['Thunder Mountain ♢ LOT 191'],
+        discard:['Guzma BUS 115','Team Flare Grunt XY 129','Lusamine CIN 96']
+      }),
+      opponentPublic:player({
+        active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{
+          energies:['Psychic Energy CRE 232']}),
+        bench:[pokemon('Trevenant & Dusknoir-GX SMP 180',{
+          hp:270,damage:160,subtypes:['TAG_TEAM','GX']})]
+      })
+    }});
+    assert.deepEqual(checkedDecision(req,seat),
+      {kind:'select-choices',tokens:['guzma']});
+    const noReady=promptRequest({...base,observation:{
+      ownPublic:player({
+        active:pokemon('Iron Thorns ex TWM 77'),
+        bench:[pokemon('Iron Thorns ex TWM 77')],
+        discard:['Guzma BUS 115','Team Flare Grunt XY 129']
+      }),
+      opponentPublic:player({
+        active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{
+          energies:['Psychic Energy CRE 232']}),
+        bench:[pokemon('Trevenant & Dusknoir-GX SMP 180',{
+          hp:270,damage:160,subtypes:['TAG_TEAM','GX']})]
+      })
+    }});
+    assert.deepEqual(checkedDecision(noReady,seat),
+      {kind:'select-choices',tokens:['flare']});
+  }
+});
