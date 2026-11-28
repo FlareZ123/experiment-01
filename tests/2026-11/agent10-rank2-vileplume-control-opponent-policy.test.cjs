@@ -2273,6 +2273,55 @@ test('Guzma & Hala is held if all remaining Stadiums are already visible in hand
     kind:'select-action',token:'pass'});
 });
 
+
+test('Plumeria declines when its only prospective costs are unique lock/recovery cards',()=>{
+ const request=rootRequest({
+  ownHand:['Plumeria BUS 120','Guzma & Hala CEC 193','Stoutland BCR 122'],
+  ownPublic:player({active:pokemon('Bunnelby PRC 121')}),
+  opponentPublic:player({active:pokemon('Regidrago VSTAR SIT 136',{
+    energies:['Double Dragon Energy ROS 97']})}),
+  items:[{token:'plumeria',kind:'play-card',actorPrinting:'Plumeria BUS 120',
+    publicMetadata:{cardType:'trainer',handIndex:0}},
+    {token:'pass',kind:'pass',label:'Pass turn'}]});
+ assert.deepEqual(checkedDecision(request),{kind:'select-action',token:'pass'});
+});
+test('Guzma Hala discard prompt refuses to discard singleton Stage2 or Supporter',()=>{
+ const request=promptRequest({promptType:'ChooseCardsPrompt',
+  source:actorChoiceSource('Guzma & Hala CEC 193','Guzma & Hala'),
+  choices:[cardChoice('tag','Tag Call CEC 206','hand'),
+    cardChoice('stoutland','Stoutland BCR 122','hand'),
+    cardChoice('guzma','Guzma BUS 115','hand')],
+  observation:{ownHand:['Tag Call CEC 206','Stoutland BCR 122','Guzma BUS 115']},
+  publicMetadata:{selectionType:'card-combination',minimumCount:2,
+    maximumCount:2,allowCancel:false,isSecret:false}});
+ assert.deepEqual(checkedDecision(request),{
+   kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'});
+});
+test('Guzma Hala still discards two redundant Tag Calls and protects singleton Stoutland',()=>{
+ const request=promptRequest({promptType:'ChooseCardsPrompt',
+  source:actorChoiceSource('Guzma & Hala CEC 193','Guzma & Hala'),
+  choices:[cardChoice('tag-one','Tag Call CEC 206','hand'),
+    cardChoice('stoutland','Stoutland BCR 122','hand'),
+    cardChoice('tag-two','Tag Call CEC 206','hand')],
+  observation:{ownHand:['Tag Call CEC 206','Stoutland BCR 122','Tag Call CEC 206']},
+  publicMetadata:{selectionType:'card-combination',minimumCount:2,
+    maximumCount:2,allowCancel:false,isSecret:false}});
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-choices',tokens:['tag-one','tag-two']});
+});
+test('First Oddish in hand is protected until it reaches the Bench',()=>{
+ const request=promptRequest({promptType:'ChooseCardsPrompt',
+  source:actorChoiceSource('Plumeria BUS 120','Plumeria'),
+  choices:[cardChoice('oddish','Oddish UNB 5','hand'),
+    cardChoice('tag','Tag Call CEC 206','hand')],
+  observation:{ownHand:['Oddish UNB 5','Tag Call CEC 206'],
+    ownPublic:player({active:pokemon('Fan Rotom SCR 118')})},
+  publicMetadata:{selectionType:'card-combination',minimumCount:2,
+    maximumCount:2,allowCancel:false,isSecret:false}});
+ assert.deepEqual(checkedDecision(request),{
+   kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'});
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
