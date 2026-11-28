@@ -645,9 +645,18 @@ function multiSelect(prompt, choices, score, reason) {
 }
 function singleChoice(prompt, choices, score, reason) {
   const ranked = choices.map(choice => ({ choice, score: score(choice) })).sort((a, b) => b.score - a.score);
-  return !ranked.length || ranked[0].score <= 0
-    ? { kind: 'abstain', reasonCode: reason }
-    : { kind: 'select-choice', token: ranked[0].choice.token };
+  if (!ranked.length || ranked[0].score <= 0) return { kind: 'abstain', reasonCode: reason };
+  const metadata = prompt?.publicMetadata ?? {};
+  // Agent49 protocol treats even one Pokémon recipient as multi-select.
+  if (['pokemon', 'card-combination', 'energy-payment', 'prize-slots', 'card-order']
+      .includes(metadata.selectionType)) {
+    const min = Number.isSafeInteger(metadata.minimumCount) ? metadata.minimumCount : 1;
+    const max = Number.isSafeInteger(metadata.maximumCount) ? metadata.maximumCount : 1;
+    return min <= 1 && max >= 1
+      ? { kind: 'select-choices', tokens: [ranked[0].choice.token] }
+      : { kind: 'abstain', reasonCode: reason };
+  }
+  return { kind: 'select-choice', token: ranked[0].choice.token };
 }
 function category(printing) {
   if ([PRINT.quick, PRINT.ultra, PRINT.darkPatch, PRINT.boost, PRINT.battleCompressor, PRINT.nightStretcher,
@@ -858,7 +867,18 @@ function createPolicy({ role, seat, policyVersion, config }) {
           request.observation?.actorSeat !== seat) {
         return { kind: 'abstain', reasonCode: 'ROLE_SEAT_BINDING_MISMATCH' };
       }
-      return request.prompt !== null ? promptDecision(request) : bestAction(request);
+      const decision = request.prompt !== null ? promptDecision(request) : bestAction(request);
+      if (decision.kind !== 'abstain') return decision;
+      // The strict worker accepts only its fixed public abstention codebook.
+      const allowed = new Set(['ROLE_SEAT_BINDING_MISMATCH', 'NO_EXECUTABLE_ACTION',
+        'NO_SUPPORTED_ACTION', 'UNSUPPORTED_PROMPT_TYPE',
+        'NO_SUPPORTED_CARD_SELECTION', 'NO_SUPPORTED_POKEMON_CHOICE']);
+      if (allowed.has(decision.reasonCode)) return decision;
+      if (request.prompt?.promptType === 'ChooseCardsPrompt')
+        return { kind: 'abstain', reasonCode: 'NO_SUPPORTED_CARD_SELECTION' };
+      if (request.prompt?.promptType === 'ChoosePokemonPrompt')
+        return { kind: 'abstain', reasonCode: 'NO_SUPPORTED_POKEMON_CHOICE' };
+      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
     }
   });
 }
