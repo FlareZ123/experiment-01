@@ -412,6 +412,9 @@ function frontierNative(){
     PlayerType:native('game/store/actions/play-card-action').PlayerType,
     SlotType:native('game/store/actions/play-card-action').SlotType,
     TrainerType:native('game/store/card/card-types').TrainerType,
+    CardType:native('game/store/card/card-types').CardType,
+    EnergyType:native('game/store/card/card-types').EnergyType,
+    StateUtils:native('game/store/state-utils').StateUtils,
     GameError:native('game/game-error').GameError
   };
 }
