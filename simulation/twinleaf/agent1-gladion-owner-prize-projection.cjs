@@ -27,9 +27,9 @@ function attest({prompt,state,actorSeat,provenanceHook}={}){
  if(provenance?.sourceKind!=='card-effect'||provenance?.effectName!=='Gladion'||
   !sourceCard||!fullName(sourceCard)?.startsWith('Gladion ')||
   !cards(owner.supporter).includes(sourceCard))return null;
- if(prompt.options?.allowCancel!==false||
-  prompt.options?.isSecret===true&&prompt.constructor?.name==='ChoosePrizePrompt')
-   return null;
+ if(prompt.options?.allowCancel!==false)return null;
+ // isSecret means concealed from the opponent, not from the player whom
+ // Gladion explicitly allows to look at their own six Prize cards.
  if(!Array.isArray(owner.prizes)||owner.prizes.length!==6||
   !owner.prizes.every(p=>Array.isArray(p?.cards)&&p.cards.length<=1))
    return null;
