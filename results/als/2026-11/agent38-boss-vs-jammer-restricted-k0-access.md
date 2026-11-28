@@ -4,6 +4,23 @@
 
 Executable, deterministic enumerator: [`scripts/newmoon-flex-boss-vs-tool-k0.py`](../../../scripts/newmoon-flex-boss-vs-tool-k0.py). Input is the actual [35-row 60-card Tool Jammer v2 JSON](../new-moon-tool-jammer-v2-60.json), with the **one flex** interpreted counterfactually as either Tool Jammer or Boss's Orders BRS 132. All remaining 59 physical cards are identical.
 
+## 28-Nov extension: all printed first-turn Item connectors, without claiming they survive the later lock
+
+A second [exact exhaustive counter](../../../scripts/newmoon-flex-prelock-connector-census.py) adds the **unchanged** New Moon shell's **four Fog Crystal, two Mysterious Treasure, four Battle VIP Pass, one Adventure Bag and one Secret Box** to the original direct/Lele/FSS channels. It enumerates the same legal seven, six Prizes and mandatory first own draw with a 17-Basic source 60, using exact rational multivariate-hypergeometric weights. **This applies to an Item-legal early window, not a turn after the rank-15 AOR Item lock has landed.** It treats Mystery Treasure's discard-one and Secret Box's discard-three as payable, ignores the Supporter-first-player restriction, Bench space, ability suppression, search precedence and how an early-searched card survives to the later lockbreak. Therefore each percentage below measures optimistic **card access** only.
+
+| Counted early access route | Boss’s Orders flex | Tool Jammer flex |
+| --- | ---: | ---: |
+| Direct first-eight, plus direct Lele Wonder Tag/direct FSS + Articuno (Items not needed) | **24.05685736%** | **14.26901294%** |
+| Add Fog Crystal → Lele for Boss (no Mysterious Treasure, no FSS search extension, no Secret Box) | **48.76058938%** | — |
+| Add Fog Crystal, Mysterious Treasure and Battle VIP Pass (Articuno only), plus Adventure Bag for Jammer; **exclude Secret Box** | **60.04610646%** | **29.43015483%** |
+| Add Secret Box with optimistic three-card discard | **64.50138495%** | **37.69310502%** |
+
+All figures conditional on a Basic-valid opening seven. With all modeled Items allowed, the **Boss resource advantage is +26.80827993 percentage points**. Excluding the discard-three ACE SPEC entirely, the advantage is **+30.61595163 percentage points**. Adding Secret Box narrows the difference because it can find either a Supporter or a Tool.
+
+**Mechanistic reason:** Fog Crystal's actual text searches **a Basic Psychic Pokémon** without a 90-HP restriction. It can fetch Tapu Lele-GX into *hand*, enabling Wonder Tag → Boss if bench-played. Mysterious Treasure can also fetch the Psychic Lele (discard-one). Neither can directly fetch the Trainer Tool Jammer. Conversely Adventure Bag can fetch Tool Jammer but not Boss. Battle VIP Pass puts Articuno V directly on Bench, enabling a held Forest Seal Stone, but direct VIP placement of Tapu Lele-GX does **not** trigger its hand-play-only Wonder Tag. The exact source contains these printings and quantities; no imaginary connector is added.
+
+**Decision boundary:** AOR Vileplume completely deletes the Fog Crystal/Mysterious Treasure/Adventure Bag/Secret Box/Battle VIP edges once Item lock is live. Only pre-lock access and resource retention can make them relevant to the later Boss/Jammer rescue. The unchanged published 59-card shell supplies much more potential *pre-lock* Boss access than Jammer access, which supports prioritizing **one real same-root, both-seat pre-lock preparation → post-lock decision → adverse Karen/Bunnelby reply** before considering v2 operationally stronger. It does **not** establish a 64.5% chance of playing Boss through lock, a 37.7% chance of paying Jammer, or any matchup win probability.
+
 ## What is actually enumerated
 
 The exact pre-action K0 experiment draws a **random initial seven**, conditions on at least one Basic, then sets **six random face-down Prizes**, then takes the **first mandatory own-turn draw**. The frozen deck has 17 Basics, including singleton Tapu Lele-GX and singleton Galarian Articuno V; two Dusclops are its only non-Basic Pokémon. Two identical singleton non-Basic resources in both versions are the flex and Forest Seal Stone. The other cards are 15 Basics and 41 non-Basics. All card-position allocations are counted with **exact rational arithmetic** (physical slots 7/6/1/46).
