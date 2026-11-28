@@ -329,9 +329,9 @@ for(const seat of [0,1]) {
 for(const seat of [0,1]) {
   const locked={active:poke(P.budew),bench:[
     {...poke(P.garbBKP),tools:[tool()]},poke(P.absol)]};
-  test('item lock is not attacked before a useful offered Quick Ball seat '+seat,()=>{
+  test('Itchy Pollen waits for useful Quick Ball when Garbodor axis missing seat '+seat,()=>{
     const r=state(seat,{globalTurn:4,ownHand:['Quick Ball FST 237','Battle VIP Pass FST 225'],
-      ownPublic:locked,items:[
+      ownPublic:{active:poke(P.budew),bench:[poke(P.absol)]},items:[
       action('attack','pollen',{attackName:'Itchy Pollen',publicMetadata:{attackCostPayable:true}}),
       action('play-card','ball',{actorPrinting:'Quick Ball FST 237'}),
       action('pass','pass')]});
@@ -352,5 +352,25 @@ for(const seat of [0,1]) {
       action('play-card','ball',{actorPrinting:'Quick Ball FST 237'}),
       action('pass','pass')]});
     assert.deepEqual(decide(r),{kind:'select-action',token:'pollen'});
+  });
+}
+
+for(const seat of [0,1])for(const ball of ['Quick Ball FST 237','Ultra Ball MEG 131']){
+  const name=ball.startsWith('Quick')?'quick':'ultra';
+  const hand=[ball,'Battle VIP Pass FST 225','Battle VIP Pass FST 225',
+    "Trainers' Mail ROS 92",'Darkness Energy MEE 15'];
+  const offered=[action('attack','pollen',{attackName:'Itchy Pollen',
+    publicMetadata:{attackCostPayable:true}}),
+    action('play-card','ball',{actorPrinting:ball}),action('pass','pass')];
+  test('source '+name+' Ball not wasted after established lock core seat '+seat,()=>{
+    const r=state(seat,{globalTurn:4,ownHand:hand,
+      ownPublic:{active:poke(P.budew),bench:[
+        {...poke(P.garbBKP),tools:[tool()]},poke(P.absol)]},items:offered});
+    assert.deepEqual(decide(r),{kind:'select-action',token:'pollen'});
+  });
+  test('affordable '+name+' Ball precedes attack if Garbodor absent seat '+seat,()=>{
+    const r=state(seat,{globalTurn:4,ownHand:hand,
+      ownPublic:{active:poke(P.budew),bench:[poke(P.absol)]},items:offered});
+    assert.deepEqual(decide(r),{kind:'select-action',token:'ball'});
   });
 }
