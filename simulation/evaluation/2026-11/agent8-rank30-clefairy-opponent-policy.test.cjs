@@ -494,7 +494,7 @@ for(const seat of [0,1]) {
       b('Latias ex SSP 76')];
     r.observation.opponentPublic.active={printing:'Snorlax PGO 55',hp:150,damage:0};
     r.observation.opponentPublic.bench=[{printing:'Machamp VMAX ASR 73',
-      hp:330,damage:120,printed:{types:['FIGHTING'],
+      hp:330,damage:180,printed:{types:['FIGHTING'],
         weakness:[{type:'PSYCHIC',value:'×2'}]}}];
     r.observation.ownPublic.prizeCount=3;
     r.observation.ownHand=['Guzma BUS 115', "Trainers' Mail ROS 92"];
