@@ -273,3 +273,40 @@ test('two complete source 60 maps retain different printings in opposite seats',
       undefined);
   }
 });
+
+
+test('native attack-source and cross-seat targets preserve exact owner provenance',()=>{
+  const mine=buildSourcePrintingMap(source,ids);
+  const opponentSource={cards:[
+    {name:'Penny',count:1,printing:{set:'SVI',number:'999'}},
+    {name:'Psychic Energy',count:59,printing:{set:'SVE',number:'5'}}]};
+  const other=buildSourcePrintingMap(opponentSource,
+    ['Penny SVI',...Array(59).fill('Psychic Energy SVE')]);
+  const observation={actorSeat:1,ownHand:[],ownPublic:null,opponentPublic:null};
+  const original={schema:'fixture',items:[
+    {token:'attack',kind:'attack',actorPrinting:'Penny SVI',attackName:'Copycat',
+      publicMetadata:{attackSource:{sourceKind:'active-pokemon',
+        sourceSlot:'ACTIVE',sourceIndex:0,sourceCardName:'Penny',
+        sourceCardFullName:'Penny SVI',attackName:'Copycat'},
+        priorSourcePrinting:'Penny SVI'}},
+    {token:'op-target',kind:'play-card',actorPrinting:'Penny SVI',
+      targetPrinting:'Penny SVI',
+      publicMetadata:{targetSeat:'opponent',targetZone:'active'}},
+    {token:'own-target',kind:'play-card',actorPrinting:'Penny SVI',
+      targetPrinting:'Penny SVI',
+      publicMetadata:{targetSeat:'actor',targetZone:'bench'}}
+  ]};
+  const mapped=projectSourcePrintings(observation,original,[other,mine]);
+  const [attack,opponentTarget,ownTarget]=mapped.actionFrontier.items;
+  assert.equal(attack.actorPrinting,'Penny SVI 183');
+  assert.equal(attack.publicMetadata.attackSource.sourceCardFullName,'Penny SVI 183');
+  assert.equal(attack.publicMetadata.attackSource.sourceSlot,'ACTIVE');
+  assert.equal(attack.publicMetadata.priorSourcePrinting,'Penny SVI 999');
+  assert.equal(opponentTarget.actorPrinting,'Penny SVI 183');
+  assert.equal(opponentTarget.targetPrinting,'Penny SVI 999');
+  assert.equal(ownTarget.targetPrinting,'Penny SVI 183');
+  assert.deepEqual(mapped.actionFrontier.items.map(x=>x.token),
+    original.items.map(x=>x.token));
+  assert.equal(original.items[0].publicMetadata.attackSource.sourceCardFullName,
+    'Penny SVI');
+});
