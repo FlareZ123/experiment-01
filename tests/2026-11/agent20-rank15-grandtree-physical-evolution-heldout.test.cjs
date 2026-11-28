@@ -45,3 +45,50 @@ for(const seat of [0,1]){
     });
   }
 }
+
+
+function activePromptRequest(seat,active,bench,zones,metaZone){
+  return {role:'opponent',seat,observation:{
+    actorSeat:seat,globalTurn:7,ownHand:[],
+    ownPublic:{active,bench,prizeCount:3,stadium:[]},
+    opponentPublic:{active:{printing:'Shadow Rider Calyrex V CRE 74'},bench:[]}
+  },prompt:{
+    promptType:'ChoosePokemonPrompt',source:{sourcePrinting:TREE},
+    publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+      ownerSeat:'actor',...(metaZone?{targetZone:metaZone}:{})},
+    choices:zones.map((zone,i)=>({kind:'pokemon',token:zone+i,
+      printing:ODDISH,publicMetadata:{ownerSeat:'actor',targetZone:zone,
+        ...(zone==='bench'?{benchIndex:0}:{})}
+    }))
+  }};
+}
+for(const seat of [0,1]){
+  for(const [name,active,bench,zones,metaZone,expected] of [
+    ['established Active only',oddish(6),[],['active'],null,'active0'],
+    ['old Active rather than newly placed Bench',
+      oddish(6),[oddish(7)],['bench','active'],null,'active1'],
+    ['new Active vs established Bench',
+      oddish(7),[oddish(6)],['active','bench'],null,'bench1'],
+    ['prompt Bench-only cannot invent an Active choice',
+      oddish(6),[oddish(7)],['active','bench'],'bench',null]
+  ]){
+    test('seat '+seat+': '+name,()=>{
+      const r=createPolicy({role:'opponent',seat,policyVersion:POLICY_VERSION,config:{}})
+        .decide(activePromptRequest(seat,active,bench,zones,metaZone));
+      if(expected===null)assert.deepEqual(r,
+        {kind:'abstain',reasonCode:'NO_SUPPORTED_POKEMON_CHOICE'});
+      else assert.deepEqual(r,{kind:'select-choices',tokens:[expected]});
+    });
+  }
+  test('seat '+seat+': established Active Oddish enables Grand Tree root action',()=>{
+    const r=createPolicy({role:'opponent',seat,policyVersion:POLICY_VERSION,config:{}})
+      .decide({
+        role:'opponent',seat,prompt:null,
+        observation:{actorSeat:seat,globalTurn:7,ownHand:[],
+          ownPublic:{active:oddish(6),bench:[],prizeCount:3,stadium:[]},
+          opponentPublic:{active:{printing:'Shadow Rider Calyrex V CRE 74'},bench:[]}},
+        actionFrontier:{items:[{kind:'use-stadium',token:'tree',actorPrinting:TREE}]}
+      });
+    assert.deepEqual(r,{kind:'select-action',token:'tree'});
+  });
+}
