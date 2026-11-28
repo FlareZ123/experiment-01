@@ -19,13 +19,19 @@ function readTexts(){
  const names=[INTEGRATOR,KO,...FOUR];
  return Object.fromEntries(names.map(n=>[n,fs.readFileSync(path.join(__dirname,n),'utf8')]));
 }
-function run(source,provided=null){
+function compose(source,provided=null){
  const texts=provided??readTexts();
  const integrate=load(texts[INTEGRATOR]),ko=load(texts[KO]);
  const five=integrate.compose(source,texts).combined;
  const six=ko.patchWorker(five);
  const sixPolicy=load(six);
  if(typeof sixPolicy.createPolicy!=='function')throw Error('Six-patch worker export missing');
+ return {five,six};
+}
+function run(source,provided=null){
+ const texts=provided??readTexts();
+ const integrate=load(texts[INTEGRATOR]),ko=load(texts[KO]);
+ const {five,six}=compose(source,texts);
  // IMPORTANT: all previous controls now execute against the *six-patch* code.
  // Do not add isolated test counts without retesting interactions.
  const parts=integrate.runSubtests(source,six,texts);
@@ -49,9 +55,14 @@ function run(source,provided=null){
     {test:'Snorlax Block mandatory KO promotion',paired:promotion.pairedGroups}],
   allMatched:true};
 }
-module.exports={run};
+module.exports={run,compose};
 if(require.main===module){
  const file=process.argv[2];
  if(!file)throw Error('Pass a local trusted original source worker path');
- process.stdout.write(JSON.stringify(run(fs.readFileSync(file,'utf8')),null,2)+'\n');
+ const original=fs.readFileSync(file,'utf8');
+ // Never emit a proposed source unless the combined 308-case suite passes.
+ const report=run(original);
+ if(process.argv.includes('--emit-source'))
+  process.stdout.write(compose(original).six);
+ else process.stdout.write(JSON.stringify(report,null,2)+'\n');
 }
