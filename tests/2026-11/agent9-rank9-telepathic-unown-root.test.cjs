@@ -4,7 +4,7 @@ const protocol=require('../../simulation/evaluation/2026-11/agent49-policy-proto
 const D='Darkness Energy MEE 15',Pr='Prism Energy ASC 216',
       T='Telepathic Psychic Energy POR 88',Un='Unown AOR 30',
       Meg='Mega Absol ex MEG 86',Gen='Gengar & Mimikyu-GX TEU 53',
-      Vol='Voltorb ROS 21';
+      Vol='Voltorb ROS 21',Native='Telepath [P] Energy M3';
 const mon=(printing,extra={})=>({
   printing,hp:260,damage:0,energies:[],tools:[],attacks:[],
   specialConditions:[],publicRestrictions:{},abilityDetails:[],
@@ -31,10 +31,10 @@ const frontier=(energy=T,payable=true)=>({schema:protocol.FRONTIER_SCHEMA,items:
 ]});
 const choose=(token,printing)=>({kind:'card',token,printing,label:printing,
   publicMetadata:{ownerSeat:'actor',sourceZone:'deck',isOwnerVisible:true}});
-const search=seat=>({
+const search=(seat,printing=T)=>({
   schema:protocol.PROMPT_SCHEMA,actingSeat:seat,promptType:'ChooseCardsPrompt',
   description:'Telepathic Psychic Energy',
-  source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:T,
+  source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:printing,
     effectName:'Telepathic Psychic Energy'},
   choices:[choose('g',Gen),choose('u',Un),
     {kind:'empty-selection',token:'empty',label:'Choose no Pokemon'}],
@@ -62,6 +62,15 @@ for(const seat of [0,1]){
   const answer=decide(pol,o,2,null,search(seat));
   ok(JSON.stringify(answer.tokens)==='["g","u"]',
      'search Gengar + Unown with exact source prompt, seat '+seat);
+  const nativeObs=obs(seat);nativeObs.ownHand=[Native];
+  const nativePolicy=P.createPolicy({role:'opponent',seat,
+    policyVersion:P.POLICY_VERSION,config:{}});
+  const nativeRoot=decide(nativePolicy,nativeObs,1,frontier(Native));
+  ok(nativeRoot.token==='attach',
+     'native pinned M3 printing selects same search line, seat '+seat);
+  const nativeSearch=decide(nativePolicy,nativeObs,2,null,search(seat,Native));
+  ok(JSON.stringify(nativeSearch.tokens)==='["g","u"]',
+     'native M3 prompt source retained and selected, seat '+seat);
   // Post-search board with a newly Benched Unown. Use Farewell Letter
   // before taking the already-funded attack; this is synthetic, not Store.
   const after=obs(seat);
@@ -93,6 +102,10 @@ for(const seat of [0,1]){
        return v},T,true],
     ['already holding Energy',v=>{v.ownPublic.bench[0].energies=[D];return v},T,true],
     ['different Energy',v=>{v.ownHand=[D];return v},D,true],
+    ['Temple suppresses Telepathic',v=>{
+       v.ownPublic.active.energies=[D,D,Pr];
+       v.opponentPublic.stadium=['Temple of Sinnoh ASR 155'];
+       return v},T,true],
     ['attacker not funded',v=>{v.ownPublic.active.energies=[D];return v},T,false],
     ['final Prize attack',v=>{v.ownPublic.prizeCount=3;
         v.opponentPublic.active.hp=190;return v},T,true]
