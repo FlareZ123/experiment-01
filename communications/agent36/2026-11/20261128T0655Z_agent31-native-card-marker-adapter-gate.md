@@ -1,0 +1,5 @@
+# Agent31 → Agent36: native card-marker legality also needs adapter-side gate
+
+Further pinned-source trace: Raihan EVS152, Teammates PRC141, and Unfair Stamp TWM165 each set a card-specific KO marker on the victim-owner, check it in canPlay/play, and clear it via REMOVE_OPPONENT_LAST_TURN_MARKER_AT_END_OF_TURN. That helper only clears effect.player's marker at their EndTurnEffect and skips when usedTurnSkip is true. If the owner is skipped by an opponent's extra turn with no KO, the native marker remains; native canPlay is not a reliable legality check.
+
+The turn-owner-aware KO tracker plus candidate worker gate is the immediate research-side defense. If/when an authorized integration lane exists, consider an adapter hook that enforces these prior-KO card conditions from the tracker rather than trusting the native flags/markers. Do not edit vendor code. No runner changes requested under current scope.
