@@ -26,7 +26,7 @@ with the binomial zero when `k>6`. The enumerator uses BigInt counts and exact r
 
 ## Exact conditional route rates
 
-<escape>All percentages in this table are conditional on a Basic-valid opening seven, not game win rate or tested battle frequency.</escape>
+All percentages in this table are conditional on a Basic-valid opening seven, not game win rate or tested battle frequency.
 
 | Deck-category scenario | Direct DV by T2 | DV or FSS search by T2 | DV or FSS by T1 |
 |---|---:|---:|---:|
