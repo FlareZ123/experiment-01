@@ -914,6 +914,19 @@ function discardPriority(choice, observation) {
   if (matches(printing, PRINT.oddish) && boardHas(observation.ownPublic, PRINT.oddish)) return 90;
   if (matches(printing, PRINT.lillipup) && boardHas(observation.ownPublic, PRINT.lillipup)) return 88;
   if (matches(printing, PRINT.pidgey) && boardHas(observation.ownPublic, PRINT.pidgey)) return 84;
+  // The original fallback rated name-only singleton Supporters and Stage2
+  // evolutions as junk. Those are the lock and recovery payloads, not costs.
+  const criticalSingleton = [
+    PRINT.guzmaHala, PRINT.guzma, PRINT.cassius, PRINT.faba, PRINT.plumeria,
+    PRINT.lusamine, PRINT.karen, PRINT.bellelba, PRINT.teamYell, PRINT.gladion,
+    PRINT.peonia, PRINT.vileplume, PRINT.vileplumeGx, PRINT.stoutland,
+    PRINT.pidgeot, PRINT.gloom, PRINT.herdier, PRINT.pidgeotto
+  ];
+  if (criticalSingleton.some(pattern => matches(printing, pattern))) return 0;
+  // The first Basic of a missing setup line must enter play, not the discard.
+  if ([PRINT.oddish, PRINT.lillipup, PRINT.pidgey, PRINT.bunnelby].some(pattern =>
+    matches(printing, pattern) && !boardHas(observation.ownPublic, pattern)))
+    return 0;
   if (matches(printing, PRINT.grassEnergy) &&
       boardHas(observation.ownPublic, PRINT.vileplumeGx)) return 5;
   if (/Supporter|ACE SPEC|Grand Tree|Jet Energy|Technical Machine: Evolution|Stealthy Hood/i.test(printing) ||
@@ -1201,7 +1214,9 @@ function promptDecision(request) {
         if (discardPrompt) return discardPriority(choice, request.observation);
         return cardPriority(choicePrinting(choice), request.observation, context);
       }, max);
-      if (!discardPrompt) ranked = ranked.filter(row => row.score > 0);
+      // Do not force protected singleton Evolutions or Supporters into a
+      // discard cost merely to meet the prompt's requested card count.
+      ranked = ranked.filter(row => row.score >= (discardPrompt ? 48 : 1));
     } else if (selectionType === 'energy-payment') {
       const required = typeof metadata.energyType === 'string' ?
         Math.max(min, metadata.energyType.split(',').filter(Boolean).length) : min;
