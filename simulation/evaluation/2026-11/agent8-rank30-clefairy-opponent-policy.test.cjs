@@ -461,7 +461,7 @@ for(const seat of [0,1]) {
     r.actionFrontier.items[0].targetPrinting='Unown AOR 30';
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   });
-  test('seat '+seat+' suppressed Skyliner blocks paid retreat but true printed zero is playable',()=>{
+  test('seat '+seat+' suppressed Skyliner and printed zero are insufficient without live ability',()=>{
     const r=request(seat);
     r.observation.ownPublic.active={printing:'Unown AOR 30',
       printed:{stage:'BASIC',retreatCost:['COLORLESS']},
@@ -475,12 +475,19 @@ for(const seat of [0,1]) {
       ...root('retreat','Unown AOR 30','retreat',
         {benchIndex:0,targetSeat:'actor',targetZone:'bench'}),targetPrinting:clef}];
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    // A printed-zero Retreat Cost could be raised by an opponent's effect.
     r.observation.ownPublic.active.printed.retreatCost=[];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    r.observation.ownPublic.bench[1].abilitySuppressions=[
+      {abilityName:'Skyliner',suppressed:false,reasonCode:null,sourcePrinting:null}];
     assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'retreat'});
     r.observation.ownPublic.active.publicRestrictions.cannotRetreat=true;
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
     r.observation.ownPublic.active.publicRestrictions.cannotRetreat=false;
     r.observation.ownPublic.active.specialConditions=['ASLEEP'];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    r.observation.ownPublic.active.specialConditions=[];
+    r.observation.opponentPublic.stadium=['Silent Lab PRC 140'];
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   });
 }
