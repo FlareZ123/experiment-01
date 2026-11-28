@@ -13,7 +13,7 @@ const root=(kind,name,token,meta={})=>({kind,actorPrinting:name,token,publicMeta
 const card=(name,token)=>({kind:'card',printing:name,token});
 function request(seat=0) {
   return {role:'opponent',seat,prompt:null,
-    observation:{actorSeat:seat,globalTurn:4,ownHand:[],ownTurnResources:{vstarUsed:false},
+    observation:{actorSeat:seat,globalTurn:4,ownHand:[],ownTurnResources:{vstarUsed:false,supporterPlayedTurn:0},
       ownPublic:{active:{printing:clef,hp:190,damage:0,energies:[psychic,psychic]},
         bench:[],discard:[],stadium:[],prizeCount:3,deckCount:23},
       opponentPublic:{active:{printing:'Shadow Rider Calyrex VMAX CRE 75',hp:320,damage:0},
