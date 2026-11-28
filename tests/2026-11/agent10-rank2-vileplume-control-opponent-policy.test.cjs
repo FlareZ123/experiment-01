@@ -1011,6 +1011,49 @@ test('Grand Tree is not activated without a prior-turn Basic and K0 Stage 1 plus
 
 
 
+test('Grand Tree root to target to both Stage searches can complete rank2 lock line',()=>{
+  const basic=pokemon('Oddish UNB 5',{lastPlayedOrEvolvedTurn:1});
+  const root=grandTreeRoot({globalTurn:3,ownPublic:player({
+    active:pokemon('Bunnelby PRC 121'),bench:[basic]})});
+  assert.deepEqual(checkedDecision(root),{kind:'select-action',token:'grand-tree'});
+  const target=promptRequest({promptType:'ChoosePokemonPrompt',
+    source:actorChoiceSource('Grand Tree SCR 136','Grand Tree'),
+    choices:[pokemonChoice('odd','Oddish UNB 5','actor','bench',0)],
+    observation:{ownPublic:player({active:pokemon('Bunnelby PRC 121'),bench:[basic]})},
+    publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+      allowCancel:false,isSecret:false}});
+  assert.deepEqual(checkedDecision(target),{kind:'select-choices',tokens:['odd']});
+  const stage1=promptRequest({promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('Grand Tree SCR 136','Grand Tree'),
+    choices:[cardChoice('gloom','Gloom UNB 7'),
+      cardChoice('herdier','Herdier SUM 104')],
+    observation:{ownPublic:player({active:pokemon('Bunnelby PRC 121'),bench:[basic]})},
+    publicMetadata:{selectionType:'card-combination',minimumCount:1,maximumCount:1,
+      allowCancel:false,isSecret:false}});
+  assert.deepEqual(checkedDecision(stage1),{kind:'select-choices',tokens:['gloom']});
+  const stage2=promptRequest({promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('Grand Tree SCR 136','Grand Tree'),
+    choices:[cardChoice('gx','Vileplume-GX CEC 4'),
+      cardChoice('lock','Vileplume AOR 3')],
+    observation:{ownPublic:player({active:pokemon('Bunnelby PRC 121'),
+      bench:[pokemon('Gloom UNB 7',{stage:'STAGE1',lastPlayedOrEvolvedTurn:3,
+        evolutionPrintings:['Oddish UNB 5']})]})},
+    publicMetadata:{selectionType:'card-combination',minimumCount:1,maximumCount:1,
+      allowCancel:false,isSecret:false}});
+  assert.deepEqual(checkedDecision(stage2),{kind:'select-choices',tokens:['lock']});
+});
+test('Grand Tree stage search abstains on a source-mismatched card instead of choosing it',()=>{
+  const request=promptRequest({promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('Grand Tree SCR 136','Grand Tree'),
+    choices:[cardChoice('bad','Stoutland BCR 122')],
+    observation:{ownPublic:player({active:pokemon('Bunnelby PRC 121'),
+      bench:[pokemon('Oddish UNB 5',{lastPlayedOrEvolvedTurn:1})]})},
+    publicMetadata:{selectionType:'card-combination',minimumCount:1,maximumCount:1,
+      allowCancel:false,isSecret:false}});
+  assert.deepEqual(checkedDecision(request),{
+    kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'});
+});
+
 test('Guzma & Hala mode-one search selects one Stadium, one Tool, and one Special Energy', () => {
   const request = promptRequest({
     promptType: 'ChooseCardsPrompt',
