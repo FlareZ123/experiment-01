@@ -98,7 +98,7 @@ function assessDragonRondoAfterBlast(v){
  const p=v.public,o=v.own,a=v.action;
  if(![p.sourceHp,p.sourceDamage,p.sourceBenchCount,p.sourcePrizesRemaining,
        o.benchBeforeBlast,o.benchCapacity,
-       a.postBlastBasicsFromHand,a.postBlastBasicsFromTpe].every(isInt)||
+       a.postBlastBasicsFromHand,a.postBlastBasicsFromTpe].every(integer)||
     ![p.dragonType,p.fairyZoneWeaknessX2,p.basicAttackDamagePrevented,
        a.abilityCursedBlastLegal,a.abilityCountersActuallyPlaced,
        a.fullMoonRondoAttackLegalAfterRefill,a.attackEnergyPaidAfterRefill,
