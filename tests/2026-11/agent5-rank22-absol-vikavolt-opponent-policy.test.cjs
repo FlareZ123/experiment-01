@@ -223,3 +223,21 @@ test('Battle Compressor preserves still-live first-turn VIP and fails closed on 
     ...prompt, publicMetadata:{selectionType:'card-combination',minimumCount:4,maximumCount:4}
   }}),{kind:'abstain',reasonCode:'RANK22_COMPRESSOR_SCHEMA_UNSUPPORTED'});
 });
+
+test('energy plans distinguish colored costs from interchangeable Colorless', () => {
+  const s=(pokemon,energies,fromHand) => {
+    const o=observation({ownPublic:player({active:poke(pokemon,{energies})})});
+    return policy.scoreAction({kind:'play-card',
+      actorPrinting:fromHand,targetPrinting:pokemon},root([],o));
+  };
+  assert.equal(s(P.vikavolt,[P.lightning],P.dark),235,
+    'Darkness supplies the second Colorless of Paralyzing Bolt');
+  assert.equal(s(P.vikavolt,[P.dark],P.lightning),260,
+    'Lightning is required to finish the typed part of Paralyzing Bolt');
+  assert.equal(s(P.mega,[P.dark],P.dark),220,
+    'second Darkness advances Claw of Darkness');
+  assert.equal(s(P.mega,[P.dark],P.lightning),125,
+    'Lightning can still supply Terminal Period Colorless');
+  assert.equal(s(P.mega,[P.lightning],P.lightning),0,
+    'two Lightning without Darkness do not satisfy either Mega Absol attack');
+});
