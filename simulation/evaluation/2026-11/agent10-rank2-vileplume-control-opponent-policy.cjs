@@ -1173,9 +1173,28 @@ function engineSetupDecision(request) {
       last=m.selectionIndex;
       selected.push({token:choice.token,printing:choice.printing,index:m.selectionIndex});
     }
-    if(meta.minimumCount===0&&selected.length===0)
+    if(meta.minimumCount===0){
+      // Pinned setup-reducer.ts reuses CHOOSE_STARTING_POKEMONS for the
+      // optional *Bench-only* placement after opponent mulligan draws.
+      // Unlike the min=1 initial setup, EVERY selected card now goes Bench.
+      const occupied=list(request.observation?.ownPublic?.bench).filter(Boolean).length;
+      const capacity=Math.max(0,5-occupied);
+      const chosen=[],used=new Set();
+      const initial=request.observation?.ownPublic??{};
+      const order=[PRINT.oddish,PRINT.lillipup,PRINT.pidgey,
+        PRINT.fanRotom,PRINT.bunnelby,PRINT.budew,PRINT.relicanth,
+        PRINT.girafarig,PRINT.mrMime,PRINT.jirachi];
+      for(const pattern of order){
+        if(chosen.length>=capacity||chosen.length>=meta.maximumCount)break;
+        if(boardHas(initial,pattern))continue;
+        const card=selected.find(row=>!used.has(row.token)&&
+          matches(row.printing,pattern));
+        if(card){chosen.push(card.token);used.add(card.token);}
+      }
+      if(chosen.length>0)return {kind:'select-choices',tokens:chosen};
       return empty&&empty.label==='Choose no items'?
         {kind:'select-choice',token:empty.token}:abstain('NO_STARTING_POKEMON_CHOICE');
+    }
     // The first selected Basic becomes Active. Hand order is not a strategy:
     // leading a first-turn Bunnelby enables Barrage/Technical Machine: Evolution.
     // Do not automatically fill all five Bench slots with incidental Basics;
