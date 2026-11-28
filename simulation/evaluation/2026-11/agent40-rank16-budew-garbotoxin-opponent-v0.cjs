@@ -122,6 +122,47 @@ function sourceBasicChoices(rows,o,max){
  }
  return selected;
 }
+function hasFundedDarkPatchRecipient(o){
+ return slots(o.ownPublic).some(({zone,pokemon})=>
+  zone==='bench'&&match(pokemon.printing,PRINT.mega)&&list(pokemon.energies).length<3);
+}
+function sourceCardCategory(value){
+ if([PRINT.marnie,PRINT.lillie,PRINT.carmine,PRINT.guzma,PRINT.plumeria,PRINT.karen].some(x=>match(value,x)))return 'supporter';
+ if(match(value,PRINT.temple))return 'stadium';
+ if([PRINT.float,PRINT.muscle,PRINT.forest].some(x=>match(value,x)))return 'tool';
+ if([PRINT.quick,PRINT.ultra,PRINT.mail,PRINT.vs,PRINT.patch,PRINT.compressor,PRINT.vip,PRINT.boost].some(x=>match(value,x)))return 'item';
+ return null;
+}
+function supportChoiceScore(choice,o){
+ if(owner(choice)!=='actor'||zone(choice)!=='discard')return 0;
+ if(match(choice,PRINT.lillie))return handCount(o)<=3?210:110;
+ if(match(choice,PRINT.marnie))return handCount(o)<=3?200:125;
+ if(match(choice,PRINT.guzma))return benchCount(o.opponentPublic)>0?180:35;
+ if(match(choice,PRINT.karen))return list(o.ownPublic?.discard).some(x=>[
+   PRINT.mega,PRINT.trubbish,PRINT.garbodor,PRINT.budew
+  ].some(p=>match(x,p)))?170:20;
+ if(match(choice,PRINT.carmine))return handCount(o)<=3&&!hasProtectedHand(o)?150:0;
+ if(match(choice,PRINT.plumeria))return slots(o.opponentPublic).some(x=>list(x.pokemon.energies).length>0)?100:0;
+ return 0;
+}
+function secretBoxSearch(prompt,cards,min,max,o){
+ if(max<=1)return pickRows(prompt,cards,min,max,c=>cardScore(c,o));
+ const groups=new Map();
+ for(const c of cards){
+  const category=sourceCardCategory(c);
+  if(!category)continue;
+  const n=cardScore(c,o);
+  if(n<=0)continue;
+  const old=groups.get(category);
+  if(!old||n>old.score)groups.set(category,{choice:c,score:n});
+ }
+ const order=['item','tool','supporter','stadium'];
+ const chosen=order.map(x=>groups.get(x)?.choice).filter(Boolean).slice(0,max);
+ if(chosen.length<min)return{kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'};
+ return chosen.length?
+  {kind:'select-choices',tokens:chosen.map(c=>c.token)}:
+  pickRows(prompt,[],min,max,()=>0);
+}
 function score(action,req){
  const o=req.observation,own=o.ownPublic,opp=o.opponentPublic||{},p=name(action.actorPrinting),t=ownTarget(action,o),meta=action.publicMetadata||{};
  const items=req.actionFrontier?.items;
@@ -194,7 +235,7 @@ function score(action,req){
  }
  if(match(p,PRINT.dark)&&t&&match(t.pokemon.printing,PRINT.mega))
   return list(t.pokemon.energies).length<3?425:30;
- if(match(p,PRINT.patch))return onBoard(own,PRINT.mega)&&list(own.discard).some(x=>match(x,PRINT.dark))?430:0;
+ if(match(p,PRINT.patch))return hasFundedDarkPatchRecipient(o)&&list(own.discard).some(x=>match(x,PRINT.dark))?430:0;
  if(match(p,PRINT.boost)){
   const ready=slots(own).some(x=>match(x.pokemon.printing,PRINT.trubbish)&&list(x.pokemon.tools).length>0);
   return ready&&!setupAbilityPending(items,o)&&!onBoard(own,PRINT.garbodor)?350:0;
@@ -303,6 +344,12 @@ function promptDecision(req){
    const n=/secret box/.test(src)?3:(/ultra ball/.test(src)?2:1);
    return pickRows(p,cards.filter(c=>zone(c)==='hand'),n,n,c=>discardScore(c,o));
   }
+  if(/dark patch/.test(src)){
+   return pickRows(p,cards.filter(c=>zone(c)==='discard'),bd.min,bd.max,c=>match(c,PRINT.dark)?200:0);
+  }
+  if(/vs seeker/.test(src)){
+   return pickRows(p,cards.filter(c=>zone(c)==='discard'),bd.min,bd.max,c=>supportChoiceScore(c,o));
+  }
   if(/battle vip pass|quick ball|ultra ball|boost shake|star alchemy|trainers' mail|secret box/.test(src)){
    const pool=cards.filter(c=>zone(c)==='deck');
    if(/battle vip pass/.test(src)){
@@ -310,6 +357,7 @@ function promptDecision(req){
     if(chosen.length>=bd.min)return{kind:'select-choices',tokens:chosen.map(c=>c.token)};
     return {kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'};
    }
+   if(/secret box/.test(src))return secretBoxSearch(p,pool,bd.min,bd.max,o);
    return pickRows(p,pool,bd.min,bd.max,c=>cardScore(c,o));
   }
   if(/battle compressor/.test(src)){
@@ -332,6 +380,14 @@ function promptDecision(req){
    };
   }else if(/boost shake/.test(src)){
    rank=c=>match(c,PRINT.trubbish)?150:0;
+  }else if(/dark patch/.test(src)){
+   rank=c=>{
+    if(zone(c)!=='bench'||!match(c,PRINT.mega))return 0;
+    const b=c.publicMetadata?.benchIndex;
+    const target=slots(o.ownPublic).find(x=>x.zone==='bench'&&x.index===b&&match(x.pokemon.printing,PRINT.mega));
+    if(!target)return 0;
+    return Math.max(0,3-list(target.pokemon.energies).length)*85;
+   };
   }else if(/guzma/.test(src)){
    if(cs.some(c=>c.kind==='pokemon'&&owner(c)==='opponent'))return pickRows(p,cs.filter(c=>owner(c)==='opponent'),bd.min,bd.max,c=>200-(c.publicMetadata?.remainingHp??100));
    rank=c=>match(c,PRINT.budew)?170:match(c,PRINT.mega)?130:0;
