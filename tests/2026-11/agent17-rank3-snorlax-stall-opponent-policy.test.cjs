@@ -200,7 +200,21 @@ function promptRequest(options = {}) {
     description: options.description ?? 'Choose a legal option',
     source: options.source,
     choices: options.choices ?? [],
-    ...(options.publicMetadata ? { publicMetadata: options.publicMetadata } : {})
+    // Native actor prompt types are mandatory in the current host contract.
+    publicMetadata: options.publicMetadata ?? (
+      options.promptType==='ChooseCardsPrompt' ?
+        {selectionType:'card-combination',minimumCount:1,maximumCount:1,allowCancel:false,isSecret:false} :
+      options.promptType==='ChoosePokemonPrompt' ?
+        {selectionType:'pokemon',minimumCount:1,maximumCount:1,allowCancel:false,isSecret:false} :
+      options.promptType==='ChooseEnergyPrompt' ?
+        {selectionType:'energy-payment',energyCount:1,allowCancel:false,isSecret:false} :
+      options.promptType==='ChooseAttackPrompt' ?
+        {selectionType:'attack',allowCancel:false} :
+      options.promptType==='ChoosePrizePrompt' ?
+        {selectionType:'prize-slots',requiredCount:1,allowCancel:false,isSecret:false} :
+      options.promptType==='ConfirmPrompt' ?
+        {selectionType:'confirm',allowCancel:false} :
+      {selectionType:'option',allowCancel:false})
   };
   return {
     schema: protocol.REQUEST_SCHEMA,
@@ -412,7 +426,7 @@ test('Faba is played for a visible opponent Tool without a Stadium and removes t
     ]
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'select-choice', token: 'hood'
+    kind: 'select-choices', tokens: ['hood']
   });
 });
 
@@ -578,7 +592,7 @@ test('Guzma first chooses an opponent Bench target and then promotes the Snorlax
     ]
   });
   assert.deepEqual(checkedDecision(opponentTarget), {
-    kind: 'select-choice', token: 'rider'
+    kind: 'select-choices', tokens: ['rider']
   });
 
   const ownSwitch = promptRequest({
@@ -599,7 +613,7 @@ test('Guzma first chooses an opponent Bench target and then promotes the Snorlax
     ]
   });
   assert.deepEqual(checkedDecision(ownSwitch), {
-    kind: 'select-choice', token: 'snorlax'
+    kind: 'select-choices', tokens: ['snorlax']
   });
   const guzmaAction = {
     kind: 'play-card',
@@ -722,7 +736,9 @@ test('unsupported native prompt families fail closed rather than selecting a fal
     source: actorChoiceSource('Unknown source', 'Unknown effect'),
     choices: [cardChoice('choice', 'Tool Jammer BST 136')]
   });
-  assert.deepEqual(checkedDecision(request), {
+  // Unregistered host prompts fail the schema before worker invocation.
+  // Directly assert the worker's fail-closed response.
+  assert.deepEqual(makePolicy(0).decide(request), {
     kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE'
   });
 });
@@ -828,7 +844,7 @@ test('Team Flare Grunt chooses only the opponent Active for its Active-only Ener
     ]
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'select-choice', token: 'active'
+    kind: 'select-choices', tokens: ['active']
   });
 });
 
@@ -982,7 +998,7 @@ test('Counter Catcher targets the opponent Bench Pokémon with the greatest publ
     ]
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'select-choice', token: 'rider'
+    kind: 'select-choices', tokens: ['rider']
   });
   const catchAction = {
     kind: 'play-card', actorPrinting: 'Counter Catcher PAR 160',
@@ -1017,7 +1033,7 @@ test('Night Stretcher recovers a missing core Pokémon over a basic Energy', () 
     ]
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'select-choice', token: 'bunnelby'
+    kind: 'select-choices', tokens: ['bunnelby']
   });
   const stretcherAction = {
     kind: 'play-card', actorPrinting: 'Night Stretcher ASC 196',
@@ -1048,7 +1064,7 @@ test('Enhanced Hammer selects a Special Energy rather than a Basic Energy', () =
     ]
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'select-choice', token: 'special'
+    kind: 'select-choices', tokens: ['special']
   });
 });
 
@@ -1185,7 +1201,7 @@ test('Forest Seal Stone Star Alchemy searches for Tool Jammer when the Snorlax l
     ]
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'select-choice', token: 'jammer'
+    kind: 'select-choices', tokens: ['jammer']
   });
 });
 
@@ -1533,7 +1549,7 @@ test('VS Seeker recovery gates Faba and values Lusamine by recoverable targets',
     ]
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'select-choice', token: 'lillie'
+    kind: 'select-choices', tokens: ['lillie']
   });
   const visibleTool = observation({
     opponentPublic: player({
@@ -1586,7 +1602,7 @@ test('Trainers’ Mail target-gates Faba and Lusamine against live Item and Tool
     ]
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'select-choice', token: 'nest'
+    kind: 'select-choices', tokens: ['nest']
   });
   const visibleTool = observation({
     opponentPublic: player({
@@ -1628,7 +1644,7 @@ test('Penny picks up the most damaged legal Basic Pokémon without lifting Activ
     ]
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'select-choice', token: 'bunnelby'
+    kind: 'select-choices', tokens: ['bunnelby']
   });
 });
 
@@ -1652,14 +1668,14 @@ test('Scoop Up Cyclone chooses a damaged benched Pokémon and preserves Active S
     ]
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'select-choice', token: 'rotom'
+    kind: 'select-choices', tokens: ['rotom']
   });
 });
 
 
 test('Legendary Ascent selects every actor-owned Water Energy up to the prompt payment count', () => {
   const request = promptRequest({
-    promptType: 'ChooseCardsPrompt',
+    promptType: 'ChooseEnergyPrompt',
     source: actorChoiceSource('Articuno-GX CES 31', 'Legendary Ascent'),
     publicMetadata: {
       selectionType: 'energy-payment',
@@ -1711,7 +1727,7 @@ test('Gladion selects a high-value Pokémon only when its Prize identity is acto
     ]
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'select-choice', token: 'snorlax'
+    kind: 'select-choices', tokens: ['snorlax']
   });
 });
 
@@ -1731,7 +1747,7 @@ test('Hisuian Heavy Ball abstains when Prize identities are concealed', () => {
     ]
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'abstain', reasonCode: 'PRIZE_IDENTITY_UNAVAILABLE'
+    kind: 'abstain', reasonCode: 'HIDDEN_PRIZE_IDENTITY'
   });
 });
 
