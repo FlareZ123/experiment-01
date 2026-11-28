@@ -79,8 +79,15 @@ function projectHeavyBallPrompt(options={}){
     actor.prizes.some(prize=>arr(prize.cards).length>0&&prize.isSecret!==false))
    fail('R18_HEAVY_BALL_PRIZE_REVEAL','Owner Prizes not temporarily revealed by source');
  const choices=[],choiceByToken=new Map();
+ // ASR146 explicitly searches face-down Prize cards. The native source
+ // aggregates all Prize cards, including previously face-up slots: do NOT
+ // expose a previously face-up Basic merely because it is in that aggregate.
+ const originallyFaceDownEligible=new Set(actor.prizes.filter(prize=>
+   prize.isSecret===false&&prize.faceUpPrize!==true)
+   .flatMap(prize=>arr(prize.cards)));
  for(let i=0;i<list.length;i++){
   const card=list[i];
+  if(!originallyFaceDownEligible.has(card))continue;
   if(card?.superType!==native.SuperType.POKEMON||
      card?.stage!==native.Stage.BASIC)continue;
   const printed=sourcePrinting(card);
