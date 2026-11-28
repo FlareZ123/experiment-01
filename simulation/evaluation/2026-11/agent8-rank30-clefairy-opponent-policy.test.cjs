@@ -215,6 +215,7 @@ test('cross-seat, source and role binding fail closed',()=>{
 for(const seat of [0,1]) {
   test('seat '+seat+' pinned native basename aliases permit VIP, Quick Ball and Rondo roots',()=>{
     const r=request(seat);
+    r.observation.globalTurn=1; // VIP is playable only on the first turn.
     r.observation.ownPublic.active=b('Unown AOR');
     r.observation.ownHand=['Battle VIP Pass FST'];
     r.actionFrontier.items=[root('play-card','Battle VIP Pass FST','vip-native')];
