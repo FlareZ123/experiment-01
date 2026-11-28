@@ -182,11 +182,24 @@ const RANK27_ENERGY=Object.freeze({
   grass:'Grass Energy MEE 9',
   fire:'Fire Energy MEE 10'
 });
-function energyCoverage(energyPrintings){
+function templeIsActive(obs){
+  // Temple of Sinnoh ASR155 converts Special Energy to one Colorless with
+  // no other effect. That unit cannot pay the G/G/F printed Apex cost.
+  return [...arr(obs?.ownPublic?.stadium),...arr(obs?.opponentPublic?.stadium)]
+    .some(x=>/^Temple of Sinnoh ASR(?: 155)?$/.test(name(x)));
+}
+function templeUnlocksApex(obs){
+  const active=obs?.ownPublic?.active;
+  return templeIsActive(obs)&&is(active,PREFIX.regidragoVstar)&&
+    visibleDonors(obs).length>0&&
+    energyCoverage(active.energies,false)===3&&
+    energyCoverage(active.energies,true)<3;
+}
+function energyCoverage(energyPrintings,temple=false){
   const attached=arr(energyPrintings).map(name);
   const grass=attached.filter(x=>x===RANK27_ENERGY.grass).length,
     fire=attached.filter(x=>x===RANK27_ENERGY.fire).length,
-    wildcard=2*attached.filter(x=>x===RANK27_ENERGY.dragon).length;
+    wildcard=temple?0:2*attached.filter(x=>x===RANK27_ENERGY.dragon).length;
   // Exact upper bound on the resources assignable to GG+F while respecting
   // the two flexible energy units of Double Dragon on a Dragon target.
   let fulfilled=0;
@@ -198,9 +211,9 @@ function energyCoverage(energyPrintings){
   }
   return Math.min(3,fulfilled);
 }
-function bestRegidragoEnergy(own){
+function bestRegidragoEnergy(own,obs){
   return board(own).filter(p=>is(p,PREFIX.regidragoV)||
-    is(p,PREFIX.regidragoVstar)).map(p=>energyCoverage(p.energies));
+    is(p,PREFIX.regidragoVstar)).map(p=>energyCoverage(p.energies,templeIsActive(obs)));
 }
 function rank27EnergyAttachScore(item,obs){
   const p=name(item.actorPrinting),meta=item.publicMetadata??{};
@@ -220,9 +233,10 @@ function rank27EnergyAttachScore(item,obs){
     isV=targetName===PREFIX.regidragoV,
     isStar=targetName===PREFIX.regidragoVstar;
   if(!isV&&!isStar)return -Infinity;
-  const before=energyCoverage(target.energies),
-    after=energyCoverage([...arr(target.energies),p]);
-  if(after<=before)return -Infinity;
+  const temple=templeIsActive(obs);
+  const before=energyCoverage(target.energies,temple),
+    after=energyCoverage([...arr(target.energies),p],temple);
+  if(after<=before)return temple&&p===RANK27_ENERGY.dragon?55:-Infinity;
   const improvement=after-before,ready=after===3;
   const hasDonor=visibleDonors(obs).length>0;
   let score=(ready?345:180)+improvement*48+
@@ -247,7 +261,7 @@ function finalPrizePrimeTarget(obs){
     own.prizeCount>3||
     !visibleDonors(obs).some(x=>is(x,PREFIX.dragapult))||
     !arr(own.bench).some(p=>is(p,PREFIX.regidragoVstar)&&
-      energyCoverage(p.energies)===3))return null;
+      energyCoverage(p.energies,templeIsActive(obs))===3))return null;
   const victims=arr(opp.bench).map((p,index)=>({p,index,
     prizeValue:publicPrizeValue(p)}))
     .filter(({p,prizeValue})=>p&&typeof p.printing==='string'&&
@@ -285,8 +299,8 @@ function gustSwitchTargetChoice(prompt,obs){
     if(m.ownerSeat==='actor'){
       // Prime Catcher has already gusted an opposing Bench target.
       // It now *must* switch our Active. Prefer an actually fueled VSTAR.
-      if(is(mon,PREFIX.regidragoVstar))score=energyCoverage(mon.energies)===3?480:210;
-      else if(is(mon,PREFIX.regidragoV))score=energyCoverage(mon.energies)>=1?190:100;
+      if(is(mon,PREFIX.regidragoVstar))score=energyCoverage(mon.energies,templeIsActive(obs))===3?480:210;
+      else if(is(mon,PREFIX.regidragoV))score=energyCoverage(mon.energies,templeIsActive(obs))>=1?190:100;
       else if(is(mon,PREFIX.budew))score=70;
       else score=10;
     }else{
@@ -354,7 +368,11 @@ function scoreRoot(item,request){
     if(p===PREFIX.eldegoss)return benchOpen(own)&&
       arr(own.discard).some(x=>/^(?:Guzma|Crispin|Raihan|N |Marnie|Carmine|Professor Sycamore)/.test(name(x)))?165:15;
     if(p===PREFIX.tapu)return benchOpen(own)&&state.hand<=3?145:20;
+    if(p==='Parallel City BKT 145'&&templeUnlocksApex(obs))return 590;
     if(p===PREFIX.path){
+      // Replacing Temple can unlock an immediately payable Apex; price the
+      // unused VSTAR Ability opportunity cost rather than forbidding it.
+      if(templeUnlocksApex(obs))return own.publicTurnRestrictions?.vstarUsed===true?565:340;
       // Do not voluntarily disable our own Rule Box Legacy Star while unused.
       if(own.publicTurnRestrictions?.vstarUsed!==true&&state.vstar>0)return -Infinity;
       return board(opp).some(x=>arr(x.abilities).length>0)?145:20;
@@ -362,8 +380,8 @@ function scoreRoot(item,request){
     if(p===PREFIX.guzma)return finalPrizePrimeTarget(obs)?465:60;
     if(p===PREFIX.raihan)return ownTurnKOEligible(obs,request.publicEventReceipt)?
       175:-Infinity;
-    if(p===PREFIX.crispin)return !bestRegidragoEnergy(own).length?80:
-      bestRegidragoEnergy(own).some(x=>x<3)?235:40;
+    if(p===PREFIX.crispin)return !bestRegidragoEnergy(own,obs).length?80:
+      bestRegidragoEnergy(own,obs).some(x=>x<3)?235:40;
     if(p===PREFIX.sycamore||p===PREFIX.marnie||p===PREFIX.n)return state.hand<=3?210:60;
     if(p===PREFIX.prime)return finalPrizePrimeTarget(obs)?480:
       board(opp).some(x=>
@@ -698,4 +716,5 @@ function createPolicy({role,seat,policyVersion,config}){
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_BLOB_SHA1,SOURCE_PRINTINGS,
   createPolicy,scoreRoot,choosePrompt,donorScore,resolveSourcePrinting,
-  energyCoverage,rank27EnergyAttachScore,finalPrizePrimeTarget,publicPrizeValue};
+  energyCoverage,templeIsActive,templeUnlocksApex,
+  rank27EnergyAttachScore,finalPrizePrimeTarget,publicPrizeValue};
