@@ -44,6 +44,7 @@ const PRINT=Object.freeze({
  path:/^Path to the Peak (?:CRE 148|ASR 213)\b/i,
  silentLab:/^Silent Lab PRC 140\b/i,
  klefki:/^Klefki (?:SVI 96|PAF 159)\b/i,
+ flutterMane:/^Flutter Mane (?:TEF 78|PAF 43|SVP 97)\b/i,
  dimensionValley:/^Dimension Valley\b/i,
  thunderMountain:/^Thunder Mountain\b/i
 });
@@ -105,6 +106,9 @@ function silentLabInPlay(o){
 }
 function activeKlefkiLock(o){
  return activeOpponentAbilityWorking(o,PRINT.klefki,'Mischievous Lock');
+}
+function activeFlutterManeLock(o){
+ return activeOpponentAbilityWorking(o,PRINT.flutterMane,'Midnight Fluttering');
 }
 function usableOwnAbilities(o){
  // All explicitly supported activated Abilities in this rank16 list
@@ -624,7 +628,8 @@ function score(action,req){
   if(/^Star Alchemy$/i.test(a)&&!o.ownTurnResources?.vstarUsed&&deckCount(o)>0&&
      toolEnabled(o)&&benchSupportAbilityUsable('Crobat V DAA 104',o)&&
      slots(own).some(x=>match(x.pokemon.printing,PRINT.crobat)&&
-      list(x.pokemon.tools).some(t=>match(t,PRINT.forest))))return 650;
+      list(x.pokemon.tools).some(t=>match(t,PRINT.forest))&&
+      !(x.zone==='active'&&activeFlutterManeLock(o))))return 650;
   return 0;
  }
  if(action.kind==='attack'){
@@ -688,7 +693,8 @@ function score(action,req){
  if(match(p,PRINT.float)||match(p,PRINT.muscle)||match(p,PRINT.forest)){
   if(!canAttachTool||!t||list(t.pokemon.tools).length!==0)return 0;
   if(match(p,PRINT.forest)&&canTool&&match(t.pokemon.printing,PRINT.crobat)&&
-     !o.ownTurnResources?.vstarUsed&&benchSupportAbilityUsable(p,o))return 570;
+     !o.ownTurnResources?.vstarUsed&&benchSupportAbilityUsable(p,o)&&
+     !(t.zone==='active'&&activeFlutterManeLock(o)))return 570;
   if(match(p,PRINT.float)&&t.zone==='active'&&!opponentSnorlaxBlock(o)&&!match(t.pokemon.printing,PRINT.budew)&&
      o.globalTurn<=4&&canTool&&onBoard(own,PRINT.budew)&&
      o.ownTurnResources?.retreatedTurn!==o.globalTurn&&
@@ -1201,4 +1207,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,prizeYield,activeMimikyuSafeguard,regidragoPayloadCount,karenOwnRecoveryScore,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,drawSupporterScore,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,opponentGarbotoxinStatus,liveGarbotoxin,benchCapacity,replacingJammingRestoresHoodedLock,pathToThePeakInPlay,silentLabInPlay,activeKlefkiLock};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,prizeYield,activeMimikyuSafeguard,regidragoPayloadCount,karenOwnRecoveryScore,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,drawSupporterScore,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,opponentGarbotoxinStatus,liveGarbotoxin,benchCapacity,replacingJammingRestoresHoodedLock,pathToThePeakInPlay,silentLabInPlay,activeKlefkiLock,activeFlutterManeLock};
