@@ -31,6 +31,10 @@ test('actual Aichi modern Mega printings are three-prize, unlike old XY Mega EX'
   for(const name of names)assert.equal(visiblePrizeValue({printing:name,printed:{subtypes:[]}}),3,name);
   assert.equal(visiblePrizeValue({printing:'M Rayquaza-EX ROS 76'}),2);
   assert.equal(visiblePrizeValue({printing:'Regidrago VSTAR SIT 136'}),2);
+  assert.equal(visiblePrizeValue({printing:'Renamed VSTAR printing',printed:{stage:6,subtypes:[]}}),2);
+  assert.equal(visiblePrizeValue({printing:'Some VMAX',printed:{stage:5,subtypes:[]}}),3);
+  assert.equal(visiblePrizeValue({printing:'Some V-UNION',printed:{stage:7,subtypes:[]}}),3);
+  assert.equal(visiblePrizeValue({printing:'M Rayquaza-EX ROS 76',printed:{stage:9,subtypes:[]}}),2);
   assert.equal(visiblePrizeValue({printing:'Hisuian Goodra VSTAR LOR 136'}),2);
   assert.equal(visiblePrizeValue({printing:'Dedenne-GX UNB 57'}),2);
   assert.equal(visiblePrizeValue({printing:'Mega Lopunny & Jigglypuff-GX CEC 165'}),3);
