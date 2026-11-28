@@ -1075,3 +1075,61 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['gx']});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' native Float Stone target prioritizes affordable zero-Energy Budew pivot',()=>{
+  const trubbish=mon('Trubbish CRI 56',{printed:{retreatCost:['Colorless']}});
+  const board=own({active:trubbish,bench:[mon('Budew ASC 16'),mon('Garbodor LTR 68')]});
+  const q=prompt(seat,{promptType:'ChoosePokemonPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Float Stone BKT 137',effectName:'Float Stone'},
+   publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+   choices:[
+    {kind:'pokemon',token:'active',printing:'Trubbish CRI 56',
+     publicMetadata:{ownerSeat:'actor',targetZone:'active'}},
+    {kind:'pokemon',token:'garb',printing:'Garbodor LTR 68',
+     publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:1}}
+   ]},{globalTurn:2,ownPublic:board,ownHand:[]});
+  // Float has already left the hand while its Pokémon target prompt resolves.
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['active']});
+  q.observation.opponentPublic.active=mon('Snorlax PGO 55',{
+   abilitySuppressions:[{abilityName:'Block',suppressed:false}]});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['garb']});
+  q.observation.opponentPublic.active=mon('Regidrago VSTAR SIT 136');
+  q.observation.opponentPublic.stadium=['Jamming Tower TWM 153'];
+  assert.deepEqual(decide(seat,q),{kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'});
+ });
+ test('seat '+seat+' native Float Stone prompt avoids used Tool slot or phantom Budew pivot',()=>{
+  const trubbish=mon('Trubbish CRI 56',{printed:{retreatCost:['Colorless']},
+   tools:['Muscle Band XY 121']});
+  const board=own({active:trubbish,bench:[mon('Budew ASC 16'),mon('Garbodor LTR 68')]});
+  const q=prompt(seat,{promptType:'ChoosePokemonPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Float Stone BKT 137',effectName:'Float Stone'},
+   publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+   choices:[
+    {kind:'pokemon',token:'active',printing:'Trubbish CRI 56',
+     publicMetadata:{ownerSeat:'actor',targetZone:'active'}},
+    {kind:'pokemon',token:'garb',printing:'Garbodor LTR 68',
+     publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:1}}
+   ]},{globalTurn:2,ownPublic:board});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['garb']});
+  trubbish.tools=[];
+  board.bench=[mon('Mega Absol ex MEG 86'),mon('Garbodor LTR 68')];
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['garb']});
+  board.bench=[mon('Budew ASC 16'),mon('Garbodor LTR 68')];
+  q.observation.ownTurnResources.retreatedTurn=2;
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['garb']});
+ });
+ test('seat '+seat+' Float Stone enables future Garbotoxin through accessible Benched Trubbish',()=>{
+  const board=own({active:mon('Budew ASC 16'),bench:[mon('Trubbish CRI 56')]});
+  const q=prompt(seat,{promptType:'ChoosePokemonPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Float Stone BKT 137',effectName:'Float Stone'},
+   publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+   choices:[
+    {kind:'pokemon',token:'budew',printing:'Budew ASC 16',
+     publicMetadata:{ownerSeat:'actor',targetZone:'active'}},
+    {kind:'pokemon',token:'trubbish',printing:'Trubbish CRI 56',
+     publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0}}
+   ]},{globalTurn:3,ownPublic:board});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['trubbish']});
+ });
+}
