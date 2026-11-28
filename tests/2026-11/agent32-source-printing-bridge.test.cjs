@@ -702,11 +702,15 @@ test('source-qualified global Stadium activation works for either player, fails 
       const frontier={schema:'aichi-action-frontier-v1',items:[
         {token:'stadium',kind:'use-stadium',
           actorPrinting:'Tropical Beach BWP',
-          publicMetadata:{stadiumEffectLive:true}}]};
+          publicMetadata:{stadiumEffectLive:true,
+            stadiumPrinting:'Tropical Beach BWP'}}]};
       const otherOwned=projectSourcePrintings(view,frontier,maps);
       assert.equal(otherOwned.actionFrontier.items[0].actorPrinting,
         'Tropical Beach BWP 50',
         'opponent public Stadium zone is sufficient to resolve source owner');
+      assert.equal(otherOwned.actionFrontier.items[0].publicMetadata.stadiumPrinting,
+        'Tropical Beach BWP 50',
+        'Stadium metadata must agree with source-qualified action identity');
       assert.equal(otherOwned.observation.opponentPublic.stadium[0],
         'Tropical Beach BWP 50');
       const ownView={actorSeat:seat,ownHand:[],
@@ -717,6 +721,9 @@ test('source-qualified global Stadium activation works for either player, fails 
       assert.equal(ownerOwned.actionFrontier.items[0].actorPrinting,
         'Tropical Beach BWP 51',
         'actor public Stadium zone resolves actor-owned printing');
+      assert.equal(ownerOwned.actionFrontier.items[0].publicMetadata.stadiumPrinting,
+        'Tropical Beach BWP 51',
+        'Stadium metadata must agree with actor-owned source-qualified action identity');
     }
   }
 

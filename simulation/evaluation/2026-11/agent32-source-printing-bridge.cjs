@@ -197,7 +197,9 @@ function projectSourcePrintings(observation,frontier,sourceMapsBySeat,options={}
           ...(typeof m.priorSourcePrinting==='string'?{
             priorSourcePrinting:label(m.priorSourcePrinting,other)}:{}),
           ...(typeof m.stadiumPrinting==='string'?{
-            stadiumPrinting:uniqueVisibleLabel(m.stadiumPrinting,mine,other)}:{}),
+            stadiumPrinting:item.kind==='use-stadium'
+              ? stadiumActionPrinting(m.stadiumPrinting,observation,mine,other)
+              : uniqueVisibleLabel(m.stadiumPrinting,mine,other)}:{}),
           ...(m.attackSource?{attackSource:{...m.attackSource,
             ...(Object.hasOwn(m.attackSource,'sourceCardFullName')?{
               sourceCardFullName:label(m.attackSource.sourceCardFullName,mine)}:{})}}:{})
