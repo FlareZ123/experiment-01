@@ -785,7 +785,8 @@ function bombPlanner(o,sourceBenchIndex){
       // Count only actor-visible cards and certified owner-K1 Prize membership;
       // unknown Prizes never become an assumed available card.
       if(isUn(p)&&m.targetZone==='bench'&&/^Telepathic Psychic Energy POR 88\b/i.test(name(x))&&
-         !liveStadium(o,/Temple of Sinnoh/i)&&
+         !liveStadium(o,/Temple of Sinnoh|Silent Lab/i)&&
+         abilityLive(p,'Farewell Letter')&&
          cap(o)>0&&Number(o.ownPublic?.deckCount)>8&&
          !L(p.energies).length&&!L(p.tools).length&&
          mega(o.ownPublic?.active)&&usable(o.ownPublic.active,'Claw of Darkness',o)){
