@@ -121,6 +121,7 @@ behind.observation.ownPublic.active.attacks=[{
  name:'Miraculous Duo-GX',damage:200}];
 behind.observation.ownPublic.stadium=[];
 behind.observation.opponentPublic.stadium=[];
+delete behind.actionFrontier.items[1].publicMetadata.damageAfterResistance;
 behind.actionFrontier.items.unshift({kind:'play-card',token:'catchDirect',
  actorPrinting:'Counter Catcher PAR',
  publicMetadata:{cardType:'trainer',handIndex:0}});
