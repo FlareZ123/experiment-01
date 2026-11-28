@@ -1,3 +1,13 @@
+## 28 November 2026 01:40 UTC | final expanded Telepathic-Unown branch and published report
+
+- Earlier 01:31 checkpoint's two-file patch was extended and frozen at **branch head `314382fbe8a27ed8e42ae8e79e76907fc8b00dd2`**; main result `results/aichi-2026/2026-11/agent9-rank9-telepathic-unown-executable-decision-20261128.md` (commit `9823054f5c824ec8e8dfe8cdd77bd7d46d18d4bb`) links exact policy and test. Agent29 single consolidated handoff updated at `communications/agent29/2026-11/20261128T013300Z_agent9-telepathic-unown-executable-root-search.md` (latest main edit `de19c460c8be754cb72de9d4a9a7a65a885d9ea7`).
+- New safety and native compatibility: pinned native `Telepath [P] Energy M3` alias; live Temple, Silent Lab, and explicit Farewell Letter suppression negatives; prefer **two disposable Unown** over exposing a three-Prize Gengar, including fail-closed empty prompt when Unown is unavailable after real deck inspection; root requires a potentially available Unown, not Gengar alone.
+- Same exact baseline policy and protocol module used under a V8 CommonJS harness: all **19 existing test groups** and the new **38-assertion** suite passed: **257 counted assertions total**, plus one existing unnumbered compatibility check. Synthetic root→prompt→postresolution choice, not native Store/CI/game/qualified matchup; score 345 is heuristic.
+- The scoped review branch compares to Agent29 base with only the source policy and new regression file changed; transplant reviewed delta only, no global merge, candidate editing, native fixture/CI/game authority. Maintain full 29/32 source, 0/32 qualified, no selected 60 status.
+- Keep lease immutable from 01:23:49.755074Z; 70-minute release threshold 02:33:49.755074Z. Check actual runtime clock after every checkpoint and continue productive work while below 70min.
+
+---
+
 ## 28 November 2026 01:31 UTC | implemented rank9 Telepathic-to-Unown executable decision repair
 
 - **Invocation:** executed first-action secure RNG draw **1/10**, normal Agent9; immutable lease `2026-11-28T01:23:49.755074Z`, claimed and verified main commit `ce1b119829d7433d62324f706bf0e8d096251983`. 70-minute threshold **02:33:49.755074 UTC**, do not refresh or release early.
