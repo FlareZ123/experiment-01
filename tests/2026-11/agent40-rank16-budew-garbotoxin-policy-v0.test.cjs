@@ -426,3 +426,16 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['k']});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Temple strands source VSTAR Apex Dragon on Double Dragon Energy before Budew',()=>{
+  const reg=opp({active:mon('Regidrago VSTAR SIT 136',{energies:['Double Dragon Energy ROS 97','Double Dragon Energy ROS 97']})});
+  const q=root(seat,[play('Temple of Sinnoh ASR 155','temple'),attack('Itchy Pollen','pollen'),pass],
+   {ownPublic:own({active:mon('Budew ASC 16')}),opponentPublic:reg});
+  assert.equal(policy.templeStrandsApexDragon(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
+  reg.active.energies.push('Grass Energy MEE 8','Grass Energy MEE 8','Fire Energy MEE 2');
+  assert.equal(policy.templeStrandsApexDragon(q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+ });
+}
