@@ -970,16 +970,45 @@ function scorePokemonChoice(choice, observation, context) {
   const printing = choicePrinting(choice);
   const owner = choiceOwner(choice);
   const zone = choiceZone(choice);
-  const opponentChoice = context.includes('guzma') || context.includes('irresistible aroma');
-  if (owner && owner !== (opponentChoice ? 'opponent' : 'actor')) return -100;
+  const guzmaChoice = context.includes('guzma') && !context.includes('guzma & hala');
+  const opponentChoice = context.includes('irresistible aroma');
+  if (guzmaChoice) {
+    if (owner !== 'opponent' && owner !== 'actor') return -100;
+  } else if (owner && owner !== (opponentChoice ? 'opponent' : 'actor')) return -100;
   if (zone && zone !== 'bench' && !context.includes('irresistible aroma') &&
       !context.includes('cassius') && !context.includes('grand tree')) return -100;
-  if (context.includes('guzma')) {
-    const selected = physicalPokemonChoice(choice, observation, 'opponent');
+  if (guzmaChoice) {
+    // Pinned Guzma BUS executes TWO sequential ChoosePokemonPrompts: first
+    // gust an opponent Bench Pokémon, then promote one of our own Bench.
+    // Treat both as physically distinct source-bound decisions.
+    const selected = physicalPokemonChoice(choice, observation, owner);
     if (!selected || selected.zone !== 'bench') return -100;
-    const hp = remainingHp(selected.pokemon);
-    const multiPrize = /(?:-GX|\b(?:V|VMAX|VSTAR|ex)\b)/i.test(printing) ? 2 : 1;
-    return 100 + (hp > 0 && hp <= 90 ? 50 : 0) + multiPrize * 8;
+    if (owner === 'opponent') {
+      const hp = remainingHp(selected.pokemon);
+      const multiPrize = /(?:-GX|\b(?:V|VMAX|VSTAR|ex)\b)/i.test(printing) ? 2 : 1;
+      return 100 + (hp > 0 && hp <= 90 ? 50 : 0) + multiPrize * 8;
+    }
+    const incoming = selected.pokemon;
+    if (matches(incoming.printing, PRINT.stoutland)) {
+      return stoutlandSentinelEffective(observation, incoming) ? 240 : 45;
+    }
+    if (matches(incoming.printing, PRINT.bunnelby)) {
+      const funded = list(incoming.energies).length > 0 ||
+        list(incoming.tools).some(tool => matches(tool, PRINT.counterGain)) &&
+          ownBehindOnPrizes(observation);
+      return funded ? 210 : 125;
+    }
+    if (matches(incoming.printing, PRINT.budew)) {
+      return !boardHas(observation.ownPublic, PRINT.vileplume) ? 170 : 45;
+    }
+    if (matches(incoming.printing, PRINT.girafarig)) {
+      return list(incoming.energies).length > 0 ? 155 : 65;
+    }
+    if (matches(incoming.printing, PRINT.pidgeot)) return 75;
+    // A forced second switch must still have a legal recipient; avoid
+    // volunteering a highly damaged body if an undamaged pivot is offered.
+    const hp = remainingHp(incoming);
+    return hp < 0 ? 10 : hp <= 40 ? 15 : 35;
   }
   if (context.includes('cassius')) {
     const selected = physicalPokemonChoice(choice, observation, 'actor');
