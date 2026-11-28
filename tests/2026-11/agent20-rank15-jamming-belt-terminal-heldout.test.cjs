@@ -36,8 +36,9 @@ function root(seat,jamming,muted) {
 for(const seat of [0,1]){
   for(const [jamming,muted,damage,winner] of [
     [false,false,190,'spiky'],
+    [false,true,160,'gale'],
     [true,false,160,'gale'],
-    [true,true,190,'spiky']
+    [true,true,160,'gale']
   ]) {
     test('seat '+seat+' Jamming '+jamming+' muted '+muted+' damage and terminal',()=>{
       const r=root(seat,jamming,muted);
@@ -45,14 +46,16 @@ for(const seat of [0,1]){
       assert.deepEqual(rootDecision(r),{kind:'select-action',token:winner});
     });
   }
-  for(const [muted,score] of [[false,0],[true,172]]) {
-    test('seat '+seat+' Jamming '+(muted?'muted':'live')+' Hood utility',()=>{
+  for(const [jamming,muted,score] of [
+    [false,false,172],[false,true,0],[true,false,0],[true,true,0]
+  ]) {
+    test('seat '+seat+' Jamming '+jamming+' muted '+muted+' Hood utility',()=>{
       const aor=card(AOR,[],[],{abilitySuppressions:[{
         abilityName:'Irritating Pollen',suppressed:true,
         sourcePrinting:'Garbodor BKP 57'
       }]});
       const o={actorSeat:seat,ownPublic:{
-        active:card('Fan Rotom SCR 118'),bench:[aor],stadium:[JAM],
+        active:card('Fan Rotom SCR 118'),bench:[aor],stadium:jamming?[JAM]:[],
         ...(muted?{publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:1}}:{})
       },opponentPublic:{stadium:[]}};
       const action={kind:'play-card',token:'hood',actorPrinting:HOOD,targetPrinting:AOR,
