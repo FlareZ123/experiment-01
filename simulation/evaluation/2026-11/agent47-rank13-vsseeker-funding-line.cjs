@@ -37,6 +37,19 @@ const CRISPIN = /^Crispin SCR(?: 133)?$/i;
 const GUZMA = /^Guzma BUS(?: 115)?$/i;
 const VS_SEEKER = /^VS Seeker PHF(?: 109)?$/i;
 
+function visibleEnergyUsed(view, pattern) {
+  const own=view?.ownPublic??{};
+  const cards=[
+    ...(Array.isArray(view?.ownHand)?view.ownHand:[]),
+    ...(Array.isArray(own.discard)?own.discard:[]),
+    ...(Array.isArray(own.lostZone)?own.lostZone:[]),
+    ...(Array.isArray(own.active?.energies)?own.active.energies:[]),
+    ...(Array.isArray(own.bench)?own.bench:[])
+      .flatMap(pokemon=>Array.isArray(pokemon?.energies)?pokemon.energies:[])
+  ];
+  return cards.filter(card=>isPrint(card,pattern)).length;
+}
+
 function chooseRank13VsSeekerFundingLine(request) {
   const prompt = request?.prompt;
   const view = request?.observation;
@@ -46,6 +59,8 @@ function chooseRank13VsSeekerFundingLine(request) {
       prompt.source?.classification !== 'actor-choice' ||
       meta?.selectionType !== 'card-combination' ||
       meta.minimumCount !== 1 || meta.maximumCount !== 1 ||
+      meta.ownerSeat !== 'actor' || meta.isOwnerVisible !== true ||
+      meta.sourceZone !== 'discard' || meta.allowCancel !== false ||
       !Array.isArray(prompt.choices) || !view ||
       view.decisionKind !== 'owner-prompt') return null;
 
@@ -83,7 +98,12 @@ function chooseRank13VsSeekerFundingLine(request) {
           condition : String(condition?.name ?? ''))) ||
       r.cannotAttackNextTurn === true || r.cannotUseAttacksNextTurn?.length > 0 ||
       r.attackCostIncreaseNextTurn > 0 || r.attackCostIncreaseWhileActive > 0 ||
-      t.attackLockTurnsRemaining > 0 || t.supporterPlayLocked === true) return null;
+      t.attackLockTurnsRemaining > 0 || t.supporterPlayLocked === true ||
+      // Exact source rank13 has Grass x4 and Fire x3. If all copies are
+      // accounted for in actor-visible non-deck zones, Crispin cannot search
+      // the two different Basic types needed for the attached Grass.
+      visibleEnergyUsed(view,GRASS) >= 4 ||
+      visibleEnergyUsed(view,FIRE) >= 3) return null;
 
   return { kind: 'select-choices', tokens: [crispin[0].token] };
 }
