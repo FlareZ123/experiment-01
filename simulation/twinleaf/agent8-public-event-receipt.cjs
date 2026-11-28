@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 
-const VERSION='agent8-public-event-receipt-v4-ko-turn-stamped';
+const VERSION='agent47-public-event-receipt-v5-opponent-owned-ko';
 
 /**
  * Only face-up cards and native public-use markers enter this detached
@@ -20,16 +20,25 @@ const VERSION='agent8-public-event-receipt-v4-ko-turn-stamped';
  *   known-empty history for the supplied snapshot turn.
  * @param {number|null} [previousOpponentTurnKOTurn=null]
  *   The KO tracker snapshot's turn. A stale snapshot becomes unknown.
+ * @param {number|null} [certifiedLastOpponentTurn=null]
+ *   Actual last completed opponent-OWNED turn, authenticated by a turn-owner
+ *   tracker. Independent of whether an attack was seen on that turn.
  * @returns {Readonly<object>}
  */
 function publicEventReceipt(state,seat,previousOpponentTurnAttacks=null,
     previousOpponentTurnTurn=null,previousOpponentTurnKOs=null,
-    previousOpponentTurnKOTurn=null){
+    previousOpponentTurnKOTurn=null,certifiedLastOpponentTurn=null){
   assert.ok((seat===0||seat===1)&&state?.players?.length===2);
   assert.equal(state.activePlayer,seat,'Event receipt is actor-turn scoped');
   const owner=state.players[seat];
   const opponent=state.players[1-seat];
-  let opponentLastTurnTurn=null;
+  if(certifiedLastOpponentTurn!==null)
+    assert.ok(Number.isSafeInteger(certifiedLastOpponentTurn)&&
+      certifiedLastOpponentTurn>=0&&certifiedLastOpponentTurn<state.turn,
+      'Certified last opponent turn must be completed and earlier');
+  // Turn ownership is independent of whether the opponent attacked. Never
+  // promote a last-attack timestamp alone into a last-opponent-turn witness.
+  const opponentLastTurnTurn=certifiedLastOpponentTurn;
   let opponentLastTurnAttacks=null;
   if(previousOpponentTurnAttacks!==null){
     assert.ok(Array.isArray(previousOpponentTurnAttacks));
@@ -40,7 +49,9 @@ function publicEventReceipt(state,seat,previousOpponentTurnAttacks=null,
       'Known previous-turn history requires its snapshot turn stamp');
     assert.ok(snapshotTurn<state.turn,
       'Previous-opponent-turn history must predate the acting turn');
-    opponentLastTurnTurn=snapshotTurn;
+    if(certifiedLastOpponentTurn!==null)
+      assert.equal(snapshotTurn,certifiedLastOpponentTurn,
+        'Attack snapshot must match the certified last opponent-owned turn');
     const barragePairs=new Map();
     for(const row of previousOpponentTurnAttacks){
       if(row.barragePairId===undefined){
@@ -106,7 +117,8 @@ function publicEventReceipt(state,seat,previousOpponentTurnAttacks=null,
         row.byAttack===null);
     }
     if(Number.isSafeInteger(state.turn)&&state.turn>1&&
-       snapshotTurn===state.turn-1){
+       certifiedLastOpponentTurn!==null&&
+       snapshotTurn===certifiedLastOpponentTurn){
       const byAttack=previousOpponentTurnKOs.some(row=>row.byAttack===true)?
         true:previousOpponentTurnKOs.every(row=>row.byAttack===false)?
           false:null;
@@ -181,6 +193,7 @@ function publicEventReceipt(state,seat,previousOpponentTurnAttacks=null,
     // is supplied only by the research-owned Store event tracker.
     opponentLastTurnAttack:null,
     opponentLastTurnTurn,
+    opponentLastTurnOwnerCertified:certifiedLastOpponentTurn!==null,
     opponentLastTurnAttacks
   });
 }
