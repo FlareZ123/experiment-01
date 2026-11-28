@@ -36,3 +36,21 @@ The first policy-level Radiant owner prompt is **not yet source-contract executa
 - Research `simulation/evaluation/2026-11/agent36-prompt-provenance.cjs`, `agent32-source-printing-bridge.cjs`, `agent46-candidate-policy.cjs`
 - `tests/2026-11/agent3-candidate-radiant-climactic-gate-boundary.test.cjs`
 - `simulation/twinleaf/agent1-radiant-zero-gate-hook.cjs`
+
+
+## Broader executable consequence: Tapu Lele-GX's Wonder Tag is broken at the same host seam
+
+The exact same `PlayPokemonEffect` provenance deficiency is **not Radiant-specific**. Pinned `ptcg-server/src/sets/08-sun-and-moon/set-guardians-rising/tapu-lele-gx.ts` defines entry Ability `Wonder Tag`, triggered by `effect instanceof PlayPokemonEffect && effect.pokemonCard === this`, and emits `ConfirmPrompt(WANT_TO_USE_ABILITY)` immediately, with `ChooseCardsPrompt` for Supporter search in its affirmative continuation. There is no `effect.power` for this entry event. The fixed Hood candidate 60 includes **one Tapu Lele-GX GRI 60**, and PR95 has detailed `Wonder Tag` deck-search preference but checks `effectName === 'Wonder Tag'`.
+
+An additional execution of the **same exact checked-in `describeEffect` source** with pinned PlayPokemonEffect field shapes found:
+
+| Entry Pokémon (physical name) | Printed entry Ability | Actual host `effectName` | Frozen worker expected |
+| --- | --- | --- | --- |
+| Radiant Eternatus CRZ 105 | Climactic Gate | `Radiant Eternatus` | `Climactic Gate` |
+| Tapu Lele-GX GRI 60 | Wonder Tag | `Tapu Lele-GX` | `Wonder Tag` |
+
+Both mismatches are true. PR95 `choosePrompt` handles an unfamiliar `ConfirmPrompt` by selecting its sole choice **only if the native prompt offers exactly one**. A normal optional Yes/No entry confirmation offers multiple choices, so this falls to `abstain('AMBIGUOUS_SIMPLE_PROMPT')` *before* the player's special Supporter search path; even if the prompt were resolved externally, `searchCandidates` would fall back to generic search when `effectName !== 'Wonder Tag'`. This is a second concrete fixed-60 execution gap, not a hypothetical unrelated card.
+
+Pinned Dedenne-GX UNB / Dedechange and Crobat V DAA / Dark Asset also trigger from `PlayPokemonEffect`, so the underlying **class** warrants a design solution. Neither card is in the current fixed Hood 60. An implementer should make an explicit, reviewed entry-Ability allowlist in **host provenance**, keyed by exact pinned card and `effect.pokemonCard === current card`, rather than a Radiant-only unrelated workaround or dropping strict worker provenance. Start with **Radiant CRZ 105 and Tapu Lele GRI 60**, preserve the exact independent native prompt classes and continuation. The frozen Underworld PR104 native no-game witness has no authority to change this other prompt family.
+
+Evidence remains source/static execution of `describeEffect`, not compiled Store or game: native event chaining and actual promise/continuation behavior must still receive a later, separately authorized no-game witness. This new finding advances **source-to-policy integration design**, not a measured matchup.
