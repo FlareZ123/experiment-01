@@ -624,7 +624,7 @@ test('Energy Mix target selection uses public benchIndex for duplicate Mew VMAX 
     choices: ambiguousChoices
   });
   assert.deepEqual(checkedDecision(ambiguousRequest),
-    { kind: 'abstain', reasonCode: 'NO_FUSION_STRIKE_ENERGY_TARGET' });
+    { kind: 'abstain', reasonCode: 'NO_VISIBLE_POKEMON_TARGET' });
 });
 
 test('Guzma targets a vulnerable two-Prize Shadow Rider V before an undamaged VMAX', () => {
