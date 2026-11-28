@@ -1415,7 +1415,7 @@ function scoreAttack(item, request) {
   if(visible.knockout){
     const prizes=guzmaTargetPrizeValue(target);
     if(prizes >= (observation?.ownPublic?.prizeCount ?? 6))
-      return 800; // direct win is safer than staging an unnecessary search
+      return 1000; // direct win is safer than staging an unnecessary search
     if(matches(target.printing,PRINT.budew))return 220;
     return 150+(prizes-1)*30;
   }
