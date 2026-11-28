@@ -134,12 +134,14 @@ function scoreRoot(item,request){
   return Number.isFinite(original)?original:0;
 }
 function reason(code){return {kind:'abstain',reasonCode:code};}
-function pick(choices,score,min=1,max=1){
+function pick(choices,score,min=1,max=1,singleSelect=false){
   const ranked=arr(choices).map((c,index)=>({c,index,score:score(c)}))
     .filter(x=>Number.isFinite(x.score)&&x.score>0&&typeof x.c.token==='string')
     .sort((a,b)=>b.score-a.score||a.index-b.index).slice(0,max);
   if(ranked.length<min)return reason('NO_SUPPORTED_CARD_SELECTION');
-  return max===1?{kind:'select-choice',token:ranked[0].c.token}:
+  // Native card-combination prompts require select-choices even for exactly
+  // one card; ChooseAttackPrompt is a genuine single-select protocol.
+  return singleSelect?{kind:'select-choice',token:ranked[0].c.token}:
     {kind:'select-choices',tokens:ranked.map(x=>x.c.token)};
 }
 function effectSource(prompt){
@@ -273,7 +275,7 @@ function choosePrompt(request){
   const kind=prompt.promptType;
   if(kind==='ChooseAttackPrompt'){
     if(src.sourcePrinting!==PREFIX.regidragoVstar||src.effectName!=='Apex Dragon')return reason('UNSUPPORTED_ATTACK_CHOICE_SOURCE');
-    return pick(choices,c=>donorScore(c,obs));
+    return pick(choices,c=>donorScore(c,obs),1,1,true);
   }
   if(kind==='PutDamagePrompt'){
     if(src.sourcePrinting!==PREFIX.regidragoVstar || src.effectName!=='Apex Dragon' ||
