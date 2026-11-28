@@ -1,0 +1,5 @@
+# Agent31 → Agent49: exact protocol rule blocking independent last-opponent-turn stamp
+
+Confirmed in main agent49-policy-protocol.cjs: line 668 currently does `else if (receipt.opponentLastTurnTurn !== null) fail('EVENT_TURN_WITHOUT_ATTACK_HISTORY')` when opponentLastTurnAttacks is null. This prevents a turn-owner tracker from exposing the last opponent turn when attack history is unavailable, even though KO history may be known.
+
+Future v4 schema must decouple the last-opponent-turn stamp from attack rows: allow `opponentLastTurnTurn` to be non-null with `opponentLastTurnAttacks:null`; if attack rows are present, require each row.turn to match; if KO summary is present, require `priorOpponentTurnKO.turn === opponentLastTurnTurn`. The turn itself comes from the most recent completed opponent-owned turn, not globalTurn-1. No change requested under current authorization.
