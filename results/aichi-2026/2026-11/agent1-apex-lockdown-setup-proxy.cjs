@@ -3,6 +3,9 @@
 // One opponent bench target is assumed for Guzma. No damage, KO, prize taking,
 // opponent hand disruption, opponent effects except explicit lock scenarios.
 // Search reveals actual own deck membership only AFTER the action is paid.
+// t2-dual means AOR Item lock + Active Stoutland Supporter lock at our T2.
+// This adversarial proxy does NOT model own Wobbuffet suppressing these locks,
+// Stealthy Hood state, or native opponent decisions: NOT an actual matchup.
 const N={
  V:"Regidrago V", S:"Regidrago VSTAR", B:"Budew", L:"Latias ex", T:"Tapu Lele-GX", D:"Dedenne-GX", Q:"Squawkabilly ex", W:"Wobbuffet", C:"Crobat V", M:"Marshadow", Z:"Fezandipiti ex",
  DP:"Dragapult ex", DI:"Dialga-GX", NO:"Noivern ex", HA:"Haxorus", MD:"Mega Dragalge ex", GI:"Giratina-EX", GO:"Hisuian Goodra VSTAR", PA:"Palkia-GX", DN:"Mega Dragonite ex", KY:"Kyurem", KO:"Koraidon ex", GG:"Garchomp & Giratina-GX",
@@ -44,7 +47,7 @@ function one(rows,seed,opts={}){
  do{deck=shuffle(initial.slice(),rng);hand=deck.splice(0,7);if(!hand.some(x=>basic.has(x)))mulligans++}while(!hand.some(x=>basic.has(x)));
  const prizes=deck.splice(0,6),discard=[],board=[slot(take(hand,starter(hand,second,initial)),0)],log=[];
  let known=false,turn=0,manual=false,supp=false,retreated=false,stadiumPlayed=false,hearthUsed=false,vstar=false,stad=null,squawkUsed=false,dedeUsed=false,crobatUsed=false,usedGuzma=false,loops=0;
- const has=x=>hand.includes(x), reg=()=>board.find(x=>x.name===N.V||x.name===N.S), active=()=>board[0], handE=()=>hand.filter(x=>energy.has(x)), donors=()=>priority.filter(x=>discard.includes(x)), isLock=()=>scenario==="all-item"||((scenario==="t2-item"||scenario==="t2-both")&&turn===2), canItem=()=>!isLock(), canSupp=x=>!supp&&(turn>1||second||x===N.CA), ruleOff=()=>scenario==="rulebox"||scenario==="t2-both"&&turn===2, allOff=()=>scenario==="garbotoxin"&&turn===2, canAbility=x=>!allOff()&&!(ruleOff()&&rb.has(x))&&!(active().name===N.W&&!psychic.has(x)&&x!==N.W);
+ const has=x=>hand.includes(x), reg=()=>board.find(x=>x.name===N.V||x.name===N.S), active=()=>board[0], handE=()=>hand.filter(x=>energy.has(x)), donors=()=>priority.filter(x=>discard.includes(x)), isLock=()=>scenario==="all-item"||((scenario==="t2-item"||scenario==="t2-both"||scenario==="t2-dual")&&turn===2), canItem=()=>!isLock(), canSupp=x=>!supp&&(turn>1||second||x===N.CA)&&!(scenario==="t2-dual"&&turn===2), ruleOff=()=>scenario==="rulebox"||scenario==="t2-both"&&turn===2, allOff=()=>scenario==="garbotoxin"&&turn===2, canAbility=x=>!allOff()&&!(ruleOff()&&rb.has(x))&&!(active().name===N.W&&!psychic.has(x)&&x!==N.W);
  function note(a,x){if(opts.trace)log.push([turn,a,x])}
  function draw(n){let got=deck.splice(0,n);hand.push(...got);note("draw",got)}
  function see(){known=true}
