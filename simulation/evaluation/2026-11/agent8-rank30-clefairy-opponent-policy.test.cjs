@@ -565,3 +565,61 @@ for(const seat of [0,1]) {
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' native engine starting hand chooses Clefairy then useful Bench only',()=>{
+    const r=request(seat);
+    r.observation.phase=1;
+    r.observation.ownPublic.active=null;
+    r.observation.ownPublic.bench=[];
+    const nativeCard=(printing,token)=>({...card(printing,token),
+      publicMetadata:{sourceZone:'hand',ownerSeat:'actor',isOwnerVisible:true}});
+    const source={classification:'actor-choice',sourceKind:'engine',
+      sourcePrinting:null,effectName:'CHOOSE_STARTING_POKEMONS'};
+    r.prompt={promptType:'ChooseCardsPrompt',description:'CHOOSE_STARTING_POKEMONS',
+      source,publicMetadata:{selectionType:'card-combination',sourceZone:'hand',
+        ownerSeat:'actor',isOwnerVisible:true,minimumCount:1,maximumCount:6},
+      choices:[nativeCard('Dedenne-GX UNB 57','dedenne'),
+        nativeCard('Unown AOR 30','unown'),nativeCard('Latias ex SSP 76','latias'),
+        nativeCard(clef,'clefairy'),nativeCard('Ultra Ball MEG 131','invalid-item')]};
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-choices',
+      tokens:['clefairy','latias','unown']});
+    r.observation.ownPublic.active={printing:clef,energies:[]};
+    r.observation.ownPublic.bench=[b('Latias ex SSP 76')];
+    r.prompt.publicMetadata.minimumCount=0;
+    r.prompt.choices=[nativeCard('Unown AOR 30','extra-unown'),
+      nativeCard('Crobat V DAA 104','reserve-crobat'),
+      {kind:'empty-selection',token:'empty'}];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-choices',
+      tokens:['extra-unown']});
+    r.prompt.choices=[nativeCard('Crobat V DAA 104','reserve-crobat'),
+      {kind:'empty-selection',token:'empty'}];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-choice',token:'empty'});
+    r.prompt.source.sourceKind='card-effect';
+    assert.equal(policy(seat).decide(r).reasonCode,'UNSUPPORTED_PROMPT_TYPE');
+  });
+  test('seat '+seat+' native setup first-turn and mulligan choices are source-bound',()=>{
+    const r=request(seat);
+    r.observation.phase=1;
+    r.prompt={promptType:'ConfirmPrompt',description:'GO_FIRST',
+      source:{classification:'actor-choice',sourceKind:'engine',
+        sourcePrinting:null,effectName:'GO_FIRST'},
+      publicMetadata:{selectionType:'confirm'},choices:[
+        {kind:'confirm',token:'no',label:'No'},
+        {kind:'confirm',token:'yes',label:'Yes'}]};
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-choice',token:'yes'});
+    r.prompt={promptType:'SelectPrompt',description:'WANT_TO_DRAW_CARDS',
+      source:{classification:'actor-choice',sourceKind:'engine',
+        sourcePrinting:null,effectName:'WANT_TO_DRAW_CARDS'},
+      publicMetadata:{selectionType:'option',count:4},choices:[
+        {kind:'option',token:'draw0',label:'Draw 0 card(s)',publicMetadata:{choiceIndex:3}},
+        {kind:'option',token:'draw3',label:'Draw 3 card(s)',publicMetadata:{choiceIndex:0}},
+        {kind:'option',token:'draw1',label:'Draw 1 card(s)',publicMetadata:{choiceIndex:2}},
+        {kind:'option',token:'draw2',label:'Draw 2 card(s)',publicMetadata:{choiceIndex:1}}
+      ]};
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-choice',token:'draw3'});
+    r.observation.phase=3;
+    assert.equal(policy(seat).decide(r).reasonCode,'UNSUPPORTED_PROMPT_TYPE');
+  });
+}
