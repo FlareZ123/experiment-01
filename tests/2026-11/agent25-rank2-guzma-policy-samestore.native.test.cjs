@@ -189,9 +189,13 @@ function stage(seat, withLatias = false, { manualItemLock = true, heldFogCrystal
     const slotCount = slot => {
       assert.ok(slot.energies.cards.every(card => slot.cards.includes(card)),
         'native attached Energy must also exist in its main Pokémon slot');
-      assert.ok(slot.tools.every(card => slot.cards.includes(card)),
-        'native attached Tool must also exist in its main Pokémon slot');
-      return slot.cards.length;
+      // Pinned native AttachPokemonToolEffect keeps Tools in a disjoint
+      // tools[] zone, whereas physical Energy is duplicated by reference in
+      // the non-owning energies overlay. Neither representation may be
+      // double-counted in a genuine original-60 physical-zone census.
+      assert.ok(slot.tools.every(card => !slot.cards.includes(card)),
+        'native attached Tool must occupy disjoint tools-only zone');
+      return slot.cards.length + slot.tools.length;
     };
     const physicalCount = slotCount(player.active) +
       player.bench.reduce((sum, slot) => sum + slotCount(slot), 0) +
