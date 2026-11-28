@@ -209,3 +209,108 @@ for(const seat of [0,1])for(const mode of ['lethal','second-v','fog','door'])
     protocol.validatePolicyAudit(policyAudit,request,decision,
       candidate.POLICY_VERSION);
   });
+
+for(const candidateSeat of [0,1])for(const mode of ['lethal','door'])
+  test('four native host adapters→combined candidate '+mode+' seat '+candidateSeat,()=>{
+    // Exercise the actual adapter composition surface used by the V3 fixture:
+    // observer before SHA; frontier/prompt projected after native construction;
+    // token-to-native-object custody retained by original dispatch methods.
+    const fixture=make(candidateSeat,mode);
+    const realRootAction=Object.freeze({kind:'NativeAction',seat:candidateSeat,
+      nativeIdentity:'opaque-action-'+mode+'-'+candidateSeat});
+    const realPromptAction=Object.freeze({kind:'NativePromptResponse',
+      seat:candidateSeat,nativeIdentity:'opaque-prompt-'+mode+'-'+candidateSeat});
+    const native={observe(state,seat){
+      assert.equal(state.token,'state-owned');
+      assert.equal(seat,candidateSeat);
+      return fixture.obs;
+    }};
+    const rootToken=fixture.actions.find(x=>x.kind!=='pass')?.token??'pass';
+    const physicalFrontier={
+      buildNativeActionFrontier(){
+        return {actionFrontier:{schema:protocol.FRONTIER_SCHEMA,
+          items:fixture.actions},
+          actionByToken:new Map([[rootToken,realRootAction]])};
+      },
+      dispatchSelectedNativeAction({frontier,token}){
+        return frontier.actionByToken.get(token);
+      }
+    };
+    const physicalPrompt={
+      projectPrompt(){
+        return {hostOnly:false,promptProjection:fixture.prompt,
+          choiceByToken:new Map(
+            fixture.prompt?fixture.prompt.choices.map(x=>[x.token,realPromptAction]):[])
+        };
+      },
+      dispatchPromptChoice({projection,decision}){
+        const token=decision.token??decision.tokens?.[0];
+        return projection.choiceByToken.get(token);
+      },
+      resolveHostOnlyPrompt(){return {hostOnly:true};}
+    };
+    const wrapped=bridge.createCertifiedV3RoleAdapters({
+      native,protocol,candidateSeat,opponentSeat:1-candidateSeat,
+      candidateSourceDeck:candidateDeck,opponentSourceDeck:opponentDeck,
+      candidateNativeOrdered60:nativeOrdered60(candidateDeck),
+      opponentNativeOrdered60:nativeOrdered60(opponentDeck),
+      actionFrontier:physicalFrontier,promptProjection:physicalPrompt,
+      eventReceipt:()=>null
+    });
+    const state={token:'state-owned'};
+    const sourceObservation=wrapped.native.observe(state,candidateSeat);
+    assert.ok(Object.isFrozen(sourceObservation));
+    assert.equal(sourceObservation.ownPublic.active.printing,
+      'Shadow Rider Calyrex VMAX CRE 75');
+    assert.equal(fixture.obs.ownPublic.active.printing,VMAX,
+      'original native observation unchanged');
+
+    const root=wrapped.actionFrontier.buildNativeActionFrontier({
+      state,actorSeat:candidateSeat});
+    assert.deepEqual(root.actionFrontier.items.map(x=>x.token),
+      fixture.actions.map(x=>x.token));
+    assert.equal(root.actionByToken.get(rootToken),realRootAction);
+
+    const projected=wrapped.promptProjection.projectPrompt({
+      state,actorSeat:candidateSeat,prompt:fixture.prompt
+    });
+    if(mode==='door'){
+      assert.equal(projected.promptProjection.source.sourcePrinting,
+        'Shadow Rider Calyrex VMAX CRE 75');
+      assert.deepEqual(projected.promptProjection.choices.map(x=>x.token),
+        fixture.prompt.choices.map(x=>x.token));
+    }else assert.equal(projected.promptProjection,null);
+
+    const parts={
+      observation:sourceObservation,prompt:projected.promptProjection,
+      publicEventReceipt:wrapped.eventReceipt(state,candidateSeat),
+      actionFrontier:root.actionFrontier
+    };
+    const request={
+      schema:protocol.REQUEST_SCHEMA,type:'decision',
+      requestId:'four-adapter-'+mode+'-'+candidateSeat,sequence:1,
+      role:'candidate',seat:candidateSeat,
+      observationSchema:protocol.OBSERVATION_SCHEMA,...parts
+    };
+    const init={schema:protocol.INIT_SCHEMA,type:'init',
+      role:'candidate',seat:candidateSeat,
+      policyVersion:candidate.POLICY_VERSION,
+      bundleSha256:'a'.repeat(64),config:{}};
+    const admitted=protocol.validateRequest(request,init,1,new Set());
+    const response=candidate.createPolicy({role:'candidate',
+      seat:candidateSeat,policyVersion:candidate.POLICY_VERSION,
+      config:{}}).decideWithAudit(request);
+    assert.deepEqual(response.decision,fixture.want);
+    protocol.validateDecision(response.decision,
+      admitted.prompt,admitted.actionTokens);
+    protocol.validatePolicyAudit(response.policyAudit,request,
+      response.decision,candidate.POLICY_VERSION);
+    if(mode==='lethal')
+      assert.equal(wrapped.actionFrontier.dispatchSelectedNativeAction({
+        frontier:root,token:response.decision.token}),realRootAction,
+        'source projection must not fabricate/replace native Action');
+    else
+      assert.equal(wrapped.promptProjection.dispatchPromptChoice({
+        projection:projected,decision:response.decision}),realPromptAction,
+        'source projection must not fabricate/replace physical prompt result');
+  });
