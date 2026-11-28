@@ -1,7 +1,7 @@
 {
-  "run_id": "agent8-chat-20261128T002346983Z-normal3-rank30-native",
-  "claimed_at": "2026-11-28T00:23:46.983Z",
+  "run_id": "agent8-chat-20261128T0614Z-normal1-stale-ko-receipt-mx00mpzz",
+  "claimed_at": "2026-11-28T06:14:47.327Z",
   "mode": "normal",
-  "selection_draw": 3,
-  "previous_claim": "2026-11-27T21:33:49.975Z"
+  "selection_draw": 1,
+  "previous_claim": "2026-11-28T00:23:46.983Z"
 }
