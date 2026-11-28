@@ -35,6 +35,34 @@ function intersectAllPresent(groupSizes,excluded=0){
  }
  return favorable;
 }
+function twoCopyCorePrizeCollapse(){
+ // Initial 7 must include >=1 of 11 Basic Pokémon.
+ // Six face-down Prizes are dealt from the 53 after those 7.
+ // These are three disjoint two-copy BASIC families in the original 60.
+ // Inclusion-exclusion counts opening hands & Prize subsets jointly, thus
+ // avoids the error of treating unconditional C(58,4)/C(60,6) as the
+ // prize risk conditional on a *legal* starting seven.
+ const twoCopyCategories=['Mega Absol ex MEG 86','Trubbish CRI 56','Budew ASC 16'];
+ if(twoCopyCategories.some(p=>SOURCE_INVENTORY.find(x=>x[0]===p)?.[1]!==2))
+  throw Error('source core two-copy groups changed');
+ const valid7=choose(60,7)-choose(49,7);
+ const denominator=valid7*choose(53,6);
+ const exactlyAllOfOne=(choose(58,7)-choose(49,7))*choose(51,4);
+ const allOfTwo=(choose(56,7)-choose(49,7))*choose(49,2);
+ const allOfThree=choose(54,7)-choose(49,7);
+ const atLeastOne=3n*exactlyAllOfOne-3n*allOfTwo+allOfThree;
+ const frac=n=>Number(n)/Number(denominator);
+ return Object.freeze({
+  sourceRank:16,groups:twoCopyCategories,
+  conditioning:'legal opening seven with >=1 Basic and six Prize cards drawn from remaining 53',
+  denominator:denominator.toString(),
+  anyOneSpecifiedCoreCompletelyPrized:{numerator:exactlyAllOfOne.toString(),probability:frac(exactlyAllOfOne)},
+  anyTwoSpecifiedCoresCompletelyPrized:{numerator:allOfTwo.toString(),probability:frac(allOfTwo)},
+  allThreeCoresCompletelyPrized:{numerator:allOfThree.toString(),probability:frac(allOfThree)},
+  atLeastOneOfThreeCoresCompletelyPrized:{numerator:atLeastOne.toString(),probability:frac(atLeastOne)},
+  interpretation:'conditional six-Prize configuration event; not a game loss or full setup failure'
+ });
+}
 function firstTurnDrawEnvelope(){
  // Starting 7 are checked for the at-least-one-Basic setup rule.
  // After six Prizes are dealt, the ordinary turn draw is uniformly one
@@ -125,6 +153,7 @@ function calculate(){
   denominator:count(denominator),
   validOpenings:count(legal),
   firstTurnDrawResourceEnvelope:firstTurnDrawEnvelope(),
+  twoCopyCorePrizeCollapse:twoCopyCorePrizeCollapse(),
   conditionalOnValidOpening:{
    directBudew:{count:count(directBudew),probability:proportion(directBudew)},
    budewAndTrubbish:{count:count(budewAndTrubbish),probability:proportion(budewAndTrubbish)},
@@ -138,4 +167,4 @@ function calculate(){
  });
 }
 if(require.main===module)process.stdout.write(JSON.stringify(calculate(),null,2)+'\n');
-module.exports={HAND,basicNames,choose,intersectAllPresent,firstTurnDrawEnvelope,calculate};
+module.exports={HAND,basicNames,choose,intersectAllPresent,twoCopyCorePrizeCollapse,firstTurnDrawEnvelope,calculate};
