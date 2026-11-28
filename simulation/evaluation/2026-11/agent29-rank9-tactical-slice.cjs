@@ -685,6 +685,7 @@ function bombPlanner(o,sourceBenchIndex){
     return select(p,picks,picks.length,'NO_LEGAL_CARD_SET');
   }
   function trainerSearch(c,o){
+    if(cologne(c))return cologneDrawScore(o);
     if(heavy(c))return heavyScore(o);
     if(stadiumCard(c))return stadiumScore(c,o);
     if(match(c,R.vip))return first(o)&&cap(o)>0&&(!ownHas(o,mega)||!ownHas(o,isVol)&&!ownHas(o,elec))?370:0;
