@@ -40,6 +40,7 @@ const PRINT=Object.freeze({
  karen:/^Karen XYP 177\b/i,
  temple:/^Temple of Sinnoh ASR 155\b/i,
  jamming:/^Jamming Tower TWM 153\b/i,
+ skyField:/^Sky Field ROS 89\b/i,
  dimensionValley:/^Dimension Valley\b/i,
  thunderMountain:/^Thunder Mountain\b/i
 });
@@ -50,6 +51,12 @@ const match=(x,rx)=>rx.test(name(x));
 const slots=p=>[{zone:'active',index:0,pokemon:p?.active},...list(p?.bench).map((pokemon,index)=>({zone:'bench',index,pokemon}))].filter(x=>x.pokemon&&x.pokemon.concealed!==true);
 const onBoard=(p,rx)=>slots(p).some(x=>match(x.pokemon.printing,rx));
 const benchCount=p=>list(p?.bench).filter(Boolean).length;
+function benchCapacity(o){
+ const stadium=[...list(o?.ownPublic?.stadium),...list(o?.opponentPublic?.stadium)];
+ const suppressed=o?.ownPublic?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
+ return (suppressed===null||suppressed===undefined||suppressed===0)&&
+  stadium.some(s=>match(s,PRINT.skyField))?8:5;
+}
 const handCount=o=>list(o?.ownHand).length;
 const deckCount=o=>Number.isSafeInteger(o?.ownPublic?.deckCount)?o.ownPublic.deckCount:0;
 const owner=c=>c?.publicMetadata?.ownerSeat;
@@ -179,7 +186,7 @@ function benchSupportFits(o){
  if(!onBoard(p,PRINT.mega))required++;
  if(!onBoard(p,PRINT.trubbish)&&!onBoard(p,PRINT.garbodor))required++;
  if(!onBoard(p,PRINT.budew))required++;
- return 5-benchCount(p)>required;
+ return benchCapacity(o)-benchCount(p)>required;
 }
 function hasProtectedHand(o){
  const h=list(o.ownHand),p=o.ownPublic;
@@ -245,6 +252,7 @@ function handCanPay(o,played,n){
 function sourceBasicChoices(rows,o,max){
  const mine=o.ownPublic;
  const selected=[],present=new Set();
+ const limit=Math.min(max,Math.max(0,benchCapacity(o)-benchCount(mine)));
  // VIP can place Budew directly when Float on the initial non-Budew
  // Active makes an immediate zero-Energy Item-lock attack reachable.
  // A fixed Trubbish+Mega ordering otherwise consumes both VIP slots.
@@ -253,7 +261,7 @@ function sourceBasicChoices(rows,o,max){
   [PRINT.budew,PRINT.trubbish,PRINT.mega,PRINT.crobat,PRINT.tapu,PRINT.dedenne,PRINT.squawk]:
   [PRINT.trubbish,PRINT.mega,PRINT.budew,PRINT.crobat,PRINT.tapu,PRINT.dedenne,PRINT.squawk];
  for(const printing of priority){
-  if(selected.length>=max)break;
+  if(selected.length>=limit)break;
   if(slots(mine).some(x=>match(x.pokemon.printing,printing)))continue;
   const c=rows.find(c=>!selected.includes(c)&&match(c,printing));
   if(c){selected.push(c);present.add(printing)}
@@ -262,7 +270,7 @@ function sourceBasicChoices(rows,o,max){
 }
 function basicSearchDemand(o){
  const p=o.ownPublic;
- if(benchCount(p)>=5)return false;
+ if(benchCount(p)>=benchCapacity(o))return false;
  if(!onBoard(p,PRINT.mega)||!onBoard(p,PRINT.budew)||
     !onBoard(p,PRINT.trubbish)&&!onBoard(p,PRINT.garbodor))return true;
  if(benchSupportFits(o)&&handCount(o)<=3&&
@@ -615,9 +623,9 @@ function score(action,req){
   if(equipped&&(setupAbilityPending(items,o)||forestSealLinePending(o)))return 140;
   return 620;
  }
- if(match(p,PRINT.trubbish))return benchCount(own)<5&&!onBoard(own,PRINT.trubbish)?555:20;
- if(match(p,PRINT.budew))return benchCount(own)<5&&!onBoard(own,PRINT.budew)?300:25;
- if(match(p,PRINT.mega))return benchCount(own)<5&&!onBoard(own,PRINT.mega)?300:15;
+ if(match(p,PRINT.trubbish))return benchCount(own)>=benchCapacity(o)?0:!onBoard(own,PRINT.trubbish)?555:20;
+ if(match(p,PRINT.budew))return benchCount(own)>=benchCapacity(o)?0:!onBoard(own,PRINT.budew)?300:25;
+ if(match(p,PRINT.mega))return benchCount(own)>=benchCapacity(o)?0:!onBoard(own,PRINT.mega)?300:15;
  if(match(p,PRINT.float)||match(p,PRINT.muscle)||match(p,PRINT.forest)){
   if(!t||list(t.pokemon.tools).length!==0)return 0;
   if(match(p,PRINT.forest)){
@@ -661,7 +669,11 @@ function score(action,req){
   }
   return 350;
  }
- if(match(p,PRINT.vip))return o.globalTurn<=2&&benchCount(own)<=3?420:0;
+ if(match(p,PRINT.vip)){
+  if(o.globalTurn>2)return 0;
+  const spaces=benchCapacity(o)-benchCount(own);
+  return spaces>=2?420:(spaces===1?300:0);
+ }
  if(match(p,PRINT.mail))return deckCount(o)>0?255:0;
  if(match(p,PRINT.compressor))return deckCount(o)>0?Math.max(260,battleCompressorKarenLineScore(o)):0;
  if(match(p,PRINT.quick)||match(p,PRINT.ultra)){
@@ -1052,4 +1064,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,prizeYield,activeMimikyuSafeguard,regidragoPayloadCount,karenOwnRecoveryScore,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,drawSupporterScore,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,opponentGarbotoxinStatus,liveGarbotoxin};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,prizeYield,activeMimikyuSafeguard,regidragoPayloadCount,karenOwnRecoveryScore,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,drawSupporterScore,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,opponentGarbotoxinStatus,liveGarbotoxin,benchCapacity};
