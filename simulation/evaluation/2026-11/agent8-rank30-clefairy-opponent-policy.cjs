@@ -1340,11 +1340,12 @@ function raihanAttachPrompt(request) {
 // Tactical search priorities are a deterministic local heuristic, not a
 // claim that the chosen card is optimal across the full Aichi field.
 function raihanSearchPriority(choice,o,request) {
-  const hand=arr(o.ownHand),board=slots(o.ownPublic);
+  const hand=arr(o.ownHand),board=slots(o.ownPublic),discard=arr(o.ownPublic?.discard);
   const owned=pattern=>hand.some(c=>has(c,pattern))||
-    board.some(c=>has(c,pattern));
+    board.some(c=>has(c,pattern))||discard.some(c=>has(c,pattern));
   const clefairyCount=hand.filter(c=>has(c,P.clefairy)).length+
-    board.filter(c=>has(c,P.clefairy)).length;
+    board.filter(c=>has(c,P.clefairy)).length+
+    discard.filter(c=>has(c,P.clefairy)).length;
   if(has(choice,P.clefairy)&&clefairyCount<2)return 125-clefairyCount*5;
   if(has(choice,P.fez)&&!owned(P.fez)&&hand.length<=3&&
      hasFreshPriorOpponentTurnKO(request))return 120;
@@ -1391,11 +1392,12 @@ function raihanPrompt(request) {
 function hisuianHeavyBallOpportunity(o,request) {
   const own=o?.ownPublic;
   if(!own||!safeInt(own.prizeCount)||own.prizeCount<=0)return false;
-  const hand=arr(o.ownHand),board=slots(own);
+  const hand=arr(o.ownHand),board=slots(own),discard=arr(own.discard);
   const owned=pattern=>hand.some(c=>has(c,pattern))||
-    board.some(c=>has(c,pattern));
+    board.some(c=>has(c,pattern))||discard.some(c=>has(c,pattern));
   const clefairyCount=hand.filter(c=>has(c,P.clefairy)).length+
-    board.filter(c=>has(c,P.clefairy)).length;
+    board.filter(c=>has(c,P.clefairy)).length+
+    discard.filter(c=>has(c,P.clefairy)).length;
   return clefairyCount<2||
     (!owned(P.latias)&&benchCount(own)<5)||
     (!owned(P.fez)&&hasFreshPriorOpponentTurnKO(request)&&hand.length<=3)||
