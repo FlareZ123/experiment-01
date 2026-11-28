@@ -86,10 +86,10 @@ function usableOwnAbilities(o){return garbotoxinStatus(o)==='inactive';}
 function activeOpponentAbilityWorking(o,printing,abilityName){
  const p=o.opponentPublic?.active;
  if(!match(p?.printing,printing))return false;
- const state=list(p.abilitySuppressions).find(x=>x.abilityName===abilityName);
- // If the view cannot prove suppression, do not assume that a Bench support
- // Pokémon's on-play Ability will function through a known Active lock.
- return state?.suppressed!==true;
+ // Reuse the same Garbotoxin / Stealthy Hood / typed-suppression matrix as
+ // Vileplume and Stoutland. In particular, Snorlax Block cannot forbid a
+ // retreat when our equipped Garbodor visibly suppresses its Ability.
+ return opponentLockAbilityLive(o,p,abilityName);
 }
 function opponentLockAbilityLive(o,pokemon,abilityName){
  const suppression=list(pokemon?.abilitySuppressions).find(x=>x.abilityName===abilityName);
