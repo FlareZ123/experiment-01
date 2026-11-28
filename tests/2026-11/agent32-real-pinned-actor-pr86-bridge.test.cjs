@@ -270,6 +270,8 @@ for(const seat of [0,1]){
     assert.equal(mapped.observation.ownPublic.active.printing,'Snorlax PGO 55');
     assert.equal(mapped.observation.opponentPublic.active.printing,
       'Shadow Rider Calyrex V CRE 74');
+    assert.ok(mapped.observation.opponentPublic.active.printed.subtypes.includes('V'),
+      'pinned string CardTag.POKEMON_V must survive the subtype projection');
     assert.equal(mapped.observation.ownPublic.prizeSlots.every(p=>
       p.printing===undefined),true);
     const nativeRequest={...request,requestId:'agent32-real-printed-'+seat,
@@ -427,6 +429,8 @@ function rank6Root(seat,{rawOldType=false}={}){
   const x=stadiumScene(seat);
   const observation=actorObservation(x.state,seat);
   assert.deepEqual(observation.opponentPublic.active.printed.types,['Fairy']);
+  assert.ok(observation.ownPublic.active.printed.subtypes.includes('ex'),
+    'pinned Iron Thorns ex Basic tag must remain separate from Stage BASIC');
   assert.deepEqual(observation.opponentPublic.active.energies,
     ['Psychic Energy SVE','Double Colorless Energy FCO']);
   const view=rawOldType?JSON.parse(JSON.stringify(observation)):observation;
