@@ -234,3 +234,27 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Trubbish+Float+Quick opening preserves Mega Bench and leaves lock pivot',()=>{
+  const q=prompt(seat,{source:{sourceKind:'engine',sourcePrinting:null,effectName:'CHOOSE_STARTING_POKEMONS'},
+   publicMetadata:{minimumCount:1,maximumCount:6},
+   choices:[choice('m','Mega Absol ex MEG 86','hand',{isOwnerVisible:true}),
+    choice('t','Trubbish CRI 56','hand',{isOwnerVisible:true}),
+    choice('c','Crobat V DAA 104','hand',{isOwnerVisible:true})]},
+   {phase:1,ownHand:['Mega Absol ex MEG 86','Trubbish CRI 56','Quick Ball FST 237','Float Stone BKT 137'],
+    ownPublic:own({active:null,bench:[]})});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['t','m']});
+  q.observation.ownHand=['Mega Absol ex MEG 86','Trubbish CRI 56','Quick Ball FST 237'];
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['m','t']});
+ });
+ test('seat '+seat+' Quick Ball gets Budew if free early pivot possible',()=>{
+  const q=prompt(seat,{source:{sourceKind:'card-effect',sourcePrinting:'Quick Ball FST 237',effectName:'Quick Ball'},
+   choices:[choice('b','Budew ASC 16'),choice('m','Mega Absol ex MEG 86'),choice('t','Trubbish CRI 56')]},
+   {globalTurn:2,ownPublic:own({active:mon('Trubbish CRI 56',{tools:['Float Stone BKT 137']}),
+    bench:[]})});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['b']});
+  q.observation.globalTurn=8;
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['m']});
+ });
+}
