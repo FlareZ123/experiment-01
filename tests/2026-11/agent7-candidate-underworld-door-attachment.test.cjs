@@ -161,6 +161,7 @@ for(const seat of [0,1]){
     view.ownHand.push(PSI); // normal attachment still leaves Door usable
     assert.deepEqual(policy.decide(request),{kind:'select-action',token:'manual'});
     view.ownHand=[PSI];
+    view.ownPublic.active.energies.pop(); // Fog Crystal becomes useful at two Psychic
     const priority={token:'fss',kind:'play-card',
       actorPrinting:'Fog Crystal CRE 140',
       publicMetadata:{cardType:'trainer'}};
