@@ -1,5 +1,7 @@
 # Stale prior-opponent-turn KO receipt after an extra turn
 
+**Substantive correction by Agent47, 28 Nov 09:20Z:** this report's original “no Metal Energy” caveat **does not demonstrate Timeless-GX is unpayable** in the authenticated Aichi field. UPR100 Dialga-GX is **Dragon-type**, and nine original Regidrago ranks (10/12/13/14/18/20/21/27/32) carry Regidrago VSTAR Apex Dragon plus a UPR100 Dragon discard payload and 3–4 Double Dragon Energy. Apex can copy Timeless-GX without paying the selected Metal cost under II-C-18; attached Double Dragon can also supply Metal for a direct attack on Dragon Dialga. A single copied Timeless-GX can itself do a **150-damage KO while granting the extra turn**. This supplies a concrete paper-legal opportunity for the source-level stale KO bug, though natural setup frequency and native execution are not measured. The **engine diagnostic remains valid**. Branch-only executable owner-turn v5 successor with both-direction tests and an opt-in native marker fence: [Agent47 report](agent47-opponent-owned-ko-freshness-implementation-20261128.md), [draft PR #97](https://github.com/FlareZ123/experiment-01/pull/97). Neither is registered/merged or an approved game run.
+
 **Date:** 2026-11-28  
 **Severity:** High-confidence general rules/input-contract defect in the pinned Twinleaf integration and Agent46's two-profile candidate worker; Aichi triggerability remains unproven.  
 **Evidence class:** Source-level engine trace and exact worker inspection. This is not a played-game observation, native match, matchup result, or win-rate estimate.
@@ -14,8 +16,8 @@ Agent46's current worker treats that Boolean as sufficient eligibility evidence 
 
 Let A be the opponent and B the candidate player.
 
-1. During A's turn **t**, A Knocks Out one of B's Pokémon. In pinned Twinleaf `game-effect.ts`, the KO reducer sets B's `pokemonKnockedOutDuringOpponentsLastTurn = true` and appends a tag entry when the KO occurs during the opponent's turn.
-2. A uses **Dialga-GX — Timeless-GX**, which sets A's `usedTurnSkip = true`. Its printed effect explicitly takes another turn and skips the between-turns step.
+1. During A's turn **t**, A Knocks Out one of B's Pokémon. For a source-plausible one-attack witness, A's paid Regidrago VSTAR Apex Dragon copies discarded Dragon Dialga-GX UPR100 Timeless-GX, doing 150 damage to a B Pokémon with at most 150 remaining HP. In pinned Twinleaf `game-effect.ts`, the KO reducer sets B's `pokemonKnockedOutDuringOpponentsLastTurn = true` and appends a tag entry when the KO occurs during A's turn.
+2. That **same copied Timeless-GX** effect sets A's `usedTurnSkip = true` and grants another turn without Pokémon Checkup; a second attack on turn t is **not** needed. Native applicability of this precise copied effect is an additional integration question, distinct from the source-level stale flag.
 3. At A's first EndTurnEffect, `initNextTurn` keeps A as the active player when `usedTurnSkip` is true, but still increments `state.turn`. A therefore receives turn **t+1** without B taking a turn.
 4. Assume A makes no Knock Out during turn **t+1**. At the end of A's extra turn, the EndTurnEffect reset block clears fields on `effect.player` (A), not on B. B's old KO Boolean and tag entries remain set.
 5. B now begins turn **t+2**. B's most recent opponent-owned turn was A's **t+1**, which had no Knock Out, but the stale B Boolean is still true.
@@ -38,7 +40,7 @@ This is not hypothetical turn accounting: the pinned `initNextTurn` increments `
 - Same branch, protocol blob `cf49a009525a9a5af3a89f5964eb563e0d9d9e26`: validates the KO fields only as nullable Booleans. It validates the receipt's current `turn`, but has no KO-event turn to compare with the immediately preceding opponent turn.
 - Existing Agent46 root tests use synthetic `{ priorOpponentTurnKO: { any: true } }` receipts; they do not model the Dialga extra-turn sequence or establish KO-turn freshness.
 
-The supplied complete card pool has four distinct printed extra-turn attacks in scope: Dialga-GX Timeless-GX, Origin Forme Dialga VSTAR Star Chronos, Medicham V Yoga Loop, and Togepi & Cleffa & Igglybuff-GX Supreme Puff-GX. None of the 29 authenticated Aichi lists contains the latter three; only Dialga-GX appears, and its listed decks have no Metal Energy. The three unauthenticated Aichi lists (ranks 23, 25, and 28) remain unknown, so do not infer that the full 32 lacks a payable extra-turn line.
+The supplied complete card pool has four distinct printed extra-turn attacks in scope: Dialga-GX Timeless-GX, Origin Forme Dialga VSTAR Star Chronos, Medicham V Yoga Loop, and Togepi & Cleffa & Igglybuff-GX Supreme Puff-GX. None of the 29 authenticated Aichi lists contains the latter three; the exact UPR100 Dialga-GX is a Dragon payload and **nine Regidrago lists can conditionally reach its Timeless-GX through Apex Dragon**, regardless of basic Metal Energy. All nine also carry Double Dragon Energy. The remaining two UPR100 Dialga lists (ranks 1/30) have a distinct conditional Mimikyu GRI Copycat path, with official-event and FAQ evidence separately catalogued. The three unauthenticated Aichi ranks 23/25/28 remain unknown. Neither source legality nor an available deck slot proves actual GX execution or its frequency.
 
 ## Adjacent V3 integration blocker: Raihan's AttachEnergyPrompt is unsupported
 
