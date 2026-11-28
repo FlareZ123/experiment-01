@@ -573,6 +573,16 @@ function rank16NeedsCoreBasic(o) {
     count(o.ownPublic,PRINT.mega)===0 ||
     count(o.ownPublic,PRINT.budew)===0;
 }
+// Secret Box discards THREE other cards: a broad search route only earns
+// priority if an unfilled independent board/energy/lock channel exists.
+function rank16SecretBoxDemand(o) {
+  const own=o.ownPublic;
+  if(rank16NeedsCoreBasic(o))return true;
+  if(hasTrubbish(o)&&!hasGarbodor(o))return true;
+  if(rank16UntooledGarb(o)&&!rank16LockLive(o)&&!rank16ToolSuppressed(o))return true;
+  if(rank16NeedsDarkPatchFuel(o)&&discardHas(own,PRINT.dark))return true;
+  return false;
+}
 function rank16CheapDiscardCount(o,playingPrinting) {
   let excluded=false;
   return list(o?.ownHand).filter(card=>{
@@ -783,8 +793,9 @@ function scoreAction(item, request) {
     return deckCount(observation)>0 && rank16NeedsDarkPatchFuel(observation) &&
       discardCount(own,PRINT.dark)<2?230:0;
   }
-  if (matches(printing, PRINT.secret)) {
-    return deckCount(observation)>0&&rank16CheapDiscardCount(observation,printing)>=3?335:0;
+  if(matches(printing,PRINT.secret)) {
+    return deckCount(observation)>0 && rank16SecretBoxDemand(observation) &&
+      rank16CheapDiscardCount(observation,printing)>=3?335:0;
   }
   if (matches(printing, PRINT.darkPatch)) {
     return discardHas(own, PRINT.dark) &&
