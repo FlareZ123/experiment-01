@@ -113,11 +113,11 @@ function pick(choices,fn,min,max,single=false){
     .filter(x=>Number.isFinite(x.value)&&x.value>0&&
       x.choice?.kind==='card'&&typeof x.choice.token==='string')
     .sort((a,b)=>b.value-a.value||a.index-b.index).slice(0,max);
-  if(ranked.length<min)return {kind:'abstain',reasonCode:'R18_UNSUPPORTED_CARD_SELECTION'};
+  if(ranked.length<min)return {kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'};
   if(!ranked.length){
     const empty=arr(choices).find(x=>x?.kind==='empty-selection');
     return empty?{kind:'select-choice',token:empty.token}:
-      {kind:'abstain',reasonCode:'R18_NO_EMPTY_CHOICE'};
+      {kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'};
   }
   return single?{kind:'select-choice',token:ranked[0].choice.token}:
     {kind:'select-choices',tokens:ranked.map(x=>x.choice.token)};
@@ -172,15 +172,15 @@ function scoreRoot(item,request){
 }
 function promptDecision(request){
   const prompt=request?.prompt,obs=request?.observation;
-  if(!prompt||prompt.actingSeat!==request.seat)return {kind:'abstain',reasonCode:'R18_PROMPT_SEAT'};
+  if(!prompt||prompt.actingSeat!==request.seat)return {kind:'abstain',reasonCode:'UNTRUSTED_PROMPT'};
   const source=prompt.source??{};
   if(source.sourceKind==='engine')return common.choosePrompt(request);
   if(source.classification!=='actor-choice'||
      source.sourceKind!=='card-effect'||typeof source.effectName!=='string')
-    return {kind:'abstain',reasonCode:'R18_UNTRUSTED_SOURCE'};
+    return {kind:'abstain',reasonCode:'UNTRUSTED_PROMPT_SOURCE'};
   const sourcePrinting=name(source.sourcePrinting);
   if(!SOURCE_SET.has(sourcePrinting))
-    return {kind:'abstain',reasonCode:'R18_SOURCE_NOT_IN_ORIGINAL_60'};
+    return {kind:'abstain',reasonCode:'UNTRUSTED_PROMPT_SOURCE'};
   const p={...prompt,source:{...source,sourcePrinting}};
   const req={...request,prompt:p};
   const meta=p.publicMetadata??{},choices=arr(p.choices);
@@ -192,7 +192,7 @@ function promptDecision(request){
     const want=goal(obs).firstTurnCandidate&&goal(obs).hand<=4;
     const chosen=want?yes:no;
     return chosen?{kind:'select-choice',token:chosen.token}:
-      {kind:'abstain',reasonCode:'R18_SQUAWK_CONFIRM_SHAPE'};
+      {kind:'abstain',reasonCode:'UNRECOGNIZED_SIMPLE_PROMPT'};
   }
   if(p.promptType==='ChooseAttackPrompt'&&
      sourcePrinting===P.star&&source.effectName==='Apex Dragon'){
@@ -205,12 +205,12 @@ function promptDecision(request){
   if(meta.selectionType==='card-combination'){
     const min=Number.isSafeInteger(meta.minimumCount)?meta.minimumCount:1,
       max=Number.isSafeInteger(meta.maximumCount)?meta.maximumCount:min;
-    if(min<0||max<min||max>7)return {kind:'abstain',reasonCode:'R18_BAD_BOUNDS'};
+    if(min<0||max<min||max>7)return {kind:'abstain',reasonCode:'BAD_CARD_SELECTION_BOUNDS'};
     if([P.quick,P.treasure,P.ultra,P.vip,P.heavy].includes(sourcePrinting)){
       const zone=meta.sourceZone;
       if(meta.ownerSeat!=='actor'||meta.isOwnerVisible!==true||
          !['hand','deck','prizes'].includes(zone))
-        return {kind:'abstain',reasonCode:'R18_UNTRUSTED_ZONE'};
+        return {kind:'abstain',reasonCode:'UNTRUSTED_CARD_SELECTION'};
       if(zone==='hand'&&[P.quick,P.treasure,P.ultra].includes(sourcePrinting))
         return pick(choices,c=>validOwnerCard(c,'hand')?
           sourceDiscardValue(name(c),obs):-Infinity,min,max);
@@ -220,7 +220,7 @@ function promptDecision(request){
       if(zone==='prizes'&&sourcePrinting===P.heavy)
         return pick(choices,c=>validOwnerCard(c,'prizes')?
           searchValue(P.heavy,name(c),obs):-Infinity,min,max);
-      return {kind:'abstain',reasonCode:'R18_SOURCE_ZONE_PAIR'};
+      return {kind:'abstain',reasonCode:'UNSUPPORTED_CARD_COMBINATION_SOURCE'};
     }
     if(sourcePrinting==='VS Seeker PHF 109'&&meta.sourceZone==='discard'&&
        meta.ownerSeat==='actor'&&meta.isOwnerVisible===true){
@@ -234,7 +234,7 @@ function promptDecision(request){
   // delegated to a rank10 heuristic about nonexistent source printings.
   if(common.SOURCE_PRINTINGS.some(([x])=>x===sourcePrinting))
     return common.choosePrompt(req);
-  return {kind:'abstain',reasonCode:'R18_UNSUPPORTED_SOURCE_PROMPT'};
+  return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};
 }
 function pickAttack(choices,obs){
   const ranked=arr(choices).map((choice,index)=>{
@@ -253,7 +253,7 @@ function pickAttack(choices,obs){
   }).filter(x=>Number.isFinite(x.score)&&x.score>0)
     .sort((a,b)=>b.score-a.score||a.index-b.index);
   return ranked.length?{kind:'select-choice',token:ranked[0].choice.token}:
-    {kind:'abstain',reasonCode:'R18_NO_SOURCE_DONOR'};
+    {kind:'abstain',reasonCode:'NO_SUPPORTED_ATTACK_CHOICE'};
 }
 function chooseRoot(request){
   const rows=arr(request?.actionFrontier?.items).filter(x=>
@@ -263,7 +263,7 @@ function chooseRoot(request){
   if(sorted[0]?.score>0)return {kind:'select-action',token:sorted[0].item.token};
   const pass=rows.find(x=>x.kind==='pass');
   return pass?{kind:'select-action',token:pass.token}:
-    {kind:'abstain',reasonCode:'R18_NO_SUPPORTED_ACTION'};
+    {kind:'abstain',reasonCode:'NO_SUPPORTED_ACTION'};
 }
 function createPolicy({role,seat,policyVersion,config}={}){
   if(role!=='opponent'||(seat!==0&&seat!==1)||policyVersion!==POLICY_VERSION||
