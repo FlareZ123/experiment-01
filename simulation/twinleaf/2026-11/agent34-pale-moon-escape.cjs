@@ -156,6 +156,48 @@ function choosePaleMoonEscapeGuzmaPrompt(view, prompt) {
  * All non-Pass, winning attack, setup and unknown-policy decisions stay with
  * the caller.
  */
+/**
+ * Optional two-root emergency line for the candidate's exact Float Stone.
+ * First play the offered Tool on our threatened Active (not a fabricated
+ * target); AFTER native Store resolution the ordinary next root should
+ * expose a payable retreat for the terminal Pass override to choose.
+ * We abstain when any known lock, Tool suppression, alternate Tool, or
+ * ambiguous physical Bench target could invalidate the continuation.
+ */
+function choosePaleMoonFloatStonePreparation(view,items) {
+  if(view?.decisionKind!=='owner-root'||
+     view?.ownPublic?.active?.publicRestrictions?.pendingPaleMoonGXKnockOut!==true ||
+     view?.opponentPublic?.prizeCount!==1 || !Array.isArray(items))return null;
+  const player=view.ownPublic,active=player.active,opponent=view.opponentPublic;
+  if(!Array.isArray(player.bench) || player.bench.filter(Boolean).length!==1 ||
+     !Array.isArray(active?.tools) || active.tools.length!==0 ||
+     !Array.isArray(active?.specialConditions) || active.specialConditions.length!==0 ||
+     !Array.isArray(active?.printed?.retreatCost) || active.printed.retreatCost.length===0 ||
+     view.ownTurnResources?.retreatedTurn!==0 ||
+     view.ownTurnResources?.toolPlayLocked!==false)return null;
+  const r=active.publicRestrictions??{};
+  if(r.cannotRetreat!==false || r.cannotRetreatNextTurn!==false ||
+     r.cannotRetreatWhileActive!==false)return null;
+  if(player.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining!==0 ||
+     opponent.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining!==0)
+    return null;
+  const stadiums=[...(player.stadium??[]),...(opponent.stadium??[])];
+  if(stadiums.some(p=>typeof p==='string' && p.includes('Jamming Tower')))return null;
+  if((opponent.active?.tools??[]).some(p=>
+      typeof p==='string' && p.includes('Tool Jammer')))return null;
+  const stones=items.filter(item=>item?.kind==='play-card'&&
+     ['Float Stone PLF','Float Stone BKT'].includes(item.actorPrinting)&&
+     item.publicMetadata?.targetSeat==='actor'&&
+     item.publicMetadata?.targetZone==='active'&&
+     item.publicMetadata?.targetIndex===0&&
+     (typeof item.token==='string'||Number.isSafeInteger(item.token)));
+  if(stones.length!==1)return null;
+  if(stones[0].targetPrinting!==undefined&&
+     stones[0].targetPrinting!==active.printing)return null;
+  return {token:stones[0].token,
+    reason:'PUBLIC_PALE_MOON_FLOAT_STONE_PREPARE_ZERO_RETREAT'};
+}
+
 function rescuePaleMoonTerminalPass(view,items,originalToken) {
   if(!Array.isArray(items) ||
       view?.decisionKind!=='owner-root' ||
@@ -176,10 +218,14 @@ function rescuePaleMoonTerminalPass(view,items,originalToken) {
       if(choice)saves.push(choice);
     }
   }
-  if(saves.length!==1)return null;
-  return {token:saves[0].token,
+  if(saves.length>1)return null;
+  if(saves.length===1)return {token:saves[0].token,
     reason:'PUBLIC_PALE_MOON_TERMINAL_PASS_OVERRIDE',
     selectedSourceReason:saves[0].reason};
+  const setup=choosePaleMoonFloatStonePreparation(view,items);
+  return setup?{token:setup.token,
+    reason:'PUBLIC_PALE_MOON_TERMINAL_PASS_PREPARATION',
+    selectedSourceReason:setup.reason}:null;
 }
 
 module.exports = {
@@ -188,5 +234,6 @@ module.exports = {
   choosePaleMoonEscapeRanger,
   choosePaleMoonEscapeGuzmaRoot,
   choosePaleMoonEscapeGuzmaPrompt,
-  rescuePaleMoonTerminalPass
+  rescuePaleMoonTerminalPass,
+  choosePaleMoonFloatStonePreparation
 };
