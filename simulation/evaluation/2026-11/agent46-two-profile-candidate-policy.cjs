@@ -2439,8 +2439,8 @@ function stealthyHoodTargetScore(view,slot,receipt=null) {
   // immediate Psychic Energy acceleration line is in hand.
   if(hasName(slot.printing,'Latias ex')&&slot!==view.ownPublic.active&&
      isShadowRiderVmax(view.ownPublic.active)&&handHas(view,'Guzma')&&
-     !handHas(view,'Psychic Energy')&&
-     view.ownTurnResources?.supporterPlayedTurn===0&&!resolved.unknown){
+     !handHas(view,'Psychic Energy')&&supporterAvailable(view)&&
+     !resolved.unknown){
     const payoff=guzmaPlans(projected,receipt).some(row=>
       row.multiPrizePivot===true&&row.prizes===1&&
       (hasName(view.opponentPublic.bench[row.targetIndex]?.printing,'Garbodor BKP')||
