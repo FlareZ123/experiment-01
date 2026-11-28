@@ -2155,3 +2155,29 @@ paired('Agent46: CIN Counter and LPM Unit source energy supply is state and Priz
   view.opponentPublic.prizeCount=1;
   assert.equal(worker.__test.publicEnergyCanPay(raichu,raichu.attacks[0],view,false,'opponent'),false);
 });
+
+paired('Agent46: poisoned or burned current attacker and statused defender still take direct final Prize',(seat,profile)=>{
+  const view=observation(seat,{active:vmax(Array(9).fill(P)),
+    opponentActive:defender({hp:280})});
+  view.globalTurn=8;view.ownPublic.prizeCount=2;
+  const attack={token:'max',kind:'attack',attackName:'Max Geist'};
+  const policy=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile});
+  const rule=()=>policy.decideWithAudit(root(seat,view,[attack])).policyAudit.selectionRuleCode;
+  const final='ROOT_PUBLIC_FINAL_PRIZE_ATTACK';
+  view.ownPublic.active.specialConditions=['poisoned'];
+  view.opponentPublic.active.specialConditions=['asleep'];
+  assert.equal(rule(),final); // Defender's sleep does not prevent being hit.
+  view.ownPublic.active.specialConditions=[0,4]; // Poisoned and Burned engine codes.
+  view.opponentPublic.active.specialConditions=[1]; // Confused defender.
+  assert.equal(rule(),final); // Confusion only affects attacking Pokémon.
+  view.ownPublic.active.specialConditions=['burned'];
+  view.opponentPublic.active.specialConditions=['poisoned','burned'];
+  assert.equal(rule(),final); // End-of-turn Checkup is after the Prize win.
+  for(const unsafe of [['confused'],['asleep'],['paralyzed'],[1],[2],[3],['unfamiliar']]){
+    view.ownPublic.active.specialConditions=unsafe;
+    assert.notEqual(rule(),final); // Probability/forbidden/unknown -> no certificate.
+  }
+  view.ownPublic.active.specialConditions=[];
+  view.opponentPublic.active.specialConditions=['unfamiliar'];
+  assert.notEqual(rule(),final); // Unknown opponent state cannot be certified.
+});

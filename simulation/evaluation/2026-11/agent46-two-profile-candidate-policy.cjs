@@ -4112,8 +4112,16 @@ function cleanPublicTerminalView(view,direct=false,extraHarmlessAbility=null){
   (slot.energies??[]).every(p=>
     isBasicEnergyPrinting(p) ||
     (direct && directTerminalSafeSpecialEnergy(p,slot))))&&
-    !(view.ownPublic.active.specialConditions??[]).length&&
-    !(view.opponentPublic.active.specialConditions??[]).length&&
+    // Poison/Burn do not prevent announcing attacks, and status on the
+    // *defending* Pokémon never bars incoming direct damage. A candidate
+    // Confused attack is probabilistic (not a certain final); Asleep or
+    // Paralyzed cannot attack. Unknown status also fails closed.
+    (() => {
+      const current=normalizeSpecialConditionNames(view.ownPublic.active.specialConditions);
+      const defending=normalizeSpecialConditionNames(view.opponentPublic.active.specialConditions);
+      return current!==null && defending!==null &&
+        !current.some(name=>['confused','asleep','paralyzed'].includes(name));
+    })()&&
     [...view.ownPublic.stadium,...view.opponentPublic.stadium].every(p=>
       hasAnyName(p,['Sky Field','Dimension Valley','Temple of Sinnoh']) ||
       (direct && directTerminalSafeStadium(p,view)));
