@@ -95,3 +95,65 @@ for(const seat of [0,1]){
     assert.equal(policy(seat).decide(req).token,'pass');
   });
 }
+
+for(const seat of [0,1]){
+  const stage={stage:'BASIC'};
+  const sky=[{abilityName:'Skyliner',suppressed:false,
+    reasonCode:null,sourcePrinting:null}];
+  const psychic=['Psychic Energy MEE 13','Psychic Energy MEE 13',
+    'Psychic Energy MEE 13'];
+  function retreatRequest(bench,target,activePrinting='Unown AOR 30'){
+    return {role:'opponent',seat,observation:{
+      actorSeat:seat,globalTurn:7,ownHand:[],
+      ownTurnResources:{supporterPlayedTurn:0,energyPlayedTurn:0,vstarUsed:true},
+      ownPublic:{active:{printing:activePrinting,printed:stage,energies:[]},
+        bench,stadium:[],deckCount:19,prizeCount:3,discard:[],
+        publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:0}},
+      opponentPublic:{active:target,bench:[],deckCount:20,prizeCount:3}},
+      prompt:null,actionFrontier:{items:[
+        ...bench.map((row,index)=>({kind:'retreat',token:'retreat'+index,
+          targetPrinting:row.printing,publicMetadata:{
+            targetSeat:'actor',targetZone:'bench',benchIndex:index}})),
+        {kind:'pass',token:'pass'}]}};
+  }
+  test('seat '+seat+' free retreat to pre-funded Latias for Fairy Zone OHKO',()=>{
+    const r=retreatRequest([
+      {printing:LATIAS,energies:psychic,abilities:['Skyliner'],
+        abilitySuppressions:sky},
+      {printing:CLEF,abilities:['Fairy Zone'],abilitySuppressions:LIVE,
+        energies:[]}
+    ],drago);
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',
+      token:'retreat0'});
+    r.observation.ownPublic.bench[1].abilitySuppressions=[{
+      abilityName:'Fairy Zone',suppressed:true,
+      reasonCode:'STADIUM_LOCKED',sourcePrinting:'Path to the Peak CRE 148'}];
+    assert.equal(w.freeRetreatToPrintedFinisher(r.actionFrontier.items,
+      r.observation),null);
+  });
+  test('seat '+seat+' free retreat to funded Lele for Energy Drive OHKO',()=>{
+    const r=retreatRequest([
+      {printing:LATIAS,energies:[],abilities:['Skyliner'],
+        abilitySuppressions:sky},
+      {printing:LELE,energies:psychic.slice(0,2)}
+    ],{...vmax,energies:psychic.concat(psychic.slice(0,2))});
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'retreat1'});
+    r.observation.ownPublic.active.printed.stage='STAGE_1';
+    assert.equal(w.freeRetreatToPrintedFinisher(r.actionFrontier.items,
+      r.observation),null);
+  });
+  test('seat '+seat+' must not hallucinate an unoffered or mismatched free retreat',()=>{
+    const r=retreatRequest([
+      {printing:LATIAS,energies:psychic,abilities:['Skyliner'],
+        abilitySuppressions:sky},
+      {printing:CLEF,abilities:['Fairy Zone'],abilitySuppressions:LIVE}
+    ],drago);
+    r.actionFrontier.items[0].targetPrinting='Another Pokemon';
+    assert.equal(w.freeRetreatToPrintedFinisher(r.actionFrontier.items,
+      r.observation),null);
+    r.actionFrontier.items.splice(0,2);
+    assert.equal(w.freeRetreatToPrintedFinisher(r.actionFrontier.items,
+      r.observation),null);
+  });
+}
