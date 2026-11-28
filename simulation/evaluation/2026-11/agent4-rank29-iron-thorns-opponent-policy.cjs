@@ -1006,6 +1006,9 @@ function promptDecision(request) {
   }
 
   if (prompt.promptType === 'AttachEnergyPrompt') {
+    // Preserve the existing fail-closed disposition of unrelated source prompts.
+    if (prompt.source?.effectName !== 'Volt Cyclone')
+      return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};
     // Volt Cyclone's mandatory post-attack move is a single attached Energy
     // from our Active Iron Thorns ex to a live actor-owned Bench target.
     // The host projector has verified every offered pair against the native
