@@ -203,7 +203,17 @@ function promptRequest(options = {}) {
     description: options.description ?? 'Choose a legal option',
     source: options.source,
     choices: options.choices ?? [],
-    ...(options.publicMetadata ? { publicMetadata: options.publicMetadata } : {})
+    // Legacy tests supply the now-required native selection metadata here.
+    publicMetadata: options.publicMetadata ?? (
+      options.promptType==='ChooseEnergyPrompt'
+        ? {selectionType:'energy-payment',energyCount:1,allowCancel:false,isSecret:false} :
+      options.promptType==='ChoosePokemonPrompt'
+        ? {selectionType:'pokemon',minimumCount:1,maximumCount:1,allowCancel:false,isSecret:false} :
+      options.promptType==='ChooseCardsPrompt'
+        ? {selectionType:'card-combination',minimumCount:1,maximumCount:1,allowCancel:false,isSecret:false} :
+      options.promptType==='ConfirmPrompt'
+        ? {selectionType:'confirm',allowCancel:false} :
+      {selectionType:'option',allowCancel:false})
   };
   return {
     schema: protocol.REQUEST_SCHEMA,
@@ -609,7 +619,7 @@ test('Plumeria energy selection removes the highest-value visible Special Energy
       energyChoice('own-energy', 'Speed Lightning Energy RCL 173', 'active', 'actor')
     ]
   });
-  assert.deepEqual(checkedDecision(request), { kind: 'select-choice', token: 'special-bench' });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-choices', tokens: ['special-bench'] });
 });
 
 test('Team Flare Grunt energy selection is restricted to the opponent Active', () => {
@@ -621,7 +631,7 @@ test('Team Flare Grunt energy selection is restricted to the opponent Active', (
       energyChoice('active', 'Lightning Energy', 'active')
     ]
   });
-  assert.deepEqual(checkedDecision(request), { kind: 'select-choice', token: 'active' });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-choices', tokens: ['active'] });
 });
 
 test('Guzma chooses the lowest-Energy, highest-retreat opposing Bench Pokémon', () => {
@@ -642,7 +652,7 @@ test('Guzma chooses the lowest-Energy, highest-retreat opposing Bench Pokémon',
       pokemonChoice('dedene', 'Dedenne-GX UNB 57', 'opponent', 'bench', 1)
     ]
   });
-  assert.deepEqual(checkedDecision(request), { kind: 'select-choice', token: 'snorlax' });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-choices', tokens: ['snorlax'] });
 });
 
 test('Guzma returns to the healthiest funded Iron Thorns on the owner Bench', () => {
@@ -666,7 +676,7 @@ test('Guzma returns to the healthiest funded Iron Thorns on the owner Bench', ()
     ]
   });
   // Printing is identical; the actor-visible selection index preserves the physical slot.
-  assert.deepEqual(checkedDecision(request), { kind: 'select-choice', token: 'funded-thorns' });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-choices', tokens: ['funded-thorns'] });
 });
 
 test('Faba removes Stealthy Hood before Float Stone', () => {
@@ -678,7 +688,7 @@ test('Faba removes Stealthy Hood before Float Stone', () => {
       cardChoice('hood', 'Stealthy Hood UNB 186', 'attached', 'opponent')
     ]
   });
-  assert.deepEqual(checkedDecision(request), { kind: 'select-choice', token: 'hood' });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-choices', tokens: ['hood'] });
 });
 
 test('Enhanced Hammer selects Special Energy and ignores Basic Energy', () => {
@@ -690,7 +700,7 @@ test('Enhanced Hammer selects Special Energy and ignores Basic Energy', () => {
       cardChoice('special', 'Double Colorless Energy SUM 136', 'attached', 'opponent')
     ]
   });
-  assert.deepEqual(checkedDecision(request), { kind: 'select-choice', token: 'special' });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-choices', tokens: ['special'] });
 });
 
 test('Eri selects revealed opponent Items but not Energy', () => {
@@ -777,10 +787,10 @@ test('Gladion Prize selection abstains because face-down Prize identities are un
     promptType: 'ChoosePrizePrompt',
     source: actorChoiceSource('Gladion CIN 95', 'Gladion'),
     publicMetadata: multiMetadata(1, 1, 'prize-slots'),
-    choices: [cardChoice('prize-0', 'Prize slot 0', 'prize', 'actor', 'prize')]
+    choices: [{token:'prize-0',kind:'prize',label:'Prize slot 0',publicMetadata:{selectionIndex:0,ownerSeat:'actor',sourceZone:'prize',isOwnerVisible:false}}]
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'abstain', reasonCode: 'RANK6_SOURCE_HOOK_BLOCKED'
+    kind: 'abstain', reasonCode: 'HIDDEN_PRIZE_IDENTITY'
   });
 });
 
@@ -789,12 +799,12 @@ test('Player’s Ceremony and unknown prompts are explicitly blocked', () => {
     promptType: 'ConfirmPrompt',
     source: actorChoiceSource("Player's Ceremony SP 127", "Player's Ceremony"),
     choices: [
-      { token: 'yes', kind: 'option', label: 'Yes' },
-      { token: 'no', kind: 'option', label: 'No' }
+      { token: 'yes', kind: 'confirm', label: 'Yes' },
+      { token: 'no', kind: 'confirm', label: 'No' }
     ]
   });
   assert.deepEqual(checkedDecision(ceremony), {
-    kind: 'abstain', reasonCode: 'RANK6_SOURCE_HOOK_BLOCKED'
+    kind: 'abstain', reasonCode: 'UNTRUSTED_PROMPT_SOURCE'
   });
 
   const unknown = promptRequest({
@@ -802,8 +812,10 @@ test('Player’s Ceremony and unknown prompts are explicitly blocked', () => {
     source: actorChoiceSource('Unknown rank-6 effect', 'Unknown'),
     choices: [{ token: 'only', kind: 'option', label: 'Continue' }]
   });
-  assert.deepEqual(checkedDecision(unknown), {
-    kind: 'abstain', reasonCode: 'UNSUPPORTED_RANK6_PROMPT_TYPE'
+  // An unregistered prompt class fails host schema validation before the worker;
+  // verify the worker fails closed without claiming host acceptance.
+  assert.deepEqual(makePolicy().decide(unknown), {
+    kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE'
   });
 });
 
