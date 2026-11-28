@@ -2511,9 +2511,12 @@ function choosePokemonRecipient(view, prompt, receipt=null, profile=null) {
       const direct=guzmaProjectedFinalAttack(moved);
       const freePivot=direct?null:guzmaFreePivotFinal(view,moved,row.target.index);
       const terminal=!!(direct||freePivot?.final);
-      return {...row,terminal,score:terminal?30000:guzmaPivotScore(view,moved,row.target.index,receipt)};
+      const multiPrize=terminal?null:guzmaFreePivotMultiPrize(view,moved,row.target.index);
+      return {...row,terminal,multiPrize:!!multiPrize,
+        score:terminal?30000:multiPrize?18000:guzmaPivotScore(view,moved,row.target.index,receipt)};
     });
     if(ranked.some(row=>row.terminal))ranked=ranked.filter(row=>row.terminal);
+    else if(ranked.some(row=>row.multiPrize))ranked=ranked.filter(row=>row.multiPrize);
   } else if (effectName === 'Guzma' && opponentChoices.length > 0) {
     const plans=guzmaPlans(view,receipt);
     const winning=opponentChoices.filter(row=>plans.some(p=>p.terminal===true&&p.targetIndex===row.target.index));
@@ -3559,6 +3562,32 @@ function guzmaFreePivotFinal(before,after,index){
  const final=guzmaProjectedFinalAttack(projected);
  return final?{final,projected}:null;
 }
+// Guzma's mandatory own switch can expose a free Latias ex pivot before
+// normal retreat back to the same paid VMAX. Prior terminal-only analysis
+// missed multi-Prize Knock Outs when more Prize cards remained afterward.
+// Bound to visible, paid, source-specific Max Geist; never assume a hidden
+// switching Item, future draw, or an opponent replacement. Nonterminal risk
+// gate: do not voluntarily expose a three-Prize VMAX when the opponent
+// already has three or fewer Prize cards remaining.
+function guzmaFreePivotMultiPrize(before,after,index){
+  if(index<0||!isShadowRiderVmax(before.ownPublic.active)||
+     !retreatAvailableNow(after)||ownRetreatCost(after)!==0)return null;
+  const old=before.ownPublic.active,benched=after.ownPublic.bench[index];
+  if(!benched||benched.printing!==old.printing)return null;
+  const returned=guzmaSwitch(after,'ownPublic',index);
+  const projected={...returned,ownTurnResources:{
+    ...returned.ownTurnResources,retreatedTurn:returned.globalTurn}};
+  const target=projected.opponentPublic.active;
+  if(!target||prizeLiability(target)<2||
+     prizeLiability(target)>=projected.ownPublic.prizeCount||
+     projected.opponentPublic.prizeCount<=3||
+     !cleanPublicTerminalView(projected,true))return null;
+  const attack=old.attacks?.find(a=>a.name==='Max Geist');
+  if(!attack||!canPayAttack(old,attack,projected))return null;
+  const damage=estimatedDamage(old,attack,projected,target);
+  if(!Number.isFinite(damage)||damage<target.hp-target.damage)return null;
+  return {attack,projected,damage};
+}
 function guzmaPlans(view,receipt=null) {
   if(!view.ownPublic.active||!view.opponentPublic.active)return [];
   const ownIndices=view.ownPublic.bench.map((slot,i)=>slot?i:-1).filter(i=>i>=0);
@@ -3580,6 +3609,16 @@ function guzmaPlans(view,receipt=null) {
         const prizes=prizeLiability(target);
         const score=prizes*1500+attackScore(terminalAttacker,terminal.attack,projected,target,{requirePayable:true})-prizeLiability(terminalAttacker)*100;
         rows.push({targetIndex,ownIndex,prizes,unlock:0,score,terminal:true});
+        continue;
+      }
+      const multiPrize=terminal?null:guzmaFreePivotMultiPrize(view,moved,ownIndex);
+      if(multiPrize){
+        const prizes=prizeLiability(target);
+        const score=prizes*1500+attackScore(multiPrize.projected.ownPublic.active,
+          multiPrize.attack,multiPrize.projected,target,{requirePayable:true})-
+          prizeLiability(multiPrize.projected.ownPublic.active)*100;
+        rows.push({targetIndex,ownIndex,prizes,unlock:0,score,
+          terminal:false,multiPrizePivot:true});
         continue;
       }
       const attack=bestAttackForSlot(attacker,moved,moved.opponentPublic.active);
