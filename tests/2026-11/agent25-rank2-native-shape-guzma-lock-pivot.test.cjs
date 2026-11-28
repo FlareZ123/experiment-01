@@ -255,6 +255,25 @@ for (const seat of [0, 1]) {
       { kind: 'select-action', token: 'guzma' });
   });
 
+  test('seat ' + seat + ': Benched Minior Far-Flying Meteor can pivot via a normal Energy attachment through double lock', () => {
+    const view = actorView(seat);
+    view.opponentPublic.bench[2] = {
+      printing: 'Minior PAR 99', abilities: ['Far-Flying Meteor'],
+      abilitySuppressions: [{ abilityName: 'Far-Flying Meteor', suppressed: false }]
+    };
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)), pass());
+  });
+
+  test('seat ' + seat + ': suppressed Minior Far-Flying Meteor no longer vetoes nominal Gust', () => {
+    const view = actorView(seat);
+    view.opponentPublic.bench[2] = {
+      printing: 'Minior PAR 99', abilities: ['Far-Flying Meteor'],
+      abilitySuppressions: [{ abilityName: 'Far-Flying Meteor', suppressed: true }]
+    };
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)),
+      { kind: 'select-action', token: 'guzma' });
+  });
+
   test('seat ' + seat + ': U-Turn Board vetoes a claimed unpowered retreat trap', () => {
     const view = actorView(seat);
     view.opponentPublic.bench[1].tools = ['U-Turn Board UNM 211'];
