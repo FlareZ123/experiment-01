@@ -397,6 +397,11 @@ function attackScore(attacker, attack, view, target, options = {}) {
     return -Infinity;
   }
 
+  if (attack.name === 'Get Lost') {
+    const pressure = getLostPressure(view);
+    return pressure > 0 ? pressure : -Infinity;
+  }
+
   if (attack.name === 'Copycat') {
     const receipt = options.publicEventReceipt ?? null;
     const eligible = receipt?.opponentCopycatChoices;
@@ -465,6 +470,29 @@ function slotForPokemonChoice(view, choice) {
   const slot = player.bench[index] ?? null;
   if (!slot || (choice.printing && slot.printing !== choice.printing)) return null;
   return { slot, index, ownerSeat: metadata.ownerSeat };
+}
+
+// Source-specific disruption heuristic. Girafarig LOT Get Lost moves two
+// cards out of the opponent's PUBLIC discard, with Dragon attack payloads
+// unusually important against Regidrago's Apex Dragon recursion.
+const GET_LOST_DRAGON_TARGETS = Object.freeze([
+  'Dialga-GX', 'Dragapult ex', 'Noivern', 'Hisuian Goodra',
+  'Altaria', 'Duraludon', 'Dragonite', 'Giratina', 'Regidrago',
+  'Salamence', 'Kyurem', 'Goodra', 'Raging Bolt'
+]);
+function getLostCardPriority(printing) {
+  if (!isText(printing)) return 0;
+  if (hasAnyName(printing, GET_LOST_DRAGON_TARGETS)) return 900;
+  if (hasAnyName(printing, ['Battle Compressor', 'Energy', 'VS Seeker'])) return 200;
+  return 50;
+}
+function getLostPressure(view) {
+  if (!opponentHasRegidrago(view)) return 0;
+  const visible = view.opponentPublic.discard ?? [];
+  if (visible.length === 0) return 0;
+  const dragonCount = visible.filter(printing =>
+    getLostCardPriority(printing) >= 900).length;
+  return 550 + Math.min(2, dragonCount) * 180;
 }
 
 function searchNeedScore(view, printing, effectName = '') {
@@ -579,7 +607,12 @@ function searchCandidates(view, prompt, choices) {
   const effectName = prompt.source?.effectName ?? '';
   const sourceZone = prompt.publicMetadata?.sourceZone;
   let rows;
-  if (sourceZone === 'deck' &&
+  if (sourceZone === 'discard' && effectName === 'Get Lost' &&
+      prompt.source?.sourcePrinting === 'Girafarig LOT 94') {
+    rows = choices.map(choice => ({
+      choice, score: getLostCardPriority(choice.printing)
+    }));
+  } else if (sourceZone === 'deck' &&
       effectName === 'Climactic Gate' &&
       prompt.source?.sourcePrinting === 'Radiant Eternatus CRZ 105') {
     // Direct-to-Bench VMAX needs no Shadow Rider V pre-evolution.
@@ -612,14 +645,22 @@ function searchCandidates(view, prompt, choices) {
 function chooseCardCombination(view, prompt) {
   setPolicyAuditRule('CARD_COMBINATION_SEARCH_SCORE', 'SCORE_DESC_PRINTING_ASC');
   const metadata = prompt.publicMetadata;
+  const opponentGetLost =
+    prompt.source?.sourceKind === 'card-effect' &&
+    prompt.source?.sourcePrinting === 'Girafarig LOT 94' &&
+    prompt.source?.effectName === 'Get Lost' &&
+    metadata?.sourceZone === 'discard' &&
+    metadata?.ownerSeat === 'opponent';
+  const expectedOwner = opponentGetLost ? 'opponent' : 'actor';
   if (!metadata || metadata.selectionType !== 'card-combination' ||
-      metadata.ownerSeat !== 'actor' || metadata.isOwnerVisible !== true ||
+      metadata.ownerSeat !== expectedOwner ||
+      metadata.isOwnerVisible !== true ||
       !['deck', 'hand', 'discard', 'prizes'].includes(metadata.sourceZone)) {
     return abstain('UNTRUSTED_CARD_SELECTION');
   }
   const choices = prompt.choices.filter(choice =>
     choice.kind === 'card' && isText(choice.printing) &&
-    choice.publicMetadata?.ownerSeat === 'actor' &&
+    choice.publicMetadata?.ownerSeat === expectedOwner &&
     choice.publicMetadata?.isOwnerVisible === true);
   const minimum = metadata.minimumCount;
   let maximum = metadata.maximumCount;
@@ -1188,6 +1229,10 @@ function scoreEnergyPlay(item, view, receipt) {
     ? view.ownPublic.active : view.ownPublic.bench[metadata.targetIndex];
   if (!target || (item.targetPrinting && target.printing !== item.targetPrinting)) return -Infinity;
   const count = slotEnergyCount(target);
+  if (hasName(target.printing, 'Girafarig LOT') &&
+      opponentHasRegidrago(view) &&
+      (view.opponentPublic.discard ?? []).length > 0 &&
+      count === 0) return 720;
   // Do not pass with a Psychic in hand when one manual Active attachment
   // would make the first printed attack payable. This checks a hypothetical
   // actor-owned attachment only; the host still authorizes real root actions.
