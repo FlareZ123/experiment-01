@@ -2050,12 +2050,19 @@ function searchCandidates(view, prompt, choices, receipt = null) {
     sourceZone === 'deck' && hasName(sourcePrinting, 'Radiant Eternatus')
       ? 'Climactic Gate' : effectName;
   let rows;
-  if (sourceZone === 'deck' && effectName === 'Battle Compressor') {
+  if (sourceZone === 'deck' && effectName === 'Battle Compressor' &&
+      hasName(sourcePrinting, 'Battle Compressor')) {
+    // The Mimikyu/Dialga copied-attack route remains unadmitted.
+    // A smaller, presently executable line is Compressor -> Ranger into
+    // discard -> VS Seeker -> Ranger to clear a current attack effect.
+    // Do not discard a protected singleton merely to thin the deck.
+    const rangerViaSeeker = supporterAvailable(view) &&
+      handHas(view,'VS Seeker') && !discardHas(view,'Pokémon Ranger') &&
+      !handHas(view,'Pokémon Ranger') && usefulRanger(view,receipt);
     rows = choices.map(choice => ({
       choice,
-      score: hasName(choice.printing, 'Dialga-GX') &&
-        opponentHasRegidrago(view) && !discardHas(view, 'Dialga-GX') ? 1000 :
-        -discardValue(view, choice.printing,receipt)
+      score: rangerViaSeeker && hasName(choice.printing,'Pokémon Ranger') ?
+        2500 : -discardValue(view, choice.printing,receipt)
     }));
   } else if (sourceZone === 'hand') {
     rows = choices.map(choice => ({
@@ -2231,8 +2238,11 @@ function chooseCardCombination(view, prompt, receipt = null) {
       const at=hand.indexOf(row.choice.printing);if(at>=0)hand.splice(at,1);
     }
   } else if (metadata.sourceZone === 'deck' && prompt.source?.effectName === 'Battle Compressor') {
-    selected = ranked.slice(0, minimum).filter(row => Number.isFinite(row.score))
-      .map(row => row.choice);
+    selected = ranked.filter(row=>Number.isFinite(row.score)&&row.score>0)
+      .slice(0,maximum).map(row=>row.choice);
+    // Normally minimumCount=0 for this up-to-three deck discard.
+    if(selected.length<minimum)
+      selected=ranked.slice(0,minimum).map(row=>row.choice);
   } else {
     selected = ranked.filter(row => row.score > 0)
       .slice(0, maximum).map(row => row.choice);
@@ -3548,7 +3558,18 @@ function scoreTrainerPlay(item, view, receipt, profile) {
     const need=acerolaNeed(view);
     return Number.isFinite(need)?Math.min(1600,700+need/4):-Infinity;
   }
-  // Battle Compressor's copied-attack setup is deliberately unsupported.
+  // Copied-attack Compressor route remains unsupported; accept only the
+  // source-real Ranger recovery via VS Seeker in the exact Hood profile.
+  if(hasName(name,'Battle Compressor') &&
+      profile?.profileId==='hood-shield-shadow-rider-v1' &&
+      !supporterUsed && view.ownPublic.deckCount>0 &&
+      handHas(view,'VS Seeker') && !handHas(view,'Pokémon Ranger') &&
+      !discardHas(view,'Pokémon Ranger') &&
+      !knownFullyPrized(view,'Pokémon Ranger') &&
+      usefulRanger(view,receipt)) {
+    const held=Math.max(0,...view.ownHand.map(card=>supporterNeedScore(view,card,receipt)));
+    if(held<110) return 1120;
+  }
   const missingBasicV = !knownFullyPrized(view,'Shadow Rider Calyrex V') && !hasBasicShadowRiderV(view) &&
     !handHasBasicShadowRiderV(view) && hasOpenBench(view);
   if (hasName(name, 'Fog Crystal') &&

@@ -2181,3 +2181,49 @@ paired('Agent46: poisoned or burned current attacker and statused defender still
   view.opponentPublic.active.specialConditions=['unfamiliar'];
   assert.notEqual(rule(),final); // Unknown opponent state cannot be certified.
 });
+
+test('Agent46: owner Ranger chain through Battle Compressor then VS Seeker then attack',()=>{
+  const bc='Battle Compressor PHF',opponent=defender();
+  for(const seat of [0,1]){
+    const view=observation(seat,{active:v([P]),opponentActive:opponent,
+      ownHand:[bc,VS]});
+    view.globalTurn=8;
+    view.ownPublic.publicTurnRestrictions.attackLockTurnsRemaining=1;
+    const bcPlay=play('compress',bc),vsPlay=play('seeker',VS);
+    const rooted=profile=>decide(profile,root(seat,view,[bcPlay,vsPlay]));
+    assert.deepEqual(rooted(profiles[0]),sel('compress')); // Hood exact-60 chain.
+    assert.deepEqual(rooted(profiles[1]),sel('pass')); // Lockbridge lacks Ranger.
+    const deckPrompt=cardPrompt(seat,view,bc,'Battle Compressor','deck',
+      [RANGER,'Psychic Energy SVE',D],0,3);
+    assert.deepEqual(decide(profiles[0],deckPrompt),mult('card-0'));
+    // If Ranger is prized/unavailable on the actual deck search, skip the
+    // optional discard instead of burning key cards as fake payloads.
+    const missing=cardPrompt(seat,view,bc,'Battle Compressor','deck',[P,D],0,3);
+    assert.deepEqual(decide(profiles[0],missing),choice('empty'));
+    const after={...view,ownHand:[VS],ownPublic:{...view.ownPublic,
+      handCount:1,discard:[bc,RANGER]}};
+    assert.deepEqual(decide(profiles[0],root(seat,after,[vsPlay])),sel('seeker'));
+    const seeker=cardPrompt(seat,after,VS,'VS Seeker','discard',[RANGER]);
+    assert.deepEqual(decide(profiles[0],seeker),mult('card-0'));
+    const ranger=play('ranger',RANGER);
+    const recovered={...after,ownHand:[RANGER],ownPublic:{...after.ownPublic,
+      handCount:1,discard:[bc,VS]}};
+    assert.deepEqual(decide(profiles[0],root(seat,recovered,[ranger])),sel('ranger'));
+    const unlocked={...recovered,ownHand:[],ownPublic:{...recovered.ownPublic,
+      handCount:0,publicTurnRestrictions:{...recovered.ownPublic.publicTurnRestrictions,
+        attackLockTurnsRemaining:0}},ownTurnResources:{...recovered.ownTurnResources,
+        supporterPlayedTurn:1}};
+    assert.deepEqual(decide(profiles[0],root(seat,unlocked,
+      [{token:'mist',kind:'attack',attackName:'Shadow Mist'}])),sel('mist'));
+    // No VS Seeker / no active attack restriction / spent Supporter => avoid.
+    const noVS={...view,ownHand:[bc]};
+    assert.deepEqual(decide(profiles[0],root(seat,noVS,[bcPlay])),sel('pass'));
+    const notLocked={...view,ownPublic:{...view.ownPublic,
+      publicTurnRestrictions:{...view.ownPublic.publicTurnRestrictions,
+        attackLockTurnsRemaining:0}}};
+    assert.deepEqual(decide(profiles[0],root(seat,notLocked,[bcPlay])),sel('pass'));
+    const spent={...view,ownTurnResources:{...view.ownTurnResources,
+      supporterPlayedTurn:1}};
+    assert.deepEqual(decide(profiles[0],root(seat,spent,[bcPlay])),sel('pass'));
+  }
+});
