@@ -22,7 +22,8 @@ function request(seat,kind) {
     mon('Mimikyu GRI 58',{hp:70});
   const own={active,bench:[mon('Shadow Rider Calyrex V CRE 74',{hp:210})],
     stadium:[],deckCount:20,handCount:1,discard:[],lostZone:[],
-    publicTurnRestrictions:{gxUsed:false,stadiumAndToolHaveNoEffectTurnsRemaining:0}};
+    publicTurnRestrictions:{gxUsed:false,stadiumAndToolHaveNoEffectTurnsRemaining:0,
+      attackLockTurnsRemaining:kind==='attackLocked'?1:0}};
   const enemy={active:opponent,bench:[],stadium:[],deckCount:20,
     publicTurnRestrictions:{gxUsed:false,stadiumAndToolHaveNoEffectTurnsRemaining:0}};
   let items=[
@@ -45,6 +46,7 @@ function request(seat,kind) {
 for(const seat of [0,1])for(const [kind,want] of [
   ['lethal','active'],
   ['nonlethal','door'],
+  ['attackLocked','door'],
   ['onlyDoor','door'],
   ['alreadyPaid','door']
 ])test('original Hood Underworld single-Energy fork '+kind+' seat '+seat,()=>{
