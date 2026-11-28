@@ -846,3 +846,68 @@ test('Guzma considers irrelevant printed weakness rather than treating every VMA
   r.observation.opponentPublic.bench[0].printed.weakness=[{type:'Colorless',value:'×2'}];
   assert.deepEqual(decision(r),{kind:'select-action',token:'gust'});
 });
+
+test('N draws six from a stranded low-resource source hand, but keeps an immediately usable singleton',()=>{
+  const r=ghRoot(0);r.observation.ownPublic.prizeCount=6;
+  r.observation.ownHand=['N FCO 105','Grass Energy MEE 9'];
+  r.actionFrontier.items=[src('N FCO 105','play-card','n')];
+  assert.deepEqual(decision(r),{kind:'select-action',token:'n'});
+  r.observation.ownHand=['N FCO 105','Grand Tree SCR 136'];
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  r.observation.ownHand=['N FCO 105','Grass Energy MEE 9'];
+  r.observation.ownTurnResources.supporterPlayedTurn=r.observation.globalTurn;
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+});
+test('N prize-hand disruption triggers against 5-card opponent hand at two Prizes',()=>{
+  const r=ghRoot();r.observation.ownPublic.prizeCount=4;
+  r.observation.opponentPublic.prizeCount=2;
+  r.observation.opponentPublic.handCount=7;
+  r.observation.ownHand=['N FCO 105','Grass Energy MEE 9',
+    'Jet Energy PAL 190','Tag Call CEC 206'];
+  r.actionFrontier.items=[src('N FCO 105','play-card','n')];
+  assert.deepEqual(decision(r),{kind:'select-action',token:'n'});
+  r.observation.opponentPublic.handCount=2;
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+});
+test('Xtransceiver Item root searches only when Supporter can still be used and Item is legal',()=>{
+  const r=ghRoot();r.observation.ownHand=['Xtransceiver NVI 96'];
+  r.actionFrontier.items=[src('Xtransceiver NVI 96','play-card','x')];
+  assert.deepEqual(decision(r),{kind:'select-action',token:'x'});
+  r.observation.ownPublic.publicTurnRestrictions={itemPlayLocked:true};
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  r.observation.ownPublic.publicTurnRestrictions={itemPlayLocked:false};
+  r.observation.ownTurnResources.supporterPlayedTurn=r.observation.globalTurn;
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+});
+test('Xtransceiver heads prefers observable Karen versus Regidrago then GH setup versus non-Regidrago',()=>{
+  const r=ghRoot();r.observation.ownHand=['Xtransceiver NVI 96',
+    'Xtransceiver NVI 96','Tag Call CEC 206'];
+  r.observation.opponentPublic.active=pokemon('Regidrago VSTAR SIT 136',{hp:280});
+  r.observation.opponentPublic.discard=['Dialga-GX UPR 100','Dragapult ex TWM 130'];
+  r.prompt={promptType:'ChooseCardsPrompt',
+    source:{sourcePrinting:'Xtransceiver NVI 96',effectName:'Xtransceiver'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:1},
+    choices:[{...card('Guzma & Hala CEC 193','gh'),
+      publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}},
+      {...card('Karen XYP 177','karen'),
+      publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}},
+      {...card('N FCO 105','n'),
+      publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}}]};
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['karen']});
+  r.observation.opponentPublic.active=pokemon('Shadow Rider Calyrex VMAX CRE 75',{hp:320});
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['gh']});
+});
+test('Xtransceiver head owner-zone and exact K1 zero-Supporters restrictions',()=>{
+  const r=ghRoot();r.observation.ownHand=['Xtransceiver NVI 96'];
+  r.actionFrontier.items=[src('Xtransceiver NVI 96','play-card','x')];
+  setK1(r,[]);
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  r.observation.ownerK1.exactMembershipKnown=false;
+  assert.deepEqual(decision(r),{kind:'select-action',token:'x'});
+  r.prompt={promptType:'ChooseCardsPrompt',
+    source:{sourcePrinting:'Xtransceiver NVI 96',effectName:'Xtransceiver'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:1},
+    choices:[{...card('Guzma & Hala CEC 193','invalid'),
+      publicMetadata:{ownerSeat:'opponent',sourceZone:'deck'}}]};
+  assert.equal(decision(r).reasonCode,'UNSUPPORTED_CARD_COMBINATION_SOURCE');
+});
