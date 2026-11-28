@@ -2009,3 +2009,35 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'forest'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Temple forces opponent Sky Field overflow discard when ours stays at five',()=>{
+  const ownBoard=own({active:mon('Budew ASC 16'),bench:[
+   mon('Garbodor LTR 68'),mon('Mega Absol ex MEG 86')]});
+  const theirBench=Array.from({length:8},(_,i)=>mon(i%2?
+   'Shadow Rider Calyrex V CRE 74':'Shadow Rider Calyrex VMAX CRE 75'));
+  const enemy=opp({active:mon('Shadow Rider Calyrex VMAX CRE 75'),
+   bench:theirBench,stadium:['Sky Field ROS 89']});
+  const q=root(seat,[play('Temple of Sinnoh ASR 155','temple'),pass],{
+   ownPublic:ownBoard,opponentPublic:enemy,ownHand:['Temple of Sinnoh ASR 155']});
+  assert.equal(policy.benchCapacity(q.observation),8);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
+  ownBoard.bench=Array.from({length:8},(_,i)=>mon(i%2?
+   'Crobat V DAA 104':'Tapu Lele-GX GRI 60'));
+  enemy.bench=theirBench.slice(0,5);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+ });
+ test('seat '+seat+' Chaotic Swell destroys first Temple with no Special Energy effect',()=>{
+  const enemy=opp({active:mon('Regidrago VSTAR SIT 136',{
+   energies:['Double Colorless Energy NXD 92']}),
+   stadium:['Chaotic Swell CEC 187']});
+  const board=own({active:mon('Budew ASC 16')});
+  const q=root(seat,[play('Temple of Sinnoh ASR 155','temple'),pass],{
+   ownPublic:board,opponentPublic:enemy,ownHand:['Temple of Sinnoh ASR 155']});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  q.observation.ownHand=['Temple of Sinnoh ASR 155','Temple of Sinnoh ASR 155'];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
+  enemy.stadium=[];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
+ });
+}
