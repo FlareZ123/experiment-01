@@ -633,3 +633,96 @@ test('TM Evolution physical duplicate rejects equipped Active and chooses free B
   assert.deepEqual(checkedDecision(req),{
     kind:'select-action',token:'free'});
 });
+
+test('connected source-print rank2 opening Hala -> TM -> Jet -> Evolution -> Gloom',()=>{
+ const tm='Technical Machine: Evolution PAR 178',gh='Guzma & Hala CEC 193';
+ const own=player({active:pokemon('Bunnelby PRC 121'),bench:[
+   pokemon('Oddish UNB 5',{lastPlayedOrEvolvedTurn:2})]});
+ const source=actorChoiceSource(gh,'Guzma & Hala');
+ const action=(token,actorPrinting,type='trainer',more={})=>({
+   token,kind:'play-card',actorPrinting,publicMetadata:{
+     cardType:type,handIndex:0,...more}});
+ const root=rootRequest({globalTurn:2,ownPublic:own,ownHand:[
+   gh,'Tag Call CEC 206','Artazon PAL 171','Pidgeotto TEU 123',
+   'Counter Gain SSP 169'],items:[action('gh',gh),
+     action('tag','Tag Call CEC 206'),
+     {token:'artazon',kind:'use-stadium',actorPrinting:'Artazon PAL 171'},
+     {token:'pass',kind:'pass',label:'Pass turn'}]});
+ assert.deepEqual(checkedDecision(root),{kind:'select-action',token:'gh'});
+ const afterSupporter=['Tag Call CEC 206','Artazon PAL 171',
+   'Pidgeotto TEU 123','Counter Gain SSP 169'];
+ const mode=promptRequest({promptType:'SelectOptionPrompt',source,choices:[
+   {token:'0',kind:'option',label:'Search for a Stadium card from your deck',
+     publicMetadata:{choiceIndex:0,selectionType:'option'}},
+   {token:'1',kind:'option',label:'Discard 2 cards from your hand. Search for a Pokemon Tool and Special Energy from your deck',
+     publicMetadata:{choiceIndex:1,selectionType:'option'}}],
+   observation:{globalTurn:2,ownHand:afterSupporter,ownPublic:own},
+   publicMetadata:{selectionType:'option',count:2,minimumCount:1,
+     maximumCount:1,allowCancel:false,isSecret:false}});
+ assert.deepEqual(checkedDecision(mode),{kind:'select-choice',token:'1'});
+ const discard=promptRequest({promptType:'ChooseCardsPrompt',source,choices:[
+   cardChoice('tag','Tag Call CEC 206','hand'),
+   cardChoice('art','Artazon PAL 171','hand'),
+   cardChoice('p','Pidgeotto TEU 123','hand'),
+   cardChoice('c','Counter Gain SSP 169','hand')],
+   observation:{globalTurn:2,ownHand:afterSupporter,ownPublic:own},
+   publicMetadata:{selectionType:'card-combination',minimumCount:2,
+     maximumCount:2,allowCancel:false,isSecret:false}});
+ assert.deepEqual(checkedDecision(discard),{
+   kind:'select-choices',tokens:['tag','art']});
+ const search=promptRequest({promptType:'ChooseCardsPrompt',source,choices:[
+   cardChoice('tree','Grand Tree SCR 136'),cardChoice('tm',tm),
+   cardChoice('jet','Jet Energy PAL 190'),
+   cardChoice('hood','Stealthy Hood UNB 186'),
+   {token:'empty',kind:'empty-selection',label:'Choose no items'}],
+   observation:{globalTurn:2,ownHand:['Pidgeotto TEU 123','Counter Gain SSP 169'],
+     ownPublic:own},publicMetadata:{selectionType:'card-combination',
+       minimumCount:0,maximumCount:3,allowCancel:false,isSecret:false}});
+ const searchDecision=checkedDecision(search);
+ assert.deepEqual(searchDecision.kind,'select-choices');
+ assert.deepEqual(searchDecision.tokens.slice().sort(),['tree','tm','jet'].sort());
+ const tool=(token,targetPrinting,targetZone,targetIndex)=>({
+   ...action(token,tm,'trainer',{targetSeat:'actor',targetZone,
+     targetIndex,isOwnerVisible:true}),targetPrinting});
+ const toolRoot=rootRequest({globalTurn:2,ownPublic:own,
+   ownHand:[tm,'Jet Energy PAL 190','Grand Tree SCR 136'],items:[
+   tool('wrong','Oddish UNB 5','bench',0),
+   tool('active','Bunnelby PRC 121','active',0),
+   {token:'pass',kind:'pass',label:'Pass turn'}]});
+ assert.deepEqual(checkedDecision(toolRoot),{
+   kind:'select-action',token:'active'});
+ const equipped=player({active:pokemon('Bunnelby PRC 121',{tools:[tm]}),
+   bench:[pokemon('Oddish UNB 5',{lastPlayedOrEvolvedTurn:2})]});
+ const jetRoot=rootRequest({globalTurn:2,ownPublic:equipped,
+   ownHand:['Jet Energy PAL 190'],items:[
+   {...action('jet','Jet Energy PAL 190','energy',{targetSeat:'actor',
+     targetZone:'active',targetIndex:0,isOwnerVisible:true}),
+     targetPrinting:'Bunnelby PRC 121'},
+   {token:'pass',kind:'pass',label:'Pass turn'}]});
+ assert.deepEqual(checkedDecision(jetRoot),{kind:'select-action',token:'jet'});
+ const charged=player({active:pokemon('Bunnelby PRC 121',{tools:[tm],
+   energies:['Jet Energy PAL 190']}),bench:[
+   pokemon('Oddish UNB 5',{lastPlayedOrEvolvedTurn:2})]});
+ const attack=rootRequest({globalTurn:2,ownPublic:charged,items:[
+   {token:'evolution',kind:'attack',attackName:'Evolution'},
+   {token:'burrow',kind:'attack',attackName:'Burrow'},
+   {token:'pass',kind:'pass',label:'Pass turn'}]});
+ assert.deepEqual(checkedDecision(attack),{
+   kind:'select-action',token:'evolution'});
+ const target=promptRequest({promptType:'ChoosePokemonPrompt',
+   source:actorChoiceSource(tm,'Evolution'),
+   choices:[pokemonChoice('odd','Oddish UNB 5','actor','bench',0)],
+   observation:{globalTurn:2,ownPublic:charged},publicMetadata:{
+     selectionType:'pokemon',minimumCount:1,maximumCount:2,
+     allowCancel:false,isSecret:false}});
+ assert.deepEqual(checkedDecision(target),{kind:'select-choices',tokens:['odd']});
+ const stage=promptRequest({promptType:'ChooseCardsPrompt',
+   source:actorChoiceSource(tm,'Evolution'),
+   choices:[cardChoice('gloom','Gloom UNB 7'),
+     {token:'empty',kind:'empty-selection',label:'Choose no items'}],
+   observation:{globalTurn:2,ownPublic:charged},publicMetadata:{
+     selectionType:'card-combination',minimumCount:0,maximumCount:1,
+     allowCancel:false,isSecret:false}});
+ assert.deepEqual(checkedDecision(stage),{
+   kind:'select-choices',tokens:['gloom']});
+});
