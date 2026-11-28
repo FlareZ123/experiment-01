@@ -142,3 +142,31 @@ for(const seat of [0,1]){
       {kind:'select-choice',token:'cancel'});
   });
 }
+
+for(const seat of [0,1]){
+  test('exclusive single Psychic hand card is spent through Underworld, not manual attachment, seat='+seat,()=>{
+    const {policy,request,view}=game(seat,{
+      bench:[pokemon('Mimikyu GRI 58',{types:['Psychic'],subtypes:['Basic']})],
+      hand:[PSI]
+    });
+    const manual={token:'manual',kind:'play-card',actorPrinting:PSI,
+      targetPrinting:'Mimikyu GRI 58',
+      publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:0}};
+    request.actionFrontier.items.unshift(manual);
+    const out=policy.decideWithAudit(request);
+    assert.deepEqual(out.decision,{kind:'select-action',token:'door'});
+    assert.equal(out.policyAudit.selectionRuleCode,
+      'ROOT_UNDERWORLD_BEFORE_SINGLE_MANUAL_ATTACHMENT');
+    assert.equal(out.policyAudit.evaluations.find(x=>x.token==='manual').score,920);
+    view.ownHand.push(PSI); // normal attachment still leaves Door usable
+    assert.deepEqual(policy.decide(request),{kind:'select-action',token:'manual'});
+    view.ownHand=[PSI];
+    const priority={token:'fss',kind:'play-card',
+      actorPrinting:'Fog Crystal CRE 140',
+      publicMetadata:{cardType:'trainer'}};
+    request.actionFrontier.items.unshift(priority);
+    // Other profitable construction actions still happen before either
+    // manual Energy attachment or the Underworld fallback.
+    assert.deepEqual(policy.decide(request),{kind:'select-action',token:'door'});
+  });
+}
