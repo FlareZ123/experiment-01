@@ -2307,3 +2307,21 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-choice',token:'no'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Forest Seal host Crobat remains playable/searchable under Pokemon Ability locks',()=>{
+  const board=own({active:mon('Budew ASC 16'),bench:[
+   mon('Mega Absol ex TEF 86'),mon('Trubbish LTR 65')]});
+  const enemy=opp({active:mon('Wobbuffet PHF 36',{abilitySuppressions:null})});
+  const q=root(seat,[play('Crobat V DAA 104','crobat'),pass],{
+   ownPublic:board,opponentPublic:enemy,
+   ownHand:['Crobat V DAA 104','Forest Seal Stone SIT 156'],
+   ownTurnResources:{vstarUsed:false}});
+  assert.equal(policy.benchSupportAbilityUsable('Crobat V DAA 104',q.observation),false);
+  assert.equal(policy.basicSearchDemand(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'crobat'});
+  enemy.stadium=['Path to the Peak CRE 148'];
+  assert.equal(policy.forestSealHostSearchDemand,undefined);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'crobat'});
+ });
+}
