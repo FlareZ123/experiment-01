@@ -261,9 +261,9 @@ function prizeLiability(slot) {
   if (subtypes.some(value => ['VMAX', 'V-UNION', 'TAG TEAM'].includes(value)) ||
       hasName(printing, 'VMAX') || hasName(printing, 'V-UNION') ||
       hasName(printing, ' & ') && hasName(printing, '-GX')) return 3;
-  if (subtypes.some(value => ['ex', 'GX', 'V'].includes(value)) ||
-      hasName(printing, '-GX') || / ex(?: |$)/.test(printing) ||
-      / V(?: |$)/.test(printing)) return 2;
+  if (subtypes.some(value => ['ex', 'EX', 'GX', 'V', 'VSTAR'].includes(value)) ||
+      hasName(printing, '-GX') || hasName(printing, '-EX') ||
+      / ex(?: |$)| VSTAR(?: |$)| V(?: |$)/.test(printing)) return 2;
   return 1;
 }
 
