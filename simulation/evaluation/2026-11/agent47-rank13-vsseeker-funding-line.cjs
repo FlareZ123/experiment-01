@@ -32,8 +32,11 @@ function isPrint(value, expression) {
 const REGIDRAGO = /^Regidrago VSTAR SIT(?: 136)?$/i;
 const MIMIKYU = /^Mimikyu GRI(?: 58)?$/i;
 const DIALGA = /^Dialga-GX UPR(?: 100)?$/i;
-const GRASS = /^Grass Energy MEE(?: 9)?$/i;
-const FIRE = /^Fire Energy MEE(?: 10)?$/i;
+// Source rank13 lists MEE #9/#10; the pinned Twinleaf Basic Energy
+// classes are canonical MEE #1/#2. Equivalent Basic printings are
+// recognized as aliases for energy *type* only, not source inventory copies.
+const GRASS = /^Grass Energy MEE(?: (?:1|9))?$/i;
+const FIRE = /^Fire Energy MEE(?: (?:2|10))?$/i;
 const CRISPIN = /^Crispin SCR(?: 133)?$/i;
 const GUZMA = /^Guzma BUS(?: 115)?$/i;
 const VS_SEEKER = /^VS Seeker PHF(?: 109)?$/i;
