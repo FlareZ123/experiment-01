@@ -33,7 +33,13 @@ const TOPS=Object.freeze([
  {name:'Mega Kangaskhan ex',hp:300,prizes:3,attackName:'Miraculous Duo-GX',attackDamage:200},
  {name:'Mega Absol ex',hp:280,prizes:3,attackName:'Miraculous Duo-GX',attackDamage:200},
  {name:'Mega Dragonite ex',hp:370,prizes:3,attackName:'Miraculous Duo-GX',attackDamage:200},
- {name:'Regidrago VSTAR',hp:280,prizes:2,attackName:'Night Watch',attackDamage:150}
+ {name:'Regidrago VSTAR',hp:280,prizes:2,attackName:'Night Watch',attackDamage:150},
+ // Two-Prize support cards are especially strong tie-2-2 conversion
+ // targets: 130 counters leave each exact printed HP>130 alive, and a
+ // funded printed Mewtwo GX200 takes our final two after Item gust.
+ ...DIRECT_GUST_TARGETS.filter(([name,,prizes])=>
+   prizes===2&&name!=='Regidrago VSTAR').map(([name,hp,prizes])=>
+   ({name,hp,prizes,attackName:'Miraculous Duo-GX',attackDamage:200}))
 ]);
 function abilitySource(own,items){
  if(!Array.isArray(own?.bench)||!Array.isArray(items))return null;
