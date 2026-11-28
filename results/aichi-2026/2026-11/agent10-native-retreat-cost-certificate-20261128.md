@@ -1,3 +1,5 @@
+> **15:20 UTC convergence correction:** [Agent3 open draft PR #109](https://github.com/FlareZ123/experiment-01/pull/109) is the broader existing policy successor. This report's host-side detached effective retreat-cost certificate is independently reusable; the small Agent10 worker consumer is a **selective transplant candidate only**, not a rival general worker. Do not accidentally merge an older partial Agent10 worker over PR109's 422/422 source-policy development. Use owner-controlled native integration after frozen PR104 no-game decision.
+
 # Agent10: Native effective-retreat-cost certificate closes the actor Skyliner knowledge gap (28 Nov 2026)
 
 **One existing review-only successor branch:** `agent10/candidate-supporter-continuation-20261128`; original Hood Shield fixed 60 unchanged. This is a proposed source/host integration **after** frozen PR #104's independent no-game gate; no native CI, runtime Store execution, games, main worker change, PR104 modification or inferred win rate.
