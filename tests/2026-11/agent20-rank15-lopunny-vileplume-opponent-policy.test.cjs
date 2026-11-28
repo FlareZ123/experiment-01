@@ -181,8 +181,12 @@ for(const seat of [0,1]){
     assert.deepEqual(decision(r),{kind:'select-choices',tokens:['oddish']});
   });
 }
-test('Tag Call not initiated without two disposable costs and an evolution target',()=>{
-  const r=ghRoot(0);r.observation.ownHand=[tag,xt,'Buneary PFL 83',jet];
+test('Tag Call not initiated without discard cost when both Stadiums are provably unavailable',()=>{
+  const r=ghRoot(0);r.observation.ownerK1={exactMembershipKnown:true,knownPrintings:[
+    {printing:'Guzma & Hala CEC 193',copies:2},
+    {printing:'Grand Tree SCR 136',copies:0},
+    {printing:'Artazon PAL 171',copies:0}]};
+  r.observation.ownHand=[tag,xt,'Buneary PFL 83',jet];
   assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   r.observation.ownHand=[tag,xt,xt];r.observation.ownPublic.bench=[];
   assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
