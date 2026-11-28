@@ -391,9 +391,11 @@ function attackScore(attacker, attack, view, target, options = {}) {
   if (attack.name === 'Copycat') {
     const receipt = options.publicEventReceipt ?? null;
     const eligible = receipt?.opponentCopycatChoices;
+    // Copycat refers to what was used on the opponent's PRIOR turn, not
+    // the type or identity of their present Active. A Regidrago that copied
+    // a switching/self-KO attack may have been replaced by a non-Dragon.
     const dialgaReady = discardHas(view, 'Dialga-GX') &&
-      !view.ownPublic.publicTurnRestrictions.gxUsed &&
-      isDragon(target);
+      view.ownPublic.publicTurnRestrictions.gxUsed === false;
     const apex = Array.isArray(eligible) && eligible.some(row =>
       row.attackName === 'Apex Dragon' &&
       hasName(row.sourcePrinting, 'Regidrago VSTAR'));
