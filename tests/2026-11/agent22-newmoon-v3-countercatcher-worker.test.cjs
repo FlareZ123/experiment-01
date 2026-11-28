@@ -64,7 +64,7 @@ finish.observation.opponentPublic.bench=[post.observation.opponentPublic.active]
 finish.actionFrontier.items=[req.actionFrontier.items[1]];
 r=p.decideWithAudit(finish);check(r.decision.token,'duo');
 check(r.policyAudit.selectionRuleCode,
- 'A22_MIRACULOUS_GX_AFTER_GUST_FOR_FINAL_THREE_PRIZES');
+ 'A22_MIRACULOUS_GX_NATIVE_ANNOTATED_TERMINAL');
 // Fail-closed invalid action sequence rather than delegate unrecognized
 // prompt (e.g. source attribution unexpectedly changes mid-chain).
 const broken=createPolicy({role:'candidate',seat:0,policyVersion:POLICY_VERSION,config:{}});
@@ -83,7 +83,31 @@ check(supportedDirectTerminal(direct.observation,direct.actionFrontier.items),tr
 const prio=createPolicy({role:'candidate',seat:0,policyVersion:POLICY_VERSION,config:{}});
 r=prio.decideWithAudit(direct);
 check(r.decision.token,'duo');
-check(r.policyAudit.selectionRuleCode,'A22_DIRECT_NO_SELFKO_TERMINAL_PRIORITY');
+check(r.policyAudit.selectionRuleCode,'A22_NATIVE_ANNOTATED_DIRECT_TERMINAL');
 check(DECK_PATH,'results/als/new-moon-dusknoir-shadow-bind-v3-60.json');
-assert.equal(assertions,14);
+// Actual native action-frontier has no damageAfterResistance, so source-
+// printed Mewtwo 200 damage must be assessed from unmodified actor-visible
+// card/target printings. Never accept absent print data or unseen Stadium.
+const natural=base();
+natural.observation.ownPublic.active.attacks=[{name:'Miraculous Duo-GX',damage:200}];
+natural.observation.ownPublic.active.tools=[];
+natural.observation.ownPublic.stadium=[];
+natural.observation.opponentPublic.stadium=[];
+natural.observation.opponentPublic.active={printing:'Mega Absol ex ME1086',
+ hp:280,damage:100,tools:[],printed:{resistance:[]}};
+natural.observation.opponentPublic.bench=[{printing:'Pikachu'}];
+delete natural.actionFrontier.items[1].publicMetadata.damageAfterResistance;
+check(supportedDirectTerminal(natural.observation,natural.actionFrontier.items),true);
+const sourceOnly=createPolicy({role:'candidate',seat:0,
+ policyVersion:POLICY_VERSION,config:{}});
+r=sourceOnly.decideWithAudit(natural);
+check(r.decision.token,'duo');
+check(r.policyAudit.selectionRuleCode,
+ 'A22_PRINTED_DIRECT_BASE_DAMAGE_TERMINAL_PROJECTION');
+const unknown=clone(natural);unknown.observation.opponentPublic.stadium=['Temple of Sinnoh ASR'];
+check(supportedDirectTerminal(unknown.observation,unknown.actionFrontier.items),false);
+const resistance=clone(natural);
+resistance.observation.opponentPublic.active.printed.resistance=[{type:'Psychic',value:-20}];
+check(supportedDirectTerminal(resistance.observation,resistance.actionFrontier.items),false);
+assert.equal(assertions,19);
 console.log('Agent22 v3 Counter Catcher worker overlay: '+assertions+' checked decisions passed');
