@@ -392,6 +392,19 @@ function eldCanBench(o) {
   if(has(o.opponentPublic?.active,/^Iron Thorns ex TWM(?: 77)?\b/i))return false;
   return arr(own.discard).some(card=>eldSupporterPriority(card,o)>0);
 }
+function floatUpPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{};
+  if(p.promptType!=='ConfirmPrompt'||m.selectionType!=='confirm'||
+    p.source?.effectName!=='Float Up')
+    return abstain('UNSUPPORTED_CONFIRMATION_SOURCE');
+  const choices=arr(p.choices).filter(c=>c.kind==='confirm'&&typeof c.token==='string');
+  const yes=choices.find(c=>c.label==='Yes');
+  const no=choices.find(c=>c.label==='No');
+  const safe=has(request.observation?.ownPublic?.active,P.eldegoss)&&
+    benchCount(request.observation.ownPublic)>0;
+  if(safe&&yes)return {kind:'select-choice',token:yes.token};
+  return no?{kind:'select-choice',token:no.token}:abstain('UNRECOGNIZED_SIMPLE_PROMPT');
+}
 function eldegossPrompt(request) {
   const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
   if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
@@ -1031,6 +1044,8 @@ function createPolicy({role,seat,policyVersion,config}) {
       if(has(request.prompt?.source?.sourcePrinting,P.grandTree))return grandTreePrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.artazon))return artazonPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.xtransceiver))return xtransceiverPrompt(request);
+      if(has(request.prompt?.source?.sourcePrinting,P.eldegoss)&&
+        request.prompt?.promptType==='ConfirmPrompt')return floatUpPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.eldegoss))return eldegossPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,/^Pidgeotto TEU(?: 123)?\b/i)&&
         request.prompt?.source?.effectName==='Air Mail')return airMailPrompt(request);
@@ -1055,4 +1070,4 @@ function createPolicy({role,seat,policyVersion,config}) {
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,
   createPolicy,rootDecision,poffinPrompt,printedDamage,applyColorlessWeaknessResistance,movementEvidence,karenOpportunity,REGIDRAGO_DRAGON_PAYLOADS,
-  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,k1Available,k1EvoTarget,nOpportunity,eldCanBench,eldegossPrompt,eldSupporterPriority,xtransceiverPrompt,usefulArtazonBasic,artazonPrompt,airMailPrompt,grandTreePrompt,grandTreeTarget,guzmaOpportunity,guzmaPrompt,rototillerPrompt,rototillerPriority,bunnelbyAttritionAction,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
+  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,k1Available,k1EvoTarget,nOpportunity,eldCanBench,eldegossPrompt,floatUpPrompt,eldSupporterPriority,xtransceiverPrompt,usefulArtazonBasic,artazonPrompt,airMailPrompt,grandTreePrompt,grandTreeTarget,guzmaOpportunity,guzmaPrompt,rototillerPrompt,rototillerPriority,bunnelbyAttritionAction,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
