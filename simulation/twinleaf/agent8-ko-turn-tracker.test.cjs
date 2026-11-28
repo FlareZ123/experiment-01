@@ -109,6 +109,21 @@ test('a prevented KO effect makes its turn unknown rather than known-empty',()=>
   uninstall();
 });
 
+test('non-attack opponent-turn KO is recorded as any but not byAttack',()=>{
+  const {store,a,b}=storeAt(0);
+  const {tracker,uninstall}=installStoreKnockoutTurnTracker(store,{
+    KnockOutEffect,EndTurnEffect,GamePhase
+  });
+  store.state.turn=3;
+  store.state.phase=GamePhase.PLAYER_TURN;
+  store.reduceEffect(store.state,new KnockOutEffect(b));
+  store.reduceEffect(store.state,new EndTurnEffect(a));
+  assert.deepEqual(tracker.snapshot('B','A',4),[
+    {turn:3,victimPlayerId:'B',attackerPlayerId:'A',byAttack:false}
+  ]);
+  uninstall();
+});
+
 test('a KO during the opponent extra turn is fresh on the next owner turn',()=>{
   const {store,a,b}=storeAt(0);
   const {tracker,uninstall}=installStoreKnockoutTurnTracker(store,{
