@@ -238,6 +238,64 @@ function chooseStage2BusEscape(view,items) {
  return null;
 }
 
+
+function treasureNeed(view){
+ const own=view?.ownPublic,hand=view?.ownHand;
+ if(!own||!Array.isArray(hand)||!Array.isArray(own.bench))return null;
+ const units=slots(own),inPlay=n=>units.some(x=>has(x.printing,n));
+ const held=n=>hand.some(x=>has(x,n));
+ if(inPlay('Dusclops')&&!inPlay('Dusknoir')&&!held('Dusknoir'))
+   return 'Dusknoir';
+ if(inPlay('Duskull')&&!inPlay('Dusclops')&&!held('Dusclops'))
+   return 'Dusclops';
+ if(!inPlay('Duskull')&&!inPlay('Dusclops')&&!held('Duskull')&&
+    own.bench.filter(Boolean).length<5) return 'Duskull';
+ return null;
+}
+function treasureDiscardable(view){
+ return Array.isArray(view?.ownHand)&&
+  Number.isSafeInteger(view.globalTurn)&&view.globalTurn>2&&
+  view.ownHand.some(x=>has(x,'Battle VIP Pass'));
+}
+function chooseTreasureRoot(view,items){
+ const target=treasureNeed(view);
+ if(!target||!treasureDiscardable(view)||!Array.isArray(items))return null;
+ // A no-cost access path to a Basic is strictly better than consuming a
+ // protected hand card to fetch the same Duskull.
+ if(target==='Duskull'&&items.some(x=>
+  x.kind==='play-card'&&has(x.actorPrinting,'Fog Crystal')))return null;
+ const item=items.find(x=>x.kind==='play-card'&&
+  has(x.actorPrinting,'Mysterious Treasure')&&
+  x.publicMetadata?.cardType==='trainer');
+ return item?select(item,'V3_TREASURE_PAY_DEAD_VIP_FOR_MISSING_'+target.toUpperCase()):null;
+}
+function chooseTreasurePrompt(view,prompt){
+ const m=prompt?.publicMetadata,src=prompt?.source;
+ if(!src||src.classification!=='actor-choice'||
+  src.sourceKind!=='card-effect'||!has(src.sourcePrinting,'Mysterious Treasure')||
+  prompt.promptType!=='ChooseCardsPrompt'||!Array.isArray(prompt.choices)||
+  m?.selectionType!=='card-combination'||m?.ownerSeat!=='actor'||
+  m?.isOwnerVisible!==true||m.minimumCount!==1||m.maximumCount!==1)return null;
+ const cards=prompt.choices.filter(c=>c.kind==='card'&&
+  c.publicMetadata?.ownerSeat==='actor'&&
+  c.publicMetadata?.isOwnerVisible===true&&
+  c.publicMetadata.sourceZone===m.sourceZone);
+ if(m.sourceZone==='hand'){
+  if(!treasureDiscardable(view))return null;
+  const payment=cards.find(c=>has(c.printing,'Battle VIP Pass'));
+  return payment?{decision:{kind:'select-choices',tokens:[payment.token]},
+    reason:'V3_TREASURE_DISCARD_POST_TURN1_DEAD_VIP'}:null;
+ }
+ if(m.sourceZone==='deck'){
+  const target=treasureNeed(view);
+  const found=cards.find(c=>target&&has(c.printing,target)&&
+    (target!=='Dusknoir'||!has(c.printing,'Trevenant & Dusknoir-GX')));
+  return found?{decision:{kind:'select-choices',tokens:[found.token]},
+    reason:'V3_TREASURE_SEARCH_MISSING_'+target.toUpperCase()}:null;
+ }
+ return null;
+}
+
 function aceSafe(view){
  const hand=view?.ownHand;
  if(!Array.isArray(hand))return false; // unknown hand cannot price its own loss
@@ -286,6 +344,7 @@ function createPolicy({role,seat,policyVersion,config}) {
    if(pending && v.globalTurn!==pending.turn)pending=null;
    if(v.decisionKind==='owner-prompt'){
      const p=request.prompt;
+     if(!pending)return chooseTreasurePrompt(v,p);
      if(!pending||pending.phase!=='target'||p?.actingSeat!==seat||
        p?.source?.classification!=='actor-choice'||
        p?.source?.sourceKind!=='card-effect'||
@@ -340,7 +399,7 @@ function createPolicy({role,seat,policyVersion,config}) {
      return select(attack,'V3_FINISH_ATTACK_AFTER_SETTLED_BLAST');
    }
    const p=ready(v,items);
-   if(!p)return shadowBindBus(v,items)??chooseStage2BusEscape(v,items);
+   if(!p)return shadowBindBus(v,items)??chooseStage2BusEscape(v,items)??chooseTreasureRoot(v,items);
    pending={
      turn:v.globalTurn,phase:'target',target:opp.active.printing,
      hp:opp.active.hp,initialDamage:opp.active.damage,
@@ -369,4 +428,4 @@ function createPolicy({role,seat,policyVersion,config}) {
  }
  return {decide:r=>decideWithAudit(r).decision,decideWithAudit};
 }
-module.exports={POLICY_VERSION,DECK_PATH,DECK_SHA,createPolicy,ready,validTarget,sourceAttack,shadowBindBus,aceSafe,verifiedAttackDamage,preservedCommonSetup,COMMON_SETUP_REASONS,chooseStage2BusEscape};
+module.exports={POLICY_VERSION,DECK_PATH,DECK_SHA,createPolicy,ready,validTarget,sourceAttack,shadowBindBus,aceSafe,verifiedAttackDamage,preservedCommonSetup,COMMON_SETUP_REASONS,chooseStage2BusEscape,treasureNeed,chooseTreasureRoot,chooseTreasurePrompt};
