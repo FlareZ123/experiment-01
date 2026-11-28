@@ -85,3 +85,58 @@ No native Store/Node/CI or complete game was run. This expanded
 forecast is a policy-development heuristic; source card text,
 effects and damage must be checked in actual native games before
 any competitive inference or owner registration.
+
+## Further second-engine connector repair: 14 actual-policy decisions
+
+The source-identity error persisted after the initial Basic/evolution changes
+inside the interdependent **Wonder Tag, Night Stretcher, Arven, Lillie's
+Determination and Forest Seal Stone/Star Alchemy** paths. With one VMAX
+already in play, source substring `boardHas('Shadow Rider Calyrex V')`
+made the worker pass over recovery of an unprized second CRE74/CRE75 and
+decline owner-offered tutor/draw actions. An additional exact-source
+`needShadowRiderBasic` / `needShadowRiderVMAX` propagation repaired
+all six connector families; the Underworld Door prompt now differentiates
+CRE74 from CRE75 without a double substring bonus.
+
+`tests/2026-11/agent3-second-engine-supporter-recovery-source.test.cjs`
+has seven two-seat actual decision/prompt cases (**0/14** on the prior
+unified worker; **14/14** corrected). The original VSTAR power,
+Supporter-turn and native-offer gates remain authoritative. This
+is not a claim that using the Supporter is *always* optimal or that
+the host can always search the missing card.
+
+## Hisuian Heavy Ball: real singleton Prize rescue
+
+The frozen fixed 60 has **one Hisuian Heavy Ball ASR 146**, yet the
+developmental actor worker had no root case choosing it. Its printed
+effect permits looking at own face-down Prizes, revealing one Basic,
+swapping it with the Ball and shuffling the face-down Prizes; otherwise
+the Ball is discarded. The policy now chooses a **native-offered** Ball
+root when Prizes remain, then only selects source-exact known Basic
+candidate cards from an actor-owned, newly owner-visible prize-choice
+prompt. A missing card face or foreign owner abstains; a legitimate
+no-Basic prompt completes with the native empty token. Actor's optional
+`minimumCount=0` requires an explicit empty selection token.
+Against Regidrago, a Prized Mimikyu GRI58 can outrank a second V;
+otherwise recovery preferences favor the live second engine.
+
+Bounded mathematical motivation (exact six Prizes drawn uniformly from
+the supplied 60 with fourteen Basic Pokémon): a random Prize set
+contains at least one Basic with probability
+`1-C(46,6)/C(60,6)=81.2903%`. The joint chance that Ball itself
+is unprized and at least one Basic is Prized is
+`(54/60)*(1-C(45,6)/C(59,6))=73.7307%`.
+The joint chance that singleton Mimikyu is Prized while Ball is unprized
+is `(6/60)*(54/59)=9.1525%`. The chance that at least two each of
+the 4 V and 4 VMAX remain unprized is an exact multivariate
+hypergeometric sum of **99.5509%**. These are combinatorial
+*inventory opportunities only*, **not** Item access rates, legal
+sequencing, setup probabilities, matchup wins or win rates.
+
+`tests/2026-11/agent3-heavy-ball-actor-prize-rescue-20261128.test.cjs`
+runs ten two-seat source-bound root/choice/negative controls **20/20**.
+All included source-worker/protocol regression modules now pass
+**180/180** groups: 20 second-engine initial, 14 connector chains,
+20 Heavy Ball, 10 Guzma/Prizes, 18 Tool Jammer/Float Stone,
+22 terminal attacks, and 76 neighboring cases. No native or Node execution,
+CI, V3 fixture or physical game.
