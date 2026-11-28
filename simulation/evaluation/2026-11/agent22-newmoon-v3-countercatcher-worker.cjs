@@ -1,15 +1,16 @@
 'use strict';
 /**
  * Experimental candidate worker overlay: exact New Moon v3 fixed 60,
- * original Agent1 v3 policy plus a separate, actor-source-bound post-selfKO
- * Counter Catcher terminal continuation. No replay/game authorization.
+ * original Agent1 v3 policy plus (a) direct Item gust into final attack when
+ * already behind and (b) selfKO-enabling Counter Catcher at tied Prizes. No replay/game authorization.
  *
  * Policy input is limited to production actor-observation-v4 and native
  * action/prompt choices. Does not inspect any hidden zone.
  */
 const parent=require('./agent1-newmoon-v3-finisher-slice.cjs');
 const {createSlice,visiblePrintedDuoDamage}=require('./agent22-newmoon-countercatcher-actor-sequence.cjs');
-const POLICY_VERSION='agent22-newmoon-v3-postselfko-countercatcher-research-v1';
+const {createDirectGustSlice}=require('./agent22-newmoon-direct-countercatcher-gust.cjs');
+const POLICY_VERSION='agent22-newmoon-v3-countercatcher-terminal-research-v2';
 const DECK_PATH=parent.DECK_PATH,DECK_SHA=parent.DECK_SHA;
 function directTerminal(v,items){
  if(!v||!Array.isArray(items)||!v.opponentPublic?.active||
@@ -53,6 +54,7 @@ function createPolicy({role,seat,policyVersion,config}){
    throw Error('A22_NEWMOON_V3_CC_PROFILE_MISMATCH');
  const base=parent.createPolicy({role,seat,policyVersion:parent.POLICY_VERSION,config:{}});
  const seq=createSlice({seat});
+ const directGust=createDirectGustSlice({seat});
  function withAudit(request,action){
   const decision=action.decision;
   const all=request?.prompt?.choices??request?.actionFrontier?.items??[];
@@ -71,20 +73,29 @@ function createPolicy({role,seat,policyVersion,config}){
  }
  function decideWithAudit(request){
   const v=request?.observation,items=request?.actionFrontier?.items;
-  const hadSequence=seq.peek()!==null;
-  if(!hadSequence&&v?.decisionKind==='owner-root'){
-    const direct=directTerminal(v,items);
-    if(direct)return withAudit(request,direct);
-  }
-  const action=seq.decide(request);
-  if(action)return withAudit(request,action);
-  if(hadSequence){
-   // If any required native stage was rejected, abstain instead of
-   // letting a different partial policy silently consume an action or prompt.
+  const hadBlast=seq.peek()!==null,hadDirectGust=directGust.peek()!==null;
+  if(!hadBlast&&!hadDirectGust){
+   // Already-payable damage to the current Active is strictly better than
+   // burning our singleton Item, and a direct Item gust is better than
+   // sacrificing Dusknoir to enable the same gust.
+   if(v?.decisionKind==='owner-root'){
+    const immediate=directTerminal(v,items);
+    if(immediate)return withAudit(request,immediate);
+   }
+   const direct=directGust.decide(request);
+   if(direct)return withAudit(request,direct);
+   const blast=seq.decide(request);
+   if(blast)return withAudit(request,blast);
+  }else{
+   // A started sequence cannot silently switch to an unrelated branch.
+   const chosen=hadDirectGust?
+     directGust.decide(request):seq.decide(request);
+   if(chosen)return withAudit(request,chosen);
    const reasonCode=v?.decisionKind==='owner-root'?
      'NO_SUPPORTED_ROOT_ACTION':'UNTRUSTED_PROMPT';
    return withAudit(request,{decision:{kind:'abstain',reasonCode},
-    reason:'A22_COUNTERCATCHER_SEQUENCE_ABORTED'});
+    reason:hadDirectGust?'A22_DIRECT_GUST_SEQUENCE_ABORTED':
+      'A22_COUNTERCATCHER_SEQUENCE_ABORTED'});
   }
   const out=base.decideWithAudit(request);
   return {...out,policyAudit:{...out.policyAudit,policyVersion:POLICY_VERSION}};
