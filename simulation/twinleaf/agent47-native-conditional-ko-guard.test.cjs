@@ -28,9 +28,19 @@ class CardBase{
     return state;
   }
 }
-class Raihan extends CardBase{}
-class Teammates extends CardBase{}
-class UnfairStamp extends CardBase{}
+// Pinned card classes own these methods; model that prototype shape exactly.
+class Raihan extends CardBase{
+  canPlay(...args){return super.canPlay(...args);}
+  reduceEffect(...args){return super.reduceEffect(...args);}
+}
+class Teammates extends CardBase{
+  canPlay(...args){return super.canPlay(...args);}
+  reduceEffect(...args){return super.reduceEffect(...args);}
+}
+class UnfairStamp extends CardBase{
+  canPlay(...args){return super.canPlay(...args);}
+  reduceEffect(...args){return super.reduceEffect(...args);}
+}
 const dependencies={Raihan,Teammates,UnfairStamp,
   TrainerEffect,GameError,GameMessage};
 
