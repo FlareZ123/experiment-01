@@ -2018,6 +2018,74 @@ test('Explicitly suppressed Bide Barricade cannot inflate Hood target value',()=
    kind:'select-action',token:'pass'});
 });
 
+
+test('Existing Hood restores Stoutland retreat pivot through Bide Barricade',()=>{
+ const request=rootRequest({
+   ownPublic:player({active:pokemon('Girafarig LOT 94',{
+     energies:['Jet Energy PAL 190']}),
+     bench:[pokemon('Stoutland BCR 122',{
+       tools:['Stealthy Hood UNB 186'],abilities:['Sentinel']})]}),
+   opponentPublic:player({active:pokemon('Wobbuffet PHF 36',{
+     abilities:['Bide Barricade']})}),
+   items:[{token:'retreat-stoutland',kind:'retreat',
+     actorPrinting:'Girafarig LOT 94',targetPrinting:'Stoutland BCR 122',
+     publicMetadata:{benchIndex:0,targetIndex:0,targetZone:'bench',
+       targetSeat:'actor',isOwnerVisible:true}},
+     {token:'pass',kind:'pass',label:'Pass turn'}]
+ });
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-action',token:'retreat-stoutland'});
+});
+test('Jamming Tower disables Hood and prevents Stoutland pivot versus Wobbuffet',()=>{
+ const request=rootRequest({
+   ownPublic:player({active:pokemon('Girafarig LOT 94',{
+     energies:['Jet Energy PAL 190']}),
+     bench:[pokemon('Stoutland BCR 122',{
+       tools:['Stealthy Hood UNB 186'],abilities:['Sentinel']})]}),
+   opponentPublic:player({active:pokemon('Wobbuffet PHF 36',{
+     abilities:['Bide Barricade']}),stadium:['Jamming Tower TWM 153']}),
+   items:[{token:'retreat-stoutland',kind:'retreat',
+     actorPrinting:'Girafarig LOT 94',targetPrinting:'Stoutland BCR 122',
+     publicMetadata:{benchIndex:0,targetIndex:0,targetZone:'bench',
+       targetSeat:'actor',isOwnerVisible:true}},
+     {token:'pass',kind:'pass',label:'Pass turn'}]
+ });
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-action',token:'pass'});
+});
+test('Guzma own pivot restores Hood-protected Stoutland under Bide Barricade',()=>{
+ const request=promptRequest({
+  promptType:'ChoosePokemonPrompt',
+  source:actorChoiceSource('Guzma BUS 115','Guzma'),
+  choices:[pokemonChoice('stoutland','Stoutland BCR 122','actor','bench',0),
+    pokemonChoice('bunnelby','Bunnelby PRC 121','actor','bench',1)],
+  observation:{
+    ownPublic:player({active:pokemon('Girafarig LOT 94'),bench:[
+      pokemon('Stoutland BCR 122',{tools:['Stealthy Hood UNB 186'],
+        abilities:['Sentinel']}),pokemon('Bunnelby PRC 121')]}),
+    opponentPublic:player({active:pokemon('Wobbuffet PHF 36',{
+      abilities:['Bide Barricade']})})}
+ });
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-choices',tokens:['stoutland']});
+});
+test('Guzma does not trust Hood-protected Stoutland through Jamming Tower',()=>{
+ const request=promptRequest({
+  promptType:'ChoosePokemonPrompt',
+  source:actorChoiceSource('Guzma BUS 115','Guzma'),
+  choices:[pokemonChoice('stoutland','Stoutland BCR 122','actor','bench',0),
+    pokemonChoice('bunnelby','Bunnelby PRC 121','actor','bench',1)],
+  observation:{
+    ownPublic:player({active:pokemon('Girafarig LOT 94'),bench:[
+      pokemon('Stoutland BCR 122',{tools:['Stealthy Hood UNB 186'],
+        abilities:['Sentinel']}),pokemon('Bunnelby PRC 121')]}),
+    opponentPublic:player({active:pokemon('Wobbuffet PHF 36',{
+      abilities:['Bide Barricade']}),stadium:['Jamming Tower TWM 153']})}
+ });
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-choices',tokens:['bunnelby']});
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
