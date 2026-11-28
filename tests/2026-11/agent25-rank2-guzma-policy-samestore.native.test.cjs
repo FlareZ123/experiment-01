@@ -2,8 +2,12 @@
 
 // Rank-2 source-policy decision chain on ONE real pinned Twinleaf Store.
 // Stages a visible, already established Vileplume Item-lock condition. This
-// does not independently prove native Vileplume's passive causal semantics,
-// source deck generation, matchup competence, or any full-game win rate.
+// uses the full physical source and Hood candidate 60-card multisets but
+// does not independently prove natural board setup, native Vileplume's passive
+// causal semantics, matchup competence, or any full-game win rate.
+const field = require('../../results/aichi-2026/full-decklists.json');
+const hood60 = require('../../results/aichi-2026/candidate-hood-shadow-rider.json');
+const source60 = field.decks.find(deck => deck.rank === 2);
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
@@ -55,31 +59,50 @@ const native = {
 
 function stage(seat, withLatias = false) {
   const manager = initializeCards();
-  let serial = 625000 + seat * 1000 + Number(withLatias) * 200;
+  let serial = 625000 + seat * 2000 + Number(withLatias) * 1000;
   const card = name => {
     const instance = manager.getCardByName(name);
-    assert.ok(instance, 'Pinned Twinleaf lacks printed card: ' + name);
+    assert.ok(instance, 'Pinned Twinleaf lacks source/candidate card printing: ' + name);
     instance.id = serial++;
     return instance;
   };
+  // Materialize each original printed 60 exactly once. Never turn a sampled
+  // source opponent into a made-up 12-Psychic-Energy control deck.
+  function materialize(deck, label) {
+    assert.ok(deck && Array.isArray(deck.cards), label + ' requires original card rows');
+    const cards = deck.cards.flatMap(row => Array.from({ length: row.count }, () =>
+      card(row.name + ' ' + row.printing.set)));
+    assert.equal(cards.length, 60, label + ' must contain exactly 60 physical cards');
+    return cards;
+  }
+  const sourceRemaining = materialize(source60, 'Aichi rank2');
+  const candidateRemaining = materialize(hood60, 'Hood fixed 60');
+  function take(pool, printing) {
+    const index = pool.findIndex(item => item.fullName === printing);
+    assert.notEqual(index, -1, 'Physical original deck has no remaining ' + printing);
+    return pool.splice(index, 1)[0];
+  }
+  const src = name => take(sourceRemaining, name);
+  const hood = name => take(candidateRemaining, name);
+
   const source = new Player(), candidate = new Player();
   source.id = 101; candidate.id = 202;
   source.name = 'Aichi rank2 staged'; candidate.name = 'Hood staged';
   source.supporterTurn = 0;
-  source.active.cards.push(card('Bunnelby PRC'));
+  source.active.cards.push(src('Bunnelby PRC'));
   source.bench = Array.from({ length: 5 }, () => new PokemonCardList());
-  source.bench[0].cards.push(card('Lillipup CEC'), card('Herdier SUM'), card('Stoutland BCR'));
-  source.bench[1].cards.push(card('Bunnelby PRC'));
-  source.bench[2].cards.push(card('Oddish UNB'), card('Gloom UNB'), card('Vileplume AOR'));
+  source.bench[0].cards.push(src('Lillipup CEC'), src('Herdier SUM'), src('Stoutland BCR'));
+  source.bench[1].cards.push(src('Bunnelby PRC'));
+  source.bench[2].cards.push(src('Oddish UNB'), src('Gloom UNB'), src('Vileplume AOR'));
 
-  candidate.active.cards.push(card('Shadow Rider Calyrex V CRE'),
-    card('Shadow Rider Calyrex VMAX CRE'));
-  candidate.active.energies.cards.push(card('Psychic Energy MEE'));
+  candidate.active.cards.push(hood('Shadow Rider Calyrex V CRE'),
+    hood('Shadow Rider Calyrex VMAX CRE'));
+  candidate.active.energies.cards.push(hood('Psychic Energy MEE'));
   candidate.bench = Array.from({ length: 5 }, () => new PokemonCardList());
-  candidate.bench[0].cards.push(card('Shadow Rider Calyrex V CRE'));
-  candidate.bench[0].energies.cards.push(card('Psychic Energy MEE'));
-  candidate.bench[1].cards.push(card('Shadow Rider Calyrex V CRE'));
-  if (withLatias) candidate.bench[2].cards.push(card('Latias ex SSP'));
+  candidate.bench[0].cards.push(hood('Shadow Rider Calyrex V CRE'));
+  candidate.bench[0].energies.cards.push(hood('Psychic Energy MEE'));
+  candidate.bench[1].cards.push(hood('Shadow Rider Calyrex V CRE'));
+  if (withLatias) candidate.bench[2].cards.push(hood('Latias ex SSP'));
   const strandedId = candidate.bench[1].getPokemonCard().id;
   const sentinelId = source.bench[0].getPokemonCard().id;
 
@@ -89,14 +112,26 @@ function stage(seat, withLatias = false) {
   candidate.cannotPlayItemCards = true;
   source.cannotPlaySupporterCards = false;
   candidate.cannotPlaySupporterCards = false;
-  source.hand.cards.push(card('Guzma BUS'));
-  for (const player of [source, candidate]) {
-    for (let i = 0; i < 12; i++) player.deck.cards.push(card('Psychic Energy MEE'));
-    for (let i = 0; i < 6; i++) {
+  source.hand.cards.push(src('Guzma BUS'));
+
+  for (const [player, remaining] of [
+    [source, sourceRemaining], [candidate, candidateRemaining]
+  ]) {
+    const sixPrizes = remaining.splice(0, 6);
+    for (const physical of sixPrizes) {
       const prize = new CardList();
-      prize.cards.push(card('Psychic Energy MEE'));
+      prize.cards.push(physical);
       player.prizes.push(prize);
     }
+    player.deck.cards.push(...remaining);
+    const slotCount = slot => slot.cards.length + slot.energies.cards.length +
+      slot.tools.length;
+    const physicalCount = slotCount(player.active) +
+      player.bench.reduce((sum, slot) => sum + slotCount(slot), 0) +
+      player.hand.cards.length + player.deck.cards.length +
+      player.prizes.reduce((sum, prize) => sum + prize.cards.length, 0);
+    assert.equal(physicalCount, 60,
+      'Original source/candidate deck must conserve exactly 60 physical cards');
   }
   const state = new State();
   state.players = seat === 0 ? [source, candidate] : [candidate, source];
