@@ -2029,7 +2029,9 @@ function r17CrushBurnTerminalWindow(request){
   const action=items.find(i=>i.kind==='attack'&&
     r17Key(i)==='electrode'&&
     i.attackName==='Crush and Burn-GX'&&
-    metadata(i).gxAttack===true&&
+    // The native action frontier certifies paid attacks but does not emit
+    // gxAttack in its publicMetadata. Exact CES48 source/name plus the
+    // public once-per-game GX-used ledger is the correct admission check.
     metadata(i).attackCostPayable===true);
   if(!action)return null;
   const targets=r17VisibleRainTargets(v,a);

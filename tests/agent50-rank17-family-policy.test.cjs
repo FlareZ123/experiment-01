@@ -713,6 +713,26 @@ function runCases(policy,protocol) {
     same(runRoot(p,nonterminalRain,[rainAttack,ballAttack,pass]),action('ball-root'),tag+'nonterminal Rain leaves supported Ball');
     same(runRoot(p,terminalRain,[ballAttack,pass]),action('ball-root'),tag+'absent Rain root leaves supported Ball');
 
+    // Genuine native action projection stamps attackCostPayable but omits
+    // gxAttack. The GX path must be executable from that producer shape.
+    const gxWindow=view(seat,{globalTurn:4,
+      ownPublic:player({active:slot(A.electrode,{hp:190,energies:[A.unit,full.reversal]}),
+        prizeCount:1,publicTurnRestrictions:{gxUsed:false}}),
+      opponentPublic:player({active:slot('Unown AOR 30',{hp:60,damage:40}),
+        bench:[],prizeCount:4})});
+    const gxRoot={kind:'attack',token:'gx-native',
+      actorPrinting:A.electrode,attackName:'Crush and Burn-GX',
+      publicMetadata:{attackCostPayable:true}};
+    same(runRoot(init(seat),gxWindow,[gxRoot,pass]),action('gx-native'),
+      tag+'native GX root shape has no gxAttack metadata');
+    const gxSpent={...gxWindow,ownPublic:{...gxWindow.ownPublic,
+      publicTurnRestrictions:{gxUsed:true}}};
+    same(runRoot(init(seat),gxSpent,[gxRoot,pass]),abstain('NO_SUPPORTED_ROOT_ACTION'),
+      tag+'used GX ledger blocks stale native root');
+    const gxUnpaid={...gxRoot,publicMetadata:{attackCostPayable:false}};
+    same(runRoot(init(seat),gxWindow,[gxUnpaid,pass]),abstain('NO_SUPPORTED_ROOT_ACTION'),
+      tag+'unpayable printed GX is refused');
+
     // Distinct support and setup provenance, never a foreign role.
     same(p.decide({role:'opponent',seat:1-seat,observation:v,prompt:null}),abstain('ROLE_SEAT_BINDING_MISMATCH'),tag+'seat bound');
   }

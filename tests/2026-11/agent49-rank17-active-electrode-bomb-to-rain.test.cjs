@@ -900,7 +900,7 @@ test('printed Crush and Burn-GX: 5 physical attached Energy -> exact terminal VS
     f.view.opponentPublic.bench=[viewSlot(U,[],'Basic')];
     const attack={kind:'attack',token:'gx',actorPrinting:E,
       attackName:'Crush and Burn-GX',
-      publicMetadata:{gxAttack:true,attackCostPayable:true}};
+      publicMetadata:{attackCostPayable:true}};
     assert.deepEqual(f.decide(1,null,[attack,{kind:'pass',token:'pass'}]),
       {kind:'select-action',token:'gx'});
     const requested=crushBurnPrompt(f);
@@ -951,7 +951,7 @@ test('printed Crush and Burn-GX uses four cards, not four special Energy units',
     f.view.opponentPublic.bench=[viewSlot(U,[],'Basic')];
     const attack={kind:'attack',token:'gx',actorPrinting:E,
       attackName:'Crush and Burn-GX',
-      publicMetadata:{gxAttack:true,attackCostPayable:true}};
+      publicMetadata:{attackCostPayable:true}};
     assert.deepEqual(f.decide(1,null,[attack]),{kind:'select-action',token:'gx'});
     const x=crushBurnPrompt(f),p=x.projection.promptProjection;
     const decision=f.decide(2,p);
@@ -975,7 +975,7 @@ test('GX root refuses spent once-per-game marker, insufficient Prizes, unpaid an
     f.view.opponentPublic.bench=[viewSlot(U,[],'Basic')];
     const attack={kind:'attack',token:'gx',actorPrinting:E,
       attackName:'Crush and Burn-GX',
-      publicMetadata:{gxAttack:true,attackCostPayable:true}};
+      publicMetadata:{attackCostPayable:true}};
     const run=(changeAction=attack)=>{
       const policy=rank17.createPolicy({role:'opponent',seat,
         policyVersion:rank17.POLICY_VERSION,config:{}});
@@ -991,7 +991,7 @@ test('GX root refuses spent once-per-game marker, insufficient Prizes, unpaid an
     assert.notDeepEqual(run(),{kind:'select-action',token:'gx'});
     f.view.ownPublic.prizeCount=2;
     assert.notDeepEqual(run({...attack,
-      publicMetadata:{gxAttack:true,attackCostPayable:false}}),
+      publicMetadata:{attackCostPayable:false}}),
       {kind:'select-action',token:'gx'});
     assert.notDeepEqual(run({...attack,attackName:'Crash and Burn-GX'}),
       {kind:'select-action',token:'gx'});
@@ -1045,7 +1045,7 @@ test('printed zero-discard GX chooses no attached Energy yet still takes termina
     f.view.opponentPublic.bench=[viewSlot('Regidrago VSTAR SIT',[],'VSTAR')];
     const action={kind:'attack',token:'gx',actorPrinting:E,
       attackName:'Crush and Burn-GX',
-      publicMetadata:{gxAttack:true,attackCostPayable:true}};
+      publicMetadata:{attackCostPayable:true}};
     assert.deepEqual(f.decide(1,null,[action]),{kind:'select-action',token:'gx'});
     const p=crushBurnPrompt(f),projection=p.projection.promptProjection;
     assert.equal(projection.publicMetadata.minimumCount,0);
