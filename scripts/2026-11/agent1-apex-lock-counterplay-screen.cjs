@@ -32,6 +32,9 @@ function analyze(source){
   if(unknown.length)throw Error("Unrecognized Energy names at "+d.rank+": "+unknown.map(c=>c.name));
   const basics=energy.filter(c=>BASICS.has(c.name)),specials=energy.filter(c=>!BASICS.has(c.name));
   const n=name=>count(d.cards.filter(c=>c.name===name));
+  const hasPrint=(name,set,number)=>d.cards.some(c=>c.name===name&&c.printing?.set===set&&String(c.printing?.number)===number);
+  const itemLockPotential=hasPrint("Vileplume","AOR","3");
+  const garbotoxinPotential=hasPrint("Garbodor","LTR","68")||hasPrint("Garbodor","BKP","57");
   const channels=Object.fromEntries(Object.entries(COUNTERS).map(([k,name])=>[k,n(name)]));
   const basicEnergy=count(basics),specialEnergy=count(specials);
   rows.push({
@@ -41,9 +44,11 @@ function analyze(source){
    specialTypes:specials.map(c=>({name:c.name,count:c.count})).sort((a,b)=>a.name.localeCompare(b.name)),
    channels,exclusivelySpecial:basicEnergy===0&&specialEnergy>0,
    hasRanger:channels.ranger>0,hasDiscardSpecialAccel:channels.electrode>0,
+   // If AOR3 is live and unsuppressed, Megaton Blower (Item) is unplayable.
+   itemLockPotential,
    // A printed Garbodor is a possible Tool-restart channel, not proof of a
    // deployed Garbotoxin (which needs the appropriate print and attached Tool).
-   chaosVsEchoToolDelta:channels.garbodor>0
+   chaosVsEchoToolDelta:garbotoxinPotential
   });
  }
  const missing=source.missing_full_lists.map(x=>x.rank).sort((a,b)=>a-b);
@@ -60,6 +65,7 @@ function analyze(source){
    allSpecialWithElectrode:having(r=>r.exclusivelySpecial&&r.hasDiscardSpecialAccel),
    allSpecialWithoutNamedRangerElectrode:having(r=>r.exclusivelySpecial&&!r.hasRanger&&!r.hasDiscardSpecialAccel),
    garbodorToolRestartRanks:having(r=>r.chaosVsEchoToolDelta),
+   megatonItemLockPotentialRanks:having(r=>r.itemLockPotential),
    rangerRanks:having(r=>r.hasRanger),
    electrodeRanks:having(r=>r.hasDiscardSpecialAccel),
    basicOnlyRanks:having(r=>r.basicEnergy>0&&r.specialEnergy===0),
