@@ -1116,12 +1116,31 @@ function promptDecision(request) {
 
       if (matches(sourcePrinting, PRINT.trainersMail) ||
           matches(sourcePrinting, PRINT.campingGear)) {
-        const context = matches(sourcePrinting, PRINT.trainersMail) ?
-          'trainers-mail' : 'camping-gear';
+        const camping=matches(sourcePrinting, PRINT.campingGear);
+        const context = camping ? 'camping-gear' : 'trainers-mail';
         const candidateChoices=choices.filter(choice =>
+          choice.kind==='card' &&
           choiceOwner(choice)==='actor' &&
           (choiceZone(choice)==='deck' ||
-            choice?.publicMetadata?.sourceZone==='deck'));
+            choice?.publicMetadata?.sourceZone==='deck') &&
+          choice?.publicMetadata?.isOwnerVisible===true);
+        // Camping Gear's native reducer declares min=0/max=1, but the
+        // printed unrestricted search for *a card* must fetch exactly one
+        // if deck nonempty. Paper source guard in agent12's hook enforces
+        // the physical one-card result; never choose native [] here.
+        if(camping){
+          if(metadata.selectionType!=='card-combination'||
+              metadata.minimumCount!==0||metadata.maximumCount!==1||
+              metadata.sourceZone!=='deck'||
+              metadata.ownerSeat!=='actor'||
+              metadata.isOwnerVisible!==true||
+              metadata.allowCancel!==false||
+              candidateChoices.length<1)
+            return {kind:'abstain',reasonCode:'UNTRUSTED_CAMPING_GEAR_SEARCH'};
+          const ranked=rankedChoices(candidateChoices,choice=>
+            Math.max(1,cardChoiceScore(choice,observation,context)),1);
+          return {kind:'select-choices',tokens:[ranked[0].choice.token]};
+        }
         return multiSelectDecision(prompt, rankedChoices(candidateChoices,
           choice => cardChoiceScore(choice, observation, context), maximum),
         minimum, maximum);
@@ -1916,10 +1935,36 @@ function scorePlayCard(item, request) {
     return hand.length <= 5 && ownDeckCount(observation) > 0 ? 85 : 0;
   }
   if (matches(card, PRINT.campingGear)) {
-    const hasUsefulSupporter = hand.some(value =>
-      [PRINT.plumeria, PRINT.teamFlare, PRINT.guzma, PRINT.lusamine, PRINT.handiwork,
-        PRINT.guzmaHala, PRINT.faba].some(pattern => matches(value, pattern)));
-    return !hasUsefulSupporter && hand.length <= 3 && ownDeckCount(observation) > 0 ? 75 : 0;
+    // Pinned Camping Gear: own-deck unrestricted exact-one search, then
+    // EndTurnEffect. It is not an arbitrary draw engine; its value is the
+    // precise next-turn resource it can preserve on a stalled turn.
+    if(ownDeckCount(observation)===null||ownDeckCount(observation)<1||
+       hand.length>4)return 0;
+    const actions=list(request.actionFrontier?.items);
+    if(actions.some(action=>action.kind==='attack' &&
+       action.publicMetadata?.attackCostPayable!==false))return 0;
+    if(actions.some(action=>action.kind==='play-card'&&
+       action.publicMetadata?.cardType==='energy'&&
+       energyAvailable(observation)&&!specialEnergyLocked(observation)))
+      return 0;
+    if(actions.some(action=>action.kind==='use-stadium'&&
+       matches(action.actorPrinting,PRINT.playersCeremony)))
+      return 0;
+    const missingDce=ownActiveIsThorns(observation)&&
+      !list(own.active?.energies).some(energy=>
+        matches(energy,PRINT.doubleColorless))&&
+      !hand.some(value=>matches(value,PRINT.doubleColorless))&&
+      ownerK1DeckMayContain(observation,PRINT.doubleColorless);
+    const missingStadium=ownActiveIsThorns(observation)&&
+      !hasStadium(observation,PRINT.thunderMountain)&&
+      !hand.some(value=>matches(value,PRINT.thunderMountain))&&
+      ownerK1DeckMayContain(observation,PRINT.thunderMountain);
+    if(missingDce||missingStadium)return 175;
+    const usefulSupporter=hand.some(value=>
+      [PRINT.plumeria,PRINT.teamFlare,PRINT.guzma,PRINT.lusamine,
+       PRINT.handiwork,PRINT.guzmaHala,PRINT.faba]
+        .some(pattern=>matches(value,pattern)));
+    return !usefulSupporter&&hand.length<=2?115:0;
   }
   if (matches(card, PRINT.echoingHorn)) {
     const hasTarget = list(opponent.discard).some(value => /Pok[eé]mon/i.test(valueText(value)));
