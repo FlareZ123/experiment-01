@@ -1684,10 +1684,65 @@ function eligibleCandidateDoor(view, actions) {
     hasName(a.actorPrinting, 'Shadow Rider Calyrex VMAX')) ?? null;
 }
 
+// A native-offered, printed-damage terminal attack should not be deferred
+// behind a draw Supporter or surplus Bench play: either can squander the
+// current winning position (including by drawing toward an empty deck).
+// This is a deliberately narrow forecast, not a general damage simulator.
+// We only fast-path the fixed candidate's two well-defined direct attackers;
+// exact native attack actions remain authoritative.
+function candidateTerminalAttack(view, items, receipt) {
+  const attacker = view.ownPublic.active;
+  const defender = view.opponentPublic.active;
+  if (!attacker || !defender) return null;
+  const remaining = defender.hp - defender.damage;
+  if (!Number.isFinite(remaining) || remaining <= 0) return null;
+  const prizes = view.ownPublic.prizeCount;
+  const finalPrizeKO = Number.isSafeInteger(prizes) &&
+    prizes > 0 && prizes <= prizeLiability(defender);
+  const boardWipe = (view.opponentPublic.bench ?? []).every(slot => !slot);
+  if (!finalPrizeKO && !boardWipe) return null;
+
+  // Original Aichi ranks 6 and 29 include Spiky Energy, which puts two
+  // counters on the Attacking Pokémon when the holder is damaged. Do not
+  // label a simultaneous self-KO a sure game win; defer the decision to
+  // the normal root policy when survival is not established.
+  if ((defender.energies ?? []).some(name => hasName(name, 'Spiky Energy')) &&
+      attacker.hp - attacker.damage <= 20) return null;
+
+  let best = null;
+  for (const item of items) {
+    if (item.kind !== 'attack' ||
+        !['Max Geist', 'Eon Blade'].includes(item.attackName)) continue;
+    const attack = (attacker.attacks ?? [])
+      .find(row => row.name === item.attackName);
+    if (!attack) continue;
+    const score = attackScore(attacker, attack, view, defender, {
+      requirePayable: true, publicEventReceipt: receipt
+    });
+    const damage = estimatedDamage(attacker, attack, view, defender);
+    if (!Number.isFinite(score) || damage === null ||
+        damage < remaining) continue;
+    if (!best || score > best.score ||
+        (score === best.score && item.token < best.item.token)) {
+      best = { item, score };
+    }
+  }
+  return best;
+}
+
 function chooseRoot(view, request) {
   const items = request.actionFrontier.items.filter(item =>
     ['play-card', 'attack', 'retreat', 'use-ability', 'use-stadium', 'pass'].includes(item.kind));
   const pass = items.find(item => item.kind === 'pass');
+
+  const terminal = candidateTerminalAttack(view, items,
+    request.publicEventReceipt);
+  if (terminal) {
+    setPolicyAuditRule('ROOT_FORECAST_TERMINAL_ATTACK_BEFORE_RESOURCE_PLAY',
+      'SCORE_DESC_TOKEN_ASC');
+    recordPolicyAuditScore(terminal.item.token, terminal.score);
+    return { kind: 'select-action', token: terminal.item.token };
+  }
 
   const plays = items.filter(item => item.kind === 'play-card');
   const scoredPlays = plays.map(item => {
