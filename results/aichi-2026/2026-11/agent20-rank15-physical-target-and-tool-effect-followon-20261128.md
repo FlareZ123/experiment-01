@@ -84,6 +84,20 @@ Earlier synthetic action/choice assertions intentionally constructed minimal obj
 
 The six new cases and **four inherited Agent41 strict-V3 cases** all passed with the exact protocol blob `d8349ae6f3537816b357b8309e9ab140ddec51eb`. This exercises real schema/decision admission code but **still does not initialize, dispatch, or complete a Twinleaf Store**; action-frontier offers and board states are constructed, not native traces.
 
+## A certified final-Prize line can override Vileplume BUS lock preservation
+
+The source's Vileplume BUS6 makes opposing Basic Pokémon unable to attack while BUS remains Active. The original `guzmaOpportunity` **categorically returned null whenever BUS was Active**, even if the opponent had a 2-Prize Shadow Rider V at 180 HP remaining on the Bench, the source had two Prizes remaining and a separately funded Bench Mega Lopunny could move Active through Guzma BUS115 for **230 Gale damage** and take the last Prizes. Keeping the lock cannot improve on ending the game immediately.
+
+The correction still forbids **nonterminal** BUS-sacrificing Guzma, but permits an exactly visible, already-payable, last-Prize two-switch Guzma. Both-seat tests distinguish two own Prizes (terminal Guzma) from three (retain lock).
+
+## Terminal Jet Energy as a physical Bench promotion, not just an attachment
+
+Jet Energy PAL190 provides Colorless Energy and, **when attached from hand to a Benched Pokémon**, immediately switches that Pokémon into the Active Spot. The original worker partially modeled it for TM-equipped Bunnelby and BUS lock but did **not** prioritize Jet to an already-powered Benched Mega as an immediately winning promotion. Furthermore, the earlier narrow `terminalGalePromotionTarget` recognized only a stationary Active Mega, excluding Active BUS Vileplume or Fan Rotom as the outgoing Pokémon.
+
+The new source policy recognizes a physically indexed, ready one-Energy Benched Mega and a fully certifiable last-Prize Gale 230 KO into an unprotected Shadow Rider V. It executes an **offered paid Retreat** first if both paths are available, else an **offered indexed Jet Energy attachment** to that Mega. It can sacrifice BUS only to end the game, respects a Bench Mega's public attack restrictions and an opaque opponent Tool, rejects a nonterminal Prize state, and refuses to classify Jet as a switching effect under active **Temple of Sinnoh**. If Temple is active, ordinary Jet attachment may still be valuable for Energy; it is not misrepresented as a winning switch. Both-seat cases also reject a Jet to the wrong identically printed *unpowered* Mega.
+
+The patch does not invent a future `Gale Thrust` action token before native promotion. Its test asserts only the **first available winning line action**; native Store continuation must establish the moved receipt, newly offered attack, and actual Prize outcome before any game-level claim.
+
 ## Reproducible assets
 
 - Policy: `simulation/evaluation/2026-11/agent20-rank15-lopunny-vileplume-opponent-policy.cjs`
@@ -92,14 +106,15 @@ The six new cases and **four inherited Agent41 strict-V3 cases** all passed with
 - Terminal Mega promotion: `tests/2026-11/agent20-rank15-terminal-gale-promotion-heldout.test.cjs` (**12** cases)
 - Colorless source damage: `tests/2026-11/agent20-rank15-colorless-modifiers-heldout.test.cjs` (**12** cases)
 - Grand Tree target age/slot/Active: `tests/2026-11/agent20-rank15-grandtree-physical-evolution-heldout.test.cjs` (**18** cases)
-- Guzma own attacker promise / Belt lower-bound: `tests/2026-11/agent20-rank15-guzma-prompt-attacker-binding-heldout.test.cjs` (**14** cases)
+- Guzma own attacker promise, Belt lower-bound and BUS-lock terminal override: `tests/2026-11/agent20-rank15-guzma-prompt-attacker-binding-heldout.test.cjs` (**18** cases)
 - Complete original fixed-attack surface: `tests/2026-11/agent20-rank15-source-fixed-attack-damage-heldout.test.cjs` (**80** cases)
 - Eldegoss self-Silent Lab/Path root choices: `tests/2026-11/agent20-rank15-eldegoss-self-silent-lab-heldout.test.cjs` (**10** cases)
 - Full strict V3 Grand Tree/Pidgeot requests: `tests/2026-11/agent20-rank15-grandtree-pidgeot-strict-v3-heldout.test.cjs` (**6** cases)
+- Terminal indexed Jet/Gale from BUS/Fan/Mega Active: `tests/2026-11/agent20-rank15-terminal-jet-gale-promotion-heldout.test.cjs` (**18** cases)
 - Parent strict V3 Temple regressions (not owned by PR93): `tests/2026-11/agent41-rank15-temple-strict-v3-protocol-heldout.test.cjs` (**4** cases)
-- Exact final policy blob: `00ab91615effd421d40c8246aa461f8431bb8740`
-- Exact test blobs: `04aa7326f3d2c3bf18b115ca48d6988021c511cb`, `99418a2ca86cc651773af5cf3248979e4563317c`, `5d99721052439eb84849b4094ad98e0c6bd16132`, `fea7ca06fc33741301619f13dd8782a2ccfcd57a`, `7fa0f188ae3b889e16163fb8af639632dd4816e8`, `ad0d6d4c0c4259827ec70ef1b298e11d90cbcb5e`, `757fb4f866d5013f6bb6a76eb92a4813ee3c549d`, `b488b4988c93ef88065c87f390dd6320dcade34b`, `259305b66e940632aed10c45708178915d1096d9`
-- Executed both committed test files against the exact policy blob with a JavaScript CommonJS V8 shim for `node:test`, `node:assert/strict`, and the policy module: **182 passed / 0 failed** (172 constructed source cases + 6 new full strict V3 requests + 4 parent strict V3 requests). This confirms synchronous decision assertions only. The V8 shim is not Node CLI, pinned Twinleaf Store, native protocol, source-deck game, or competitive qualification.
+- Exact final policy blob: `6ee5f454de9499da9cb132d5e949baf61a682bf7`
+- Exact test blobs: `04aa7326f3d2c3bf18b115ca48d6988021c511cb`, `99418a2ca86cc651773af5cf3248979e4563317c`, `5d99721052439eb84849b4094ad98e0c6bd16132`, `fea7ca06fc33741301619f13dd8782a2ccfcd57a`, `7fa0f188ae3b889e16163fb8af639632dd4816e8`, `7276272a458f1941cdf1e2f5f8261aa93faf1818`, `757fb4f866d5013f6bb6a76eb92a4813ee3c549d`, `b488b4988c93ef88065c87f390dd6320dcade34b`, `259305b66e940632aed10c45708178915d1096d9`, `eac80e65146d35e8e27c40e309dc9cc7f3bb7647`
+- Executed both committed test files against the exact policy blob with a JavaScript CommonJS V8 shim for `node:test`, `node:assert/strict`, and the policy module: **204 passed / 0 failed** (194 constructed source cases + 6 new full strict V3 requests + 4 inherited strict V3 requests). This confirms synchronous decision assertions only. The V8 shim is not Node CLI, pinned Twinleaf Store, native protocol, source-deck game, or competitive qualification.
 
 The original PR90 head reproduced the wrong Jet and TM selections and the absent correct Hood decision before the follow-on patch. Neither PR90 nor PR93 should be treated as an admission to main or a frozen policy. Both may be challenged through independent actor-visible native continuation before any owner-approved game. No CI or V3 dispatch was performed here.
 
