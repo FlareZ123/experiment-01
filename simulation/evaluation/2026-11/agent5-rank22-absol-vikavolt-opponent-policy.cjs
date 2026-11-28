@@ -15,7 +15,7 @@ const PRINT = Object.freeze({
   vikavolt: /^Vikavolt V DAA 60\b/i,
   trubbish: /^Trubbish (?:FST 168|NVI 48)\b/i,
   garbodor: /^Garbodor BKP 57\b/i,
-  tapuKoko: /^Tapu Koko [♢◇] TEU 51\b/i,
+  tapuKoko: /^Tapu Koko (?:[♢◇] TEU 51|Prism Star TEU(?: 51)?)\b/i,
   dedenne: /^Dedenne-GX UNB 57\b/i,
   crobat: /^Crobat V DAA 104\b/i,
   squawk: /^Squawkabilly ex PAL 169\b/i,
