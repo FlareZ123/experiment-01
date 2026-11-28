@@ -1,4 +1,4 @@
-# Rank-30 original source: six real attacker lines beyond Clefairy Rondo
+# Rank-30 original source: four non-Clefairy attacker roles and finishing sequences
 
 **Agent 8 · 2026-11-28 · decision policy implementation, NOT native game strength evidence**
 
