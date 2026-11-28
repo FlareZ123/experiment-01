@@ -36,7 +36,7 @@ The hook is deliberately **fail-closed** if the pinned prompt schema or expected
 
 **Isolated synchronous JavaScript / mocked native interfaces: 10/10 tests PASS** in both seats, for opponent boards of 1,2,3,4,6 Pokémon, accepted exact selections, rejected too-few/duplicate/own targets, blocked/empty targets, copied attack identity, original non-Trifrost delegation, unrelated prompts unaffected, incompatible prompt schema failure, and error/async restoration.
 
-**No compiled pinned native Store, 2-sided game, actual prompt resolution, full deck setup, or matchup was executed.** The optional real native prompt smoke is committed and will skip if the pinned engine is not built. It directly generates a synthetic `AttackEffect`, so even if executed, its result alone would not certify a legally paid Trifrost attack or actual Apex Dragon copy. Native Store review should test the prompt through the full actor-facing action executor and current V3 protocol, with no unauthorized campaign dispatch.
+**No compiled pinned native Store, 2-sided game, actual prompt resolution, full deck setup, or matchup was executed.** The optional real native prompt smoke is committed and will skip if the pinned engine is not built. It now contains two **unexecuted** scenarios: direct synthetic `AttackEffect` from Kyurem, and a sticky `openCopyAttackSession` using Regidrago VSTAR and Kyurem in the discard with a cloned Trifrost `AttackEffect`. Even if executed, reducer-level prompt results alone would not certify a legally paid attack or complete two-sided game. Native Store review should test the prompt through the full actor-facing action executor and current V3 protocol, with no unauthorized campaign dispatch.
 
 ## Acceptance decision
 
