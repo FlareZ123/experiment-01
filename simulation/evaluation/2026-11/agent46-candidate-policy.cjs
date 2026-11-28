@@ -1101,7 +1101,7 @@ function scoreEvolutionPlay(item) {
   return -Infinity;
 }
 
-function scoreEnergyPlay(item, view) {
+function scoreEnergyPlay(item, view, nativeActions = []) {
   const metadata = item.publicMetadata ?? {};
   if (metadata.targetSeat !== 'actor' ||
       !['active', 'bench'].includes(metadata.targetZone) ||
@@ -1110,6 +1110,37 @@ function scoreEnergyPlay(item, view) {
     ? view.ownPublic.active : view.ownPublic.bench[metadata.targetIndex];
   if (!target || (item.targetPrinting && target.printing !== item.targetPrinting)) return -Infinity;
   const count = slotEnergyCount(target);
+
+  // A source-printed Max Geist VMAX already payable with three Psychic can
+  // gain 30 damage from the normal attachment. Do not mistake "already
+  // attackable" for "ready to take the needed KO": if the native frontier
+  // currently offers Max Geist and the extra Energy crosses the defender's
+  // remaining HP, take the attachment BEFORE announcing the attack. Keep
+  // this estimate deliberately limited to an untooled, Ability-free target
+  // and empty Stadium zones; opaque prevention interactions need a richer
+  // native planner rather than a fabricated certain KO.
+  const defender = view.opponentPublic.active;
+  if (target === view.ownPublic.active &&
+      hasName(target.printing,'Shadow Rider Calyrex VMAX CRE') &&
+      Array.isArray(target.energies) && count >= 3 &&
+      Array.isArray(defender?.tools) && defender.tools.length === 0 &&
+      Array.isArray(defender?.abilities) && defender.abilities.length === 0 &&
+      [...view.ownPublic.stadium,...view.opponentPublic.stadium].length === 0 &&
+      Number.isFinite(defender.hp) && Number.isFinite(defender.damage) &&
+      nativeActions.some(action => action.kind === 'attack' &&
+        action.attackName === 'Max Geist') &&
+      target.attacks.some(attack => attack.name === 'Max Geist')) {
+    const attack = target.attacks.find(attack=>attack.name==='Max Geist');
+    const projectedActive={...target, energies:[...target.energies,item.actorPrinting]};
+    const projectedView={...view,ownPublic:{
+      ...view.ownPublic,active:projectedActive}};
+    const before=estimatedDamage(target,attack,view,defender);
+    const after=estimatedDamage(projectedActive,attack,projectedView,defender);
+    const remaining=defender.hp-defender.damage;
+    if (Number.isFinite(before) && Number.isFinite(after) &&
+        before < remaining && after >= remaining)
+      return 16000;
+  }
   if (opponentHasRegidrago(view) && hasName(target.printing, 'Mimikyu') && count < 2) return 920;
   if (hasName(target.printing, 'Shadow Rider Calyrex VMAX') &&
       psychicEnergyCount(view) < 5 && count < 5) return 880;
@@ -1250,7 +1281,7 @@ function chooseRoot(view, request) {
   const scoredPlays = plays.map(item => {
     const basic = scoreBasicPlay(item, view);
     const evolution = scoreEvolutionPlay(item);
-    const energy = scoreEnergyPlay(item, view);
+    const energy = scoreEnergyPlay(item, view, items);
     const trainer = scoreTrainerPlay(item, view, request.publicEventReceipt);
     const score = Math.max(basic, evolution, energy, trainer);
     recordPolicyAuditScore(item.token, score, 'NO_ELIGIBLE_PLAY_COMPONENT', [
