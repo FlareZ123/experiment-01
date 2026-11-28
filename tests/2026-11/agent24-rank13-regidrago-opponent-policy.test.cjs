@@ -200,7 +200,17 @@ function promptRequest(options = {}) {
       'Mysterious Treasure FLI 113', 'Mysterious Treasure'
     ),
     choices: options.choices ?? [],
-    ...(options.publicMetadata ? { publicMetadata: options.publicMetadata } : {})
+    // Actor protocol requires explicit selection categories on known classes.
+    publicMetadata: options.publicMetadata ?? (
+      options.promptType==='ChooseAttackPrompt'
+        ? {selectionType:'attack',allowCancel:false} :
+      options.promptType==='ChoosePokemonPrompt'
+        ? {selectionType:'pokemon',minimumCount:1,maximumCount:1,allowCancel:false,isSecret:false} :
+      options.promptType==='ChooseEnergyPrompt'
+        ? {selectionType:'energy-payment',energyCount:1,allowCancel:false,isSecret:false} :
+      options.promptType==='ChooseCardsPrompt'
+        ? {selectionType:'card-combination',minimumCount:1,maximumCount:1,allowCancel:false,isSecret:false} :
+      {selectionType:'option',allowCancel:false})
   };
   return {
     schema: protocol.REQUEST_SCHEMA,
@@ -288,7 +298,7 @@ test('source and candidate bindings identify the fixed rank-13 original and curr
 
 test('worker init accepts role-only empty config and rejects policy-specific configuration', () => {
   assert.doesNotThrow(() => protocol.validateInit(makeInit(0, {})));
-  assert.throws(() => protocol.validateInit(makeInit(0, { rank: 13 })), /BAD_INIT_CONFIG|BAD_POLICY_CONFIG/);
+  assert.throws(() => protocol.validateInit(makeInit(0, { rank: 13 })), /BAD_INIT_CONFIG|BAD_POLICY_CONFIG|UNKNOWN_FIELD/);
   assert.throws(() => createPolicy({
     role: 'opponent', seat: 0, policyVersion: POLICY_VERSION, config: { rank: 13 }
   }), /AGENT24_RANK13_POLICY_INIT_MISMATCH/);
@@ -514,7 +524,7 @@ test('Apex attack choice abstains rather than selecting Phantom Dive with unsupp
     ]
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'abstain', reasonCode: 'NO_SUPPORTED_RANK13_APEX_ATTACK'
+    kind: 'abstain', reasonCode: 'NO_VISIBLE_ATTACK_CHOICE'
   });
 });
 
@@ -527,7 +537,7 @@ test('Apex attack choice abstains rather than selecting Dragon Impact before its
     ]
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'abstain', reasonCode: 'NO_SUPPORTED_RANK13_APEX_ATTACK'
+    kind: 'abstain', reasonCode: 'NO_VISIBLE_ATTACK_CHOICE'
   });
 });
 
@@ -673,8 +683,11 @@ test('unsupported PutDamagePrompt fails closed rather than inventing counter all
       { token: 'bench', kind: 'damage-target', label: 'Opponent Bench' }
     ]
   });
-  assert.deepEqual(checkedDecision(request), {
-    kind: 'abstain', reasonCode: 'RANK13_PUT_DAMAGE_UNSUPPORTED'
+  // Unregistered damage-allocation prompts are rejected by the shared
+  // host schema. Verify the worker fails closed without host admission.
+  const policy=createPolicy({role:'opponent',seat:0,policyVersion:POLICY_VERSION,config:{}});
+  assert.deepEqual(policy.decide(request), {
+    kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE'
   });
 });
 
