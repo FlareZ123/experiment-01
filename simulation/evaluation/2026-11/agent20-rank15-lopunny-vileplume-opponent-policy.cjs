@@ -1174,6 +1174,18 @@ function rootDecision(request) {
   const energy=items.map((item,index)=>({item,index,score:energyActionScore(item,o)}))
     .filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.index-b.index)[0];
   if(energy)return take(energy.item);
+
+  // Budew ASC16 has free Itchy Pollen Item lock. Use only after valuable
+  // setup and before AOR Vileplume has already established the same lock.
+  const itchy=attacks.find(x=>x.attackName==='Itchy Pollen'&&
+    has(o.ownPublic?.active,P.budew));
+  const aorLive=slots(o.ownPublic).some(x=>has(x,P.aor)&&
+    !arr(x.abilitySuppressions).some(z=>
+      z.abilityName==='Irritating Pollen'&&z.suppressed===true));
+  if(itchy&&o.globalTurn<=4&&!aorLive&&
+    o.opponentPublic?.publicTurnRestrictions?.itemPlayLocked!==true)
+    return take(itchy);
+
   const scored=items.map((item,index)=>{
     let score=0;
     if(item.kind==='play-card')score=Math.max(usefulEvolution(item,o),usefulBasic(item,o));
