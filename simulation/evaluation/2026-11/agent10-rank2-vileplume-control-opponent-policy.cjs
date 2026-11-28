@@ -130,7 +130,15 @@ function visibleSourceCopies(observation, pattern) {
 
 function sourceCopyPossible(observation, pattern) {
   const source = SOURCE_COPIES.find(([candidate]) => candidate === pattern);
-  return Boolean(source && source[1] - visibleSourceCopies(observation, pattern) > 0);
+  if(!source)return false;
+  // K0: unseen cards could be in the deck OR Prizes. When a certified K1
+  // actor-own-deck snapshot exists, use its exact *remaining deck* counts
+  // instead of treating a Prized-only singleton as a searchable option.
+  const k1=observation?.ownerK1;
+  if(k1?.exactMembershipKnown===true&&Array.isArray(k1.knownPrintings))
+    return k1.knownPrintings.some(row=>matches(row.printing,pattern)&&
+      Number.isSafeInteger(row.copies)&&row.copies>0);
+  return source[1]-visibleSourceCopies(observation,pattern)>0;
 }
 
 function hasK0PossibleStageFor(observation, printing) {
