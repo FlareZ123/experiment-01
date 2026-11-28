@@ -1824,7 +1824,38 @@ function scorePlayCard(item, request) {
       list(opponent.discard).some(isRegisteredCandidateBasic) ? 75 : 0;
   }
   if (matches(card, PRINT.megatonBlower)) {
-    return opponentHasTool(observation) || opponentSpecialEnergyCount(observation) > 0 ? 185 : 0;
+    // Rank29's ACE SPEC also discards a Stadium in play. A Temple of Sinnoh
+    // suppresses both Speed Lightning's type and Double Colorless's extra
+    // unit, but Megaton Blower can clear Temple and unblock [L][C][C].
+    // Wondrous Labyrinth prevents Item effects on itself: never assume
+    // that Stadium can be removed this way.
+    const temple=hasStadium(observation,/^Temple of Sinnoh\b/i);
+    const active=own.active;
+    const energies=list(active?.energies);
+    const restrictions=active?.publicRestrictions??{};
+    const ownerLocks=own.publicTurnRestrictions??{};
+    const locked=restrictions.cannotAttackNextTurn===true ||
+      list(restrictions.cannotUseAttacksNextTurn).includes('Volt Cyclone') ||
+      restrictions.blockedAttackNameNextTurn==='Volt Cyclone' ||
+      Number(ownerLocks.attackLockTurnsRemaining??0)>0 ||
+      Number(observation?.ownTurnResources?.attackLockTurnsRemaining??0)>0;
+    const templeUnlocksAttack=temple && !locked &&
+      ownActiveIsThorns(observation) &&
+      energies.some(value=>matches(value,PRINT.speedLightning)) &&
+      energies.some(value=>matches(value,PRINT.doubleColorless));
+    if(templeUnlocksAttack){
+      const target=opponentActive(observation);
+      const ko=target&&visibleVoltCycloneDamage(target).knockout;
+      const clearsPrizes=ko&&guzmaTargetPrizeValue(target)>=
+        (own.prizeCount??6);
+      const clearsBoard=ko&&!slots(opponent)
+        .some(row=>row.zone==='bench');
+      // Two-step conditional win is preferable to ordinary disruption,
+      // but less certain than an already offered terminal attack (1000).
+      return clearsPrizes||clearsBoard?900:225;
+    }
+    return opponentHasTool(observation) ||
+      opponentSpecialEnergyCount(observation)>0 ? 185 : 0;
   }
   if (matches(card, PRINT.enhancedHammer)) {
     return opponentSpecialEnergyCount(observation) > 0 ? 170 : 0;
