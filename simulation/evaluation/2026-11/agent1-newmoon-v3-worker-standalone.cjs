@@ -1146,6 +1146,60 @@ function choosePaidPressure(view,items){
  return null;
 }
 
+
+/*
+ * The native Mewtwo & Mew-GX Perfection ChooseAttackPrompt can offer donor
+ * attacks from either an actor-owned Bench GX/EX or actor-owned discard GX/EX.
+ * Choosing the parent attack action does not choose the donor attack.
+ * Use only the host's actual already-cost-legal offered prompt options;
+ * never materialize or infer a discard attack root into actionFrontier.
+ */
+function choosePerfectionPrompt(view,prompt) {
+ const own=view?.ownPublic,active=own?.active,source=prompt?.source,meta=prompt?.publicMetadata;
+ if(!own||view?.decisionKind!=='owner-prompt'||!active||
+  !has(active.printing,'Mewtwo & Mew-GX')||
+  !live(active,'Perfection')||
+  !attackSafe(active)||
+  !Array.isArray(own.bench)||!Array.isArray(own.discard)||
+  prompt?.actingSeat!==view.actorSeat||
+  prompt?.promptType!=='ChooseAttackPrompt'||
+  !Array.isArray(prompt.choices)||
+  meta?.selectionType!=='attack'||
+  source?.classification!=='actor-choice'||
+  source?.sourceKind!=='card-effect'||
+  source?.effectName!=='Perfection'||
+  source?.sourcePrinting!==active.printing)return null;
+ const eligible=[];
+ for(const choice of prompt.choices) {
+  if(choice?.kind!=='attack'||!choice.printing||
+     choice.publicMetadata?.ownerSeat!=='actor'||
+     choice.publicMetadata?.isOwnerVisible!==true||
+     !['bench','discard','mixed'].includes(choice.publicMetadata?.sourceZone))continue;
+  const n=choice.printing;
+  const isDonor=(has(n,'-GX')||has(n,'-EX')) &&
+    (own.discard.includes(n)||own.bench.some(x=>x?.printing===n));
+  if(!isDonor)continue;
+  const attack=choice.publicMetadata?.sourceAttack;
+  if(!['Night Watch','Poltergeist','Horror House-GX','Pale Moon-GX'].includes(attack))continue;
+  if(attack.endsWith('-GX')&&own.publicTurnRestrictions?.gxUsed!==false)continue;
+  let priority=attack==='Night Watch'?200:attack==='Poltergeist'?20:
+    attack==='Horror House-GX'?10:0;
+  const target=view.opponentPublic?.active,remaining=target?.hp-target?.damage;
+  if(attack==='Night Watch'&&Number.isFinite(remaining)&&remaining>0&&remaining<=150)
+    priority+=300;
+  if(attack==='Poltergeist'&&view.opponentPublic?.handCount===0)
+    priority=-100;
+  if(attack==='Horror House-GX'&&Number.isSafeInteger(view.globalTurn)&&
+     view.globalTurn<=4&&view.opponentPublic?.handCount>=4)priority=250;
+  eligible.push({choice,priority});
+ }
+ eligible.sort((a,b)=>b.priority-a.priority||
+  String(a.choice.token).localeCompare(String(b.choice.token)));
+ const picked=eligible[0]?.choice;
+ return picked?{decision:{kind:'select-choice',token:picked.token},
+  reason:'V3_SELECT_REAL_OWNER_PERFECTION_PRINTED_DONOR_ATTACK'}:null;
+}
+
 function treasureNeed(view){
  const own=view?.ownPublic,hand=view?.ownHand;
  if(!own||!Array.isArray(hand)||!Array.isArray(own.bench))return null;
@@ -1251,7 +1305,7 @@ function createPolicy({role,seat,policyVersion,config}) {
    if(pending && v.globalTurn!==pending.turn)pending=null;
    if(v.decisionKind==='owner-prompt'){
      const p=request.prompt;
-     if(!pending)return chooseStage2StarPrompt(v,p)??chooseTreasurePrompt(v,p);
+     if(!pending)return choosePerfectionPrompt(v,p)??chooseStage2StarPrompt(v,p)??chooseTreasurePrompt(v,p);
      if(!pending||pending.phase!=='target'||p?.actingSeat!==seat||
        p?.source?.classification!=='actor-choice'||
        p?.source?.sourceKind!=='card-effect'||
@@ -1338,4 +1392,4 @@ function createPolicy({role,seat,policyVersion,config}) {
  }
  return {decide:r=>decideWithAudit(r).decision,decideWithAudit};
 }
-module.exports={POLICY_VERSION,DECK_PATH,DECK_SHA,createPolicy,ready,validTarget,sourceAttack,shadowBindBus,aceSafe,verifiedAttackDamage,preservedCommonSetup,COMMON_SETUP_REASONS,chooseStage2BusEscape,treasureNeed,chooseTreasureRoot,chooseTreasurePrompt,stage2MissingUnderBus,chooseStage2StarRoot,chooseStage2StarPrompt,actualOwnedAttack,chooseCertifiedLethal,chooseMidgameRefill,choosePaidPressure};
+module.exports={POLICY_VERSION,DECK_PATH,DECK_SHA,createPolicy,ready,validTarget,sourceAttack,shadowBindBus,aceSafe,verifiedAttackDamage,preservedCommonSetup,COMMON_SETUP_REASONS,chooseStage2BusEscape,treasureNeed,chooseTreasureRoot,chooseTreasurePrompt,stage2MissingUnderBus,chooseStage2StarRoot,chooseStage2StarPrompt,actualOwnedAttack,chooseCertifiedLethal,chooseMidgameRefill,choosePaidPressure,choosePerfectionPrompt};
