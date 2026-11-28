@@ -800,7 +800,15 @@ function bombPlanner(o,sourceBenchIndex){
         const possibleUnown=4-known.filter(isUn).length-counted(isUn);
         // Do not spend a singleton Energy merely to expose a three-Prize
         // Gengar while an already-funded Mega can take the normal attack.
-        if(possibleUnown>0)return isGengar(p)?355:345;
+        if(possibleUnown>0){
+          // A nonterminal Claw KO is still available after this free-timing
+          // attachment/search sequence. Reserve a narrow score edge for
+          // searching Unown before the identical source attack; never defer
+          // a final-Prize or sole-Pokemon knockout.
+          const ko=knockoutScore(o,o.ownPublic.active,o.opponentPublic?.active,'Claw of Darkness');
+          const preKo=ko>0&&ko<1000?ko+13:0;
+          return Math.max(isGengar(p)?355:345,preKo+(isGengar(p)?10:0));
+        }
       }
       if(isGengar(p)&&first(o)&&o.ownPublic?.publicTurnRestrictions?.gxUsed!==true&&payable(p,['psychic'],-1,o)!==true&&payable(next,['psychic'],-1,o)===true)return 300;
       return 0;
@@ -1156,7 +1164,14 @@ function bombPlanner(o,sourceBenchIndex){
       // never trade away a known final-Prize action or choose a speculative
       // discard/draw reset ahead of an existing non-final KO.
       if(directScore>=400){
-        if(development&&developmentScore>=375&&(development.kind==='use-ability'&&M(development).abilityName==='Farewell Letter'||development.kind==='play-card'&&(mega(development)||isVol(development)||elec(development)||cruel(development))))return {kind:'select-action',token:development.token};
+        if(development&&developmentScore>=375&&(
+          development.kind==='use-ability'&&M(development).abilityName==='Farewell Letter'||
+          development.kind==='play-card'&&(mega(development)||isVol(development)||elec(development)||cruel(development))||
+          // Unowned Telepathic search is not a speculative draw reset:
+          // it preserves the already funded direct, non-final attack.
+          development.kind==='play-card'&&/^Telepathic Psychic Energy POR 88\b/i.test(name(development))&&
+          developmentScore>directScore
+        ))return {kind:'select-action',token:development.token};
         return {kind:'select-action',token:direct.token};
       }
       if(direct&&(direct.attackName??M(direct).attackName)==='Horror House-GX'&&o.globalTurn===2&&directScore>=250){
