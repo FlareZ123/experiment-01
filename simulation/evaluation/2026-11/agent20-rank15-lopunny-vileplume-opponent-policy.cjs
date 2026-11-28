@@ -435,8 +435,10 @@ function capturePrompt(request) {
 function hoodProtectionScore(item,o) {
   if(item?.kind!=='play-card'||!has(ownPrinting(item),P.hood)||
     !has(item.targetPrinting,P.aor))return 0;
-  const target=slots(o.ownPublic).find(x=>has(x,P.aor)&&arr(x.tools).length===0);
-  if(!target)return 0;
+  // Two AOR Vileplume copies are distinct board objects. Protect the exact
+  // Pokémon named by the native action, not an arbitrary same-printing copy.
+  const target=ownActionTarget(item,o?.ownPublic);
+  if(!target||!has(target,P.aor)||arr(target.tools).length!==0)return 0;
   const suppressed=arr(target.abilitySuppressions).some(x=>
     x.abilityName==='Irritating Pollen'&&x.suppressed===true&&
     /^(?:Galarian Weezing|Garbodor|Wobbuffet)\b/i.test(x.sourcePrinting??''));
@@ -1202,24 +1204,39 @@ function rootDecision(request) {
     return take(attrition);
   const busWindow=busActivePromotionOpportunity(o);
   if(busWindow){
+    const bench=arr(o.ownPublic?.bench);
+    const busIndex=bench.findIndex(x=>x&&has(x,P.bus)&&
+      !arr(x.abilitySuppressions).some(a=>
+        a.abilityName==='Disgusting Pollen'&&a.suppressed===true));
+    const busTarget=busIndex<0?null:{index:busIndex,printing:bench[busIndex].printing};
     const jetBus=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.jet)&&
-      has(x.targetPrinting,P.bus));
+      ownActionTarget(x,o.ownPublic)===bench[busIndex]);
     if(jetBus&&!templeSuppressesSpecialEnergy(o))return take(jetBus);
-    const retreatBus=items.find(x=>x.kind==='retreat'&&
-      (!x.targetPrinting||has(x.targetPrinting,P.bus)));
+    const retreatBus=busTarget&&items.find(x=>retreatActionTargets(x,busTarget,o.ownPublic));
     if(retreatBus)return take(retreatBus);
   }
   const pendingAttrition=attrition;
   const mobility=mobilityActions(items,o);
   if(mobility)return take(mobility);
-  const attachTm=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.tmEvolution)&&
-    has(x.targetPrinting,P.bunnelby));
-  if(attachTm&&slots(o.ownPublic).some(x=>has(x,P.bunnelby)&&
-     arr(x.tools).length===0)&&missingEvolutionChannels(o))return take(attachTm);
-  const attachJet=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.jet)&&
-    has(x.targetPrinting,P.bunnelby));
-  if(attachJet&&!templeSuppressesSpecialEnergy(o)&&slots(o.ownPublic).some(x=>has(x,P.bunnelby)&&
-     arr(x.tools).some(c=>has(c,P.tmEvolution)))&&missingEvolutionChannels(o))return take(attachJet);
+  const tmTargets=items.filter(x=>{
+    if(x.kind!=='play-card'||!has(ownPrinting(x),P.tmEvolution))return false;
+    const target=ownActionTarget(x,o.ownPublic);
+    return !!target&&has(target,P.bunnelby)&&arr(target.tools).length===0;
+  });
+  // A ready Active Bunnelby can announce Evolution on this turn; a Benched
+  // Bunnelby merely holds the Tool. Do not choose first-offered Bench copy.
+  const attachTm=tmTargets.find(x=>ownActionTarget(x,o.ownPublic)===o.ownPublic.active)??tmTargets[0];
+  if(attachTm&&missingEvolutionChannels(o))return take(attachTm);
+  const attachJet=items.find(x=>{
+    if(x.kind!=='play-card'||!has(ownPrinting(x),P.jet))return false;
+    const target=ownActionTarget(x,o.ownPublic);
+    return !!target&&target!==o.ownPublic.active&&has(target,P.bunnelby)&&
+      arr(target.tools).some(c=>has(c,P.tmEvolution));
+  });
+  // Jet's free promotion is useful only when attached to that exact equipped
+  // Benched Bunnelby. Its ordinary Energy attachment is still scored below.
+  if(attachJet&&!templeSuppressesSpecialEnergy(o)&&missingEvolutionChannels(o))
+    return take(attachJet);
   if(gust&&gustOpportunity&&!gustOpportunity.terminal)return take(gust);
   const gh=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.guzmaHala));
   if(gh&&(ghLineFeasible(o,P.guzmaHala)||ghStadiumOnlyLine(o)))return take(gh);
