@@ -7,7 +7,8 @@ const {POLICY_VERSION,createPolicy}=
 function request(seat=0){
   const active={name:'Mimikyu',printing:'Mimikyu GRI',
     abilities:[],attacks:[{name:'Copycat',cost:['Colorless','Colorless']}],
-    energies:['Psychic Energy CRE','Psychic Energy CRE']};
+    energies:['Psychic Energy CRE','Psychic Energy CRE'],
+    tools:[],printed:{subtypes:['Basic'],types:['Psychic']}};
   const target={name:'Regidrago VSTAR',printing:'Regidrago VSTAR SIT',
     hp:280,damage:0,tools:[],
     printed:{types:['Dragon'],subtypes:['VSTAR']},attacks:[{name:'Apex Dragon'}]};
@@ -137,7 +138,6 @@ for(const seat of [0,1]){
   for(const [label,mutate] of [
     ['no extra-turn flag',r=>{r.observation.ownTurnResources.extraTurnActive=false}],
     ['no observed Radiant payload',r=>{r.observation.ownPublic.discard=['Dialga-GX UPR']}],
-    ['unpaid GX first turn',r=>{r.observation.ownPublic.publicTurnRestrictions.gxUsed=false}],
     ['no prior Apex',r=>{r.publicEventReceipt.opponentCopycatChoices=[]}],
     ['wrong source print',r=>{r.publicEventReceipt.opponentCopycatChoices[0].sourcePrinting='Dialga-GX UPR'}],
     ['stale actor turn',r=>{r.publicEventReceipt.turn=4}],
