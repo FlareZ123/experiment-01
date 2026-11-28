@@ -108,7 +108,7 @@ function attached(seat=0) {
       new EnergyCard('Fire Energy','Fire Energy MEE')]},
     playerType:'BOTTOM_PLAYER',slots:['BENCH','ACTIVE'],
     filter:{superType:'ENERGY',energyType:'BASIC'},
-    options:{allowCancel:false,min:1,max:1},
+    options:{allowCancel:false,min:1,max:1,differentTargets:true},
     decode:answer=>answer,validate:answer=>
       Array.isArray(answer)&&answer.length===1&&
       [0,1].includes(answer[0].index)&&
