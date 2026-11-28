@@ -1,0 +1,241 @@
+{
+  "schema": "agent20-native-exact-source-zone-plan-v1",
+  "status": "UNEXECUTED_RESEARCH_FIXTURE_NOT_A_NATIVE_STORE_RECEIPT",
+  "goal": "One pinned same-Store no-game actor-root Jet attachment to already evolved Bench Mega Lopunny, compete with genuine Pidgeotto Air Mail, settle native Jet switching/attack readiness; mirror seats 0 and 1.",
+  "source": {
+    "repository": "FlareZ123/experiment-01",
+    "canonicalFile": "results/aichi-2026/full-decklists.json",
+    "canonicalFileGitBlob": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "actorRank": 15,
+    "opponentRank": 1,
+    "format": "paper Expanded BW-onward",
+    "note": "Preserves original exact source printings; use a certified source/native printing bridge. No 60 was optimized or modified."
+  },
+  "independentCriticGate": "2026-11-28 11:05Z formal PR #93 hold; this fixture is a staging plan, not permission to run CI, a full game, or V3 qualification.",
+  "mirroredActorSeats": [
+    0,
+    1
+  ],
+  "turnContext": {
+    "globalTurnMinimum": 9,
+    "actorNormalEnergyAttachmentUnused": true,
+    "actorPidgeottoAirMailUnusedThisTurn": true,
+    "actorBenchMegaAndPidgeottoEvolvedBeforeThisTurn": true,
+    "noCurrentTempleOfSinnoh": true,
+    "noOpponentShadowMistSpecialEnergyLock": true,
+    "note": "Prior owner four Prize cards have been taken then discarded, leaving two; actual native turn and attached action legality must be checked rather than assumed."
+  },
+  "actor": {
+    "sourceRank": 15,
+    "active": {
+      "stack": [
+        "Bunnelby PRC 121"
+      ],
+      "energies": [],
+      "tools": [],
+      "damage": 0
+    },
+    "bench": [
+      {
+        "index": 0,
+        "stack": [
+          "Buneary PFL 83",
+          "Mega Lopunny ex PFL 84"
+        ],
+        "energies": [],
+        "tools": [],
+        "damage": 0
+      },
+      {
+        "index": 1,
+        "stack": [
+          "Pidgey FLF 75",
+          "Pidgeotto TEU 123"
+        ],
+        "energies": [],
+        "tools": [],
+        "damage": 0
+      }
+    ],
+    "hand": [
+      "Jet Energy PAL 190",
+      "Grass Energy MEE 9"
+    ],
+    "discard": [
+      "Guzma & Hala CEC 193",
+      "Xtransceiver NVI 96",
+      "Xtransceiver NVI 96",
+      "Buddy-Buddy Poffin TEF 144"
+    ],
+    "prizes": [
+      "Karen XYP 177",
+      "Tag Call CEC 206"
+    ],
+    "deck": [
+      "Oddish UNB 5",
+      "Oddish UNB 5",
+      "Gloom UNB 7",
+      "Gloom UNB 7",
+      "Vileplume AOR 3",
+      "Vileplume AOR 3",
+      "Vileplume BUS 6",
+      "Buneary PFL 83",
+      "Mega Lopunny ex PFL 84",
+      "Pidgey FLF 75",
+      "Pidgeotto MEW 17",
+      "Pidgeot ex OBF 164",
+      "Pidgeot ex OBF 164",
+      "Bunnelby PRC 121",
+      "Fan Rotom SCR 118",
+      "Fan Rotom SCR 118",
+      "Budew ASC 16",
+      "Budew ASC 16",
+      "Eldegoss V RCL 19",
+      "Tatsugiri TWM 131",
+      "Guzma & Hala CEC 193",
+      "Guzma & Hala CEC 193",
+      "Guzma BUS 115",
+      "Guzma BUS 115",
+      "Karen XYP 177",
+      "N FCO 105",
+      "Tag Call CEC 206",
+      "Tag Call CEC 206",
+      "Tag Call CEC 206",
+      "Buddy-Buddy Poffin TEF 144",
+      "Buddy-Buddy Poffin TEF 144",
+      "Technical Machine: Evolution PAR 178",
+      "Technical Machine: Evolution PAR 178",
+      "Stealthy Hood UNB 186",
+      "Stealthy Hood UNB 186",
+      "Float Stone BKT 137",
+      "Choice Belt PAL 176",
+      "Artazon PAL 171",
+      "Artazon PAL 171",
+      "Grand Tree SCR 136",
+      "Path to the Peak CRE 148",
+      "Silent Lab PRC 140",
+      "Jet Energy PAL 190",
+      "Grass Energy MEE 9",
+      "Capture Energy RCL 171",
+      "Powerful Colorless Energy DAA 176",
+      "Double Colorless Energy SUM 136"
+    ],
+    "stadium": [],
+    "lostZone": []
+  },
+  "opponent": {
+    "sourceRank": 1,
+    "active": {
+      "stack": [
+        "Shadow Rider Calyrex V CRE 74"
+      ],
+      "energies": [],
+      "tools": [],
+      "damage": 0
+    },
+    "bench": [
+      {
+        "index": 0,
+        "stack": [
+          "Shadow Rider Calyrex V CRE 74"
+        ],
+        "energies": [],
+        "tools": [],
+        "damage": 0
+      }
+    ],
+    "hand": [
+      "Shadow Rider Calyrex V CRE 74",
+      "Shadow Rider Calyrex VMAX CRE 75",
+      "Shadow Rider Calyrex VMAX CRE 75",
+      "Shadow Rider Calyrex VMAX CRE 75",
+      "Shadow Rider Calyrex VMAX CRE 75",
+      "Lillie's Clefairy ex JTG 56",
+      "Lillie's Clefairy ex JTG 56"
+    ],
+    "discard": [],
+    "prizes": [
+      "Psychic Energy MEE 13",
+      "Psychic Energy MEE 13",
+      "Psychic Energy MEE 13",
+      "Psychic Energy MEE 13",
+      "Psychic Energy MEE 13",
+      "Psychic Energy MEE 13"
+    ],
+    "deck": [
+      "Tapu Lele-GX GRI 60",
+      "Tapu Lele-GX GRI 60",
+      "Trevenant & Dusknoir-GX SMP 217",
+      "Latias ex SSP 76",
+      "Dialga-GX UPR 100",
+      "Mimikyu GRI 58",
+      "Girafarig LOT 94",
+      "Marshadow UNB 81",
+      "Radiant Eternatus CRZ 105",
+      "Lillie's Determination MEG 119",
+      "Lillie's Determination MEG 119",
+      "Carmine TWM 145",
+      "Iono PAL 185",
+      "Teammates PRC 141",
+      "Raihan EVS 152",
+      "Acerola BUS 112",
+      "Guzma BUS 115",
+      "Tulip PAR 181",
+      "Mysterious Treasure FLI 113",
+      "Mysterious Treasure FLI 113",
+      "Mysterious Treasure FLI 113",
+      "Mysterious Treasure FLI 113",
+      "Fog Crystal CRE 140",
+      "Fog Crystal CRE 140",
+      "Fog Crystal CRE 140",
+      "Fog Crystal CRE 140",
+      "VS Seeker PHF 109",
+      "VS Seeker PHF 109",
+      "VS Seeker PHF 109",
+      "Quick Ball FST 237",
+      "Hisuian Heavy Ball ASR 146",
+      "Battle Compressor PHF 92",
+      "Field Blower GRI 125",
+      "Night Stretcher ASC 196",
+      "Unfair Stamp TWM 165",
+      "Float Stone BKT 137",
+      "Forest Seal Stone SIT 156",
+      "Sky Field ROS 89",
+      "Sky Field ROS 89",
+      "Dimension Valley PHF 93",
+      "Psychic Energy MEE 13",
+      "Psychic Energy MEE 13",
+      "Psychic Energy MEE 13",
+      "Psychic Energy MEE 13",
+      "Psychic Energy MEE 13"
+    ],
+    "stadium": [],
+    "lostZone": []
+  },
+  "nativeRequiredObservations": [
+    "A genuine actor-visible PLAY_CARD_ACTION for Jet Energy PAL190 in hand, targeted to Bench index 0 (the two-card Buneary→Mega stack), and a genuine USE_ABILITY_ACTION for Pidgeotto TEU123 Air Mail on Bench index 1.",
+    "The unmodified production native action projection retains opaque physical token and actual owner-relative Bench index in both physical seats.",
+    "Strict rank15 worker selects the original native Jet token over Air Mail because own Prize count is 2, opponent Active Shadow Rider Calyrex V CRE74 has 210 HP, and 230 moved Gale defeats it for 2 Prizes.",
+    "Follow actual native action resolution in the SAME Store: Jet moves from hand to Mega Energy zone, the Bench Mega replaces Bunnelby Active, no Energy is invented or discarded, and the next real native attack offer includes Gale Thrust with [C] payable.",
+    "Capture before/after actor-only field delta and first failing boundary; do not claim a KO or win unless actually settled natively. Avoid exposing hidden opponent hand, deck or Prize cards to worker.",
+    "Stage cards must remain stacked Buneary under Mega and Pidgey under Pidgeotto; native source printing MEE9 maps to engine basic Grass alias BLW105 when required, without rewriting canonical source 60."
+  ],
+  "exactSourceIntegrity": {
+    "actorPhysicalCards": 60,
+    "opponentPhysicalCards": 60,
+    "actorRemainingPrizes": 2,
+    "opponentRemainingPrizes": 6,
+    "actorDeckCards": 47,
+    "opponentDeckCards": 45,
+    "actorStartHand": [
+      "Jet Energy PAL 190",
+      "Grass Energy MEE 9"
+    ],
+    "actorActiveTop": "Bunnelby PRC 121",
+    "actorTargetBenchTop": "Mega Lopunny ex PFL 84",
+    "actorAbilityBenchTop": "Pidgeotto TEU 123",
+    "opponentActiveTop": "Shadow Rider Calyrex V CRE 74",
+    "confirmedActorSourceMultiset": true,
+    "confirmedOpponentSourceMultiset": true
+  }
+}
