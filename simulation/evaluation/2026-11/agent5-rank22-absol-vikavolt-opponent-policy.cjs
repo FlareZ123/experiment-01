@@ -451,6 +451,27 @@ function karenScore(observation) {
   return opponent === 2 ? 210 + Math.min(donors, 3) * 45 :
     155 + Math.min(donors, 3) * 40;
 }
+function secretBoxAffordable(observation) {
+  const hand = list(observation.ownHand);
+  const boxIndex = hand.findIndex(card => matches(card, PRINT.secret));
+  if (boxIndex < 0) return false;
+  const remaining = hand.filter((_, index) => index !== boxIndex);
+  return remaining.filter(card => discardScore(card, {
+    ...observation, ownHand: remaining
+  }) > 0).length >= 3;
+}
+function secretBoxSetupValue(observation) {
+  if (!secretBoxAffordable(observation) || deckCount(observation) === 0)
+    return 0;
+  const own = observation.ownPublic;
+  if (hasTrubbish(observation) && !hasGarbodor(observation) &&
+      supporterAvailable(observation)) return 340;
+  if (count(own, PRINT.trubbish) === 0 && benchCount(own) < 5 &&
+      supporterAvailable(observation)) return 295;
+  if (slots(own).some(row => matches(row.pokemon.printing, PRINT.garbodor) &&
+      list(row.pokemon.tools).length === 0)) return 275;
+  return 0;
+}
 function wallyLineReady(observation) {
   return supporterAvailable(observation) && hasTrubbish(observation) &&
     !hasGarbodor(observation) && deckCount(observation) > 0;
@@ -560,6 +581,7 @@ function scoreAction(item, request) {
        count(own, PRINT.mega) < 2) ? 185 : 0;
   }
   if (matches(printing, PRINT.enhancedHammer)) return hammerLive(observation);
+  if (matches(printing, PRINT.secret)) return secretBoxSetupValue(observation);
   if (matches(printing, PRINT.battleCompressor)) {
     const needsDarkPatchPayload = hasMegaAbsol(observation) &&
       slots(own).some(row => row.zone === 'bench' &&
