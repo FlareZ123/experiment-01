@@ -11,8 +11,11 @@ const assert=require('node:assert/strict');
 function previousTurnResponseOptions(view,receipt,isBasicEnergy){
   assert.equal(view.actorSeat,receipt.actorSeat);
   assert.equal(view.globalTurn,receipt.turn);
+  const ko=receipt.priorOpponentTurnKO;
+  const hasFreshPriorOpponentTurnKO=Number.isSafeInteger(view.globalTurn)&&
+    view.globalTurn>1&&ko?.any===true&&ko.turn===view.globalTurn-1;
   if(view.decisionKind!=='owner-root'||
-     receipt.priorOpponentTurnKO?.any!==true||
+     !hasFreshPriorOpponentTurnKO||
      view.ownTurnResources.supporterPlayedTurn>0||
      view.ownTurnResources.supporterPlayLocked||
      view.ownPublic.deckCount===0)return [];
