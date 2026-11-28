@@ -42,6 +42,12 @@ module.exports = (function build() {
     return printingAliases.get(raw)??raw;
   };
   const name = originalPrinting;
+  // Pinned Twinleaf card-types.ts Stage.BASIC === 2. Actor observations
+  // preserve numeric enum values; never expect the string 'Basic' in native
+  // stage fields, nor rely on generally empty pokemon.subtypes.
+  const isBasicStage=p=>p?.printed?.stage===2||
+    /^basic$/i.test(String(p?.printed?.stage??''))||
+    L(p?.printed?.subtypes).some(x=>/^basic$/i.test(String(x)));
   const mega = x => /^Mega Absol ex MEG 86\b/i.test(name(x));
   const sableye = x => /^Sableye V SSH 120\b/i.test(name(x));
   const plumeria = x => /^Plumeria BUS 120\b/i.test(name(x));
@@ -86,7 +92,7 @@ module.exports = (function build() {
     const s=name(e);
     if(o&&liveStadium(o,/Temple of Sinnoh/i)&&/^(?:Prism|Telepathic Psychic|Double Colorless|Twin|Jet|Gift|Mist|Guard|Double Dragon|Double Turbo|Rainbow|Aurora|Luminous|Reversal|Legacy|Rapid Strike|Single Strike|Capture|Powerful Colorless) Energy\b/i.test(s))return ['colorless'];
     if (/^Prism Energy\b/i.test(s)) {
-      const basic=/basic/i.test(String(p?.printed?.stage))||L(p?.printed?.subtypes).some(x=>/^basic$/i.test(x));
+      const basic=isBasicStage(p);
       return [basic?'any':'colorless'];
     }
     if (/^Telepathic Psychic Energy\b/i.test(s)) return ['psychic'];
@@ -594,7 +600,7 @@ function bombPlanner(o,sourceBenchIndex){
       if(gain>0&&!ownLoss)return 340+Math.min(80,40*gain);
     }
     if(/^Silent Lab/i.test(name(c))){
-      const gain=opp.filter(x=>/^basic$/i.test(x.p.printed?.stage??'')&&useful(x.p)).length;
+      const gain=opp.filter(x=>isBasicStage(x.p)&&useful(x.p)).length;
       if(gain>0&&!own.some(x=>isUn(x.p))&&!handHas(o,isDedenne)&&!(first(o)&&has(o,isSquawk)))return 300;
     }
     return 0;
