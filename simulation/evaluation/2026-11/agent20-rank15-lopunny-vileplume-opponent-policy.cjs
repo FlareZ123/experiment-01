@@ -564,12 +564,17 @@ function grandTreePrompt(request) {
      Number.isSafeInteger(m.minimumCount)&&Number.isSafeInteger(m.maximumCount)&&
      m.minimumCount<=1&&m.maximumCount<=1){
     const target=grandTreeTarget(o);
+    const bench=arr(own.bench);
+    const targetIndex=target?bench.indexOf(target):-1;
+    // Grand Tree can act on either physical copy of a Basic. A newly put
+    // down Oddish is ineligible to evolve, even if another identical copy is
+    // established. The printed name alone is not a valid Bench identity.
+    const sameNameCount=target?bench.filter(x=>x&&txt(x)===txt(target)).length:0;
     const c=actorPokemonBench(p).find(c=>{
-      if(!target||!has(c,has(target,P.oddish)?P.oddish:
-        has(target,P.pidgey)?P.pidgey:P.buneary))return false;
-      const i=c.publicMetadata?.benchIndex;
-      return !Number.isSafeInteger(i)||
-        o.ownPublic.bench[i]?.printing===target.printing;
+      if(targetIndex<0||!target||txt(c)!==txt(target))return false;
+      const index=c.publicMetadata?.benchIndex;
+      return Number.isSafeInteger(index) ? index===targetIndex:
+        sameNameCount===1;
     });
     if(c)return {kind:'select-choices',tokens:[c.token]};
     const empty=arr(p.choices).find(c=>c.kind==='empty-selection'&&typeof c.token==='string');
