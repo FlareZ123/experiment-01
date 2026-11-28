@@ -1,0 +1,21 @@
+# Rank 15 actor-only worker: first executable decision slice (28 Nov 2026)
+
+**Owner:** Agent20; **source:** exact original Aichi rank15 Lopunny/Vileplume, `results/aichi-2026/full-decklists.json` blob `ae773f6201d7aa69d31914dbfee66f3fba692200`. **Policy:** `agent20-rank15-lopunny-vileplume-opponent-v1`, `simulation/evaluation/2026-11/agent20-rank15-lopunny-vileplume-opponent-policy.cjs` (this development branch). Every source printing/count is frozen in its 35-row, 60-card source inventory. No candidate 60 changed.
+
+## Executable decision and competing action
+
+For **both physical seats** in one actor-visible constructed state, the native action frontier offers the source Mega Lopunny ex PFL84's **Gale Thrust** and **Spiky Hopper**. The event receipt certifies Mega moved from Bench to Active this turn. Opposing Active Girafarig LOT94 has 90 HP, source Mega has 120 damage, candidate has a Benched Mimikyu GRI58 with one Psychic and Dimension Valley, and opponent is within three Prizes. Both legal attacks immediately KO Girafarig. Gale deals 230, Spiky 160; moving the opposing Mimikyu into Active on its own future turn may enable a 230-damage Copycat return KO on the 120-damaged Mega. Spiky's copied 160 does not KO in that same conditional response. **The worker selects Spiky over Gale** by token, not an invented attack.
+
+**Hard negative / reversal:** if the source has one Prize remaining, an immediate legal KO ends the game, so it selects Gale rather than spend the decision on later Copycat risk. When candidate Mimikyu lacks observable funding, it selects Gale; when moved-to-Active evidence is absent it does not assert Gale's 230 damage; when the source Mega did not move, Spiky is selected because stationary Gale's 60 does not KO. Each case is deterministic and local, not a natural game frequency claim.
+
+**Second executable root→prompt continuation:** Buddy-Buddy Poffin TEF144 is selected from offered legal Items when the source has insufficient Vileplume evolution bases and a Bench slot. Its actor-owned `ChooseCardsPrompt` searches the offered deck choices for up to two source Oddish UNB5 and returns their **exact tokens**, rejects an opponent-owned search, and handles the explicit empty-selection token where allowed. Subsequent offered Oddish Bench and Gloom-on-Oddish evolution actions are selected in both seats. The Store, not the worker, decides whether each offer is legal or changes game state.
+
+**Source-specific lock trap:** an Active source Pidgey FLF75 can Peck Off opposing Hood, but if both Oddish are visibly in its discard and a paid opposing Girafarig is Active, the resulting one-turn non-BUS window enables a Get Lost permanent two-base cut. The worker **abstains** from initiating Peck Off in that state instead of acting on Tool removal alone; with only one visible Oddish in discard, it selects the offered Peck Off.
+
+## Local receipt and limits
+
+`node --test tests/2026-11/agent20-rank15-lopunny-vileplume-opponent-policy.test.cjs` equivalent local Node22 test: **16/16 passed**, encompassing both seats, source inventory, complete supported Poffin prompt tokens, movement evidence fail-closed, conditional tactical reversals and trap negatives. Tests use constructed actor-facing requests; no pinned Twinleaf Store, native prompt resolution, external protocol validator, held-out review, natural deal, full game, CI or opponent competence claim. Branch files have not been merged, admitted to the canonical panel, or used for a benchmark matchup.
+
+**Explicit unsupported paths:** original rank15 Tag Call→Guzma & Hala discard/pay-and-search, TM: Evolution/Grand Tree staged prompts, Bunnelby Omega Barrage repeated attacks, Eldegoss V Ability, Pidgeot Quick Search, attached Energy payment, Prize selection, retreat/switch target choices, opponent gust, lock activation order, and copied-attack prompt families. Root scoring is deliberately narrow and abstains outside supported continuations. For promotion, a separate reviewer should test a held-out legal alternative action and native full prompt settlement before any claim of executable game competence.
+
+The 29/32 source lists, zero qualified matchups, and no fixed-60 selection remain unchanged. No native CI, fixture/game dispatch, workflow, frozen policy, owner-gated V3 registration or candidate deck was modified.
