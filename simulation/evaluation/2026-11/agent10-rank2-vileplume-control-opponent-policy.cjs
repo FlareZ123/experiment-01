@@ -581,8 +581,14 @@ function scoreAction(item, request) {
     return lockCarrier ? 65 : 0;
   }
   if (matches(card, PRINT.grandTree)) {
-    return hasUnevolvedBasicFromPriorTurn(own, observation.globalTurn) &&
-      missingLinePriority(observation) > 0 ? 180 : 95;
+    const liveEvolution = hasUnevolvedBasicFromPriorTurn(own, observation.globalTurn) &&
+      hasK0PossibleGrandTreeTarget(observation) && missingLinePriority(observation) > 0;
+    if (liveEvolution) return 180;
+    // This singleton Stadium is symmetric: do not activate it solely for
+    // future value when the opponent could use it first.
+    const disruptiveStadium = [...list(own.stadium), ...list(opponent.stadium)]
+      .some(printing => /Path to the Peak|Jamming Tower|Silent Lab/i.test(printing));
+    return disruptiveStadium ? 120 : 0;
   }
   if (matches(card, PRINT.artazon)) {
     return list(own.bench).some(slot => slot === null) &&
