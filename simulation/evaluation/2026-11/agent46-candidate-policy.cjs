@@ -1582,13 +1582,7 @@ function freeRetreatKnown(view) {
   const active = view.ownPublic.active;
   if (!active) return false;
   const hasFloatStone = active.tools.some(tool => hasName(tool, 'Float Stone'));
-  if (hasFloatStone) {
-    const ownSuppression =
-      view.ownPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining;
-    const opponentSuppression =
-      view.opponentPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining;
-    if (ownSuppression === 0 && opponentSuppression === 0) return true;
-  }
+  if (hasFloatStone && toolsKnownLive(view, active)) return true;
   const isBasic = active.printed.subtypes.includes('Basic');
   return isBasic && skylinerStatus(view) === true;
 }
