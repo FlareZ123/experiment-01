@@ -289,9 +289,16 @@ function sourceCardCategory(value){
 function regidragoPayloadCount(o){
  const board=slots(o.opponentPublic);
  const seen=board.some(x=>/^Regidrago (?:VSTAR|V)\b/i.test(name(x.pokemon.printing)));
- if(!seen)return 0;
  const payload=/^(?:Dialga-GX UPR 100|Dragapult ex TWM 130|Kyurem SFA 47|Noivern ex PAL 153|Hisuian Goodra VSTAR LOR 136|Mega Dragonite ex ASC 152|Koraidon ex TEF 120|Salamence ex JTG 114)\b/i;
- return list(o.opponentPublic?.discard).filter(x=>payload.test(name(x))).length;
+ const n=list(o.opponentPublic?.discard).filter(x=>payload.test(name(x))).length;
+ if(seen)return n;
+ // In the authenticated Aichi source field, two discarded Dragon payload
+ // printings distinguish a developing Regidrago line even before its first
+ // Regidrago Basic reaches play. Do not ascribe the same signal to a board
+ // showing an incompatible fully-developed opposing archetype.
+ const rivalCore=/^(?:Shadow Rider Calyrex VMAX|Iron Thorns ex|Mega Absol ex|Mew VMAX|Vileplume AOR 3|Stoutland BCR 122|Raging Bolt ex|Lillie's Clefairy ex|Meloetta ex)\b/i;
+ if(n>=2&&!board.some(x=>rivalCore.test(name(x.pokemon.printing))))return n;
+ return 0;
 }
 function templeStrandsIronThorns(o){
  const active=o.opponentPublic?.active;
