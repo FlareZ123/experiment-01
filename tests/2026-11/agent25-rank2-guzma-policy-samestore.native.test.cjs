@@ -12,6 +12,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { initializeCards } = require('../../simulation/twinleaf/headless.cjs');
+const { reportCoverage, normalizeNumber } = require('../../simulation/twinleaf/card-coverage.cjs');
 const { actorObservation } = require('../../simulation/twinleaf/actor-observation-contract.cjs');
 const { installPromptProvenanceHook } =
   require('../../simulation/evaluation/2026-11/agent36-prompt-provenance.cjs');
@@ -65,10 +66,29 @@ function stage(seat, withLatias = false, { manualItemLock = true, heldFogCrystal
   let serial = 625000 + seat * 2000 + Number(withLatias) * 1000;
   const unsupportedPrintings=new Set();
   const printedAliases=new Map();
-  const card = row => {
+  // Reuse the repository's production exact-print census rather than
+  // inventing another spelling map for source/candidate rows. Resort to
+  // explicit text-checked aliases only for the census's unimplemented rows.
+  const coverage=reportCoverage({
+    source:'agent25-original-60-native-witness',
+    decks:[{rank:2,cards:source60.cards},{rank:0,cards:hood60.cards}]
+  }).decks;
+  assert.deepEqual(coverage.map(d=>d.rank),[2,0]);
+  const card = (row,canonicalId) => {
     const name = row.name + ' ' + row.printing.set;
-    const { card:supported, alias }=resolvePaperPrintedCard(manager,row);
-    if(alias)printedAliases.set(name,alias);
+    const canonical=canonicalId ? manager.getCardByName(canonicalId):null;
+    if(canonicalId){
+      assert.ok(canonical,'canonical original-print resolver produced unusable ID: '+canonicalId);
+      assert.equal(String(canonical.set).toUpperCase(),String(row.printing.set).toUpperCase());
+      assert.equal(normalizeNumber(canonical.setNumber),normalizeNumber(row.printing.number));
+    }
+    const resolved=canonical?{card:canonical,alias:canonical.fullName===name?null:{
+      sourcePrinting:name,nativePrinting:canonical.fullName,
+      sourcePrintId:row.printing.set+' '+row.printing.number,
+      aliasKind:'canonical-exact-print-resolver'
+    }}:resolvePaperPrintedCard(manager,row);
+    const supported=resolved.card;
+    if(resolved.alias)printedAliases.set(name,resolved.alias);
     const instance=supported??opaquePaperCard(row,native);
     if(!supported)unsupportedPrintings.add(name);
     instance.id = serial++;
@@ -77,15 +97,22 @@ function stage(seat, withLatias = false, { manualItemLock = true, heldFogCrystal
   // Materialize each original printed 60 exactly once. Unimplemented cards
   // are sealed as non-playable paper-print placeholders and are only allowed
   // in hidden deck/Prize zones; a full-game result is ALWAYS disqualified.
-  function materialize(deck, label) {
+  function materialize(deck, label, sourceCoverage) {
     assert.ok(deck && Array.isArray(deck.cards), label + ' requires original card rows');
-    const cards = deck.cards.flatMap(row =>
-      Array.from({length:row.count},()=>card(row)));
+    assert.equal(deck.cards.length,sourceCoverage.rows.length);
+    const cards = deck.cards.flatMap((row,idx)=>{
+      const original=sourceCoverage.rows[idx];
+      assert.equal(original.name,row.name,'source print census row alignment');
+      const canonical=original.exact.length===1 &&
+        ['exact','exact-alias'].includes(original.status)?
+        original.exact[0].fullName:null;
+      return Array.from({length:row.count},()=>card(row,canonical));
+    });
     assert.equal(cards.length, 60, label + ' must contain exactly 60 physical cards');
     return cards;
   }
-  const sourceRemaining = materialize(source60, 'Aichi rank2');
-  const candidateRemaining = materialize(hood60, 'Hood fixed 60');
+  const sourceRemaining = materialize(source60, 'Aichi rank2',coverage[0]);
+  const candidateRemaining = materialize(hood60, 'Hood fixed 60',coverage[1]);
   if(printedAliases.size){
     console.log('AGENT25_RANK2_EXACT_PRINTING_ALIAS',JSON.stringify({
       seat,aliases:[...printedAliases.values()],qualifiedGame:false
