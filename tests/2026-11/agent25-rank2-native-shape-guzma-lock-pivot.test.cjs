@@ -217,6 +217,31 @@ for (const seat of [0, 1]) {
     assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)), pass());
   });
 
+  test('seat ' + seat + ': native numeric Basic stage with public singleton evolution stack is not a Skyliner trap', () => {
+    const view = actorView(seat);
+    view.opponentPublic.bench[1].printed.stage = 1;
+    view.opponentPublic.bench[1].evolutionPrintings = [duplicate];
+    view.opponentPublic.bench[2] = {
+      printing: 'Latias ex SSP 76', abilities: ['Skyliner']
+    };
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)), pass());
+  });
+
+  test('seat ' + seat + ': numeric evolved VMAX with two public evolution printings remains a possible Guzma target', () => {
+    const view = actorView(seat);
+    view.opponentPublic.bench[1] = {
+      printing: 'Shadow Rider Calyrex VMAX CRE 75', hp: 320, damage: 0,
+      energies: [], tools: [],
+      printed: { stage: 3, retreatCost: ['COLORLESS', 'COLORLESS', 'COLORLESS'] },
+      evolutionPrintings: [duplicate, 'Shadow Rider Calyrex VMAX CRE 75']
+    };
+    view.opponentPublic.bench[2] = {
+      printing: 'Latias ex SSP 76', abilities: ['Skyliner']
+    };
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)),
+      { kind: 'select-action', token: 'guzma' });
+  });
+
   test('seat ' + seat + ': Skyliner cannot give a non-Basic VMAX free retreat', () => {
     const view = actorView(seat);
     view.opponentPublic.bench[1] = {
