@@ -578,7 +578,7 @@ function score(action,req){
   if(templeStrandsIronThorns(o))return 665;
   if(opposingStadium.some(x=>match(x,PRINT.dimensionValley)))return 255;
   const special=slots(opp).some(({pokemon})=>list(pokemon.energies).some(x=>!/^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal) Energy\b/i.test(name(x))));
-  return special?170:0;
+  return special?245:0;
  }
  return 0;
 }
