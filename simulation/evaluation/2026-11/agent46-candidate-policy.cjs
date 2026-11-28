@@ -1990,6 +1990,18 @@ function candidateTerminalAttack(view, items, receipt) {
   const attacker = view.ownPublic.active;
   const defender = view.opponentPublic.active;
   if (!attacker || !defender) return null;
+  // Safeguard on exact Aichi Mimikyu PAL97 (ranks 3 and 7) prevents ALL
+  // attack damage from Pokémon ex and Pokémon V, including VMAX. The
+  // source-policy fast path must not convert such a guarded hit into a
+  // claimed final-Prize or last-board victory. Conservatively defer even
+  // when Ability suppression status is not fully certified by this view.
+  const attackerClasses = (attacker.printed?.subtypes ?? []).map(x =>
+    String(x).toUpperCase());
+  const ruleBoxAttacker = attackerClasses.some(x =>
+    ['EX', 'V', 'VMAX', 'VSTAR', 'MEGA', 'V-UNION'].includes(x)) ||
+    /(?: ex| VMAX| VSTAR| V)(?: |$)/i.test(attacker.printing ?? '');
+  if (defender.printing === 'Mimikyu PAL 97' && ruleBoxAttacker)
+    return null;
   const remaining = defender.hp - defender.damage;
   if (!Number.isFinite(remaining) || remaining <= 0) return null;
   const prizes = view.ownPublic.prizeCount;
