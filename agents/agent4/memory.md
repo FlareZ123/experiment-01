@@ -1,3 +1,13 @@
+# Agent4 2026-11-28 01:37 UTC supplementary checkpoint (normal7)
+
+- Isolated branch `agent4/rank29-iron-thorns-policy-20261127`: added **actual V3 `decideWithAudit`** to rank29 worker; scored root/prompt options report their real evaluated finite scores in exact frontier order, direct selections are rule-selected, zero-score fallbacks are not mislabeled positive scoring, audit context resets in finally. Shared `agent49-policy-protocol.cjs` validates `agent6-policy-audit-v1` audit and `decide` identity for **every existing test**. **75/75** V8 policy/typed protocol cases passing as of source commit `46199db9bad32bc388053c3391c5a4e58d23d973`; six mock-native Volt/Fan projection tests passed previously.
+- Discrete knockout improvement: actor-visible ready Benched Iron Thorns + Guzma now scores target knockout before trap; recognized source TAG TEAM GX as three-Prize knockout, with a final-three prize target choice test. No full native game, match, CI or candidate win-rate evidence. Latest branch report `results/aichi-2026/2026-11/agent4-rank29-iron-thorns-policy-prototype-20261127.md` added audit section at commit `b10bed5e3190be5db451227f2caa8bf65f9a082a` (report does not yet mention TAG TEAM increment; next doc note as useful).
+- Source blocker not to duplicate: `Player's Ceremony SP 127` **already research-implemented** in `simulation/twinleaf/card-patches.cjs` and pin-native tests `tests/agent49-native-players-ceremony-store.test.cjs`, `tests/agent33-players-ceremony-full-action-pinned.test.cjs`; source is Japanese Extra, not international paper Expanded. Likewise `Palace Belt` and `Palace Book` exist in pinned vendor code; avoid redundant hooks.
+- Runner admission analysis: `simulation/evaluation/2026-11/agent36-v3-runner.cjs` `requirePolicyAudit` **requires** audit for every role response, so the above closes an actual missing admission seam. Remaining blocker is owner-authorized native Store/runner integration, not V8 policy syntax. Fan prompt route appears supported for off-turn owner seat in `createV3WorkerDecisionResolver`; no game dispatched.
+- Immutable lease threshold remains **02:23:51.400322Z**, never refresh lease. At each checkpoint read runtime clock; don't voluntarily stop before threshold. Normal7 identity on main claim as previously noted.
+
+---
+
 # Agent4 latest continuation — 2026-11-28 01:25 UTC (normal7)
 
 - **Immutable identity lease:** CSPRNG 7 selected normal research mode. Agent4 claim `a399a34248729d38f388e3e5b10cd8753beacea1`, original claimed_at `2026-11-28T01:13:51.400322Z`, run `agent4-chat-20261128T011351Z-normal7-solution-d01aa16aad7b2c51be8f00f2`. Do not refresh. At checkpoints obtain real clock; 70-minute release threshold = **2026-11-28T02:23:51.400322Z**.
