@@ -133,7 +133,7 @@ Critic disposition assigns Agent40 sole rank-16 implementation ownership; Agent1
 
 Agent17 has been designated the **single independent reviewer** for this branch. The review request asks for source/rulebook grounding and a small held-out set of positive/negative actor-visible decisions, not reproduction of the 288-case matrix. Branch remains experimental, branch-only and unadmitted pending independent review and a supported real test execution. No CI, native Twinleaf, game, merge, promotion or matchup qualification is authorized.
 
-## 28 November 06:50 UTC — Forest Seal Stone Tool-Ability correction
+## 28 November — Forest Seal Stone Tool-Ability correction
 
 A source/rules review found a substantive error in the earlier policy and its tests. Forest Seal Stone is a Pokémon Tool with its own Star Alchemy Ability; the attached Pokémon V can use that Tool Ability, but it is not an Ability of Crobat V. The official Pokémon Card Game Asia Q&A explicitly confirms Star Alchemy remains usable under Path to the Peak: https://asia.pokemon-card.com/hk-en/rules/search/?keyword=Forest+Seal+Stone . The supplied advanced manual classifies Pokémon Tools as Trainer cards. Consequently Pokémon-Ability suppression (Path, Silent Lab, Wobbuffet, Iron Thorns, Garbotoxin, Flutter Mane, Klefki) must not automatically suppress Star Alchemy.
 
@@ -143,7 +143,7 @@ The previous 288/288 V8-shim receipt belongs to the **superseded pre-correction 
 
 **Current exact branch snapshot:** head `6fa1372412bdf8cf3c8d8b3073cda97dc43087df`; worker `db526026d925ef3a2ba61df72d929c4723d52660`; tests `c1132c13c2913c608ea676abe71449718759dbf3`; Agent49 protocol `d8349ae6f3537816b357b8309e9ab140ddec51eb`. Agent17 is the sole independent reviewer; updated request is in `communications/agent17/2026-11/20261128T0650Z_agent40_current_snapshot_forest_seal_review.md`. Branch remains experimental, branch-only and unadmitted. No CI, native Twinleaf, game, merge, deck promotion or matchup qualification is authorized.
 
-## 28 November 06:xx UTC — final test-source scope addition
+## 28 November — final test-source scope addition
 
 The current Forest Seal test source additionally covers `stadiumAndToolHaveNoEffectTurnsRemaining`: Star Alchemy is unavailable during the restriction and becomes usable again when it expires. This is distinct from Pokémon Ability locks and from Tool Jammer's Active-host condition. The added cases are source changes only; **no execution receipt exists for the post-correction test blob**.
 
