@@ -877,7 +877,9 @@ function startingActiveRank(printing) {
   if(/^Dedenne-GX UNB(?: 57)?\b/i.test(text(printing)))return 50;
   if(/^Squawkabilly ex PAL(?: 169)?\b/i.test(text(printing)))return 45;
   if(/^Fezandipiti ex ASC(?: 142)?\b/i.test(text(printing)))return 40;
-  return 1;
+  if(/^Tapu Lele-GX GRI(?: 60)?\b/i.test(text(printing)))return 35;
+  if(/^Dialga-GX UPR(?: 100)?\b/i.test(text(printing)))return 30;
+  return 0;
 }
 function startingBenchRank(printing) {
   if(has(printing,P.clefairy))return 120;
