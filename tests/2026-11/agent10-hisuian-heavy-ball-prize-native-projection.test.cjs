@@ -3,12 +3,13 @@ const test=require('node:test'),assert=require('node:assert/strict');
 const projector=require('../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
 const protocol=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const BALL='Hisuian Heavy Ball ASR 146';
+const NATIVE_BALL='Hisuian Heavy Ball ASR';
 const NATIVE={SuperType:{POKEMON:1,ENERGY:2,TRAINER:3},
  Stage:{BASIC:0,STAGE_1:1},PlayerType:{BOTTOM_PLAYER:1,TOP_PLAYER:2},
  SlotType:{BENCH:1,ACTIVE:0}};
 const basic={fullName:'Mimikyu GRI 58',name:'Mimikyu',superType:1,stage:0};
 const trainer={fullName:'Field Blower GRI 125',name:'Field Blower',superType:3};
-function scenario(seat,{sourceName=BALL,sourceEffect='Hisuian Heavy Ball',
+function scenario(seat,{sourceName=NATIVE_BALL,sourceEffect='Hisuian Heavy Ball',
   reveal=true,filterBasic=true,extraFaceUp=false,forgedCard=false,
   opponentPrizeSource=false}={}){
  const src={fullName:sourceName,name:'Hisuian Heavy Ball'};
@@ -40,7 +41,7 @@ for(const seat of [0,1]){
   const projected=projector.projectPrompt(scenario(seat));
   assert.equal(projected.hostOnly,false);
   const p=projected.promptProjection;protocol.validatePrompt(p,seat);
-  assert.equal(p.source.sourcePrinting,BALL);
+  assert.equal(p.source.sourcePrinting,NATIVE_BALL);
   assert.equal(p.publicMetadata.sourceZone,'prizes');
   assert.equal(p.publicMetadata.isOwnerVisible,true);
   assert.deepEqual(p.choices.filter(c=>c.kind==='card').map(c=>c.printing),
@@ -53,7 +54,7 @@ for(const seat of [0,1]){
  });
  for(const [label,options] of [
    ['native secrecy not lifted',{reveal:false}],
-   ['raw source printing',{sourceName:'Hisuian Heavy Ball ASR'}],
+   ['unknown source printing',{sourceName:'Hisuian Heavy Ball UNKNOWN'}],
    ['wrong source effect',{sourceEffect:'Boss Orders'}],
    ['forged card',{forgedCard:true}],
    ['wrong filter',{filterBasic:false}],
