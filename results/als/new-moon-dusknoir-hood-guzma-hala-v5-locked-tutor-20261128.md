@@ -22,6 +22,21 @@ This is a real **archetype-line-specific** action class present in a fixed v5 60
 
 **Why v4 alone cannot assure this line:** after AOR Item lock is up, v4's Adventure Bag, Secret Box and Field Blower are Items and therefore cannot search the singleton Hood; Forest Seal Stone could search it only if already available/attached to a legal Pokémon V and its Star Alchemy Power is unsuppressed, which rank15's Path can prevent; Tapu Lele-GX's Wonder Tag is disabled by Path/Silent Lab. v4 can still draw or directly hold Hood/TPE, but v5 adds **Guzma & Hala as a live non-Item multi-axis search channel**.
 
+## Exact non-Item opening access, and why Path collapses Wonder Tag
+
+The fixed v5 also retains **one Tapu Lele-GX GRI60**, whose **Wonder Tag** searches for a Supporter **when played from hand to Bench**. That action survives AOR Vileplume Item lock, unless an applicable Ability suppressor—such as source **Path to the Peak** or **Silent Lab**—is active. To be a valid Wonder Tag resource, Tapu may **not** be the only Basic in opening seven (where it must start Active); it must instead remain playable from hand onto an open Bench after choosing another Basic as Active, or arrive as the first ordinary draw. Merely putting Tapu onto Bench during game setup, Battle VIP Pass or TPE search **does not** trigger Wonder Tag.
+
+The [exact physical opening calculator](../../scripts/2026-11/agent22-guzma-hala-early-channel.py) conditions on a Basic-valid opening seven (17 Basic v5 copies), six uniform Prizes, first ordinary draw, no opponent mulligan bonuses, with Tapu deliberately held for an eligible from-hand Bench play. If G&H was not drawn among first eight, the Tapu route also requires its singleton G&H not to be Prized.
+
+| Early opening condition (no card search/extra draws) | Probability given legal seven |
+| --- | ---: |
+| Singleton **Guzma & Hala directly visible** in first eight | **12.921374758%** |
+| Singleton **Tapu Lele-GX playable from hand** in first eight (not sole opening Basic) | **12.653100402%** |
+| **Either** direct G&H or eligible Tapu → unprized G&H, **when Wonder Tag is fully live** | **22.849774011%** |
+| Same union under **Path/Silent Lab suppressing Wonder Tag** | **12.921374758%** |
+
+These are **optimistic necessary-access gates**, not turn-playability probabilities: the supporter slot and two discardable hand cards may be unavailable, Bench full, Tapu may be intentionally played during setup, source may establish other ability suppression, or search may target a different Supporter. The last row exposes an important strategic asymmetry: rank15 **Path/Silent Lab reduces the new non-Item G&H access channel to its direct one-copy draw**, unless an earlier Stadium answer removes the lock. This makes v5's **single G&H** a potentially high-impact but low-frequency rescue card rather than a reliably fetched post-Path solution. Doubling G&H or removing a Stadium earlier would be separate fixed-60 hypotheses with real slot costs.
+
 ## Second target: Temple of Sinnoh in all published Garbodor lists
 
 The exact Aichi source field has **five Temple of Sinnoh ranks**: rank3 Snorlax(1 Temple), and **all four Absol Garbodor ranks 8/11/16/22 (two Temples each)**. Temple of Sinnoh makes **all Special Energy attached to any Pokémon provide only Colorless Energy and have no other effect**. Against an already attached Temple, the v5 deck's three Telepathic Psychic Energy do not provide the **two [P]** needed for Miraculous Duo-GX; only the deck's **three Basic Psychic Energy** still provide Psychic until a replacement Stadium resolves. Temple also suppresses the beneficial attached Special Energy effect. The G&H **mandatory Stadium search** can fetch singleton **Sky Field** (or a live choice of two Path) to replace Temple, simultaneously accessing own Hood for Dusknoir and Telepathic Energy if two discardable cards exist. This attacks **three interacting barriers**: Stage2 Ability suppression from Garbotoxin, color denial from Temple, and Tool access. It does *not* defeat damage, evolution clock, attached-Tool removal, or the basic/supporter sequencing problem; a second source Temple later can reimpose the Energy restriction.
