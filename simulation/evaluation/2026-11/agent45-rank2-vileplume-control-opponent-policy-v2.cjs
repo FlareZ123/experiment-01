@@ -706,8 +706,12 @@ function scoreAction(item, request) {
       stoutlandSentinelEffective(observation, pokemon));
     const targetStranded = list(opponent.bench).some(pokemon =>
       nominalGuzmaRetreatTrap(pokemon, opponent));
+    // This is the already-established, immediate two-lock window. Value it
+    // above another Supporter search (Guzma & Hala scores 215) and Jet (225)
+    // to avoid forfeiting the lock by spending the single Supporter use,
+    // while still letting free Quick Search (250) and Fan Call (245) go first.
     return benchStoutland && opponent.publicTurnRestrictions?.itemPlayLocked === true &&
-      list(opponent.active?.energies).length > 0 && targetStranded ? 185 : 0;
+      list(opponent.active?.energies).length > 0 && targetStranded ? 230 : 0;
   }
   if (matches(card, PRINT.faba)) return opponentHasFabaTarget(opponent) ? 94 : 0;
   if (matches(card, PRINT.plumeria)) return opponentHasAnyEnergy(opponent) ? 78 : 0;
