@@ -872,8 +872,7 @@ function raihanAttachPriority(choice,observation) {
   const target=meta.zone==='active'?own.active:
     (meta.zone==='bench'&&Number.isSafeInteger(meta.benchIndex)?
       list(own.bench)[meta.benchIndex]:null);
-  if(!target || typeof meta.targetPrinting!=='string' ||
-      print(target)!==meta.targetPrinting)return 0;
+  if(!target)return 0;
   const card=print(choice);
   if(!/^(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy\b/i.test(card))
     return 0;
