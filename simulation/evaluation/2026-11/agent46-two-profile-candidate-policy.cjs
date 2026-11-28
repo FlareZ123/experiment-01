@@ -3990,13 +3990,23 @@ function astralTerminalHarmlessAbility(slot,name){
   return (name==='Safeguard'&&hasName(slot.printing,'Mimikyu PAL')) ||
     (name==='Block'&&hasName(slot.printing,'Snorlax PGO'));
 }
+// A direct final attack must be permitted by independently live, public lock
+// sources, not only by stale per-Pokemon suppression rows in a projected board.
+function terminalAbilityProvablyOff(slot, abilityName, view) {
+  if (abilityStatus(slot, abilityName) === true) return false;
+  if (abilityLockSourceStadiumSuppression({slot}, view) === true) return true;
+  const locks = resolveAbilityLockSources(view);
+  return !locks.unknown && locks.active.some(source =>
+    abilityLockSourceSuppressesTarget(source, 'opponent', slot, view) === true);
+}
 function cleanPublicTerminalView(view,direct=false,extraHarmlessAbility=null){
   return view.globalTurn>1&&view.ownPublic.active&&view.opponentPublic.active&&
     opponentBoard(view).every(slot=>
   (slot.abilities??[]).every(a=>
     (direct&&directTerminalHarmlessAbility(slot,a)) ||
     (typeof extraHarmlessAbility==='function'&&extraHarmlessAbility(slot,a)) ||
-    (a==='Garbotoxin'&&hasName(slot.printing,'Garbodor'))) &&
+    ((a==='Garbotoxin'&&hasName(slot.printing,'Garbodor')) ||
+      terminalAbilityProvablyOff(slot,a,view))) &&
   (slot.tools??[]).every(t=>hasName(t,'Float Stone') ||
     (direct&&slot===view.opponentPublic.active&&isDragon(slot)&&hasName(t,'Stealthy Hood'))) &&
   (slot.energies??[]).every(p=>

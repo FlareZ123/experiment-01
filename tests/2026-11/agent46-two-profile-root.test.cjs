@@ -1805,3 +1805,31 @@ paired('Agent2: an inaccessible Gate cannot reserve away a second Rider Basic',(
   view.opponentPublic.stadium=['Path to the Peak CRE'];
   assert.deepEqual(decide(profile,root(seat,view,cards)),sel('bench-v'));
 });
+
+paired('Agent2: source-certified disabled Safeguard admits a final Prize attack, stale suppression does not',(seat,profile)=>{
+  const targetPokemon=suppression=>pokemon({printing:'Mimikyu PAL',name:'Mimikyu',
+    hp:70,damage:10,abilities:['Safeguard'],suppression});
+  const blocker=()=>pokemon({printing:'Garbodor DRX',name:'Garbodor',hp:100,
+    subtypes:['Stage 1'],abilities:['Garbotoxin'],suppression:false,
+    tools:['Float Stone BKT']});
+  const view=observation(seat,{active:vmax([P,P,P]),opponentActive:targetPokemon(true),
+    opponentBench:[blocker()],ownHand:[P]});
+  view.ownPublic.prizeCount=1;
+  const actions=[
+    {token:'max',kind:'attack',attackName:'Max Geist'},
+    play('energy',P,M,target('active',0))
+  ];
+  const decision=()=>decide(profile,root(seat,view,actions));
+  assert.deepEqual(decision(),sel('max')); // Explicitly suppressed with a live lock source.
+  view.opponentPublic.active=targetPokemon(null);
+  assert.deepEqual(decision(),sel('max')); // Unknown row but independent public lock.
+  view.opponentPublic.bench=[null,null,null,null,null];
+  view.opponentPublic.active=targetPokemon(true);
+  assert.deepEqual(decision(),sel('energy')); // Stale row alone never proves the win.
+  view.opponentPublic.active=targetPokemon(false);
+  assert.deepEqual(decision(),sel('energy')); // Live Safeguard is a real blocker.
+  view.opponentPublic.active.abilities=[];
+  view.opponentPublic.active.abilityDetails=[];
+  view.opponentPublic.active.abilitySuppressions=[];
+  assert.deepEqual(decision(),sel('max')); // Ordinary unprotected final-Prize KO.
+});
