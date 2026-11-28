@@ -46,6 +46,21 @@ for(const seat of [0,1]){
     assert.deepEqual(policy.decide(request),
       {kind:'select-action',token:'ranger'});
   });
+  test('Vileplume Irritating Pollen persists when Ranger clears Budew attack seat '+seat,()=>{
+    const {policy,request}=req(seat);
+    const vileplume=pokemon('Vileplume AOR 3');
+    vileplume.abilities=['Irritating Pollen'];
+    vileplume.abilitySuppressions=[{abilityName:'Irritating Pollen',
+      suppressed:false,reasonCode:null,sourcePrinting:null}];
+    request.observation.opponentPublic.bench=[vileplume];
+    assert.deepEqual(policy.decide(request),
+      {kind:'select-action',token:'pass'});
+    // Known-suppressed Vileplume cannot maintain Item lock; Itchy Pollen
+    // remains a valid attack-based reason to use Ranger.
+    vileplume.abilitySuppressions[0].suppressed=true;
+    assert.deepEqual(policy.decide(request),
+      {kind:'select-action',token:'ranger'});
+  });
   test('unknown lock origin, no live Item, stale source, or no lock: pass seat '+seat,()=>{
     for(const opts of [
       {history:false},{hasItem:false},{source:'Vileplume AOR 3'},
