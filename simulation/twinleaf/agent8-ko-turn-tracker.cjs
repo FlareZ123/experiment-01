@@ -131,9 +131,11 @@ function installStoreKnockoutTurnTracker(store,dependencies={}){
     const result=original.apply(this,[state,effect,...args]);
 
     if(opponentTurn&&targetPokemon!==undefined&&targetPokemon!==null&&
-       effect.preventDefault!==true&&turn>=tracker.coveredFromTurn){
+       turn>=tracker.coveredFromTurn){
       const afterEntries=victim.pokemonKnockedOutLastTurnEntries;
-      if(beforeCount!==null&&Array.isArray(afterEntries)&&
+      if(effect.preventDefault===true){
+        tracker.markUncertain(turn);
+      }else if(beforeCount!==null&&Array.isArray(afterEntries)&&
          afterEntries.length>beforeCount){
         tracker.record({
           turn,victimPlayerId:victim.id,attackerPlayerId:actor.id,byAttack
