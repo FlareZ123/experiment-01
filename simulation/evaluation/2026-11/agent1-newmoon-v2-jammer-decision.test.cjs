@@ -109,6 +109,106 @@ const deckChoice=(token,printing,index)=>({kind:'card',token,printing,publicMeta
   sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true,selectionIndex:index}});
 
 
+
+check('against BUS+AOR, Basic Active benches held Duskull instead of passing',()=>{
+ const active=makeSlot('Gengar & Mimikyu-GX TEU 053',{energies:['Basic Psychic Energy']});
+ active.printed={types:['Psychic']};
+ const v=view({active,bench:[],hand:['Duskull VIV 069']});
+ const dusk=action('play-card','dusk',{cardType:'pokemon'},
+   {actorPrinting:'Duskull VIV 069'});
+ assert.equal(sel(root(v,[dusk,pass()])),'dusk');
+ const full=view({active,bench:Array.from({length:5},()=>makeSlot('Unown AOR 030')),
+   hand:['Duskull VIV 069']});
+ assert.equal(sel(root(full,[dusk,pass()])),'abstain');
+});
+check('Item-locked Basic active uses TPE itself if it must recruit missing lockbreakers',()=>{
+ const active=makeSlot('Mewtwo & Mew-GX UNM 071',{energies:['Basic Psychic Energy']});
+ active.printed={types:['Psychic']};
+ const v=view({active,bench:[],hand:['Telepathic Psychic Energy MEG 088']});
+ v.ownTurnResources.energyPlayedTurn=0;
+ const tpe=action('play-card','tpe',{cardType:'energy',targetSeat:'actor',targetZone:'active'},
+  {actorPrinting:'Telepathic Psychic Energy MEG 088',targetPrinting:'Mewtwo & Mew-GX UNM 071'});
+ assert.equal(sel(root(v,[tpe,pass()])),'tpe');
+ v.ownPublic.active.printed.types=['Water'];
+ assert.equal(sel(root(v,[tpe,pass()])),'abstain');
+});
+check('TPE search facing dual lock chooses distinct Duskull plus FSS Articuno host',()=>{
+ const active=makeSlot('Mewtwo & Mew-GX UNM 071',{energies:['Telepathic Psychic Energy']});
+ active.printed={types:['Psychic']};
+ const v=view({active,bench:[],hand:[]});
+ const meta={selectionType:'card-combination',sourceZone:'deck',ownerSeat:'actor',
+  isOwnerVisible:true,minimumCount:0,maximumCount:2};
+ const cs=[{kind:'card',token:'dusk1',printing:'Duskull VIV 069',
+  publicMetadata:{sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true,selectionIndex:0}},
+ {kind:'card',token:'dusk2',printing:'Duskull VIV 069',
+  publicMetadata:{sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true,selectionIndex:1}},
+ {kind:'card',token:'art',printing:'Galarian Articuno V CRE 058',
+  publicMetadata:{sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true,selectionIndex:2}}];
+ assert.equal(sel(prompt(v,'Telepathic Psychic Energy','ChooseCardsPrompt',meta,cs)),'dusk1,art');
+});
+check('BUS Basic attack lock prevents wasting psychic on unpaid Active Gengar',()=>{
+ const active=makeSlot('Gengar & Mimikyu-GX TEU 053',{energies:[]});
+ active.printed={types:['Psychic']};
+ const v=view({active,bench:[makeSlot('Duskull VIV 069')],
+  hand:['Telepathic Psychic Energy MEG 088']});
+ v.globalTurn=2;v.ownTurnResources.energyPlayedTurn=0;
+ const activeTPE=action('play-card','active-tpe',{cardType:'energy',
+   targetSeat:'actor',targetZone:'active'},
+  {actorPrinting:'Telepathic Psychic Energy MEG 088',targetPrinting:'Gengar & Mimikyu-GX TEU 053'});
+ const benchTPE=action('play-card','dusk-tpe',{cardType:'energy',
+   targetSeat:'actor',targetZone:'bench',targetIndex:0},
+  {actorPrinting:'Telepathic Psychic Energy MEG 088',targetPrinting:'Duskull VIV 069'});
+ assert.equal(sel(root(v,[activeTPE,benchTPE,pass()])),'dusk-tpe');
+});
+check('Bench Duskull receives TPE under Item lock to preserve Energy on evolution',()=>{
+ const active=makeSlot('Gengar & Mimikyu-GX TEU 053');
+ const v=view({active,bench:[makeSlot('Duskull VIV 069')],hand:['Telepathic Psychic Energy MEG 088']});
+ v.ownTurnResources.energyPlayedTurn=0;
+ const toBench=action('play-card','bench-tpe',{cardType:'energy',
+  targetSeat:'actor',targetZone:'bench',targetIndex:0},
+  {actorPrinting:'Telepathic Psychic Energy MEG 088',targetPrinting:'Duskull VIV 069'});
+ assert.equal(sel(root(v,[toBench,pass()])),'bench-tpe');
+ v.ownTurnResources.energyPlayedTurn=1;
+ assert.equal(sel(root(v,[toBench,pass()])),'abstain');
+});
+check('Bench Duskull evolves into Dusclops only when native action actually offered',()=>{
+ const v=view({active:makeSlot('Gengar & Mimikyu-GX TEU 053'),
+ bench:[makeSlot('Duskull VIV 069',{energies:['Telepathic Psychic Energy MEG 088']})],
+ hand:['Dusclops SFA 019']});
+ const evolve=action('play-card','evo',{cardType:'pokemon',targetSeat:'actor',
+ targetZone:'bench',targetIndex:0},{actorPrinting:'Dusclops SFA 019'});
+ assert.equal(sel(root(v,[evolve,pass()])),'evo');
+ assert.equal(sel(root(v,[pass()])),'abstain');
+});
+check('under AOR Item lock the Stage1 Bench receives Tool Jammer directly',()=>{
+ const v=view({active:makeSlot('Gengar & Mimikyu-GX TEU 053'),
+ bench:[dus({energies:['Basic Psychic Energy']})],hand:['Tool Jammer BST 136']});
+ const tool=action('play-card','bench-jammer',{targetSeat:'actor',targetZone:'bench',
+  targetIndex:0},{actorPrinting:'Tool Jammer BST 136',targetPrinting:'Dusclops SFA 019'});
+ assert.equal(sel(root(v,[tool,pass()])),'bench-jammer');
+ v.ownPublic.bench[0].tools=['Forest Seal Stone SIT 156'];
+ assert.equal(sel(root(v,[tool,pass()])),'abstain');
+});
+check('once Stage1 Bench is paid and Jammer attached, select genuine retreat to it',()=>{
+ const v=view({active:makeSlot('Gengar & Mimikyu-GX TEU 053'),
+  bench:[dus({tools:['Tool Jammer BST 136'],
+  energies:['Basic Psychic Energy','Telepathic Psychic Energy MEG 088']})]});
+ const retreat=action('retreat','retreat-dus',{targetSeat:'actor',targetZone:'bench',
+  targetIndex:0},{targetPrinting:'Dusclops SFA 019',actorPrinting:'Gengar & Mimikyu-GX TEU 053'});
+ assert.equal(sel(root(v,[retreat,pass()])),'retreat-dus');
+ assert.equal(sel(root(v,[pass()])),'abstain');
+});
+check('Benched Dusclops receives second Psychic rather than promoting unpaid attacker',()=>{
+ const v=view({active:makeSlot('Gengar & Mimikyu-GX TEU 053'),
+ bench:[dus({tools:['Tool Jammer BST 136'],energies:['Basic Psychic Energy']})]});
+ v.ownTurnResources.energyPlayedTurn=0;
+ const attach=action('play-card','attach-2',{cardType:'energy',
+ targetSeat:'actor',targetZone:'bench',targetIndex:0},
+ {actorPrinting:'Telepathic Psychic Energy MEG 088',targetPrinting:'Dusclops SFA 019'});
+ const retreat=action('retreat','retreat-dus',{targetSeat:'actor',targetZone:'bench',
+ targetIndex:0},{targetPrinting:'Dusclops SFA 019'});
+ assert.equal(sel(root(v,[retreat,attach,pass()])),'attach-2');
+});
 check('Mewtwo benches its actual held Gengar before Fog, FSS or Perfection',()=>{
  const v=earlyStart(makeSlot('Mewtwo & Mew-GX UNM 071',
   {abilities:['Perfection'],energies:['Basic Psychic Energy']}),

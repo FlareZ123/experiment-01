@@ -403,6 +403,96 @@ function test() {
  same(run(shortEnergy,[],energyPrompt),{kind:'select-choices',tokens:['tpe']},
    'Star Alchemy chooses correctly providing second Psychic');
 
+
+ const basicGengar=()=>{const g=slot('Gengar & Mimikyu-GX TEU 053','Gengar & Mimikyu-GX',[],[],1);
+  g.printed.stage='Basic';g.printed.subtypes=['Basic','TAG TEAM','GX'];return g;};
+ const lockedBasic=view({active:basicGengar(),bench:[],hand:['Duskull VIV 069']});
+ const playBasic=(token,printing,handIndex)=>({kind:'play-card',token,actorPrinting:printing,
+   publicMetadata:{cardType:'pokemon',handIndex}});
+ same(run(lockedBasic,[playBasic('dusk','Duskull VIV 069',0),pass()]),
+  {kind:'select-action',token:'dusk'},
+  'under BUS plus AOR, Basic Active can still Bench Duskull from hand');
+ const noBase=view({active:basicGengar(),bench:[],hand:['Telepathic Psychic Energy MEG 088']});
+ noBase.ownTurnResources.energyPlayedTurn=0;
+ const activeTPE={kind:'play-card',token:'basic-active-tpe',
+  actorPrinting:'Telepathic Psychic Energy MEG 088',
+  targetPrinting:noBase.ownPublic.active.printing,
+  publicMetadata:{cardType:'energy',handIndex:0,targetSeat:'actor',
+  targetZone:'active',targetIndex:0,isOwnerVisible:true}};
+ same(run(noBase,[activeTPE,pass()]),
+  {kind:'select-action',token:'basic-active-tpe'},
+  'Item and Basic-attack lock do not prevent TPE attachment that can recruit Stage1 bases');
+ const selection=(token,printing,index)=>({kind:'card',token,printing,label:printing,
+   publicMetadata:{selectionType:'card-combination',selectionIndex:index,
+    selectedCount:1,sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true}});
+ const lockTpePrompt={schema:P.PROMPT_SCHEMA,actingSeat:0,promptType:'ChooseCardsPrompt',
+   description:'Recruit Psychic Basics under Item lock',
+   source:{classification:'actor-choice',sourceKind:'card-effect',
+     sourcePrinting:'Telepathic Psychic Energy MEG 088',
+     effectName:'Telepathic Psychic Energy'},
+   choices:[selection('dusk1','Duskull VIV 069',0),
+     selection('dusk2','Duskull VIV 069',1),
+     selection('articuno','Galarian Articuno V CRE 058',2),
+     {kind:'empty-selection',token:'empty',label:'Choose no items'}],
+   publicMetadata:{selectionType:'card-combination',sourceZone:'deck',
+    ownerSeat:'actor',isOwnerVisible:true,isSecret:false,
+    minimumCount:0,maximumCount:2,allowCancel:false}};
+ same(run(noBase,[],lockTpePrompt),
+  {kind:'select-choices',tokens:['dusk1','articuno']},
+  'TPE recruits distinct Duskull base and future Forest Seal Stone V host');
+ const unpaid=basicGengar();unpaid.energies=[];
+ const lockedNoEnergy=view({active:unpaid,
+  bench:[slot('Duskull VIV 069','Duskull')],hand:['Telepathic Psychic Energy MEG 088']});
+ lockedNoEnergy.globalTurn=2;lockedNoEnergy.ownTurnResources.energyPlayedTurn=0;
+ const wrongActive={kind:'play-card',token:'wrong-active-tpe',
+   actorPrinting:'Telepathic Psychic Energy MEG 088',
+   targetPrinting:unpaid.printing,
+   publicMetadata:{cardType:'energy',handIndex:0,targetSeat:'actor',
+    targetZone:'active',targetIndex:0,isOwnerVisible:true}};
+ const rightDusk={kind:'play-card',token:'right-dusk-tpe',
+   actorPrinting:'Telepathic Psychic Energy MEG 088',
+   targetPrinting:'Duskull VIV 069',
+   publicMetadata:{cardType:'energy',handIndex:0,targetSeat:'actor',
+    targetZone:'bench',targetIndex:0,isOwnerVisible:true}};
+ same(run(lockedNoEnergy,[wrongActive,rightDusk,pass()]),
+  {kind:'select-action',token:'right-dusk-tpe'},
+  'BUS locks Basic attacks; TPE funds evolving Duskull rather than unpaid Active Gengar');
+ const benchDusk=view({active:basicGengar(),
+   bench:[slot('Duskull VIV 069','Duskull')],hand:['Telepathic Psychic Energy MEG 088']});
+ benchDusk.ownTurnResources.energyPlayedTurn=0;
+ const benchTPE={kind:'play-card',token:'tpe-dusk',
+   actorPrinting:'Telepathic Psychic Energy MEG 088',
+   targetPrinting:benchDusk.ownPublic.bench[0].printing,
+   publicMetadata:{cardType:'energy',handIndex:0,targetSeat:'actor',
+    targetZone:'bench',targetIndex:0,isOwnerVisible:true}};
+ same(run(benchDusk,[benchTPE,pass()]),
+  {kind:'select-action',token:'tpe-dusk'},
+  'save TPE energy on Benched Duskull for its Stage1 evolution');
+ benchDusk.ownHand=['Dusclops SFA 019'];benchDusk.ownPublic.bench[0].energies=['Telepathic Psychic Energy MEG 088'];
+ const evolve={kind:'play-card',token:'evolve-dusk',actorPrinting:'Dusclops SFA 019',
+  targetPrinting:'Duskull VIV 069',publicMetadata:{cardType:'pokemon',handIndex:0,
+   targetSeat:'actor',targetZone:'bench',targetIndex:0,isOwnerVisible:true}};
+ same(run(benchDusk,[evolve,pass()]),
+  {kind:'select-action',token:'evolve-dusk'},
+  'native legal Stage1 evolution of previously placed Duskull');
+ const stage= view({active:basicGengar(),
+   bench:[dus([],1)],hand:['Tool Jammer BST 136']});
+ const benchTool={kind:'play-card',token:'jammer-on-bench',
+  actorPrinting:'Tool Jammer BST 136',targetPrinting:'Dusclops SFA 019',
+  publicMetadata:{cardType:'tool',handIndex:0,targetSeat:'actor',
+    targetZone:'bench',targetIndex:0,isOwnerVisible:true}};
+ same(run(stage,[benchTool,pass()]),
+  {kind:'select-action',token:'jammer-on-bench'},
+  'Bench Stage1 Tool attachment remains available during AOR Item lock');
+ stage.ownPublic.bench[0].tools=['Tool Jammer BST 136'];
+ stage.ownPublic.bench[0].energies=['Basic Psychic Energy','Telepathic Psychic Energy MEG 088'];
+ const retreat={kind:'retreat',token:'retreat-stage1',
+  actorPrinting:'Gengar & Mimikyu-GX TEU 053',targetPrinting:'Dusclops SFA 019',
+  publicMetadata:{benchIndex:0,targetSeat:'actor',targetZone:'bench',
+   targetIndex:0,isOwnerVisible:true}};
+ same(run(stage,[retreat,pass()]),
+  {kind:'select-action',token:'retreat-stage1'},
+  'Native legal retreat finally promotes fully paid Tool-Jammer Dusclops');
  const donorInHand=view({active:slot('Mewtwo & Mew-GX UNM 071','Mewtwo & Mew-GX',
   ['Perfection'],[],1),bench:[sealHost],
   bus:slot('Bunnelby PRC 121','Bunnelby'),oppBench:[],

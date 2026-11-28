@@ -1,6 +1,6 @@
 'use strict';
 /* Research-only actor-visible decision slice; NOT a full candidate worker or game policy. */
-const POLICY_VERSION = 'agent1-newmoon-tool-jammer-v2-slice-v5';
+const POLICY_VERSION = 'agent1-newmoon-tool-jammer-v2-slice-v6';
 const DECK_SHA = 'aebe9a142e8492be929316bff4b871375e3e478945e01f8c5844037332634fe6';
 const has = (s,n) => typeof s === 'string' && s.includes(n);
 const slots = p => [p?.active,...(Array.isArray(p?.bench)?p.bench:[])].filter(Boolean);
@@ -141,8 +141,12 @@ function chooseRoot(view,frontier) {
   const canSelfKO = Number.isSafeInteger(p.opp.prizeCount) &&
     p.opp.prizeCount > 1 && Number.isSafeInteger(p.own.prizeCount) &&
     p.own.prizeCount > 0; // Cursed Blast pays the opponent a Prize.
-  const attachment=chooseActivePsychicAttachment(view,items,p.activeDus);
+  // Under live BUS Basic-attack lock, never prioritize charging an Active
+  // Basic for a GX attack it cannot declare. Fund a Benched evolution base.
+  const attachment=p.activeDus?chooseActivePsychicAttachment(view,items,true):null;
   if(attachment)return attachment;
+  const lockBoard=chooseLockedBoardSetup(view,items,p);
+  if(lockBoard)return lockBoard;
   const isActiveSource=x=>x.publicMetadata?.sourceZone==='active';
   const isBenchSource=x=>x.publicMetadata?.sourceZone==='bench' &&
      Number.isSafeInteger(x.publicMetadata?.sourceIndex) &&
@@ -213,6 +217,105 @@ function chooseRoot(view,frontier) {
 
 
 
+
+
+function chooseLockedBoardSetup(view,items,p) {
+  // Facing a live Hooded BUS Active + AOR Item lock, a Basic Active cannot
+  // attack. Rather than treating the lock as a terminal dead end, construct
+  // an actual Stage-1 escape board using still-legal Pokémon, Tools, Energy,
+  // evolution and ordinary retreat actions from the native frontier.
+  if(!p || p.activeDus || !Array.isArray(items) ||
+     !p.active || !Array.isArray(p.own.bench))return null;
+  const own=p.own,used=view.ownTurnResources?.energyPlayedTurn===0;
+  const bench=own.bench.map((s,i)=>({s,i})).filter(x=>!!x.s);
+  const haveRoom=bench.length<5;
+  const next=(x,reason)=>x?{decision:{kind:'select-action',token:x.token},reason}:null;
+  const dus=bench.filter(x=>isDusclops(x.s));
+  const dusk=bench.filter(x=>has(x.s.printing,'Duskull'));
+  const vHost=bench.some(x=>has(x.s.printing,'Galarian Articuno V'));
+  // Preserve the Duskull Energy and age through native evolution rather than
+  // wrongly attempting to evolve a newly Benched Basic on the same turn.
+  if(dusk.length && (view.ownHand??[]).some(x=>has(x,'Dusclops'))) {
+    const evo=items.find(x=>x.kind==='play-card' &&
+      x.publicMetadata?.cardType==='pokemon' &&
+      has(x.actorPrinting,'Dusclops') &&
+      x.publicMetadata.targetZone==='bench' &&
+      x.publicMetadata.targetSeat==='actor' &&
+      dusk.some(d=>d.i===x.publicMetadata.targetIndex));
+    if(evo)return next(evo,'EVOLVE_ESTABLISHED_DUSKULL_UNDER_LOCK');
+  }
+  const activeReady=dus.find(x=>hasTool(x.s,'Tool Jammer') &&
+       psychicSupply(x.s)>=2);
+  if(activeReady) {
+    const retreat=items.find(x=>x.kind==='retreat' &&
+       x.publicMetadata?.targetSeat==='actor' &&
+       x.publicMetadata.targetZone==='bench' &&
+       x.publicMetadata.targetIndex===activeReady.i &&
+       x.targetPrinting===activeReady.s.printing);
+    if(retreat)return next(retreat,'RETREAT_INTO_READY_JAMMER_DUSCLOPS');
+  }
+  // Pokémon Tools remain playable under AOR's Item-only lock. Place Jammer
+  // on the Bench Stage1 before promotion if a precise native action exists.
+  const emptyTool=dus.filter(x=>Array.isArray(x.s.tools) && x.s.tools.length===0);
+  if(emptyTool.length && (view.ownHand??[]).some(x=>has(x,'Tool Jammer'))) {
+    const tool=items.find(x=>x.kind==='play-card' &&
+      has(x.actorPrinting,'Tool Jammer') &&
+      x.publicMetadata?.targetSeat==='actor' &&
+      x.publicMetadata.targetZone==='bench' &&
+      emptyTool.some(d=>d.i===x.publicMetadata.targetIndex &&
+        (!x.targetPrinting || x.targetPrinting===d.s.printing)));
+    if(tool)return next(tool,'ATTACH_JAMMER_BENCH_DUSCLOPS_UNDER_ITEM_LOCK');
+  }
+  // Attach hand Energy directly to the developing Duskull/Dusclops. Attached
+  // Energy persists through the Stage1 evolution, and a TPE attachment to
+  // this Psychic Pokémon can recruit other Basics without using Items.
+  const energize=bench.filter(x=>isDusclops(x.s)||has(x.s.printing,'Duskull'))
+     .filter(x=>psychicSupply(x.s)<2);
+  if(used && energize.length) {
+    const energyTargets=items.filter(x=>x.kind==='play-card' &&
+      x.publicMetadata?.cardType==='energy' &&
+      x.publicMetadata.targetSeat==='actor' &&
+      x.publicMetadata.targetZone==='bench' &&
+      energize.some(d=>d.i===x.publicMetadata.targetIndex &&
+        (!x.targetPrinting || x.targetPrinting===d.s.printing)) &&
+      (has(x.actorPrinting,'Telepathic Psychic Energy') ||
+       has(x.actorPrinting,'Basic Psychic Energy')));
+    const selected=energyTargets.find(x=>has(x.actorPrinting,'Telepathic Psychic Energy')) ??
+      energyTargets[0];
+    if(selected)return next(selected,'ENERGIZE_LOCK_BREAKER_BEFORE_PROMOTION');
+  }
+  const haveDusk=!!dus.length||!!dusk.length;
+  if(haveRoom&&!haveDusk&&(view.ownHand??[]).some(x=>has(x,'Duskull'))) {
+    const basic=items.find(x=>x.kind==='play-card' &&
+       x.publicMetadata?.cardType==='pokemon' &&
+       has(x.actorPrinting,'Duskull') &&
+       (x.publicMetadata.targetZone===undefined ||
+        (x.publicMetadata.targetSeat==='actor' &&
+         x.publicMetadata.targetZone==='bench')));
+    if(basic)return next(basic,'BENCH_HELD_DUSKULL_THROUGH_ITEM_LOCK');
+  }
+  if(haveRoom&&!vHost&&(view.ownHand??[]).some(x=>has(x,'Galarian Articuno V'))) {
+    const basic=items.find(x=>x.kind==='play-card' &&
+       x.publicMetadata?.cardType==='pokemon' &&
+       has(x.actorPrinting,'Galarian Articuno V') &&
+       (x.publicMetadata.targetZone===undefined ||
+        (x.publicMetadata.targetSeat==='actor' &&
+         x.publicMetadata.targetZone==='bench')));
+    if(basic)return next(basic,'BENCH_FSS_V_HOST_THROUGH_ITEM_LOCK');
+  }
+  const needBench=haveRoom && (!haveDusk||!vHost);
+  if(needBench && used && 
+       p.active.printed?.types?.includes('Psychic')===true) {
+    const tpe=items.find(x=>x.kind==='play-card' &&
+       x.publicMetadata?.cardType==='energy' &&
+       x.publicMetadata.targetSeat==='actor' &&
+       x.publicMetadata.targetZone==='active' &&
+       (!x.targetPrinting||x.targetPrinting===p.active.printing) &&
+       has(x.actorPrinting,'Telepathic Psychic Energy'));
+    if(tpe)return next(tpe,'TPE_RECRUIT_LOCK_BREAKERS_FROM_BASIC_ACTIVE');
+  }
+  return null;
+}
 
 function chooseGengarDonorBench(view,items){
  const own=view?.ownPublic;
@@ -428,8 +531,16 @@ function chooseBasicBenchSearch(view,prompt) {
   const hasDonor=inPlay('Gengar & Mimikyu-GX') ||
     (own.discard??[]).some(x=>has(x,'Gengar & Mimikyu-GX'));
   const hasDusclops=inPlay('Dusclops')||inPlay('Duskull');
+  const locked=position(view);
+  const lockDevelop=locked && !locked.activeDus;
+  const hasBasicBase=inPlay('Duskull')||inPlay('Dusclops');
+  const hasVHost=inPlay('Galarian Articuno V');
   const score=x=>{
     const n=x.printing;
+    if(lockDevelop){
+      if(has(n,'Duskull'))return hasBasicBase?79:175;
+      if(has(n,'Galarian Articuno V'))return hasVHost?60:164;
+    }
     if(has(n,'Gengar & Mimikyu-GX'))
       return has(own.active?.printing,'Mewtwo & Mew-GX') && !hasDonor?140:80;
     if(has(n,'Duskull'))return hasDusclops?72:127;
@@ -444,9 +555,18 @@ function chooseBasicBenchSearch(view,prompt) {
     if(has(n,'Klefki'))return 57;
     return 0;
   };
-  const picked=cards.slice().sort((a,b)=>score(b)-score(a) ||
-    (a.publicMetadata?.selectionIndex??0)-(b.publicMetadata?.selectionIndex??0))
-    .slice(0,available).map(x=>x.token);
+  const ordered=cards.slice().sort((a,b)=>score(b)-score(a) ||
+    (a.publicMetadata?.selectionIndex??0)-(b.publicMetadata?.selectionIndex??0));
+  const picked=[];
+  const newlySelected=new Set();
+  for(const choice of ordered){
+    if(picked.length>=available)break;
+    const kind=has(choice.printing,'Duskull')?'Duskull':
+      has(choice.printing,'Galarian Articuno V')?'Galarian Articuno V':null;
+    if(lockDevelop && kind && newlySelected.has(kind))continue;
+    picked.push(choice.token);
+    if(kind)newlySelected.add(kind);
+  }
   return picked.length>=m.minimumCount && picked.length>0 ?
     {decision:{kind:'select-choices',tokens:picked},
      reason:has(prompt.source.sourcePrinting,'Battle VIP Pass') ?
