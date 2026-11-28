@@ -112,18 +112,35 @@ test('real discarded Dragon donor enables Apex; empty discard cannot',()=>{
    assert.equal(tok(root(seat,funded,items)),'apex');
  }
 });
-test('Raihan is not enabled by unstamped native stale KO Boolean',()=>{
+test('Raihan requires certified actor-owned v5 KO event freshness, including extra turns',()=>{
  for(const seat of [0,1]){
    const obs=observation(seat),items=[
      action('raihan','play-card',P.raihan),action('pass','pass','Pass')];
    const stale={priorOpponentTurnKO:{any:true,byAttack:true}};
    assert.equal(tok(root(seat,obs,items,stale)),'pass');
-   const wrong={opponentLastTurnTurn:3,
-     priorOpponentTurnKO:{turn:2,any:true,byAttack:true}};
-   assert.equal(tok(root(seat,obs,items,wrong)),'pass');
-   const sound={opponentLastTurnTurn:3,
+   const v5={version:'agent47-public-event-receipt-v5-opponent-owned-ko',
+     actorSeat:seat,turn:4,opponentLastTurnOwnerCertified:true,
+     opponentLastTurnTurn:3,
      priorOpponentTurnKO:{turn:3,any:true,byAttack:false}};
-   assert.equal(tok(root(seat,obs,items,sound)),'raihan');
+   assert.equal(tok(root(seat,obs,items,v5)),'raihan');
+   const noCertification={...v5,opponentLastTurnOwnerCertified:false};
+   assert.equal(tok(root(seat,obs,items,noCertification)),'pass');
+   const stampedButOld={...v5,priorOpponentTurnKO:{
+     ...v5.priorOpponentTurnKO,turn:2}};
+   assert.equal(tok(root(seat,obs,items,stampedButOld)),'pass');
+   const wrongSeat={...v5,actorSeat:1-seat};
+   assert.equal(tok(root(seat,obs,items,wrongSeat)),'pass');
+   const earlyReceipt={...v5,turn:3};
+   assert.equal(tok(root(seat,obs,items,earlyReceipt)),'pass');
+   // Actor can take extra turns after the last opponent-owned turn;
+   // correctness requires ownership, not currentTurn-1 arithmetic.
+   const extraActor=observation(seat,{globalTurn:6});
+   const ownerTurnOlder={...v5,turn:6,opponentLastTurnTurn:3,
+     priorOpponentTurnKO:{turn:3,any:true,byAttack:true}};
+   assert.equal(tok(root(seat,extraActor,items,ownerTurnOlder)),'raihan');
+   // Opponent's extra turn without a KO supersedes the old KO receipt.
+   const opponentExtra={...ownerTurnOlder,opponentLastTurnTurn:5};
+   assert.equal(tok(root(seat,extraActor,items,opponentExtra)),'pass');
  }
 });
 test('Path to the Peak held until own VSTAR power spent',()=>{
