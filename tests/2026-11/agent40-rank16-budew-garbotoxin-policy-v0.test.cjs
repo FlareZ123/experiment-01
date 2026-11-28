@@ -1673,3 +1673,34 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,pc),{kind:'select-choices',tokens:['crobat']});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' VIP does not trigger Crobat Dedenne or Tapu on-play Abilities from deck',()=>{
+  const board=own({active:mon('Budew ASC 16'),bench:[
+   mon('Trubbish CRI 56'),mon('Mega Absol ex MEG 86')]});
+  const q=prompt(seat,{promptType:'ChooseCardsPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Battle VIP Pass FST 225',effectName:'Battle VIP Pass'},
+   publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:2},
+   choices:[choice('crobat','Crobat V DAA 104'),choice('dede','Dedenne-GX UNB 57'),
+    choice('tapu','Tapu Lele-GX GRI 60'),choice('squawk','Squawkabilly ex PAL 169'),
+    {kind:'empty-selection',token:'empty'}]},
+   {globalTurn:2,ownPublic:board,ownHand:[]});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['squawk']});
+  q.observation.ownHand=['Forest Seal Stone SIT 156'];
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['crobat']});
+  q.observation.ownHand=['Secret Box TWM 163'];
+  assert.deepEqual(decide(seat,q),{kind:'select-choice',token:'empty'});
+  q.observation.ownHand=[];q.observation.globalTurn=6;
+  assert.deepEqual(decide(seat,q),{kind:'select-choice',token:'empty'});
+ });
+ test('seat '+seat+' VIP may still search core Pokémon without a playable support Ability',()=>{
+  const board=own({active:mon('Budew ASC 16'),bench:[]});
+  const q=prompt(seat,{promptType:'ChooseCardsPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Battle VIP Pass FST 225',effectName:'Battle VIP Pass'},
+   publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:2},
+   choices:[choice('trubbish','Trubbish CRI 56'),choice('mega','Mega Absol ex MEG 86'),
+    choice('dede','Dedenne-GX UNB 57'),{kind:'empty-selection',token:'empty'}]},
+   {globalTurn:2,ownPublic:board,ownHand:['Secret Box TWM 163']});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['trubbish','mega']});
+ });
+}
