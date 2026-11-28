@@ -3,7 +3,8 @@
  * Research-only actor-frontier contingent execution for exact New Moon v3.
  * Root -> Dusknoir Cursed Blast bench target prompt -> selfKO settlement ->
  * newly legal Counter Catcher -> opponent Bench selection prompt ->
- * already-paid active Mewtwo Miraculous Duo-GX terminal attack.
+ * paid Mewtwo attack: Miraculous Duo-GX for Mega 3-Prize target, or
+ * donor-certified Night Watch for a 2-Prize Regidrago VSTAR.
  *
  * Never manufactures actions or guesses hidden zones. Only exact source,
  * actor/turn, Bench index, current hand, Prize count, damage and prompt tokens.
@@ -14,8 +15,9 @@ const has=(x,s)=>typeof x==='string'&&x.includes(s);
 const int=x=>Number.isSafeInteger(x)&&x>=0;
 const select=(x,reason)=>({decision:{kind:'select-action',token:x.token},reason});
 const TOPS=Object.freeze([
- {name:'Mega Lopunny ex',hp:330,prizes:3},
- {name:'Mega Kangaskhan ex',hp:300,prizes:3}
+ {name:'Mega Lopunny ex',hp:330,prizes:3,attackName:'Miraculous Duo-GX',attackDamage:200},
+ {name:'Mega Kangaskhan ex',hp:300,prizes:3,attackName:'Miraculous Duo-GX',attackDamage:200},
+ {name:'Regidrago VSTAR',hp:280,prizes:2,attackName:'Night Watch',attackDamage:150}
 ]);
 function abilitySource(own,items){
  if(!Array.isArray(own?.bench)||!Array.isArray(items))return null;
@@ -33,17 +35,33 @@ function abilitySource(own,items){
  }
  return null;
 }
-function offeredMewtwoAttack(own,items){
+function offeredMewtwoAttack(own,items,name='Miraculous Duo-GX'){
  if(!has(own?.active?.printing,'Mewtwo & Mew-GX')||
-    own.publicTurnRestrictions?.gxUsed!==false||
-    !Array.isArray(items))return null;
+    !Array.isArray(items)||!Array.isArray(own.bench)||
+    !['Miraculous Duo-GX','Night Watch'].includes(name))return null;
+ if(name==='Miraculous Duo-GX'&&
+    own.publicTurnRestrictions?.gxUsed!==false)return null;
  const active=own.active;
- return items.find(x=>x.kind==='attack'&&x.attackName==='Miraculous Duo-GX'&&
-  x.actorPrinting===active.printing&&
-  x.publicMetadata?.attackCostPayable===true&&
-  x.publicMetadata?.attackSource?.sourceKind==='active-pokemon'&&
-  x.publicMetadata.attackSource.sourceSlot==='ACTIVE'&&
-  x.publicMetadata.attackSource.sourceCardFullName===active.printing);
+ return items.find(x=>{
+  if(x.kind!=='attack'||x.attackName!==name||
+     x.publicMetadata?.attackCostPayable!==true)return false;
+  const s=x.publicMetadata.attackSource;
+  if(name==='Miraculous Duo-GX')
+   return x.actorPrinting===active.printing&&
+     s?.sourceKind==='active-pokemon'&&s.sourceSlot==='ACTIVE'&&
+     s.sourceCardFullName===active.printing;
+  // Bench GX donor only; discard-copy Perfection prompts require a separate
+  // strictly owner-visible ChooseAttackPrompt handler, not invented evidence.
+  if(!Array.isArray(active.abilities)||!active.abilities.includes('Perfection')||
+     active.abilitySuppressions?.find(y=>y.abilityName==='Perfection')?.suppressed!==false||
+     s?.sourceKind!=='bench-pokemon'||s.sourceSlot!=='BENCH'||
+     !int(s.sourceIndex))return false;
+  const donor=own.bench[s.sourceIndex];
+  return !!donor&&has(donor.printing,'Trevenant & Dusknoir-GX')&&
+    s.sourceCardFullName===donor.printing&&
+    x.actorPrinting===donor.printing&&
+    s.attackName==='Night Watch';
+ });
 }
 function validRootTarget(target){
  if(!target||!int(target.hp)||!int(target.damage)||!Array.isArray(target.tools)||
@@ -51,9 +69,9 @@ function validRootTarget(target){
  const def=TOPS.find(t=>has(target.printing,t.name)&&target.hp===t.hp);
  if(!def)return null;
  const remaining=target.hp-target.damage;
- // If Blast alone KOs, there can be no later gust. If Blast + 200 fails,
- // this is not a final turn. No speculative target damage reduction.
- return remaining>130&&remaining<=330?{def,remaining}:null;
+ // No later gust if Blast alone KOs; require exactly the printed, paid
+ // 130+attack terminal threshold for the target's physical Prize value.
+ return remaining>130&&remaining<=130+def.attackDamage?{def,remaining}:null;
 }
 function certifiedDamage(attack,target){
  const m=attack?.publicMetadata;
@@ -108,7 +126,7 @@ function createSlice({seat}){
     if(!choice){reset();return null;}
     pending.phase='post-blast';
     return {decision:{kind:'select-choices',tokens:[choice.token]},
-     reason:'A22_COUNTERCATCHER_TARGET_BENCHED_MEGA'};
+     reason:'A22_COUNTERCATCHER_TARGET_BENCHED_PRIZE_POKEMON'};
    }
    if(pending.phase==='gust-target'){
     const target=opp.bench[idx];
@@ -120,7 +138,7 @@ function createSlice({seat}){
     if(!choice){reset();return null;}
     pending.phase='post-gust';
     return {decision:{kind:'select-choices',tokens:[choice.token]},
-     reason:'A22_COUNTERCATCHER_GUST_DAMAGED_MEGA'};
+     reason:'A22_COUNTERCATCHER_GUST_DAMAGED_PRIZE_POKEMON'};
    }
    reset();return null;
   }
@@ -154,32 +172,35 @@ function createSlice({seat}){
     const t=opp.active;
     if(!t||t.printing!==pending.targetPrinting||
        t.hp!==pending.hp||t.damage<pending.startDamage+130||
-       !Array.isArray(t.tools)||t.tools.length>0||
-       own.publicTurnRestrictions?.gxUsed!==false){
+       !Array.isArray(t.tools)||t.tools.length>0){
       reset();return null;
     }
-    const a=offeredMewtwoAttack(own,items);
+    const a=offeredMewtwoAttack(own,items,pending.attackName);
     if(!a||!certifiedDamage(a,t)){reset();return null;}
     reset();
-    return select(a,'A22_MIRACULOUS_GX_AFTER_GUST_FOR_FINAL_THREE_PRIZES');
+    return select(a,pending.attackName==='Miraculous Duo-GX'?
+      'A22_MIRACULOUS_GX_AFTER_GUST_FOR_FINAL_THREE_PRIZES':
+      'A22_NIGHT_WATCH_AFTER_GUST_FOR_FINAL_TWO_PRIZES');
    }
    reset();return null;
   }
-  if(own.prizeCount!==3||opp.prizeCount!==3||
+  if(own.prizeCount!==opp.prizeCount||own.prizeCount<=1||
      !Array.isArray(v.ownHand)||
-     !v.ownHand.some(x=>has(x,'Counter Catcher'))||
-     own.publicTurnRestrictions?.gxUsed!==false)return null;
-  const blast=abilitySource(own,items),paid=offeredMewtwoAttack(own,items);
-  if(!blast||!paid)return null;
+     !v.ownHand.some(x=>has(x,'Counter Catcher')))return null;
+  const blast=abilitySource(own,items);
+  if(!blast)return null;
   for(let i=0;i<opp.bench.length;i++){
    const t=opp.bench[i],check=validRootTarget(t);
    if(!check||check.def.prizes!==own.prizeCount)continue;
-   // Require a current real playable GX attack, then revalidate its actual
-   // damage after gust. Never use a projected attack token as proof.
-   if(paid.publicMetadata?.damagePrevented===true||
+   // An actual currently offered, already-paid attack is mandatory.
+   // A printed GX uses Mewtwo's own attack; the non-GX Night Watch
+   // requires present and live Perfection plus a correctly indexed Bench donor.
+   const paid=offeredMewtwoAttack(own,items,check.def.attackName);
+   if(!paid||paid.publicMetadata?.damagePrevented===true||
       paid.publicMetadata?.hasUnmodeledModifier===true)continue;
    pending={turn:v.globalTurn,phase:'blast-target',
     benchIndex:i,targetPrinting:t.printing,hp:t.hp,startDamage:t.damage,
+    attackName:check.def.attackName,
     ownPrizes:own.prizeCount,opponentPrizes:opp.prizeCount,
     attackerPrinting:own.active.printing};
    return select(blast,'A22_BEGIN_BLAST_TO_ENABLE_COUNTERCATCHER_TERMINAL');
