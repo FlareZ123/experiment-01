@@ -1,6 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
+const {validateDecision,validatePrompt}=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const {POLICY_VERSION,SOURCE_RANK,SOURCE_BLOB_SHA1,SOURCE_PRINTINGS,
   createPolicy,scoreRoot,choosePrompt,donorScore}=
  require('../../simulation/evaluation/2026-11/agent2-rank27-regidrago-opponent-policy.cjs');
@@ -45,7 +46,12 @@ function promptRequest(seat,obs,effectName,printing,type,choices,meta={},extra={
    prompt:{schema:'aichi-owner-prompt-projection-v3',actingSeat:seat,
      promptType:type,description:effectName,source:{
        classification:'actor-choice',...src,effectName},
-     publicMetadata:meta,choices}};
+     publicMetadata:{selectionType:type==='ChooseAttackPrompt'?'attack':
+       type==='ChooseCardsPrompt'?'card-combination':
+       type==='ChoosePrizePrompt'?'prize-slots':
+       type==='ChoosePokemonPrompt'?'pokemon':
+       type==='ConfirmPrompt'?'confirm':
+       type==='SelectPrompt'?'option':undefined,...meta},choices}};
 }
 function policy(seat,extra={}){
  return createPolicy({role:'opponent',seat,policyVersion:POLICY_VERSION,
@@ -217,8 +223,8 @@ test('engine setup: go second, preserve entering-the-Bench support Pokemon',()=>
      maximumCount:5},{engine:true});
    assert.deepEqual(decide(seat,extra),{kind:'select-choices',tokens:['budew']});
    const no=promptRequest(seat,empty,'GO_FIRST',null,'ConfirmPrompt',[
-     {kind:'option',token:'yes',label:'Yes'},
-     {kind:'option',token:'no',label:'No'}],{},{engine:true});
+     {kind:'confirm',token:'yes',label:'Yes'},
+     {kind:'confirm',token:'no',label:'No'}],{},{engine:true});
    assert.equal(tok(decide(seat,no)),'no');
  }
 });
@@ -252,4 +258,46 @@ test('unsupported engine prompt and role mismatch fail closed',()=>{
    assert.equal(policy(seat).decide({...prompt,seat:1-seat}).reasonCode,
      'ROLE_SEAT_BINDING_MISMATCH');
  }
+});
+test('native protocol accepts bounded real root and prompt decisions',()=>{
+  for(const seat of [0,1]){
+    const obs=observation(seat),actions=[
+      action('quick','play-card',P.quick),
+      action('pass','pass','Pass')];
+    const rootResult=root(seat,obs,actions);
+    assert.deepEqual(validateDecision(rootResult,null,new Set(actions.map(x=>x.token))),rootResult);
+    const net=promptRequest(seat,obs,'Net Ball',P.net,'ChooseCardsPrompt',[
+      choice('grass','Grass Energy MEE 9'),
+      choice('dragon',P.v)
+    ],{selectionType:'card-combination',minimumCount:1,
+      maximumCount:1,allowCancel:false});
+    const validated=validatePrompt(net.prompt,seat);
+    const result=decide(seat,net);
+    assert.deepEqual(result,{kind:'select-choices',tokens:['grass']});
+    assert.deepEqual(validateDecision(result,validated,new Set()),result);
+    const donor={...obs.ownPublic,discard:[P.noivern,P.dialga]};
+    const apex=promptRequest(seat,{...obs,ownPublic:donor},
+      'Apex Dragon',P.star,'ChooseAttackPrompt',[
+        choice('covert',P.noivern,{sourceZone:'discard',
+          sourceAttack:'Covert Flight'},'attack'),
+        choice('gx',P.dialga,{sourceZone:'discard',
+          sourceAttack:'Timeless-GX'},'attack')
+      ],{selectionType:'attack',count:2,allowCancel:false});
+    const validatedAttack=validatePrompt(apex.prompt,seat);
+    const resultAttack=decide(seat,apex);
+    assert.deepEqual(resultAttack,{kind:'select-choice',token:'gx'});
+    assert.deepEqual(validateDecision(resultAttack,validatedAttack,new Set()),resultAttack);
+    const startObs=observation(seat,{phase:1,
+      ownPublic:{...obs.ownPublic,active:null,bench:[]}});
+    const start=promptRequest(seat,startObs,'CHOOSE_STARTING_POKEMONS',null,
+      'ChooseCardsPrompt',[
+       choice('v',P.v,{sourceZone:'hand',selectionIndex:0,selectedCount:1}),
+       choice('budew',P.budew,{sourceZone:'hand',selectionIndex:1,selectedCount:1})
+      ],{selectionType:'card-combination',sourceZone:'hand',
+        ownerSeat:'actor',isOwnerVisible:true,isSecret:false,
+        allowCancel:false,minimumCount:1,maximumCount:6},{engine:true});
+    const pStart=validatePrompt(start.prompt,seat);
+    const dStart=decide(seat,start);
+    assert.deepEqual(validateDecision(dStart,pStart,new Set()),dStart);
+  }
 });
