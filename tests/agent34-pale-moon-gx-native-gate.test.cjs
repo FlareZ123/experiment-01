@@ -763,3 +763,131 @@ for(const attackerSeat of [0,1]){
     }));
   });
 }
+
+
+/**
+ * Review-only native printed Guzma response. A deliberately sparse physical
+ * Bench tests the distinction between prompt selectionIndex 0 and physical
+ * Bench 2/4; tokens are genuine projected prompts even though the root
+ * offer is source-staged (not a complete enumerator-based V3 game).
+ */
+for(const attackingSeat of [0,1]){
+  test('pinned Pale Moon queued last-Prize Guzma root plus two native owner prompts, attacking seat '+attackingSeat,()=>{
+    const {Store}=native('game/store/store');
+    const {Player}=native('game/store/state/player');
+    const {PokemonCardList}=native('game/store/state/pokemon-card-list');
+    const {AttackAction}=native('game/store/actions/game-actions');
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    const {ResolvePromptAction}=
+      native('game/store/actions/resolve-prompt-action');
+    const {EndTurnEffect}=native('game/store/effects/game-phase-effects');
+    const {GamePhase}=native('game/store/state/state');
+    const {RESOLVE_PENDING_END_OF_OPPONENTS_NEXT_TURN_EFFECTS}=
+      native('game/store/prefabs/attack-effects');
+    const {actorObservation}=require('../simulation/twinleaf/actor-observation-contract.cjs');
+    const {projectPrompt,validateRawPromptResult}=
+      require('../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
+    const {installPromptProvenanceHook}=
+      require('../simulation/evaluation/2026-11/agent36-prompt-provenance.cjs');
+    const {choosePaleMoonEscapeGuzmaRoot,choosePaleMoonEscapeGuzmaPrompt}=
+      require('../simulation/twinleaf/2026-11/agent34-pale-moon-escape.cjs');
+    const f=stage(attackingSeat,2,false,'Rotom V LOR');
+    for(const taken of f.attacker.prizes.slice(1))f.attacker.hand.cards.push(...taken.cards.splice(0));
+    assert.equal(f.attacker.prizes.reduce((sum,slot)=>sum+slot.cards.length,0),1);
+    const manager=initializeCards();
+    let cardId=365100+attackingSeat*100;
+    const addCard=(name,slot)=>{
+      const card=manager.getCardByName(name);
+      assert.ok(card,'pinned printing '+name);
+      card.id=cardId++;
+      slot.cards.push(card);
+      return card;
+    };
+    const addSparseBench=(player,physicalIndex,name)=>{
+      for(let i=0;i<=physicalIndex;i++)player.bench.push(new PokemonCardList());
+      return addCard(name,player.bench[physicalIndex]);
+    };
+    const enemyBench=addSparseBench(f.attacker,2,'Shadow Rider Calyrex V CRE');
+    const ownBench=addSparseBench(f.defender,4,'Rotom V LOR');
+    const guzma=addCard('Guzma BUS',f.defender.hand);
+    const oldDefending=f.defender.active.getPokemonCard();
+    const ownerSeat=1-attackingSeat;
+    f.store.dispatch(new AttackAction(f.attacker.id,'Pale Moon-GX'));
+    assert.equal(f.defender.pendingEndOfTurnEffects.length,1);
+    let settled=0;
+    while(f.state.prompts.some(prompt=>prompt.result===undefined)){
+      assert.ok(settled<8);
+      const prompt=f.state.prompts.find(prompt=>prompt.result===undefined);
+      assert.equal(prompt.constructor.name,'WaitPrompt');
+      f.store.dispatch(new ResolvePromptAction(prompt.id,true));
+      settled++;
+    }
+    f.state.turn=5;f.state.phase=GamePhase.PLAYER_TURN;
+    f.state.activePlayer=ownerSeat;
+    const view=actorObservation(f.state,ownerSeat);
+    assert.equal(view.ownPublic.active.publicRestrictions.pendingPaleMoonGXKnockOut,true);
+    assert.equal(view.opponentPublic.prizeCount,1);
+    const choice=choosePaleMoonEscapeGuzmaRoot(view,[
+      {token:'pass-root',kind:'pass'},
+      {token:'guzma-root',kind:'play-card',actorPrinting:'Guzma BUS'}
+    ]);
+    assert.equal(choice?.token,'guzma-root');
+
+    const audited=withPendingEndTurnSwitchCleanup({Store,Player},()=>{
+      const provenance=installPromptProvenanceHook(f.store);
+      try {
+        f.store.dispatch(new PlayCardAction(f.defender.id,
+          f.defender.hand.cards.indexOf(guzma),
+          {player:PlayerType.ANY,slot:SlotType.BOARD,index:0}));
+        const selections=[];
+        for(const expected of [
+          {ownerSeat:'opponent',benchIndex:2,printing:enemyBench.fullName},
+          {ownerSeat:'actor',benchIndex:4,printing:ownBench.fullName}
+        ]) {
+          const pending=f.state.prompts.find(prompt=>prompt.result===undefined);
+          assert.ok(pending,'real Guzma selection prompt');
+          assert.equal(pending.constructor.name,'ChoosePokemonPrompt');
+          const observed=actorObservation(f.state,ownerSeat);
+          const projection=projectPrompt({
+            prompt:pending,state:f.state,actorSeat:ownerSeat,
+            native:{PlayerType,SlotType},store:f.store,provenanceHook:provenance
+          });
+          assert.equal(projection.hostOnly,false);
+          const selected=choosePaleMoonEscapeGuzmaPrompt(
+            observed,projection.promptProjection);
+          assert.ok(selected,'authentic printed source and unambiguous target');
+          const offered=projection.promptProjection.choices.find(
+            item=>item.token===selected.token);
+          assert.equal(offered.publicMetadata.ownerSeat,expected.ownerSeat);
+          assert.equal(offered.publicMetadata.benchIndex,expected.benchIndex);
+          assert.equal(offered.printing,expected.printing);
+          assert.equal(offered.publicMetadata.selectionIndex,0,
+            'projection ordinal is not physical Bench index');
+          const raw=projection.choiceByToken.get(selected.token);
+          const validation=validateRawPromptResult(pending,raw,f.state);
+          assert.equal(validation.valid,true);
+          f.store.dispatch(new ResolvePromptAction(pending.id,validation.decoded));
+          selections.push({seat:expected.ownerSeat,physicalIndex:expected.benchIndex});
+        }
+        assert.equal(f.state.prompts.some(prompt=>prompt.result===undefined),false);
+        assert.equal(f.defender.pendingEndOfTurnEffects.length,0,
+          'paper switch-cleanup removes queued KO only after own swap');
+        RESOLVE_PENDING_END_OF_OPPONENTS_NEXT_TURN_EFFECTS(f.store,f.state,
+          new EndTurnEffect(f.defender));
+        assert.ok(f.defender.bench.some(slot=>
+          slot.getPokemonCard?.()===oldDefending),'formerly threatened Pokemon survives on Bench');
+        return selections;
+      } finally {
+        provenance.restore();
+      }
+    });
+    assert.deepEqual(audited.result,[
+      {seat:'opponent',physicalIndex:2},{seat:'actor',physicalIndex:4}
+    ]);
+    console.log('AGENT34_NATIVE_PALE_MOON_GUZMA_PROMPT',JSON.stringify({
+      attackingSeat,ownerSeat,selections:audited.result,
+      queuedAfter:0,defenderSaved:true,qualifiedCompetitiveGames:0
+    }));
+  });
+}
