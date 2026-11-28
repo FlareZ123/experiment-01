@@ -861,11 +861,27 @@ function singleChoice(prompt, choices, scoreFn, reasonCode) {
   return { kind: 'select-choice', token: ranked[0].choice.token };
 }
 
+// The worker's public ChoosePokemonPrompt can distinguish identical printed
+// Pokémon by physical target zone/Bench index. Never replace that identity
+// with a first matching printing: the same card print can occupy multiple
+// spaces with different damage, Energy, Tools and tactical value.
+function publicChoiceSlot(player,choice) {
+  const rows = slots(player);
+  const printing = valueText(choice);
+  const meta = choice?.publicMetadata ?? {};
+  const zone = meta.targetZone ?? meta.sourceZone ?? meta.zone ?? null;
+  const row = zone === 'active' ?
+    rows.find(item => item.zone === 'active') :
+    zone === 'bench' && Number.isSafeInteger(meta.benchIndex) ?
+      rows.find(item => item.zone === 'bench' && item.index === meta.benchIndex) :
+      rows.find(item => item.pokemon.printing === printing);
+  return row?.pokemon.printing === printing ? row : null;
+}
+
 function opponentPokemonScore(choice, observation) {
   if (choiceOwner(choice) !== 'opponent' ||
       !['bench', 'active'].includes(choiceZone(choice))) return 0;
-  const printing = valueText(choice);
-  const row = slots(observation.opponentPublic).find(item => item.pokemon.printing === printing);
+  const row = publicChoiceSlot(observation.opponentPublic,choice);
   const pokemon = row?.pokemon;
   if (!pokemon) return 10;
   return 40 + energyCount(pokemon) * 30 +
@@ -875,19 +891,8 @@ function opponentPokemonScore(choice, observation) {
 
 function ownPickupScore(choice, observation) {
   if (choiceOwner(choice) !== 'actor') return 0;
-  const printing = valueText(choice);
-  const rows = slots(observation.ownPublic);
-  const meta = choice?.publicMetadata ?? {};
-  // Native ChoosePokemonPrompt reports a public physical Bench index or
-  // Active slot. Use that instead of a first-match printing search: rank3
-  // has three identically printed Snorlax, and the first match is often the
-  // protected Active Snorlax even when an eligible damaged Bench copy exists.
-  const zone = choiceZone(choice);
-  const row = zone === 'active' ? rows.find(item => item.zone === 'active') :
-    zone === 'bench' && Number.isSafeInteger(meta.benchIndex) ?
-      rows.find(item => item.zone === 'bench' && item.index === meta.benchIndex) :
-      rows.find(item => item.pokemon.printing === printing);
-  if (!row || row.pokemon.printing !== printing) return 0;
+  const row = publicChoiceSlot(observation.ownPublic,choice);
+  if (!row) return 0;
   if (row.zone === 'active' && matches(row.pokemon.printing, PRINT.snorlax)) return 0;
   return (row.pokemon.damage ?? 0) * 2 + energyCount(row.pokemon) * 10 +
     (matches(row.pokemon.printing, PRINT.rotom) || matches(row.pokemon.printing, PRINT.articuno) ? 20 : 0);
@@ -895,8 +900,7 @@ function ownPickupScore(choice, observation) {
 
 function ownSwitchScore(choice, observation) {
   if (choiceOwner(choice) !== 'actor' || choiceZone(choice) !== 'bench') return 0;
-  const printing = valueText(choice);
-  const row = slots(observation.ownPublic).find(item => item.pokemon.printing === printing);
+  const row = publicChoiceSlot(observation.ownPublic,choice);
   if (!row) return 0;
   if (matches(row.pokemon.printing, PRINT.snorlax)) {
     return hasTool(row.pokemon, PRINT.toolJammer) ? 260 : 220;
