@@ -279,8 +279,10 @@ for(const seat of [0,1]){
       'source adapter must not change native action tokens or their ordering');
     assert.equal(roleFrontier.actionByToken instanceof Map,true);
     assert.ok([...roleFrontier.actionByToken.values()].every(
-      action=>action&&typeof action.type==='string'),
-      'opaque native token-to-Action values must remain real physical actions');
+      action=>action&&typeof action==='object'),
+      'opaque native token-to-Action values must remain actual native action objects');
+    assert.equal(roleFrontier.actionByToken.size,realFrontier.actionByToken.size,
+      'source projection may not change native legal action cardinality');
     assert.equal(roleFrontier.actionFrontier.items.some(
       item=>item.kind==='play-card'&&item.actorPrinting==='Penny SVI 183'),true);
     assert.equal(roleAdapters.eventReceipt(x.state,seat).ownerActive.printing,
