@@ -58,4 +58,22 @@ function bindHostVerifiedLastOpponentKO(request,{tracker,ownerPlayerId,
     })
   });
 }
-module.exports={bindHostVerifiedLastOpponentKO,CERT_VERSION,TRACKER_VERSION};
+// The closure is intentionally decision-only. A caller with a validated
+// incoming V3 request never receives the private enriched request or gets
+// a chance to serialize it as a protocol object.
+function createHostBoundRank30Decider({policy,tracker,
+  ownerPlayerId,opponentPlayerId}={}){
+  assert.ok(policy&&typeof policy.decide==='function');
+  assert.ok(tracker&&tracker.version===TRACKER_VERSION);
+  assert.ok(ownerPlayerId!==undefined&&opponentPlayerId!==undefined&&
+    ownerPlayerId!==opponentPlayerId);
+  return function decideHostBound(request){
+    const privateRequest=bindHostVerifiedLastOpponentKO(request,{
+      tracker,ownerPlayerId,opponentPlayerId});
+    return policy.decide(privateRequest);
+  };
+}
+module.exports={
+  bindHostVerifiedLastOpponentKO,createHostBoundRank30Decider,
+  CERT_VERSION,TRACKER_VERSION
+};
