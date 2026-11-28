@@ -9,7 +9,7 @@
  * Native Store legality remains authoritative.
  */
 
-const POLICY_VERSION = 'agent17-rank3-snorlax-stall-opponent-v1.2';
+const POLICY_VERSION = 'agent17-rank3-snorlax-stall-opponent-v1.4-development';
 const SOURCE_RANK = 3;
 const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
 const SOURCE_FINGERPRINT_SHA256 = '0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368';
@@ -18,7 +18,9 @@ const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const WORKER_PROTOCOL_BLOB_SHA1 = 'd51ea95c457d61b50a9ee114d342eb17f4350451';
 
 const PRINT = Object.freeze({
-  snorlax: /^Snorlax PGO 55\b/i,
+  snorlax: /^Snorlax PGO(?: 0?55)?$/i,
+  wobbuffet: /^Wobbuffet PHF(?: 0?36)?$/i,
+  dialga: /^Dialga-GX UPR(?: 100)?$/i,
   stunfisk: /^Galarian Stunfisk SSH 132\b/i,
   regirock: /^Regirock XYP 49\b/i,
   mimikyu: /^Mimikyu PAL 97\b/i,
@@ -27,29 +29,29 @@ const PRINT = Object.freeze({
   articuno: /^Articuno-GX CES 31\b/i,
   rotom: /^Rotom V LOR 58\b/i,
   plumeria: /^Plumeria BUS 120\b/i,
-  arven: /^Arven OBF 186\b/i,
+  arven: /^Arven OBF(?: 186)?$/i,
   teamFlare: /^Team Flare Grunt XY 129\b/i,
   teammates: /^Teammates PRC 141\b/i,
   lusamine: /^Lusamine CIN 96\b/i,
   handiwork: /^Team Rocket's Handiwork FCO 112\b/i,
   gladion: /^Gladion CIN 95\b/i,
-  guzma: /^Guzma BUS 115\b/i,
+  guzma: /^Guzma BUS(?: 115)?$/i,
   faba: /^Faba LOT 173\b/i,
   penny: /^Penny SVI 183\b/i,
   eri: /^Eri TEF 146\b/i,
   lillie: /^Lillie's Determination MEG 119\b/i,
   nestBall: /^Nest Ball SVI 181\b/i,
-  vsSeeker: /^VS Seeker PHF 109\b/i,
+  vsSeeker: /^VS Seeker PHF(?: 109)?$/i,
   enhancedHammer: /^Enhanced Hammer TWM 148\b/i,
   trainersMail: /^Trainers' Mail ROS 92\b/i,
-  counterCatcher: /^Counter Catcher PAR 160\b/i,
+  counterCatcher: /^Counter Catcher PAR(?: 160)?$/i,
   scoopCyclone: /^Scoop Up Cyclone TWM 162\b/i,
   quickBall: /^Quick Ball FST 237\b/i,
   heavyBall: /^Hisuian Heavy Ball ASR 146\b/i,
   nightStretcher: /^Night Stretcher ASC 196\b/i,
   floatStone: /^Float Stone BKT 137\b/i,
-  stealthyHood: /^Stealthy Hood UNB 186\b/i,
-  toolJammer: /^Tool Jammer BST 136\b/i,
+  stealthyHood: /^Stealthy Hood UNB(?: 186)?$/i,
+  toolJammer: /^Tool Jammer BST(?: 136)?$/i,
   forestSealStone: /^Forest Seal Stone SIT 156\b/i,
   tropicalBeach: /^Tropical Beach BWP 50\b/i,
   playersCeremony: /^Player's Ceremony SP 127\b/i,
@@ -342,9 +344,102 @@ function scorePlayersCeremonyPlay(observation) {
   return useScore > 0 ? Math.max(0, useScore - 10) : 0;
 }
 
+// Rank-3 exact-pair tactical slice. Both fixed candidate 60s contain only
+// Basic Psychic Energy; Dialga-GX UPR 100 requires Metal for every attack.
+// The native frontier remains the authority for action legality. These
+// scores are policy hypotheses, not a proof that the opponent cannot escape.
+function activeTargetIsActorSnorlax(item, observation) {
+  const meta = item.publicMetadata ?? {};
+  return meta.targetSeat === 'actor' && meta.targetZone === 'active' &&
+    matches(item.targetPrinting ?? '', PRINT.snorlax) &&
+    matches(observation.ownPublic?.active?.printing ?? '', PRINT.snorlax);
+}
+
+function opponentWobbuffetActive(observation) {
+  return matches(observation.opponentPublic?.active?.printing ?? '', PRINT.wobbuffet);
+}
+
+function liveToolWindow(observation) {
+  return [observation.ownPublic, observation.opponentPublic].every(player =>
+    !(player?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining > 0));
+}
+
+function snorlaxHoodWindow(observation) {
+  const own = observation.ownPublic?.active;
+  const opposing = observation.opponentPublic?.active;
+  if (!matches(own?.printing ?? '', PRINT.snorlax) ||
+      !opponentWobbuffetActive(observation) ||
+      !liveToolWindow(observation) ||
+      hasTool(opposing, PRINT.stealthyHood) ||
+      list(own?.tools).length > 0 ||
+      !Number.isFinite(own?.damage) || remainingHp(own) <= 0 ||
+      !slots(observation.opponentPublic).some(row => row.zone === 'bench')) return false;
+  // Do not spend the singleton Hood to trap a Wobbuffet that is already
+  // prevented from retreating by a visible attack/status effect.
+  if (opposing?.publicRestrictions?.cannotRetreat === true ||
+      opposing?.publicRestrictions?.cannotRetreatNextTurn === true ||
+      opposing?.publicRestrictions?.cannotRetreatWhileActive === true) return false;
+  // Psychic Assault: 10 + existing damage (no modifiers in the two fixed
+  // candidate lists for this exact attacker/defender pairing). One ordinary
+  // attachment on the next turn is possible. This is a conservative veto,
+  // not a complete opponent-action prediction.
+  if (energyCount(opposing) >= 1 && 10 + own.damage >= remainingHp(own)) return false;
+  return true;
+}
+
+function accessibleHoodThisTurn(observation) {
+  const hand = list(observation.ownHand);
+  if (hand.some(card => matches(card, PRINT.stealthyHood))) return true;
+  if (sourceCopiesRemaining(observation, PRINT.stealthyHood) === 0 ||
+      !supporterAvailable(observation) || !hasUnseenArvenSearchTargets(observation)) return false;
+  if (hand.some(card => matches(card, PRINT.arven))) return true;
+  return !itemLocked(observation) &&
+    hand.some(card => matches(card, PRINT.vsSeeker)) &&
+    list(observation.ownPublic?.discard).some(card => matches(card, PRINT.arven));
+}
+
+function attacklessDialga(pokemon) {
+  return matches(pokemon?.printing ?? '', PRINT.dialga) &&
+    list(pokemon?.energies).every(energy => /^(?:Basic )?Psychic Energy\b/i.test(valueText(energy)));
+}
+
+// Block's prohibition is on the opposing Active Pokémon. Conservatively
+// decline a Hood-protected trap unless the exact active Snorlax has a live
+// Tool Jammer, which suppresses that Active Pokémon's Hood. Tool-off epochs
+// suppress both Tools, so an attached Hood does not itself prevent Block.
+function dialgaBlockWorks(observation, snorlax, dialga) {
+  return matches(snorlax?.printing ?? '', PRINT.snorlax) && attacklessDialga(dialga) &&
+    (!liveToolWindow(observation) || !hasTool(dialga, PRINT.stealthyHood) ||
+      hasTool(snorlax, PRINT.toolJammer));
+}
+
+function dialgaTrapHeld(observation) {
+  return dialgaBlockWorks(observation, observation.ownPublic?.active,
+    observation.opponentPublic?.active);
+}
+
+function dialgaTrapAvailable(observation, viaGuzma = false) {
+  const own = observation.ownPublic;
+  const opponent = observation.opponentPublic;
+  if (dialgaTrapHeld(observation) || matches(opponent?.active?.printing ?? '', PRINT.dialga)) return false;
+  const eligible = viaGuzma
+    ? slots(own).filter(row => row.zone === 'bench' && matches(row.pokemon.printing, PRINT.snorlax))
+    : slots(own).filter(row => row.zone === 'active' && matches(row.pokemon.printing, PRINT.snorlax));
+  // When Guzma will later need to distinguish duplicate Snorlax printings,
+  // only claim a Hooded-Dialga trap if every possible Snorlax promotion
+  // restores Block; this avoids relying on an ambiguous target projection.
+  return eligible.length > 0 && slots(opponent).some(row => row.zone === 'bench' &&
+    eligible.every(s => dialgaBlockWorks(observation, s.pokemon, row.pokemon)));
+}
+
 function scoreSearchCard(printing, observation, context = '') {
   const own = observation.ownPublic;
   const opponent = observation.opponentPublic ?? {};
+  if (matches(printing, PRINT.stealthyHood) &&
+      ['arven', 'trainers-mail', 'star-alchemy', 'teammates', ''].includes(context)) {
+    return snorlaxHoodWindow(observation) &&
+      !list(observation.ownHand).some(card => matches(card, PRINT.stealthyHood)) ? 280 : 0;
+  }
   if (context === 'basic-search') return scoreBasicPlay(printing, observation);
   if (context === 'night-stretcher') {
     if ([PRINT.snorlax, PRINT.bunnelby, PRINT.girafarig, PRINT.articuno, PRINT.rotom]
@@ -529,9 +624,13 @@ function scoreBasicPlay(printing, observation) {
   if (matches(printing, PRINT.bunnelby)) return boardHas(own, PRINT.bunnelby) ? 55 : 120;
   if (matches(printing, PRINT.girafarig)) return boardHas(own, PRINT.girafarig) ? 35 : 110;
   if (matches(printing, PRINT.mimikyu)) {
-    const opponentHasV = slots(observation.opponentPublic).some(row =>
-      /\b(?:Pokémon )?V(?:MAX|STAR)?\b/i.test(row.pokemon.printing));
-    return !boardHas(own, PRINT.mimikyu) && opponentHasV ? 135 : 0;
+    // PAL 97 Safeguard prevents attack damage from Pokémon ex AND Pokémon V.
+    // Lowercase ex is intentional: the older Pokémon-EX mechanic is distinct.
+    // This is only a benching heuristic, not a universal damage/lock evaluator.
+    const opponentHasProtectedAttacker = slots(observation.opponentPublic).some(row =>
+      /(?:^| )V(?:MAX|STAR|-UNION)?(?: |$)/.test(row.pokemon.printing) ||
+      /(?:^| )ex(?: |$)/.test(row.pokemon.printing));
+    return !boardHas(own, PRINT.mimikyu) && opponentHasProtectedAttacker ? 135 : 0;
   }
   if (matches(printing, PRINT.rotom)) return boardHas(own, PRINT.rotom) ? 25 : 100;
   if (matches(printing, PRINT.articuno)) return boardHas(own, PRINT.articuno) ? 25 : 85;
@@ -564,7 +663,17 @@ function scoreAttack(item, observation) {
     return !gxUsed(observation) && opponentActiveEnergy(observation) >= 2 &&
       energyCount(own.active) <= 1 ? 185 : 0;
   }
-  if (name === 'Collapse') return activeHp > 0 && activeHp <= 150 ? 175 : 85;
+  if (name === 'Collapse') {
+    if (dialgaTrapHeld(observation)) {
+      // A nonlethal hit enables Acerola on previously undamaged Dialga;
+      // a non-winning KO frees the opponent to promote a real attacker.
+      // Keep the stall unless this very attack wins by prizes/no Pokémon.
+      const winsNow = activeHp > 0 && activeHp <= 150 &&
+        (own.prizeCount <= 2 || !slots(opponent).some(row => row.zone === 'bench'));
+      return winsNow ? 1000 : 0;
+    }
+    return activeHp > 0 && activeHp <= 150 ? 175 : 85;
+  }
   if (name === 'Ice Wing') return activeHp > 0 && activeHp <= 130 ? 155 : 90;
   if (name === 'Damage Rush') return 70;
   if (name === 'Ghost Eye') return activeHp > 0 && activeHp <= 70 ? 155 : 65;
@@ -676,11 +785,19 @@ function scoreAction(item, request) {
     return matches(target, PRINT.rotom) && !boardHasTool(own, PRINT.forestSealStone) ? 180 : 40;
   }
   if (matches(card, PRINT.toolJammer)) {
+    // Jammer cannot restore Block. Preserve the Active Tool slot while a
+    // held or immediately tutor-accessible Hood could do so.
+    if (activeTargetIsActorSnorlax(item, observation) &&
+        snorlaxHoodWindow(observation) && accessibleHoodThisTurn(observation)) return 0;
     return matches(target, PRINT.snorlax) ||
       (!target && matches(own.active?.printing ?? '', PRINT.snorlax)) ? 220 : 105;
   }
   if (matches(card, PRINT.floatStone)) return matches(target, PRINT.snorlax) ? 10 : 95;
-  if (matches(card, PRINT.stealthyHood)) return 45;
+  if (matches(card, PRINT.stealthyHood)) {
+    // No arbitrary attachment: the target must be the specific Active slot.
+    return activeTargetIsActorSnorlax(item, observation) &&
+      snorlaxHoodWindow(observation) ? 250 : 0;
+  }
   if (matches(card, PRINT.tropicalBeach)) {
     return !hasStadium(observation, PRINT.tropicalBeach) && hand.length <= 6 &&
       ownDeckCount(observation) > 7 ? 130 : 15;
@@ -706,6 +823,8 @@ function scoreAction(item, request) {
       return request.publicEventReceipt?.priorOpponentTurnKO?.any === true ? 140 : 0;
     }
     if (matches(card, PRINT.guzma)) {
+      if (dialgaTrapAvailable(observation, true)) return 290;
+      if (dialgaTrapHeld(observation)) return 0;
       if (!slots(opponent).some(row => row.zone === 'bench')) return 0;
       const activeIsSnorlax = matches(own.active?.printing ?? '', PRINT.snorlax);
       const damagedSnorlaxCanRotate = activeIsSnorlax && (own.active.damage ?? 0) >= 100 &&
@@ -771,8 +890,10 @@ function scoreAction(item, request) {
     return hasNightStretcherTargets(observation) ? 90 : 0;
   }
   if (matches(card, PRINT.counterCatcher)) {
-    return own.prizeCount > opponent.prizeCount &&
-      slots(opponent).some(row => row.zone === 'bench') ? 135 : 0;
+    if (!(own.prizeCount > opponent.prizeCount)) return 0;
+    if (dialgaTrapAvailable(observation)) return 300;
+    if (dialgaTrapHeld(observation)) return 0;
+    return slots(opponent).some(row => row.zone === 'bench') ? 135 : 0;
   }
   if (matches(card, PRINT.scoopCyclone)) {
     return slots(own).some(row => row.pokemon.damage >= 80 &&
@@ -886,12 +1007,16 @@ function publicChoiceSlot(player,choice) {
   return row?.pokemon.printing === printing ? row : null;
 }
 
-function opponentPokemonScore(choice, observation) {
+function opponentPokemonScore(choice, observation, gustMode = '') {
   if (choiceOwner(choice) !== 'opponent' ||
       !['bench', 'active'].includes(choiceZone(choice))) return 0;
   const row = publicChoiceSlot(observation.opponentPublic,choice);
   const pokemon = row?.pokemon;
   if (!pokemon) return 10;
+  if (gustMode && choiceZone(choice) === 'bench' &&
+      matches(valueText(choice), PRINT.dialga) &&
+      dialgaTrapAvailable(observation, gustMode === 'guzma') &&
+      attacklessDialga(pokemon)) return 1000;
   return 40 + energyCount(pokemon) * 30 +
     (pokemon.printed?.retreatCost?.length ?? 0) * 8 +
     (pokemon.printed?.stage === 'BASIC' ? 5 : 15);
@@ -1080,14 +1205,14 @@ function promptDecision(request) {
       const opponentChoices = choices.filter(choice => choiceOwner(choice) === 'opponent');
       if (opponentChoices.length) {
         return singleChoice(prompt, opponentChoices,
-          choice => opponentPokemonScore(choice, observation), 'NO_VISIBLE_POKEMON_TARGET');
+          choice => opponentPokemonScore(choice, observation, 'guzma'), 'NO_VISIBLE_POKEMON_TARGET');
       }
       return singleChoice(prompt, choices,
         choice => ownSwitchScore(choice, observation), 'NO_VISIBLE_POKEMON_TARGET');
     }
     if (/counter catcher/i.test(source)) {
       return singleChoice(prompt, choices,
-        choice => opponentPokemonScore(choice, observation), 'NO_VISIBLE_POKEMON_TARGET');
+        choice => opponentPokemonScore(choice, observation, 'counter-catcher'), 'NO_VISIBLE_POKEMON_TARGET');
     }
     if (/team flare grunt/i.test(source)) {
       const activeTargets = choices.filter(choice => choiceOwner(choice) === 'opponent' &&
@@ -1129,6 +1254,54 @@ function promptDecision(request) {
   }
 
   if (prompt.promptType === 'ChoosePrizePrompt') {
+    if (selectionType === 'prize-slots') {
+      // The native projection deliberately keeps ordinary Prize slots opaque.
+      // Accept only source-bound damaging rank-3 attacks, not a search effect
+      // (Gladion / Hisuian Heavy Ball require actual Prize identities).
+      const provenance = prompt.source ?? {};
+      const awardSources = [
+        [PRINT.snorlax, 'Collapse'], [PRINT.stunfisk, 'Damage Rush'],
+        [PRINT.regirock, 'Stone Edge'], [PRINT.mimikyu, 'Ghost Eye'],
+        [PRINT.girafarig, 'Mind Shock'], [PRINT.articuno, 'Ice Wing'],
+        [PRINT.rotom, 'Scrap Short']
+      ];
+      if (matches(provenance.sourcePrinting, PRINT.gladion) ||
+          matches(provenance.sourcePrinting, PRINT.heavyBall)) {
+        return { kind: 'abstain', reasonCode: 'HIDDEN_PRIZE_IDENTITY' };
+      }
+      if (provenance.classification !== 'actor-choice' ||
+          provenance.sourceKind !== 'card-effect' ||
+          !awardSources.some(([pattern, attack]) =>
+            matches(provenance.sourcePrinting, pattern) && provenance.effectName === attack) ||
+          metadata.ownerSeat !== 'actor' || metadata.sourceZone !== 'prizes' ||
+          metadata.isOwnerVisible !== false) {
+        return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PRIZE_SELECTION' };
+      }
+      const count = metadata.requiredCount;
+      const offered = choices.filter(choice => choice.kind === 'prize');
+      if (!Number.isSafeInteger(count) || count < 0 || count > offered.length ||
+          offered.some(choice => !Number.isSafeInteger(choice.publicMetadata?.selectionIndex) ||
+            choice.publicMetadata.selectionIndex < 0 ||
+            choice.publicMetadata.requiredCount !== count ||
+            choice.publicMetadata.ownerSeat !== 'actor' ||
+            choice.publicMetadata.sourceZone !== 'prizes' ||
+            choice.publicMetadata.isOwnerVisible !== false ||
+            typeof choice.token !== 'string' || !choice.token || choice.printing !== undefined) ||
+          new Set(offered.map(choice => choice.publicMetadata.selectionIndex)).size !== offered.length ||
+          new Set(offered.map(choice => choice.token)).size !== offered.length) {
+        return { kind: 'abstain', reasonCode: 'NO_LEGAL_PRIZE_SELECTION' };
+      }
+      if (count === 0) {
+        const empty = choices.filter(choice => choice.kind === 'empty-selection');
+        return empty.length === 1 && offered.length === 0 ?
+          { kind: 'select-choice', token: empty[0].token } :
+          { kind: 'abstain', reasonCode: 'NO_EMPTY_PRIZE_CHOICE' };
+      }
+      const tokens = offered.slice().sort((a,b) =>
+        a.publicMetadata.selectionIndex - b.publicMetadata.selectionIndex)
+        .slice(0,count).map(choice => choice.token);
+      return { kind: 'select-choices', tokens };
+    }
     return singleChoice(prompt, choices, choice => {
       if (matches(choice, PRINT.snorlax) || matches(choice, PRINT.bunnelby) ||
           matches(choice, PRINT.girafarig) || matches(choice, PRINT.toolJammer) ||
@@ -1159,6 +1332,8 @@ function promptDecision(request) {
 
 function isTurnEndingAction(item) {
   if (item.kind === 'attack' || item.kind === 'pass') return true;
+  // Rotom V's Instant Charge ends the turn, unlike Star Alchemy.
+  if (item.kind === 'use-ability' && item.publicMetadata?.abilityName === 'Instant Charge') return true;
   if (item.kind !== 'use-stadium') return false;
   const stadium = item.actorPrinting ?? item.publicMetadata?.stadiumPrinting ?? '';
   return matches(stadium, PRINT.tropicalBeach) || matches(stadium, PRINT.playersCeremony);
