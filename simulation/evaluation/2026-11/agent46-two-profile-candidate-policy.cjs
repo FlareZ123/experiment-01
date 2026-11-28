@@ -1691,6 +1691,41 @@ function rangerUnlocksUsefulItem(view,receipt) {
   return hand.some(p=>isItem(p)&&!hasName(p,'VS Seeker')&&
     Number.isFinite(scoreTrainerPlay({actorPrinting:p,publicMetadata:{}},after,receipt,null)));
 }
+// Project *only* explicitly temporary attack-effect restrictions. Ranger
+// never removes an opponent's ongoing Ability lock such as Vileplume BUS.
+// This projection ranks the Supporter; native actions still decide legality.
+function afterRangerAttackEffectClear(view) {
+  const own=view.ownPublic;
+  const active=own.active;
+  if(!active)return view;
+  const r=own.publicTurnRestrictions??{};
+  const a=active.publicRestrictions??{};
+  return {...view,ownPublic:{...own,
+    publicTurnRestrictions:{...r,attackLockTurnsRemaining:0,
+      attackMaxEnergyTurnsRemaining:0},
+    active:{...active,publicRestrictions:{...a,cannotAttackNextTurn:false,
+      cannotUseAttacksNextTurn:[],blockedAttackNameNextTurn:null,
+      onlyAllowedAttackNameNextTurn:null}}}};
+}
+function rangerOpensPaidAttack(view) {
+  const active=view.ownPublic.active;
+  const target=view.opponentPublic.active;
+  if(!active||!target||!Array.isArray(active.attacks))return false;
+  const projected=afterRangerAttackEffectClear(view);
+  return active.attacks.some(attack=>
+    canPayAttack(projected.ownPublic.active,attack,projected) &&
+    Number.isFinite(attackScore(projected.ownPublic.active,attack,
+      projected,projected.opponentPublic.active,{requirePayable:true})));
+}
+function rangerUnlocksFinalPrize(view) {
+  if(!rangerOpensPaidAttack(view))return false;
+  const before=publicFinalAttack(view,new Set(
+    (view.ownPublic.active?.attacks??[]).map(a=>a.name)));
+  if(before!==null)return false;
+  const projected=afterRangerAttackEffectClear(view);
+  return publicFinalAttack(projected,new Set(
+    (projected.ownPublic.active?.attacks??[]).map(a=>a.name)))!==null;
+}
 function usefulRanger(view,receipt=null) {
   const r = view.ownPublic.publicTurnRestrictions ?? {};
   const active = view.ownPublic.active;
@@ -1703,8 +1738,9 @@ function usefulRanger(view,receipt=null) {
     r.evolutionPlayLocked === true && handHas(view, 'Shadow Rider Calyrex VMAX');
   const unlockAttack = (r.attackLockTurnsRemaining > 0 ||
     r.attackMaxEnergyTurnsRemaining > 0 || a.cannotAttackNextTurn === true ||
-    (a.cannotUseAttacksNextTurn ?? []).length > 0 || isText(a.blockedAttackNameNextTurn)) &&
-    Array.isArray(active?.attacks) && active.attacks.some(attack => canPayAttack(active, attack, view));
+    (a.cannotUseAttacksNextTurn ?? []).length > 0 ||
+    isText(a.blockedAttackNameNextTurn)) &&
+    rangerOpensPaidAttack(view);
   return unlockItems || unlockOther || unlockAttack;
 }
 function rangerReserveNeed(view,printing) {
@@ -1888,7 +1924,8 @@ function supporterNeedScore(view, printing, receipt) {
   if (hasName(printing, 'Iono')) {
     return handResetNeed(view,printing);
   }
-  if (hasName(printing, 'Pokémon Ranger')) return usefulRanger(view,receipt) ? 110 : -5;
+  if (hasName(printing, 'Pokémon Ranger')) return
+    usefulRanger(view,receipt) ? rangerUnlocksFinalPrize(view)?300:110 : -5;
   return -5;
 }
 
@@ -3546,7 +3583,8 @@ function scoreTrainerPlay(item, view, receipt, profile) {
   const supporterUsed = !supporterAvailable(view);
   if (isItem(name) && itemLocked(view)) return -Infinity;
   if (isTool(name) && view.ownTurnResources?.toolPlayLocked === true) return -Infinity;
-  if (hasName(name,'Pokémon Ranger') && profile?.profileId==='hood-shield-shadow-rider-v1' && !supporterUsed && usefulRanger(view,receipt)) return 1100;
+  if (hasName(name,'Pokémon Ranger') && profile?.profileId==='hood-shield-shadow-rider-v1' && !supporterUsed && usefulRanger(view,receipt))
+    return rangerUnlocksFinalPrize(view)?20000:1100;
   if (hasName(name,'Temple of Sinnoh') && profile?.profileId==='lockbridge-shadow-rider-v1') return usefulTemple(view);
   if (hasName(name,'Float Stone')) {
     const target=actionTargetSlot(view,item.publicMetadata);

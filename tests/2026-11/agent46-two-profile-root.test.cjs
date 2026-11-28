@@ -2293,3 +2293,38 @@ test('Agent46: Compressor fuels held Raihan with precisely one searchable Psychi
       [playBC,playRaihan],koReceipt)),sel('raihan'));
   }
 });
+
+test('Agent46: attack-effect Ranger opens a guaranteed final and defeats competing Raihan',()=>{
+  for(const seat of [0,1]){
+    const ranger='Pokémon Ranger STS',raihan='Raihan EVS';
+    const dragon=defender({hp:280,damage:210});
+    const view=observation(seat,{active:vmax([P,P]),opponentActive:dragon,
+      ownHand:[ranger,raihan],ownDiscard:[P]});
+    view.globalTurn=8;view.ownPublic.prizeCount=2;
+    view.ownPublic.publicTurnRestrictions.attackLockTurnsRemaining=1;
+    const koReceipt={priorOpponentTurnKO:{any:true}};
+    const opts=[play('ranger',ranger),play('raihan',raihan)];
+    const get=()=>worker.createPolicy({role:'candidate',seat,
+      policyVersion:worker.POLICY_VERSION,config:profiles[0]})
+      .decideWithAudit(root(seat,view,opts,koReceipt));
+    assert.deepEqual(get().decision,sel('ranger'));
+    assert.equal(get().policyAudit.selectionRuleCode,'ROOT_BEST_SCORED_ACTION');
+    const after={...view,ownPublic:{...view.ownPublic,
+      publicTurnRestrictions:{...view.ownPublic.publicTurnRestrictions,
+        attackLockTurnsRemaining:0}}};
+    assert.deepEqual(decide(profiles[0],root(seat,after,
+      [{token:'max',kind:'attack',attackName:'Max Geist'}])),sel('max'));
+
+    // An opponent's live, continuous Vileplume BUS Ability is unaffected by
+    // Ranger and still forbids Basic Shadow Mist, even if an old attack
+    // restriction happens to coexist.
+    const vile=pokemon({printing:'Vileplume BUS',name:'Vileplume',
+      hp:140,damage:130,types:['Grass'],subtypes:['Stage 2'],
+      abilities:['Disgusting Pollen'],suppression:false});
+    const blocked=observation(seat,{active:v([P]),opponentActive:vile,
+      ownHand:[ranger]});
+    blocked.ownPublic.publicTurnRestrictions.attackLockTurnsRemaining=1;
+    assert.deepEqual(decide(profiles[0],root(seat,blocked,
+      [play('ranger',ranger)])),sel('pass'));
+  }
+});
