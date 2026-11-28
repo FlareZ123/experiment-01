@@ -412,10 +412,15 @@ which distinguishes exact Garbotoxin printings equipped
 with a **live attached Tool** on either Active or
 Bench, and known Active-only
 `Iron Thorns ex` / `Galarian Weezing RCL113`.
-The attached Tool has no enabling effect while
-`Jamming Tower` or explicit global Tool suppression
-is live; actor-visible Garbotoxin suppression also
-negates the lock. The candidate no longer burns
+**Jamming Tower does not detach Pokémon Tools**:
+it suppresses their own effects, but Garbotoxin's
+condition is Tool *attachment*, not a live Tool
+effect. Garbotoxin therefore remains active under
+Jamming Tower, while the countering **Stealthy Hood**
+Tool itself is disabled there. A source-certified
+suppression of the **Garbotoxin Ability** (not merely
+the attached Tool's effect) can instead disable
+the lock. The candidate no longer burns
 **Radiant Eternatus** (Climactic Gate),
 **Tapu Lele-GX** (Wonder Tag), or
 **Marshadow UNB81** (Resetting Hole) in those
