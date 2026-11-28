@@ -89,6 +89,12 @@ for(const seat of [0,1]){
     root(seat,0,false),{kind:'select-action',token:'bench-radiant'}));
   test('Do not Radiant over funded Max Geist '+seat,()=>check(
     root(seat,0,true),{kind:'select-action',token:'max-geist'}));
+  test('Do not expect Climactic Gate under Iron Thorns Initialization '+seat,
+    ()=>{
+      const input=root(seat,0,false);
+      input.observation.opponentPublic.active.printing='Iron Thorns ex TWM 77';
+      check(input,{kind:'select-action',token:'pass'});
+    });
   test('Do not Radiant when no VMAX bench room '+seat,()=>check(
     root(seat,4,false),{kind:'select-action',token:'pass'}));
   test('Climactic Gate native Yes confirmation '+seat,()=>check(
