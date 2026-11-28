@@ -78,4 +78,44 @@ function chooseNativeSearchPrompt(offer,role,desired) {
   return card?{status:'select-choice',token:card.token,name:card.name}:
     {status:'unavailable',reason:'EXPECTED_PRINTING_NOT_OFFERED'};
 }
-module.exports={eligibleRoot,chooseNativeSearchPrompt};
+/**
+ * After G&H retrieves Telepathic Psychic Energy, its native Basic Psychic search
+ * may bench Solrock+Lunatone, activating own New Moon and cancelling beneficial
+ * Dimension Valley. Select real native-offered tokens while preserving discount.
+ * No hidden deck/Prize information and never invent card names not offered.
+ */
+function selectValleyCompatibleTpeBasics(nativeOffer,state) {
+  if(!nativeOffer||!Array.isArray(nativeOffer.choices)||!state||
+     !nativeOffer.choices.every(x=>x&&typeof x.token==='string'&&x.token.length>0&&
+       typeof x.name==='string'&&x.name.length>0)||
+     !Number.isSafeInteger(state.needBasicCount)||state.needBasicCount<0||
+     state.needBasicCount>2||!Number.isSafeInteger(state.openBenchSlots)||
+     state.openBenchSlots<0||
+     typeof state.hasSolrockInPlay!=='boolean'||
+     typeof state.hasLunatoneInPlay!=='boolean'||
+     typeof state.valleyDiscountNeeded!=='boolean')
+    return {status:'unsupported',reason:'TPE_NATIVE_SEARCH_FACTS_MISSING'};
+  if(state.needBasicCount>state.openBenchSlots)
+    return {status:'blocked',reason:'INSUFFICIENT_BENCH_SLOTS'};
+  if(new Set(nativeOffer.choices.map(x=>x.token)).size!==nativeOffer.choices.length)
+    return {status:'unsupported',reason:'TPE_OFFER_DUPLICATE_SOURCE_TOKEN'};
+  if(state.valleyDiscountNeeded&&state.hasSolrockInPlay&&state.hasLunatoneInPlay)
+    return {status:'blocked',reason:'NEW_MOON_ALREADY_ACTIVE'};
+  const rows=nativeOffer.choices;
+  const pool=state.needBasicCount===0?[[]]:
+    state.needBasicCount===1?rows.map(x=>[x]):
+      rows.flatMap((x,i)=>rows.slice(i+1).map(y=>[x,y]));
+  for(const picks of pool){
+    const hasSol=state.hasSolrockInPlay||picks.some(x=>x.name==='Solrock');
+    const hasLuna=state.hasLunatoneInPlay||picks.some(x=>x.name==='Lunatone');
+    if(state.valleyDiscountNeeded&&hasSol&&hasLuna)continue;
+    return {status:'candidate',tokens:picks.map(x=>x.token),
+      selectedNames:picks.map(x=>x.name),
+      preservedValleyDiscount:state.valleyDiscountNeeded,
+      revalidateAfterEachPlacement:true,
+      information:'native source options only; no deck/Prize contents assumed'};
+  }
+  return {status:'blocked',reason:'TPE_SEARCH_WOULD_ACTIVATE_NEW_MOON'};
+}
+module.exports={eligibleRoot,chooseNativeSearchPrompt,selectValleyCompatibleTpeBasics};
+
