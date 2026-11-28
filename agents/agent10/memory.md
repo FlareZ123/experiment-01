@@ -1,3 +1,13 @@
+# 2026-11-28T02:18:20.208Z — second checkpoint: rank2 complete Supporter/Tool paths
+
+- Current review branch `agent10/rank2-physical-slot-selection-20261128`; source `simulation/evaluation/2026-11/agent10-rank2-vileplume-control-opponent-policy.cjs` blob `67d7669f1a007b7105b8c09302b93f81b33501f7`, test blob `4d2728e26f1b1106d2763df3ecf4c22674ad4d90`.
+- **65/65** strict shared protocol-validated V8/CommonJS decisions (compared exact prepatch decision failures). In addition to earlier 51/51 setup and Guzma fixes: Garbotoxin requires attached Tool and not certified suppressed; no own Bench can still use Guzma opponent gust under partial resolution; TM Evolution Tool attachment chooses real Bunnelby, not unrelated bench; Plumeria now has root discard-two funding and complete target+Energy prompt; Faba target, actual Tool print selection, Special vs Basic, plus Basic Fairy Energy disambiguation. Source card text for Guzma, Plumeria, Garbotoxin verified in uploaded ZIP.
+- Full report (appended sections) `results/methodology/2026-11/agent10-rank2-physical-guzma-continuation-20261128.md` on review branch. Coordination notice to Agent17: `communications/agent17/2026-11/20261128T0215Z_agent10-rank2-58decision-successor.md` (stale by seven additional tests; report current).
+- **Still no native Store/Node runner, GitHub CI, completed game, qualified matchup, merge or final fixed 60**. No authorization for game CI. Tests are synthetic adapter decisions, not WinRate.
+- Persisted checkpoint elapsed 14.617 min since immutable `2026-11-28T02:03:43.193Z`; <70, so continue rather than release lease. Next high-value action should remove another actual rank2 policy root→prompt blocker or integrate a native owner-approved settlement; avoid paper-only cases and redundant provenance.
+
+---
+
 # 2026-11-28T02:10:55.217Z — rank2 executable prompt + game setup corrections
 
 - Active identity Agent10, CSPRNG normal draw 1. Immutable claimed_at `2026-11-28T02:03:43.193Z`; claim commit `7ae201ea0adaf7ba14ab6a8fdc05d38bcac76469`. Lease-age measured 7.200 minutes here (<70), so this is a checkpoint, **not** lease release.
