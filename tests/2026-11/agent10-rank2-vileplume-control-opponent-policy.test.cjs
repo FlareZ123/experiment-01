@@ -1537,6 +1537,27 @@ test('Faba does not misclassify Basic Fairy Energy as removable Special Energy',
   assert.deepEqual(checkedDecision(request),{kind:'select-action',token:'pass'});
 });
 
+
+test('Plumeria spends Special Energy rather than Basic Fairy Energy from same Pokemon',()=>{
+  const request=promptRequest({
+    promptType:'ChooseEnergyPrompt',
+    source:actorChoiceSource('Plumeria BUS 120','Plumeria'),
+    choices:[
+      {token:'fairy',kind:'energy',printing:'Fairy Energy SUM 172',
+        label:'Fairy Energy SUM 172',publicMetadata:{energyType:'Fairy'}},
+      {token:'double-dragon',kind:'energy',
+        printing:'Double Dragon Energy ROS 97',label:'Double Dragon Energy ROS 97',
+        publicMetadata:{energyType:'Dragon'}}
+    ],
+    publicMetadata:{selectionType:'energy-payment',count:2,
+      energyCount:1,energyType:'',allowCancel:false},
+    observation:{opponentPublic:player({active:pokemon('Regidrago V SIT 135',{
+      energies:['Fairy Energy SUM 172','Double Dragon Energy ROS 97']})})}
+  });
+  assert.deepEqual(checkedDecision(request),{
+    kind:'select-choices',tokens:['double-dragon']});
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
