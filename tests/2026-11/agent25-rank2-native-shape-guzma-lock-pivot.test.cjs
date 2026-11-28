@@ -10,22 +10,24 @@ const { POLICY_VERSION, createPolicy } =
 
 const stoutland = { printing: 'Stoutland BCR 122', hp: 140, damage: 0, tools: [] };
 const bunnelby = { printing: 'Bunnelby PRC 121', hp: 60, damage: 0 };
-const duplicate = 'Gengar & Mimikyu-GX TEU 53';
+const duplicate = 'Shadow Rider Calyrex V CRE 74';
 function actorView(seat) {
   return {
     actorSeat: seat, globalTurn: 4, ownHand: ['Guzma BUS 115', 'Cassius XY 123'],
     ownPublic: {
-      active: bunnelby, bench: [stoutland, bunnelby, null, null, null],
-      publicTurnRestrictions: { supporterPlayLocked: false }
+      active: bunnelby, bench: [stoutland, bunnelby,
+        { printing: 'Vileplume AOR 3', hp: 130, damage: 0,
+          abilities: ['Irritating Pollen'] }, null, null],
+      publicTurnRestrictions: { itemPlayLocked: true, supporterPlayLocked: false }
     },
     opponentPublic: {
-      active: { printing: 'Regidrago VSTAR SIT 136', hp: 280, damage: 0,
-        energies: ['Double Dragon Energy ROS 97'] },
+      active: { printing: 'Shadow Rider Calyrex VMAX CRE 75', hp: 320, damage: 0,
+        energies: ['Psychic Energy MEE 13'] },
       bench: [
-        { printing: duplicate, hp: 240, damage: 0,
+        { printing: duplicate, hp: 210, damage: 0,
           energies: ['Double Colorless Energy NXD 92'], tools: [],
           printed: { retreatCost: ['COLORLESS', 'COLORLESS'] } },
-        { printing: duplicate, hp: 240, damage: 0,
+        { printing: duplicate, hp: 210, damage: 0,
           energies: [], tools: [],
           printed: { retreatCost: ['COLORLESS', 'COLORLESS'] } },
         null, null, null
@@ -167,4 +169,52 @@ for (const seat of [0, 1]) {
       { kind: 'select-action', token: 'guzma' });
     assert.deepEqual(policy(seat).decide(promptRequest(seat, view, 'actor')), pick(0));
   });
+  test('seat ' + seat + ': visible unsuppressed Hood Shield Latias ex Skyliner vetoes Basic retreat trap', () => {
+    const view = actorView(seat);
+    view.opponentPublic.bench[2] = {
+      printing: 'Latias ex SSP 76', abilities: ['Skyliner'],
+      abilitySuppressions: [{ abilityName: 'Skyliner', suppressed: false }]
+    };
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)), pass());
+  });
+
+  test('seat ' + seat + ': Skyliner with unknown suppression is conservatively treated as live', () => {
+    const view = actorView(seat);
+    view.opponentPublic.bench[2] = {
+      printing: 'Latias ex SSP 76', abilities: ['Skyliner']
+    };
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)), pass());
+  });
+
+  test('seat ' + seat + ': verified suppression of Skyliner restores a nominal Guzma trap', () => {
+    const view = actorView(seat);
+    view.opponentPublic.bench[2] = {
+      printing: 'Latias ex SSP 76', abilities: ['Skyliner'],
+      abilitySuppressions: [{ abilityName: 'Skyliner', suppressed: true }]
+    };
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)),
+      { kind: 'select-action', token: 'guzma' });
+  });
+
+  test('seat ' + seat + ': U-Turn Board vetoes a claimed unpowered retreat trap', () => {
+    const view = actorView(seat);
+    view.opponentPublic.bench[1].tools = ['U-Turn Board UNM 211'];
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)), pass());
+  });
+
+  test('seat ' + seat + ': Skyliner cannot give a non-Basic VMAX free retreat', () => {
+    const view = actorView(seat);
+    view.opponentPublic.bench[1] = {
+      printing: 'Shadow Rider Calyrex VMAX CRE 75', hp: 320, damage: 0,
+      energies: [], tools: [],
+      printed: { stage: 'STAGE1', retreatCost: ['COLORLESS', 'COLORLESS', 'COLORLESS'] }
+    };
+    view.opponentPublic.bench[2] = {
+      printing: 'Latias ex SSP 76', abilities: ['Skyliner'],
+      abilitySuppressions: [{ abilityName: 'Skyliner', suppressed: false }]
+    };
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)),
+      { kind: 'select-action', token: 'guzma' });
+  });
+
 }
