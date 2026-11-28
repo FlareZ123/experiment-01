@@ -527,3 +527,41 @@ for(const seat of [0,1]) {
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' actor-visible Energy funding prioritizes live then reserve Clefairy',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active={printing:clef,energies:[psychic]};
+    r.observation.ownPublic.bench=[{printing:clef,energies:[psychic]}];
+    r.observation.ownHand=[psychic,'Telepathic Psychic Energy POR 88'];
+    const energyRoot=(source,token,zone,index)=>({
+      ...root('play-card',source,token,{
+        targetSeat:'actor',targetZone:zone,
+        ...(zone==='bench'?{targetIndex:index}:{}),isOwnerVisible:true}),
+      targetPrinting:clef
+    });
+    r.actionFrontier.items=[
+      energyRoot(psychic,'basic-bench','bench',0),
+      energyRoot('Telepathic Psychic Energy POR 88','telepath-bench','bench',0),
+      energyRoot(psychic,'basic-active','active'),
+      energyRoot('Telepathic Psychic Energy POR 88','telepath-active','active')
+    ];
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'telepath-active'});
+    r.observation.ownPublic.active.energies.push(psychic);
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'telepath-bench'});
+    r.observation.ownPublic.bench[0].energies.push(psychic);
+    r.observation.ownPublic.stadium=['Sky Field ROS 89'];
+    r.observation.ownPublic.bench=Array.from({length:8},(_,i)=>
+      i===0?r.observation.ownPublic.bench[0]:
+        {printing:'Unown AOR 30',energies:[]});
+    // Both attackers funded and no Bench room: don't overattach an Energy.
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    r.actionFrontier.items=[{
+      ...energyRoot(psychic,'cross-seat','active'),publicMetadata:{
+        targetSeat:'opponent',targetZone:'active',isOwnerVisible:true}}];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  });
+}
