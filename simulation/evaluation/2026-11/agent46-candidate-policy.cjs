@@ -1332,6 +1332,46 @@ function chooseEngineSetupPrompt(view, prompt) {
  * Trust only the typed, source-certified, actor-visible native choices,
  * retaining their opaque token and exact Bench index.
  */
+// Raihan EVS152's Basic-from-discard attachment may be exposed as a
+// single native AttachEnergyPrompt with actor-owned active or Bench targets.
+// Select ONLY an opaque native choice carrying a real source-printed Psychic
+// Energy and a matching visible recipient; no fabricated card/slot actions.
+function chooseRaihanEnergyAssignment(view, prompt) {
+  setPolicyAuditRule('RAIHAN_BASIC_FROM_DISCARD_ATTACH', 'SCORE_DESC_INDEX_ASC');
+  const meta = prompt.publicMetadata;
+  const source = prompt.source;
+  if (source?.sourceKind !== 'card-effect' ||
+      source.effectName !== 'Raihan' ||
+      source.sourcePrinting !== 'Raihan EVS 152' ||
+      meta?.selectionType !== 'energy-attachment' ||
+      meta.ownerSeat !== 'actor' || meta.isOwnerVisible !== true ||
+      meta.sourceZone !== 'discard' || meta.energyType !== 'BASIC' ||
+      meta.minimumCount !== 1 || meta.maximumCount !== 1)
+    return abstain('UNTRUSTED_PROMPT_SOURCE');
+  const eligible = [];
+  for (const choice of prompt.choices) {
+    const m = choice.publicMetadata;
+    const slot = m?.zone === 'active' ? view.ownPublic.active :
+      (m?.zone === 'bench' && Number.isSafeInteger(m.benchIndex) &&
+       m.benchIndex >= 0 ? view.ownPublic.bench[m.benchIndex] : null);
+    if (choice.kind !== 'energy' ||
+        choice.printing !== 'Psychic Energy MEE 13' ||
+        m?.sourceZone !== 'discard' || m.ownerSeat !== 'actor' ||
+        m.isOwnerVisible !== true || m.energyType !== 'BASIC' || !slot) {
+      recordPolicyAuditUnscored(choice.token, 'UNTRUSTED_RAIHAN_ENERGY_ASSIGNMENT');
+      continue;
+    }
+    const score = raihanRecipientScore(view, slot);
+    recordPolicyAuditScore(choice.token, score, 'UNSCORED_RAIHAN_RECIPIENT');
+    eligible.push({ choice, score, index: m.zone === 'active' ? -1 : m.benchIndex });
+  }
+  eligible.sort((a,b)=>b.score-a.score || a.index-b.index ||
+    a.choice.token.localeCompare(b.choice.token));
+  return eligible.length ?
+    {kind:'select-choice',token:eligible[0].choice.token} :
+    abstain('NO_VISIBLE_ENERGY_CHOICE');
+}
+
 function chooseUnderworldEnergyAssignment(view, prompt) {
   setPolicyAuditRule('UNDERWORLD_ENERGY_TO_PSYCHIC_BENCH', 'SCORE_DESC_INDEX_ASC');
   const meta=prompt.publicMetadata;
@@ -1405,6 +1445,8 @@ function choosePrompt(view, prompt, receipt) {
   }
   switch (prompt.promptType) {
     case 'AttachEnergyPrompt':
+      if (prompt.source.effectName === 'Raihan')
+        return chooseRaihanEnergyAssignment(view, prompt);
       return chooseUnderworldEnergyAssignment(view,prompt);
     case 'ChooseCardsPrompt':
       return chooseCardCombination(view, prompt);
