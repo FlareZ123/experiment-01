@@ -57,6 +57,7 @@ test('root prioritization defers to original worker when proof or legal VS Seeke
     r=>{r.observation.ownPublic.discard.push('Fire Energy MEE',
       'Fire Energy MEE');},
     r=>{r.observation.ownTurnResources.supporterPlayedTurn=1;},
+    r=>{r.observation.ownPublic.publicTurnRestrictions.itemPlayLocked=true;},
     r=>{r.observation.ownPublic.active.energies.push({printing:'Grass Energy MEE'});},
     r=>{r.observation.opponentPublic.active.damage=70;},
     r=>{r.actionFrontier.items=[legacy,{kind:'pass',token:'pass'}];},
