@@ -231,6 +231,62 @@ function actorPokemonBench(p) {
     x.publicMetadata?.ownerSeat==='actor'&&x.publicMetadata?.targetZone==='bench'&&
     typeof x.token==='string');
 }
+function grandTreeTarget(o) {
+  if(!Number.isSafeInteger(o?.globalTurn)||o.globalTurn<=2)return null;
+  const own=o.ownPublic;
+  const established=arr(own?.bench).filter(x=>x&&
+    Number.isSafeInteger(x.lastPlayedOrEvolvedTurn)&&
+    x.lastPlayedOrEvolvedTurn<o.globalTurn);
+  return established.find(x=>has(x,P.oddish))||
+    established.find(x=>has(x,P.pidgey))||
+    established.find(x=>has(x,P.buneary))||null;
+}
+function grandTreePrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  const own=o.ownPublic;
+  if(p.promptType==='ChoosePokemonPrompt'&&m.selectionType==='pokemon'&&
+     Number.isSafeInteger(m.minimumCount)&&Number.isSafeInteger(m.maximumCount)&&
+     m.minimumCount<=1&&m.maximumCount<=1){
+    const target=grandTreeTarget(o);
+    const c=actorPokemonBench(p).find(c=>{
+      if(!target||!has(c,has(target,P.oddish)?P.oddish:
+        has(target,P.pidgey)?P.pidgey:P.buneary))return false;
+      const i=c.publicMetadata?.benchIndex;
+      return !Number.isSafeInteger(i)||
+        o.ownPublic.bench[i]?.printing===target.printing;
+    });
+    if(c)return {kind:'select-choices',tokens:[c.token]};
+    const empty=arr(p.choices).find(c=>c.kind==='empty-selection'&&typeof c.token==='string');
+    return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
+      abstain('NO_SUPPORTED_POKEMON_CHOICE');
+  }
+  if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
+     !actorCardZone(p,'deck')||!Number.isSafeInteger(m.minimumCount)||
+     !Number.isSafeInteger(m.maximumCount)||m.minimumCount>1||m.maximumCount>1)
+    return abstain('UNSUPPORTED_CARD_COMBINATION_SOURCE');
+  const board=slots(own);
+  let priorities=[];
+  // The stage-one search happens while the prior-turn Basic remains in play;
+  // the second prompt occurs after the engine has already evolved to Stage 1.
+  if(board.some(x=>has(x,P.gloom))){
+    priorities=board.some(x=>has(x,P.aor))?[P.bus,P.aor]:[P.aor,P.bus];
+  }else if(board.some(x=>has(x,P.oddish))){
+    priorities=[P.gloom];
+  }else if(board.some(x=>has(x,P.pidgeotto))){
+    priorities=[P.pidgeot];
+  }else if(board.some(x=>has(x,P.pidgey))){
+    priorities=[P.pidgeotto];
+  }else if(board.some(x=>has(x,P.buneary))){
+    priorities=[P.mega];
+  }
+  for(const pat of priorities){
+    const c=arr(p.choices).find(c=>c.kind==='card'&&has(c,pat)&&typeof c.token==='string');
+    if(c)return {kind:'select-choices',tokens:[c.token]};
+  }
+  const empty=arr(p.choices).find(c=>c.kind==='empty-selection'&&typeof c.token==='string');
+  return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
+    abstain('NO_LEGAL_CARD_SET');
+}
 function quickSearchPrompt(request) {
   const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
   if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
@@ -518,6 +574,8 @@ function rootDecision(request) {
   const fanNeeds=[P.bunnelby,P.pidgey,P.buneary].some(p=>
     ![...slots(o.ownPublic),...arr(o.ownHand)].some(c=>has(c,p)));
   if(fanCall&&fanNeeds&&benchCount(o.ownPublic)<5&&o.globalTurn<=2)return take(fanCall);
+  const grand=items.find(x=>x.kind==='use-stadium'&&has(ownPrinting(x),P.grandTree));
+  if(grand&&grandTreeTarget(o))return take(grand);
   const quick=items.find(x=>x.kind==='use-ability'&&
     x.publicMetadata?.abilityName==='Quick Search'&&
     (has(ownPrinting(x),P.pidgeot)||slots(o.ownPublic).some(c=>has(c,P.pidgeot))));
@@ -613,6 +671,7 @@ function createPolicy({role,seat,policyVersion,config}) {
       if(has(request.prompt?.source?.sourcePrinting,P.poffin))return poffinPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.fan))return fanCallPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.pidgeot))return quickSearchPrompt(request);
+      if(has(request.prompt?.source?.sourcePrinting,P.grandTree))return grandTreePrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.tagCall))return tagCallPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.guzmaHala))return ghPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.tmEvolution))return evolutionPrompt(request);
@@ -630,4 +689,4 @@ function createPolicy({role,seat,policyVersion,config}) {
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,
   createPolicy,rootDecision,poffinPrompt,printedDamage,movementEvidence,
-  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
+  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,grandTreePrompt,grandTreeTarget,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
