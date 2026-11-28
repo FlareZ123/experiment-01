@@ -12,7 +12,7 @@ function request(seat,ownHand,ownBench,sourcePrinting,zone,items,min,max) {
   return {
     role:'opponent',seat,
     observation:{actorSeat:seat,globalTurn:4,ownHand,
-      ownTurnResources:{vstarUsed:false},
+      ownTurnResources:{vstarUsed:false,supporterPlayedTurn:0,energyPlayedTurn:0},
       ownPublic:{active:{printing:'Unown AOR 30'},bench:ownBench.map(printing=>({printing})),
         discard:[],stadium:[],deckCount:24,prizeCount:4},
       opponentPublic:{active:{printing:'Shadow Rider Calyrex VMAX CRE 75',hp:320,damage:0},
@@ -127,7 +127,8 @@ for(const seat of [0,1]) {
       ['Squawkabilly ex PAL 169','nonpsychic']],0,2);
     r.prompt=null;
     r.actionFrontier.items=[{kind:'play-card',actorPrinting:alias,
-      targetPrinting:clef,token:'telepath-attach'}];
+      targetPrinting:clef,token:'telepath-attach',
+       publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:0,isOwnerVisible:true}}];
     assert.deepEqual(p(seat).decide(r),{kind:'select-action',token:'telepath-attach'});
     r.prompt=request(seat,[alias],[clef],alias,'deck',
       [[clef,'clef'],['Latias ex SSP 76','latias'],
