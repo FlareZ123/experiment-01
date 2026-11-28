@@ -15,6 +15,22 @@ const SOURCE_RANK=27;
 const SOURCE_BLOB_SHA1='ae773f6201d7aa69d31914dbfee66f3fba692200';
 const SOURCE_PRINTINGS=Object.freeze([["Regidrago V SIT 135",4],["Regidrago VSTAR SIT 136",3],["Dialga-GX UPR 100",2],["Dragapult ex TWM 130",1],["Koraidon ex TEF 120",1],["Noivern ex PAL 153",1],["Kyurem SFA 47",1],["Dedenne-GX UNB 57",1],["Crobat V DAA 104",1],["Tapu Lele-GX GRI 60",1],["Eldegoss V RCL 19",1],["Latias ex SSP 76",1],["Budew ASC 16",1],["Marshadow UNB 81",1],["Professor Sycamore BKP 107",2],["Guzma BUS 115",2],["Carmine TWM 145",1],["Marnie SSH 169",1],["N FCO 105",1],["Raihan EVS 152",1],["Crispin SCR 133",1],["Mysterious Treasure FLI 113",4],["Quick Ball FST 237",4],["VS Seeker PHF 109",2],["Hisuian Heavy Ball ASR 146",1],["Ultra Ball MEG 131",1],["Net Ball LOT 187",1],["Battle Compressor PHF 92",1],["Super Rod PAL 188",1],["Echoing Horn CRE 136",1],["Prime Catcher TEF 157",1],["Muscle Band XY 121",2],["Parallel City BKT 145",1],["Path to the Peak CRE 148",1],["Double Dragon Energy ROS 97",4],["Grass Energy MEE 9",4],["Fire Energy MEE 10",2]]);
 const SOURCE_SET=new Set(SOURCE_PRINTINGS.map(([name])=>name));
+const SOURCE_RUNTIME_ALIAS=new Map();
+for(const [exact] of SOURCE_PRINTINGS){
+  const alias=exact.replace(/ [0-9][A-Za-z0-9/-]*$/,'');
+  if(alias===exact)throw Error('SOURCE_PRINTING_NUMBER_MISSING');
+  if(SOURCE_RUNTIME_ALIAS.has(alias)&&SOURCE_RUNTIME_ALIAS.get(alias)!==exact)
+    throw Error('AMBIGUOUS_NATIVE_SOURCE_ALIAS');
+  SOURCE_RUNTIME_ALIAS.set(alias,exact);
+}
+function resolveSourcePrinting(raw){
+  if(typeof raw!=='string')return null;
+  // Exact source number always wins. A mismatched explicit number is never
+  // silently stripped to an allowed source id.
+  if(SOURCE_SET.has(raw))return raw;
+  return SOURCE_RUNTIME_ALIAS.get(raw)??null;
+}
+
 const PREFIX=Object.freeze({
   regidragoV:'Regidrago V SIT 135',
   regidragoVstar:'Regidrago VSTAR SIT 136',
@@ -51,8 +67,11 @@ const EXECUTABLE=new Set([
   'play-card','attack','retreat','use-ability','use-stadium','pass'
 ]);
 function arr(value){return Array.isArray(value)?value:[];}
-function name(value){return typeof value==='string'?value:
-  (value?.printing??value?.fullName??value?.actorPrinting??value?.targetPrinting??'');}
+function name(value){
+  const raw=typeof value==='string'?value:
+    (value?.printing??value?.fullName??value?.actorPrinting??value?.targetPrinting??'');
+  return resolveSourcePrinting(raw)??raw;
+}
 function is(value,printing){return name(value)===printing;}
 function board(player){return [player?.active,...arr(player?.bench)].filter(Boolean);}
 function has(player,printing){return board(player).some(p=>is(p,printing));}
@@ -225,16 +244,17 @@ function pick(choices,score,min=1,max=1,singleSelect=false){
 }
 function effectSource(prompt){
   const s=prompt?.source;
+  const sourcePrinting=resolveSourcePrinting(s?.sourcePrinting);
   return s?.classification==='actor-choice'&&s?.sourceKind==='card-effect'&&
-    SOURCE_SET.has(s.sourcePrinting)&&typeof s.effectName==='string'?
-    s:null;
+    sourcePrinting!==null&&typeof s.effectName==='string'?
+    {...s,sourcePrinting}:null;
 }
 function metadataOwnerVisible(choice){
   const m=choice?.publicMetadata??{};
   return m.ownerSeat==='actor'&&m.isOwnerVisible===true;
 }
 function donorScore(choice,obs){
-  const source=choice?.printing,attack=choice?.publicMetadata?.sourceAttack??'';
+  const source=name(choice?.printing),attack=choice?.publicMetadata?.sourceAttack??'';
   if(!DRAGON_PAYLOADS.has(source)||!visibleDonors(obs).some(x=>name(x)===source)||
       choice.kind!=='attack'||!metadataOwnerVisible(choice)||
       choice.publicMetadata?.sourceZone!=='discard')return -Infinity;
@@ -472,4 +492,4 @@ function createPolicy({role,seat,policyVersion,config}){
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_BLOB_SHA1,SOURCE_PRINTINGS,
-  createPolicy,scoreRoot,choosePrompt,donorScore};
+  createPolicy,scoreRoot,choosePrompt,donorScore,resolveSourcePrinting};
