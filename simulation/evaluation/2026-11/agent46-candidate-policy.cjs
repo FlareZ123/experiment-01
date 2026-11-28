@@ -1646,7 +1646,13 @@ function scoreEnergyPlay(item, view, receipt) {
       { publicEventReceipt: receipt });
     if (!before && after) return 1120;
   }
-  if (mimikyuNeedsCopycatEnergy(view, target)) return 920;
+  // Proactive Copycat funding is for the Bench. If Mimikyu is already
+  // Active, an absent last-attack receipt cannot justify consuming the
+  // sole manual attachment just to reach hypothetical future payment;
+  // its immediate attack-enabling branch above already handles a real
+  // source-stamped Apex Dragon receipt.
+  if (metadata.targetZone === 'bench' &&
+      mimikyuNeedsCopycatEnergy(view, target)) return 920;
   if (hasName(target.printing, 'Shadow Rider Calyrex VMAX') &&
       psychicEnergyCount(view) < 5 && count < 5) return 880;
   if (opponentHasDragon(view) && hasName(target.printing, "Lillie's Clefairy ex") &&
