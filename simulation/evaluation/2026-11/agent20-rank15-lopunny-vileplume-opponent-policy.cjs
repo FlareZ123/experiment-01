@@ -471,11 +471,10 @@ function guzmaOpportunity(o,{resolvingGuzma=false}={}) {
   const prizes=Number.isSafeInteger(own.prizeCount)?own.prizeCount:null;
   const ranked=targets.map((x,index)=>{
     if(!x||!Number.isSafeInteger(x.hp)||!Number.isSafeInteger(x.damage)||
-      x.hp<=x.damage||x.hp-x.damage>230||
-      arr(x.tools).length>0||
-      arr(x.printed?.weakness).length>0||
-      arr(x.printed?.resistance).length>0||
-      arr(x.abilitySuppressions).length>0) return null;
+      x.hp<=x.damage||arr(x.tools).length>0||
+      arr(x.abilitySuppressions).some(z=>z.suppressed===false))return null;
+    const galeDamage=applyColorlessWeaknessResistance(230,x);
+    if(galeDamage===null||x.hp-x.damage>galeDamage)return null;
     const prizeValue=sourcePrizeValue(x);
     const terminal=prizes!==null&&prizes>0&&prizes<=prizeValue;
     // Don't expend the Supporter on a merely one-Prize intermediate gust.
