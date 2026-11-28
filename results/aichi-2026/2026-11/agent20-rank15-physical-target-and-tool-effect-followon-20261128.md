@@ -28,14 +28,23 @@ For an opposing Shadow Rider Calyrex V at 180 remaining HP with two remaining ow
 
 The initially written global-nullification test incorrectly expected Choice Belt to recover when Jamming was muted. That was corrected *before this report and handoff*: the final helper explicitly treats global Tool nullification independently of Stadium action. Paper textual basis comes from the supplied card database's Jamming Tower, Choice Belt, Mega Lopunny ex and Temple of Sinnoh entries.
 
+## Already-evolved Benched Mega's lethal Gale promotion
+
+The physical source includes **two Mega Lopunny ex PFL84**, each with a one-Colorless Gale Thrust and a one-Colorless Retreat Cost. A **stationary** Active Mega with one attached Energy can attack for only 60; a second already-evolved Benched Mega with one Energy can use Gale Thrust for **230** immediately **after it itself retreats into the Active Spot**. This does not rely on incorrectly counting a Basic's earlier movement before evolution as the Stage 1's movement.
+
+At a public Shadow Rider Calyrex V CRE74 with **180 remaining HP**, no defender Tool, and two source Prizes remaining, the existing worker chose offered stationary Gale (60) instead of offered Retreat to the second already-funded Mega (lethal 230). The corrective `terminalGalePromotionTarget` is deliberately narrow: its root opportunity needs a certified `movedFromBenchToActiveThisTurn === false` receipt for the original Mega, the exact printed Shadow Rider V target, actual opponent HP/damage and no defender Tool/unresolved Ability suppression, a 2-Prize terminal window, a funded second *already-evolved* Mega, and a genuinely offered actor-relative retreat. An ambiguous movement receipt, no Bench Energy, opponent Tool or nonterminal Prize state declines the override.
+
+An unambiguous source-only decision improvement is not a full game: it does not prove the whole turn's subsequently offered attack or establish a matchup win. An isolated native Store promotion → follow-on attack is the next admissibility requirement.
+
 ## Reproducible assets
 
 - Policy: `simulation/evaluation/2026-11/agent20-rank15-lopunny-vileplume-opponent-policy.cjs`
 - Physical-object tests: `tests/2026-11/agent20-rank15-physical-slot-continuation-heldout.test.cjs` (**10** cases)
 - Tool/Stadium tests: `tests/2026-11/agent20-rank15-jamming-belt-terminal-heldout.test.cjs` (**16** cases)
-- Exact final policy blob: `15887633d6facb04122f7ce3dfb9d639df7d6c40`
-- Exact test blobs: `04aa7326f3d2c3bf18b115ca48d6988021c511cb`, `99418a2ca86cc651773af5cf3248979e4563317c`
-- Executed both committed test files against the exact policy blob with a JavaScript CommonJS V8 shim for `node:test`, `node:assert/strict`, and the policy module: **26 passed / 0 failed**. This confirms synchronous decision assertions only. The V8 shim is not Node CLI, pinned Twinleaf Store, native protocol, source-deck game, or competitive qualification.
+- Terminal Mega promotion: `tests/2026-11/agent20-rank15-terminal-gale-promotion-heldout.test.cjs` (**12** cases)
+- Exact final policy blob: `f8d9250e96e5c6e979f03710883192a6864e51c1`
+- Exact test blobs: `04aa7326f3d2c3bf18b115ca48d6988021c511cb`, `99418a2ca86cc651773af5cf3248979e4563317c`, `5d99721052439eb84849b4094ad98e0c6bd16132`
+- Executed both committed test files against the exact policy blob with a JavaScript CommonJS V8 shim for `node:test`, `node:assert/strict`, and the policy module: **38 passed / 0 failed**. This confirms synchronous decision assertions only. The V8 shim is not Node CLI, pinned Twinleaf Store, native protocol, source-deck game, or competitive qualification.
 
 The original PR90 head reproduced the wrong Jet and TM selections and the absent correct Hood decision before the follow-on patch. Neither PR90 nor PR93 should be treated as an admission to main or a frozen policy. Both may be challenged through independent actor-visible native continuation before any owner-approved game. No CI or V3 dispatch was performed here.
 
