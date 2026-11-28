@@ -18,6 +18,7 @@ const {buildSourcePrintingMap,projectSourcePrintings}=
 const {stage}=require('../../simulation/twinleaf/agent5-attack-special-arbitration-native.cjs');
 const {initializeCards}=require('../../simulation/twinleaf/headless.cjs');
 const {actorObservation}=require('../../simulation/twinleaf/actor-observation-contract.cjs');
+const {publicEventReceipt}=require('../../simulation/twinleaf/agent8-public-event-receipt.cjs');
 const protocol=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const rank3=require('../../simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs');
 
@@ -181,7 +182,10 @@ for(const seat of [0,1]){
       a.actorPrinting==="Team Rocket's Handiwork FCO");
     assert.ok(nativePenny,'Native Store must offer actually legal Penny');
     assert.ok(nativeHandi,'Native Store must offer actually legal Handiwork');
-    const mapped=projectSourcePrintings(view,realFrontier.actionFrontier,maps);
+    const nativeReceipt=publicEventReceipt(x.state,seat);
+    const mapped=projectSourcePrintings(view,realFrontier.actionFrontier,maps,{
+      publicEventReceipt:nativeReceipt
+    });
     const bridgedRoot={...root,observation:mapped.observation,
       actionFrontier:mapped.actionFrontier};
     assert.equal(mapped.observation.ownHand.includes('Penny SVI 183'),true);
@@ -189,7 +193,14 @@ for(const seat of [0,1]){
     assert.equal(mapped.observation.ownPublic.prizeSlots.every(p=>
       p.printing===undefined),true);
     const nativeRequest={...request,requestId:'agent32-real-printed-'+seat,
-      observation:mapped.observation,actionFrontier:mapped.actionFrontier};
+      observation:mapped.observation,actionFrontier:mapped.actionFrontier,
+      publicEventReceipt:mapped.publicEventReceipt};
+    assert.equal(mapped.publicEventReceipt.ownerActive.printing,
+      mapped.observation.ownPublic.active.printing);
+    assert.equal(mapped.publicEventReceipt.ownerBench.length,
+      mapped.observation.ownPublic.bench.length);
+    assert.equal(Object.hasOwn(mapped.publicEventReceipt,
+      'opponentCopycatChoices'),false);
     const admitted=protocol.validateRequest(nativeRequest,init,0,new Set());
     const selected=policy.decide(bridgedRoot);
     assert.deepEqual(selected,{kind:'select-action',token:nativePenny.token});
@@ -300,7 +311,8 @@ function rank6Root(seat,{rawOldType=false}={}){
     requestId:'agent32-rank6-'+seat+'-'+(rawOldType?'old':'fixed'),
     sequence:0,role:'opponent',seat,
     observationSchema:protocol.OBSERVATION_SCHEMA,observation:view,
-    prompt:null,publicEventReceipt:null,actionFrontier:available.actionFrontier};
+    prompt:null,publicEventReceipt:rawOldType?null:publicEventReceipt(x.state,seat),
+    actionFrontier:available.actionFrontier};
   const init={role:'opponent',seat,policyVersion:rank6.POLICY_VERSION,config:{}};
   if(!rawOldType)protocol.validateRequest(request,init,0,new Set());
   const policy=rank6.createPolicy(init);
