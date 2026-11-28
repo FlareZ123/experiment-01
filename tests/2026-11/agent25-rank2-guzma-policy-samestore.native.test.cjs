@@ -18,6 +18,11 @@ const protocol =
 const { createPolicy, POLICY_VERSION } =
   require('../../simulation/evaluation/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.cjs');
 
+const { buildNativeActionFrontier, selectedNativeAction } =
+  require('../../simulation/evaluation/2026-11/agent36-native-action-frontier.cjs');
+const { createKnownCapFreeActionEnumerator, EXPECTED_ENGINE_PIN } =
+  require('../../simulation/evaluation/2026-11/agent3-known-cap-free-action-enumerator.cjs');
+
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 const nativeFile = p => require(path.join(output, p));
 const { Store } = nativeFile('game/store/store');
@@ -30,6 +35,23 @@ const { PlayCardAction, PlayerType, SlotType } =
 const { ResolvePromptAction } =
   nativeFile('game/store/actions/resolve-prompt-action');
 const { Format } = nativeFile('game/store/card/card-types');
+
+const { ActionEnumerator } = nativeFile('advanced-bot/action-enumerator');
+const { Simulator } = nativeFile('game/bots/simulator');
+const cardActions = nativeFile('game/store/actions/play-card-action');
+const gameActions = nativeFile('game/store/actions/game-actions');
+const { PokemonCard } = nativeFile('game/store/card/pokemon-card');
+const { TrainerCard } = nativeFile('game/store/card/trainer-card');
+const { EnergyCard } = nativeFile('game/store/card/energy-card');
+const { GameError } = nativeFile('game/game-error');
+const { Stage, TrainerType, SpecialCondition, EnergyType, CardType } =
+  nativeFile('game/store/card/card-types');
+const native = {
+  ActionEnumerator, Simulator, cardActions, gameActions, PlayerType, SlotType,
+  PokemonCard, TrainerCard, EnergyCard, Stage, TrainerType, SpecialCondition,
+  GameError, EnergyType, CardType
+};
+
 
 function stage(seat, withLatias = false) {
   const manager = initializeCards();
@@ -183,6 +205,56 @@ for (const seat of [0, 1]) {
       ] }
     });
     assert.deepEqual(decision, { kind: 'select-action', token: 'pass' });
+  });
+}
+
+
+// Stronger than a manually shaped action: enumerate, clone-validate, and
+// bind the exact pinned root action, then use the same native Store for the
+// two policy-selected physical Pokémon prompts.
+for (const seat of [0, 1]) {
+  test('rank2 seat ' + seat + ': actual legal native root frontier selects and settles two-prompt Guzma', () => {
+    const x = stage(seat);
+    const agent = policy(seat);
+    const enumerator = createKnownCapFreeActionEnumerator({
+      native, enginePin: EXPECTED_ENGINE_PIN
+    });
+    const frontier = buildNativeActionFrontier({
+      state: x.state, actorSeat: seat, native, enumerator
+    });
+    assert.ok(frontier.actionFrontier.items.some(item =>
+      item.kind === 'play-card' && item.actorPrinting?.startsWith('Guzma BUS')),
+    'The true validated legal-action frontier must offer rank2 Guzma');
+    const decision = agent.decide({
+      role: 'opponent', seat, observation: actorObservation(x.state, seat),
+      prompt: null, actionFrontier: frontier.actionFrontier
+    });
+    assert.equal(decision.kind, 'select-action');
+    const selected = frontier.actionFrontier.items.find(item =>
+      item.token === decision.token);
+    assert.equal(selected?.kind, 'play-card');
+    assert.ok(selected.actorPrinting.startsWith('Guzma BUS'));
+    assert.equal(selected.publicMetadata.handIndex, 0);
+    assert.equal(Object.hasOwn(selected.publicMetadata, 'targetIndex'), false,
+      'Guzma root has no premature chosen Bench target');
+    const actualAction = selectedNativeAction(frontier, decision.token);
+    assert.ok(actualAction instanceof PlayCardAction);
+    const hook = installPromptProvenanceHook(x.store);
+    try {
+      x.store.dispatch(actualAction);
+      const first = chooseAndSettle(x, seat, agent, hook, x.strandedId, 'opponent');
+      const second = chooseAndSettle(x, seat, agent, hook, x.sentinelId, 'actor');
+      assert.equal(pendingPokemonOrNull(x.state), null);
+      assert.equal(x.source.active.getPokemonCard()?.id, x.sentinelId);
+      assert.equal(x.candidate.active.getPokemonCard()?.id, x.strandedId);
+      console.log('AGENT25_RANK2_NATIVE_FRONTIER_GUZMA', JSON.stringify({
+        seat, first, second, nativeActionFrontier: true,
+        clonedStoreOfferValidated: true, sameLiveStore: true,
+        competitiveGameQualified: false
+      }));
+    } finally {
+      hook.restore();
+    }
   });
 }
 
