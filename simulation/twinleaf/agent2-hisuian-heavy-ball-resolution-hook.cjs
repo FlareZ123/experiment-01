@@ -54,6 +54,7 @@ function installPinnedHeavyBallResolutionHook({
   if(!player.hand||player.prizes.some(p=>!Array.isArray(p.cards)||
       typeof p.isSecret!=='boolean'))
    fail('ASR146_RESOLUTION_BAD_PRIZES','Missing physical Prize containers');
+  const initialSecret=player.prizes.map(p=>p.isSecret);
   const originallyFaceDown=new Set(player.prizes.filter(p=>p.isSecret)
     .flatMap(p=>p.cards));
   const previous=store.prompt;
@@ -81,11 +82,15 @@ function installPinnedHeavyBallResolutionHook({
      fail('ASR146_RESOLUTION_TOO_MANY','At most one Basic may be selected');
     if(selected.some(c=>!originallyFaceDown.has(c)))
      fail('ASR146_RESOLUTION_FACEUP_PRIZE','Selection was not originally face-down');
-    const result=callback(chosenPrize);
     if(selected.length===0){
      if(!player.supporter.cards.includes(sourceCard))
       fail('ASR146_RESOLUTION_ITEM_MISSING','Item not held in native Supporter slot');
-     // MOVE_CARDS maintains native game action effects and card accounting.
+     // Printed ASR146: no Basic revealed => discard Item, THEN shuffle.
+     // Restore prior Prize secrecy before dispatching the MOVE_CARDS event
+     // so triggered observers cannot see the temporarily revealed contents.
+     player.prizes.forEach((prize,i)=>{
+      if(initialSecret[i])prize.isSecret=true;
+     });
      moveCards(store,promptState,player.supporter,player.discard,{
       cards:[sourceCard],sourceCard
      });
@@ -93,7 +98,7 @@ function installPinnedHeavyBallResolutionHook({
         !player.discard.cards.includes(sourceCard))
       fail('ASR146_RESOLUTION_MOVE_FAILED','Native discard did not occur');
     }
-    return result;
+    return callback(chosenPrize);
    });
   }
   try{
