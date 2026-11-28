@@ -40,7 +40,8 @@ const PRINT=Object.freeze({
  karen:/^Karen XYP 177\b/i,
  temple:/^Temple of Sinnoh ASR 155\b/i,
  jamming:/^Jamming Tower TWM 153\b/i,
- dimensionValley:/^Dimension Valley\b/i
+ dimensionValley:/^Dimension Valley\b/i,
+ thunderMountain:/^Thunder Mountain\b/i
 });
 const ROOT_KINDS=new Set(['play-card','use-ability','attack','retreat','use-stadium','pass']);
 const list=x=>Array.isArray(x)?x:[];
@@ -172,6 +173,27 @@ function regidragoPayloadCount(o){
  if(!seen)return 0;
  const payload=/^(?:Dialga-GX UPR 100|Dragapult ex TWM 130|Kyurem SFA 47|Noivern ex PAL 153|Hisuian Goodra VSTAR LOR 136|Mega Dragonite ex ASC 152)\b/i;
  return list(o.opponentPublic?.discard).filter(x=>payload.test(name(x))).length;
+}
+function templeStrandsIronThorns(o){
+ const active=o.opponentPublic?.active;
+ if(!match(active?.printing,/^Iron Thorns ex\b/i))return false;
+ const energies=list(active.energies);
+ const basicLightning=energies.filter(e=>
+  /^(?:Basic )?Lightning Energy\b/i.test(name(e))).length;
+ const otherBasic=energies.filter(e=>
+  /^(?:Basic )?(?:Grass|Fire|Water|Psychic|Fighting|Darkness|Metal) Energy\b/i.test(name(e))).length;
+ const dce=energies.filter(e=>/^Double Colorless Energy\b/i.test(name(e))).length;
+ if(!dce)return false;
+ const otherSpecial=energies.length-basicLightning-otherBasic-dce;
+ const stadium=[...list(o.ownPublic?.stadium),...list(o.opponentPublic?.stadium)];
+ const mountain=stadium.some(x=>match(x,PRINT.thunderMountain));
+ const beforeTotal=basicLightning+otherBasic+2*dce+otherSpecial;
+ const beforeRequired=mountain?2:3;
+ const beforeTypes=mountain||basicLightning>=1;
+ const afterTotal=energies.length; // all Special Energy provide one Colorless
+ const afterTypes=basicLightning>=1;
+ return beforeTypes&&beforeTotal>=beforeRequired&&
+  (!afterTypes||afterTotal<3);
 }
 function templeStrandsApexDragon(o){
  const opponent=o.opponentPublic,active=opponent?.active;
@@ -466,6 +488,7 @@ function score(action,req){
     list(x.pokemon.tools).length>0);
   if(suppressedGarbodor)return 810;
   if(templeStrandsApexDragon(o))return 670;
+  if(templeStrandsIronThorns(o))return 665;
   if(opposingStadium.some(x=>match(x,PRINT.dimensionValley)))return 255;
   const special=slots(opp).some(({pokemon})=>list(pokemon.energies).some(x=>!/^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal) Energy\b/i.test(name(x))));
   return special?170:0;
@@ -769,4 +792,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,regidragoPayloadCount,karenDenialScore,vsSeekerDenialScore,plumeriaDenialScore,templeStrandsApexDragon,guzmaRootScore,guzmaTargetScore,toolEnabled,garbotoxinStatus,liveGarbotoxin};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,regidragoPayloadCount,karenDenialScore,vsSeekerDenialScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,toolEnabled,garbotoxinStatus,liveGarbotoxin};
