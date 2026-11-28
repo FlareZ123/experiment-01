@@ -78,7 +78,7 @@ test('root prioritization rejects wrong owner, stale decisionKind or hallucinate
     r=>{r.seat=1;},
     r=>{r.observation.decisionKind='owner-prompt';},
     r=>{r.actionFrontier=null;}]) {
-    const req=structuredClone(x);
+    const req=JSON.parse(JSON.stringify(x));
     change(req);
     assert.equal(chooseRoot(req),null);
   }
