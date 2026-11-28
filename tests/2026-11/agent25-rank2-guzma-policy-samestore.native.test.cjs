@@ -22,7 +22,7 @@ const protocol =
 const { createPolicy, POLICY_VERSION } =
   require('../../simulation/evaluation/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.cjs');
 
-const { opaquePaperCard, getOpaque, assertOpaqueQuarantined } =
+const { resolvePaperPrintedCard, opaquePaperCard, getOpaque, assertOpaqueQuarantined } =
   require('../../simulation/twinleaf/agent25-opaque-paper-card-staging.cjs');
 
 const { buildNativeActionFrontier, selectedNativeAction } =
@@ -64,9 +64,11 @@ function stage(seat, withLatias = false, { manualItemLock = true, heldFogCrystal
   const manager = initializeCards();
   let serial = 625000 + seat * 2000 + Number(withLatias) * 1000;
   const unsupportedPrintings=new Set();
+  const printedAliases=new Map();
   const card = row => {
     const name = row.name + ' ' + row.printing.set;
-    const supported=manager.getCardByName(name);
+    const { card:supported, alias }=resolvePaperPrintedCard(manager,row);
+    if(alias)printedAliases.set(name,alias);
     const instance=supported??opaquePaperCard(row,native);
     if(!supported)unsupportedPrintings.add(name);
     instance.id = serial++;
@@ -84,6 +86,11 @@ function stage(seat, withLatias = false, { manualItemLock = true, heldFogCrystal
   }
   const sourceRemaining = materialize(source60, 'Aichi rank2');
   const candidateRemaining = materialize(hood60, 'Hood fixed 60');
+  if(printedAliases.size){
+    console.log('AGENT25_RANK2_EXACT_PRINTING_ALIAS',JSON.stringify({
+      seat,aliases:[...printedAliases.values()],qualifiedGame:false
+    }));
+  }
   if(unsupportedPrintings.size){
     console.log('AGENT25_RANK2_PINNED_OPAQUE_PAPER_PRINTINGS',JSON.stringify({
       seat, printingNames:[...unsupportedPrintings].sort(),
