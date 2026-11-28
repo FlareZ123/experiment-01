@@ -515,14 +515,14 @@ test('Secret Box search selects one Item, Tool, Supporter, Stadium at actual sou
 
 test('pinned Twinleaf unnumbered fullNames are recognized as the exact source printings', () => {
   const o=observation({ownPublic:player({active:poke('Trubbish NVI')})});
-  const play=actorPrinting=>policy.scoreAction({
-    kind:'play-card',actorPrinting
+  const play=(actorPrinting,targetPrinting)=>policy.scoreAction({
+    kind:'play-card',actorPrinting,targetPrinting
   },root([],o));
   assert.equal(play('Garbodor BKP'),240);
   assert.equal(play('Wally ROS'),260);
   assert.ok(play('Mega Absol ex M1L')>0);
   assert.ok(play('Vikavolt V DAA')>0);
-  assert.ok(play('Float Stone BKT')>0);
+  assert.ok(play('Float Stone BKT','Trubbish NVI')>0);
   assert.equal(play('Garbodor LTR'),0,
     'never collapse another Garbodor printing into the source BKP');
   assert.equal(play('Trubbish PAR'),0,
