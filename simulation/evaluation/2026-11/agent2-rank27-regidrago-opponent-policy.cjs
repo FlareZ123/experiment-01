@@ -300,6 +300,35 @@ function pick(choices,score,min=1,max=1,singleSelect=false){
   return singleSelect?{kind:'select-choice',token:ranked[0].c.token}:
     {kind:'select-choices',tokens:ranked.map(x=>x.c.token)};
 }
+function pickDistinctDragonDonors(choices,obs,min,max){
+  const priorities=new Map([
+    [PREFIX.dialga,400],[PREFIX.dragapult,360],
+    [PREFIX.noivern,310],[PREFIX.koraidon,300],
+    [PREFIX.kyurem,245],[PREFIX.regidragoV,80]
+  ]);
+  const already=new Set(visibleDonors(obs).map(name));
+  const selected=[],seen=new Set(already);
+  const ranked=arr(choices).map((choice,index)=>({
+    choice,index,printing:name(choice),
+    value:priorities.get(name(choice))??0
+  })).filter(x=>x.value>0&&x.choice.kind==='card'&&
+    metadataOwnerVisible(x.choice)&&
+    x.choice.publicMetadata?.sourceZone==='deck'&&
+    typeof x.choice.token==='string')
+    .sort((a,b)=>b.value-a.value||a.index-b.index);
+  for(const row of ranked){
+    if(selected.length>=max)break;
+    if(seen.has(row.printing))continue;
+    seen.add(row.printing);selected.push(row.choice.token);
+  }
+  if(selected.length<min)return reason('NO_SUPPORTED_CARD_SELECTION');
+  if(selected.length===0){
+    const empty=arr(choices).find(choice=>choice.kind==='empty-selection');
+    return empty?{kind:'select-choice',token:empty.token}:
+      reason('NO_SUPPORTED_CARD_SELECTION');
+  }
+  return {kind:'select-choices',tokens:selected};
+}
 function effectSource(prompt){
   const s=prompt?.source;
   const sourcePrinting=resolveSourcePrinting(s?.sourcePrinting);
@@ -501,15 +530,8 @@ function choosePrompt(request){
     const max=Number.isSafeInteger(meta.maximumCount)?meta.maximumCount:min;
     if(min<0||max<min||max>7)return reason('BAD_CARD_SELECTION_BOUNDS');
     const e=src.effectName;
-    if(src.sourcePrinting===PREFIX.compressor||e==='Battle Compressor'){
-      return pick(choices,c=>{
-        const n=name(c),existing=visibleDonors(obs).some(x=>name(x)===n);
-        return metadataOwnerVisible(c)&&DRAGON_PAYLOADS.has(n)&&
-          c.publicMetadata?.sourceZone==='deck'&&!existing?
-          (n===PREFIX.dialga?400:n===PREFIX.dragapult?360:
-          n===PREFIX.noivern?310:n===PREFIX.koraidon?300:
-          n===PREFIX.kyurem?245:80):-Infinity;
-      },min,max);
+    if(src.sourcePrinting===PREFIX.compressor&&e==='Battle Compressor'){
+      return pickDistinctDragonDonors(choices,obs,min,max);
     }
     if(src.sourcePrinting===PREFIX.netBall){
       return pick(choices,c=>{
