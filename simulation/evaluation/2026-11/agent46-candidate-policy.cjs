@@ -1576,8 +1576,11 @@ function opponentBlocksEntryAbilities(view) {
   if (view.opponentPublic.active?.printing === 'Galarian Weezing RCL 113')
     return true;
   return opponentBoard(view).some(slot => {
+    // Garbotoxin checks whether a Tool card is ATTACHED, not whether
+    // the Tool's own effect is live. Jamming Tower makes Tools have
+    // no effect, but does not detach them: Garbotoxin remains active.
     if (!AICHI_GARBOTOXIN_PRINTINGS.includes(slot.printing) ||
-        !slot.tools?.length || !toolsKnownLive(view, slot))
+        !slot.tools?.length)
       return false;
     const flag = (slot.abilitySuppressions ?? [])
       .find(row => row.abilityName === 'Garbotoxin');
