@@ -680,12 +680,19 @@ function scoreAction(item, request) {
       missingLinePriority(observation) > 0 ? 128 : 70;
   }
   if (matches(card, PRINT.guzma)) {
-    const targetIndex = metadata.targetIndex;
-    const targetPokemon = metadata.targetSeat === 'opponent' &&
-      metadata.targetZone === 'bench' && Number.isSafeInteger(targetIndex) ?
-      opponent.bench?.[targetIndex] : null;
-    return targetPokemon ?
-      (remainingHp(targetPokemon) > 0 && remainingHp(targetPokemon) <= 90 ? 88 : 42) : 0;
+    if (!supporterAvailable(observation) ||
+        !list(opponent.bench).some(Boolean)) return 0;
+    // Pinned Guzma BUS is a targetless PlayCard root. Its first subsequent
+    // ChoosePokemonPrompt selects the opponent's Bench, and the callback
+    // prompts to promote an actor Bench Pokémon. A root requiring the future
+    // targetIndex never plays Guzma, even when it can establish Sentinel.
+    // Only propose this Supporter when a live Stoutland is physically on our
+    // Bench and not already Active; the native prompts pick exact targets.
+    const sentinel = boardSlots(own).find(row =>
+      row.zone === 'bench' && matches(row.pokemon.printing, PRINT.stoutland) &&
+      stoutlandSentinelEffective(observation, row.pokemon));
+    if (sentinel) return 187;
+    return 0;
   }
   if (matches(card, PRINT.faba)) return opponentHasFabaTarget(opponent) ? 94 : 0;
   if (matches(card, PRINT.plumeria)) return opponentHasAnyEnergy(opponent) ? 78 : 0;
