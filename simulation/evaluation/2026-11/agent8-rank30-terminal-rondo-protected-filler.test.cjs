@@ -121,4 +121,14 @@ test('visible paper Prize-reduction cards provide conservative lower bounds',()=
     printing:'Unown AOR 30',tools:['Life Dew PLF 107']}),0);
   assert.equal(worker.minimumPrizesOnAttackKnockout({
     printing:'Dialga-GX UPR 100',tools:['Island Challenge Amulet CEC 194']}),1);
+  assert.equal(worker.minimumPrizesOnAttackKnockout({
+    printing:'Mega Gardevoir ex MEG 6',tools:['Island Challenge Amulet CEC 194']}),3);
+  assert.equal(worker.minimumPrizesOnAttackKnockout({
+    printing:'M Gardevoir-EX STS 111',tools:['Island Challenge Amulet CEC 194']}),1);
+  assert.equal(worker.minimumPrizesOnAttackKnockout({
+    printing:'Shadow Rider Calyrex VMAX CRE 75',tools:['Ribbon Badge EVS 155']}),3);
+  assert.equal(worker.minimumPrizesOnAttackKnockout({
+    printing:'Sylveon VMAX EVS 75',tools:['Ribbon Badge EVS 155']}),2);
+  assert.equal(worker.minimumPrizesOnAttackKnockout({
+    printing:'Dialga-GX UPR 100',tools:["Hero's Medal VIV 152"]}),2);
 });
