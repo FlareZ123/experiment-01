@@ -148,3 +148,84 @@ for (const seat of [0, 1]) {
     });
   });
 }
+
+
+function confirmRequest(seat, {
+  activePrinting = 'Bunnelby PRC 121',
+  benchWater = true,
+  opponentEnergy = 2,
+  gxUsed = false,
+  effectName = 'Legendary Ascent'
+} = {}) {
+  return {
+    role: 'opponent', seat,
+    observation: {
+      actorSeat: seat, globalTurn: 5, decisionKind: 'owner-prompt',
+      ownHand: [],
+      ownTurnResources: { gxUsed },
+      ownPublic: {
+        active: { printing: activePrinting, energies: [] },
+        bench: [
+          { printing: 'Articuno-GX CES', energies: [] },
+          {
+            printing: 'Galarian Stunfisk SSH 132',
+            energies: benchWater ? ['Water Energy MEE 12'] : []
+          }
+        ],
+        publicTurnRestrictions: { gxUsed }
+      },
+      opponentPublic: {
+        active: {
+          printing: 'Shadow Rider Calyrex VMAX CRE 75',
+          energies: Array(opponentEnergy).fill('Psychic Energy MEE 13')
+        },
+        bench: []
+      }
+    },
+    prompt: {
+      schema: protocol.PROMPT_SCHEMA,
+      actingSeat: seat,
+      promptType: 'ConfirmPrompt', description: 'WANT_TO_USE_ABILITY',
+      source: {
+        classification: 'actor-choice', sourceKind: 'card-effect',
+        sourcePrinting: 'Articuno-GX CES', effectName
+      },
+      publicMetadata: { selectionType: 'confirm', allowCancel: false },
+      choices: [
+        { token: 'yes', kind: 'confirm', label: 'Yes' },
+        { token: 'no', kind: 'confirm', label: 'No' }
+      ]
+    }
+  };
+}
+for (const seat of [0, 1]) {
+  test('Articuno confirms a payable immediate Cold Crush-GX setup, seat ' + seat, () => {
+    const request = confirmRequest(seat);
+    const prompt = protocol.validatePrompt(request.prompt, seat);
+    const actual = rank3.createPolicy({
+      role: 'opponent', seat, policyVersion: rank3.POLICY_VERSION, config: {}
+    }).decide(request);
+    assert.deepEqual(actual, { kind: 'select-choice', token: 'yes' });
+    protocol.validateDecision(actual, prompt, new Set());
+  });
+
+  test('Articuno preserves active Snorlax, expended GX and empty Water cases, seat ' + seat, () => {
+    const variants = [
+      { activePrinting: 'Snorlax PGO 55' },
+      { benchWater: false },
+      { opponentEnergy: 0 },
+      { gxUsed: true },
+      { effectName: 'Unrelated Ability' }
+    ];
+    for (const options of variants) {
+      const request = confirmRequest(seat, options);
+      protocol.validatePrompt(request.prompt, seat);
+      const actual = rank3.createPolicy({
+        role: 'opponent', seat, policyVersion: rank3.POLICY_VERSION, config: {}
+      }).decide(request);
+      assert.deepEqual(actual, { kind: 'select-choice', token: 'no' },
+        'should decline ' + JSON.stringify(options));
+      protocol.validateDecision(actual, request.prompt, new Set());
+    }
+  });
+}
