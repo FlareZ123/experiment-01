@@ -1,5 +1,5 @@
 'use strict';
-// Archetype Line Specific: make Dialga-GX UPR82 accessible in discard so a
+// Archetype Line Specific: make Dialga-GX UPR100 accessible in discard so a
 // Mimikyu Copycat of opponent Regidrago's Apex Dragon can use Timeless-GX.
 // Battle Compressor source/deck prompt is NOT a generic card-access reward.
 const {test}=require('node:test');
@@ -7,7 +7,7 @@ const assert=require('node:assert/strict');
 const protocol=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const {createPolicy,POLICY_VERSION}=
   require('../../simulation/evaluation/2026-11/agent46-candidate-policy.cjs');
-const BC='Battle Compressor PHF 92',D='Dialga-GX UPR 82',M='Mimikyu GRI 58';
+const BC='Battle Compressor PHF 92',D='Dialga-GX UPR 100',M='Mimikyu GRI 58';
 const mon=(printing)=>({printing,name:printing,hp:200,damage:0,
   abilities:[],attacks:[],tools:[],energies:[],
   printed:{subtypes:['Basic'],types:['Psychic'],retreatCost:['Colorless']}});
@@ -42,6 +42,8 @@ const prompt=seat=>({
     maximumCount:3,sourceZone:'deck',ownerSeat:'actor',
     isOwnerVisible:true,allowCancel:false,isSecret:true},
   choices:[select('dialga',D,6),
+    // Decoy is not the physical original 60 printing; reject it even when alone.
+    select('wrong-print','Dialga-GX UPR 82',5),
     select('energy','Psychic Energy MEE 13',0),
     select('fss','Forest Seal Stone SIT 156',2),
     {token:'empty',kind:'empty-selection',label:'Select no cards'}]
