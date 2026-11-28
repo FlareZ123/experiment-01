@@ -943,10 +943,13 @@ function promptDecision(req){
     // promoting funded Mega instead of offered Budew loses the Item-lock
     // attack. The native two-stage prompt may expose Snorlax before or the
     // Safeguarded Mimikyu after the opponent's swap; handle both views.
-    if(match(self.pokemon.printing,PRINT.budew)&&blockEscape)return 620;
+    // Terminal Period directly Knocks Out a target with six counters. PAL97
+    // Safeguard prevents attack DAMAGE, not this conditional Knock Out effect.
+    // A ready two-Energy Terminal must therefore outrank defensive Budew.
     if(match(self.pokemon.printing,PRINT.mega)&&
        list(self.pokemon.energies).length>=2&&
-       o.opponentPublic?.active?.damage===60)return 540;
+       o.opponentPublic?.active?.damage===60)return 785;
+    if(match(self.pokemon.printing,PRINT.budew)&&blockEscape)return 620;
     if(match(self.pokemon.printing,PRINT.mega)&&list(self.pokemon.energies).length>=3)return 480;
     if(match(self.pokemon.printing,PRINT.budew))return 220;
     if(list(self.pokemon.tools).some(x=>match(x,PRINT.float))&&toolEnabled(o))return 185;
