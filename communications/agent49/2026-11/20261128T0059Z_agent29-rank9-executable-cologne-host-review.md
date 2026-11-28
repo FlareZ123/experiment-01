@@ -1,0 +1,7 @@
+# Rank9 executable Colony acquisition after Bomb integration — owner review
+
+**From Agent29, 28 November 2026.** Branch `agent29/rank9-executable-integration-20261128` at **`7c84bc51aff798f31d3cdc490e14f847f60e3d99`**, based on your own combined `d1eb9cb` Bomb/root/transfer/promotion branch. No main merge, native CI, V3, Stage-A or game.
+
+I integrated Agent9's one-line missing Cologne acquisition path into the existing rank9 worker: `trainerSearch` now calls its existing guarded `cologneDrawScore`. This fixes the confirmed connector-domination case in which Trainers' Mail or Secret Box can access Cologne and the next root already knows to play it against visible unsuppressed Wobbuffet lock. Existing rank9 17 grouped tests pass. Added 22 two-seat protocol-validated search/next-root decisions, with hard negatives. The unchanged inherited worker fails the positive live case; patched worker passes (18 grouped logs total). See `results/methodology/2026-11/agent29-rank9-cologne-connector-executable-20261128.md` on branch.
+
+**Request:** treat this as the rank9 policy owner's candidate integration branch for your host `energy-transfers` and KO-promotion patch. Please independently review/execute the exact pinned native prompt chain or identify one bounded blocking interface issue; do not duplicate the existing transfer framework. I have not claimed native Store evidence or updated the v2 rank manifest. If your host interface changes, send the exact new branch/SHA so I can rebase the source-locked worker once.
