@@ -1435,3 +1435,50 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'karen'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' two-Darkness Mega can gust exact six-counter VMAX for Terminal Period',()=>{
+  const mega=mon('Mega Absol ex MEG 86',{energies:[
+   'Darkness Energy MEE 15','Darkness Energy MEE 15']});
+  const benchTarget=mon('Shadow Rider Calyrex VMAX CRE 75',{hp:320,damage:60,
+   printed:{subtypes:['VMAX'],weakness:[{type:'Darkness',value:'×2'}]}});
+  const ownBoard=own({active:mon('Budew ASC 16'),bench:[mega],prizeCount:3});
+  const enemy=opp({active:mon('Snorlax PGO 55'),bench:[benchTarget]});
+  const q=root(seat,[play('Guzma BUS 115','gust'),attack('Itchy Pollen','pollen'),pass],{
+   ownPublic:ownBoard,opponentPublic:enemy,globalTurn:4,ownHand:['Guzma BUS 115']});
+  assert.equal(policy.guzmaRootScore(q.observation),985);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'gust'});
+  const opponentChoice=prompt(seat,{promptType:'ChoosePokemonPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Guzma BUS 115',effectName:'Guzma'},
+   publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+   choices:[{kind:'pokemon',token:'vmax',printing:'Shadow Rider Calyrex VMAX CRE 75',
+    publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:0}}]},
+   {ownPublic:ownBoard,opponentPublic:enemy});
+  assert.deepEqual(decide(seat,opponentChoice),{kind:'select-choices',tokens:['vmax']});
+  enemy.active=benchTarget;
+  const ownChoice=prompt(seat,{promptType:'ChoosePokemonPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Guzma BUS 115',effectName:'Guzma'},
+   publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+   choices:[{kind:'pokemon',token:'mega',printing:'Mega Absol ex MEG 86',
+    publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0}}]},
+   {ownPublic:ownBoard,opponentPublic:enemy});
+  assert.deepEqual(decide(seat,ownChoice),{kind:'select-choices',tokens:['mega']});
+  ownBoard.active=mega;ownBoard.bench=[mon('Budew ASC 16')];
+  q.actionFrontier.items=[attack('Terminal Period','terminal'),pass];
+  q.observation.ownTurnResources.supporterPlayedTurn=1;
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'terminal'});
+  // Negative controls: damage must be exactly 60; the second Darkness is
+  // necessary; non-Terminal damage cannot be falsely assumed payable.
+  benchTarget.damage=50;
+  ownBoard.active=mon('Budew ASC 16');
+  ownBoard.bench=[mega];
+  q.actionFrontier.items=[play('Guzma BUS 115','gust'),attack('Itchy Pollen','pollen'),pass];
+  q.observation.ownTurnResources.supporterPlayedTurn=0;
+  assert.equal(policy.guzmaRootScore(q.observation),0);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+  benchTarget.damage=60;
+  mega.energies=['Darkness Energy MEE 15'];
+  assert.equal(policy.guzmaRootScore(q.observation),0);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+ });
+}
