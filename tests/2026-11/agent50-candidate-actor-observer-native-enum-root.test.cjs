@@ -68,3 +68,47 @@ for(const seat of [0,1]){
     assert.deepEqual(decision,{kind:'select-action',token:'pass'});
   });
 }
+
+function retreatDecision(seat,paidPsychic){
+  const state={players:[player(100,seat===0),player(200,seat===1)],
+    activePlayer:seat,turn:5,phase:5,prompts:[]};
+  const owner=state.players[seat];
+  owner.active=slot(c('Mimikyu GRI',{hp:70,attacks:[
+    {name:'Copycat',cost:['PSYCHIC','COLORLESS'],damage:''}]}));
+  owner.active.tools=[c('Float Stone BKT')];
+  const target=paidPsychic?c('Shadow Rider Calyrex VMAX CRE',{
+    stage:'VMAX',subtypes:['VMAX'],attacks:[
+      {name:'Max Geist',cost:['COLORLESS','COLORLESS','COLORLESS'],
+        damage:'10+'}]}):c('Dialga-GX UPR',{
+    cardType:['METAL'],attacks:[{name:'Timeless-GX',
+      cost:['METAL','METAL','METAL','COLORLESS','COLORLESS'],
+      damage:'150',gxAttack:true}]});
+  owner.bench[0]=slot(target);
+  owner.bench[0].energies.cards=Array(paidPsychic?3:5).fill(null).map(()=>c(E));
+  const view=actorObservation(state,seat);
+  const action=projectNativeAction({type:'RETREAT_ACTION',benchIndex:0},
+    state,seat,minimalNative,'retreat');
+  assert.ok(action);
+  const frontier={schema:protocol.FRONTIER_SCHEMA,items:[action,
+    {kind:'pass',token:'pass'}]};
+  const worker=createPolicy({role:'candidate',seat,
+    policyVersion:POLICY_VERSION,config:{}});
+  const decision=worker.decide({role:'candidate',seat,observation:view,
+    prompt:null,publicEventReceipt:null,actionFrontier:frontier});
+  return {view,action,decision};
+}
+for(const seat of [0,1]){
+  test('native enum cost allows funded Shadow Rider retreat target seat '+seat,()=>{
+    const {view,action,decision}=retreatDecision(seat,true);
+    assert.deepEqual(view.ownPublic.bench[0].attacks[0].cost,
+      ['COLORLESS','COLORLESS','COLORLESS']);
+    assert.deepEqual(action.publicMetadata.targetIndex,0);
+    assert.deepEqual(decision,{kind:'select-action',token:'retreat'});
+  });
+  test('native enum Metal cost rejects 5 Psychic paid Dialga seat '+seat,()=>{
+    const {view,decision}=retreatDecision(seat,false);
+    assert.deepEqual(view.ownPublic.bench[0].attacks[0].cost,
+      ['METAL','METAL','METAL','COLORLESS','COLORLESS']);
+    assert.deepEqual(decision,{kind:'select-action',token:'pass'});
+  });
+}
