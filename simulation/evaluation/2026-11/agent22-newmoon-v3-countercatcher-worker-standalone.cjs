@@ -1428,6 +1428,8 @@ const select=(x,reason)=>({decision:{kind:'select-action',token:x.token},reason}
 const TOPS=Object.freeze([
  {name:'Mega Lopunny ex',hp:330,prizes:3,attackName:'Miraculous Duo-GX',attackDamage:200},
  {name:'Mega Kangaskhan ex',hp:300,prizes:3,attackName:'Miraculous Duo-GX',attackDamage:200},
+ {name:'Mega Absol ex',hp:280,prizes:3,attackName:'Miraculous Duo-GX',attackDamage:200},
+ {name:'Mega Dragonite ex',hp:370,prizes:3,attackName:'Miraculous Duo-GX',attackDamage:200},
  {name:'Regidrago VSTAR',hp:280,prizes:2,attackName:'Night Watch',attackDamage:150}
 ]);
 function abilitySource(own,items){
@@ -1474,15 +1476,29 @@ function offeredMewtwoAttack(own,items,name='Miraculous Duo-GX'){
     s.attackName==='Night Watch';
  });
 }
-function validRootTarget(target){
+function liveFairyZone(own){
+ return Array.isArray(own?.bench)&&own.bench.some(p=>
+   has(p?.printing,"Lillie's Clefairy ex")&&
+   Array.isArray(p.abilities)&&p.abilities.includes('Fairy Zone')&&
+   p.abilitySuppressions?.find(s=>s.abilityName==='Fairy Zone')?.suppressed===false);
+}
+function validRootTarget(target,own){
  if(!target||!int(target.hp)||!int(target.damage)||!Array.isArray(target.tools)||
     target.tools.length>0||target.damage>=target.hp)return null;
  const def=TOPS.find(t=>has(target.printing,t.name)&&target.hp===t.hp);
  if(!def)return null;
  const remaining=target.hp-target.damage;
- // No later gust if Blast alone KOs; require exactly the printed, paid
- // 130+attack terminal threshold for the target's physical Prize value.
- return remaining>130&&remaining<=130+def.attackDamage?{def,remaining}:null;
+ // No later gust if Blast alone KOs. Printed Dragonite 370 exceeds
+ // 130+Miraculous200 unless already damaged >=40 OR live, actor-visible
+ // Lillie's Clefairy Fairy Zone gives the Dragon target Psychic Weakness x2.
+ // Do not assume general weakness for other named targets. Later recheck
+ // the native post-gust damage regardless of this structural screen.
+ const dragonWeak=def.name==='Mega Dragonite ex'&&
+   liveFairyZone(own)&&(!Array.isArray(target.printed?.types)||
+     target.printed.types.includes('Dragon'));
+ const maxAfterBlast=130+def.attackDamage*(dragonWeak?2:1);
+ return remaining>130&&remaining<=maxAfterBlast?
+   {def,remaining,dragonFairyZoneProjected:dragonWeak}:null;
 }
 function certifiedDamage(attack,target){
  const m=attack?.publicMetadata;
@@ -1602,7 +1618,7 @@ function createSlice({seat}){
   const blast=abilitySource(own,items);
   if(!blast)return null;
   for(let i=0;i<opp.bench.length;i++){
-   const t=opp.bench[i],check=validRootTarget(t);
+   const t=opp.bench[i],check=validRootTarget(t,own);
    if(!check||check.def.prizes!==own.prizeCount)continue;
    // An actual currently offered, already-paid attack is mandatory.
    // A printed GX uses Mewtwo's own attack; the non-GX Night Watch
@@ -1637,8 +1653,8 @@ function supportedDirectTerminal(v,items){
  // Only when the observable target's identity independently certifies its
  // exact Prize value; never infer unknown Rule Box values from HP alone.
  const prize=target.printing?.includes('Regidrago VSTAR')?2:
-   target.printing?.includes('Mega Lopunny ex')||
-   target.printing?.includes('Mega Kangaskhan ex')?3:null;
+   ['Mega Lopunny ex','Mega Kangaskhan ex','Mega Absol ex',
+    'Mega Dragonite ex'].some(s=>target.printing?.includes(s))?3:null;
  const lastOpponentPokemon=Array.isArray(v.opponentPublic.bench)&&
    v.opponentPublic.bench.filter(Boolean).length===0;
  return (prize!==null&&prize>=need||lastOpponentPokemon)&&
