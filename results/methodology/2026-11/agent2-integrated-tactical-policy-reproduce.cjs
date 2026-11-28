@@ -145,7 +145,7 @@ function run(source,explicitTexts=null){
   stagedContinuationChecks:totals.continuationChecks,
   tests:[...subtests,beach],allMatched:true};
 }
-module.exports={compose,run};
+module.exports={compose,run,runSubtests,beachTest};
 if(typeof require==='function'&&require.main===module){
  const fs=require('node:fs');
  if(!process.argv[2])throw Error('Provide a trusted exact candidate policy worker source path');
