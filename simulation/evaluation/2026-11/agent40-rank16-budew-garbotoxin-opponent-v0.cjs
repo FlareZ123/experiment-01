@@ -41,6 +41,8 @@ const PRINT=Object.freeze({
  temple:/^Temple of Sinnoh ASR 155\b/i,
  jamming:/^Jamming Tower TWM 153\b/i,
  skyField:/^Sky Field ROS 89\b/i,
+ path:/^Path to the Peak (?:CRE 148|ASR 213)\b/i,
+ klefki:/^Klefki (?:SVI 96|PAF 159)\b/i,
  dimensionValley:/^Dimension Valley\b/i,
  thunderMountain:/^Thunder Mountain\b/i
 });
@@ -92,10 +94,20 @@ function garbotoxinStatusForSide(o,player){
 function garbotoxinStatus(o){return garbotoxinStatusForSide(o,o.ownPublic);}
 function opponentGarbotoxinStatus(o){return garbotoxinStatusForSide(o,o.opponentPublic);}
 function liveGarbotoxin(o){return garbotoxinStatus(o)==='live';}
+function pathToThePeakInPlay(o){
+ return [...list(o?.ownPublic?.stadium),...list(o?.opponentPublic?.stadium)]
+  .some(s=>match(s,PRINT.path));
+}
+function activeKlefkiLock(o){
+ return activeOpponentAbilityWorking(o,PRINT.klefki,'Mischievous Lock');
+}
 function usableOwnAbilities(o){
- // Either equipped Garbodor shuts off Rule-Box draw / Star Alchemy.
- // Unknown opposing suppression must not be treated as safely inactive.
- return garbotoxinStatus(o)==='inactive'&&opponentGarbotoxinStatus(o)==='inactive';
+ // All explicitly supported activated Abilities in this rank16 list
+ // come from Basic Rule-Box Pokémon; both Path's Rule-Box suppression
+ // and active Klefki's Basic Pokémon suppression apply to them.
+ return garbotoxinStatus(o)==='inactive'&&
+  opponentGarbotoxinStatus(o)==='inactive'&&
+  !pathToThePeakInPlay(o)&&!activeKlefkiLock(o);
 }
 function activeOpponentAbilityWorking(o,printing,abilityName){
  const p=o.opponentPublic?.active;
@@ -743,6 +755,14 @@ function score(action,req){
   // sacrificing live access to Items or Supporters in this policy.
   if(replacingJammingRestoresHoodedLock(o))return 0;
   const opposingStadium=[...list(opp.stadium),...list(own.stadium)];
+  if(pathToThePeakInPlay(o)&&garbotoxinStatus(o)==='inactive'&&
+     opponentGarbotoxinStatus(o)==='inactive'&&!activeKlefkiLock(o)){
+   const useful=slots(own).some(x=>match(x.pokemon.printing,PRINT.crobat)&&
+    list(x.pokemon.tools).some(t=>match(t,PRINT.forest))&&
+    !o.ownTurnResources?.vstarUsed)||
+    list(o.ownHand).some(c=>[PRINT.crobat,PRINT.dedenne,PRINT.tapu,PRINT.squawk].some(p=>match(c,p)));
+   return useful?735:325;
+  }
   // Jamming Tower does not switch off Garbotoxin: Tool attachments remain.
   if(templeStrandsApexDragon(o))return 670;
   if(templeStrandsIronThorns(o))return 665;
@@ -1175,4 +1195,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,prizeYield,activeMimikyuSafeguard,regidragoPayloadCount,karenOwnRecoveryScore,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,drawSupporterScore,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,opponentGarbotoxinStatus,liveGarbotoxin,benchCapacity,replacingJammingRestoresHoodedLock};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,prizeYield,activeMimikyuSafeguard,regidragoPayloadCount,karenOwnRecoveryScore,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,drawSupporterScore,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,opponentGarbotoxinStatus,liveGarbotoxin,benchCapacity,replacingJammingRestoresHoodedLock,pathToThePeakInPlay,activeKlefkiLock};
