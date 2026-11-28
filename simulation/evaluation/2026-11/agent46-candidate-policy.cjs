@@ -1443,6 +1443,22 @@ function ownedToolRecipient(item, view) {
   return target;
 }
 
+const KNOWN_ITEM_LOCK_ATTACKS = Object.freeze([
+  'Itchy Pollen', 'Quaking Punch', 'Oceanic Gloom'
+]);
+function attackImposedLockNeedsRanger(view, receipt) {
+  const history = receipt?.opponentLastTurnAttacks;
+  if (!Array.isArray(history) || history.length === 0) return false;
+  const itemLocked = view.ownPublic.publicTurnRestrictions.itemPlayLocked === true;
+  if (itemLocked && history.some(row =>
+    KNOWN_ITEM_LOCK_ATTACKS.includes(row.attackName))) return true;
+  const activeRestriction = view.ownPublic.active?.publicRestrictions ?? {};
+  return [
+    'cannotAttackNextTurn', 'cannotUseAttacksNextTurn',
+    'cannotRetreatNextTurn'
+  ].some(field => activeRestriction[field] === true);
+}
+
 function scoreTrainerPlay(item, view, receipt) {
   const name = item.actorPrinting ?? '';
   const supporterUsed = view.ownTurnResources.supporterPlayedTurn > 0;
@@ -1472,6 +1488,8 @@ function scoreTrainerPlay(item, view, receipt) {
   if (hasName(name, 'Teammates PRC') && !supporterUsed &&
       receipt?.priorOpponentTurnKO?.any === true &&
       view.ownPublic.deckCount > 0) return 945;
+  if (hasName(name, 'Pokémon Ranger STS') && !supporterUsed &&
+      attackImposedLockNeedsRanger(view, receipt)) return 840;
   if (hasName(name, 'VS Seeker') && !supporterUsed &&
       !handHas(view, 'Arven') && !handHas(view, "Lillie's Determination") &&
       view.ownPublic.discard.some(printing =>
