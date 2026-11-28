@@ -42,6 +42,7 @@ const P = Object.freeze({
   karen:/^Karen XYP(?: 177)?\b/i,
   n:/^N FCO(?: 105)?\b/i,
   regidrago:/^Regidrago VSTAR SIT(?: 136)?\b/i,
+  eldegoss:/^Eldegoss V RCL(?: 19)?\b/i,
   tmEvolution:/^Technical Machine: Evolution PAR(?: 178)?\b/i,
   jet:/^Jet Energy PAL(?: 190)?\b/i,
   capture:/^Capture Energy RCL(?: 171)?\b/i,
@@ -361,6 +362,50 @@ function grandTreePrompt(request) {
     if(c)return {kind:'select-choices',tokens:[c.token]};
   }
   const empty=arr(p.choices).find(c=>c.kind==='empty-selection'&&typeof c.token==='string');
+  return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
+    abstain('NO_LEGAL_CARD_SET');
+}
+function hypotheticalNextSupporter(o) {
+  return {...o,ownTurnResources:{...o.ownTurnResources,supporterPlayedTurn:-1}};
+}
+function eldSupporterPriority(card,o) {
+  const next=hypotheticalNextSupporter(o);
+  if(has(card,P.karen)&&karenOpportunity(next))return 140;
+  if(has(card,P.guzma)&&guzmaOpportunity(next))return 130;
+  if(has(card,P.guzmaHala)&&missingEvolutionChannels(o)&&
+     disposableCards(o).length>=2)return 120;
+  if(has(card,P.n)&&nOpportunity(next))return 110;
+  if(has(card,P.karen))return 70;
+  if(has(card,P.guzma))return 60;
+  if(has(card,P.guzmaHala))return 55;
+  if(has(card,P.n))return 50;
+  return 0;
+}
+function eldCanBench(o) {
+  const own=o?.ownPublic;
+  if(!own||benchCount(own)>=5)return false;
+  const lockBases=slots(own).filter(x=>
+    [P.oddish,P.gloom,P.aor,P.bus].some(p=>has(x,p))).length;
+  if(5-benchCount(own)<=Math.max(0,2-lockBases))return false;
+  if([...arr(own.stadium),...arr(o.opponentPublic?.stadium)]
+    .some(x=>/^Path to the Peak CRE(?: 148)?\b/i.test(txt(x))))return false;
+  if(has(o.opponentPublic?.active,/^Iron Thorns ex TWM(?: 77)?\b/i))return false;
+  return arr(own.discard).some(card=>eldSupporterPriority(card,o)>0);
+}
+function eldegossPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
+    !actorCardZone(p,'discard')||!Number.isSafeInteger(m.minimumCount)||
+    !Number.isSafeInteger(m.maximumCount)||m.minimumCount>1||m.maximumCount!==1)
+    return abstain('UNSUPPORTED_DISCARD_RETRIEVAL');
+  const owned=new Set(arr(o.ownPublic?.discard).map(txt));
+  const ranked=arr(p.choices).map((c,i)=>({c,i,
+    score:eldSupporterPriority(c,o)}))
+    .filter(x=>x.c.kind==='card'&&typeof x.c.token==='string'&&
+      owned.has(txt(x.c))&&x.score>0)
+    .sort((a,b)=>b.score-a.score||a.i-b.i);
+  if(ranked.length)return {kind:'select-choices',tokens:[ranked[0].c.token]};
+  const empty=arr(p.choices).find(x=>x.kind==='empty-selection'&&typeof x.token==='string');
   return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
     abstain('NO_LEGAL_CARD_SET');
 }
@@ -879,6 +924,8 @@ function rootDecision(request) {
     has(o.ownPublic?.active,P.bunnelby)&&
     arr(o.ownPublic?.active?.tools).some(c=>has(c,P.tmEvolution)));
   if(tmAttack&&k1EvoTarget(o))return take(tmAttack);
+  const eldegoss=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.eldegoss));
+  if(eldegoss&&eldCanBench(o))return take(eldegoss);
   const n=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.n));
   if(n&&nOpportunity(o))return take(n);
   const xtransceiver=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.xtransceiver));
@@ -886,6 +933,9 @@ function rootDecision(request) {
     o.ownPublic?.publicTurnRestrictions?.itemPlayLocked!==true&&
     k1Available(o,[P.karen,P.guzma,P.guzmaHala,P.n])!==false)
     return take(xtransceiver);
+  const floatUp=items.find(x=>x.kind==='attack'&&x.attackName==='Float Up'&&
+    has(o.ownPublic?.active,P.eldegoss));
+  if(floatUp)return take(floatUp);
   const attrition=bunnelbyAttritionAction(items,o);
   if(attrition?.attackName==='Rototiller'&&o.ownPublic?.deckCount<=1)
     return take(attrition);
@@ -981,6 +1031,7 @@ function createPolicy({role,seat,policyVersion,config}) {
       if(has(request.prompt?.source?.sourcePrinting,P.grandTree))return grandTreePrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.artazon))return artazonPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.xtransceiver))return xtransceiverPrompt(request);
+      if(has(request.prompt?.source?.sourcePrinting,P.eldegoss))return eldegossPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,/^Pidgeotto TEU(?: 123)?\b/i)&&
         request.prompt?.source?.effectName==='Air Mail')return airMailPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.tagCall))return tagCallPrompt(request);
@@ -1004,4 +1055,4 @@ function createPolicy({role,seat,policyVersion,config}) {
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,
   createPolicy,rootDecision,poffinPrompt,printedDamage,applyColorlessWeaknessResistance,movementEvidence,karenOpportunity,REGIDRAGO_DRAGON_PAYLOADS,
-  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,k1Available,k1EvoTarget,nOpportunity,xtransceiverPrompt,usefulArtazonBasic,artazonPrompt,airMailPrompt,grandTreePrompt,grandTreeTarget,guzmaOpportunity,guzmaPrompt,rototillerPrompt,rototillerPriority,bunnelbyAttritionAction,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
+  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,k1Available,k1EvoTarget,nOpportunity,eldCanBench,eldegossPrompt,eldSupporterPriority,xtransceiverPrompt,usefulArtazonBasic,artazonPrompt,airMailPrompt,grandTreePrompt,grandTreeTarget,guzmaOpportunity,guzmaPrompt,rototillerPrompt,rototillerPriority,bunnelbyAttritionAction,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
