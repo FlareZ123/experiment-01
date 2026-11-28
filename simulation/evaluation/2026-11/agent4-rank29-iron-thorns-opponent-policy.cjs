@@ -870,6 +870,21 @@ function opponentPokemonScore(choice, observation, context) {
   const retreat = list(pokemon.printed?.retreatCost).length;
   const energies = energyCount(pokemon);
   const hp = remainingHp(pokemon);
+  if(context==='field-blower'){
+    if(choiceOwner(choice)!=='opponent'||list(pokemon.tools).length===0)return 0;
+    const visibleToolScore=Math.max(125,...list(pokemon.tools).map(printing=>
+      cardChoiceScore({kind:'card',printing:valueText(printing),
+        publicMetadata:{ownerSeat:'opponent',targetZone:zone}},
+        observation,'field-blower')));
+    return 250+visibleToolScore;
+  }
+  if(context==='faba'){
+    if(choiceOwner(choice)!=='opponent')return 0;
+    const toolValue=list(pokemon.tools).length>0?260:0;
+    const energyValue=list(pokemon.energies).filter(isSpecialEnergy).length>0?
+      240+list(pokemon.energies).filter(isSpecialEnergy).length*25:0;
+    return Math.max(toolValue,energyValue);
+  }
   if (context === 'guzma') return guzmaKnockoutValue(observation,pokemon) > 0 ?
     1000 + guzmaKnockoutValue(observation,pokemon) :
     100 + retreat * 30 - energies * 35 +
@@ -1233,6 +1248,32 @@ function promptDecision(request) {
   }
 
   if (prompt.promptType === 'ChoosePokemonPrompt') {
+    // Both cards target the Pokémon *holding* a Tool/Energy before the
+    // reducer selects the attached card. This is native ChoosePokemonPrompt,
+    // not a ChooseCardsPrompt from deck or discard.
+    if(matches(sourcePrinting,PRINT.fieldBlower)){
+      if(metadata.selectionType!=='pokemon'||
+          !Number.isSafeInteger(metadata.minimumCount)||
+          !Number.isSafeInteger(metadata.maximumCount)||
+          metadata.minimumCount!==0||metadata.maximumCount>2||
+          metadata.allowCancel!==false)
+        return {kind:'abstain',reasonCode:'UNTRUSTED_FIELD_BLOWER_TARGETS'};
+      const targets=choices.filter(choice=>choice.kind==='pokemon'&&
+        choiceOwner(choice)==='opponent');
+      return multiSelectDecision(prompt,
+        rankedChoices(targets,
+          choice=>opponentPokemonScore(choice,observation,'field-blower'),
+          metadata.maximumCount),
+        0,metadata.maximumCount);
+    }
+    if(matches(sourcePrinting,PRINT.faba)){
+      if(metadata.selectionType!=='pokemon'||metadata.allowCancel!==false)
+        return {kind:'abstain',reasonCode:'UNTRUSTED_FABA_TARGETS'};
+      return chooseOneNativePokemon(prompt,choices.filter(choice=>
+        choice.kind==='pokemon'&&choiceOwner(choice)==='opponent'),
+        choice=>opponentPokemonScore(choice,observation,'faba'),
+        'NO_VISIBLE_FABA_TARGET');
+    }
     if (source.includes('guzma')) {
       const opponentChoices = choices.filter(choice =>
         choiceOwner(choice) === 'opponent' && choiceZone(choice) === 'bench');
@@ -1406,6 +1447,43 @@ function promptDecision(request) {
       }, 3), 3, 3);
     }
     return { kind:'abstain', reasonCode:'UNSUPPORTED_CARD_ORDER' };
+  }
+
+  if(prompt.promptType==='SelectOptionPrompt'&&
+      matches(sourcePrinting,PRINT.fieldBlower)){
+    if(metadata.selectionType!=='option'||metadata.allowCancel!==false||
+        choices.length!==2||new Set(choices.map(choice=>
+          choice.publicMetadata?.choiceIndex)).size!==2)
+      return {kind:'abstain',reasonCode:'UNTRUSTED_FIELD_BLOWER_OPTION'};
+    const publicStadium=stadiumsInPlay(observation);
+    const harmfulStadium=publicStadium.some(card=>
+      /Temple of Sinnoh|Path to the Peak|Silent Lab|Wondrous Labyrinth/i
+        .test(valueText(card)));
+    const opponentTools=slots(observation?.opponentPublic)
+      .reduce((n,row)=>n+list(row.pokemon.tools).length,0);
+    const useStadium=harmfulStadium || opponentTools<2;
+    const selected=choices.find(choice=>
+      choice.publicMetadata.choiceIndex===(useStadium?0:1));
+    return selected?{kind:'select-choice',token:selected.token}:
+      {kind:'abstain',reasonCode:'UNTRUSTED_FIELD_BLOWER_OPTION'};
+  }
+
+  if(prompt.promptType==='SelectPrompt'&&matches(sourcePrinting,PRINT.faba)){
+    if(metadata.selectionType!=='option'||metadata.allowCancel!==false)
+      return {kind:'abstain',reasonCode:'UNTRUSTED_FABA_OPTION'};
+    return singleChoice(choices,choice=>{
+      if(choice.kind!=='option')return 0;
+      const label=valueText(choice.label).toLowerCase();
+      if(/special.*energy|energy.*special/.test(label))
+        return opponentSpecialEnergyCount(observation)>0?330:0;
+      if(/tool/.test(label))
+        return opponentHasTool(observation)?285:0;
+      if(/stadium/.test(label))
+        return stadiumsInPlay(observation).some(card=>
+          /Temple of Sinnoh|Path to the Peak|Silent Lab|Wondrous Labyrinth/i
+            .test(valueText(card)))?310:140;
+      return 0;
+    },'NO_VISIBLE_FABA_OPTION');
   }
 
   if (prompt.promptType === 'SelectOptionPrompt' &&
