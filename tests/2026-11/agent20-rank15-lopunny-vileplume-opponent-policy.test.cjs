@@ -149,6 +149,7 @@ for(const seat of [0,1]){
     r.actionFrontier.items=[src(gh,'play-card','play-gh')];
     assert.deepEqual(decision(r),{kind:'select-action',token:'play-gh'});
     r.observation.ownHand=[xt,xt];
+    r.observation.ownTurnResources.supporterPlayedTurn=6; // GH already played this turn
     r.prompt={promptType:'SelectOptionPrompt',source:{sourcePrinting:gh,effectName:'Guzma & Hala'},
       publicMetadata:{selectionType:'option'},choices:[
         {kind:'option',token:'zero',label:'Do not discard 2 cards',publicMetadata:{choiceIndex:0}},
@@ -168,7 +169,7 @@ for(const seat of [0,1]){
     r.actionFrontier.items=[{...src(jet,'play-card','attach-jet'),targetPrinting:'Bunnelby PRC 121'}];
     assert.deepEqual(decision(r),{kind:'select-action',token:'attach-jet'});
     r.observation.ownPublic.active.energies=[jet];r.observation.ownHand=[grand];
-    r.actionFrontier.items=[src('Bunnelby PRC 121','attack','evo','Evolution')];
+    r.actionFrontier.items=[{kind:'attack',token:'evo',attackName:'Evolution'}];
     assert.deepEqual(decision(r),{kind:'select-action',token:'evo'});
     selection(r,tm,'deck',[card('Gloom UNB 7','gloom'),
       card('Vileplume AOR 3','stage2')],0,2);
