@@ -735,15 +735,39 @@ function guzmaTargetPrizeValue(pokemon) {
   return 1;
 }
 
+// The actor can see the prospective target's printed HP, attached Tools,
+// visible damage and Ability text but not a full after-gust DamageCalculation.
+// Exclude known protective public effects and conservatively increase the
+// apparent HP threshold for attached HP-granting Tools; never call a gust KO
+// merely because the target looks weak without checking such public blockers.
+function visibleGustDamageBarrier(target){
+  const toolText=list(target?.tools).map(valueText).join(' | ');
+  const abilityText=list(target?.abilityDetails)
+    .map(detail=>valueText(detail?.text)).join(' | ');
+  if(/(?:Eviolite|Rock Chestplate|Rigid Band|Full Face Guard|Panic Mask)/i
+    .test(toolText))return {unknownReduction:true,hpBonus:0};
+  if(/prevent all damage|takes?\\s+\\d+\\s+less damage|damage done to .* reduced/i
+    .test(abilityText))return {unknownReduction:true,hpBonus:0};
+  const hpBonus=/(?:Hero's Cape|Luxurious Cape)/i.test(toolText)?100:
+    /(?:Bravery Charm|Cape of Toughness)/i.test(toolText)?50:
+    /Big Charm/i.test(toolText)?30:0;
+  return {unknownReduction:false,hpBonus};
+}
+
 function guzmaKnockoutValue(observation, target) {
   if(!target || !slots(observation?.ownPublic).some(row=>
       row.zone==='bench'&&benchThornsVoltReady(row.pokemon,observation)))return 0;
-  const hp=remainingHp(target);
+  const protection=visibleGustDamageBarrier(target);
+  if(protection.unknownReduction)return 0;
+  const hp=remainingHp(target)+protection.hpBonus;
   if(hp<=0)return 0;
-  const matchType=modifier=>list(modifier).some(row=>/Lightning/i.test(row?.type));
+  const lightningModifiers=modifier=>list(modifier).filter(row=>/Lightning/i.test(row?.type));
   let damage=140;
-  if(matchType(target.printed?.weakness))damage*=2;
-  if(matchType(target.printed?.resistance))damage-=30;
+  if(lightningModifiers(target.printed?.weakness).length>0)damage*=2;
+  for(const resistance of lightningModifiers(target.printed?.resistance)){
+    const value=Number.parseInt(String(resistance.value??'-30').replace(/[−–]/g,'-'),10);
+    damage-=Number.isFinite(value)?Math.abs(value):30;
+  }
   if(hp>damage)return 0;
   const prizes=guzmaTargetPrizeValue(target);
   return (prizes >= (observation?.ownPublic?.prizeCount ?? 6) ? 440 : 230)+
