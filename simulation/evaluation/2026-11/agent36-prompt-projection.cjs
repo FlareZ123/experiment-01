@@ -608,6 +608,73 @@ function projectSimplePrompt(prompt, state, choices, choiceByToken) {
 }
 
 
+
+// Pinned Handheld Fan TWM 150: after our Active takes attack damage, the
+// defending Tool owner decides whether to move an Energy from the opposing
+// attacking Active to an opposing Bench Pokemon. Its native min=0 permits []
+// when no legal physical assignment exists; unlike a cancel, [] is a valid
+// resolved effect. Preserve the public owner distinction in every choice.
+function projectHandheldFanEnergyTransfer({
+  prompt,state,actorSeat,native,source,choices,choiceByToken
+}={}) {
+  const actor=state.players[actorSeat];
+  const opponent=state.players[1-actorSeat];
+  const toolAttached=Array.isArray(actor?.active?.tools)&&
+    actor.active.tools.some(tool=>tool?.name==='Handheld Fan'&&
+      tool?.set==='TWM'&&tool?.setNumber==='150'&&
+      printing(tool)==='Handheld Fan TWM');
+  const exactSource=source?.sourceKind==='card-effect'&&
+    source.sourcePrinting==='Handheld Fan TWM'&&
+    source.effectName==='Handheld Fan'&&toolAttached;
+  const exactPrompt=prompt?.message==='ATTACH_ENERGY_TO_BENCH'&&
+    prompt.cardList===opponent?.active&&
+    prompt.playerType===native.PlayerType.TOP_PLAYER&&
+    Array.isArray(prompt.slots)&&prompt.slots.length===1&&
+    prompt.slots[0]===native.SlotType.BENCH&&
+    prompt.filter?.superType===native.SuperType.ENERGY&&
+    Object.keys(prompt.filter).length===1&&
+    prompt.options?.allowCancel===false&&
+    prompt.options?.min===0&&prompt.options?.max===1;
+  if(!exactSource||!exactPrompt)
+    throw Object.assign(new Error('Unsupported Handheld Fan transfer source or native shape'),{
+      code:'UNSUPPORTED_HANDHELD_FAN_ATTACH_ENERGY_SHAPE'
+    });
+  const attached=cardListCards(opponent.active.energies);
+  const energies=cardListCards(opponent.active).map((card,index)=>({card,index}))
+    .filter(({card})=>card instanceof native.EnergyCard&&
+      card.superType===native.SuperType.ENERGY&&attached.includes(card));
+  for(let benchIndex=0;benchIndex<opponent.bench.length;benchIndex++){
+    const recipient=opponent.bench[benchIndex]?.getPokemonCard?.();
+    if(!recipient)continue;
+    for(const {card,index} of energies){
+      addChoice(choices,choiceByToken,[{
+        to:{player:native.PlayerType.TOP_PLAYER,slot:native.SlotType.BENCH,index:benchIndex},
+        index
+      }],{
+        kind:'energy',printing:printing(card)??card.name,
+        label:'Move opposing '+(printing(card)??card.name)+' to opposing Bench '+
+          (benchIndex+1)+': '+(printing(recipient)??recipient.name),
+        publicMetadata:{
+          sourceZone:'active',ownerSeat:'opponent',isOwnerVisible:true,
+          energyType:card.energyType===native.EnergyType?.SPECIAL?'SPECIAL':'BASIC',
+          zone:'bench',benchIndex,choiceIndex:choices.length,selectedCount:1
+        }
+      },prompt,state);
+    }
+  }
+  addEmptySelectionChoice(choices,choiceByToken,prompt,state);
+  if(choices.length===0)
+    throw Object.assign(new Error('No native-valid Handheld Fan energy or no-transfer choice'),{
+      code:'NO_VALID_HANDHELD_FAN_ENERGY_TRANSFER'
+    });
+  return {
+    selectionType:'energy-attachment',count:choices.length,
+    minimumCount:0,maximumCount:1,allowCancel:false,
+    sourceZone:'active',ownerSeat:'opponent',
+    isOwnerVisible:true,zone:'bench'
+  };
+}
+
 // The pinned Iron Thorns ex TWM Volt Cyclone attack generates a mandatory
 // AttachEnergyPrompt from the actor's Active Pokemon to their own Bench.
 // Unlike Underworld Door, the source is an in-play PokemonCardList and the
@@ -678,6 +745,11 @@ function projectAttachEnergyPrompt({
 }={}){
   if(source?.effectName==='Volt Cyclone'){
     return projectVoltCycloneEnergyTransfer({
+      prompt,state,actorSeat,native,source,choices,choiceByToken
+    });
+  }
+  if(source?.sourcePrinting==='Handheld Fan TWM'){
+    return projectHandheldFanEnergyTransfer({
       prompt,state,actorSeat,native,source,choices,choiceByToken
     });
   }
