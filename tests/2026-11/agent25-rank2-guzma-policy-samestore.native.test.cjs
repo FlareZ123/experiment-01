@@ -169,7 +169,32 @@ function stage(seat, withLatias = false, { manualItemLock = true, heldFogCrystal
   const store = new Store({ onStateChange() {} });
   store.state = state;
   const opaqueCount=assertOpaqueQuarantined(state);
-  return { store, state, source, candidate, sentinelId, strandedId, opaqueCount };
+  return {
+    store,
+    get state() { return store.state; },
+    get source() { return store.state.players.find(player => player.id === 101); },
+    get candidate() { return store.state.players.find(player => player.id === 202); },
+    sentinelId, strandedId, opaqueCount
+  };
+}
+
+function passToCandidate(x, seat) {
+  const before=x.store.state;
+  const pre={activePlayer:before.activePlayer,phase:before.phase,turn:before.turn};
+  const sourceId=x.source.id;
+  x.store.dispatch(new gameActions.PassTurnAction(sourceId));
+  const after=x.store.state;
+  if(after.activePlayer !== 1 - seat){
+    console.log('AGENT25_PASS_DIAGNOSTIC',JSON.stringify({
+      seat,sourceId,before:pre,after:{
+        activePlayer:after.activePlayer,phase:after.phase,turn:after.turn,
+        pendingPrompts:after.prompts?.filter(p=>p.result===undefined)
+          .map(p=>p.constructor?.name)
+      },storeReplacedState:before!==after
+    }));
+  }
+  assert.equal(after.activePlayer,1-seat,
+    'native PassTurnAction must make the opponent active in the live Store');
 }
 
 function policy(seat) {
@@ -339,8 +364,7 @@ for (const seat of [0, 1]) {
     };
     const control = stage(seat);
     assert.equal(control.candidate.cannotPlaySupporterCards, false);
-    control.store.dispatch(new gameActions.PassTurnAction(control.source.id));
-    assert.equal(control.state.activePlayer, 1 - seat);
+    passToCandidate(control, seat);
     assert.doesNotThrow(() => control.store.dispatch(heldSupporterAction(control)),
       'the identical source board without an Active Stoutland must not block the held Supporter');
 
@@ -357,8 +381,7 @@ for (const seat of [0, 1]) {
       hook.restore();
     }
     assert.equal(locked.source.active.getPokemonCard().id, locked.sentinelId);
-    locked.store.dispatch(new gameActions.PassTurnAction(locked.source.id));
-    assert.equal(locked.state.activePlayer, 1 - seat);
+    passToCandidate(locked, seat);
     let rejection = null;
     try {
       locked.store.dispatch(heldSupporterAction(locked));
@@ -398,16 +421,14 @@ for (const seat of [0, 1]) {
     assert.equal(removed.length, 3);
     control.source.deck.cards.push(...removed);
     assert.equal(control.candidate.cannotPlayItemCards, false);
-    control.store.dispatch(new gameActions.PassTurnAction(control.source.id));
-    assert.equal(control.state.activePlayer, 1 - seat);
+    passToCandidate(control, seat);
     assert.doesNotThrow(() => control.store.dispatch(fogAction(control)),
       'Fog Crystal must be allowed in matched control with no Vileplume');
 
     const locked = stage(seat, false, options);
     assert.equal(locked.candidate.cannotPlayItemCards, false,
       'the test must not fabricate the Item lock in public player flags');
-    locked.store.dispatch(new gameActions.PassTurnAction(locked.source.id));
-    assert.equal(locked.state.activePlayer, 1 - seat);
+    passToCandidate(locked, seat);
     let rejection = null;
     try {
       locked.store.dispatch(fogAction(locked));
@@ -447,8 +468,7 @@ for (const seat of [0, 1]) {
       hook.restore();
     }
     assert.equal(x.candidate.active.getPokemonCard().id, x.strandedId);
-    x.store.dispatch(new gameActions.PassTurnAction(x.source.id));
-    assert.equal(x.state.activePlayer, 1 - seat);
+    passToCandidate(x, seat);
     const index = x.candidate.hand.cards.findIndex(c => c.fullName === 'Float Stone BKT');
     assert.ok(index >= 0);
     assert.equal(x.candidate.cannotPlayItemCards, true);
@@ -489,8 +509,7 @@ for (const seat of [0, 1]) {
     } finally {
       sourceHook.restore();
     }
-    x.store.dispatch(new gameActions.PassTurnAction(x.source.id));
-    assert.equal(x.state.activePlayer, 1 - seat);
+    passToCandidate(x, seat);
     assert.equal(x.candidate.cannotPlayItemCards, true);
     assert.equal(x.candidate.active.getPokemonCard().id, x.strandedId);
     const enumerate = () => buildNativeActionFrontier({
