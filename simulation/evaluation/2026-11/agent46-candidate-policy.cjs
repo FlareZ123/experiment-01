@@ -194,6 +194,12 @@ function needShadowRiderBasic(view) {
     !view.ownHand.includes('Shadow Rider Calyrex V CRE 74');
 }
 
+function needShadowRiderVMAX(view) {
+  const line = shadowRiderLine(view);
+  return line.basics > 0 && line.vmax < 2 &&
+    !view.ownHand.includes('Shadow Rider Calyrex VMAX CRE 75');
+}
+
 function handHas(view, name) {
   return view.ownHand.some(printing => hasName(printing, name));
 }
@@ -1555,10 +1561,7 @@ function scoreTrainerPlay(item, view, receipt) {
       (needShadowRiderBasic(view) ||
        (opponentHasRegidrago(view) && !boardHas(view, 'Mimikyu')))) return 790;
   if (hasName(name, 'Ultra Ball') && hasDiscardableHand(view, 2, name) &&
-      (() => { const line = shadowRiderLine(view);
-        return line.basics > 0 && line.vmax < 2 &&
-          !view.ownHand.includes('Shadow Rider Calyrex VMAX CRE 75');
-      })()) return 780;
+      needShadowRiderVMAX(view)) return 780;
   if (hasName(name, 'Arven') && !supporterUsed &&
       (!boardHas(view, 'Shadow Rider Calyrex V') ||
        (hasAbilityLockThreat(view) && !ownBoard(view).some(slot =>
