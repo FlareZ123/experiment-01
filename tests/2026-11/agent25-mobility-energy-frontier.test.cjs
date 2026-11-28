@@ -40,13 +40,18 @@ test('Mystery allows 190 threshold with five old Psychic; Jet/Warp only 160',()=
     assert.equal(result({targetRemainingHP:190},e).potentialKnockout,false);
   assert.equal(result({targetRemainingHP:190},P.MYSTERY).potentialKnockout,true);
 });
-test('Jet can supply third colorless on underpowered VMAX when other two cannot',()=>{
+test('Jet supplies third [C] on 2-Psychic VMAX; actual Max Geist costs [C,C,C]',()=>{
   for(const e of [P.MYSTERY,P.WARP])
     assert.equal(result({benchedPsychic:2,psychicTotalBefore:2},e).canPayMaxGeist,false);
   const jet=result({benchedPsychic:2,psychicTotalBefore:2},P.JET);
   assert.equal(jet.canPromoteAttacker,true);
   assert.equal(jet.canPayMaxGeist,true);
   assert.equal(jet.maxGeistDamage,70);
+});
+test('Max Geist printed [C,C,C] can be paid by three non-Psychic Energies',()=>{
+  const r=result({benchedPsychic:0,benchedColorless:3,psychicTotalBefore:5},P.MYSTERY);
+  assert.equal(r.canPayMaxGeist,true);
+  assert.equal(r.maxGeistDamage,190);
 });
 test('Mystery cannot attach to a non-Psychic Active; Jet/Warp can switch',()=>{
   assert.equal(result({activePsychic:false},P.MYSTERY).attachmentLegal,false);
