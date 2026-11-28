@@ -1226,7 +1226,7 @@ function chooseRoot(view, request) {
   const pass = items.find(item => item.kind === 'pass');
 
   const availableDoor=items.find(item=>
-
+    item.kind==='use-ability' &&
     item.publicMetadata?.abilityName==='Underworld Door' &&
     item.publicMetadata?.sourceSeat==='actor' &&
     ['active','bench'].includes(item.publicMetadata?.sourceZone) &&
