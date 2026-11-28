@@ -2266,6 +2266,28 @@ test('rank2 Counter Gain selects only physically Tool-free duplicate',()=>{
     observation:{ownPublic:own,opponentPublic:player({prizeCount:4})}});
   assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:['ok']});
 });
+test('rank2 Counter Gain can zero-fund Girafarig Get Lost against exposed discard',()=>{
+  const req=rootRequest({ownHand:['Counter Gain SSP 169'],
+    ownPublic:player({active:pokemon('Girafarig LOT 94'),prizeCount:6}),
+    opponentPublic:player({prizeCount:5,discard:['Dialga-GX UPR 100',
+      'Dragapult ex TWM 130']}),
+    items:[{token:'counter',kind:'play-card',
+      actorPrinting:'Counter Gain SSP 169',
+      publicMetadata:{cardType:'trainer',handIndex:0}},
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'counter'});
+});
+test('rank2 Counter Gain does not waste single-use Tool on free Budew attack',()=>{
+  const req=rootRequest({ownHand:['Counter Gain SSP 169'],
+    ownPublic:player({active:pokemon('Budew ASC 16'),prizeCount:6}),
+    opponentPublic:player({prizeCount:5}),
+    items:[{token:'counter',kind:'play-card',
+      actorPrinting:'Counter Gain SSP 169',
+      publicMetadata:{cardType:'trainer',handIndex:0}},
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'pass'});
+});
+
 test('rank2 Counter Gain root does not consume Tool slot when all recipients equipped',()=>{
   const req=rootRequest({ownHand:['Counter Gain SSP 169'],
     ownPublic:player({active:pokemon('Bunnelby PRC 121',{
