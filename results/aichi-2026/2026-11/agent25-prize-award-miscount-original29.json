@@ -1,0 +1,393 @@
+{
+  "schema": "agent25-aichi-original29-paper-prize-discrepancy-v1",
+  "source_decks_path": "results/aichi-2026/full-decklists.json",
+  "source_decks_blob_sha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "card_set_index_blob_sha": "69a8ef97454d072e29c09bfd3862ccd1c3019f5c",
+  "compared_worker": "simulation/evaluation/2026-11/agent46-candidate-policy.cjs; frozen PR95 prizeLiability",
+  "qualified_games": 0,
+  "complete_opponent_lists": 29,
+  "unavailable_original_ranks": [
+    23,
+    25,
+    28
+  ],
+  "original_pokemon_rows": 309,
+  "original_pokemon_copies": 467,
+  "misclassified_rows": 25,
+  "misclassified_copies": 49,
+  "affected_ranks": [
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    18,
+    19,
+    20,
+    21,
+    22,
+    27,
+    32
+  ],
+  "entries": [
+    {
+      "rank": 8,
+      "name": "Mega Absol ex",
+      "printing": {
+        "set": "MEG",
+        "number": "86",
+        "language": "en"
+      },
+      "card_database_id": "me1-86",
+      "source_copies": 2,
+      "paper_prizes": 3,
+      "frozen_worker_prizes": 2,
+      "classification": "Mega Evolution ex"
+    },
+    {
+      "rank": 9,
+      "name": "Mega Absol ex",
+      "printing": {
+        "set": "MEG",
+        "number": "86",
+        "language": "en"
+      },
+      "card_database_id": "me1-86",
+      "source_copies": 1,
+      "paper_prizes": 3,
+      "frozen_worker_prizes": 2,
+      "classification": "Mega Evolution ex"
+    },
+    {
+      "rank": 10,
+      "name": "Hisuian Goodra VSTAR",
+      "printing": {
+        "set": "LOR",
+        "number": "136",
+        "language": "en"
+      },
+      "card_database_id": "swsh11-136",
+      "source_copies": 1,
+      "paper_prizes": 2,
+      "frozen_worker_prizes": 1,
+      "classification": "Pokémon VSTAR"
+    },
+    {
+      "rank": 10,
+      "name": "Regidrago VSTAR",
+      "printing": {
+        "set": "SIT",
+        "number": "136",
+        "language": "en"
+      },
+      "card_database_id": "swsh12-136",
+      "source_copies": 3,
+      "paper_prizes": 2,
+      "frozen_worker_prizes": 1,
+      "classification": "Pokémon VSTAR"
+    },
+    {
+      "rank": 11,
+      "name": "Mega Absol ex",
+      "printing": {
+        "set": "MEG",
+        "number": "86",
+        "language": "en"
+      },
+      "card_database_id": "me1-86",
+      "source_copies": 3,
+      "paper_prizes": 3,
+      "frozen_worker_prizes": 2,
+      "classification": "Mega Evolution ex"
+    },
+    {
+      "rank": 12,
+      "name": "Regidrago VSTAR",
+      "printing": {
+        "set": "SIT",
+        "number": "136",
+        "language": "en"
+      },
+      "card_database_id": "swsh12-136",
+      "source_copies": 3,
+      "paper_prizes": 2,
+      "frozen_worker_prizes": 1,
+      "classification": "Pokémon VSTAR"
+    },
+    {
+      "rank": 13,
+      "name": "Regidrago VSTAR",
+      "printing": {
+        "set": "SIT",
+        "number": "136",
+        "language": "en"
+      },
+      "card_database_id": "swsh12-136",
+      "source_copies": 3,
+      "paper_prizes": 2,
+      "frozen_worker_prizes": 1,
+      "classification": "Pokémon VSTAR"
+    },
+    {
+      "rank": 14,
+      "name": "Hisuian Goodra VSTAR",
+      "printing": {
+        "set": "LOR",
+        "number": "136",
+        "language": "en"
+      },
+      "card_database_id": "swsh11-136",
+      "source_copies": 1,
+      "paper_prizes": 2,
+      "frozen_worker_prizes": 1,
+      "classification": "Pokémon VSTAR"
+    },
+    {
+      "rank": 14,
+      "name": "Mega Dragonite ex",
+      "printing": {
+        "set": "ASC",
+        "number": "152",
+        "language": "en"
+      },
+      "card_database_id": "me2pt5-152",
+      "source_copies": 1,
+      "paper_prizes": 3,
+      "frozen_worker_prizes": 2,
+      "classification": "Mega Evolution ex"
+    },
+    {
+      "rank": 14,
+      "name": "Regidrago VSTAR",
+      "printing": {
+        "set": "SIT",
+        "number": "136",
+        "language": "en"
+      },
+      "card_database_id": "swsh12-136",
+      "source_copies": 3,
+      "paper_prizes": 2,
+      "frozen_worker_prizes": 1,
+      "classification": "Pokémon VSTAR"
+    },
+    {
+      "rank": 15,
+      "name": "Mega Lopunny ex",
+      "printing": {
+        "set": "PFL",
+        "number": "84",
+        "language": "en"
+      },
+      "card_database_id": "me2-84",
+      "source_copies": 2,
+      "paper_prizes": 3,
+      "frozen_worker_prizes": 2,
+      "classification": "Mega Evolution ex"
+    },
+    {
+      "rank": 16,
+      "name": "Mega Absol ex",
+      "printing": {
+        "set": "MEG",
+        "number": "86",
+        "language": "en"
+      },
+      "card_database_id": "me1-86",
+      "source_copies": 2,
+      "paper_prizes": 3,
+      "frozen_worker_prizes": 2,
+      "classification": "Mega Evolution ex"
+    },
+    {
+      "rank": 18,
+      "name": "Hisuian Goodra VSTAR",
+      "printing": {
+        "set": "LOR",
+        "number": "136",
+        "language": "en"
+      },
+      "card_database_id": "swsh11-136",
+      "source_copies": 1,
+      "paper_prizes": 2,
+      "frozen_worker_prizes": 1,
+      "classification": "Pokémon VSTAR"
+    },
+    {
+      "rank": 18,
+      "name": "Mega Kangaskhan ex",
+      "printing": {
+        "set": "MEG",
+        "number": "104",
+        "language": "en"
+      },
+      "card_database_id": "me1-104",
+      "source_copies": 1,
+      "paper_prizes": 3,
+      "frozen_worker_prizes": 2,
+      "classification": "Mega Evolution ex"
+    },
+    {
+      "rank": 18,
+      "name": "Regidrago VSTAR",
+      "printing": {
+        "set": "SIT",
+        "number": "136",
+        "language": "en"
+      },
+      "card_database_id": "swsh12-136",
+      "source_copies": 3,
+      "paper_prizes": 2,
+      "frozen_worker_prizes": 1,
+      "classification": "Pokémon VSTAR"
+    },
+    {
+      "rank": 19,
+      "name": "Ho-Oh-EX",
+      "printing": {
+        "set": "DRX",
+        "number": "22",
+        "language": "en"
+      },
+      "card_database_id": "bw6-22",
+      "source_copies": 1,
+      "paper_prizes": 2,
+      "frozen_worker_prizes": 1,
+      "classification": "Pokémon-EX"
+    },
+    {
+      "rank": 20,
+      "name": "Mega Dragonite ex",
+      "printing": {
+        "set": "ASC",
+        "number": "152",
+        "language": "en"
+      },
+      "card_database_id": "me2pt5-152",
+      "source_copies": 1,
+      "paper_prizes": 3,
+      "frozen_worker_prizes": 2,
+      "classification": "Mega Evolution ex"
+    },
+    {
+      "rank": 20,
+      "name": "Regidrago VSTAR",
+      "printing": {
+        "set": "SIT",
+        "number": "136",
+        "language": "en"
+      },
+      "card_database_id": "swsh12-136",
+      "source_copies": 3,
+      "paper_prizes": 2,
+      "frozen_worker_prizes": 1,
+      "classification": "Pokémon VSTAR"
+    },
+    {
+      "rank": 21,
+      "name": "Hisuian Goodra VSTAR",
+      "printing": {
+        "set": "LOR",
+        "number": "136",
+        "language": "en"
+      },
+      "card_database_id": "swsh11-136",
+      "source_copies": 1,
+      "paper_prizes": 2,
+      "frozen_worker_prizes": 1,
+      "classification": "Pokémon VSTAR"
+    },
+    {
+      "rank": 21,
+      "name": "Regidrago VSTAR",
+      "printing": {
+        "set": "SIT",
+        "number": "136",
+        "language": "en"
+      },
+      "card_database_id": "swsh12-136",
+      "source_copies": 3,
+      "paper_prizes": 2,
+      "frozen_worker_prizes": 1,
+      "classification": "Pokémon VSTAR"
+    },
+    {
+      "rank": 22,
+      "name": "Mega Absol ex",
+      "printing": {
+        "set": "MEG",
+        "number": "86",
+        "language": "en"
+      },
+      "card_database_id": "me1-86",
+      "source_copies": 2,
+      "paper_prizes": 3,
+      "frozen_worker_prizes": 2,
+      "classification": "Mega Evolution ex"
+    },
+    {
+      "rank": 27,
+      "name": "Regidrago VSTAR",
+      "printing": {
+        "set": "SIT",
+        "number": "136",
+        "language": "en"
+      },
+      "card_database_id": "swsh12-136",
+      "source_copies": 3,
+      "paper_prizes": 2,
+      "frozen_worker_prizes": 1,
+      "classification": "Pokémon VSTAR"
+    },
+    {
+      "rank": 32,
+      "name": "Hisuian Goodra VSTAR",
+      "printing": {
+        "set": "LOR",
+        "number": "136",
+        "language": "en"
+      },
+      "card_database_id": "swsh11-136",
+      "source_copies": 1,
+      "paper_prizes": 2,
+      "frozen_worker_prizes": 1,
+      "classification": "Pokémon VSTAR"
+    },
+    {
+      "rank": 32,
+      "name": "Mega Dragonite ex",
+      "printing": {
+        "set": "ASC",
+        "number": "152",
+        "language": "en"
+      },
+      "card_database_id": "me2pt5-152",
+      "source_copies": 1,
+      "paper_prizes": 3,
+      "frozen_worker_prizes": 2,
+      "classification": "Mega Evolution ex"
+    },
+    {
+      "rank": 32,
+      "name": "Regidrago VSTAR",
+      "printing": {
+        "set": "SIT",
+        "number": "136",
+        "language": "en"
+      },
+      "card_database_id": "swsh12-136",
+      "source_copies": 3,
+      "paper_prizes": 2,
+      "frozen_worker_prizes": 1,
+      "classification": "Pokémon VSTAR"
+    }
+  ],
+  "notes": [
+    "Paper Prize values obtained from actual card rules by full 309/309 source printing crosswalk; this static ledger enumerates exactly the three observed source classes.",
+    "Status is source-printed baseline only, not effects changing prizes in a live game or a competitive win-rate claim.",
+    "No changes to the nominated fixed 60 or frozen candidate worker."
+  ]
+}
