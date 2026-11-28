@@ -651,11 +651,33 @@ function patchPrompt(request) {
     c.publicMetadata?.ownerSeat==='actor'&&
     safeInt(c.publicMetadata?.benchIndex));
   const best=options.map(c=>{
-    const target=o.ownPublic?.bench?.[c.publicMetadata.benchIndex];
-    return {c,score:has(target,P.clefairy)?4:
-      /^Tapu Lele(?:-GX| GX) GRI(?: 60)?\b/i.test(text(target))?3:
-      /^Mimikyu GRI(?: 58)?\b/i.test(text(target))?2:
-      /^Latias ex SSP(?: 76)?\b/i.test(text(target))?1:0};
+    const index=c.publicMetadata.benchIndex;
+    const target=o.ownPublic?.bench?.[index];
+    let score=has(target,P.clefairy)?40:
+      has(target,P.lele)?30:
+      has(target,P.mimikyu)?20:
+      has(target,P.latias)?10:0;
+    // Wondrous Patch is Bench-only. To *actually* use the newly powered
+    // Latias/Lele attack this turn, the currently Active Pokemon must still
+    // have a certified free retreat, and this retreat must not be spent.
+    if((has(target,P.latias)||has(target,P.lele))&&
+       o.ownTurnResources?.retreatedTurn!==o.globalTurn&&
+       noCostRetreatOpportunity(o)){
+      const before=arr(target.energies);
+      const after=[...before,ownPrinting(c)];
+      const payable=has(target,P.latias)?
+        before.length===2:before.length===1;
+      if(payable){
+        const bench=arr(o.ownPublic.bench).slice();
+        bench[index]=o.ownPublic.active;
+        const next={...o,ownPublic:{...o.ownPublic,
+          active:{...target,energies:after},bench}};
+        const ko=has(target,P.latias)?
+          latiasEonBladeKO(next):tapuLeleEnergyDriveKO(next);
+        if(ko)score=320+20*(ko.prizeLowerBound??1);
+      }
+    }
+    return {c,score};
   }).filter(r=>r.score>0).sort((a,b)=>b.score-a.score)[0];
   return best?{kind:'select-choice',token:best.c.token}:
     no('R30_PATCH_NO_ELIGIBLE_BENCH');
