@@ -319,3 +319,87 @@ test('optional no-donor Compressor uses native empty-selection token; never []',
    assert.deepEqual(validateDecision(decision,p,new Set()),decision);
  }
 });
+
+test('Net Ball can search Grass Basic Eldegoss V for source-real Happy Match',()=>{
+ for(const seat of [0,1]){
+   const base=observation(seat);
+   const own={...base.ownPublic,discard:['Guzma BUS 115'],bench:[]};
+   const obs=observation(seat,{ownPublic:own});
+   const make=(ob)=>promptRequest(seat,ob,'Net Ball',P.net,'ChooseCardsPrompt',[
+      choice('dragon',P.v),
+      choice('grass','Grass Energy MEE 9'),
+      choice('eldegoss','Eldegoss V RCL 19')
+   ],{selectionType:'card-combination',sourceZone:'deck',ownerSeat:'actor',
+      isOwnerVisible:true,minimumCount:1,maximumCount:1,allowCancel:false});
+   const recovered=make(obs);
+   assert.deepEqual(decide(seat,recovered),
+     {kind:'select-choices',tokens:['eldegoss']});
+   assert.deepEqual(validateDecision(decide(seat,recovered),
+     validatePrompt(recovered.prompt,seat),new Set()),decide(seat,recovered));
+   const held=observation(seat,{...obs,ownHand:['Guzma BUS 115']});
+   assert.deepEqual(decide(seat,make(held)),
+     {kind:'select-choices',tokens:['grass']});
+   const path=observation(seat,{ownPublic:{...own,stadium:[P.path]}});
+   assert.deepEqual(decide(seat,make(path)),
+     {kind:'select-choices',tokens:['grass']});
+   const full=observation(seat,{ownPublic:{...own,bench:Array.from(
+     {length:5},(_,i)=>pokemon(P.v,{damage:i*10}))}});
+   assert.deepEqual(decide(seat,make(full)),
+     {kind:'select-choices',tokens:['grass']});
+ }
+});
+test('Quick Ball discard is hand-zone from native metadata, never message heuristics',()=>{
+ for(const seat of [0,1]){
+   const base=observation(seat);
+   const hand=observation(seat,{ownHand:[
+      P.v,P.dialga,'Prime Catcher TEF 157']});
+   const discardPrompt=promptRequest(seat,hand,'Quick Ball',P.quick,
+     'ChooseCardsPrompt',[
+       choice('essential-v',P.v,{sourceZone:'hand'}),
+       choice('discard-dialga',P.dialga,{sourceZone:'hand'}),
+       choice('ace','Prime Catcher TEF 157',{sourceZone:'hand'})
+     ],{selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+       isOwnerVisible:true,minimumCount:1,maximumCount:1,allowCancel:false});
+   assert.deepEqual(decide(seat,discardPrompt),
+     {kind:'select-choices',tokens:['discard-dialga']});
+   const forgedZone=promptRequest(seat,hand,'Quick Ball',P.quick,
+     'ChooseCardsPrompt',[
+       choice('discard-dialga',P.dialga,{sourceZone:'hand'})
+     ],{selectionType:'card-combination',sourceZone:'prizes',ownerSeat:'actor',
+       isOwnerVisible:true,minimumCount:1,maximumCount:1,allowCancel:false});
+   assert.equal(decide(seat,forgedZone).reasonCode,
+      'UNTRUSTED_CARD_SELECTION');
+   const searchPrompt=promptRequest(seat,base,'Quick Ball',P.quick,
+     'ChooseCardsPrompt',[
+       choice('vstar',P.star),
+       choice('basic',P.v),
+       choice('dragapult',P.dragapult)
+     ],{selectionType:'card-combination',sourceZone:'deck',
+       ownerSeat:'actor',isOwnerVisible:true,minimumCount:1,
+       maximumCount:1,allowCancel:false});
+   assert.deepEqual(decide(seat,searchPrompt),
+     {kind:'select-choices',tokens:['basic']});
+   assert.deepEqual(validateDecision(decide(seat,searchPrompt),
+     validatePrompt(searchPrompt.prompt,seat),new Set()),decide(seat,searchPrompt));
+ }
+});
+test('Mysterious Treasure cannot search Grass Budew or Lightning Dedenne-GX',()=>{
+ for(const seat of [0,1]){
+   const obs=observation(seat,{ownPublic:{...observation(seat).ownPublic,
+     bench:[pokemon(P.v)]}});
+   const treasure=promptRequest(seat,obs,'Mysterious Treasure',
+     'Mysterious Treasure FLI 113','ChooseCardsPrompt',[
+       choice('budew',P.budew),
+       choice('dedenne','Dedenne-GX UNB 57'),
+       choice('eldegoss','Eldegoss V RCL 19'),
+       choice('vstar',P.star),
+       choice('noivern',P.noivern)
+     ],{selectionType:'card-combination',sourceZone:'deck',
+       ownerSeat:'actor',isOwnerVisible:true,minimumCount:1,
+       maximumCount:1,allowCancel:false});
+   assert.deepEqual(decide(seat,treasure),
+     {kind:'select-choices',tokens:['vstar']});
+   assert.deepEqual(validateDecision(decide(seat,treasure),
+     validatePrompt(treasure.prompt,seat),new Set()),decide(seat,treasure));
+ }
+});
