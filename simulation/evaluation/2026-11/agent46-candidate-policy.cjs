@@ -750,7 +750,9 @@ function chooseCardCombination(view, prompt) {
     'Night Stretcher': 'Night Stretcher SFA 61',
     'Star Alchemy': 'Forest Seal Stone SIT 156',
     'Hisuian Heavy Ball': 'Hisuian Heavy Ball ASR 146',
-    'Raihan': 'Raihan EVS 152'
+    'Raihan': 'Raihan EVS 152',
+    'Teammates': 'Teammates PRC 141',
+    'Acerola': 'Acerola BUS 112'
   };
   const effect = prompt.source?.effectName;
   if (Object.hasOwn(ownerSourceBindings, effect) &&
@@ -867,7 +869,21 @@ function choosePokemonRecipient(view, prompt) {
   const opponentChoices = visible.filter(row => row.target.ownerSeat === 'opponent');
 
   let ranked;
-  if (effectName === 'Guzma' && actorChoices.length > 0) {
+  if (effectName === 'Acerola') {
+    if (prompt.source?.sourcePrinting !== 'Acerola BUS 112' ||
+        opponentChoices.length > 0) return abstain('UNTRUSTED_PROMPT_SOURCE');
+    // Native Acerola blocks undamaged actor Pokémon. Select the physically
+    // addressed damaged prize liability; no duplicate-print ambiguity.
+    ranked = actorChoices.map(row => {
+      const slot=row.target.slot;
+      if(!Number.isFinite(slot.damage)||slot.damage<=0)
+        return {...row,score:-Infinity};
+      const remaining=Number.isFinite(slot.hp)?slot.hp-slot.damage:999;
+      const risk=remaining<=80?900:remaining<=140?400:0;
+      return {...row,score:prizeLiability(slot)*250+risk+
+        slotEnergyCount(slot)*25};
+    });
+  } else if (effectName === 'Guzma' && actorChoices.length > 0) {
     const target = view.opponentPublic.active;
     ranked = actorChoices.map(row => {
       const attack = bestAttackForSlot(row.target.slot, view, target);
@@ -1546,6 +1562,18 @@ function scoreTrainerPlay(item, view, receipt) {
     return isVmax ? 905 : 920;
   }
   if (hasName(name, 'Unfair Stamp') && receipt?.priorOpponentTurnKO?.any === true) return 980;
+  if (name === 'Teammates PRC 141' && !supporterUsed &&
+      receipt?.priorOpponentTurnKO?.any === true &&
+      view.ownPublic.deckCount > 0) return 925;
+  if (name === 'Acerola BUS 112' && !supporterUsed &&
+      ownBoard(view).some(slot => slot.damage > 0 &&
+        prizeLiability(slot) >= 2 &&
+        slot.hp - slot.damage <= 140)) return 890;
+  if (name === 'Iono PAL 185' && !supporterUsed &&
+      view.ownPublic.deckCount > 0 &&
+      view.opponentPublic.handCount >= 5 &&
+      view.ownPublic.handCount <= 3 &&
+      view.ownPublic.prizeCount >= 2) return 785;
   if (name === 'Raihan EVS 152' && !supporterUsed &&
       receipt?.priorOpponentTurnKO?.any === true &&
       view.ownPublic.deckCount > 0 &&
