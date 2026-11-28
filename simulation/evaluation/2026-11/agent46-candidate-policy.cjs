@@ -495,6 +495,26 @@ function getLostPressure(view) {
   return 550 + Math.min(2, dragonCount) * 180;
 }
 
+// Tapu Lele-GX's actual GRI Wonder Tag is an on-Bench deck-to-hand
+// Supporter search (native ChooseCardsPrompt, not a Yes/No confirmation).
+function wonderTagSupporterScore(view, printing) {
+  if (hasName(printing, 'Arven')) {
+    return !boardHas(view, 'Shadow Rider Calyrex V') ||
+      !boardHas(view, 'Shadow Rider Calyrex VMAX') ? 1350 : 520;
+  }
+  if (hasName(printing, "Lillie's Determination"))
+    return view.ownPublic.handCount <= 5 ? 1200 : 520;
+  if (hasName(printing, 'Guzma'))
+    return canGuzmaForAttack(view, null) ? 1270 : 200;
+  if (hasName(printing, 'Acerola'))
+    return ownBoard(view).some(slot => slot.damage >= 80) ? 850 : 120;
+  if (hasName(printing, 'Iono')) return 680;
+  if (hasName(printing, 'Pokémon Ranger')) return 450;
+  if (hasName(printing, 'Teammates') || hasName(printing, 'Raihan'))
+    return 350;
+  return -Infinity;
+}
+
 function searchNeedScore(view, printing, effectName = '') {
   if (!isText(printing)) return -Infinity;
   const regidrago = opponentHasRegidrago(view);
@@ -607,7 +627,12 @@ function searchCandidates(view, prompt, choices) {
   const effectName = prompt.source?.effectName ?? '';
   const sourceZone = prompt.publicMetadata?.sourceZone;
   let rows;
-  if (sourceZone === 'discard' && effectName === 'Get Lost' &&
+  if (sourceZone === 'deck' && effectName === 'Wonder Tag' &&
+      prompt.source?.sourcePrinting === 'Tapu Lele-GX GRI 60') {
+    rows = choices.map(choice => ({
+      choice, score: wonderTagSupporterScore(view, choice.printing)
+    }));
+  } else if (sourceZone === 'discard' && effectName === 'Get Lost' &&
       prompt.source?.sourcePrinting === 'Girafarig LOT 94') {
     rows = choices.map(choice => ({
       choice, score: getLostCardPriority(choice.printing)
@@ -1183,6 +1208,15 @@ function scoreBasicPlay(item, view, receipt) {
   const metadata = item.publicMetadata ?? {};
   if (metadata.targetSeat !== 'actor' || metadata.targetZone !== 'bench') return -Infinity;
   const printing = item.actorPrinting ?? '';
+  if (hasName(printing, 'Tapu Lele-GX GRI')) {
+    if (view.ownTurnResources.supporterPlayedTurn > 0 ||
+        countBench(view.ownPublic) >= 4 ||
+        boardHas(view, 'Tapu Lele-GX') ||
+        hasName(view.opponentPublic.active?.printing, 'Iron Thorns ex') ||
+        handHas(view, "Lillie's Determination") ||
+        handHas(view, 'Arven')) return -Infinity;
+    return 660;
+  }
   if (hasName(printing, 'Radiant Eternatus CRZ')) {
     // Active Iron Thorns ex's Initialization removes non-Future Pokémon
     // Abilities, including this Radiant's on-Bench entry. Do not spend a
