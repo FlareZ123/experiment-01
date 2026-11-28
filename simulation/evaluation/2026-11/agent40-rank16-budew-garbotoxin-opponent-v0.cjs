@@ -196,6 +196,39 @@ function secretBoxSearch(prompt,cards,min,max,o){
   {kind:'select-choices',tokens:chosen.map(c=>c.token)}:
   pickRows(prompt,[],min,max,()=>0);
 }
+function projectedClawDamage(action,o){
+ const meta=action.publicMetadata||{},active=o.ownPublic?.active,target=o.opponentPublic?.active;
+ if(!active||!match(active.printing,PRINT.mega)||!target||
+    meta.attackCostPayable!==true||meta.hasPrevention===true||
+    meta.hasUnmodeledModifier===true)return null;
+ if(Number.isFinite(meta.damageAfterWeakness))return meta.damageAfterWeakness;
+ let d=Number.isFinite(meta.damage)?meta.damage:200;
+ if(!Number.isFinite(meta.damage)&&toolEnabled(o)&&
+    list(active.tools).some(x=>match(x,PRINT.muscle)))d+=20;
+ const weakness=list(target.printed?.weakness).find(x=>x.type==='Darkness');
+ const multiplier=Number(String(weakness?.value||'').replace(/[^0-9.]/g,''))||1;
+ if(multiplier>1&&multiplier<=4)d*=multiplier;
+ const resistance=list(target.printed?.resistance).find(x=>x.type==='Darkness');
+ const amount=Number(String(resistance?.value||'').replace(/[^0-9.]/g,''))||0;
+ if(amount>0)d=Math.max(0,d-amount);
+ return d;
+}
+function prizeYield(p){
+ if(!p)return 1;
+ const attrs=list(p.printed?.subtypes).join(' ').toLowerCase();
+ if(/vmax|mega/.test(attrs)||/VMAX|^Mega .* ex\b/i.test(p.printing||''))return 3;
+ if(/tag team/i.test(attrs)||/ & .*-GX\b/i.test(p.printing||''))return 3;
+ if(/\b(?:ex|gx|v)\b/.test(attrs)||/(?:ex|GX|\bV)\b/i.test(p.printing||''))return 2;
+ return 1;
+}
+function clawProjectedKnockoutScore(action,o){
+ const damage=projectedClawDamage(action,o),target=o.opponentPublic?.active;
+ const hp=target&&Number.isFinite(target.hp)&&Number.isFinite(target.damage)?target.hp-target.damage:null;
+ if(damage===null||hp===null||hp<=0||damage<hp)return 295;
+ const liability=prizeYield(target);
+ if(liability>=o.ownPublic?.prizeCount)return 965;
+ return liability===3?905:(liability===2?845:770);
+}
 function score(action,req){
  const o=req.observation,own=o.ownPublic,opp=o.opponentPublic||{},p=name(action.actorPrinting),t=ownTarget(action,o),meta=action.publicMetadata||{};
  const items=req.actionFrontier?.items;
@@ -220,11 +253,7 @@ function score(action,req){
   const payable=meta.attackCostPayable===true;
   if(!payable)return 0;
   if(a==='Terminal Period'&&target?.damage===60)return 1000;
-  if(a==='Claw of Darkness'){
-   const d=Number.isFinite(meta.damageAfterWeakness)?meta.damageAfterWeakness:(Number.isFinite(meta.damage)?meta.damage:null);
-   if(hp!==null&&d!==null&&hp<=d)return own.prizeCount<=2?980:870;
-   return 295;
-  }
+  if(a==='Claw of Darkness')return clawProjectedKnockoutScore(action,o);
   if(a==='Itchy Pollen'&&match(own.active?.printing,PRINT.budew)){
    return opp.publicTurnRestrictions?.itemPlayLocked===true?270:530;
   }
@@ -539,4 +568,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,toolEnabled,garbotoxinStatus,liveGarbotoxin};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,toolEnabled,garbotoxinStatus,liveGarbotoxin};
