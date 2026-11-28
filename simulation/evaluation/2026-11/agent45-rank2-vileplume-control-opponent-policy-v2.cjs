@@ -358,7 +358,7 @@ function opponentSkyTransportMayBeLive(player) {
 // not treated as known; this vetoes only a claim of a secure retreat trap.
 function opponentFarFlyingMeteorMayBeLive(player) {
   return boardSlots(player).some(({ zone, pokemon }) => {
-    if (zone !== 'bench' || !/^Minior PAR(?: 99)?\\b/i.test(pokemon.printing ?? '')) {
+    if (zone !== 'bench' || !/^Minior PAR(?: 99)?\b/i.test(pokemon.printing ?? '')) {
       return false;
     }
     const status = list(pokemon.abilitySuppressions).find(row =>
