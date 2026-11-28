@@ -3408,3 +3408,42 @@ test('native Field Blower and Faba option choices clear terminal Chaotic Swell d
       {kind:'select-choice',token:win?'stadium':'energy'});
   }
 });
+test('Chaotic Swell vetoes unreachable Guzma-Hala / Tag Call / Thunder turbo',()=>{
+  const cases=[
+    ['gh','Guzma & Hala CEC 193',210],
+    ['tag','Tag Call CEC 206',215],
+    ['thunder','Thunder Mountain ◇ LOT 191',240]
+  ];
+  for(const seat of [0,1])for(const [token,card,normal] of cases)
+    for(const swollen of [false,true]){
+      const request=rootRequest({
+        seat,
+        ownHand:[card,'Double Colorless Energy SUM 136',
+          'Team Flare Grunt XY 129',"Trainers' Mail ROS 92",
+          'Camping Gear BST 122'],
+        ownPublic:player({
+          active:pokemon('Iron Thorns ex TWM 77'),
+          bench:[pokemon('Iron Thorns ex TWM 77')],
+          stadium:swollen?['Chaotic Swell CEC 187']:[]
+        }),
+        opponentPublic:player({active:pokemon(
+          'Shadow Rider Calyrex VMAX CRE 75',{
+            energies:['Psychic Energy CRE 232']
+          })}),
+        ownTurnResources:turnResources({energyPlayedTurn:false}),
+        items:[
+          action(token,'play-card',card,{
+            cardType:token==='thunder'?'stadium':
+              token==='tag'?'item':'supporter'
+          }),
+          action('flare','play-card','Team Flare Grunt XY 129',{cardType:'supporter'}),
+          {token:'pass',kind:'pass'}
+        ]
+      });
+      assert.deepEqual(checkedDecision(request,seat),
+        {kind:'select-action',token:swollen?'flare':token});
+      const audit=makePolicy(seat).decideWithAudit(request);
+      assert.equal(audit.policyAudit.evaluations.find(x=>x.token===token).score,
+        swollen?(token==='gh'?140:token==='tag'?105:0):normal);
+    }
+});

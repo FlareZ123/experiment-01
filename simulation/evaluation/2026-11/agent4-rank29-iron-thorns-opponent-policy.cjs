@@ -1675,6 +1675,10 @@ function scoreAttack(item, request) {
 
 function turboDceAttackWindow(request) {
   const observation = request.observation;
+  // A newly played Thunder Mountain is consumed by Chaotic Swell without
+  // gaining its cost-reduction effect. Treat this as a real opening veto,
+  // not as a payable line until a clearing action actually resolves.
+  if(hasStadium(observation,/^Chaotic Swell\b/i))return false;
   if (!ownActiveIsThorns(observation) ||
       !energyAvailable(observation) ||
       specialEnergyLocked(observation) ||
@@ -1928,6 +1932,9 @@ function scorePlayCard(item, request) {
       ownHand(observation).length <= 3 && ownDeckCount(observation) >= 6 ? 85 : 0;
   }
   if (matches(card, PRINT.thunderMountain)) {
+    // Rank29 has one Prism Star Thunder: never sacrifice it to Chaotic
+    // Swell as though its reduction will apply before the discard.
+    if(hasStadium(observation,/^Chaotic Swell\b/i))return 0;
     const activeEnergy = energyCount(own.active);
     const turbo = turboDceAttackWindow(request) &&
       hand.some(value => matches(value, PRINT.doubleColorless));
