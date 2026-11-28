@@ -84,6 +84,39 @@ def exact_probabilities(path: Path = ROOT / "results/aichi-2026/full-decklists.j
                             direct_funded += probability
                         else:
                             direct_unfunded += probability
+    # Upper-bound incidence of a G&H/Tag Call mediated T1 TM route among
+    # Budew+Bunnelby hands. This does NOT establish discard cost liquidity,
+    # actual source searchability after Prizes, or opponent lock conditions.
+    hala_count = sum(c["count"] for c in cards if c["name"] == "Guzma & Hala")
+    tag_call_count = sum(c["count"] for c in cards if c["name"] == "Tag Call")
+    assert (hala_count, tag_call_count) == (4, 4)
+    other_nonroute = total - sum((budew_count,bunnelby,tm_count,
+                                 energy_count,target_count,
+                                 hala_count,tag_call_count))
+    hala_only = Fraction()
+    no_direct_or_hala = Fraction()
+    for bu in range(1,budew_count+1):
+        for bn in range(1,bunnelby+1):
+            for tm in range(tm_count+1):
+                for en in range(energy_count+1):
+                    for tg in range(target_count+1):
+                        for gh in range(hala_count+1):
+                            for tag in range(tag_call_count+1):
+                                rest=n-bu-bn-tm-en-tg-gh-tag
+                                if not 0 <= rest <= other_nonroute:
+                                    continue
+                                value=Fraction(
+                                    comb(budew_count,bu)*comb(bunnelby,bn)*
+                                    comb(tm_count,tm)*comb(energy_count,en)*
+                                    comb(target_count,tg)*comb(hala_count,gh)*
+                                    comb(tag_call_count,tag)*
+                                    comb(other_nonroute,rest),denom)
+                                if tm>0 and en>0 and tg>0:
+                                    continue
+                                if tg>0 and (gh>0 or tag>0):
+                                    hala_only += value
+                                else:
+                                    no_direct_or_hala += value
     return {
         "total":total, "bunnelby":bunnelby, "other_basic":other,
         "no_basic":p_no_basic, "old_not_bunnelby":old_not_bunnelby,
@@ -91,6 +124,8 @@ def exact_probabilities(path: Path = ROOT / "results/aichi-2026/full-decklists.j
         "old_start_full_bench":p_full_bench,
         "budew_bunnelby_funded_direct":direct_funded,
         "budew_bunnelby_unfunded_direct":direct_unfunded,
+        "budew_bunnelby_hala_route_upper_bound":hala_only,
+        "budew_bunnelby_no_direct_or_hala":no_direct_or_hala,
     }
 
 
@@ -105,3 +140,5 @@ if __name__ == "__main__":
     assert round(float(result["old_start_full_bench"]), 8) == 0.00036657
     assert round(float(result["budew_bunnelby_unfunded_direct"]), 8) == 0.02220334
     assert round(float(result["budew_bunnelby_funded_direct"]), 8) == 0.00050268
+    assert round(float(result["budew_bunnelby_hala_route_upper_bound"]), 8) == 0.00525596
+    assert round(float(result["budew_bunnelby_no_direct_or_hala"]), 8) == 0.01694738
