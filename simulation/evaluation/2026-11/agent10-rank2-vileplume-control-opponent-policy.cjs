@@ -707,9 +707,19 @@ function cardPriority(printing, observation, context) {
     if (/Grand Tree|Artazon/i.test(printing)) return 120;
     return 0;
   }
-  if (context.includes('faba') || context.includes('plumeria')) {
+  if (context.includes('faba')) {
+    const opponent = observation.opponentPublic;
+    const matchesSpecial = boardSlots(opponent).some(({ pokemon }) =>
+      list(pokemon.energies).some(energy => samePrinting(energy, printing) &&
+        !/^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy/i.test(energy)));
+    const matchesTool = boardSlots(opponent).some(({ pokemon }) =>
+      list(pokemon.tools).some(tool => samePrinting(tool, printing)));
+    const matchesStadium = [...list(observation.ownPublic.stadium),
+      ...list(opponent.stadium)].some(stadium => samePrinting(stadium, printing));
+    return matchesSpecial ? 170 : matchesTool ? 150 : matchesStadium ? 125 : 0;
+  }
+  if (context.includes('plumeria')) {
     if (/Special Energy|Jet Energy|Capture Energy|Double Dragon Energy|Double Colorless Energy/i.test(printing)) return 160;
-    if (/Tool|Pokémon Tool|Stadium|Grand Tree|Artazon/i.test(printing)) return 110;
     return 0;
   }
 
@@ -790,13 +800,27 @@ function scorePokemonChoice(choice, observation, context) {
   const zone = choiceZone(choice);
   const guzmaPrompt = context.includes('guzma') && !context.includes('guzma & hala');
   const plumeriaPrompt = context.includes('plumeria');
-  const opponentChoice = context.includes('irresistible aroma') || plumeriaPrompt;
+  const fabaPrompt = context.includes('faba');
+  const opponentChoice = context.includes('irresistible aroma') ||
+    plumeriaPrompt || fabaPrompt;
   // Guzma has two different prompts: opposing Bench first, then own Bench.
   if (guzmaPrompt ? !['actor', 'opponent'].includes(owner) :
       (owner && owner !== (opponentChoice ? 'opponent' : 'actor'))) return -100;
   if (zone && zone !== 'bench' && !context.includes('irresistible aroma') &&
-      !plumeriaPrompt && !context.includes('cassius') &&
+      !plumeriaPrompt && !fabaPrompt && !context.includes('cassius') &&
       !context.includes('grand tree')) return -100;
+  if (fabaPrompt) {
+    if (owner !== 'opponent' || !['active', 'bench'].includes(zone)) return -100;
+    const target = choiceBoardPokemon(choice, observation);
+    if (!target) return -100;
+    const specials = list(target.energies).filter(printing =>
+      /Energy/i.test(printing) &&
+      !/^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy/i.test(printing));
+    const tools = list(target.tools);
+    if (specials.length === 0 && tools.length === 0) return -100;
+    return 110 + (specials.length ? 70 : 0) + (tools.length ? 30 : 0) +
+      (zone === 'active' ? 10 : 0);
+  }
   if (plumeriaPrompt) {
     if (owner !== 'opponent' || !['active', 'bench'].includes(zone)) return -100;
     const target = choiceBoardPokemon(choice, observation);
