@@ -295,4 +295,49 @@ test('do not promote Stage2 if target bench slot mismatches',()=>{
  assert(f.root().kind,'abstain');
 });
 
+
+test('BUS locked Stage1 evolution from previously Benched Duskull',()=>{
+ const f=busDevelopment();f.own.active.printing='Mewtwo & Mew-GX UNM71';
+ f.own.bench=[{printing:'Duskull VIV69',energies:['Basic Psychic Energy'],
+  tools:[],specialConditions:[]}];f.obs.ownHand=['Dusclops SFA 19'];
+ f.items.splice(0,f.items.length,{kind:'play-card',token:'evolve-duskull',
+ actorPrinting:'Dusclops SFA 19',targetPrinting:'Duskull VIV69',
+ publicMetadata:{cardType:'pokemon',targetSeat:'actor',targetZone:'bench',targetIndex:0}});
+ assert(f.root().token,'evolve-duskull');
+});
+test('BUS lock requires Stage1 native evolution eligibility',()=>{
+ const f=busDevelopment();f.own.active.printing='Mewtwo & Mew-GX UNM71';
+ f.own.bench=[{printing:'Duskull VIV69',energies:[],tools:[],specialConditions:[]}];
+ f.obs.ownHand=['Dusclops SFA 19'];f.obs.ownTurnResources.energyPlayedTurn=1;
+ f.items.splice(0,f.items.length,{kind:'play-card',token:'wrong-index',
+ actorPrinting:'Dusclops SFA 19',targetPrinting:'Duskull VIV69',
+ publicMetadata:{cardType:'pokemon',targetSeat:'actor',targetZone:'bench',targetIndex:3}});
+ assert(f.root().kind,'abstain');
+});
+test('BUS hand Duskull establishes evolution lineage',()=>{
+ const f=busDevelopment();f.own.active.printing='Mewtwo & Mew-GX UNM71';
+ f.own.bench=[];f.obs.ownHand=['Duskull VIV69'];
+ f.items.splice(0,f.items.length,{kind:'play-card',token:'bench-dusk',
+ actorPrinting:'Duskull VIV 69',publicMetadata:{cardType:'pokemon',targetZone:'bench',targetSeat:'actor'}});
+ assert(f.root().token,'bench-dusk');
+});
+test('TPE under BUS Item lock recruits absent Duskull',()=>{
+ const f=busDevelopment();f.own.active.printing='Mewtwo & Mew-GX UNM 71';
+ f.own.active.printed={types:['Psychic']};f.own.bench=[];f.obs.ownHand=[];
+ f.items.splice(0,f.items.length,{kind:'play-card',token:'tpe-recruit',
+ actorPrinting:'Telepathic Psychic Energy MEG 88',
+ targetPrinting:f.own.active.printing,
+ publicMetadata:{cardType:'energy',targetZone:'active',targetSeat:'actor'}});
+ assert(f.root().token,'tpe-recruit');
+});
+test('no TPE when Bench full',()=>{
+ const f=busDevelopment();f.own.active.printing='Mewtwo & Mew-GX UNM 71';
+ f.own.active.printed={types:['Psychic']};f.own.bench=[...Array(5)].map(()=>
+  ({printing:'Unown AOR 30'}));f.obs.ownHand=[];
+ f.items.splice(0,f.items.length,{kind:'play-card',token:'tpe',
+ actorPrinting:'Telepathic Psychic Energy MEG 88',targetPrinting:f.own.active.printing,
+ publicMetadata:{cardType:'energy',targetZone:'active',targetSeat:'actor'}});
+ assert(f.root().kind,'abstain');
+});
+
 console.log('Agent1 v3 research actor tests: '+checks+' assertions passed');
