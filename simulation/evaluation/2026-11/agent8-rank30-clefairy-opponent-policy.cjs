@@ -1365,7 +1365,7 @@ function manualEnergyCompletesPrintedKO(items,o) {
   const own=o?.ownPublic;
   if(!own?.active||!Array.isArray(own.bench))return null;
   const actions=items.filter(a=>a.kind==='play-card'&&
-    has(ownPrinting(a),P.basicPsychic)&&
+    (has(ownPrinting(a),P.basicPsychic)||has(ownPrinting(a),P.telepathic))&&
     a.publicMetadata?.targetSeat==='actor'&&
     a.publicMetadata?.isOwnerVisible===true&&
     ['active','bench'].includes(a.publicMetadata?.targetZone));
@@ -1411,9 +1411,13 @@ function manualEnergyCompletesPrintedKO(items,o) {
     const alreadyReady=has(target,P.latias)?before.length>=3:before.length>=2;
     if(alreadyReady)continue;
     candidates.push({action,prizes:win.prizeLowerBound,
-      damage:win.damage??win.damageLowerBound??0});
+      damage:win.damage??win.damageLowerBound??0,
+      isTelepathic:has(ownPrinting(action),P.telepathic)});
   }
-  candidates.sort((a,b)=>b.prizes-a.prizes||b.damage-a.damage);
+  // Prefer spending abundant Basic Psychic over the two Telepathic Psychic
+  // special cards if either offered payment enables the same terminal attack.
+  candidates.sort((a,b)=>b.prizes-a.prizes||b.damage-a.damage||
+    Number(a.isTelepathic)-Number(b.isTelepathic));
   return candidates[0]?.action??null;
 }
 function startingActiveRank(printing) {
