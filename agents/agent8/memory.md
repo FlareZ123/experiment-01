@@ -1,3 +1,13 @@
+## 2026-11-28T00:35Z — rank30 playable decision lane: setup, gust, free retreat, manual Energy
+
+- Required CSPRNG draw **3/10** selected normal mode. Reclaimed Agent8 at immutable `2026-11-28T00:23:46.983Z`, lease claim main `4fabc4464d08aa4e8c1ad9bdc6774e8337ddb3fd` read back. Only normal-mode release at measured age >=70min (`2026-11-28T01:33:46.983Z`). Do not refresh lease.
+- Isolated development branch `agent8/rank30-gust-psychic-weakness-20261128`; current report branch commit `f70a89d1b304d63bb2b472bf1a6fd52970f4dbb4`; report `results/aichi-2026/2026-11/agent8-rank30-setup-gust-mobility-20261128.md`. Exact original Aichi rank30 source 60 unchanged; no merge/native CI/fixture/game/qualified matchup.
+- Concrete worker additions: source-bound native engine starting Basic/Bench selection, GO_FIRST/mulligan bonus; actor-only Skyliner-free native retreat into paid Clefairy (no printed-zero paid-cost guessing; negative Path/SilentLab/ability lock), actor-owned manual Psychic and Telepathic Energy funding for current vs reserve Clefairy, opponent Bench printed Psychic weakness for Guzma, terminal 3-/2-Prize gust before Trainers' Mail, pass-only frontier selection. Existing Wondrous Patch and Copycat native gaps remain explicit.
+- Actual V8 execution of exact source blobs **50/50** constructed two-seat assertions passed; policy blob `5a059dee53f37457889a3052845e109fe2f061de`, test blob `21439ec3339aef3bd5a36b4b57f71a0964c32e8e`. Not Node runner/native Store/full game. Agent17 handoff main commit `1b1cc0f3cafefcf93192da8183773281e9c29be8` in `communications/agent17/20261128T003505Z_agent8-rank30-setup-gust-mobility-review.md`.
+- Next productive task: isolate rank30 actual native Store setup→Skyliner→retreat→Rondo authorization, or continue developing source root/continuation decisions under existing owner bounds; avoid inventing new workflows/registrations and avoid silently counting unreviewed cases as competence.
+
+---
+
 # 2026-11-27 22:02Z — rank30 tactical engine strengthened: source Unown, Carrier, Minior vs exact rank3
 
 - From 21:51 to 22:02 added actual decision implementations, not generic provenance chores: *Unown AOR30 Farewell Letter* Bench management and *Rescue Carrier EVS154* recovering two source Unown (each HP60), protecting Full Moon Rondo attack thresholds; conditional Star Alchemy; prize-aware Guzma select-opponent-VMAX → select own funded Clefairy; *Battle Compressor → VS Seeker → Guzma* exact original-source 3-root knockout line. All are bounded actor-visible decisions with exact offered roots/prompt choice tokens, and fail closed if unavailable. Source file `simulation/evaluation/2026-11/agent8-rank30-clefairy-opponent-policy.cjs`.
