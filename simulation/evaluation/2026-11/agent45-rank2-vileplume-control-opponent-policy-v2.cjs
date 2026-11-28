@@ -953,6 +953,21 @@ function canUseGuzmaHalaMode0(observation) {
   return grandTreeUseful || artazonUseful || replaceableOpponentStadium;
 }
 
+// Prize rules are discrete: VMAX/TAG TEAM/V-UNION/Mega Evolution ex
+// yield three, V/VSTAR/GX/old EX/new ex yield two, ordinary Pokémon one.
+// Use public printed subtype/rule text when projected, and exact name fallback.
+function prizeYield(pokemon) {
+  const printing = pokemon?.printing ?? '';
+  const printed = pokemon?.printed ?? {};
+  const hints = [...list(printed.subtypes), ...list(printed.rules)].join(' ');
+  if (/VMAX|V-UNION|TAG TEAM|Mega Evolution ex Rule/i.test(hints) ||
+      /\bVMAX\b|\bV-UNION\b|\bMega\b.+\bex\b/i.test(printing) ||
+      /&.+-GX\b/i.test(printing)) return 3;
+  if (/\bVSTAR\b|\bPokémon V\b|Pokémon-GX|Pokémon-EX|Pokémon ex/i.test(hints) ||
+      /(?:-GX|-EX)\b|\bVSTAR\b|\bV\b|\bex\b/i.test(printing)) return 2;
+  return 1;
+}
+
 function scorePokemonChoice(choice, observation, context) {
   const printing = choicePrinting(choice);
   const owner = choiceOwner(choice);
@@ -988,7 +1003,7 @@ function scorePokemonChoice(choice, observation, context) {
       return 10;
     }
     const hp = remainingHp(target);
-    const multiPrize = /(?:-GX|\b(?:V|VMAX|VSTAR|ex)\b)/i.test(printing) ? 2 : 1;
+    const multiPrize = prizeYield(target);
     const lockPivot = list(observation.ownPublic?.bench).some(pokemon =>
       stoutlandSentinelEffective(observation, pokemon)) &&
       observation.opponentPublic?.publicTurnRestrictions?.itemPlayLocked === true;
