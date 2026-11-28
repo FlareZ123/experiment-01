@@ -164,3 +164,22 @@ for(const seat of [0,1]){
   assert.equal(result.tokens.length,2);
  });
 }
+
+for(const seat of [0,1]){
+ test('spent VSTAR power makes Megaton recovery unproven; keep donors, seat '+seat,()=>{
+  const v=view(seat);v.opponentPublic.publicTurnRestrictions.vstarUsed=true;
+  assert.deepEqual(decision(prompt(seat,v)),
+   {kind:'select-choices',tokens:['card-0','card-1']});
+ });
+ test('public Faba counter leaves another Temple-removal line, seat '+seat,()=>{
+  const v=view(seat);v.opponentPublic.discard.push('Faba LOT');
+  assert.deepEqual(decision(prompt(seat,v)),
+   {kind:'select-choices',tokens:['card-0','card-1']});
+ });
+ test('public Bench Marshadow remains an alternate Resetting Hole route, seat '+seat,()=>{
+  const v=view(seat);
+  v.opponentPublic.bench[0]=slot('Marshadow UNB',[],[],['Fighting']);
+  assert.deepEqual(decision(prompt(seat,v)),
+   {kind:'select-choices',tokens:['card-0','card-1']});
+ });
+}
