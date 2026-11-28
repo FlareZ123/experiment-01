@@ -76,11 +76,14 @@ function ownTarget(action,o){
  if(meta.targetZone==='bench'&&Number.isSafeInteger(meta.benchIndex))return rows.find(x=>x.zone==='bench'&&x.index===meta.benchIndex)||null;
  return null;
 }
+function stadiumEffectEnabled(o){
+ const n=o?.ownPublic?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
+ return n===null||n===undefined||n===0;
+}
 function toolEnabled(o){
  const stadium=[...list(o?.ownPublic?.stadium),...list(o?.opponentPublic?.stadium)];
  if(stadium.some(x=>match(x,PRINT.jamming)))return false;
- const n=o?.ownPublic?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
- return n===null||n===undefined||n===0;
+ return stadiumEffectEnabled(o);
 }
 function garbotoxinStatusForSide(o,player){
  // Jamming Tower disables a Tool's effect, not its attachment.
@@ -98,11 +101,11 @@ function garbotoxinStatus(o){return garbotoxinStatusForSide(o,o.ownPublic);}
 function opponentGarbotoxinStatus(o){return garbotoxinStatusForSide(o,o.opponentPublic);}
 function liveGarbotoxin(o){return garbotoxinStatus(o)==='live';}
 function pathToThePeakInPlay(o){
- return [...list(o?.ownPublic?.stadium),...list(o?.opponentPublic?.stadium)]
+ return stadiumEffectEnabled(o)&&[...list(o?.ownPublic?.stadium),...list(o?.opponentPublic?.stadium)]
   .some(s=>match(s,PRINT.path));
 }
 function silentLabInPlay(o){
- return [...list(o?.ownPublic?.stadium),...list(o?.opponentPublic?.stadium)]
+ return stadiumEffectEnabled(o)&&[...list(o?.ownPublic?.stadium),...list(o?.opponentPublic?.stadium)]
   .some(s=>match(s,PRINT.silentLab));
 }
 function activeKlefkiLock(o){
@@ -162,8 +165,8 @@ function opponentLockAbilityLive(o,pokemon,abilityName){
 }
 function replacingJammingRestoresHoodedLock(o){
  const stadium=[...list(o?.ownPublic?.stadium),...list(o?.opponentPublic?.stadium)];
- if(!stadium.some(c=>match(c,PRINT.jamming))||!liveGarbotoxin(o)||
-    opponentGarbotoxinStatus(o)==='live')return false;
+ if(!stadiumEffectEnabled(o)||!stadium.some(c=>match(c,PRINT.jamming))||
+    !liveGarbotoxin(o)||opponentGarbotoxinStatus(o)==='live')return false;
  // A new Stadium re-enables Hood. That lets the opponent's Hooded lock
  // evade OUR Garbotoxin, and can instantly remove access to Items,
  // Supporters, retreat or the exact KO line. The current suppression
@@ -405,6 +408,7 @@ function regidragoPayloadCount(o){
  return 0;
 }
 function templeStrandsIronThorns(o){
+ if(!stadiumEffectEnabled(o))return false;
  const active=o.opponentPublic?.active;
  if(!match(active?.printing,/^Iron Thorns ex\b/i))return false;
  const energies=list(active.energies);
@@ -427,6 +431,7 @@ function templeStrandsIronThorns(o){
   (!afterTypes||afterTotal<3);
 }
 function templeStrandsApexDragon(o){
+ if(!stadiumEffectEnabled(o))return false;
  const opponent=o.opponentPublic,active=opponent?.active;
  if(!match(active?.printing,/^Regidrago VSTAR SIT 136\b/i))return false;
  const energies=list(active.energies);
@@ -803,6 +808,7 @@ function score(action,req){
   return drawSupporterScore(p,o);
  if(match(p,PRINT.guzma))return guzmaRootScore(o);
  if(match(p,PRINT.temple)){
+  if(!stadiumEffectEnabled(o))return 0;
   const activeStadium=[...list(opp.stadium),...list(own.stadium)];
   // Chaotic Swell discards BOTH itself and a newly played Stadium; the
   // new Temple never receives a turn of Special Energy denial.
