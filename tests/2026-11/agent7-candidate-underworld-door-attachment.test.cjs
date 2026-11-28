@@ -167,6 +167,6 @@ for(const seat of [0,1]){
     request.actionFrontier.items.unshift(priority);
     // Other profitable construction actions still happen before either
     // manual Energy attachment or the Underworld fallback.
-    assert.deepEqual(policy.decide(request),{kind:'select-action',token:'door'});
+    assert.deepEqual(policy.decide(request),{kind:'select-action',token:'fss'});
   });
 }

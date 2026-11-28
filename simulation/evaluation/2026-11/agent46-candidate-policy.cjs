@@ -1265,6 +1265,15 @@ function chooseRoot(view, request) {
     // override a manual attachment when a second Psychic remains available.
     if (availableDoor && scoredPlays[0].item.actorPrinting === 'Psychic Energy MEE 13' &&
         view.ownHand.filter(p => p === 'Psychic Energy MEE 13').length === 1) {
+      // First resolve non-Energy construction lines that remain legal and
+      // profitable; e.g. Fog Crystal thinning precedes the two new draws.
+      const development=scoredPlays.find(row=>
+        row.item.actorPrinting !== 'Psychic Energy MEE 13' && row.score>0);
+      if(development){
+        setPolicyAuditRule('ROOT_NON_ENERGY_DEVELOPMENT_BEFORE_DOOR',
+          'BEST_SCORED_NON_ENERGY_ACTION');
+        return {kind:'select-action',token:development.item.token};
+      }
       recordPolicyAuditRule(availableDoor.token,'UNDERWORLD_SINGLE_ENERGY_CONTENTION');
       setPolicyAuditRule('ROOT_UNDERWORLD_BEFORE_SINGLE_MANUAL_ATTACHMENT',
         'RETAIN_ONLY_PSYCHIC_FOR_REPEATABLE_DRAW');
