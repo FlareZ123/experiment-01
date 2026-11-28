@@ -3504,7 +3504,11 @@ function switchedPublic(view,side,index) {
   // Guzma -> normal-retreat -> attack continuation. Energy, Tools and
   // damage remain attached as usual.
   const departing=player.active;
-  const cleared=departing?{...departing,specialConditions:[]}:departing;
+  const known=departing?normalizeSpecialConditionNames(departing.specialConditions??[]):[];
+  // Unknown numeric/string condition codes are *not* silently normalized
+  // into legal cleared status; preserve them so the continuation fails shut.
+  const cleared=departing?{...departing,
+    specialConditions:known===null?departing.specialConditions:[]}:departing;
   return {...view,[side]:{...player,active:incoming,
     bench:player.bench.map((slot,i)=>i===index?cleared:slot)}};
 }
