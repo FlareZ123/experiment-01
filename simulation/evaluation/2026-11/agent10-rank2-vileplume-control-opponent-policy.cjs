@@ -1130,13 +1130,43 @@ function engineSetupDecision(request) {
          m.selectionIndex<=last||m.selectedCount!==1||
          m.sourceZone!=='hand'||m.ownerSeat!=='actor'||m.isOwnerVisible!==true)
         return abstain('UNTRUSTED_STARTING_POKEMON_CHOICE');
-      last=m.selectionIndex;selected.push(choice.token);
+      last=m.selectionIndex;
+      selected.push({token:choice.token,printing:choice.printing,index:m.selectionIndex});
     }
     if(meta.minimumCount===0&&selected.length===0)
       return empty&&empty.label==='Choose no items'?
         {kind:'select-choice',token:empty.token}:abstain('NO_STARTING_POKEMON_CHOICE');
-    const tokens=selected.slice(0,meta.maximumCount);
-    return tokens.length>=meta.minimumCount&&tokens.length>0?
+    // The first selected Basic becomes Active. Hand order is not a strategy:
+    // leading a first-turn Bunnelby enables Barrage/Technical Machine: Evolution.
+    // Do not automatically fill all five Bench slots with incidental Basics;
+    // this deck needs room for three distinct evolution lines and a pivot.
+    const activeRank=printing=>
+      matches(printing,PRINT.bunnelby)?400:
+      matches(printing,PRINT.budew)?380:
+      matches(printing,PRINT.fanRotom)?360:
+      matches(printing,PRINT.girafarig)?280:
+      matches(printing,PRINT.jirachi)?270:
+      matches(printing,PRINT.relicanth)?260:
+      matches(printing,PRINT.mrMime)?240:
+      matches(printing,PRINT.lillipup)?220:
+      matches(printing,PRINT.pidgey)?210:
+      matches(printing,PRINT.oddish)?200:100;
+    const active=selected.slice().sort((a,b)=>
+      activeRank(b.printing)-activeRank(a.printing)||a.index-b.index)[0];
+    if(!active) return abstain('INSUFFICIENT_STARTING_POKEMON_CHOICES');
+    const tokens=[active.token],used=new Set(tokens);
+    // Four starting Bench occupants at most leaves one emergency/pivot slot.
+    // A second copy of an already represented Basic stays in hand.
+    const desiredBench=[PRINT.oddish,PRINT.lillipup,PRINT.pidgey,
+      PRINT.fanRotom,PRINT.relicanth,PRINT.bunnelby];
+    for(const pattern of desiredBench) {
+      if(tokens.length>=Math.min(meta.maximumCount,5))break;
+      if(matches(active.printing,pattern))continue;
+      const candidate=selected.find(row=>!used.has(row.token)&&
+        matches(row.printing,pattern));
+      if(candidate){tokens.push(candidate.token);used.add(candidate.token);}
+    }
+    return tokens.length>=meta.minimumCount&&tokens.length<=meta.maximumCount?
       {kind:'select-choices',tokens}:abstain('INSUFFICIENT_STARTING_POKEMON_CHOICES');
   }
   if(prompt.description==='GO_FIRST'&&prompt.promptType==='ConfirmPrompt'){
