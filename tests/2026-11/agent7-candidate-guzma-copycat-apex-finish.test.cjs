@@ -19,6 +19,7 @@ function mon(printing,{hp=210,damage=0,type='Psychic',energy=0,attacks=[],
 }
 function choose(token,printing,owner,index){
   return {token,kind:'pokemon',printing,
+    label:(owner==='actor'?'Your ':'Opponent ')+'bench '+(index+1)+': '+printing,
     publicMetadata:{ownerSeat:owner,targetZone:'bench',
       benchIndex:index,isOwnerVisible:true,selectedCount:1}};
 }
