@@ -317,7 +317,7 @@ function guzmaOpportunity(o) {
   if(!own||!opp||!poweredBenchClefairy(o).length)return null;
   const baseDamage=20*(1+benchCount(own)+benchCount(opp));
   const matches=arr(opp.bench).map((pokemon,index)=>({pokemon,index,
-    prizeValue:sourcePrizeTarget(pokemon),remaining:pokemon?.hp-pokemon?.damage,
+    prizeValue:minimumPrizesOnAttackKnockout(pokemon),remaining:pokemon?.hp-pokemon?.damage,
     // Guzma promotes a Benched Clefairy: use its future Psychic weakness,
     // not merely the current active Pokémon's weakness modifier.
     predictedDamage:clefairyRondoDamage(o,pokemon,baseDamage)}))
@@ -795,11 +795,23 @@ function sourcePrizeTarget(p) {
   if(/\b(?:VSTAR|ex|EX|GX|V)\b/i.test(v)||/-GX\b/i.test(v))return 2;
   return 1;
 }
+// Lower bound when a visible Prize-reducing Tool/Special Energy may apply.
+// Legacy Energy is once-per-game; without an authenticated spent-effect receipt,
+// treat it as still available. Distinct Tool and Energy protections may stack.
+// This is not a complete paper Prize-modifier adjudicator.
+function minimumPrizesOnAttackKnockout(target) {
+  const count=sourcePrizeTarget(target);
+  const energyReduction=arr(target?.energies).some(x=>
+    /^Legacy Energy\b/i.test(text(x)))?1:0;
+  const toolReduction=arr(target?.tools).some(x=>
+    /^(?:Life Dew|Hero's Medal|Ribbon Badge|Island Challenge Amulet)\b/i.test(text(x)))?1:0;
+  return Math.max(0,count-energyReduction-toolReduction);
+}
 function terminalRondo(o) {
   const r=projectedRondo(o);
   return Boolean(r && r.damage>=r.remaining &&
     safeInt(o.ownPublic?.prizeCount) && o.ownPublic.prizeCount>0 &&
-    (o.ownPublic.prizeCount<=sourcePrizeTarget(o.opponentPublic.active)||
+    (o.ownPublic.prizeCount<=minimumPrizesOnAttackKnockout(o.opponentPublic.active)||
       benchCount(o.opponentPublic)===0));
 }
 function threatenSecondTarget(o) {
@@ -896,7 +908,7 @@ const PROTECTED_BENCH_FILLER=new Set(['lele','mimikyu','empoleon','dialga']);
 function terminalPrizeThreat(o) {
   const ownPrizes=o?.ownPublic?.prizeCount;
   return safeInt(ownPrizes)&&ownPrizes>0&&(
-    ownPrizes<=sourcePrizeTarget(o?.opponentPublic?.active)||
+    ownPrizes<=minimumPrizesOnAttackKnockout(o?.opponentPublic?.active)||
     benchCount(o?.opponentPublic)===0);
 }
 function selectBasicBenchRoot(items,o) {
@@ -1809,4 +1821,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,sourceCardPatternCoverage,heavyBallBasicCoverage,createPolicy,
-  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,certifiedPsychicBenchTargets,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy,hasFreshPriorOpponentTurnKO,raihanOpportunity,raihanAttachPrompt,raihanSearchPrompt,raihanPrompt,hisuianHeavyBallOpportunity,hisuianHeavyBallPrompt};
+  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,certifiedPsychicBenchTargets,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,minimumPrizesOnAttackKnockout,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy,hasFreshPriorOpponentTurnKO,raihanOpportunity,raihanAttachPrompt,raihanSearchPrompt,raihanPrompt,hisuianHeavyBallOpportunity,hisuianHeavyBallPrompt};
