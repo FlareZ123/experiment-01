@@ -1133,20 +1133,33 @@ function fieldBlowerTargetPrintings(o) {
   // disarmed. An ambiguous equal-name Tool cannot be safely targeted using
   // the generic card-combination projection's source choice tokens.
   if(ownAbilityRole) {
-    const armed=slots(opp).filter(p=>
-      /^Garbodor (?:LTR(?: 68)?|BKP(?: 57)?)\b/i.test(text(p))&&
-      arr(p.abilities).includes('Garbotoxin')&&arr(p.tools).length===1);
-    const armedTools=armed.map(p=>text(p.tools[0]));
-    if(armedTools.length&&armedTools.length<=2&&
-       armedTools.every(t=>uniqueTool(t))&&
-       new Set(armedTools).size===armedTools.length)
-      for(const t of armedTools)if(!chosen.includes(t))chosen.push(t);
-    const stadiums=[...arr(own.stadium),...arr(opp.stadium)];
-    const blockers=stadiums.map(c=>text(c)).filter(t=>
-      /^(?:Path to the Peak CRE(?: 148)?|Silent Lab PRC(?: 140)?)\b/i.test(t));
-    const uniqueBlockers=[...new Set(blockers)];
-    if(uniqueBlockers.length===1&&!chosen.includes(uniqueBlockers[0]))
-      chosen.push(uniqueBlockers[0]);
+    // Initialization survives removing ordinary Tool/Stadium locks. Do not
+    // confuse a technically removable Path with restoring Fairy Zone.
+    const iron=has(opp.active,/^Iron Thorns ex TWM(?: 77)?\b/i)&&
+      arr(opp.active.abilities).includes('Initialization')&&
+      !arr(opp.active.abilitySuppressions).some(row=>
+        row?.abilityName==='Initialization'&&row.suppressed===true);
+    if(!iron) {
+      const armed=slots(opp).filter(p=>
+        /^Garbodor (?:LTR(?: 68)?|BKP(?: 57)?)\b/i.test(text(p))&&
+        arr(p.abilities).includes('Garbotoxin')&&
+        !arr(p.abilitySuppressions).some(row=>
+          row?.abilityName==='Garbotoxin'&&row.suppressed===true)&&
+        arr(p.tools).length===1);
+      const armedTools=armed.map(p=>text(p.tools[0]));
+      const stadiums=[...arr(own.stadium),...arr(opp.stadium)];
+      const blockers=stadiums.map(c=>text(c)).filter(t=>
+        /^(?:Path to the Peak CRE(?: 148)?|Silent Lab PRC(?: 140)?)\b/i.test(t));
+      // A SINGLE Field Blower can remove at most two distinct card objects.
+      // Partial unlocking of a three-effect lock has no immediate Ability
+      // benefit; avoid spending the connector without a deterministic line.
+      const allBlockers=[...armedTools,...new Set(blockers)];
+      if(allBlockers.length>0&&allBlockers.length<=2&&
+         new Set(allBlockers).size===allBlockers.length&&
+         armedTools.every(t=>uniqueTool(t))) {
+        for(const t of allBlockers)if(!chosen.includes(t))chosen.push(t);
+      }
+    }
   }
   return chosen.slice(0,2);
 }
