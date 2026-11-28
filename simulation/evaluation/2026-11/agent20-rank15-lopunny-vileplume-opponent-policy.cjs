@@ -68,6 +68,8 @@ const P = Object.freeze({
   powerful:/^Powerful Colorless Energy DAA(?: 176)?\b/i,
   choiceBelt:/^Choice Belt PAL(?: 176)?\b/i,
   legacy:/^Legacy Energy TWM(?: 167)?\b/i,
+  lifeDew:/^Life Dew PLF(?: 107)?\b/i,
+  islandAmulet:/^Island Challenge Amulet CEC(?: (?:194|265))?\b/i,
   mimikyu:/^Mimikyu GRI(?: 58)?\b/i,
   girafarig:/^Girafarig LOT(?: 94)?\b/i,
   valley:/^Dimension Valley PHF(?: 93)?\b/i
@@ -104,15 +106,25 @@ function toolEffectsSuppressed(o) {
 }
 function sourcePrizeValue(pokemon,o) {
   const p=txt(pokemon);
-  const normal=/^Mega .* ex\b/i.test(p)||/\bVMAX\b/i.test(p)?3:
+  const subtypes=arr(pokemon?.printed?.subtypes);
+  const tagTeam=/&.+-GX\b/i.test(p)||subtypes.some(x=>
+    /^TAG[ _-]?TEAM$/i.test(String(x)));
+  const vunion=/\bV-UNION\b/i.test(p)||subtypes.some(x=>
+    /^V[ _-]?UNION$/i.test(String(x)));
+  // Paper Expanded includes three-Prize TAG TEAM-GX and Pokémon V-UNION,
+  // not just VMAX and Mega Evolution ex.
+  const normal=tagTeam||vunion||/^Mega .* ex\b/i.test(p)||/\bVMAX\b/i.test(p)?3:
     /\b(?:ex| VSTAR| V|GX|EX)\b/i.test(p)||/-GX\b/i.test(p)?2:1;
-  // Legacy Energy reduces Prize cards taken from this attack KO once per
-  // game. Its prior use is not certified by the public actor projection, so
-  // a live attached copy must be assumed *unspent* to avoid a false win.
-  // Temple of Sinnoh removes this Special Energy's Prize-reduction effect.
+  // The actor's public state does not prove that Legacy's once-per-game
+  // Prize discount was already spent. Assume a live copy still applies.
   const activeLegacy=arr(pokemon?.energies).some(x=>has(x,P.legacy))&&
     !templeSuppressesSpecialEnergy(o);
-  return activeLegacy?Math.max(0,normal-1):normal;
+  const activeTools=arr(pokemon?.tools);
+  const liveTools=!toolEffectsSuppressed(o);
+  const lifeDew=liveTools&&activeTools.some(x=>has(x,P.lifeDew));
+  const island=liveTools&&/(?:-GX\b|-EX\b| GX\b| EX\b)/i.test(p)&&
+    activeTools.some(x=>has(x,P.islandAmulet));
+  return Math.max(0,normal-Number(activeLegacy)-Number(lifeDew)-Number(island));
 }
 function movementEvidence(request) {
   const o=request.observation, r=request.publicEventReceipt;
@@ -167,7 +179,9 @@ function printedDamage(item,request) {
   // Spiky Hopper shreds defender effects but still applies Weakness/Resistance.
   // Other attacks fail closed if opaque defensive effects may change damage.
   const bypass=has(own,P.mega)&&item.attackName==='Spiky Hopper';
-  if(!bypass&&(arr(op.tools).length||
+  // Life Dew changes Prize yield but does not modify attack damage. Its
+  // visible Tool is safe to account for through sourcePrizeValue instead.
+  if(!bypass&&(arr(op.tools).some(x=>!has(x,P.lifeDew))||
      arr(op.abilitySuppressions).some(x=>x.suppressed===false)))return null;
   let value=null;
   if(has(own,P.mega)) {
@@ -464,8 +478,8 @@ function terminalGalePromotionTarget(request) {
   const o=request?.observation,own=o?.ownPublic,op=o?.opponentPublic?.active;
   if(!own||!has(op,/^Shadow Rider Calyrex V CRE(?: 74)?\b/i)||
     (has(own.active,P.mega)&&movementEvidence(request)!==false))return null;
-  if(arr(op.tools).length||arr(op.abilitySuppressions).some(x=>x.suppressed===false))
-    return null;
+  if(arr(op.tools).some(x=>!has(x,P.lifeDew))||
+     arr(op.abilitySuppressions).some(x=>x.suppressed===false))return null;
   const remaining=Number.isSafeInteger(op.hp)&&Number.isSafeInteger(op.damage)?
     op.hp-op.damage:null;
   const gale=applyColorlessWeaknessResistance(230,op);
@@ -918,7 +932,7 @@ function guzmaOpportunity(o,{resolvingGuzma=false}={}) {
   const prizes=Number.isSafeInteger(own.prizeCount)?own.prizeCount:null;
   const ranked=targets.map((x,index)=>{
     if(!x||!Number.isSafeInteger(x.hp)||!Number.isSafeInteger(x.damage)||
-      x.hp<=x.damage||arr(x.tools).length>0||
+      x.hp<=x.damage||arr(x.tools).some(t=>!has(t,P.lifeDew))||
       arr(x.abilitySuppressions).some(z=>z.suppressed===false))return null;
     const galeDamage=applyColorlessWeaknessResistance(230,x);
     if(galeDamage===null||x.hp-x.damage>galeDamage)return null;
