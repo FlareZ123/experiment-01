@@ -833,6 +833,11 @@ function quickSearchPrompt(request) {
   return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
     abstain('NO_LEGAL_CARD_SET');
 }
+function readyGuzmaMega(x,o) {
+  return has(x,P.mega)&&attachedEnergyUnits(x,o)>=1&&
+    arr(x.publicRestrictions?.cannotUseAttacksNextTurn).length===0&&
+    x.publicRestrictions?.cannotAttackNextTurn!==true;
+}
 function guzmaOpportunity(o,{resolvingGuzma=false}={}) {
   // Proposed gust is intentionally *not* a native damage projection. It
   // requires an observable powered Bench attacker and target, then selects
@@ -842,9 +847,7 @@ function guzmaOpportunity(o,{resolvingGuzma=false}={}) {
     (!resolvingGuzma&&!supporterUnused(o)))
     return null;
   const bench=arr(own.bench),targets=arr(opp.bench);
-  const attackerIndex=bench.findIndex(x=>has(x,P.mega)&&arr(x.energies).length>=1&&
-    arr(x.publicRestrictions?.cannotUseAttacksNextTurn).length===0&&
-    x.publicRestrictions?.cannotAttackNextTurn!==true);
+  const attackerIndex=bench.findIndex(x=>readyGuzmaMega(x,o));
   if(attackerIndex<0)return null;
   const attacker=bench[attackerIndex];
   if(arr(attacker.tools).some(x=>has(x,P.choiceBelt)))return null;
@@ -889,8 +892,7 @@ function guzmaPrompt(request) {
   // Bench Pokémon moved Active. Its old Bench target is now absent: never
   // recompute the original gust candidate against the changed opponent Bench.
   const bench=arr(o.ownPublic?.bench);
-  const index=bench.findIndex(x=>has(x,P.mega)&&arr(x.energies).length>=1&&
-    x.publicRestrictions?.cannotAttackNextTurn!==true);
+  const index=bench.findIndex(x=>readyGuzmaMega(x,o));
   const found=ours.find(c=>c.publicMetadata?.benchIndex===index&&
     txt(bench[index])===txt(c));
   return found?{kind:'select-choices',tokens:[found.token]}:
