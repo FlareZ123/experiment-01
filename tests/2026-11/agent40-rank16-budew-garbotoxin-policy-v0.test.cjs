@@ -1023,3 +1023,55 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
  });
 }
+
+test('printed Prize liability: VSTAR and GX two, VMAX/Mega/TagTeam/V-UNION three, single Prize variants one',()=>{
+ const expected=[
+  ['Regidrago VSTAR SIT 136',2],
+  ['Shadow Rider Calyrex VMAX CRE 75',3],
+  ['Mega Absol ex MEG 86',3],
+  ['Iron Thorns ex TWM 77',2],
+  ['Mimikyu PAL 97',1],
+  ['Tapu Lele-GX GRI 60',2],
+  ['Arceus & Dialga & Palkia-GX CEC 156',3],
+  ['Eternatus V-UNION PFL 123',3],
+  ['Radiant Greninja ASR 46',1]
+ ];
+ for(const [printing,liability] of expected)
+  assert.equal(policy.prizeYield({printing}),liability);
+});
+for(const seat of [0,1]){
+ test('seat '+seat+' two-Prize damaged VSTAR Claw can win with exactly two own Prizes remaining',()=>{
+  const mega=mon('Mega Absol ex MEG 86',{
+   energies:['Darkness Energy MEE 15','Darkness Energy MEE 15','Darkness Energy MEE 15']});
+  const oppActive=mon('Regidrago VSTAR SIT 136',{hp:280,damage:80,
+   printed:{subtypes:['VSTAR'],weakness:[]}});
+  const c=attack('Claw of Darkness','claw');
+  const q=root(seat,[c,play('Float Stone BKT 137','float',
+     {targetSeat:'actor',targetZone:'bench',targetIndex:0}),pass],{
+    ownPublic:own({active:mega,bench:[mon('Garbodor LTR 68')],prizeCount:2}),
+    opponentPublic:opp({active:oppActive})});
+  assert.equal(policy.prizeYield(oppActive),2);
+  assert.equal(policy.clawProjectedKnockoutScore(c,q.observation),965);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'claw'});
+  q.observation.ownPublic.prizeCount=3;
+  assert.equal(policy.clawProjectedKnockoutScore(c,q.observation),845);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'float'});
+ });
+ test('seat '+seat+' damaged two-Prize GX beats one-Prize target for tactical Guzma target choice',()=>{
+  const mega=mon('Mega Absol ex MEG 86',{energies:[
+   'Darkness Energy MEE 15','Darkness Energy MEE 15','Darkness Energy MEE 15']});
+  const gx=mon('Tapu Lele-GX GRI 60',{hp:170,printed:{subtypes:['GX'],weakness:[]}});
+  const single=mon('Mimikyu GRI 58',{hp:70,printed:{subtypes:[],weakness:[]}});
+  const my=own({active:mon('Budew ASC 16'),bench:[mega],prizeCount:2});
+  const them=opp({active:mon('Regidrago VSTAR SIT 136'),bench:[single,gx]});
+  const q=prompt(seat,{promptType:'ChoosePokemonPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Guzma BUS 115',effectName:'Guzma'},
+   publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+   choices:[{kind:'pokemon',token:'single',printing:'Mimikyu GRI 58',
+    publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:0}},
+   {kind:'pokemon',token:'gx',printing:'Tapu Lele-GX GRI 60',
+    publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:1}}]},
+   {ownPublic:my,opponentPublic:them});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['gx']});
+ });
+}
