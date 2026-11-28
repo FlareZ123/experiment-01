@@ -278,7 +278,7 @@ function regidragoPayloadCount(o){
  const board=slots(o.opponentPublic);
  const seen=board.some(x=>/^Regidrago (?:VSTAR|V)\b/i.test(name(x.pokemon.printing)));
  if(!seen)return 0;
- const payload=/^(?:Dialga-GX UPR 100|Dragapult ex TWM 130|Kyurem SFA 47|Noivern ex PAL 153|Hisuian Goodra VSTAR LOR 136|Mega Dragonite ex ASC 152)\b/i;
+ const payload=/^(?:Dialga-GX UPR 100|Dragapult ex TWM 130|Kyurem SFA 47|Noivern ex PAL 153|Hisuian Goodra VSTAR LOR 136|Mega Dragonite ex ASC 152|Koraidon ex TEF 120|Salamence ex JTG 114)\b/i;
  return list(o.opponentPublic?.discard).filter(x=>payload.test(name(x))).length;
 }
 function templeStrandsIronThorns(o){
