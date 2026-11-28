@@ -101,3 +101,46 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' engine GO_FIRST chooses second for Budew opening',()=>{
+  const q=prompt(seat,{promptType:'ConfirmPrompt',source:{sourceKind:'engine',sourcePrinting:null,effectName:'GO_FIRST'},
+   publicMetadata:{selectionType:'confirm'},choices:[
+    {kind:'confirm',token:'yes',label:'Yes'},{kind:'confirm',token:'no',label:'No'}]},{phase:1});
+  assert.deepEqual(decide(seat,q),{kind:'select-choice',token:'no'});
+ });
+ test('seat '+seat+' optional mulligan draw takes maximum safe count',()=>{
+  const q=prompt(seat,{promptType:'SelectPrompt',source:{sourceKind:'engine',sourcePrinting:null,effectName:'WANT_TO_DRAW_CARDS'},
+   publicMetadata:{selectionType:'option'},
+   choices:[3,2,1,0].map((x,i)=>({kind:'option',token:'c'+x,label:String(x),publicMetadata:{choiceIndex:i}}))},{phase:1});
+  assert.deepEqual(decide(seat,q),{kind:'select-choice',token:'c3'});
+  q.observation.ownPublic.deckCount=1;
+  assert.deepEqual(decide(seat,q),{kind:'select-choice',token:'c1'});
+ });
+ test('seat '+seat+' VIP pays attention to diverse Trubbish/Mega roles',()=>{
+  const q=prompt(seat,{source:{sourceKind:'card-effect',sourcePrinting:'Battle VIP Pass FST 225',effectName:'Battle VIP Pass'},
+   publicMetadata:{minimumCount:2,maximumCount:2},
+   choices:[choice('t1','Trubbish CRI 56'),choice('t2','Trubbish CRI 56'),choice('m','Mega Absol ex MEG 86'),choice('b','Budew ASC 16')]},
+   {ownPublic:own({bench:[]})});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['t1','m']});
+ });
+ test('seat '+seat+' no Ultra Ball with only protected resources',()=>{
+  const q=root(seat,[play('Ultra Ball MEG 131','ball'),pass],{ownHand:['Ultra Ball MEG 131','Secret Box TWM 163','Mega Absol ex MEG 86']});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  q.observation.ownHand=['Ultra Ball MEG 131','Darkness Energy MEE 15','Darkness Energy MEE 15'];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'ball'});
+ });
+ test('seat '+seat+' masked Prize selection has no hidden identity preference',()=>{
+  const q=prompt(seat,{promptType:'ChoosePrizePrompt',publicMetadata:{selectionType:'prize-slots',requiredCount:2},
+   choices:['p1','p2','p3'].map(token=>({kind:'prize',token,publicMetadata:{ownerSeat:'actor',sourceZone:'prizes'}}))});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['p1','p2']});
+ });
+ test('seat '+seat+' copied attack source is explicitly unsupported',()=>{
+  const q=prompt(seat,{promptType:'ChooseAttackPrompt',source:{sourceKind:'card-effect',sourcePrinting:'Budew ASC 16',effectName:'Choose attack'},
+   publicMetadata:{selectionType:'attack'},
+   choices:[{kind:'attack',token:'pollen',label:'Budew — Itchy Pollen',publicMetadata:{sourceAttack:'Itchy Pollen'}}]});
+  assert.deepEqual(decide(seat,q),{kind:'select-choice',token:'pollen'});
+  q.prompt.source.sourcePrinting='Mimikyu GRI 58';
+  assert.deepEqual(decide(seat,q),{kind:'abstain',reasonCode:'UNSUPPORTED_ATTACK_CHOICE_SOURCE'});
+ });
+}
