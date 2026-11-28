@@ -5,10 +5,12 @@
  *
  * A specific use requirement: access one Mimikyu (two printed copies) AND
  * one Dialga-GX (one printed copy), each a Basic Pokémon. An accessible
- * Hisuian Heavy Ball can retrieve one of those Basics from the six prizes.
+ * Hisuian Heavy Ball (Item) or Gladion (Supporter) can each retrieve one
+ * of those Basics from the six prizes. Modeled as independent one-card
+ * recovery channels when usable; lock/Supporter constraints are excluded.
  *
  * This is an optimistic *card location* model: it assumes all unprized key
- * Pokémon are searchable and all unprized Heavy Balls playable. It does NOT
+ * Pokémon are searchable and all unprized Heavy Balls and Gladion playable. It does NOT
  * model attack cost, discard channel, Supporters, Item lock, K0 draw/search,
  * opponent play, Prize taking, or actual win chances.
  *
@@ -48,10 +50,11 @@ function printedStats(deck){
   const count=name=>deck.cards
     .filter(c=>c.name===name).reduce((s,c)=>s+c.count,0);
   const nM=count('Mimikyu'),nD=count('Dialga-GX'),
-        nH=count('Hisuian Heavy Ball');
+        nH=count('Hisuian Heavy Ball'),nG=count('Gladion');
   assert.equal(nM,2,'Provisional Hood Mimikyu2 list changed');
   assert.equal(nD,1,'Provisional Hood Dialga singleton changed');
   assert.equal(nH,1,'Provisional Hood Heavy Ball singleton changed');
+  assert.equal(nG,0,'Provisional Hood list must contain no Gladion');
   const pokemon=deck.cards.filter(c=>c.category==='Pokémon');
   const basicPrints=[
     'Shadow Rider Calyrex V','Lillie\'s Clefairy ex','Tapu Lele-GX',
@@ -68,19 +71,21 @@ function printedStats(deck){
   assert.equal(total,60);
   assert.equal(B,14);
   return {total,basicCount:B,mimikyuCopies:nM,
-    dialgaCopies:nD,heavyBallCopies:nH};
+    dialgaCopies:nD,heavyBallCopies:nH,gladionCopies:nG};
 }
 
 function measure({
  total=60,prizes=6,hand=7,basicCount=14,
- mimikyuCopies=2,dialgaCopies=1,heavyBallCopies=1
+ mimikyuCopies=2,dialgaCopies=1,heavyBallCopies=1,gladionCopies=0
 }={}){
   const nM=mimikyuCopies,nD=dialgaCopies,nH=heavyBallCopies,
+    nG=gladionCopies,
     B=basicCount,N=total,P=prizes,H=hand;
-  assert.ok([N,P,H,B,nM,nD,nH].every(Number.isSafeInteger));
-  assert.ok(N>P+H&&B>0&&nM>0&&nD>0&&nH>=0);
+  assert.ok([N,P,H,B,nM,nD,nH,nG].every(Number.isSafeInteger));
+  assert.ok(N>P+H&&B>0&&nM>0&&nD>0&&nH>=0&&nG>=0);
+  assert.ok(nG<=1,'Two Supporters cannot both be used on one turn');
   const otherBasic=B-(nM+nD);
-  const otherNonBasic=N-B-nH;
+  const otherNonBasic=N-B-nH-nG;
   assert.ok(otherBasic>=0&&otherNonBasic>=0);
 
   let allPrizes=0n,failedPrizes=0n;
@@ -88,17 +93,17 @@ function measure({
   const remaining=N-P;
   const possibleHands=choose(remaining,H);
   for(let m=0;m<=nM;m++)for(let d=0;d<=nD;d++)
-    for(let h=0;h<=nH;h++){
-      const k=m+d+h;
+    for(let h=0;h<=nH;h++)for(let g=0;g<=nG;g++){
+      const k=m+d+h+g;
       for(let ob=0;ob<=P-k;ob++){
         const on=P-k-ob;
         const ways=choose(nM,m)*choose(nD,d)*choose(nH,h)*
-          choose(otherBasic,ob)*choose(otherNonBasic,on);
+          choose(nG,g)*choose(otherBasic,ob)*choose(otherNonBasic,on);
         if(ways===0n)continue;
         const leftBasics=B-(m+d+ob);
         const validHandWays=possibleHands-choose(remaining-leftBasics,H);
         const neededRecovery=Number(m===nM)+Number(d===nD);
-        const recoveryAvailable=nH-h;
+        const recoveryAvailable=nH-h+nG-g;
         const collapsed=neededRecovery>recoveryAvailable;
         allPrizes+=ways;
         allValidWays+=ways*validHandWays;
@@ -113,7 +118,8 @@ function measure({
   const conditional=rational(failedValidWays,allValidWays);
   return {
     model:{total:N,prizes:P,hand:H,basicCount:B,
-      mimikyuCopies:nM,dialgaCopies:nD,heavyBallCopies:nH},
+      mimikyuCopies:nM,dialgaCopies:nD,heavyBallCopies:nH,
+      gladionCopies:nG}, 
     noOpenerCondition:simple,
     validBasicOpener:conditional,
     openingBasicValid:rational(allValidWays,
@@ -124,7 +130,8 @@ function measure({
 function pair(stats){
   const baseline=measure(stats);
   const doubled=measure({...stats,heavyBallCopies:2});
-  return {baseline,doubled,
+  const split=measure({...stats,heavyBallCopies:1,gladionCopies:1});
+  return {baseline,doubled,split,
     absoluteValidOpenerRiskReductionPercentagePoints:
       baseline.validBasicOpener.percent-doubled.validBasicOpener.percent,
     relativeValidOpenerRiskReduction:
