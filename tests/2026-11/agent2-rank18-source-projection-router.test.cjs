@@ -45,10 +45,12 @@ test('source extension flags independently select only their native prompt types
  // Enabled source projector enforces owner/phase before any unsafe prompt
  // path; no hidden cards or fabricated default successful decision.
  assert.throws(()=>motivate.projectPrompt({
-  prompt:new AttachEnergyPrompt(),actorSeat:0
+  prompt:new AttachEnergyPrompt(),actorSeat:0,
+  provenanceHook:{getPromptProvenance:()=>({sourceCard:{name:'Squawkabilly ex'}})}
  }),x=>x?.code==='R18_MOTIVATE_ACTOR_PHASE');
  assert.throws(()=>heavy.projectPrompt({
-  prompt:new ChooseCardsPrompt(),actorSeat:0
+  prompt:new ChooseCardsPrompt(),actorSeat:0,
+  provenanceHook:{getPromptProvenance:()=>({sourceCard:{name:'Hisuian Heavy Ball'}})}
  }),x=>x?.code==='R18_HEAVY_BALL_ACTOR_PHASE');
 });
 test('unrelated prompt class delegates even when both source flags are on',()=>{
