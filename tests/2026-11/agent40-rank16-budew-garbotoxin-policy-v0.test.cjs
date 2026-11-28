@@ -941,3 +941,31 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' complete core board does not discard Darkness to redundant Quick Ball',()=>{
+  const board=own({active:mon('Budew ASC 16'),bench:[
+   mon('Mega Absol ex MEG 86',{energies:['Darkness Energy MEE 15','Darkness Energy MEE 15','Darkness Energy MEE 15']}),
+   mon('Garbodor LTR 68',{tools:['Float Stone BKT 137'],
+    abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]}),
+   mon('Crobat V DAA 104'),mon('Tapu Lele-GX GRI 60')]});
+  const q=root(seat,[play('Quick Ball FST 237','quick'),play('Ultra Ball MEG 131','ultra'),
+   attack('Itchy Pollen','pollen'),pass],{
+    ownPublic:board,ownHand:['Quick Ball FST 237','Ultra Ball MEG 131',
+     'Darkness Energy MEE 15','Darkness Energy MEE 15','Darkness Energy MEE 15']});
+  assert.equal(policy.basicSearchDemand(q.observation),false);
+  assert.equal(policy.ultraSearchDemand(q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+ });
+ test('seat '+seat+' Ultra Ball can still fetch Stage1 for Trubbish even with five full Bench slots',()=>{
+  const board=own({active:mon('Trubbish CRI 56'),bench:[
+    mon('Mega Absol ex MEG 86',{energies:['Darkness Energy MEE 15','Darkness Energy MEE 15','Darkness Energy MEE 15']}),
+    mon('Budew ASC 16'),mon('Crobat V DAA 104'),
+    mon('Tapu Lele-GX GRI 60'),mon('Dedenne-GX UNB 57')]});
+  const q=root(seat,[play('Ultra Ball MEG 131','ultra'),pass],{
+   ownPublic:board,ownHand:['Ultra Ball MEG 131','Darkness Energy MEE 15','Darkness Energy MEE 15']});
+  assert.equal(policy.basicSearchDemand(q.observation),false);
+  assert.equal(policy.ultraSearchDemand(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'ultra'});
+ });
+}
