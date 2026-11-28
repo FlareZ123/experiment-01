@@ -89,6 +89,25 @@ def census():
     return sums
 
 
+
+def triple_stage1_prize_gate(valid_probability):
+    """Prize-only necessary gate for v2's *two* Dusclops + Tool Jammer line.
+
+    Three specified non-Basics must all be absent from six Prizes.
+    Exact conditioning on a 17-Basic valid opening seven: if k of those
+    three are already in the initial hand, 3-k remain at Prize risk.
+    This is not a line-execution chance and is only required before
+    any Prize is taken or another recovery line becomes available.
+    """
+    none_prized = Fraction(comb(57, 6), comb(60, 6))
+    invalid_and_none_prized = sum(
+        (Fraction(comb(3, k) * comb(40, 7 - k), comb(60, 7))
+         * Fraction(comb(50 + k, 6), comb(53, 6))
+         for k in range(4)), Fraction(0))
+    conditional = (none_prized - invalid_and_none_prized) / valid_probability
+    assert Fraction(0) < conditional < Fraction(1)
+    return conditional
+
 if __name__ == "__main__":
     check_source()
     result = census()
@@ -97,6 +116,8 @@ if __name__ == "__main__":
         "model": "Basic-valid opening 7 + six Prizes + first own draw; restricted direct/Lele/FSS channels",
         "qualification": "No game, legal-play, matchup or win-rate inference",
         "basicValidSeven": float(result["valid"]),
+        "twoDusclopsAndToolUnprizedGivenValidSevenPercent": round(
+            float(triple_stage1_prize_gate(result["valid"])) * 100, 7),
         "conditionalPercent": {k: round(float(v / result["valid"]) * 100, 7)
                                for k, v in result.items() if k != "valid"},
         "exactUnconditional": {k: str(v) for k, v in result.items()}
