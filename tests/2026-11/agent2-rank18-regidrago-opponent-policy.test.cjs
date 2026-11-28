@@ -5,7 +5,7 @@ const {validateDecision,validatePrompt}=require('../../simulation/evaluation/202
 const {
  POLICY_VERSION,SOURCE_RANK,SOURCE_BLOB_SHA1,SOURCE_PRINTINGS,
  createPolicy,scoreRoot,searchValue,sourceDiscardValue,benchOpen,
- resolveSourcePrinting,templeUnlocksApex
+ resolveSourcePrinting,templeUnlocksApex,carmineScore
 }=require('../../simulation/evaluation/2026-11/agent2-rank18-regidrago-opponent-policy.cjs');
 const P={
  v:'Regidrago V SIT 135',star:'Regidrago VSTAR SIT 136',
@@ -290,5 +290,45 @@ test('Goodra-only Apex donor unlocks Temple with source Sky; no donor does not',
   const noEnergy=obs(seat,{ownPublic:{...locked.ownPublic,
     active:pokemon(P.star,{energies:['Grass Energy MEE 9']})}});
   assert.equal(templeUnlocksApex(noEnergy),false);
+ }
+});
+
+
+test('Carmine discard payoff is conditional on Apex donors and guarded UDP',()=>{
+ for(const seat of [0,1]){
+  const original=obs(seat);
+  const carmine=action('carmine','Carmine TWM 145');
+  const quick=action('quick',P.quick);
+  const vip=action('vip',P.vip);
+  const pass=action('pass','Pass','pass');
+  const live=obs(seat,{ownHand:['Carmine TWM 145',
+    'Hisuian Goodra VSTAR LOR 136','Dragapult ex TWM 130',
+    'Sky Field ROS 89','Ultra Ball MEG 131',
+    'Guzma BUS 115'],ownPublic:{
+    ...original.ownPublic,active:pokemon(P.v),bench:[pokemon(P.v)]}});
+  assert.equal(carmineScore(live)>scoreRoot(quick,{observation:live}),true);
+  assert.deepEqual(root(seat,live,[carmine,quick,pass]),
+    {kind:'select-action',token:'carmine'});
+  assert.deepEqual(root(seat,live,[carmine,vip,quick,pass]),
+    {kind:'select-action',token:'vip'});
+  const withPrime=obs(seat,{...live,ownHand:[
+    ...live.ownHand,'Prime Catcher TEF 157']});
+  assert.equal(carmineScore(withPrime)<=50,true);
+  assert.deepEqual(root(seat,withPrime,[carmine,quick,pass]),
+    {kind:'select-action',token:'quick'});
+  const withDDE=obs(seat,{...live,ownHand:[
+    ...live.ownHand,'Double Dragon Energy ROS 97']});
+  assert.equal(carmineScore(withDDE)<=85,true);
+  assert.deepEqual(root(seat,withDDE,[carmine,quick,pass]),
+    {kind:'select-action',token:'quick'});
+  const vOnly=obs(seat,{ownHand:['Carmine TWM 145',P.v,
+    'Hisuian Goodra VSTAR LOR 136'],ownPublic:{
+      ...original.ownPublic,active:pokemon(P.budew),bench:[]}});
+  assert.equal(carmineScore(vOnly)<=60,true);
+  assert.deepEqual(root(seat,vOnly,[carmine,quick,pass]),
+    {kind:'select-action',token:'quick'});
+  const noDonor=obs(seat,{...live,ownHand:['Carmine TWM 145',
+    'Sky Field ROS 89','Guzma BUS 115','Ultra Ball MEG 131']});
+  assert.equal(carmineScore(noDonor)<carmineScore(live),true);
  }
 });
