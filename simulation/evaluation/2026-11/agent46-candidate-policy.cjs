@@ -956,22 +956,63 @@ function chooseStartingPokemonSetup(prompt) {
     previousIndex = index;
   }
 
-  const selected = cardChoices.slice(0, metadata.maximumCount);
-  if (selected.length < metadata.minimumCount ||
-      (metadata.minimumCount === 0 && cardChoices.length > 0 && selected.length === 0)) {
+  // Pinned setup-reducer.ts uses choice[0] as the Active Pokémon and
+  // choice[1..] as Benched Pokémon. Source hand index is shuffled randomly:
+  // selecting it blindly can put Radiant Eternatus Active (no Climactic
+  // Gate, which triggers from HAND to Bench) or Tapu Lele-GX Active (no
+  // Wonder Tag). Keep both in hand when an ordinary Basic can start.
+  // This is the exact fixed Hood 60 opening, not a general card heuristic.
+  const openingRank=printing=>{
+    if (printing==='Shadow Rider Calyrex V CRE 74') return 1000;
+    if (printing==='Latias ex SSP 76') return 800;
+    if (printing==='Mimikyu GRI 58') return 760;
+    if (printing==='Girafarig LOT 94') return 700;
+    if (printing==="Lillie's Clefairy ex JTG 56") return 660;
+    if (printing==='Marshadow UNB 81') return 620;
+    if (printing==='Trevenant & Dusknoir-GX UNM 224') return 200;
+    if (printing==='Dialga-GX UPR 100') return 180;
+    if (printing==='Tapu Lele-GX GRI 60') return 40;
+    if (printing==='Radiant Eternatus CRZ 105') return 20;
+    return 100;
+  };
+  const isHeldOnPlayTrigger=printing=>
+    printing==='Radiant Eternatus CRZ 105' ||
+    printing==='Tapu Lele-GX GRI 60';
+  const sorted=cardChoices.slice().sort((a,b)=>
+    openingRank(b.printing)-openingRank(a.printing) ||
+    a.publicMetadata.selectionIndex-b.publicMetadata.selectionIndex);
+  const hasRadiant=cardChoices.some(choice=>
+    choice.printing==='Radiant Eternatus CRZ 105');
+  let selected;
+  if (metadata.minimumCount===1) {
+    // At least one Basic MUST start. Prefer an actual evolution line, and
+    // one backup against a first-turn KO, while leaving three Bench slots
+    // for a possible hand-played Radiant + two directly gated VMAX.
+    const active=sorted[0];
+    const backups=sorted.filter(choice=>choice!==active &&
+      !isHeldOnPlayTrigger(choice.printing));
+    const benchCount=Math.min(metadata.maximumCount-1,
+      hasRadiant?1:2);
+    selected=[active,...backups.slice(0,benchCount)];
+  } else {
+    // The second setup prompt after an opponent mulligan adds only Bench
+    // Pokémon. Do not consume Bench-from-hand trigger Pokémon here.
+    selected=sorted.filter(choice=>
+      !isHeldOnPlayTrigger(choice.printing))
+      .slice(0,Math.min(metadata.maximumCount,hasRadiant?1:2));
+  }
+  if(selected.length<metadata.minimumCount){
     return abstain('INSUFFICIENT_STARTING_POKEMON_CHOICES');
   }
-  if (metadata.minimumCount === 0 && cardChoices.length === 0) {
-    const empty = emptyChoices[0];
+  if (metadata.minimumCount===0 && selected.length===0){
+    const empty=emptyChoices[0];
     return empty
-      ? { kind: 'select-choice', token: empty.token }
+      ? {kind:'select-choice',token:empty.token}
       : abstain('NO_STARTING_POKEMON_CHOICE');
   }
-
-  // The native prompt has already filtered non-Basics through blocked indices.
-  // Preserve its order and let the pinned reducer's callback place cards only
-  // while Bench slots remain; do not impose a second capacity cap here.
-  return { kind: 'select-choices', tokens: selected.map(choice => choice.token) };
+  setPolicyAuditRule('STARTING_BASICS_SOURCE_PRIORITY',
+    'FIRST_SELECTED_ACTIVE_RETAIN_HAND_TRIGGER_AND_BENCH_CAPACITY');
+  return {kind:'select-choices',tokens:selected.map(choice=>choice.token)};
 }
 
 function chooseGoFirstSetup(prompt) {
