@@ -11,8 +11,10 @@ const assert = require('node:assert/strict');
 /**
  * A printed no-Prize effect makes an impending KO nonterminal even when the
  * opponent has only one Prize. This is deliberately conservative: if the
- * current active is a known Prize-free Doll/Shedinja or has Life Dew or
- * attached Shedinja, do not override Pass based on a false terminal premise.
+ * current active is a known Prize-free Doll/Shedinja, or a one-Prize or
+ * unclassified Pokémon has Life Dew or attached Shedinja, do not override
+ * Pass based on a false terminal premise. Multi-Prize Pokémon with a
+ * one-Prize reduction are still a terminal threat at opponent 1 Prize.
  * Legacy Energy does NOT qualify: its reduction requires KO by damage, and
  * Pale Moon-GX's delayed Knock Out is an attack effect rather than damage.
  */
@@ -25,8 +27,14 @@ function knownNoPrizeAwardOnPaleMoonKO(view) {
      printing.startsWith('Snorlax Doll')||
      printing.includes('Poké Doll')||
      printing.includes('Poke Doll'))return true;
-  return tools.some(tool=>typeof tool==='string'&&(
+  const prizeReduction=tools.some(tool=>typeof tool==='string'&&(
     tool.startsWith('Life Dew ')||tool.startsWith('Shedinja LOT')));
+  if(!prizeReduction)return false;
+  // These protections subtract only ONE Prize. A known multi-Prize
+  // Pokémon would still award at least one and finish a 1-Prize game.
+  // Unknown names default to potential protection rather than guessing.
+  return !(/(?:\\bVMAX\\b|\\bVSTAR\\b|\\bV-UNION\\b|\\bGX\\b|\\bEX\\b|\\bex\\b|\\bV\\b)/.test(printing));
+
 }
 function terminalPaleMoonPrizeRisk(view) {
   return view?.opponentPublic?.prizeCount===1 &&
