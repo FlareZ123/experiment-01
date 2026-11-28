@@ -672,9 +672,20 @@ function scoreAction(item, request) {
   }
   if (matches(card, PRINT.guzmaHala)) {
     if (!supporterAvailable(observation)) return 0;
-    return canUseGuzmaHalaMode1(observation, {
+    // The printed effect always searches a Stadium. Discarding 2 additional
+    // cards is optional and only unlocks Tool + Special Energy searches.
+    const fullMode = canUseGuzmaHalaMode1(observation, {
       excludePatterns: [PRINT.guzmaHala], guzmaInHand: true
-    }) ? 215 : 0;
+    });
+    if (fullMode) return 215;
+    const grandTreeLive = sourceCopyPossible(observation, PRINT.grandTree) &&
+      !hand.some(printing => matches(printing, PRINT.grandTree)) &&
+      hasK0PossibleGrandTreeTarget(observation);
+    const artazonLive = sourceCopyPossible(observation, PRINT.artazon) &&
+      !hand.some(printing => matches(printing, PRINT.artazon)) &&
+      list(own.bench).some(slot => slot === null) &&
+      (basicSetupWanted(observation) || missingLinePriority(observation) > 0);
+    return grandTreeLive ? 118 : artazonLive ? 106 : 0;
   }
   if (matches(card, PRINT.tmEvolution) || matches(card, PRINT.jetEnergy) ||
       matches(card, PRINT.memoryEnergy) || matches(card, PRINT.stealthyHood) ||
