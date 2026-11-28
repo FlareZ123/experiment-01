@@ -406,6 +406,14 @@ function scoreAction(action, request) {
   if(action.kind==='retreat') return retreatToAttackerPriority(action,obs);
   if(action.kind==='play-card'&&/^Regidrago VSTAR SIT 136\b/i.test(name))
     return evolveRegidragoPriority(action,obs);
+  if(action.kind==='play-card'&&/^Regidrago V SIT 135\b/i.test(name)) {
+    const attackers=slots(own).filter(p=>/^Regidrago V(?:STAR)? SIT 13[56]\b/i.test(print(p)));
+    // The inherited rank-12 worker declines a second Basic V while the
+    // first is still unevolved. Establish a backup once, not a Bench clog.
+    if(attackers.length===1 &&
+        /^Regidrago V SIT 135\b/i.test(print(attackers[0])))return 175;
+    if(attackers.length>=2)return 0;
+  }
   const gustScore=tacticalGustScore(action,obs);
   if(gustScore !== null) return gustScore;
   if(action.kind==='play-card'&&/^Megaton Blower SSP 182\b/i.test(name))
@@ -500,7 +508,9 @@ function scoreAction(action, request) {
     }
     // Stage-2 Mega Dragonite has no evolution chain in the original 60:
     // it is an Apex donor, never proactively benched/evolved by this policy.
-    if (DONOR.dragonite.test(name) || DONOR.goodra.test(name)) return 0;
+    if (DONOR.dragonite.test(name) || DONOR.goodra.test(name) ||
+        DONOR.dialga.test(name) || DONOR.kyurem.test(name) ||
+        DONOR.noivern.test(name) || DONOR.dragapult.test(name)) return 0;
   }
   return family.scoreAction(action, request);
 }
