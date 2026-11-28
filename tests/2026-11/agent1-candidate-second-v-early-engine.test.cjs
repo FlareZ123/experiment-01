@@ -183,3 +183,71 @@ for(const seat of [0,1]) {
       policy.POLICY_VERSION);
   });
 }
+
+for(const seat of [0,1])test(
+  'Treasure -> source VMAX -> evolve existing second Basic V chain seat '+seat,
+  ()=>{
+    const req=fundedRoot(seat,TREASURE,{
+      bench:[V],hand:[TREASURE,E]
+    });
+    // A native-offered Treasure requires a discardable card (our Basic
+    // Psychic), and the Basic V here is assumed to have survived a turn.
+    const worker=policy.createPolicy({role:'candidate',seat,
+      policyVersion:policy.POLICY_VERSION,config:{}});
+    const root=worker.decideWithAudit(req);
+    assert.deepEqual(root.decision,{kind:'select-action',token:'tutor'});
+    protocol.validateDecision(root.decision,null,
+      new Set(req.actionFrontier.items.map(x=>x.token)));
+    protocol.validatePolicyAudit(root.policyAudit,req,root.decision,
+      policy.POLICY_VERSION);
+
+    // Separate native discard prompt is an acknowledged dependency.
+    // This search prompt is the next constructed actor view after that
+    // legal discard, and does not claim a physically executed Store line.
+    const choices=[VMAX,V,'Mimikyu GRI 58'].map((printing,i)=>({
+      token:'card-'+i,kind:'card',printing,label:printing,
+      publicMetadata:{sourceZone:'deck',ownerSeat:'actor',
+        isOwnerVisible:true,selectionIndex:i,selectedCount:1}
+    }));
+    const prompt={schema:protocol.PROMPT_SCHEMA,actingSeat:seat,
+      promptType:'ChooseCardsPrompt',description:null,
+      source:{classification:'actor-choice',sourceKind:'card-effect',
+        sourcePrinting:TREASURE,effectName:'Mysterious Treasure'},
+      choices,
+      publicMetadata:{sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true,
+        minimumCount:0,maximumCount:1,allowCancel:false,isSecret:false,
+        selectionType:'card-combination'}
+    };
+    protocol.validatePrompt(prompt,seat);
+    const search={...req,prompt,
+      observation:{...req.observation,
+        decisionKind:'owner-prompt',pendingPromptType:'ChooseCardsPrompt',
+        ownHand:[]},
+      actionFrontier:{schema:protocol.FRONTIER_SCHEMA,items:[]}
+    };
+    const picked=worker.decideWithAudit(search);
+    assert.deepEqual(picked.decision,
+      {kind:'select-choices',tokens:['card-0']});
+    protocol.validateDecision(picked.decision,prompt,new Set());
+    protocol.validatePolicyAudit(picked.policyAudit,search,picked.decision,
+      policy.POLICY_VERSION);
+
+    const evolve={...req,prompt:null,
+      observation:{...req.observation,ownHand:[VMAX],
+        ownPublic:{...req.observation.ownPublic,handCount:1}},
+      actionFrontier:{schema:protocol.FRONTIER_SCHEMA,items:[
+        {token:'evolve-vmax',kind:'play-card',actorPrinting:VMAX,
+          targetPrinting:V,publicMetadata:{
+            targetSeat:'actor',targetZone:'bench',benchIndex:0}},
+        {token:'pass',kind:'pass'}
+      ]}
+    };
+    const result=worker.decideWithAudit(evolve);
+    assert.deepEqual(result.decision,{kind:'select-action',
+      token:'evolve-vmax'});
+    protocol.validateDecision(result.decision,null,
+      new Set(evolve.actionFrontier.items.map(x=>x.token)));
+    protocol.validatePolicyAudit(result.policyAudit,evolve,
+      result.decision,policy.POLICY_VERSION);
+  }
+);
