@@ -12,9 +12,10 @@ const {reconciledTurnCosts}=require('./shared_turn_costs.cjs');
 
 /* Require the donor phase to preserve every real post-power Active/Bench
  * occupant. Otherwise omitted Pokémon fabricate Bench room and invented
- * Pokémon fabricate damage donors. Hand-only copies are still caller-certified.
+ * Pokémon fabricate damage donors. Unmodeled known basics must be explicitly
+ * certified by their physical identity, kind and starting zone.
  */
-function verifyPostPowerProjection(powerInput,powerFinal,donation){
+function verifyPostPowerProjection(powerInput,powerFinal,donation,certifiedDonors=[]){
  const fail=reason=>({valid:false,reason});
  if(!powerFinal||!Array.isArray(powerFinal.board)||!donation||
     !['eggs','unown','fixed','handDonors'].every(k=>Array.isArray(donation[k]))||
@@ -29,8 +30,32 @@ function verifyPostPowerProjection(powerInput,powerFinal,donation){
    return fail('POST_POWER_ITEM_LOCK_MISMATCH');
  if(powerFinal.locked===true&&donation.propagationAvailable===true)
    return fail('WOBBUFFET_STILL_BLOCKS_PROPAGATION');
- const entries=['eggs','unown','fixed','handDonors','small']
-   .flatMap(k=>donation[k]??[]);
+ const taggedEntries=['eggs','unown','fixed','handDonors','small']
+   .flatMap(section=>(donation[section]??[]).map(entry=>({section,entry})));
+ const entries=taggedEntries.map(t=>t.entry);
+ const knownCardKind=new Map([...powerInput.board,...powerInput.handBasics].map(p=>[p.id,p.kind]));
+ const certified=new Map();
+ if(!Array.isArray(certifiedDonors))return fail('UNTRUSTED_KNOWN_DONOR_INVENTORY');
+ for(const c of certifiedDonors){
+   if(!c||typeof c.id!=='string'||!c.id||
+       !['E','U','B','S','C','D','K'].includes(c.kind)||
+       !['H','D','X'].includes(c.zone)||knownCardKind.has(c.id)||certified.has(c.id))
+     return fail('UNTRUSTED_KNOWN_DONOR_INVENTORY');
+   certified.set(c.id,c);
+ }
+ for(const {section,entry} of taggedEntries){
+   const expectedKind=knownCardKind.get(entry?.id)??certified.get(entry?.id)?.kind;
+   if(!expectedKind)return fail('UNCERTIFIED_DONOR_CARD');
+   if((section==='eggs'&&expectedKind!=='E')||
+       (section==='unown'&&expectedKind!=='U')||
+       (section==='small'&&expectedKind!=='B')||
+       (section==='fixed'&&!['M','K','S','C','D'].includes(expectedKind))||
+       (section==='handDonors'&&!['S','C','D','K'].includes(expectedKind)))
+     return fail('DONOR_CARD_KIND_MISMATCH');
+   const declared=certified.get(entry.id);
+   if(declared&&(entry.zone!==declared.zone||entry.counters!==0))
+     return fail('UNCERTIFIED_DONOR_ZONE_CHANGE');
+ }
  const ids=entries.map(p=>p?.id);
  if(ids.some(x=>typeof x!=='string'||!x)||new Set(ids).size!==ids.length)
    return fail('DUPLICATED_DONOR_IDENTITY');
@@ -82,7 +107,7 @@ function planJointKnownTurn({powerInput,makeDonationInput,physical}={}){
      checks.push({variant,phase:'donation-input',status:'unsupported'});
      continue;
    }
-   const projected=verifyPostPowerProjection(powerInput,power.final,base);
+   const projected=verifyPostPowerProjection(powerInput,power.final,base,physical.certifiedDonors??[]);
    if(!projected.valid){
      checks.push({variant,phase:'post-power-projection',status:'unsupported',
        reason:projected.reason});
