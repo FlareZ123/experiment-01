@@ -13,6 +13,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const fs=require('node:fs');
+const {createHash}=require('node:crypto');
 const {planAichi}=require('../../simulation/evaluation/aichi-pilot.cjs');
 const {buildSourcePrintingMap,projectSourcePrintings,projectAdmittedWorkerParts,createCertifiedV3RoleAdapters}=
   require('../../simulation/evaluation/2026-11/agent32-source-printing-bridge.cjs');
@@ -343,6 +344,7 @@ for(const seat of [0,1]){
     try{
       x.store.dispatch(selectedNativeAction(realFrontier,selected.token));
       let selectedByWorker=false;
+      let selectedPhysicalPromptToken=null;
       for(let i=0;i<24;i++){
         const pending=x.state.prompts.find(p=>p.result===undefined);
         if(!pending)break;
@@ -405,6 +407,7 @@ for(const seat of [0,1]){
           {kind:'select-choices',tokens:[pickup.token]});
         protocol.validateDecision(promptDecision,
           promptParts.prompt,admittedPrompt.actionTokens);
+        selectedPhysicalPromptToken=pickup.token;
         dispatchPromptChoice({
           store:x.store,prompt:pending,state:x.state,actorSeat:seat,
           projection:nativePrompt,decision:promptDecision,
@@ -418,6 +421,52 @@ for(const seat of [0,1]){
       assert.equal(x.owner.bench[1].cards.length,0);
       assert.equal(x.owner.hand.cards.some(
         c=>c.fullName==='Galarian Stunfisk SSH'),true);
+      // A passing Node test alone is not an integration decision receipt.
+      // Emit one bounded, actor-only, machine-readable same-Store witness.
+      // Both complete source inventories are public tournament decklists;
+      // never log the physical concealed Prize/hand/deck arrangement.
+      const sha=value=>createHash('sha256').update(
+        typeof value==='string'?value:JSON.stringify(value)).digest('hex');
+      const publicInventory=deck=>deck.cards.map(row=>({
+        name:row.name,count:row.count,set:row.printing.set,
+        number:row.printing.number
+      }));
+      const nativeSelected=selectedNativeAction(realFrontier,selected.token);
+      const witness={
+        schema:'agent32-source-print-penny-native-no-game-v1',
+        testSha256:sha(fs.readFileSync(__filename)),
+        pinnedTwinleafGitCommit:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+        hostBridgeGitBlob:'3686489bfb60a1cefefb9387f141e20ed37f9cab',
+        checkoutHead:process.env.GITHUB_SHA??'local-no-head',
+        actorSeat:seat,actorAichiRank:3,otherAichiRank:1,
+        actorSource60:publicInventory(sourceDeck),
+        otherSource60:publicInventory(opponentDeck),
+        actorSource60Sha256:sha(publicInventory(sourceDeck)),
+        otherSource60Sha256:sha(publicInventory(opponentDeck)),
+        actualNativeRank3Ordered60Sha256:sha(resolved.cards),
+        actualNativeRank1Ordered60Sha256:sha(opponentResolved.cards),
+        actorProjectionSha256:sha(mapped.observation),
+        actorActiveSourcePrinting:mapped.observation.ownPublic.active.printing,
+        otherActiveSourcePrinting:mapped.observation.opponentPublic.active.printing,
+        offeredPhysicalPennyToken:nativePenny.token,
+        offeredPhysicalHandiworkToken:nativeHandi.token,
+        selectedRootDecision:selected,
+        selectedNativeActionType:nativeSelected.type,
+        strictRootDecisionAdmitted:true,
+        actualPromptType:'ChoosePokemonPrompt',
+        selectedPhysicalPromptToken,
+        selectedSourcePromptTarget:'Galarian Stunfisk SSH 132',
+        strictPromptDecisionAdmitted:true,
+        sameNativeStoreSettled:true,
+        targetBenchSlotVacant:x.owner.bench[1].cards.length===0,
+        targetCardPhysicallyInActorHand:x.owner.hand.cards.some(
+          c=>c.fullName==='Galarian Stunfisk SSH'),
+        numericStageAndUnknownNegativeControlsPassed:true,
+        activeOnlyProtectedNegativePassed:true,
+        gamesPlayed:0
+      };
+      assert.equal(witness.selectedPhysicalPromptToken!==null,true);
+      process.stdout.write('AGENT32_SOURCE_PRINT_NATIVE_NO_GAME '+JSON.stringify(witness)+'\n');
     }finally{
       promptProvenance.restore();
       assert.equal(promptProvenance.restored,true);
