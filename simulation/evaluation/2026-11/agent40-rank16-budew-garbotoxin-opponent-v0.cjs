@@ -111,6 +111,22 @@ function activeKlefkiLock(o){
 function activeFlutterManeLock(o){
  return activeOpponentAbilityWorking(o,PRINT.flutterMane,'Midnight Fluttering');
 }
+function pokemonHasRuleBox(pokemon){
+ const subtypes=list(pokemon?.printed?.subtypes).map(x=>String(x).toLowerCase());
+ if(subtypes.length)return subtypes.some(x=>
+  ['ex','gx','v','vmax','vstar','v-union','tag team','pokemon ex','pokemon v','pokemon-gx'].includes(x));
+ const rules=list(pokemon?.printed?.rules);
+ if(rules.some(x=>/rule box|(?:Pokémon|Pokemon) ex rule|VMAX rule|VSTAR rule|GX rule/i.test(String(x))))return true;
+ // Exact Aichi opponent identities handled by this worker when a native
+ // observation omits printed subtype metadata.
+ return /^(?:Iron Thorns ex TWM 77|Shadow Rider Calyrex VMAX CRE 75)\b/i.test(name(pokemon?.printing));
+}
+function pokemonIsBasic(pokemon){
+ const subtypes=list(pokemon?.printed?.subtypes).map(x=>String(x).toLowerCase());
+ if(subtypes.length)return subtypes.includes('basic');
+ // Exact Basic lock-bearing identities in the supported Aichi policy slice.
+ return /^(?:Snorlax PGO 55|Wobbuffet PHF 36|Mimikyu PAL 97|Iron Thorns ex TWM 77)\b/i.test(name(pokemon?.printing));
+}
 function usableOwnAbilities(o){
  // All explicitly supported activated Abilities in this rank16 list
  // come from Basic Rule-Box Pokémon; both Path's Rule-Box suppression
@@ -131,11 +147,18 @@ function opponentLockAbilityLive(o,pokemon,abilityName){
  const suppression=list(pokemon?.abilitySuppressions).find(x=>x.abilityName===abilityName);
  if(suppression?.suppressed===true)return false;
  if(suppression?.suppressed===false)return true;
+ // When typed suppression evidence is absent, reconstruct the two global
+ // Stadium locks that matter to this worker's supported opponent abilities.
+ // Path to the Peak removes Rule-Box Abilities; Silent Lab removes Basic
+ // Pokémon Abilities. Never treat a suppressed lock as a live retreat,
+ // Item, Supporter, Safeguard or Underworld Door effect.
+ if(pathToThePeakInPlay(o)&&pokemonHasRuleBox(pokemon))return false;
+ if(silentLabInPlay(o)&&pokemonIsBasic(pokemon))return false;
  const hood=toolEnabled(o)&&list(pokemon?.tools).some(x=>
   /^Stealthy Hood UNB 186\b/i.test(name(x)));
  // Hood prevents the effects of OPPONENT'S Abilities only:
  // a Hood on Snorlax/Mimikyu protects against our Garbodor, never the
- // opponent's own Garbodor on the same side of the board.
+ // opponent's own Garbodor on the same side.
  const opponentOwnGarb=opponentGarbotoxinStatus(o)==='live';
  return !(opponentOwnGarb||(liveGarbotoxin(o)&&!hood));
 }
@@ -263,15 +286,12 @@ function setupAbilityPending(items,o){
  ));
 }
 function urgentShadowRiderGarbotoxin(o){
- // A pair of unhooded Underworld Door VMAX engines can accelerate Energy
- // and draw repeatedly on the opponent's next turn. An equipped Trubbish
- // evolving via Boost Shake would shut BOTH engines off immediately.
- // Preserve Hood owner specificity: the opponent's Hood protects each
- // Shadow Rider from OUR Garbotoxin unless Jamming disables its effect.
+ // Only count VMAX engines whose Underworld Door is actually live. This
+ // includes typed suppression receipts, Path to the Peak, same-side
+ // Garbotoxin, and Jamming's removal of opposing Hood protection.
  return slots(o.opponentPublic).filter(({pokemon:p})=>
   /^Shadow Rider Calyrex VMAX CRE 75\b/i.test(name(p.printing))&&
-  (!toolEnabled(o)||!list(p.tools).some(t=>/^Stealthy Hood UNB 186\b/i.test(name(t)))))
-  .length>=2;
+  opponentLockAbilityLive(o,p,'Underworld Door')).length>=2;
 }
 function hasFundedAttack(items){
  return list(items).some(x=>x.kind==='attack'&&x.publicMetadata?.attackCostPayable===true);
