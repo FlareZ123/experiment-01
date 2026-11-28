@@ -213,6 +213,14 @@ function rank6Root(seat,{rawOldType=false}={}){
   const chosen=selectedNativeAction(available,decision.token);
   assert.equal(chosen.type,'PLAY_CARD_ACTION');
   x.store.dispatch(chosen);
+  const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+  for(let i=0;i<16;i++){
+    const pending=x.state.prompts.find(p=>p.result===undefined);
+    if(!pending)break;
+    assert.equal(pending.constructor.name,'WaitPrompt',
+      'Stadium settlement requested an unsupported non-visual prompt');
+    x.store.dispatch(new ResolvePromptAction(pending.id,null));
+  }
   assert.equal(x.owner.stadium.cards.length,1);
   assert.equal(x.owner.stadium.cards[0].fullName,
     (rawOldType?wondrous:beach).actorPrinting);
