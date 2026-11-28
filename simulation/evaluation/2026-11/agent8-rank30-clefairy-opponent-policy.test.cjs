@@ -484,3 +484,39 @@ for(const seat of [0,1]) {
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' terminal Psychic-weak VMAX gust precedes Trainers Mail',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active=b('Unown AOR 30');
+    r.observation.ownPublic.bench=[{printing:clef,energies:[psychic,psychic]},
+      b('Latias ex SSP 76')];
+    r.observation.opponentPublic.active={printing:'Snorlax PGO 55',hp:150,damage:0};
+    r.observation.opponentPublic.bench=[{printing:'Machamp VMAX ASR 73',
+      hp:330,damage:120,printed:{types:['FIGHTING'],
+        weakness:[{type:'PSYCHIC',value:'×2'}]}}];
+    r.observation.ownPublic.prizeCount=3;
+    r.observation.ownHand=['Guzma BUS 115', "Trainers' Mail ROS 92"];
+    r.actionFrontier.items=[root('play-card',"Trainers' Mail ROS 92",'mail'),
+      root('play-card','Guzma BUS 115','gust')];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'gust'});
+    r.observation.ownHand=["Trainers' Mail ROS 92"];
+    r.observation.ownPublic.discard=['Guzma BUS 115'];
+    r.observation.ownTurnResources.supporterPlayedTurn=0;
+    r.actionFrontier.items=[root('play-card',"Trainers' Mail ROS 92",'mail'),
+      root('play-card','VS Seeker PHF 109','seeker')];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'seeker'});
+    // The strongest revealed target stops being a KO: generic Mail is now
+    // an available useful action rather than paying Guzma for a false win.
+    r.observation.opponentPublic.bench[0].damage=20;
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'mail'});
+  });
+  test('seat '+seat+' pass only when native frontier has no alternative action',()=>{
+    const r=request(seat);
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'pass'});
+    r.actionFrontier.items=[root('pass','','pass'),
+      {...root('attack','Mimikyu GRI 58','copycat'),attackName:'Copycat'}];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  });
+}
