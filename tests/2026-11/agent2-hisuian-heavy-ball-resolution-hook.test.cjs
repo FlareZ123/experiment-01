@@ -187,3 +187,30 @@ test('both ASR146 native shuffle and resolution hooks coexist without touching v
  assert.equal(resolution.uninstall(),true);
  assert.equal(shuffle.uninstall(),true);
 });
+
+
+test('no-selection discard fires BEFORE shuffle, after Prize secrecy restoration',()=>{
+ const Card=pinnedCard(),trace=[];
+ // The mock event observes the same physical Prize state native card effects
+ // and opponent-facing observers could inspect during the discard action.
+ let current;
+ const eventMove=(store,state,from,to,opt)=>{
+  if(current&&to===current.player.discard){
+   trace.push('discard');
+   assert.ok(current.player.prizes.every(p=>p.isSecret));
+  }
+  return moveCards(store,state,from,to,opt);
+ };
+ const api=installPinnedHeavyBallResolutionHook({
+  CardClass:Card,enginePin:PIN,moveCards:eventMove
+ });
+ Card.prototype.shuffleFaceDownPrizeCards=function(array){
+  trace.push('shuffle');return array;
+ };
+ const e=env(Card);current=e;
+ const callback=call(e);
+ callback([]);
+ assert.deepEqual(trace,['discard','shuffle']);
+ assert.deepEqual(e.player.discard.cards,[e.item]);
+ assert.equal(api.uninstall(),true);
+});
