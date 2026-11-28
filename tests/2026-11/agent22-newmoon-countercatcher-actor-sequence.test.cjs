@@ -425,5 +425,48 @@ for(const tweak of [
  end.actionFrontier.items=[clone(q.actionFrontier.items[2])];
  assert.equal(s.decide(end).decision.token,'duo');checks++;
 }
-assert.equal(checks,114);
+
+// Tied 2-2 is the high-impact Cursed Blast unlock against ubiquitous
+// 2-Prize *Benched support* Pokémon. The singleton Stage2 + GX might still
+// be expensive to establish, but this is a legal final Prize route without
+// requiring a Mega/VSTAR damage threshold.
+{
+ const support=[
+  ['Dedenne-GX',160],['Tapu Lele-GX',170],
+  ['Squawkabilly ex',160],['Crobat V',180],
+  ['Genesect V',190],['Pidgeot ex',280],
+  ['Articuno-GX',170],['Rotom V',190],
+  ['Iron Thorns ex',230]];
+ for(const [name,hp] of support){
+  const q=f();q.observation.ownPublic.prizeCount=2;
+  q.observation.opponentPublic.prizeCount=2;
+  q.observation.opponentPublic.bench[0]={
+   printing:name+' source-verified',hp,damage:0,tools:[]};
+  const s=createSlice({seat:0});
+  assert.equal(s.decide(q).decision.token,'blast');checks++;
+ }
+ const q=f(),s=createSlice({seat:0});
+ q.observation.ownPublic.prizeCount=2;
+ q.observation.opponentPublic.prizeCount=2;
+ q.observation.opponentPublic.bench[0]={
+  printing:'Dedenne-GX UNB057',hp:160,damage:0,tools:[]};
+ assert.equal(s.decide(q).decision.token,'blast');checks++;
+ assert.equal(s.decide(prompt(q,'Cursed Blast','bench',0)).
+  decision.tokens[0],'bench-pick');checks++;
+ const post=clone(q);post.observation.opponentPublic.prizeCount=1;
+ post.observation.opponentPublic.bench[0].damage=130;
+ post.actionFrontier.items=[{kind:'play-card',token:'ccDedenne',
+  actorPrinting:'Counter Catcher PAR160',
+  publicMetadata:{cardType:'trainer',handIndex:0}}];
+ assert.equal(s.decide(post).decision.token,'ccDedenne');checks++;
+ assert.equal(s.decide(prompt(post,'Counter Catcher','bench',130)).
+  decision.tokens[0],'bench-pick');checks++;
+ const finish=clone(post);
+ finish.observation.opponentPublic.active=clone(post.observation.opponentPublic.bench[0]);
+ finish.observation.opponentPublic.bench=[post.observation.opponentPublic.active];
+ finish.actionFrontier.items=[clone(q.actionFrontier.items[1])];
+ assert.equal(s.decide(finish).decision.token,'duo');checks++;
+ assert.equal(s.peek(),null);checks++;
+}
+assert.equal(checks,129);
 console.log('Agent22 actor-countercatcher exact multi-prompt slice: '+checks+' synthetic checks passed');
