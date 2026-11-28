@@ -381,6 +381,46 @@ function estimatedDamage(attacker, attack, view, target) {
   return Number.isFinite(damage) ? damage : null;
 }
 
+// Source-exact paper Mimikyu GRI 58 -> the opponent's last Regidrago
+// VSTAR Apex Dragon -> one of OUR discarded Dragon Pokemon attacks.
+// Copycat has printed damage 0, but can actually deliver 150 Timeless-GX
+// (extra turn, only if GX unspent), or Radiant Eternatus Power Beam 200
+// (ordinary attack even after GX was used). These are nominal damage/value
+// estimates, not native attack authorization or guaranteed Knock Outs.
+function copycatApexPotential(attacker, view, target, receipt) {
+  if (attacker?.printing !== 'Mimikyu GRI 58' || !target ||
+      !Array.isArray(receipt?.opponentCopycatChoices) ||
+      !receipt.opponentCopycatChoices.some(row =>
+        row.attackName === 'Apex Dragon' &&
+        row.sourcePrinting === 'Regidrago VSTAR SIT 136' &&
+        row.gxAttack !== true)) return null;
+  const timeless = view.ownPublic.discard?.includes('Dialga-GX UPR 100') &&
+    view.ownPublic.publicTurnRestrictions?.gxUsed === false;
+  const powerBeam = view.ownPublic.discard?.includes('Radiant Eternatus CRZ 105');
+  if (!timeless && !powerBeam) return null;
+  const hpRemaining = target.hp - target.damage;
+  const timelessDamage = timeless
+    ? estimatedDamage(attacker,{name:'Timeless-GX'},view,target) : null;
+  const beamDamage = powerBeam
+    ? estimatedDamage(attacker,{name:'Power Beam'},view,target) : null;
+  const beamFinalPrize = Number.isFinite(hpRemaining) && hpRemaining>0 &&
+    beamDamage !== null && beamDamage>=hpRemaining &&
+    (timelessDamage === null || timelessDamage<hpRemaining) &&
+    Number.isSafeInteger(view.ownPublic.prizeCount) &&
+    view.ownPublic.prizeCount>0 &&
+    view.ownPublic.prizeCount<=prizeLiability(target);
+  if (beamFinalPrize) return {score:60000,damage:beamDamage,
+    payload:'Power Beam'};
+  if (timeless) return {score:50000,damage:timelessDamage,
+    payload:'Timeless-GX'};
+  if (beamDamage === null) return null;
+  const beamKnockout = Number.isFinite(hpRemaining) && hpRemaining>0 &&
+    beamDamage>=hpRemaining;
+  return {score:beamDamage*10+
+    (beamKnockout?10000+prizeLiability(target)*500:0),
+    damage:beamDamage,payload:'Power Beam'};
+}
+
 function attackScore(attacker, attack, view, target, options = {}) {
   if (!attacker || !attack || !target) return -Infinity;
   if (attack.gxAttack && view.ownPublic.publicTurnRestrictions.gxUsed) return -Infinity;
@@ -389,17 +429,8 @@ function attackScore(attacker, attack, view, target, options = {}) {
   }
 
   if (attack.name === 'Copycat') {
-    const receipt = options.publicEventReceipt ?? null;
-    const eligible = receipt?.opponentCopycatChoices;
-    // Copycat refers to what was used on the opponent's PRIOR turn, not
-    // the type or identity of their present Active. A Regidrago that copied
-    // a switching/self-KO attack may have been replaced by a non-Dragon.
-    const dialgaReady = discardHas(view, 'Dialga-GX') &&
-      view.ownPublic.publicTurnRestrictions.gxUsed === false;
-    const apex = Array.isArray(eligible) && eligible.some(row =>
-      row.attackName === 'Apex Dragon' &&
-      hasName(row.sourcePrinting, 'Regidrago VSTAR'));
-    return dialgaReady && apex ? 50000 : -Infinity;
+    return copycatApexPotential(attacker,view,target,
+      options.publicEventReceipt)?.score ?? -Infinity;
   }
 
   const damage = estimatedDamage(attacker, attack, view, target);
@@ -434,7 +465,11 @@ function bestAttackForSlot(slot, view, target, options = {}) {
       ...options, requirePayable: true
     });
     if (score > (best?.score ?? -Infinity)) {
-      best = { attack, score, damage: estimatedDamage(slot, attack, view, target) };
+      const damage = attack.name === 'Copycat'
+        ? copycatApexPotential(slot,view,target,
+          options.publicEventReceipt)?.damage ?? null
+        : estimatedDamage(slot, attack, view, target);
+      best = { attack, score, damage };
     }
   }
   return best && Number.isFinite(best.score) ? best : null;
@@ -687,7 +722,7 @@ function choosePokemonRecipient(view, prompt, receipt) {
         {publicEventReceipt:receipt});
       if (!attack) return { ...row, score: -Infinity };
       const liability = prizeLiability(row.target.slot);
-      const nominal = nominalGuzmaAttackDamage(row.target.slot,attack,view,target);
+      const nominal = nominalGuzmaAttackDamage(row.target.slot,attack,view,target,receipt);
       const lethal = nominal !== null &&
         nominal >= Math.max(0, target.hp - target.damage);
       return {
@@ -1496,14 +1531,10 @@ function hasStadiumRemovalTarget(view) {
 // Printed Copycat has zero base damage; after an authenticated last-turn
 // Apex it delegates our discarded Dialga Timeless-GX. Native prompt still
 // decides the actual copied payload; this is nominal 150 Psychic only.
-function nominalGuzmaAttackDamage(slot, attack, view, target) {
-  if (attack?.attack?.name==='Copycat' &&
-      slot?.printing==='Mimikyu GRI 58' && attack.score===50000 &&
-      view.ownPublic.discard?.includes('Dialga-GX UPR 100') &&
-      view.ownPublic.publicTurnRestrictions?.gxUsed===false) {
-    return estimatedDamage(slot,{name:'Timeless-GX'},view,target);
-  }
-  return attack?.damage??null;
+function nominalGuzmaAttackDamage(slot, attack, view, target, receipt) {
+  return attack?.attack?.name==='Copycat'
+    ? copycatApexPotential(slot,view,target,receipt)?.damage ?? null
+    : attack?.damage??null;
 }
 function bestGuzmaBenchKnockout(view, target, receipt) {
   if (!target || !Number.isFinite(target.hp) || !Number.isFinite(target.damage)) return null;
@@ -1514,7 +1545,7 @@ function bestGuzmaBenchKnockout(view, target, receipt) {
     if (!slot) continue;
     const attack = bestAttackForSlot(slot, view, target,
       {publicEventReceipt:receipt});
-    const damage=nominalGuzmaAttackDamage(slot,attack,view,target);
+    const damage=nominalGuzmaAttackDamage(slot,attack,view,target,receipt);
     if (!attack || !Number.isFinite(damage) || damage<remaining) continue;
     const score = attack.score + prizeLiability(target)*1200 -
       prizeLiability(slot)*100;
@@ -1653,13 +1684,8 @@ function paidMimikyuApexRetreat(view, target, receipt) {
   if (target?.printing !== 'Mimikyu GRI 58' ||
       receipt?.actorSeat !== view.actorSeat ||
       receipt?.turn !== view.globalTurn ||
-      !Array.isArray(receipt.opponentCopycatChoices) ||
-      !receipt.opponentCopycatChoices.some(row =>
-        row.attackName === 'Apex Dragon' && !row.gxAttack &&
-        !row.copycatAttack &&
-        row.sourcePrinting === 'Regidrago VSTAR SIT 136') ||
-      view.ownPublic.publicTurnRestrictions?.gxUsed !== false ||
-      !view.ownPublic.discard?.includes('Dialga-GX UPR 100')) return false;
+      !copycatApexPotential(target,view,view.opponentPublic.active,
+        receipt)) return false;
   const attack=target.attacks?.find(row=>row.name==='Copycat');
   if (!attack || !canPayAttack(target, attack, view)) return false;
   const active=view.ownPublic.active;
