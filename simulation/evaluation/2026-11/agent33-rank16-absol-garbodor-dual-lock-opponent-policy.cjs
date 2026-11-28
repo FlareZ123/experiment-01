@@ -487,7 +487,9 @@ function scoreAttack(item, observation) {
   if (metadata.attackCostPayable === false) return 0;
   const remaining = Number.isFinite(metadata.targetHp) && Number.isFinite(metadata.targetDamage)
     ? metadata.targetHp - metadata.targetDamage : -1;
-  if (/^Terminal Period$/i.test(attack)) return metadata.targetDamage === 300 ? 340 : 0;
+  // Mega Absol ex MEG 86: Terminal Period Knocks Out only if the target
+  // has exactly SIX 10-damage counters (60 damage), not 300 damage.
+  if (/^Terminal Period$/i.test(attack)) return metadata.targetDamage === 60 ? 460 : 0;
   if (/^Claw of Darkness$/i.test(attack)) {
     const damage = Number.isFinite(metadata.damageAfterWeakness) ? metadata.damageAfterWeakness :
       Number.isFinite(metadata.damage) ? metadata.damage : 200;
@@ -614,7 +616,7 @@ function scoreAction(item, request) {
     if (matches(target, PRINT.mega)) {
       const energies = row ? energyCount(row.pokemon) : 0;
       const activeDamage = opponent.active?.damage ?? 0;
-      return energies >= 3 || (energies >= 2 && activeDamage === 300) ? 220 : 0;
+      return energies >= 3 || (energies >= 2 && activeDamage === 60) ? 220 : 0;
     }
     if (matches(target, PRINT.garbodor)) return 65;
     return 0;
