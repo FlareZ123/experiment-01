@@ -13,12 +13,12 @@ This is an exact *necessary physical access* question, distinct from the much ha
 
 ## Computed results
 
-<escape>| Available Heavy Balls in 60 before Prize setting | Failure probability, uniform six Prize cards | Failure conditioned on a valid Basic-containing initial seven |
+| Available Heavy Balls in 60 before Prize setting | Failure probability, uniform six Prize cards | Failure conditioned on a valid Basic-containing initial seven |
 |---:|---:|---:|
-| 0, structural control | 10.7890% | ~10.65% |
+| 0, structural control | 10.7890% | 10.5421% |
 | **1, actual provisional fixed 60** | **0.958196%** | **0.939893%** |
 | **2, hypothetical non-Basic-for-Heavy-Ball slot substitution** | **0.067344%** | **0.066429%** |
-| 3, structural control | 0.003508% | ~0.0034% |</escape>
+| 3, structural control | 0.003508% | 0.003485% |
 
 **The one-to-two Heavy Ball substitution would reduce *this specific pre-Prize collapse event* by about 0.87346 percentage points, or approximately 14.1×, conditional on a valid seven-card opening.** It is *not* an estimated win-rate improvement, card-swap recommendation, or evidence that two Heavy Balls is the best fixed 60.
 
