@@ -1365,8 +1365,12 @@ function countInPlay(own){
  let n=0;
  for(const x of p){
   if(typeof x.printing!=='string'||!Array.isArray(x.evolutionPrintings)||
+   x.evolutionPrintings.length<1||
+   !x.evolutionPrintings.includes(x.printing)||
    !Array.isArray(x.energies)||!Array.isArray(x.tools))return null;
-  n+=1+x.evolutionPrintings.length+x.energies.length+x.tools.length;
+  // Actor-observation-contract.visiblePokemon returns slot.cards.map(printing)
+  // including the top/current Pokémon. Adding a separate 1 double counts it.
+  n+=x.evolutionPrintings.length+x.energies.length+x.tools.length;
  }
  return n;
 }
