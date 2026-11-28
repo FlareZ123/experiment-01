@@ -255,7 +255,9 @@ function guzmaOpportunity(o) {
   const baseDamage=20*(1+benchCount(own)+benchCount(opp));
   const matches=arr(opp.bench).map((pokemon,index)=>({pokemon,index,
     prizeValue:sourcePrizeTarget(pokemon),remaining:pokemon?.hp-pokemon?.damage,
-    predictedDamage:baseDamage*(isDragonPokemon(pokemon)&&liveFairyZone(o)?2:1)}))
+    // Guzma promotes a Benched Clefairy: use its future Psychic weakness,
+    // not merely the current active Pokémon's weakness modifier.
+    predictedDamage:baseDamage*clefairyWeaknessAgainst(o,pokemon)}))
     .filter(t=>t.pokemon && Number.isFinite(t.remaining)&&t.remaining>0&&
       t.prizeValue>=2 && t.predictedDamage>=t.remaining)
     .sort((a,b)=>b.prizeValue-a.prizeValue||a.remaining-b.remaining||a.index-b.index);
@@ -640,14 +642,19 @@ function isDragonPokemon(p) {
   return arr(p?.printed?.types).some(x=>String(x).toUpperCase()==='DRAGON')||
     /^Regidrago V(?:STAR)? SIT(?: \d+)?\b/i.test(text(p));
 }
-function rondoWeaknessMultiplier(o,target) {
-  const active=o?.ownPublic?.active;
-  if(!has(active,P.clefairy)||!target)return 1;
+function clefairyWeaknessAgainst(o,target) {
+  if(!target)return 1;
   const printedPsychicWeak=arr(target?.printed?.weakness).some(w=>
     String(w?.type).toUpperCase()==='PSYCHIC'&&
     /(?:×|x|\*)2/i.test(String(w?.value)));
+  // Fairy Zone applies while Clefairy waits on the Bench for Guzma.
+  // Printed Psychic Weakness applies to non-Dragon Pokémon independently.
   if(isDragonPokemon(target)&&liveFairyZone(o))return 2;
   return printedPsychicWeak?2:1;
+}
+function rondoWeaknessMultiplier(o,target) {
+  return has(o?.ownPublic?.active,P.clefairy)?
+    clefairyWeaknessAgainst(o,target):1;
 }
 function rondoIncrement(o) {return 20*rondoWeaknessMultiplier(o,o?.opponentPublic?.active);}
 
@@ -900,4 +907,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
+  clefairyWeaknessAgainst,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
