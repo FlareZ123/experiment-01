@@ -231,3 +231,66 @@ All **14 source-policy/strict-protocol V8 test modules pass
 238/238**. These are direct source worker+protocol executions under
 a minimal V8 CommonJS test harness, not Node, native Twinleaf
 Store, CI or game-based field evidence.
+
+## Battle Compressor: zero-card optional dead end in the Regidrago Copycat ALS
+
+The original source-printed **Battle Compressor PHF92** permits
+searching the deck for **up to three** cards and discarding them.
+The actor worker was structurally incapable of selecting a positive
+optional number here: its special discard-search path always selected
+`ranked.slice(0, minimumCount)`. In an owner prompt with
+`minimumCount=0`, that slices the correct ranked Dialga-GX
+candidate down to **zero** cards. It then selected an empty token
+despite the deck offering the donor needed by the prepared
+Mimikyu GRI58 `Copycat -> Apex Dragon -> Timeless-GX`
+counterline. When `minimumCount>0`, the old path could force
+unwanted extra discards based on unrelated low discard costs.
+
+The revised scorer requires exact card-effect source
+`Battle Compressor PHF 92`, opponent Regidrago, a usable
+Mimikyu in actor Board/hand, and no already available/discarded
+Dialga. It chooses exactly the known
+`Dialga-GX UPR 100` donor from the actor-visible deck,
+up to the offered native maximum, without burning another
+protected evolution, Trainer, Energy, or singleton.
+When a legitimate optional prompt has no donor, it chooses the
+native empty token; no fabricated action or hidden deck guess.
+The root can still pass the Item on non-Regidrago matchups.
+
+`tests/2026-11/agent3-battle-compressor-dialga-copycat-up-to-20261128.test.cjs`
+covers twelve source/action/choice forks on both seats,
+**24/24 passing**, including optional minimum zero, mandatory
+minimum one, discard-only-Dialga, wrong source, already-discarded
+donor, absent Mimikyu, and opponents without Regidrago. This is
+**policy token evidence, not a native Copycat combo victory**.
+
+## Sky Field: expanded Bench capacity also enables Radiant's Gate
+
+The original `scoreBasicPlay` rejected `Radiant Eternatus
+CRZ105` whenever **more than three** Pokémon were already
+Benched. That fixed-five-slot assumption disagreed with its own
+native `Climactic Gate` card-choice scorer, which already
+recognized **Sky Field ROS89** expanding the Bench to eight.
+When Sky Field is active, a six-occupied Bench still has room
+for Radiant plus one direct-to-Bench VMAX; the old root
+wrongly passed the opportunity.
+
+The corrected root calculates `capacity - benchCount - 1`
+with a five-slot ordinary Bench and eight-slot Sky Field Bench,
+allowing Radiant only when at least one VMAX slot remains and
+fewer than two established Shadow Rider VMAX already exist.
+Current Active attack priority and Iron Thorns Ability-lock
+negative guards remain. Choice-phase selection respects the
+post-Radiant remaining slots.
+
+`tests/2026-11/agent3-radiant-sky-field-bench-capacity-20261128.test.cjs`
+covers twelve source-policy root/prompt forks on both seats,
+**24/24 passing**: standard Bench occupancy, expanded Bench
+5–7, VMAX limits, funded attack/Ability-lock negatives,
+and one/two/zero VMAX selections. This is still not a
+native legal Bench overflow or source trigger demonstration.
+
+**Cumulative worker and strict-protocol V8 suite:
+16 modules, 286/286 passing.** No native Store, Node,
+CI or full game; both new features need actual pinned
+prompt/action continuation before owner admission.
