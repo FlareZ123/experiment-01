@@ -151,6 +151,17 @@ The 300,000-sample opening-policy outcomes are:
 
 These are **uniform initial-hand behavior statistics**. They do not model mulligan bonuses, first/second player, Prize configurations, subsequent draws, search paths, Item/Supporter lock, native Store outcomes, or game wins. In particular **32.7% changed Active ≠ 32.7% improved games**. The strongest identified rationale for this hook is avoiding poor Active leads and preserving Eldegoss V's hand-triggered Ability, not raw five-slot Bench saturation.
 
+## Opponent-visible Ability locks: Eldegoss is not always a live Supporter
+
+The original rank15 Eldegoss V Happy Match line can fail even when the hand contains Eldegoss and the discard pile contains Guzma. Beyond the self-controlled Silent Lab/Path and opposing Iron Thorns ex already modeled, this development extension accounts for the following **public board** locks before benching the Basic V:
+
+- Opponent **Active** Galarian Weezing RCL113 (*Neutralizing Gas*), Wobbuffet PHF36 (*Bide Barricade*, Eldegoss Grass not Psychic), Klefki SVI96 (*Mischievous Lock*), and Iron Thorns ex TEF77 (*Initialization*) suppress the relevant Ability.
+- Opponent **Bench or Active** Alolan Muk SUM58 (*Power of Alchemy*) suppresses Basic Pokémon Abilities.
+- Opponent **Bench or Active** Garbodor BKP57 or DRX54 with any Tool attached (*Garbotoxin*) suppresses Abilities. **Jamming Tower does not remove the Tool attachment**, so it does not by itself remove Garbotoxin's Tool-presence condition; any independent known suppression of Garbotoxin does.
+- If the actor-visible `abilitySuppressions` projection certifies the *specific locking Ability* as suppressed, that lock is excluded. Unknown/absent suppression is **not** treated as proof of inactivity. Flutter Mane TEF78, which suppresses only the opponent's *Active* Pokémon Ability, is deliberately **not** incorrectly treated as disabling a newly Benched Eldegoss.
+
+Both-seat tests check 34 root/Ability outcomes, including selected Eldegoss action versus abstention, public known-suppressed exceptions, Garbodor with/without Tool, Jamming's distinction and print-specific nonlocks. These improve source actor action realism without inspecting concealed opponent resources. They remain actor-projection decisions, not native-store Ability-resolution tests.
+
 ## Reproducible assets
 
 - Policy: `simulation/evaluation/2026-11/agent20-rank15-lopunny-vileplume-opponent-policy.cjs`
@@ -169,12 +180,13 @@ These are **uniform initial-hand behavior statistics**. They do not model mullig
 - Legacy Energy Prize terminal false positives: `tests/2026-11/agent20-rank15-legacy-energy-prize-terminal-heldout.test.cjs` (**20** cases)
 - Life Dew, Island Challenge Amulet and TAG TEAM/V-UNION: `tests/2026-11/agent20-rank15-prize-tools-tagteam-vunion-heldout.test.cjs` (**26** cases)
 - Rank15 native-opening priority hook (isolated fake native prompt): `tests/2026-11/agent20-rank15-owner-setup-priority-heldout.test.cjs` (**22** cases)
+- Opponent Ability-lock matrix: `tests/2026-11/agent20-rank15-eldegoss-opponent-lock-matrix-heldout.test.cjs` (**34** cases)
 - Reproducible 300,000-hand opener: `simulation/evaluation/2026-11/agent20-rank15-opening-hand-comparison.cjs`; retained JSON at `results/aichi-2026/2026-11/agent20-rank15-opening-hand-comparison-300k-seed20c0ffee.json`
 - Parent strict V3 Temple regressions (not owned by PR93): `tests/2026-11/agent41-rank15-temple-strict-v3-protocol-heldout.test.cjs` (**4** cases)
 - Exact setup hook/test blobs: `1af37b7b632ac21ee294f71cad255bdca2f04289` / `9d43575ff215ea62348d74e35f973001722e59a1`
 - Exact final policy blob: `e05044c170bbfcb4701217afb84a04805df05620`
-- Exact test blobs: `04aa7326f3d2c3bf18b115ca48d6988021c511cb`, `99418a2ca86cc651773af5cf3248979e4563317c`, `5d99721052439eb84849b4094ad98e0c6bd16132`, `fea7ca06fc33741301619f13dd8782a2ccfcd57a`, `7fa0f188ae3b889e16163fb8af639632dd4816e8`, `7276272a458f1941cdf1e2f5f8261aa93faf1818`, `757fb4f866d5013f6bb6a76eb92a4813ee3c549d`, `b488b4988c93ef88065c87f390dd6320dcade34b`, `259305b66e940632aed10c45708178915d1096d9`, `eac80e65146d35e8e27c40e309dc9cc7f3bb7647`, `63db297a905a12b7f3fdf9238208c1a192b9d236`, `f1e3df15364dc42e4153502b1f122d7fdf229915`, `1a1d9641378968375b26e0f46da3fd08b7359a60`
-- Executed both committed test files against the exact policy blob with a JavaScript CommonJS V8 shim for `node:test`, `node:assert/strict`, and the policy module: **286 passed / 0 failed** (252 constructed source cases + 8 new full strict V3 requests + 4 inherited strict V3 requests + 22 injected-native setup decisions). This confirms synchronous decision assertions only. The V8 shim is not Node CLI, pinned Twinleaf Store, native protocol, source-deck game, or competitive qualification.
+- Exact test blobs: `04aa7326f3d2c3bf18b115ca48d6988021c511cb`, `99418a2ca86cc651773af5cf3248979e4563317c`, `5d99721052439eb84849b4094ad98e0c6bd16132`, `fea7ca06fc33741301619f13dd8782a2ccfcd57a`, `7fa0f188ae3b889e16163fb8af639632dd4816e8`, `7276272a458f1941cdf1e2f5f8261aa93faf1818`, `757fb4f866d5013f6bb6a76eb92a4813ee3c549d`, `b488b4988c93ef88065c87f390dd6320dcade34b`, `259305b66e940632aed10c45708178915d1096d9`, `eac80e65146d35e8e27c40e309dc9cc7f3bb7647`, `63db297a905a12b7f3fdf9238208c1a192b9d236`, `f1e3df15364dc42e4153502b1f122d7fdf229915`, `1a1d9641378968375b26e0f46da3fd08b7359a60`, `635a9f49c285dfdb33e841415656700b1d6cecb5`
+- Executed both committed test files against the exact policy blob with a JavaScript CommonJS V8 shim for `node:test`, `node:assert/strict`, and the policy module: **320 passed / 0 failed** (286 constructed source cases + 8 new full strict V3 requests + 4 inherited strict V3 requests + 22 injected-native setup decisions). This confirms synchronous decision assertions only. The V8 shim is not Node CLI, pinned Twinleaf Store, native protocol, source-deck game, or competitive qualification.
 
 The original PR90 head reproduced the wrong Jet and TM selections and the absent correct Hood decision before the follow-on patch. Neither PR90 nor PR93 should be treated as an admission to main or a frozen policy. Both may be challenged through independent actor-visible native continuation before any owner-approved game. No CI or V3 dispatch was performed here.
 
