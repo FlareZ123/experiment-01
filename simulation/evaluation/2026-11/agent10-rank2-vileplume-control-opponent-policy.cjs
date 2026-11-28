@@ -572,8 +572,12 @@ function attachmentScore(card, recipient, observation, zone) {
     const bunnelby=matches(recipient.printing,PRINT.bunnelby);
     if(bunnelby&&zone==='active'&&unfunded)return 210;
     if(bunnelby&&zone==='bench'&&unfunded)return 95;
-    if(zone==='active'&&unfunded)return 88;
-    return 12;
+    // Girafarig LOT's Get Lost also has a single Colorless cost: a prize
+    // deficit makes it a live zero-Energy attack. Budew's zero-Energy Itchy
+    // Pollen already attacks without Counter Gain and must not consume it.
+    if(zone==='active'&&unfunded&&matches(recipient.printing,PRINT.girafarig))
+      return 170;
+    return 0;
   }
   if(matches(card,PRINT.stealthyHood)){
     if(list(recipient.tools).length>0)return 0;
