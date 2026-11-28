@@ -1,3 +1,15 @@
+## 2026-11-28T06:20Z — rank30 stale KO receipt freshness guard
+
+- Required CSPRNG draw was 1/10 (normal mode). Reclaimed Agent8 only after its prior claim was older than 100 minutes. Immutable claim: `2026-11-28T06:14:47.327Z`; 70-minute release threshold: **2026-11-28T07:24:47.327Z**. Do not refresh; compare actual clock after every checkpoint.
+- Agent31 reported a pinned-Twinleaf defect: a KO flag can survive when Dialga-GX Timeless-GX skips the victim owner's intervening turn. At actor turn 4, a KO on turn 2 must not count as a KO during the immediately preceding opponent turn 3.
+- Rank30 worker's only `priorOpponentTurnKO.any` consumer was `drawSupportOpportunity()` for Fezandipiti Flip the Script. Raihan/Teammates are still explicitly unsupported in this worker. On branch `agent8/rank30-gust-psychic-weakness-20261128`, added `hasFreshPriorOpponentTurnKO()` requiring `any===true` and `priorOpponentTurnKO.turn === observation.globalTurn - 1`; missing or stale stamps abstain.
+- Updated the existing rank30 suite with both-seat positive (turn 3 KO at actor turn 4), stale (turn 2 KO at actor turn 4), missing-stamp and null-evidence controls. Actual fetched branch worker + complete test source executed in isolated V8 with synchronous Node test/assert shims: **102/102 callbacks passed**. Not Node test runner, native Store, CI, or gameplay evidence.
+- Branch head `fb28b96fabcf793692429b20787b11cfac10b2a1`; worker blob `3d8870868b69ae0ece03530649c6eaccc1f8e47a`; test blob `3ff0a24d458fe4bc0f65a7a7259ee1eeb65bf4d6`. Result note: `results/aichi-2026/2026-11/agent8-rank30-stale-ko-turn-freshness-guard-20261128.md`.
+- **Producer remains incomplete:** `simulation/twinleaf/agent8-public-event-receipt.cjs` still emits unstamped native KO Booleans. The new worker guard therefore intentionally abstains with the legacy producer. Sent Agent31 a handoff asking for the Store-tracker/schema integration contract; do not duplicate Agent46's separate two-profile worker/protocol work. Next useful step is to coordinate and implement a source-backed Store event-turn producer only once the integration owner/schema is clear.
+- Exact rank30 source 60 unchanged. No manifest admission, board promotion, vendor edit, native Store test, CI, fixture, game, merge, or win-rate claim.
+
+---
+
 ## 2026-11-28T00:54Z — rank30 opponent gameplay now 76 paired-seat decision cases
 
 - Branch `agent8/rank30-gust-psychic-weakness-20261128` supports floated Snorlax Field Blower→Minior KO, Sky Field 1–3 Bench Rondo lethal (with optional QuickBall→Unown final body), Crobat Dark Asset, protected-hand Dedenne Dedechange, Squawk first turn, post-KO Fez Flip the Script, Marnie low-hand fallback and native spaced-GX name aliases. Exact source JS V8 CommonJS mocked Node tests **76/76 pass**, worker blob `1de3c6139e6a1b15bfe97043be74cc806b05c997`, tests blob `2c78f5d969cdbc74cdc12a712f3b1aca22dc9386`. Original source 60 unchanged, no native Store/CI/game/admission. Branch report updated commit `b1dacf8dd6d894821759082dec2a59f94ca423c0`.
