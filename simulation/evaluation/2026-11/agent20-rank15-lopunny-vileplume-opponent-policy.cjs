@@ -94,10 +94,12 @@ function templeSuppressesSpecialEnergy(o) {
   const temple=stadium.some(x=>/^Temple of Sinnoh ASR(?: 155)?\b/i.test(txt(x)));
   return temple&&!stadiumAndToolEffectsMuted(o);
 }
-function jammingSuppressesTools(o) {
+function toolEffectsSuppressed(o) {
+  // The global restriction mutes BOTH Stadium and Tool effects. It may
+  // silence Jamming Tower, but it still directly silences Choice Belt/Hood.
   const stadium=[...arr(o?.ownPublic?.stadium),...arr(o?.opponentPublic?.stadium)];
-  return stadium.some(x=>/^Jamming Tower\b/i.test(txt(x)))&&
-    !stadiumAndToolEffectsMuted(o);
+  return stadiumAndToolEffectsMuted(o)||
+    stadium.some(x=>/^Jamming Tower\b/i.test(txt(x)));
 }
 function sourcePrizeValue(pokemon) {
   const p=txt(pokemon);
@@ -162,7 +164,7 @@ function printedDamage(item,request) {
       // With no certified Stadium-suppression fact, do not invent an
       // exception to the visible Temple effect.
       if(!templeSuppressesSpecialEnergy(o)&&arr(own.energies).some(e=>has(e,P.powerful)))value+=20;
-      if(!jammingSuppressesTools(o)&&arr(own.tools).some(e=>has(e,P.choiceBelt))&&
+      if(!toolEffectsSuppressed(o)&&arr(own.tools).some(e=>has(e,P.choiceBelt))&&
          /\bV(?:MAX|STAR)?\b/i.test(txt(op)))value+=30;
     }
   }
@@ -448,7 +450,7 @@ function hoodProtectionScore(item,o) {
     x.abilityName==='Irritating Pollen'&&x.suppressed===true&&
     /^(?:Galarian Weezing|Garbodor|Wobbuffet)\b/i.test(x.sourcePrinting??''));
   if(!suppressed)return 0;
-  return jammingSuppressesTools(o)?0:172;
+  return toolEffectsSuppressed(o)?0:172;
 }
 function missingEvolutionChannels(o) {
   const own=o.ownPublic;
