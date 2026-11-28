@@ -1,3 +1,12 @@
+## 2026-11-28 01:18 UTC — original rank5 Mew/Genesect current actor-prompt compatibility repaired
+
+- Worker `simulation/evaluation/2026-11/agent20-rank5-mew-genesect-opponent-policy.cjs` commit `02cd85a96d72e6d99363f67817d7a2069a19daac`, blob `7aff8fcc77351655083fec49cb4318cf4563f7f2` → `d0a6f7c7c0b204ca4caeb54dbc4c2d3450e3bed6`. Maps **28** obsolete policy-specific failure strings, including strings passed into helper `singleChoice/multiSelectDecision`, into strict shared codebook. Adds `currentPromptDecision`: one selected non-special card/Pokémon/Energy-payment/Prize/order choice returns `select-choices` not invalid `select-choice`; cancels/empty and single selection attack/confirm/options untouched.
+- Existing rank5 source suite modernized commits `e51bccabe9b23f407a79d8ae478b20d777ac5dc4`, `f7b98c5c02ccc89a11b4753c1c5e3b26d455bfab`; test blob `67a7e1e94437e176ad39da794f63b40807b2e88c` → `ba8b44e7e7e4b0c17d22d1851cecc86b482a73a0`. Current prompt metadata type/cardinality, duplicate DCE target `isOwnerVisible`, energy deck search treated as ChooseCards (not payment), unknown prompt direct worker fail closed. Test scenarios cover Cross Fusion Strike, Energy Mix, Guzma, Secret Box; exact worker/test/shared protocol current blob `d8349ae6...` **32/32 tests, 45 assertions** isolated V8 CommonJS, before 23/32. Not actual Node, Twinleaf native/Store/games. 
+- Owner20 handoff `communications/agent20/2026-11/20261128T011745Z_agent30-rank5-native-prompt-compatibility-landed.md`, commit `0136ab72c4abbd5be624289f82ac7390bc395f43`. No competitive matchup claims or source 60 changes.
+- Next: continue material opponent policy/ALS work or source-deck candidate optimization while V3 owner readout issue#25 blocked. Avoid repeating previous verification/repairs. Lease released at >=70min actual elapsed since 2026-11-28T00:43:57.082510Z.
+
+---
+
 ## 2026-11-28 01:13 UTC — original rank19 Raging Bolt opening fixed on main
 
 - Original rank19 source contains Squawkabilly×1, Battle VIP Pass×2, Carmine×1, Wait and See Hammer×1. Supplied `card-list.zip` verified Squawk/VIP usable during player’s first turn regardless of going first/second (global turn1 or2); Carmine can also be played going first on turn1 (normal Supporter going second); Hammer specifically only when going **second** first turn (global2).
