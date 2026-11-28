@@ -720,6 +720,81 @@ test('Guzma does not strand a sole powered Active VSTAR on the Bench',()=>{
 });
 
 
+test('Raihan searches a functional Regidrago bottleneck, not a generic connector',()=>{
+  const meta={sourceZone:'deck',ownerSeat:'actor',
+    selectionType:'card-combination',minimumCount:1,maximumCount:1};
+  const candidates=[
+    choice('vstar',P.regidrago),
+    choice('dde',P.doubleDragon),
+    choice('compressor','Battle Compressor PHF 92'),
+    choice('lillie',"Lillie's Determination MEG 119"),
+    choice('filler','Grass Energy MEE 9')
+  ];
+  const promptR=prompt('Raihan EVS 152','Raihan',candidates,
+    'ChooseCardsPrompt',[1,1]);
+  promptR.publicMetadata={...promptR.publicMetadata,...meta};
+  for(const seat of [0,1]){
+    const ownPublic=player({
+      active:pokemon(P.regidragoV,{energies:[P.energy]})
+    });
+    const opponentPublic=player({
+      active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{hp:320})
+    });
+    const r=()=>request({seat,ownPublic,opponentPublic,prompt:promptR,
+      hand:['Raihan EVS 152']});
+    assert.deepEqual(promptDecision(r()),
+      {kind:'select-choices',tokens:['vstar']});
+    ownPublic.active=pokemon(P.regidrago,{
+      energies:[P.energy,P.energy,'Fire Energy MEE 10']});
+    assert.deepEqual(promptDecision(r()),
+      {kind:'select-choices',tokens:['compressor']});
+    ownPublic.discard=[{printing:P.goodra}];
+    ownPublic.active.energies=[P.energy];
+    assert.deepEqual(promptDecision(r()),
+      {kind:'select-choices',tokens:['dde']});
+    ownPublic.active.energies=[P.energy,P.energy,'Fire Energy MEE 10'];
+    assert.deepEqual(promptDecision(r()),
+      {kind:'select-choices',tokens:['lillie']});
+  }
+});
+
+test('Raihan any-card search finds Counter Catcher final KO and Legacy-shield Megaton',()=>{
+  const names=[
+    choice('counter','Counter Catcher PAR 160'),
+    choice('megaton','Megaton Blower SSP 182'),
+    choice('lillie',"Lillie's Determination MEG 119"),
+    choice('dde',P.doubleDragon)
+  ];
+  const p=prompt('Raihan EVS 152','Raihan',names,'ChooseCardsPrompt',[1,1]);
+  p.publicMetadata={...p.publicMetadata,
+    sourceZone:'deck',ownerSeat:'actor',selectionType:'card-combination'};
+  const attacker=pokemon(P.regidrago,{
+    energies:[P.energy,P.energy,'Fire Energy MEE 10'],
+    printed:{subtypes:['VSTAR']}
+  });
+  for(const seat of [0,1]){
+    const ownPublic=player({active:attacker,discard:[{printing:P.goodra}]});
+    ownPublic.prizeCount=2;
+    const den=pokemon('Dedenne-GX UNB 57',{
+      hp:160,printed:{subtypes:['GX'],weakness:[],resistance:[]}});
+    const opponentPublic=player({
+      active:pokemon('Budew ASC 16',{hp:30}),bench:[den]
+    });
+    opponentPublic.prizeCount=1;
+    const r=()=>request({seat,ownPublic,opponentPublic,prompt:p});
+    assert.deepEqual(promptDecision(r()),
+      {kind:'select-choices',tokens:['counter']});
+    opponentPublic.active=pokemon('Shadow Rider Calyrex VMAX CRE 75',{
+      hp:320,damage:0,energies:['Legacy Energy TWM 167'],
+      printed:{subtypes:['VMAX'],weakness:[],resistance:[]}});
+    opponentPublic.bench=[];
+    ownPublic.prizeCount=3;
+    ownPublic.discard=[{printing:P.dragonite}];
+    assert.deepEqual(promptDecision(r()),
+      {kind:'select-choices',tokens:['megaton']});
+  }
+});
+
 test('Raihan attached-energy prompt spends actual actor discarded Fire on funding VSTAR',()=>{
   const vstar=pokemon(P.regidrago,{energies:[P.energy,P.energy]});
   const v=pokemon(P.regidragoV,{energies:[]});
