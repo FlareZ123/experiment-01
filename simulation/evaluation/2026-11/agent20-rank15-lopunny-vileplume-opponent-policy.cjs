@@ -849,8 +849,9 @@ function guzmaOpportunity(o,{resolvingGuzma=false}={}) {
   const bench=arr(own.bench),targets=arr(opp.bench);
   const attackerIndex=bench.findIndex(x=>readyGuzmaMega(x,o));
   if(attackerIndex<0)return null;
-  const attacker=bench[attackerIndex];
-  if(arr(attacker.tools).some(x=>has(x,P.choiceBelt)))return null;
+  // Choice Belt can add +30, but never reduces the moved-Gale base 230.
+  // Even when Jamming Tower nullifies the Belt, a guaranteed base-230 KO
+  // remains guaranteed. Do not discard a terminal Guzma because Belt exists.
   const prizes=Number.isSafeInteger(own.prizeCount)?own.prizeCount:null;
   const ranked=targets.map((x,index)=>{
     if(!x||!Number.isSafeInteger(x.hp)||!Number.isSafeInteger(x.damage)||
