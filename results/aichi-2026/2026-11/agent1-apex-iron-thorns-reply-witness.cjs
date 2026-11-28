@@ -38,8 +38,11 @@ function analyze(source,q){
   actualHand.set(name,(actualHand.get(name)||0)+1);
   if(actualHand.get(name)> (physical.get(name)||0))throw Error("Hand impossible in printed rank "+rank+": "+name);
  }
+ if(candidateActiveEnergy.some(x=>!["Double Dragon Energy","Basic Grass Energy","Basic Fire Energy","Grass Energy","Fire Energy"].includes(x)))
+  throw Error("Unsupported Apex active Energy printing");
+ if(!apexPaid(candidateActiveEnergy))return {status:"attacker-unfunded",rank,attack,replies:[]};
  const locks=LOCKS[attack],r=[];
- const special=x=>/Energy$/.test(x)&&!["Basic Grass Energy","Basic Fire Energy","Grass Energy","Fire Energy"].includes(x);
+ const special=x=>x==="Double Dragon Energy";
  const validTargets=candidateActiveEnergy.filter(x=>special(x));
  const hasTarget=what=>what.energy==="Any"?candidateActiveEnergy.length>0:validTargets.length>0;
  for(const [card,what] of Object.entries(REPLIES)){
