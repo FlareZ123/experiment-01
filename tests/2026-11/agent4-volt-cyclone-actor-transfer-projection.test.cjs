@@ -219,9 +219,8 @@ test('Handheld Fan both seats: exact opposing Energy-to-Bench transfer is decode
     assert.equal(p.source.sourcePrinting,'Handheld Fan TWM');
     assert.equal(p.source.effectName,'Handheld Fan');
     assert.equal(p.publicMetadata.ownerSeat,'opponent');
-    assert.equal(p.choices.length,2); // one assignment plus legal []
+    assert.equal(p.choices.length,1); // printed Fan move is mandatory if possible
     assert.equal(p.choices[0].kind,'energy');
-    assert.equal(p.choices[1].kind,'empty-selection');
     const chosen=promptDecision({
       prompt:p,
       observation:{opponentPublic:{
