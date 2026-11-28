@@ -2,6 +2,43 @@
 
 const assert=require('node:assert/strict');
 
+// The pinned Twinleaf CardType enum is numeric (ANY=0, PSYCHIC=5,
+// COLORLESS=9, DRAGON=11). Actor policies compare readable names,
+// not TypeScript enum ordinals. Unknown enum values are left untouched
+// so strategy preflights fail closed rather than assume an energy type.
+const PINNED_CARD_TYPE_NAMES = Object.freeze([
+  'Any','Grass','Fire','Water','Lightning','Psychic','Fighting',
+  'Darkness','Metal','Colorless','Fairy','Dragon','None'
+]);
+const canonicalCardType=type=>Number.isSafeInteger(type)&&type>=0&&
+  type<PINNED_CARD_TYPE_NAMES.length?PINNED_CARD_TYPE_NAMES[type]:type;
+
+// PokemonCard exposes numeric Stage and inherited Card.tags. A native
+// pokemon.subtypes property is not guaranteed. Merge public Stage+CardTag
+// into the exact subtype strings consumed by both candidate/opponent policies.
+const PINNED_STAGE_NAMES=Object.freeze([
+  'NONE','RESTORED','BASIC','STAGE_1','STAGE_2','VMAX',
+  'VSTAR','VUNION','LEGEND','MEGA','BREAK','LV_X'
+]);
+const canonicalStage=stage=>Number.isSafeInteger(stage)&&stage>=0&&
+  stage<PINNED_STAGE_NAMES.length?PINNED_STAGE_NAMES[stage]:stage;
+
+const PINNED_STAGE_SUBTYPES=Object.freeze({
+  2:'Basic',3:'Stage 1',4:'Stage 2',5:'VMAX',6:'VSTAR',
+  7:'V-UNION',8:'LEGEND',9:'MEGA',10:'BREAK',11:'Lv.X'
+});
+function canonicalPokemonSubtypes(pokemon){
+  const result=[];
+  const add=value=>{if(typeof value==='string'&&value.length>0&&
+    !result.includes(value))result.push(value);};
+  add(PINNED_STAGE_SUBTYPES[pokemon.stage]);
+  for(const source of [pokemon.subtypes,pokemon.tags,pokemon.cardTag]){
+    if(Array.isArray(source))for(const tag of source)add(tag);
+  }
+  if(result.some(tag=>['VMAX','VSTAR','V-UNION'].includes(tag)))add('V');
+  return result;
+}
+
 /** @param {object} card @returns {string} */
 const printing=card=>{
   assert.ok(typeof card?.fullName==='string'&&card.fullName.length>0);
@@ -35,15 +72,16 @@ function visiblePokemon(slot){
     // vulnerabilities, and retreat. Printed values are not a final damage
     // or retreat-cost calculation; effects may modify them in the Store.
     printed:{
-      stage:pokemon.stage??null,
-      subtypes:[...(pokemon.subtypes??[])],
-      types:[...(pokemon.cardType??[])],
-      retreatCost:[...(pokemon.retreat??[])],
+      stage:canonicalStage(pokemon.stage??null),
+      subtypes:canonicalPokemonSubtypes(pokemon),
+      types:(pokemon.cardType??[]).map(canonicalCardType),
+      retreatCost:(pokemon.retreat??[]).map(canonicalCardType),
       weakness:(pokemon.weakness??[]).map(weakness=>({
-        type:weakness.type,value:weakness.value??null
+        // Native Weakness.value is optional; absent means x2.
+        type:canonicalCardType(weakness.type),value:weakness.value??2
       })),
       resistance:(pokemon.resistance??[]).map(resistance=>({
-        type:resistance.type,value:resistance.value
+        type:canonicalCardType(resistance.type),value:resistance.value
       }))
     },
     // Public temporary restrictions must be visible to an attack/retreat
@@ -68,7 +106,7 @@ function visiblePokemon(slot){
     energies:slot.energies.cards.map(printing),
     tools:slot.tools.map(printing),
     attacks:pokemon.attacks.map(attack=>({
-      name:attack.name,cost:[...attack.cost],
+      name:attack.name,cost:attack.cost.map(canonicalCardType),
       damage:attack.damage??null,
       damageCalculation:attack.damageCalculation??null,
       text:attack.text??null,
@@ -136,7 +174,7 @@ function publicPlayer(player,hidePokemon=false){
       attackLockTurnsRemaining:player.cannotAttackTurnsRemaining??0,
       attackMaxEnergy:player.cannotAttackMaxEnergy??null,
       attackMaxEnergyTurnsRemaining:player.cannotAttackMaxEnergyTurnsRemaining??0,
-      ignoreAttackCostCardTypes:[...(player.ignoreAttackCostCardTypes??[])],
+      ignoreAttackCostCardTypes:(player.ignoreAttackCostCardTypes??[]).map(canonicalCardType),
       ignoreAttackCostTurnsRemaining:player.ignoreAttackCostTurnsRemaining??0,
       cannotUseGXAttacks:player.cannotUseGXAttacks===true,
       pokemonPlayLocked:player.cannotPlayPokemonCards===true,
