@@ -1177,7 +1177,7 @@ test('Guzma own-Bench switch selects Bunnelby under visible Garbotoxin', () => {
         pokemon('Stoutland BCR 122'), pokemon('Bunnelby PRC 121')
       ] }),
       opponentPublic: player({ active: pokemon('Garbodor DRX 54', {
-        abilities: ['Garbotoxin']
+        abilities: ['Garbotoxin'], tools: ['Stealthy Hood UNB 186']
       }), deckCount: 6 })
     }
   });
@@ -1301,6 +1301,56 @@ test('setup prompt outside game setup is rejected',()=>{
     {selectionType:'confirm'},{phase:2});
   assert.deepEqual(checkedDecision(request),{
     kind:'abstain',reasonCode:'UNSUPPORTED_ENGINE_SETUP_PHASE'});
+});
+
+
+test('Tool-less Garbotoxin does not veto a Stoutland Guzma pivot',()=>{
+  const request=promptRequest({
+    promptType:'ChoosePokemonPrompt',
+    source:actorChoiceSource('Guzma BUS 115','Guzma'),
+    choices:[pokemonChoice('stoutland','Stoutland BCR 122','actor','bench',0),
+      pokemonChoice('bunnelby','Bunnelby PRC 121','actor','bench',1)],
+    observation:{
+      ownPublic:player({active:pokemon('Fan Rotom SCR 118'),bench:[
+        pokemon('Stoutland BCR 122'),pokemon('Bunnelby PRC 121')]}),
+      opponentPublic:player({active:pokemon('Garbodor DRX 54',{
+        abilities:['Garbotoxin'],tools:[]}),deckCount:6})
+    }
+  });
+  assert.deepEqual(checkedDecision(request),{kind:'select-choices',tokens:['stoutland']});
+});
+test('Tool-less Garbotoxin does not stop a Stoutland root retreat',()=>{
+  const request=rootRequest({
+    ownPublic:player({active:pokemon('Bunnelby PRC 121'),
+      bench:[pokemon('Stoutland BCR 122')]}),
+    opponentPublic:player({active:pokemon('Garbodor DRX 54',{
+      abilities:['Garbotoxin'],tools:[]})}),
+    items:[{token:'retreat-stoutland',kind:'retreat',
+      actorPrinting:'Bunnelby PRC 121',targetPrinting:'Stoutland BCR 122',
+      publicMetadata:{benchIndex:0}},
+      {token:'pass',kind:'pass',label:'Pass turn'}]
+  });
+  assert.deepEqual(checkedDecision(request),{
+    kind:'select-action',token:'retreat-stoutland'});
+});
+test('Certified suppressed Tool-bearing Garbotoxin permits Stoutland pivot',()=>{
+  const garbodor=pokemon('Garbodor DRX 54',{
+    abilities:['Garbotoxin'],tools:['Stealthy Hood UNB 186']});
+  garbodor.abilitySuppressions=[{
+    abilityName:'Garbotoxin',suppressed:true,
+    reasonCode:'ABILITY_LOCKED',sourcePrinting:'Galarian Weezing RCL 113'}];
+  const request=promptRequest({
+    promptType:'ChoosePokemonPrompt',
+    source:actorChoiceSource('Guzma BUS 115','Guzma'),
+    choices:[pokemonChoice('stoutland','Stoutland BCR 122','actor','bench',0),
+      pokemonChoice('bunnelby','Bunnelby PRC 121','actor','bench',1)],
+    observation:{
+      ownPublic:player({active:pokemon('Fan Rotom SCR 118'),bench:[
+        pokemon('Stoutland BCR 122'),pokemon('Bunnelby PRC 121')]}),
+      opponentPublic:player({active:garbodor,deckCount:6})
+    }
+  });
+  assert.deepEqual(checkedDecision(request),{kind:'select-choices',tokens:['stoutland']});
 });
 
 test('role and seat binding mismatch abstains', () => {
