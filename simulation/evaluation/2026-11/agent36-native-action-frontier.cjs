@@ -105,6 +105,61 @@ function targetProjection(target, state, actorSeat, native) {
   return result;
 }
 
+function isExactDdeEnergyCard(card) {
+  return card?.fullName === 'Double Dragon Energy ROS' &&
+    card?.set === 'ROS' && String(card?.setNumber) === '97';
+}
+
+function isDdeNonDragonTargetInProbeStore(action, state, actorSeat, native) {
+  if (action?.type !== 'PLAY_CARD_ACTION') return false;
+  const sourceCard = state.players[actorSeat]?.hand?.cards?.[action.handIndex];
+  if (!isExactDdeEnergyCard(sourceCard)) return false;
+
+  // Type reducers can mutate CheckPokemonTypeEffect.cardTypes through an alias
+  // to PokemonCard.cardType. Probe on a throwaway clone, never the clone later
+  // used to dispatch/validate this candidate action.
+  const probeSimulator = createIsolatedValidationSimulator(state, native);
+  const probeState = probeSimulator.store.state;
+  const probeCard = probeState.players[actorSeat]?.hand?.cards?.[action.handIndex];
+  assert.ok(isExactDdeEnergyCard(probeCard),
+    'DDE probe clone must preserve the exact ROS #97 Energy printing');
+
+  assert.ok(typeof native.CheckPokemonTypeEffect === 'function',
+    'pinned CheckPokemonTypeEffect is required for DDE target preflight');
+  assert.ok(native.CardType && native.CardType.DRAGON !== undefined,
+    'pinned Dragon CardType is required for DDE target preflight');
+  assert.ok(typeof probeSimulator.store.reduceEffect === 'function',
+    'pinned Store.reduceEffect is required for DDE target preflight');
+
+  const projection = targetProjection(action.target, probeState, actorSeat, native);
+  assert.ok(projection,
+    'exact DDE action target must resolve to an occupied Active or Bench Pokémon');
+  assert.equal(projection.targetSeat, 'actor',
+    'exact DDE action target must belong to the acting player');
+  const targetPlayer = probeState.players[actorSeat];
+  const targetList = projection.targetZone === 'active' ? targetPlayer?.active :
+    projection.targetZone === 'bench' && Number.isSafeInteger(projection.targetIndex) ?
+      targetPlayer?.bench?.[projection.targetIndex] : null;
+  assert.ok(targetList instanceof native.PokemonCardList && slotPokemon(targetList),
+    'exact DDE action target must resolve to an occupied native PokemonCardList');
+
+  // Use the same pinned dynamic type reducer as Double Dragon Energy itself.
+  // Its returned values must be valid numeric CardType enum members.
+  const typeCheck = new native.CheckPokemonTypeEffect(targetList);
+  probeSimulator.store.reduceEffect(probeState, typeCheck);
+  assert.ok(Array.isArray(typeCheck.cardTypes),
+    'pinned CheckPokemonTypeEffect must produce a cardTypes array');
+  assert.ok(typeCheck.cardTypes.length > 0,
+    'pinned CheckPokemonTypeEffect must produce at least one Pokémon type');
+  const validCardTypes = new Set(Object.values(native.CardType)
+    .filter(value => typeof value === 'number'));
+  assert.ok(validCardTypes.size > 0,
+    'pinned CardType enum must expose numeric values');
+  assert.ok(typeCheck.cardTypes.every(cardType => validCardTypes.has(cardType)),
+    'pinned CheckPokemonTypeEffect must produce only valid numeric CardType enum values');
+  return !typeCheck.cardTypes.includes(native.CardType.DRAGON);
+}
+
 function cardType(card, native) {
   if (native.PokemonCard && card instanceof native.PokemonCard) return 'pokemon';
   if (native.EnergyCard && card instanceof native.EnergyCard) return 'energy';
@@ -509,7 +564,8 @@ function buildNativeActionFrontier({
     // Construct the deep-cloned Simulator outside the expected-rejection
     // catch: constructor instability is an engine failure, never an illegal move.
     const simulator = createIsolatedValidationSimulator(state,native);
-    if(!itemCanPlayInValidationStore(action,simulator,actorSeat,native)||
+    if(isDdeNonDragonTargetInProbeStore(action,state,actorSeat,native)||
+        !itemCanPlayInValidationStore(action,simulator,actorSeat,native)||
         !underworldDoorCanUseInValidationStore(action,simulator,actorSeat,native)){
       rejectedCount += 1;
       preflightRejectedCount += 1;

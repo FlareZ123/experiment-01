@@ -15,13 +15,17 @@ on:
         description: Run the focused Agent45 observational trace serializer and headless integration tests only
         type: boolean
         default: false
+      agent3_dde_energy_frontier_only:
+        description: Run only the pinned native DDE and Energy action-frontier regressions
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   smoke:
-    if: ${{ !inputs.aichi_bridge_only && !inputs.agent45_full_state_trace_only }}
+    if: ${{ !inputs.aichi_bridge_only && !inputs.agent45_full_state_trace_only && !inputs.agent3_dde_energy_frontier_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -101,7 +105,11 @@ jobs:
       - name: Regress optional actor-only typed Energy frontier and unchanged root
         id: smoke_check_14
         continue-on-error: true
-        run: node --test tests/agent10-basic-energy-frontier.test.cjs tests/agent10-energy-frontier-root-integration.test.cjs
+        env:
+          AGENT36_TWINLEAF_COMMIT_SHA: a9905a76a6c4103ba4b6cb9a49e86bad795c5c05
+        run: |
+          test -f vendor/twinleaf/ptcg-server/output/advanced-bot/action-enumerator.js
+          node --test tests/agent10-basic-energy-frontier.test.cjs tests/agent10-energy-frontier-root-integration.test.cjs tests/2026-11/agent3-dde-energy-frontier-native.test.cjs
       - name: Regress full-Bench FST Trubbish paper attack correction
         id: smoke_check_15
         continue-on-error: true
@@ -222,6 +230,41 @@ jobs:
         run: |
           node -e 'const fs=require("node:fs"); const a=Object.entries(JSON.parse(process.env.SMOKE_STEP_CONTEXT)).filter(([k])=>/^smoke_check_[0-9]+$/.test(k)); const bad=a.filter(([,v])=>v.outcome!=="success"); const report="Twinleaf independent smoke checks: " +a.length+"/39 present, "+bad.length+" failed or non-success\n"+a.map(([k,v])=>k+": "+v.outcome).join("\n")+"\n"; console.log(report); fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,"## Independent smoke checks\n\n"+report+"\n"); if(a.length!==39||bad.length>0) process.exitCode=1;'
 
+
+  agent3-dde-energy-frontier:
+    if: ${{ inputs.agent3_dde_energy_frontier_only }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out research repository
+        uses: actions/checkout@v4
+      - name: Check out exactly the pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Verify the checked-out Twinleaf revision matches the repository gitlink
+        run: |
+          expected="$(git ls-tree HEAD vendor/twinleaf | awk '{print $3}')"
+          actual="$(git -C vendor/twinleaf rev-parse HEAD)"
+          test "$expected" = "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+          test "$actual" = "$expected"
+          echo "Twinleaf revision: $actual"
+      - name: Set up pinned Twinleaf Node runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned upstream server dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile upstream server without modifying vendor
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Require compiled native action enumerator
+        run: test -f vendor/twinleaf/ptcg-server/output/advanced-bot/action-enumerator.js
+      - name: Run focused native Energy frontier regressions
+        env:
+          AGENT36_TWINLEAF_COMMIT_SHA: a9905a76a6c4103ba4b6cb9a49e86bad795c5c05
+        run: node --test tests/agent10-basic-energy-frontier.test.cjs tests/agent10-energy-frontier-root-integration.test.cjs tests/2026-11/agent3-dde-energy-frontier-native.test.cjs
 
   aichi-bridge:
     if: ${{ inputs.aichi_bridge_only }}

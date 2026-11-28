@@ -1,0 +1,206 @@
+# Double Dragon Energy native action-frontier regression
+
+**Status:** the initial broad DDE catch is superseded. Follow-on [PR #66](https://github.com/FlareZ123/experiment-01/pull/66) was merged into PR #65's branch (not main) at `da82a4866f2e92b7d31f43c998f48b29b1b4712a`. After Agent16 identified a probe-clone aliasing hazard, the branch was hardened with a separate throwaway Simulator probe and numeric CardType membership validation. Probe-isolation code/test head `c3d88a9ecc8fc0435e08fb88ad3937d166e77e55` passed focused run [45334106539](https://github.com/FlareZ123/experiment-01/actions/runs/45334106539). Current exact PR #65 head `18e64547b55c212caab9bc57c7dffd7ddbf43502` also passed [run 45334706760](https://github.com/FlareZ123/experiment-01/actions/runs/45334706760): `agent3-dde-energy-frontier` succeeded; generic smoke, Aichi bridge and full-state trace jobs were skipped. PR #65 remains open against main, with repository-owner review requested. This is adapter-correctness evidence, not competitive-game evidence.
+
+## Question
+
+The research-owned uncapped action enumerator proposes an Energy attachment to every occupied Pokémon. Does the native Store's rejection of Double Dragon Energy (DDE) on a non-Dragon recipient incorrectly abort construction of the complete native action frontier, and can that rejection be handled without suppressing unrelated Energy errors?
+
+## Pinned rule evidence
+
+The experiment uses the repository's pinned Twinleaf gitlink, `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+
+In the pinned upstream source, `ptcg-server/src/sets/07-x-and-y/set-roaring-skies/double-dragon-energy.ts`, the DDE reducer handles its own `AttachEnergyEffect`, checks the recipient through `CheckPokemonTypeEffect`, and throws `GameError(GameMessage.CANNOT_PLAY_THIS_CARD)` when the recipient is not a Dragon Pokémon. The error is therefore the native rules rejection for an incompatible DDE recipient, not a generic indication that arbitrary Energy actions are safe to discard.
+
+The adapter's prior expected-rejection table did not classify `CANNOT_PLAY_THIS_CARD` for Energy actions. As a result, one invalid DDE-to-non-Dragon proposal could abort the frontier even when a legal DDE-to-Dragon proposal was also available.
+
+## Initial correction (superseded by PR #66)
+
+**Important:** The exact-print catch below describes the first PR #65 implementation only. Agent10's review correctly found that it could downgrade an unrelated error during a legal DDE-to-Dragon dispatch. This implementation is not the one to merge; the current dynamic-type preflight is documented in the later **Follow-on correction** section.
+
+`simulation/evaluation/2026-11/agent36-native-action-frontier.cjs` now treats `CANNOT_PLAY_THIS_CARD` as an expected rejection only when all of the following hold:
+
+- the rejected action is a PlayCardAction in the Energy family;
+- the native error is `CANNOT_PLAY_THIS_CARD`;
+- the card in the actor's hand is exactly `Double Dragon Energy ROS`, set `ROS`, card number `97`.
+
+This is intentionally narrower than adding the error to the Energy-family allowlist. Other Energy printings that raise the same error remain fatal. Twinleaf upstream source and the frozen Stage-A fixture/registration were not modified.
+
+## Native regression
+
+`tests/2026-11/agent3-dde-energy-frontier-native.test.cjs` uses the compiled pinned Store and runs both physical seats. The fixture has Regidrago V SIT Active, Dedenne-GX UNB and Tapu Lele-GX GRI on the Bench, and DDE in hand.
+
+For each physical seat, the test confirms:
+
+1. the native Store accepts DDE attached to Regidrago;
+2. the native Store rejects DDE attached to Dedenne and Tapu Lele with `GameError: CANNOT_PLAY_THIS_CARD`;
+3. the production frontier retains the legal Regidrago action and rejects only the two incompatible recipient actions;
+4. the frontier reports three enumerated, one validated and two rejected actions, with zero preflight rejections, zero unsupported actions, and no truncation/omission;
+5. the original live Store graph is unchanged.
+
+A second native control injects `CANNOT_PLAY_THIS_CARD` from a non-DDE Energy reducer and verifies that the error remains fatal. This protects against accidentally broadening the Energy-family allowlist.
+
+## CI evidence and limitations
+
+- Workflow: `.github/workflows/twinleaf-smoke.yml`, existing manually dispatched smoke workflow; the existing Energy-frontier step now includes this regression and explicitly supplies the pinned engine SHA to the runner's attestation.
+- Run: [45301037199](https://github.com/FlareZ123/experiment-01/actions/runs/45301037199), head `fad2839e8281d261ad7f12199dfb1f3b8eada7a6`.
+- The targeted `smoke_check_14` passed, including the two DDE tests and the existing Energy-frontier tests.
+- The overall smoke job remains failed because unrelated `smoke_check_39` fails its frozen candidate-manifest assertion: expected Git blob `0656ee1a940cf74c884af95dada5196081a6c0e9`, observed `fc0da5f65d014f7323266cf11a2d6b712f457df4` for `scripts/aichi-new-moon-candidate.cjs`. The DDE step is green; the workflow as a whole is not green.
+- The earlier run [45298709181](https://github.com/FlareZ123/experiment-01/actions/runs/45298709181) failed the DDE step because that step omitted `AGENT36_TWINLEAF_COMMIT_SHA`; the pinned value was added to the existing step and the rerun above passed. The first failure was harness configuration, not a rules result.
+- The benchmark census currently reports DDE in 10 of the 29 available Aichi lists (ranks 10, 12, 13, 14, 18, 19, 20, 21, 27 and 32). This makes the adapter bug materially relevant to field coverage, but the test does not run a competitive game.
+- The Aichi lists at ranks 23, 25 and 28 remain unavailable. No matchup result, paper-qualified game, fixed final 60, or 99.5% claim follows from this regression.
+- The native fixture is a constructed Store state with placeholder deck/prize zones, not a legal 60-card paper deck or a completed game. It validates one adapter/rules-rejection boundary only; it does not estimate draw probabilities or competitive performance.
+
+## Next action
+
+Await repository-owner review of PR #65; address any requested changes before considering mainline integration. PR #66 is already integrated into the PR #65 branch and the focused selector passed on the exact merged head. Keep the separate DDE host-type-change/discard rule as a distinct follow-up, and keep Stage-A dispatch and frozen fixture inputs under Agent6's existing ownership.
+
+
+## Mainline integration and focused-selector verification
+
+- Clean mainline-based integration is proposed in [PR #65](https://github.com/FlareZ123/experiment-01/pull/65), rather than merging the original research branch that had accumulated unrelated divergence.
+- The existing `.github/workflows/twinleaf-smoke.yml` now has an opt-in `agent3_dde_energy_frontier_only` selector and a dedicated job. It verifies that the checked-out `vendor/twinleaf` gitlink and actual submodule revision both equal `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, installs the pinned Node 20.19.0 dependencies, compiles the upstream server, and runs only the two Agent10 Energy frontier tests plus this DDE regression. The default 39-check smoke job is skipped when this selector is enabled.
+- `.gitmodules` declares the submodule path `vendor/twinleaf` and remote `https://github.com/twinleafgg/twinleafgg.git`; the main-branch gitlink pins `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The focused workflow verifies the gitlink and checked-out revision agree. No upstream source was modified.
+- Focused selector run [45311433776](https://github.com/FlareZ123/experiment-01/actions/runs/45311433776), exact PR head `7dc5a6c6c7b4c2f9a343a89d33a0d934b591d736`, completed **success**. The dedicated `agent3-dde-energy-frontier` job and every step passed; the omnibus `smoke`, Aichi bridge, and Agent45 jobs were skipped.
+- This confirms the focused workflow path and the adapter regression on the mainline-based PR branch. It does not qualify any game or matchup. Independent Agent4 review and PR merge remain pending; full-field validation remains open.
+
+
+## Aichi field exposure: mixed-type recipients are present in every DDE list
+
+A count of `results/aichi-2026/full-decklists.json` finds 10 DDE-bearing source lists (ranks 10, 12, 13, 14, 18, 19, 20, 21, 27 and 32), with 38 DDE copies total. **All 10/10 lists contain both Dedenne-GX and Tapu Lele-GX**, so the regression's two non-Dragon recipients are not artificial additions to the DDE archetype. Agent10 independently checked the printing fields: all 10 lists use the same exact DDE printing, ROS #97, totaling 38 copies; the PR's exact-print predicate therefore covers every currently available benchmark DDE copy.
+
+| Rank | DDE copies | Dedenne-GX | Tapu Lele-GX |
+|---:|---:|---:|---:|
+| 10 | 4 | 1 | 1 |
+| 12 | 4 | 1 | 1 |
+| 13 | 3 | 1 | 1 |
+| 14 | 4 | 1 | 1 |
+| 18 | 4 | 2 | 2 |
+| 19 | 4 | 2 | 1 |
+| 20 | 4 | 2 | 1 |
+| 21 | 3 | 1 | 1 |
+| 27 | 4 | 1 | 1 |
+| 32 | 4 | 1 | 1 |
+| **Total** | **38** | **13** | **11** |
+
+The repository card pool independently confirms the restrictions and types: `resources/cards/en/xy6.json` identifies Double Dragon Energy XY6 #97, marks it Expanded-legal, and says it can only attach to Dragon Pokémon; `resources/cards/en/sm10.json` identifies Expanded-legal Dedenne-GX #57 as Lightning; `resources/cards/en/sm2.json` identifies Expanded-legal Tapu Lele-GX #60 as Psychic.
+
+Thus every currently available DDE-bearing benchmark list contains both non-Dragon recipients. Whenever DDE is in hand while either Pokémon is in play, the uncapped enumerator's Energy × occupied-Pokémon proposal loop can generate an invalid attachment candidate. This is a decklist exposure result, not a claim about the frequency of those game states or competitive matchup performance.
+
+
+## Scope scan of the Aichi Energy pool
+
+The 29 available lists use 21 distinct Energy names: Capture, Counter, Darkness, Double Colorless, Double Dragon, Fighting, Fire, Grass, Jet, Lightning, Memory, Powerful Colorless, Prism, Psychic, Recycle, Reversal, Speed Lightning, Spiky, Telepathic Psychic, Unit Energy LPM, and Water Energy.
+
+A card-text scan of these Energy entries found **Double Dragon Energy as the only one with an explicit restriction on which Pokémon may receive the attachment**. The other Special Energy conditions in this field alter the Energy provided or trigger a bonus based on the recipient/board state (for example, Prism, Counter, Reversal, Speed Lightning, Telepathic Psychic, Powerful Colorless, and Unit Energy); they do not prohibit attaching the card to a different Pokémon. This supports keeping the rejection exception exact-print scoped rather than globally suppressing `CANNOT_PLAY_THIS_CARD` for the Energy family.
+
+This is a card-text scope scan of the currently available field, not an exhaustive proof against every effect-based attachment prohibition. The adapter must continue treating unrelated native Energy errors as fatal.
+
+
+### No-silent-skip guard verification
+
+The native test is intentionally skippable in a developer checkout when the compiled Twinleaf action enumerator is absent. To ensure CI cannot report a green result with that test silently skipped, the existing smoke step and focused job now require the exact compiled output path with `test -f vendor/twinleaf/ptcg-server/output/advanced-bot/action-enumerator.js` before invoking the test files.
+
+The updated focused selector passed in [run 45313978366](https://github.com/FlareZ123/experiment-01/actions/runs/45313978366), exact workflow/code head `adb7407f25b20b992b5499202a5761eed53de808`. The new guard and the focused job succeeded. Because the test's only skip condition is the same compiled-file existence check, the guard ensures the DDE regression ran rather than being silently skipped. The run used only the focused DDE/Energy selector; no 39-check, Aichi bridge, or Agent45 job ran.
+
+
+### Current-main compatibility check
+
+At 2026-11-24 02:44Z, the PR branch was compared against current `main` for the native test's runtime dependencies. The V3 runner, native fixture driver, cap-free action enumerator, and both Agent10 Energy frontier test files were byte-identical on the two refs. The only code dependency differing was `agent36-native-action-frontier.cjs`, where the PR branch adds the DDE-specific rejection guard; no intervening mainline changes to the test harness were missing. The workflow's focused selector was independently dispatched on the PR branch and passed as recorded above.
+
+
+## Independent review finding — correction required before merge
+
+Agent10's adversarial review accepted the exact-print scope, both-seat Store regression, Store immutability assertion, non-DDE fatal control, and focused workflow, but identified a blocking correctness issue: `isExpectedActionRejection()` sees only that the exact DDE printing was being dispatched and the complete cloned-Store dispatch threw `CANNOT_PLAY_THIS_CARD`. It does not prove that the thrown error came from DDE's non-Dragon recipient check; another reducer or triggered effect could throw the same message during an otherwise legal DDE→Dragon action. Agent10 clarified that the frontier does not admit the invalid action: a classified rejection increments `rejectedCount` and omits it. The actual risk is silently downgrading an unrelated fatal cloned-Store error into an ordinary rejection, hiding the failure and potentially omitting an otherwise legal DDE→Dragon action.
+
+**Required correction:** suppress this error only when the actual action target is non-Dragon under the pinned state/type representation. Add a regression that forces the same native `CANNOT_PLAY_THIS_CARD` during an otherwise legal DDE→Regidrago dispatch and proves it remains fatal. Retain the real DDE→Dedenne/Tapu Lele rejection and non-DDE fatal control.
+
+Agent3 agrees with the finding and has asked Agent4 to confirm the pinned target/type predicate and whether `CheckPokemonTypeEffect` accounts for type-changing effects. PR #65 is not merge-ready until the narrower guard and fatal control are tested. No Stage-A branch or fixture was changed.
+
+
+## Follow-on correction: dynamic recipient-type preflight (2026-11-24)
+
+The earlier broad exact-print catch described above was **superseded by follow-on PR #66**, merged into this PR's branch (not main) at `da82a4866f2e92b7d31f43c998f48b29b1b4712a`. The corrected implementation removes the DDE-specific `CANNOT_PLAY_THIS_CARD` catch entirely. For exact ROS #97 DDE PlayCardActions, it resolves the target against the isolated validation Store, requires an occupied Active/Bench Pokémon owned by the acting player, and runs the pinned `CheckPokemonTypeEffect` through `Store.reduceEffect`. It preflight-rejects only a dynamically non-Dragon target. Missing primitives, unresolved/opponent-owned targets, failed type checks, and non-array/empty type results fail closed; the preflight now validates every returned entry against numeric values in the pinned native.CardType enum. Agent16 found no current pinned reducer deliberately emits an invalid value; the membership assertion is defensive against unsafe state or future reducer regressions. Dragon-target dispatch errors remain fatal.
+
+The follow-on regression in `tests/2026-11/agent3-dde-energy-frontier-native.test.cjs` adds both-seat Kecleon PLF #94 Color Change controls (Dragon opponent Active = legal DDE recipient; non-Dragon opponent Active = illegal), opponent-owned target rejection, same-message `CANNOT_PLAY_THIS_CARD` fatal propagation on a legal DDE→Regidrago action, and retains the non-DDE fatal control and live-state immutability checks. Agent16's pinned-source review establishes why printed `cardType` is insufficient; Agent10's review motivated the target-side guard and same-message fatal control. A later Agent16 review found that `CheckPokemonTypeEffect.cardTypes` aliases the target Pokémon's `cardType` array and push-based reducers can mutate it. The preflight now uses a separate throwaway Simulator clone, validates numeric CardType membership, and adds a synthetic push-based regression proving the candidate-validation clone and live Store remain unchanged plus a malformed `[999]` result control.
+
+- PR #66: https://github.com/FlareZ123/experiment-01/pull/66
+- Exact PR #66 head: `ee9df3f010eb8b5471cb38ef0ac04078868dd5fb`
+- Focused pinned-Twinleaf workflow run [45325495328](https://github.com/FlareZ123/experiment-01/actions/runs/45325495328) completed successfully on that exact SHA.
+- No new formal exact-head review disposition arrived from Agent10/Agent16/repository owner before integration; Agent3 merged #66 based on its own exact-code review plus Agent10/Agent16's prior independent design/source findings. Repository-owner review is now requested on PR #65; do not merge #65 to main until that review is resolved.
+- PR #65's branch also contains the default-smoke guard correction in commit `f555880858d3296190096e873ff4937ff4ad2f77`: the compiled-output guard is inside `smoke_check_14`'s `continue-on-error` step, preserving later independent checks 15–39. The focused DDE-only job keeps its separate fail-fast guard.
+
+This remains adapter-correctness evidence only, not a legal-deck game, matchup, policy-competence result, or win-rate estimate. The separate continuous rule requiring an attached DDE to be discarded if its host later ceases to be Dragon was subsequently covered by the PR #67 native transition regression, merged into this PR branch at `745890e08d8cb5f91e97bb4cb9a9d7db27fed1f7`; see the final section below. It remains distinct from the attachment-time frontier-builder correction.
+
+
+## PR #66 integration into PR #65 and exact merged-head verification (2026-11-24)
+
+- PR #66 merged into PR #65's base branch (not main) in merge commit `da82a4866f2e92b7d31f43c998f48b29b1b4712a`. PR #66 is closed as merged; PR #65 remains open against main.
+- Re-dispatched the existing `.github/workflows/twinleaf-smoke.yml` selector on branch `agent3/dde-energy-frontier-mainline-20261124` with `agent3_dde_energy_frontier_only=true` after the merge.
+- Exact merged-head run [45332632806](https://github.com/FlareZ123/experiment-01/actions/runs/45332632806) used head SHA `da82a4866f2e92b7d31f43c998f48b29b1b4712a` and completed **success**. Job `agent3-dde-energy-frontier` passed; `smoke`, `aichi-bridge`, and `agent45-full-state-trace` were skipped by the focused selector. This was the initial post-merge run; the probe-isolation follow-up below supersedes it.
+- Repository-owner review was requested on PR #65 after integration. The branch is not merged to main. The ongoing DDE host-type-change/discard rule remains untested and separate.
+- This is still constructed Store-state adapter validation only. It does not establish a legal-deck game, matchup, bot competence, win-rate estimate, or progress to the 99.5% target.
+
+
+## Probe-isolation correction after Agent16 review (2026-11-24)
+
+Agent16's independent review identified a concrete aliasing hazard: the pinned `CheckPokemonTypeEffect.cardTypes` can alias the target `PokemonCard.cardType` array, and push-based dynamic type reducers may mutate that array. The first preflight implementation evaluated the effect on the same cloned Simulator subsequently used to dispatch the candidate. Although the live Store remained protected, the action-validation clone could be contaminated.
+
+The correction now on the PR #65 branch:
+
+- Exact DDE candidates are identified from the original state, then the type probe is evaluated on a separate throwaway Simulator created from that same state. The candidate-validation Simulator is never used for the probe.
+- Every returned type must be a member of the pinned numeric `native.CardType` enum; non-array, empty, or unknown values fail closed. Agent16 found no current pinned reducer deliberately emits an invalid value; the membership check is defensive hardening because TypeScript numeric-enum typing does not guarantee runtime membership.
+- The regression injects a push-based dynamic-type reducer into the probe clone, then asserts the probe clone changes while the candidate-validation clone and original live Store remain unchanged. A separate malformed `[999]` type result must throw rather than be treated as a non-Dragon Pokémon.
+- The first attempt at the push regression had no legal action left and tripped the frontier's invariant; the fixture was corrected by retaining a legal DDE-to-Dragon Active control. The final focused run below passed.
+
+Source commit: `efb5b8de01c73ac0b71a4769f74e57e9169619ca`. Regression commits: `0075a948b02bbb4fdde092b915af565409c90e9b` and `c3d88a9ecc8fc0435e08fb88ad3937d166e77e55`.
+
+Exact latest head `c3d88a9ecc8fc0435e08fb88ad3937d166e77e55` passed [focused run 45334106539](https://github.com/FlareZ123/experiment-01/actions/runs/45334106539). The `agent3-dde-energy-frontier` job succeeded; generic smoke, Aichi bridge, and full-state trace jobs were skipped by the focused selector.
+
+Two limitations remain before broad field use: (1) the preflight type probe occurs before the native DDE `AttachEnergyEffect` propagation, whereas the DDE reducer performs its own type check during attachment. Agent16 found no concrete pinned target-side attach handler that changes the type mid-resolution, but universal order equivalence is not proven; retain this as a documented assumption. (2) The ongoing rule that discards an attached DDE if its host later ceases to be Dragon is implemented through `CheckTableStateEffect`/`checkState` and is now covered for one real Kecleon/Regidrago-to-Dedenne transition by merged PR #67; see the final section. This does not establish every possible type-changing interaction.
+
+
+## Agent16 exact-head review resolution (2026-11-24)
+
+Agent16 re-reviewed exact PR #65 head `18e64547b55c212caab9bc57c7dffd7ddbf43502` at 05:41 UTC and confirmed both previously reported implementation blockers are resolved: the dynamic type probe runs on a separate throwaway Simulator, and every returned type is checked against numeric values in the native CardType enum. The push-based clone-isolation regression includes a legal DDE-to-Regidrago control, and the malformed `[999]` regression remains. Agent16 also confirmed focused run [45334706760](https://github.com/FlareZ123/experiment-01/actions/runs/45334706760) passed on that exact head.
+
+The remaining PR-level caveat is that the preflight type check runs before native DDE `AttachEnergyEffect` propagation, whereas the card's own reducer checks type during attachment. Agent16 found no concrete pinned target-side attach handler that changes type mid-resolution; universal order equivalence remains a documented assumption, not a demonstrated failure. Separately, the continuous DDE host-type-change/discard rule has since received a dedicated Kecleon/Regidrago-to-Dedenne regression in PR #67, now merged into the PR #65 branch; see the final section. The PR #65 branch remains unmerged to main pending repository-owner review.
+
+Repository-owner review of PR #65 remains requested; do not merge to main until that review is resolved.
+
+
+
+## Host type-change/discard regression integrated into PR #65 (2026-11-24)
+
+PR #67, authored by Agent41, was merged into PR #65's branch (not main) in merge commit `745890e08d8cb5f91e97bb4cb9a9d7db27fed1f7`. Agent41's original focused method/result note is preserved in [the host-discard transition report](agent41-dde-host-discard-native-transition-20261124.md). PR #65 remains open against main and still requires repository-owner review.
+
+The integrated regression uses the research-owned Energy action enumerator to construct a DDE-to-Active-Kecleon attachment action, then dispatches through the pinned native Store/reducers. It runs both physical seat orientations and exercises the real Switch / `ChoosePokemonPrompt` chain:
+
+1. Active Kecleon PLF 94 copies the opposing Active Regidrago's Dragon type; DDE attaches legally.
+2. The opponent plays Switch BS 95, opening the native `ChoosePokemonPrompt`.
+3. **Before the prompt resolves**, the added boundary assertions verify Regidrago is still Active, Kecleon still resolves as Dragon, DDE remains in both host card/Energy lists, and DDE has not entered its owner's discard.
+4. After the prompt resolves to Dedenne GX UNB, Kecleon resolves as Lightning and the native post-prompt state check moves DDE to its owner's discard.
+
+The boundary assertions were added after Agent16's non-blocking review suggestion in commit `281af576b8ac180b965334a9dbe8d8f17bc355fb`. The existing focused selector in `.github/workflows/twinleaf-smoke.yml` was reused; no new workflow, runner, adapter hook, or Twinleaf vendor edit was added.
+
+- Initial post-merge focused run [45427584720](https://github.com/FlareZ123/experiment-01/actions/runs/45427584720) passed on merge commit `745890e08d8cb5f91e97bb4cb9a9d7db27fed1f7`.
+- Exact boundary-assertion head [281af576b8ac180b965334a9dbe8d8f17bc355fb](https://github.com/FlareZ123/experiment-01/commit/281af576b8ac180b965334a9dbe8d8f17bc355fb) passed the same focused selector in [run 45428035882](https://github.com/FlareZ123/experiment-01/actions/runs/45428035882). The job verified the pinned Twinleaf gitlink/checkout, compiled the native server, passed the compiled-enumerator guard, and ran the focused tests successfully.
+
+Agent16's review of PR #67 head `a5a86a9a88e3dccda9f6a9e91f071b6f2feb6e63` found no blocking findings and suggested the unresolved-prompt timing assertions now included above. A bounded exact-head confirmation of the new assertions on `281af576b8ac180b965334a9dbe8d8f17bc355fb` is requested separately. The prior PR #65 frontier-correction review on `b2f879b7278c56d24c99eb771b769344945287ea` remains no-blocker.
+
+**Field-scope caveat:** Agent43's 24 November audit found no type-changing own-side/opponent-side effect among the 79 normalized identities in the ten authenticated DDE-bearing ranks, the 29 available Aichi lists, or the fixed Hood Shield candidate. Kecleon PLF 94 is not present in those 29 lists or the fixed candidate. Thus this is a useful general Expanded rules regression, not a known interaction in the currently authenticated Aichi field. The audit does not certify exact physical Japanese printings, and ranks 23/25/28 remain unavailable. See [Agent43's DDE ordering audit](https://github.com/FlareZ123/experiment-01/blob/main/results/aichi-2026/2026-11/agent43-japanese-extra-dde-ordering-audit-20261124.md).
+
+This regression still does **not** call `buildNativeActionFrontier()`, qualify the full frontier-builder/admission path, test every type-changing effect or Special Energy blocker, or produce a legal-deck game, matchup, policy-competence result, or competitive win-rate estimate. Keep the DDE attachment-time correction and later host-discard state check as distinct gates.
+
+
+## Agent16 pinned-source ordering and state-check clarification (2026-11-24)
+
+Agent16's bounded pinned-source review adds three useful distinctions without changing the PR #65 gate:
+
+- **Static type modifiers:** Expanded includes Silvally-GX Memory Tools (Fighting Memory / Psychic Memory from CIN; Fire Memory / Electric Memory from UPR; Water Memory / Grass Memory from TEU). Their reducers modify `CheckPokemonTypeEffect.cardTypes` when attached to Silvally-GX. These are pre-existing/static modifiers, not `AttachEnergyEffect` handlers, so the isolated preflight's `CheckPokemonTypeEffect` sees them before judging DDE attachment. Agent16 found no intersection with the 29 available Aichi lists or fixed Hood Shield candidate. This corrects any overly broad claim that Crystal Shard is the only in-scope Trainer type-setting effect.
+- **Same-propagation ordering:** Agent16's bounded pinned-source spot-check of reducers handling `AttachEnergyEffect` alongside Pokémon type fields found no in-scope handler that changes the recipient's type during the same attachment propagation before DDE's own recipient check. Two apparent cases (Aquapolis Lugia and Neo Discovery Eevee) are pre-Black & White and outside this research scope. The check is not an exhaustive proof of universal ordering equivalence; retain the general Expanded assumption.
+- **Ongoing host-discard state check:** the pinned DDE reducer handles the ongoing discard rule on `CheckTableStateEffect`. The native Store invokes `checkState` after ordinary actions when no prompt remains and after the final prompt resolves; evolution applies `EvolveEffect` within that generic path. Thus the official Dragon-to-non-Dragon evolution example reaches the same generic state-check route by source-derived control flow. PR #67's Switch/ChoosePokemonPrompt test directly exercises one prompt-driven host-type change; it is not an evolution-specific native test. The separate `IS_SPECIAL_ENERGY_BLOCKED` exception remains distinct. Temple of Sinnoh appears in five non-DDE Aichi lists (ranks 3, 8, 11, 16 and 22; nine copies); none of the ten known DDE-bearing lists or the fixed Hood Shield candidate contains Temple. Agent16's pinned-source/rules check confirms that DDE's Dragon-only restriction still applies when attaching from hand under Temple, while attached-card effects (including the ongoing non-Dragon discard) are suppressed until Temple leaves. No type-changing host interaction was found in the authenticated DDE lists or fixed candidate. The proposed Archeops-from-deck Temple transition remains a useful general Expanded regression, not a known current-field blocker; no PR #65 preflight change is warranted. See [Agent16's DDE dynamic-type/Temple report](https://github.com/FlareZ123/experiment-01/blob/main/results/aichi-2026/2026-11/agent16-dde-dynamic-type-guard-20261124.md).
+
+Agent16 also checked the three Japanese-only promo identities omitted from the 79 normalized identities (Player's Ceremony S-P 127, Palace Book SM-P NAN25, Palace Belt BW-P 153); their effects draw cards/end the turn and do not change Pokémon type. This closes that narrow promo omission in the 29-list source cross-check, but does not certify exact physical Japanese printings or the three missing ranks.
+
+These source checks refine the scope of the ordering assumption; they do not create a same-`AttachEnergyEffect` counterexample, change the focused regression result, or establish full-field engine fidelity.
