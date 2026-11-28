@@ -2252,7 +2252,7 @@ function chooseCardCombination(view, prompt, receipt = null) {
     }
   } else if (metadata.sourceZone === 'deck' && prompt.source?.effectName === 'Battle Compressor') {
     selected = ranked.filter(row=>Number.isFinite(row.score)&&row.score>0)
-      .slice(0,maximum).map(row=>row.choice);
+      .slice(0,Math.min(1,maximum)).map(row=>row.choice);
     // Normally minimumCount=0 for this up-to-three deck discard.
     if(selected.length<minimum)
       selected=ranked.slice(0,minimum).map(row=>row.choice);
