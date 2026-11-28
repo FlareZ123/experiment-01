@@ -760,20 +760,36 @@ function chooseAttackPrompt(view, prompt, receipt) {
   const hasDialga = discardHas(view, 'Dialga-GX');
   const gxUnused = !view.ownPublic.publicTurnRestrictions.gxUsed;
   const target = view.opponentPublic.active;
-  const dragonTarget = isDragon(target);
+  // Apex Dragon can copy Timeless-GX from our discarded Dialga-GX even when
+  // Fairy Zone is absent or suppressed.  The extra turn is often worth more
+  // than Power Beam's extra 50 damage. The exception is an immediate final
+  // Prize KO that only Power Beam can reach at the printed damage frontier.
+  // These are actor-visible nominal calculations, not native KO guarantees.
+  const copyAttacker = view.ownPublic.active;
+  const multiplier = weaknessMultiplier(copyAttacker,target,view);
+  const resistance = resistancePenalty(copyAttacker,target);
+  const damageTimeless = Math.max(0,150*multiplier-resistance);
+  const damagePowerBeam = Math.max(0,200*multiplier-resistance);
+  const hpRemaining = Number.isFinite(target?.hp) && Number.isFinite(target?.damage)
+    ? target.hp-target.damage : null;
+  const powerBeamEndsGame = Number.isFinite(hpRemaining) && hpRemaining>0 &&
+    hpRemaining>damageTimeless && hpRemaining<=damagePowerBeam &&
+    Number.isSafeInteger(view.ownPublic.prizeCount) &&
+    view.ownPublic.prizeCount>0 &&
+    view.ownPublic.prizeCount<=prizeLiability(target);
   let ranked = choices.map(choice => {
     const attackName = choice.publicMetadata.sourceAttack;
     let score = 0;
     if (effectName === 'Apex Dragon' && attackName === 'Timeless-GX' &&
-        hasDialga && gxUnused && dragonTarget &&
-        fairyZoneStatus(view) === true) score = 50000;
+        hasDialga && gxUnused) score = powerBeamEndsGame ? 150 : 50000;
     else if (effectName === 'Copycat' && attackName === 'Apex Dragon' &&
         Array.isArray(receipt?.opponentCopycatChoices) &&
         receipt.opponentCopycatChoices.some(row =>
           row.attackName === 'Apex Dragon' &&
           hasName(row.sourcePrinting, 'Regidrago VSTAR')) &&
         hasDialga && gxUnused) score = 50000;
-    else if (attackName === 'Power Beam') score = 200;
+    else if (attackName === 'Power Beam')
+      score = effectName === 'Apex Dragon' && powerBeamEndsGame ? 60000 : 200;
     else if (attackName === 'Timeless-GX' && hasDialga && gxUnused) score = 150;
     else if (attackName === 'Max Geist') score = 10 + 30 * psychicEnergyCount(view);
     else if (attackName === 'Full Moon Rondo') {
