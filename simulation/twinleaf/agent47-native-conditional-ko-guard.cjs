@@ -18,6 +18,8 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const PINNED='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const BASE=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
+// Native class-prototype mutations are synchronous, one bound Store at a time.
+const activeGuards=new WeakSet();
 
 const PRINTS=Object.freeze([
   Object.freeze({key:'Raihan',print:'Raihan EVS',set:'EVS',
@@ -76,6 +78,8 @@ function withCertifiedLastOpponentTurnKO({
   assert.ok(store&&typeof store.reduceEffect==='function');
   assert.ok(tracker&&typeof tracker.snapshotWithTurn==='function');
   assert.equal(typeof execute,'function');
+  assert.ok(!activeGuards.has(store),
+    'Nested conditional-KO guard on the same native Store is unsupported');
   const load=part=>require(path.join(BASE,part));
   const classes=PRINTS.map(source=>{
     const ctor=dependencies[source.key]??load(source.module)[source.key];
@@ -97,6 +101,7 @@ function withCertifiedLastOpponentTurnKO({
     blocksCanPlay:0,blocksEffect:0,validContinuations:0,
     uncertainBlocks:0,restored:false,noVendorEdits:true,
     qualifiedCompetitiveGames:0};
+  activeGuards.add(store);
   try{
     for(const {source,ctor} of classes){
       const proto=ctor.prototype;
@@ -131,24 +136,41 @@ function withCertifiedLastOpponentTurnKO({
         audit.validContinuations++;
         return reduce.apply(this,arguments);
       }
+      // Register each partial patch BEFORE installing it. Even if a hostile
+      // source prototype rejects one definition, no earlier method can leak.
+      const patch={proto,oldCan,oldReduce,patchedCanPlay,patchedReduceEffect,
+        canInstalled:false,reduceInstalled:false};
+      patches.push(patch);
       Object.defineProperty(proto,'canPlay',{...oldCan,value:patchedCanPlay});
+      patch.canInstalled=true;
       Object.defineProperty(proto,'reduceEffect',{...oldReduce,
         value:patchedReduceEffect});
-      patches.push({proto,oldCan,oldReduce,patchedCanPlay,patchedReduceEffect});
+      patch.reduceInstalled=true;
     }
-    return {result:execute(),audit};
+    const result=execute();
+    assert.ok(!(result && typeof result.then==='function'),
+      'Conditional-KO native guard accepts synchronous work only');
+    return {result,audit};
   }finally{
+    let conflictingMutation=false;
     for(const patch of patches.reverse()){
-      assert.strictEqual(patch.proto.canPlay,patch.patchedCanPlay,
-        'Do not overwrite another native canPlay hook during guarded trial');
-      assert.strictEqual(patch.proto.reduceEffect,patch.patchedReduceEffect,
-        'Do not overwrite another native reducer hook during guarded trial');
-      Object.defineProperty(patch.proto,'canPlay',patch.oldCan);
-      Object.defineProperty(patch.proto,'reduceEffect',patch.oldReduce);
+      if(patch.reduceInstalled){
+        if(patch.proto.reduceEffect===patch.patchedReduceEffect)
+          Object.defineProperty(patch.proto,'reduceEffect',patch.oldReduce);
+        else conflictingMutation=true;
+      }
+      if(patch.canInstalled){
+        if(patch.proto.canPlay===patch.patchedCanPlay)
+          Object.defineProperty(patch.proto,'canPlay',patch.oldCan);
+        else conflictingMutation=true;
+      }
     }
-    audit.restored=patches.every(p=>
+    activeGuards.delete(store);
+    audit.restored=!conflictingMutation&&patches.every(p=>
       p.proto.canPlay===p.oldCan.value&&
       p.proto.reduceEffect===p.oldReduce.value);
+    assert.ok(!conflictingMutation,
+      'Native prototype was changed by a concurrent hook during guarded work');
   }
 }
 
