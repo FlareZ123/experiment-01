@@ -25,7 +25,7 @@ const rootView=()=>({decisionKind:'owner-root',
 });
 function auditFor(request,decision){
   const choices=request.prompt?request.prompt.choices:request.actionFrontier.items;
-  const selected=decision.kind==='abstain'?[]:[decision.token];
+  const selected=decision.kind==='abstain'?[]:decision.kind==='select-choices'?decision.tokens.slice():[decision.token];
   return {schema:protocol.POLICY_AUDIT_SCHEMA,policyVersion:version,
     decisionKind:request.observation.decisionKind,
     decisionType:decision.kind,selectionRuleCode:decision.kind==='abstain'?
@@ -117,4 +117,50 @@ test('untrusted prompt source or second legal Bench choice cannot change policy'
   assert.deepEqual(wrapped.decideWithAudit(request),{
     decision:base.decide(request),policyAudit:null
   });
+});
+
+test('strict multi-select VS Seeker recovery policy audit is rewritten to Ranger source token',()=>{
+  const view={...rootView(),decisionKind:'owner-prompt',ownPublic:{
+    ...rootView().ownPublic,discard:['Pokemon Ranger STS'],
+    publicTurnRestrictions:{alteredCreationDamage:false,usedAlteredCreation:false}},
+    ownTurnResources:{supporterPlayedTurn:0,supporterPlayLocked:false}};
+  const rangerChoice={token:'prompt-ranger',kind:'card',printing:'Pokemon Ranger STS',
+    publicMetadata:{sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true}};
+  const ionoChoice={token:'prompt-iono',kind:'card',printing:'Iono PAL',
+    publicMetadata:{sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true}};
+  const request={observation:view,prompt:{
+    promptType:'ChooseCardsPrompt',actingSeat:0,
+    source:{classification:'actor-choice',sourceKind:'card-effect',
+      sourcePrinting:'VS Seeker PHF',effectName:'VS Seeker'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:1,maximumCount:1,
+      sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true,allowCancel:false},
+    choices:[ionoChoice,rangerChoice]
+  }};
+  const base={decide(){return {kind:'select-choices',tokens:['prompt-iono']};},
+    decideWithAudit(req){const decision=this.decide(req);
+      return {decision,policyAudit:auditFor(req,decision)};}};
+  const wrapped=withPaleMoonTerminalEscapePolicy(base);
+  assert.deepEqual(wrapped.decide(request),{kind:'select-choices',tokens:['prompt-ranger']});
+  const result=wrapped.decideWithAudit(request);
+  assert.deepEqual(result.decision,{kind:'select-choices',tokens:['prompt-ranger']});
+  protocol.validatePolicyAudit(result.policyAudit,request,result.decision,version);
+  assert.deepEqual(result.policyAudit.selectedTokens,['prompt-ranger']);
+  assert.equal(result.policyAudit.evaluations.find(x=>x.token==='prompt-iono').status,'not-evaluated');
+  assert.equal(result.policyAudit.evaluations.find(x=>x.token==='prompt-ranger').status,'rule-selected');
+  const replay=wrapped.decideWithAudit(request);
+  assert.deepEqual(replay,result,'same provenance and same source must select reproducibly');
+});
+test('VS Seeker terminal Pass root uses exact source Item and preserves strict audit',()=>{
+  const view={...rootView(),ownPublic:{
+      ...rootView().ownPublic,discard:['Pokemon Ranger STS'],
+      publicTurnRestrictions:{alteredCreationDamage:false,usedAlteredCreation:false,
+        itemPlayLocked:false}},
+      ownTurnResources:{supporterPlayedTurn:0,supporterPlayLocked:false,itemPlayLocked:false}};
+  const request={observation:view,actionFrontier:{items:[pass,...other,
+    {token:'native-seeker',kind:'play-card',actorPrinting:'VS Seeker PHF'}]}};
+  const wrapped=withPaleMoonTerminalEscapePolicy(policy());
+  const out=wrapped.decideWithAudit(request);
+  assert.deepEqual(out.decision,{kind:'select-action',token:'native-seeker'});
+  protocol.validatePolicyAudit(out.policyAudit,request,out.decision,version);
+  assert.equal(out.policyAudit.selectionRuleCode,'PUBLIC_PALE_MOON_TERMINAL_ESCAPE');
 });
