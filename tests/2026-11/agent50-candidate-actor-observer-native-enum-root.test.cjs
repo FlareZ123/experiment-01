@@ -112,3 +112,33 @@ for(const seat of [0,1]){
     assert.deepEqual(decision,{kind:'select-action',token:'pass'});
   });
 }
+
+for(const seat of [0,1]) {
+  test('Jamming Tower prevents fake free Float Stone retreat seat '+seat,()=>{
+    const state={players:[player(100,seat===0),player(200,seat===1)],
+      activePlayer:seat,turn:5,phase:5,prompts:[]};
+    const owner=state.players[seat];
+    owner.active=slot(c('Mimikyu GRI',{hp:70,retreat:['COLORLESS'],
+      attacks:[{name:'Copycat',cost:['PSYCHIC','COLORLESS'],damage:''}]}));
+    owner.active.tools=[c('Float Stone BKT')];
+    owner.active.energies.cards=[c(E)]; // Paid native retreat can be offered.
+    owner.bench[0]=slot(c('Shadow Rider Calyrex VMAX CRE',{
+      stage:'VMAX',subtypes:['VMAX'],attacks:[
+        {name:'Max Geist',cost:['COLORLESS','COLORLESS','COLORLESS'],
+          damage:'10+'}]}));
+    owner.bench[0].energies.cards=Array(3).fill(null).map(()=>c(E));
+    state.players[1-seat].stadium.cards=[c('Jamming Tower TWM')];
+    const view=actorObservation(state,seat);
+    const retreat=projectNativeAction({type:'RETREAT_ACTION',benchIndex:0},
+        state,seat,minimalNative,'retreat');
+    const frontier={schema:protocol.FRONTIER_SCHEMA,
+      items:[retreat,{kind:'pass',token:'pass'}]};
+    const worker=createPolicy({role:'candidate',seat,
+      policyVersion:POLICY_VERSION,config:{}});
+    const got=worker.decide({role:'candidate',seat,observation:view,
+      prompt:null,publicEventReceipt:null,actionFrontier:frontier});
+    assert.deepEqual(view.opponentPublic.stadium,['Jamming Tower TWM']);
+    assert.deepEqual(view.ownPublic.active.printed.retreatCost,['COLORLESS']);
+    assert.deepEqual(got,{kind:'select-action',token:'pass'});
+  });
+}

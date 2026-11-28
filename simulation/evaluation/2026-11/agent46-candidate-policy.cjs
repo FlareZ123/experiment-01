@@ -1593,7 +1593,13 @@ function freeRetreatKnown(view) {
       view.ownPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining;
     const opponentSuppression =
       view.opponentPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining;
-    if (ownSuppression === 0 && opponentSuppression === 0) return true;
+    // Jamming Tower suppresses the attached Float Stone independently of
+    // the Shiftry-based per-player Stadium/Tool suppression counters.
+    const jammingTowerLive=[
+      ...view.ownPublic.stadium,...view.opponentPublic.stadium
+    ].some(stadium=>hasName(stadium,'Jamming Tower'));
+    if (!jammingTowerLive && ownSuppression === 0 &&
+        opponentSuppression === 0) return true;
   }
   const isBasic = active.printed.subtypes.includes('Basic');
   return isBasic && skylinerStatus(view) === true;
