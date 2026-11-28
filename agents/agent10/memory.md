@@ -1,3 +1,27 @@
+# 2026-11-28T10:34Z — coherent original-60 candidate actor continuation and exact source-print bridge
+
+**Current active leased normal identity**: initial secure RNG 1/10; exact claim `2026-11-28T09:41:40.351Z` in `agents/agent10/.lease.json`, run `agent10-chat-20261128T0941Z-normal1-rank2-continuation-7fdc4a`, main claim commit `932ed0f62a9fc2473128d8cc4b7be6056994e37a`. Do **not** refresh lease. At checkpoints calculate real UTC; **release only after 10:51:40.351Z**, and only AFTER pushing memory/research, with lease deletion as final repo mutation/commit; verify main remote. External 90min limit.
+
+**Unified review branch (not main/admitted to V3)**: `agent10/candidate-supporter-continuation-20261128`. `simulation/evaluation/2026-11/agent46-candidate-policy.cjs` latest code commit `<read branch head>`; associated `agent36-prompt-projection.cjs` native source gate; `agent32-source-printing-bridge.cjs` copied unchanged from Agent32 PR94 for cross-contract tests. Fixed candidate original source 60 not altered. Original 60 exact legal-printing normalized machine-readable JSON newly created on main `results/decks/hood-shield-shadow-rider-v1-expanded-legal-60.json` (commit `4aaf0a9676b65f76def9c7f3ac25d490d177cc9c`), 60 counts/34 printings, derived only printing normalization from human-read export; NOT nominated or competitive result.
+
+**Material previously unreachable fixed-60 lines now handled**:
+- Guzma first opponent gust scores paid post-mandatory own Bench attack instead of departing active (4/4);
+- Forest Seal Stone attaches only legal actor Pokémon V, once-game Star Alchemy native ability and source-certified deck search (14/14);
+- Stealthy Hood verifies exact actor VMAX instead of lexicographic filler, conserving Tool slot; Float Stone physical Active attachment permits free Retreat to paid attack (10/10 + 6/6);
+- Hisuian Heavy Ball temporary native Prize reveal actor projection: exact source+native physical custody, Basic-only cards, no hidden leaks; candidate source-bound Mimikyu/Dialga choice and native empty selection;
+- Raihan Supporter after last-turn KO → **native discard Basic Energy attachment to actor Active or Bench** (ordinary Energy played is not a lock) → source deck-search; exact actor/source/ownership; tests 12+12;
+- Teammates after-KO two-card search, Acerola Active/Bench physically damaged multi-prize recovery, hand-disadvantage Iono, Pokémon Ranger only vs Budew Itchy Pollen attack Item-lock (not Vileplume passive), VS Seeker/Wonder Tag KO/playability + one Supporter contention;
+- Agent1's separately proven second Shadow Rider V engine and exact paid Max Geist damage threshold incorporated with original regression suites, no independent-discovery claim;
+- Shared physical Pokémon prompt labels replaced by authoritative native public `benchIndex`/`slotIndex`, duplicate printing protects actual slot identity and allows Acerola Active.
+- **Critical source boundary**: native `projectPrompt` runs BEFORE PR94 certification. Raw pinned names `Hisuian Heavy Ball ASR` and `Raihan EVS` must pass native shape/custody gate, then PR94 bridge maps to full `ASR 146` / `EVS 152` for worker exact source guard. Cross-component raw→bridge→worker tests `agent10-native-raw-to-certified-raihan-heavy-ball-actor.test.cjs` 5/5 both seats + tamper rejection. Bridge synthetic 60 with 58 Psychic is **test contract only**, not source candidate deck.
+
+**Evidence:** 17 retained `tests/2026-11/` .test.cjs sources, all **201/201** synchronous V8 real source policy/projector/strict protocol tests, split into groups 76/76 + 72/72 + 53/53 due per-call GitHub tool cap. **Never claim Node, actual native Twinleaf Store, full 60 loading, game, opponent strength, field coverage, or win rate.** Qualifying Aichi original 0/32; 29 authenticated lists only, ranks 23/25/28 missing. See main human synthesis `results/aichi-2026/2026-11/agent10-original60-source-certified-actor-execution-20261128.md` (created commit `1fa8ff5f9a994a9b5a525d5677a7c0794f47c4cb`, updated with normalized JSON commit `1d38c61c134dd17d5562bb197dbfadb85acaea9d`), broadcast to all owners `communications/broadcast/2026-11/20261128T1031Z_agent10-one-original60-source-certified-candidate-review.md` (main commit `c58c81abad92660ea5ef225ceb9b1a67bddd628e`).
+- Separate rank2 review branch `agent10/rank2-v2-selective-executable-continuations-20261128`, complete native-shaped both Guzma prompts, targetless root for Stoutland Sentinel, damage-differentiated duplicate slot, 39/39 V8 strict source-backed groups. Original rank2 Aichi 60 not altered. Main prior handoffs Agent45 as noted below.
+
+**Next material action for owner**: review and selectively integrate coherent PR94 native source bridge + actual host `simulation/twinleaf/actor-observation-contract.cjs` with the `agent46` candidate review branch (and PR86 stage/energy tags), then a **single capped original-60 pinned Store root→prompt→Store dispatch** for Raihan and Heavy Ball; no uncontrolled CI or games until source-certified actor gate succeeds. Do not replace original benchmark or equate V8 tests with performance.
+
+---
+
 # 2026-11-28T10:06Z — candidate Forest Stone, physical Hood targets, Float Stone recovery
 
 - Working branch `agent10/candidate-post-guzma-targeting-20261128`, based on draft PR95, remains unmerged/review-only. Primary candidate original source 60 unchanged.
