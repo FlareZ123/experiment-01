@@ -462,6 +462,16 @@ function needsSecondShadowRiderBasic(view) {
     !view.ownHand.some(isBasicShadowRiderVPrinting);
 }
 
+function needsAnotherShadowRiderVmax(view) {
+  const established=ownBoard(view);
+  // Only a source-visible Basic V in play can evolve into the second VMAX.
+  // Native evolution root remains authoritative about turn/evolution timing.
+  return established.some(slot=>isBasicShadowRiderVPrinting(slot.printing)) &&
+    established.some(slot=>hasName(slot.printing,'Shadow Rider Calyrex VMAX')) &&
+    !view.ownHand.some(printing=>
+      hasName(printing,'Shadow Rider Calyrex VMAX'));
+}
+
 function searchNeedScore(view, printing, effectName = '') {
   if (!isText(printing)) return -Infinity;
   const regidrago = opponentHasRegidrago(view);
@@ -483,7 +493,9 @@ function searchNeedScore(view, printing, effectName = '') {
     return -5;
   }
   if (hasName(printing, 'Shadow Rider Calyrex VMAX')) {
-    if (hasShadowV && !hasShadowVmax && !handHas(view, 'Shadow Rider Calyrex VMAX')) return 94;
+    if (hasShadowV && !hasShadowVmax &&
+        !handHas(view, 'Shadow Rider Calyrex VMAX')) return 94;
+    if (needsAnotherShadowRiderVmax(view)) return 88;
     return -5;
   }
   if (isBasicShadowRiderVPrinting(printing)) {
@@ -1190,7 +1202,8 @@ function scoreTrainerPlay(item, view, receipt) {
   if (hasName(name, 'Mysterious Treasure') && hasDiscardableHand(view, 1) &&
       (opponentHasRegidrago(view) ||
        !boardHas(view, 'Shadow Rider Calyrex V') ||
-       needsSecondShadowRiderBasic(view))) return 800;
+       needsSecondShadowRiderBasic(view) ||
+       needsAnotherShadowRiderVmax(view))) return 800;
   if (hasName(name, 'Quick Ball') && hasDiscardableHand(view, 1) &&
       (!boardHas(view, 'Shadow Rider Calyrex V') ||
        needsSecondShadowRiderBasic(view) ||
