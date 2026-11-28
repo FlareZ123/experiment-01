@@ -591,6 +591,15 @@ function scoreAction(item, request) {
       // Active Sentinel locker (and prepares the same lock on the Bench).
       return metadata.targetZone === 'active' ? 218 : 178;
     }
+    // Memory Energy is still a Colorless Energy, not a purely combo Tool.
+    // Do not prevent an immediate Burrow/Rototiller merely because the
+    // Sentinel evolution line is currently missing.
+    if (metadata.targetZone === 'active' &&
+        matches(recipient.printing, PRINT.bunnelby) &&
+        list(recipient.energies).length === 0) {
+      return (opponent.deckCount ?? 99) <= 3 || (own.deckCount ?? 99) <= 3 ?
+        174 : 64;
+    }
     return 0;
   }
   if (matches(card, PRINT.stealthyHood)) {
