@@ -270,6 +270,20 @@ function slotByPrinting(player, printing) {
   return player.bench.find(slot => slot?.printing === printing) ?? null;
 }
 
+// Estimated actual Prize yield for a damage Knock Out. Both Legacy Energy
+// and Life Dew can subtract one Prize, including on Benched gust targets.
+// Unknown Legacy once-per-game usage is treated as still available so we
+// never award an unearned final-Prize shortcut.
+function estimatedKnockoutPrizeYield(view, defender) {
+  if (!defender) return 0;
+  const legacy = (defender.energies ?? [])
+    .some(name => hasName(name, 'Legacy Energy')) ? 1 : 0;
+  const lifeDew = (defender.tools ?? [])
+    .some(name => hasName(name, 'Life Dew')) &&
+    toolsKnownLive(view, defender) ? 1 : 0;
+  return Math.max(0, prizeLiability(defender) - legacy - lifeDew);
+}
+
 function prizeLiability(slot) {
   if (!slot) return 1;
   // The original Aichi source field includes modern Mega Evolution ex (three
@@ -1043,10 +1057,12 @@ function choosePokemonRecipient(view, prompt) {
         bestAttackForSlot(attacker, view, target)).filter(Boolean);
       const best = viable.reduce((a, b) =>
         !a || b.score > a.score ? b : a, null);
-      const liability = prizeLiability(target);
-      const terminalPrizeKO = best?.damage !== null &&
+      const liability = estimatedKnockoutPrizeYield(view, target);
+      const terminalPrizeKO = target.printing !== 'Mimikyu PAL 97' &&
+        best?.damage !== null &&
         best?.damage >= remaining &&
         Number.isSafeInteger(view.ownPublic.prizeCount) &&
+        view.ownPublic.prizeCount > 0 &&
         view.ownPublic.prizeCount <= liability;
       return {
         ...row,
@@ -2011,12 +2027,7 @@ function candidateTerminalAttack(view, items, receipt) {
   // per-game Legacy use counter is not publicly certified here, so treat
   // an attached copy as available (conservative for a terminal forecast).
   // Jamming Tower disables the Tool effect of Life Dew, not an Energy.
-  const legacyReduction = (defender.energies ?? [])
-    .some(energy => hasName(energy, 'Legacy Energy')) ? 1 : 0;
-  const lifeDewReduction = toolsKnownLive(view, defender) &&
-    (defender.tools ?? []).some(tool => hasName(tool, 'Life Dew')) ? 1 : 0;
-  const effectivePrizes = Math.max(0,
-    prizeLiability(defender) - legacyReduction - lifeDewReduction);
+  const effectivePrizes = estimatedKnockoutPrizeYield(view, defender);
   const finalPrizeKO = Number.isSafeInteger(prizes) &&
     prizes > 0 && prizes <= effectivePrizes;
   // Never reinterpret an omitted/unknown opponent Bench as a known empty one.
