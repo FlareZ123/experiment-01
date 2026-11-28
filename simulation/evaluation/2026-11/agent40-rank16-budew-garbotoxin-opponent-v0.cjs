@@ -99,6 +99,11 @@ function benchSupportAbilityUsable(printing,o){
  }
  return true;
 }
+function benchSupportOnceThisTurnAlreadyUsed(printing,o){
+ if(!match(printing,PRINT.crobat)&&!match(printing,PRINT.dedenne)&&!match(printing,PRINT.squawk))return false;
+ return slots(o.ownPublic).some(r=>match(r.pokemon.printing,printing)&&
+  r.pokemon.lastPlayedOrEvolvedTurn===o.globalTurn);
+}
 function benchSupportFits(o){
  const p=o.ownPublic;
  let required=0;
@@ -434,6 +439,7 @@ function score(action,req){
  if(action.kind!=='play-card')return 0;
  if(match(p,PRINT.crobat)||match(p,PRINT.dedenne)||match(p,PRINT.tapu)||match(p,PRINT.squawk)){
   if(!benchSupportFits(o)||!benchSupportAbilityUsable(p,o)||
+    benchSupportOnceThisTurnAlreadyUsed(p,o)||
     own.publicTurnRestrictions?.abilityPokemonPlayLocked===true)return 0;
   if(match(p,PRINT.crobat))return handCount(o)<=4&&deckCount(o)>0?710:0;
   if(match(p,PRINT.tapu))return o.ownTurnResources?.supporterPlayedTurn===0&&deckCount(o)>0?645:0;
@@ -824,4 +830,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,regidragoPayloadCount,karenDenialScore,vsSeekerDenialScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,toolEnabled,garbotoxinStatus,liveGarbotoxin};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,regidragoPayloadCount,karenDenialScore,vsSeekerDenialScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,toolEnabled,garbotoxinStatus,liveGarbotoxin};
