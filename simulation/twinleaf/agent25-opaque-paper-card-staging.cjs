@@ -96,9 +96,28 @@ function opaquePaperCard(row,{PokemonCard,TrainerCard,EnergyCard}={}){
   });
   Object.defineProperty(card,'reduceEffect',{
     configurable:true,enumerable:false,writable:false,
-    value:()=>{throw Object.assign(
-      new Error('UNIMPLEMENTED_PAPER_PRINTING_EFFECT: '+printing),
-      {code:'UNIMPLEMENTED_PAPER_PRINTING_EFFECT'})}
+    value:(store,state,effect)=>{
+      // Pinned Store broadcasts each generic effect across EVERY card,
+      // including face-down deck and Prize cards. A hidden card with no
+      // Ability or other active effect must do nothing at that point.
+      // Reject only attempts to use it as an actual card effect, or if
+      // it ever escapes the protected hidden zones. This is still not an
+      // implementation for complete games.
+      const actorRef=effect && Object.values(effect).some(ref=>ref===card);
+      const exposed=state?.players?.some(player=>[
+        player.active?.cards??[],player.active?.energies?.cards??[],
+        player.active?.tools??[],player.hand?.cards??[],
+        player.discard?.cards??[],player.stadium?.cards??[],
+        player.supporter?.cards??[],
+        ...(player.bench??[]).flatMap(slot=>[
+          slot.cards??[],slot.energies?.cards??[],slot.tools??[]
+        ])
+      ].some(zone=>zone.includes(card)));
+      if(actorRef||exposed)throw Object.assign(
+        new Error('UNIMPLEMENTED_PAPER_PRINTING_EFFECT: '+printing),
+        {code:'UNIMPLEMENTED_PAPER_PRINTING_EFFECT'});
+      return state;
+    }
   });
   return card;
 }
