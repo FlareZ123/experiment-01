@@ -204,8 +204,14 @@ for(const seat of [0,1]){
       Object.assign(new NativeTrainer(),{name,set,setNumber,fullName});
     const own=player(seat,true),other=player(1-seat,false);
     own.active=pokemon({fullName:'Snorlax PGO',name:'Snorlax',hp:150,
-      stage:2,tags:[],types:[9],retreat:[9,9,9,9],damage:70});
+      stage:2,tags:[],types:[9],retreat:[9,9,9,9],damage:0});
     Object.assign(own.active.cards[0],{set:'PGO',setNumber:'55'});
+    // The worker must have an actual non-protected damaged Basic to pick up.
+    // Active-only damaged Snorlax is not an accepted Penny continuation: its
+    // root score alone cannot establish a complete valid policy decision.
+    own.bench[0]=pokemon({fullName:'Galarian Stunfisk SSH',
+      name:'Galarian Stunfisk',hp:200,stage:2,tags:[],types:[8],damage:70});
+    Object.assign(own.bench[0].cards[0],{set:'SSH',setNumber:'132'});
     own.hand.cards=[
       trainer('Penny','SVI','183'),
       trainer("Team Rocket's Handiwork",'FCO','112')
@@ -218,6 +224,7 @@ for(const seat of [0,1]){
     assert.deepEqual(view.ownHand,['Penny SVI 183',
       "Team Rocket's Handiwork FCO 112"]);
     assert.equal(view.ownPublic.active.printing,'Snorlax PGO 55');
+    assert.equal(view.ownPublic.bench[0].printing,'Galarian Stunfisk SSH 132');
     const makeItem=(i,token)=>nativeFrontier.projectNativeAction(
       {type:'PLAY_CARD_ACTION',handIndex:i},state,seat,
       {TrainerCard:NativeTrainer},token);
