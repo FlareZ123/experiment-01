@@ -412,3 +412,22 @@ test('Arven is a chance of access, not a promise: no Tool, bad source or Tool su
   assert.equal(choosePaleMoonArvenPrompt(v,{...p,
     choices:[...p.choices,{...p.choices[0],token:'duplicate'}]}),null);
 });
+
+test('last Pokemon loss overrides zero Prize protection even if opponent has several Prizes',()=>{
+  const view={...rangerView(),opponentPublic:{prizeCount:5},
+    ownPublic:{...rangerView().ownPublic,bench:[],active:{
+      ...rangerView().ownPublic.active,printing:'Lillie\'s Poké Doll CEC'} }};
+  assert.equal(knownNoPrizeAwardOnPaleMoonKO(view),true);
+  assert.equal(terminalPaleMoonPrizeRisk(view),true,
+    'last Pokémon loss is a separate terminal condition from final Prize');
+  const items=[{token:'pass',kind:'pass'},ranger('ranger-saves-last')];
+  assert.equal(rescuePaleMoonTerminalPass(view,items,'pass')?.token,
+    'ranger-saves-last');
+  const savedBench={...view,ownPublic:{...view.ownPublic,
+    bench:[{printing:'Mimikyu GRI 58'}]}};
+  assert.equal(terminalPaleMoonPrizeRisk(savedBench),false);
+  assert.equal(rescuePaleMoonTerminalPass(savedBench,items,'pass'),null);
+  const noDoll={...view,ownPublic:{...view.ownPublic,
+    active:{...view.ownPublic.active,printing:'Mimikyu GRI 58'}}};
+  assert.equal(terminalPaleMoonPrizeRisk(noDoll),true);
+});
