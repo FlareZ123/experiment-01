@@ -391,3 +391,16 @@ for(const seat of [0,1]){
    {kind:'select-action',token:'pass'});
  });
 }
+
+for(const seat of [0,1]){
+ test('Water Garchomp ex PAR must not be a Dragon Apex donor, seat '+seat,()=>{
+  const v=view(seat);v.ownPublic.stadium=[];
+  v.opponentPublic.active.energies=[
+   'Grass Energy SVE','Grass Energy SVE','Fire Energy SVE'];
+  v.opponentPublic.discard=[
+   'Garchomp ex PAR','Battle VIP Pass FST','Psychic Energy SVE'];
+  assert.deepEqual(decision(root(seat,v)),
+   {kind:'select-action',token:'pass'});
+  assert.equal(policy.__test.apexHazard(v).direct,0);
+ });
+}
