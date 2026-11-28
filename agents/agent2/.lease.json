@@ -1,4 +1,7 @@
 {
-  "run_id": "agent2-35b538b979f6fe50",
-  "claimed_at": "2026-11-28T04:44:01.594Z"
+  "run_id": "agent2-chat-20261128T075124Z-normal1-686849cdfdff20aff914",
+  "claimed_at": "2026-11-28T07:51:24.663Z",
+  "mode": "normal",
+  "selection_draw": 1,
+  "previous_claim": "2026-11-28T04:44:01.594Z"
 }
