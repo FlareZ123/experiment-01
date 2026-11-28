@@ -994,3 +994,53 @@ for(const seat of [0,1]) {
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' Quick Ball searches the last Sky Field Rondo KO body without duplicate Clefairy',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active={printing:clef,energies:[psychic,psychic]};
+    r.observation.ownPublic.stadium=['Sky Field ROS 89'];
+    r.observation.ownPublic.bench=[
+      b('Latias ex SSP 76'),b('Dedenne-GX UNB 57'),
+      b('Crobat V DAA 104'),b('Unown AOR 30'),
+      b('Unown AOR 30'),b('Squawkabilly ex PAL 169')];
+    r.observation.opponentPublic.active={printing:'Iron Thorns ex TWM 77',
+      hp:230,damage:0};
+    r.observation.opponentPublic.bench=[
+      b('Iron Thorns ex TWM 77'),b('Iron Thorns ex TWM 77'),
+      b('Iron Thorns ex TWM 77'),b('Iron Thorns ex TWM 77')];
+    r.observation.globalTurn=4;
+    r.observation.ownHand=['Quick Ball FST 237',vip];
+    r.actionFrontier.items=[
+      root('play-card','Quick Ball FST 237','quick'),
+      root('pass','','pass')];
+    assert.deepEqual(projectedRondo(r.observation),
+      {damage:220,remaining:230,total:10});
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'quick'});
+    r.prompt={...prompt('hand',[card(vip,'expired-vip')],1,1),
+      source:{sourcePrinting:'Quick Ball FST 237',effectName:'Quick Ball'}};
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choices',tokens:['expired-vip']});
+    r.observation.ownHand=['Quick Ball FST 237'];
+    r.prompt={...prompt('deck',[card(clef,'clefairy'),
+      card('Latias ex SSP 76','latias'),
+      card('Unown AOR 30','last-unown')],0,1),
+      source:{sourcePrinting:'Quick Ball FST 237',effectName:'Quick Ball'}};
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choices',tokens:['last-unown']});
+    r.prompt=null;r.observation.ownHand=['Unown AOR 30'];
+    r.actionFrontier.items=[root('play-card','Unown AOR 30','bench')];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'bench'});
+    r.observation.ownPublic.bench.push(b('Unown AOR 30'));
+    r.observation.ownHand=[];
+    r.actionFrontier.items=[
+      {...root('attack',clef,'rondo'),attackName:'Full Moon Rondo'}];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'rondo'});
+    // Search connector is dominated if a directly playable Basic exists.
+    r.observation.ownPublic.bench.pop();
+    r.observation.ownHand=['Quick Ball FST 237',vip,'Unown AOR 30'];
+    r.actionFrontier.items=[root('play-card','Quick Ball FST 237','quick')];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  });
+}
