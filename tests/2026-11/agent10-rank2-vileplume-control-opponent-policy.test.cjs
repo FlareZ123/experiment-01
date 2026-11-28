@@ -1265,6 +1265,59 @@ test('rank2 can select a native ordered starting board',()=>{
       minimumCount:1,maximumCount:6});
   assert.deepEqual(checkedDecision(request),{kind:'select-choices',tokens:['a','b']});
 });
+test('rank2 reorders starting Basic to lead Bunnelby and reserves a Bench slot',()=>{
+  const request=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[
+    setupCard('fan','Fan Rotom SCR 118',0),
+    setupCard('odd','Oddish UNB 5',1),
+    setupCard('odd2','Oddish UNB 5',2),
+    setupCard('pidgey','Pidgey MEW 16',3),
+    setupCard('lillipup','Lillipup CEC 174',4),
+    setupCard('relicanth','Relicanth TEF 84',5),
+    setupCard('bunnelby','Bunnelby PRC 121',6)
+  ],{selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+    isOwnerVisible:true,isSecret:false,allowCancel:false,
+    minimumCount:1,maximumCount:6});
+  assert.deepEqual(checkedDecision(request),{
+    kind:'select-choices',tokens:['bunnelby','odd','lillipup','pidgey','fan']});
+});
+test('rank2 leads Budew without Bunnelby while benching one each of three lines',()=>{
+  const request=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[
+    setupCard('odd','Oddish UNB 5',0),
+    setupCard('fan','Fan Rotom SCR 118',1),
+    setupCard('budew','Budew ASC 16',2),
+    setupCard('lillipup','Lillipup CEC 174',3),
+    setupCard('pidgey','Pidgey MEW 16',4)
+  ],{selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+    isOwnerVisible:true,isSecret:false,allowCancel:false,
+    minimumCount:1,maximumCount:6});
+  assert.deepEqual(checkedDecision(request),{
+    kind:'select-choices',tokens:['budew','odd','lillipup','pidgey','fan']});
+});
+test('rank2 does not place duplicate setup lines into all starting Bench slots',()=>{
+  const request=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[
+    setupCard('b1','Bunnelby PRC 121',0),
+    setupCard('b2','Bunnelby PRC 121',1),
+    setupCard('o1','Oddish UNB 5',2),
+    setupCard('o2','Oddish UNB 5',3)
+  ],{selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+    isOwnerVisible:true,isSecret:false,allowCancel:false,
+    minimumCount:1,maximumCount:6});
+  assert.deepEqual(checkedDecision(request),{
+    kind:'select-choices',tokens:['b1','o1']});
+});
+test('rank2 respects narrow native maximum starting-selection count',()=>{
+  const request=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[
+    setupCard('p','Pidgey MEW 16',0),
+    setupCard('o','Oddish UNB 5',1),
+    setupCard('b','Bunnelby PRC 121',2),
+    setupCard('l','Lillipup CEC 174',3)
+  ],{selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+    isOwnerVisible:true,isSecret:false,allowCancel:false,
+    minimumCount:1,maximumCount:2});
+  assert.deepEqual(checkedDecision(request),{
+    kind:'select-choices',tokens:['b','o']});
+});
+
 test('rank2 can mulligan without Basic when native setup offers empty',()=>{
   const request=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',
     [{token:'empty',kind:'empty-selection',label:'Choose no items'}],
