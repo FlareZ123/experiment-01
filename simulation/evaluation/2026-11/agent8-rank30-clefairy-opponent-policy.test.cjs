@@ -716,3 +716,30 @@ for(const seat of [0,1]) {
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' active Snorlax Block vetoes wasteful Float Stone mobility setup',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active={printing:'Unown AOR 30',tools:[],
+      printed:{stage:'BASIC',retreatCost:['COLORLESS']},
+      specialConditions:[],publicRestrictions:{}};
+    r.observation.ownPublic.bench=[{printing:clef,energies:[psychic,psychic]}];
+    r.observation.ownPublic.publicTurnRestrictions={
+      stadiumAndToolHaveNoEffectTurnsRemaining:0};
+    r.observation.opponentPublic.active={printing:'Snorlax PGO 55',
+      hp:150,damage:0,tools:[],abilities:['Block'],
+      abilitySuppressions:[{abilityName:'Block',suppressed:false,
+        reasonCode:null,sourcePrinting:null}]};
+    r.actionFrontier.items=[{...root('play-card','Float Stone BKT 137','float',
+      {targetSeat:'actor',targetZone:'active',isOwnerVisible:true}),
+      targetPrinting:'Unown AOR 30'}];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    r.observation.opponentPublic.active.abilitySuppressions=[
+      {abilityName:'Block',suppressed:true,
+       reasonCode:'ABILITY_LOCKED',sourcePrinting:'Garbodor DRX 54'}];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'float'});
+    r.observation.ownPublic.active.specialConditions=['PARALYZED'];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  });
+}
