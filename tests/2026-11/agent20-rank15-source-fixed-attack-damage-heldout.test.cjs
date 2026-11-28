@@ -99,3 +99,52 @@ for(const seat of [0,1]){
     });
   }
 }
+
+
+for(const seat of [0,1]){
+  for(const [stadium,expected] of [
+    [['Artazon PAL 171'],'pidgeot-ko'],
+    [['Temple of Sinnoh ASR 155'],'bench-oddish'],
+    [['Jamming Tower TWM 153'],'bench-oddish']
+  ]){
+    test('seat '+seat+': Pidgeot ex terminal under source boost and Stadium '+stadium,()=>{
+      const r=req(seat,
+        card('Pidgeot ex OBF 164',[BELT],[PCE]),
+        card(V,[],[],{hp:210,damage:40}),stadium,[]);
+      r.observation.ownHand=['Oddish UNB 5'];
+      r.actionFrontier={items:[
+        {kind:'attack',attackName:'Blustery Wind',token:'pidgeot-ko'},
+        {kind:'play-card',actorPrinting:'Oddish UNB 5',token:'bench-oddish'}
+      ]};
+      assert.deepEqual(rootDecision(r),{kind:'select-action',token:expected});
+    });
+  }
+  for(const [tool,expected] of [
+    [[BELT],'budew-ko'],[[],'bench-oddish']
+  ]){
+    test('seat '+seat+': Budew Itchy Pollen immediate Prize vs development setup',()=>{
+      const r=req(seat,card('Budew ASC 16',tool,[]),
+        card(V,[],[],{hp:210,damage:180}),[],[]);
+      r.observation.ownHand=['Oddish UNB 5'];
+      r.actionFrontier={items:[
+        {kind:'attack',attackName:'Itchy Pollen',token:'budew-ko'},
+        {kind:'play-card',actorPrinting:'Oddish UNB 5',token:'bench-oddish'}
+      ]};
+      assert.deepEqual(rootDecision(r),{kind:'select-action',token:expected});
+    });
+  }
+  for(const [stadium,expected] of [
+    [['Artazon PAL 171'],'fan-ko'],[[],'bench-oddish']
+  ]){
+    test('seat '+seat+': Fan Rotom Assault Landing immediate Prize requires Stadium',()=>{
+      const r=req(seat,card('Fan Rotom SCR 118',[BELT],[PCE]),
+        card(V,[],[],{hp:210,damage:110}),stadium,[]);
+      r.observation.ownHand=['Oddish UNB 5'];
+      r.actionFrontier={items:[
+        {kind:'attack',attackName:'Assault Landing',token:'fan-ko'},
+        {kind:'play-card',actorPrinting:'Oddish UNB 5',token:'bench-oddish'}
+      ]};
+      assert.deepEqual(rootDecision(r),{kind:'select-action',token:expected});
+    });
+  }
+}
