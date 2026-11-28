@@ -720,6 +720,45 @@ test('Guzma does not strand a sole powered Active VSTAR on the Bench',()=>{
 });
 
 
+test('Dedechange and Sycamore retain protected DDE before two attackers are funded',()=>{
+  const choices=[
+    {token:'yes',kind:'confirm',label:'Yes'},
+    {token:'no',kind:'confirm',label:'No'}
+  ];
+  for(const seat of [0,1]){
+    const ownPublic=player({active:pokemon(P.regidragoV,{energies:[]})});
+    const hand=['Dedenne-GX UNB 57',P.doubleDragon];
+    const items=[action('d','play-card','Dedenne-GX UNB 57'),
+      action('pass','pass')];
+    assert.deepEqual(bestAction(request({seat,ownPublic,hand,items})),
+      {kind:'select-action',token:'pass'});
+    const ability=[action('dede','use-ability',P.regidragoV,{
+      publicMetadata:{abilityName:'Dedechange'}}),action('pass','pass')];
+    assert.deepEqual(bestAction(request({seat,ownPublic,hand,items:ability})),
+      {kind:'select-action',token:'pass'});
+    const confirm=prompt('Dedenne-GX UNB 57','Dedechange',choices,'ConfirmPrompt',[1,1]);
+    confirm.publicMetadata.selectionType='confirm';
+    assert.deepEqual(promptDecision(request({seat,ownPublic,hand,prompt:confirm})),
+      {kind:'select-choice',token:'no'});
+    const sycamore=[action('s','play-card','Professor Sycamore BKP 107'),
+      action('pass','pass')];
+    assert.deepEqual(bestAction(request({
+      seat,ownPublic,items:sycamore,hand:['Professor Sycamore BKP 107',P.doubleDragon]
+    })),{kind:'select-action',token:'pass'});
+    // Once two Regidrago attackers are already fully powered, the DDE
+    // sacrifice can be worth an actual low-hand draw action.
+    const funded=pokemon(P.regidrago,{energies:[P.energy,P.energy,'Fire Energy MEE 10']});
+    ownPublic.active=funded;
+    ownPublic.bench=[pokemon(P.regidrago,{
+      energies:[P.energy,P.energy,'Fire Energy MEE 10']})];
+    assert.deepEqual(bestAction(request({seat,ownPublic,hand,items})),
+      {kind:'select-action',token:'d'});
+    assert.deepEqual(bestAction(request({
+      seat,ownPublic,items:sycamore,hand:['Professor Sycamore BKP 107',P.doubleDragon]
+    })),{kind:'select-action',token:'s'});
+  }
+});
+
 test('second Regidrago Basic is proactively Benched before first V evolves, but not overfilled',()=>{
   const items=[action('second','play-card',P.regidragoV),action('pass','pass')];
   for(const seat of [0,1]){
