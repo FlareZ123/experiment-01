@@ -696,3 +696,42 @@ test('two real source Dialga copies do not crowd out a third unique attack paylo
     validatePrompt(exhausted.prompt,seat),new Set()),decide(seat,exhausted));
  }
 });
+
+test('rank27 Net Ball does not chase dead Eldegoss under source-real Aichi locks',()=>{
+ for(const seat of [0,1]){
+  const base=observation(seat);
+  const own={...base.ownPublic,discard:['Guzma BUS 115'],
+    bench:[],stadium:[]};
+  const mk=(opponentPublic,ownPublic=own)=>{
+   const obs=observation(seat,{ownPublic,opponentPublic});
+   return promptRequest(seat,obs,'Net Ball',P.net,'ChooseCardsPrompt',[
+    choice('eldegoss','Eldegoss V RCL 19'),
+    choice('grass','Grass Energy MEE 9')
+   ],{selectionType:'card-combination',sourceZone:'deck',
+      ownerSeat:'actor',isOwnerVisible:true,minimumCount:1,
+      maximumCount:1,allowCancel:false});
+  };
+  const none=mk(base.opponentPublic);
+  assert.equal(tok(decide(seat,none)),'eldegoss');
+  const active=print=>({...base.opponentPublic,active:pokemon(print)});
+  for(const printing of [
+    'Iron Thorns ex TWM 77','Iron Thorns ex TWM',
+    'Wobbuffet PHF 36','Stoutland BCR 122','Galarian Weezing RCL 113'
+  ]){
+   const request=mk(active(printing));
+   assert.equal(tok(decide(seat,request)),'grass',printing);
+   assert.deepEqual(validateDecision(decide(seat,request),
+     validatePrompt(request.prompt,seat),new Set()),decide(seat,request));
+  }
+  const withLab=mk({...base.opponentPublic,stadium:['Silent Lab PRC 140']});
+  assert.equal(tok(decide(seat,withLab)),'grass');
+  const benchGarb=mk({...base.opponentPublic,
+   bench:[pokemon('Garbodor BKP 57',{tools:['Float Stone BKT 137']})]});
+  assert.equal(tok(decide(seat,benchGarb)),'grass');
+  const noTool=mk({...base.opponentPublic,
+   bench:[pokemon('Garbodor BKP 57',{tools:[]})]});
+  assert.equal(tok(decide(seat,noTool)),'eldegoss');
+  const ownLab=mk(base.opponentPublic,{...own,stadium:['Silent Lab PRC 140']});
+  assert.equal(tok(decide(seat,ownLab)),'grass');
+ }
+});
