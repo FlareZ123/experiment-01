@@ -178,10 +178,10 @@ function boardHas(view, name) {
 // The source 60 has four CRE 74 Basics and four CRE 75 VMAX. Substring
 // matches treat VMAX as Basic V and erroneously cap this multi-Ability engine.
 function isShadowRiderBasicV(printing) {
-  return /^Shadow Rider Calyrex V CRE(?:\\s|$)/i.test(printing ?? '');
+  return /^Shadow Rider Calyrex V CRE(?:\s|$)/i.test(printing ?? '');
 }
 function isShadowRiderVmax(printing) {
-  return /^Shadow Rider Calyrex VMAX CRE(?:\\s|$)/i.test(printing ?? '');
+  return /^Shadow Rider Calyrex VMAX CRE(?:\s|$)/i.test(printing ?? '');
 }
 function shadowRiderStages(view) {
   const board=ownBoard(view);
