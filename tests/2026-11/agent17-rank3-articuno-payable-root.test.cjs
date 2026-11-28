@@ -120,3 +120,49 @@ for (const seat of [0, 1]) {
     }
   });
 }
+
+
+// The native projectNativeAction / actorObservation printing often omits the
+// collector number (Name SET), even though the original Aichi manifest has
+// Name SET Number. Every relevant fixed-source print must preserve its score
+// in both representations, without accepting a *different* numbered card.
+for (const seat of [0, 1]) {
+  test('native set-only originals score like their numbered source, seat ' + seat, () => {
+    const req = state(seat);
+    const observation = req.observation;
+    const score = (printing, cardType = 'pokemon', targetPrinting = undefined) =>
+      worker.scoreAction({
+        token: 'probe', kind: 'play-card', actorPrinting: printing,
+        ...(targetPrinting ? { targetPrinting } : {}),
+        publicMetadata: {
+          cardType,
+          ...(targetPrinting ? { targetSeat: 'actor', targetZone: 'active', targetIndex: 0 } : {})
+        }
+      }, { observation, publicEventReceipt: null });
+    for (const [source, nativeName, wrong] of [
+      ['Bunnelby PRC 121','Bunnelby PRC','Bunnelby PRC 122'],
+      ['Galarian Stunfisk SSH 132','Galarian Stunfisk SSH','Galarian Stunfisk SSH 131'],
+      ['Regirock XYP 49','Regirock XYP','Regirock XYP 50'],
+      ['Mimikyu PAL 97','Mimikyu PAL','Mimikyu PAL 98'],
+      ['Girafarig LOT 94','Girafarig LOT','Girafarig LOT 95'],
+      ['Rotom V LOR 58','Rotom V LOR','Rotom V LOR 59']
+    ]) {
+      const actual = score(nativeName);
+      assert.ok(actual > 0, nativeName + ' must be a viable native root card');
+      assert.equal(actual, score(source), nativeName + ' changed from source score');
+      assert.equal(score(wrong), 0, wrong + ' must not impersonate source card');
+    }
+    const support = card => score(card,'trainer');
+    assert.equal(support("Team Rocket's Handiwork FCO"), 130);
+    assert.equal(support("Team Rocket's Handiwork FCO"), support("Team Rocket's Handiwork FCO 112"));
+    assert.equal(support("Team Rocket's Handiwork FCO 113"), 0);
+    // Root Plumeria is only live if the discard cost is payable; make it so.
+    observation.ownHand = ['Water Energy SVE','Plumeria BUS','Capture Energy RCL','Faba LOT'];
+    assert.equal(support('Plumeria BUS'), support('Plumeria BUS 120'));
+    assert.ok(support('Plumeria BUS') > 0);
+    assert.equal(support('Plumeria BUS 121'), 0);
+    assert.equal(score('Capture Energy RCL','energy','Bunnelby PRC'),
+      score('Capture Energy RCL 171','energy','Bunnelby PRC 121'));
+    assert.equal(score('Capture Energy RCL 172','energy','Bunnelby PRC'), 0);
+  });
+}
