@@ -50,6 +50,19 @@ function visibleEnergyUsed(view, pattern) {
   return cards.filter(card=>isPrint(card,pattern)).length;
 }
 
+function freshK1EnergyPairAvailable(view) {
+  const k1=view?.ownerK1;
+  if(k1?.exactMembershipKnown!==true || k1.invalidationReason!==null ||
+     !Array.isArray(k1.knownPrintings))return true;
+  const inDeck=re=>k1.knownPrintings.reduce((total,row)=>{
+    const copies=Number.isSafeInteger(row?.copies)?row.copies:0;
+    return isPrint(row?.printing,re)?total+copies:total;
+  },0);
+  // K1 is the actor-authenticated deck multiset from a physical search,
+  // NOT opponent-private information. Stale snapshots never veto.
+  return inDeck(GRASS)>=1 && inDeck(FIRE)>=1;
+}
+
 function chooseRank13VsSeekerFundingLine(request) {
   const prompt = request?.prompt;
   const view = request?.observation;
@@ -106,7 +119,8 @@ function chooseRank13VsSeekerFundingLine(request) {
       // accounted for in actor-visible non-deck zones, Crispin cannot search
       // the two different Basic types needed for the attached Grass.
       visibleEnergyUsed(view,GRASS) >= 4 ||
-      visibleEnergyUsed(view,FIRE) >= 3) return null;
+      visibleEnergyUsed(view,FIRE) >= 3 ||
+      !freshK1EnergyPairAvailable(view)) return null;
 
   return { kind: 'select-choices', tokens: [crispin[0].token] };
 }
