@@ -48,6 +48,10 @@ const runExperiment=function runExperiment(n=30000,seed=28112027,goingSecond=fal
   let valid=0,benched=0,fully=0,hoodHeld=0,canDrawV=0,missingHood=0,missingV=0,missingP=0;
   let initialNoNaturalR=0,sourceNoR=0,arvenT1Uses=0;
   for(let z=0;z<n;z++){
+    // Derive trial seed independently; this gives identical physical deals
+    // across source/supporter/discard scenario toggles for paired comparisons.
+    random=(seed ^ Math.imul(z+1,0x9e3779b9))>>>0;
+    if(random===0)random=1;
     const deck=shuffle(pool.slice()),open=deck.slice(0,7),prizes=deck.slice(7,13),draw1=deck[13];
     const bs=open.filter(x=>BASICS.has(x));
     if(!bs.length)continue;valid++;
