@@ -85,3 +85,14 @@ Current review-branch exact source blob `ebbf384f01f8a81194a25fe4e6a2c5ec3997bc2
 **Artazon:** Like Grand Tree, this Stadium may help the opponent if handed over for no immediate actor benefit. The previous root scorer assigned Artazon +70 even with the Bench full, and could overwrite the actor's active Grand Tree. Revised Artazon root scoring requires a vacant Bench with a missing Basic development line, or an immediately removable disruptive Stadium such as Path to the Peak. Opponent suppressor removal still allowed when Bench full. The contested full-Bench case was **76/77** before and **77/77** after, with positive vacant-Bench and Stadium-counter controls.
 
 Current branch worker blob `7a2161d6d6789537bc36129b63e87694f532bbd1`, tests blob `306740fd460ef163004a996433159a48cc6c29db`; exact source/test readback confirmed. All decisions are synthetic actor-protocol decisions, not native Store transitions or game claims.
+
+
+## Regidrago: Get Lost targets actual Apex Dragon attack payloads
+
+The complete published Aichi decklist JSON has **nine visible Regidrago lists** (ranks 10, 12, 13, 14, 18, 20, 21, 27, 32). **All nine** contain `Dialga-GX UPR 100` (Timeless-GX), `Dragapult ex TWM 130` (Phantom Dive), and `Kyurem SFA 47`; further discretionary Dragon payloads vary. Two additional Regidrago placements are missing published 60s (ranks 23 and 28), so no inference about their specific payloads is warranted.
+
+The rank2 control list's `Girafarig LOT 94` attack Get Lost chooses two cards in the opponent's discard pile to move to the Lost Zone. Regidrago VSTAR's Apex Dragon copies attacks from Dragon Pokémon in its discard pile. Prior `cardPriority(..., 'get lost')` valued generic VS Seeker at 150 but any Dragapult/Dialga printing at only 20, wasting an opportunity to remove these recurring attack options. The revised **visible-Regidrago-matchup** scorer ranks `Dialga-GX UPR` 250, `Dragapult ex TWM` 245, then other published Dragon payloads 215. Off Regidrago it retains the existing generic hierarchy, and mandatory filler selection remains possible when only one Dragon is available. This is an actor-priority heuristic grounded in the known nine source lists and the printed attack, not matchup performance proof.
+
+The exact root-independent native-shaped Get Lost prompt with `VS Seeker`, `Dialga-GX`, and `Dragapult ex` choices demonstrated the failure: prior branch selected VS Seeker + Dialga, revised branch selected Dialga + Dragapult. Expanded suite: **78/80 before**, **80/80 after** with Regidrago positive and off-matchup negative controls.
+
+Current branch worker blob `ca9a5781e3e33c744b25fe34ff28029a60ced791`, test blob `75e1e296101ed058f1c7d50cb01539cce8059cd0`, GitHub source/test readback verified. Still only synthetic actor-policy decisions, no certified native full-game result.
