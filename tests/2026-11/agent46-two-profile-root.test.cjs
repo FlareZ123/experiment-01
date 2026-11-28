@@ -2484,8 +2484,11 @@ test('Agent46: Compressor-Stretcher turns a real deck VMAX into an immediately p
     assert.deepEqual(decide(profile,root(seat,direct,[compressor,recover])),sel('recover'));
     const noStretcher={...view,ownHand:[bc,P]};
     assert.deepEqual(decide(profile,root(seat,noStretcher,[compressor])),sel('pass'));
+    // Another productive card may still justify Compressor. Verify that
+    // the prompt never discards an already-held redundant VMAX.
     const alreadyHeld={...view,ownHand:[bc,stretcher,P,M]};
-    assert.deepEqual(decide(profile,root(seat,alreadyHeld,[compressor])),sel('pass'));
+    const heldPrompt=cardPrompt(seat,alreadyHeld,bc,'Battle Compressor','deck',[M,D],0,3);
+    assert.deepEqual(decide(profile,heldPrompt),choice('empty'));
     const almostEmpty={...view,ownPublic:{...view.ownPublic,deckCount:1}};
     assert.deepEqual(decide(profile,root(seat,almostEmpty,[compressor])),sel('pass'));
   }
