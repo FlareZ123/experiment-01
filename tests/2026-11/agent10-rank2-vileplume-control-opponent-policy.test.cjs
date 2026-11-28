@@ -143,7 +143,7 @@ function observation(options = {}) {
   return {
     actorSeat: 0,
     globalTurn: options.globalTurn ?? 3,
-    phase: 2,
+    phase: options.phase ?? 2,
     decisionKind: options.prompt ? 'owner-prompt' : 'owner-root',
     pendingPromptType: options.prompt?.promptType ?? null,
     pendingOwnerDeckSearch: false,
@@ -1245,6 +1245,62 @@ test('Guzma root abstains to Pass without an opponent Bench', () => {
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-action', token: 'pass'
   });
+});
+
+
+function engineRequest(promptType,description,choices,publicMetadata,overrides={}){
+  return promptRequest({promptType,description,source:actorChoiceSource(null,description),
+    choices,publicMetadata,observation:{phase:1,...overrides}});
+}
+function setupCard(token,printing,index){
+  return {token,kind:'card',printing,label:printing,publicMetadata:{
+    selectionIndex:index,selectedCount:1,sourceZone:'hand',ownerSeat:'actor',
+    isOwnerVisible:true}};
+}
+test('rank2 can select a native ordered starting board',()=>{
+  const request=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',
+    [setupCard('a','Bunnelby PRC 121',0),setupCard('b','Oddish UNB 5',3)],
+    {selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+      isOwnerVisible:true,isSecret:false,allowCancel:false,
+      minimumCount:1,maximumCount:6});
+  assert.deepEqual(checkedDecision(request),{kind:'select-choices',tokens:['a','b']});
+});
+test('rank2 can mulligan without Basic when native setup offers empty',()=>{
+  const request=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',
+    [{token:'empty',kind:'empty-selection',label:'Choose no items'}],
+    {selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+      isOwnerVisible:true,isSecret:false,allowCancel:false,
+      minimumCount:0,maximumCount:0});
+  assert.deepEqual(checkedDecision(request),{kind:'select-choice',token:'empty'});
+});
+test('rank2 chooses to go second for Barrage Evolution opportunity',()=>{
+  const request=engineRequest('ConfirmPrompt','GO_FIRST',
+    [{token:'yes',kind:'confirm',label:'Yes'},{token:'no',kind:'confirm',label:'No'}],
+    {selectionType:'confirm'});
+  assert.deepEqual(checkedDecision(request),{kind:'select-choice',token:'no'});
+});
+test('rank2 takes largest native optional opponent mulligan draw',()=>{
+  const request=engineRequest('SelectPrompt','WANT_TO_DRAW_CARDS',[
+    {token:'one',kind:'option',label:'Draw 1 card(s)',publicMetadata:{choiceIndex:1}},
+    {token:'two',kind:'option',label:'Draw 2 card(s)',publicMetadata:{choiceIndex:0}},
+    {token:'zero',kind:'option',label:'Draw 0 card(s)',publicMetadata:{choiceIndex:2}}],
+    {selectionType:'option',count:3,allowCancel:false});
+  assert.deepEqual(checkedDecision(request),{kind:'select-choice',token:'two'});
+});
+test('setup prompt refuses forged card source even with matching description',()=>{
+  const request=engineRequest('ConfirmPrompt','GO_FIRST',
+    [{token:'yes',kind:'confirm',label:'Yes'},{token:'no',kind:'confirm',label:'No'}],
+    {selectionType:'confirm'});
+  request.prompt.source=actorChoiceSource('Guzma BUS 115','GO_FIRST');
+  assert.deepEqual(checkedDecision(request),{
+    kind:'abstain',reasonCode:'UNTRUSTED_ENGINE_SETUP_PROMPT'});
+});
+test('setup prompt outside game setup is rejected',()=>{
+  const request=engineRequest('ConfirmPrompt','GO_FIRST',
+    [{token:'yes',kind:'confirm',label:'Yes'},{token:'no',kind:'confirm',label:'No'}],
+    {selectionType:'confirm'},{phase:2});
+  assert.deepEqual(checkedDecision(request),{
+    kind:'abstain',reasonCode:'UNSUPPORTED_ENGINE_SETUP_PHASE'});
 });
 
 test('role and seat binding mismatch abstains', () => {
