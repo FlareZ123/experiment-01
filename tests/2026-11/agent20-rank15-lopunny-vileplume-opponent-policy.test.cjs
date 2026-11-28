@@ -531,7 +531,7 @@ test('Guzma rejects opponent-owned choice under actor promotion, wrong index and
 });
 test('Guzma does not claim guaranteed KO through protection or 1-Prize idle target',()=>{
   const r=gustRoot();r.observation.opponentPublic.bench[0].tools=['Stealthy Hood UNB 186'];
-  r.observation.opponentPublic.bench[1].damage=0;
+  r.observation.opponentPublic.bench[1].tools=['Stealthy Hood UNB 186'];
   r.observation.ownPublic.prizeCount=3;
   assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   r.observation.opponentPublic.bench=[pokemon('Girafarig LOT 94',{hp:70,
