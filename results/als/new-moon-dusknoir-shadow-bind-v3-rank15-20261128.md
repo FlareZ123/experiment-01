@@ -13,6 +13,10 @@
 
 This is a **new attack class rather than a second Tool-access route**. The key card is an existing evolution chain's Stage 2 rather than a Basic-Ability counter.
 
+## Cross-rank importance revised: Psychic Weakness ×2, not only lock removal
+
+The same v3 Stage2 Dusknoir's **Shadow Bind150 [P][P][C]** becomes **300 attack damage** against **Regidrago VSTAR280 Dragon** whenever the existing **Lillie's Clefairy ex Fairy Zone** is functioning. Seven of nine authenticated Regidrago source decks include **Noivern ex Covert Flight** as a possible Apex Dragon copied attack protecting Regidrago against **Basic Pokémon attacks**, but *not* Stage2 Dusknoir's attack. This is a no-self-KO, non-GX route to two Prizes against a larger field than rank15. The full [Fairy Zone / Covert Flight / Mega Dragonite correction](new-moon-fairy-zone-regidrago-covertflight-dragonite-20261128.md) also explains why Latias ex Eon Blade200×2=400 **already** one-shots 370HP Mega Dragonite while Fairy Zone is live. Do not infer native availability or competitive matchup wins from the printed interaction alone.
+
 ## New conditional answer to source rank 15
 
 The original rank-15 list can establish **AOR Vileplume on Bench** (Item lock) plus **BUS Vileplume Active with Stealthy Hood** (Basic attack restriction and protection from the opponent's Abilities). Two Dusclops Cursed Blasts with Tool Jammer can clear the Active lock only across two player turns while conceding **two Prizes to the opponent**. This is a poor line near the opponent's Prize-clock finish; Agent38 corrected the original v2 rationale on 28 November.
