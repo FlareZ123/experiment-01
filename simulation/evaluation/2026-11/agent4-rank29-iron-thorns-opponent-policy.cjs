@@ -1654,8 +1654,31 @@ function scorePlayCard(item, request) {
   if (supporter && !supporterAvailable(observation)) return 0;
   if (itemCard && itemLocked(observation)) return 0;
 
-  if (matches(card, PRINT.gladion) ||
-      matches(card, PRINT.palaceBook)) return 0;
+  if(matches(card,PRINT.gladion))return 0;
+  if(matches(card,PRINT.palaceBook)){
+    // Pinned Palace Book is an Item with no prompt: DRAW_CARDS(3) then
+    // EndTurnEffect. Use it only to repair a stalled low-hand turn, NEVER
+    // before an immediately playable Volt Cyclone or free Energy attachment.
+    // In contrast Player's Ceremony is a reusable Stadium draw-3 endpoint.
+    if(!Number.isSafeInteger(own.deckCount)||own.deckCount<3||
+        hand.length>4||hasStadium(observation,PRINT.playersCeremony))
+      return 0;
+    const frontier=list(request?.actionFrontier?.items);
+    if(frontier.some(action=>action.kind==='attack'&&
+        action.publicMetadata?.attackCostPayable!==false))
+      return 0;
+    if(frontier.some(action=>action.kind==='play-card'&&
+        action.publicMetadata?.cardType==='energy'&&
+        energyAvailable(observation)&&
+        !specialEnergyLocked(observation)&&
+        (action.publicMetadata?.targetSeat==='actor'||
+          !action.publicMetadata?.targetSeat)))
+      return 0;
+    if(frontier.some(action=>action.kind==='use-stadium'&&
+        matches(action.actorPrinting,PRINT.playersCeremony)))
+      return 0;
+    return 145-15*Math.max(0,hand.length-1);
+  }
 
   if (matches(card, PRINT.speedLightning)) {
     return energyAvailable(observation) && !specialEnergyLocked(observation) &&
