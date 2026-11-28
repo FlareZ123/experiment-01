@@ -247,14 +247,21 @@ function slotByPrinting(player, printing) {
 
 function prizeLiability(slot) {
   if (!slot) return 1;
-  const subtypes = slot.printed?.subtypes ?? [];
+  // The original Aichi source field includes modern Mega Evolution ex (three
+  // Prizes) and VSTAR (two).  Do not confuse modern Mega ex with older
+  // M Pokémon-EX, which is NOT a three-Prize Mega Evolution ex.
+  const subtypes = (slot.printed?.subtypes ?? []).map(x =>
+    String(x).toUpperCase());
   const printing = slot.printing ?? '';
-  if (subtypes.some(value => ['VMAX', 'V-UNION', 'TAG TEAM'].includes(value)) ||
+  if (subtypes.some(value =>
+      ['VMAX', 'V-UNION', 'TAG TEAM', 'MEGA'].includes(value)) ||
       hasName(printing, 'VMAX') || hasName(printing, 'V-UNION') ||
-      hasName(printing, ' & ') && hasName(printing, '-GX')) return 3;
-  if (subtypes.some(value => ['ex', 'GX', 'V'].includes(value)) ||
+      /^Mega .+ ex(?: |$)/i.test(printing) ||
+      (hasName(printing, ' & ') && hasName(printing, '-GX'))) return 3;
+  if (subtypes.some(value =>
+      ['EX', 'GX', 'V', 'VSTAR'].includes(value)) ||
       hasName(printing, '-GX') || / ex(?: |$)/.test(printing) ||
-      / V(?: |$)/.test(printing)) return 2;
+      / V(?:STAR)?(?: |$)/.test(printing)) return 2;
   return 1;
 }
 
@@ -849,14 +856,29 @@ function choosePokemonRecipient(view, prompt) {
       };
     });
   } else if (effectName === 'Guzma' && opponentChoices.length > 0) {
-    const attacker = view.ownPublic.active;
+    // Original Guzma BUS 115 first brings an opposing Bench Pokémon Active;
+    // only THEN does it switch our Active with our Bench.  The present Active
+    // is the *departing* Pokémon and must not supply the forecast damage.
+    // Use potential post-switch Bench attackers, as at the root Guzma gate.
+    const benchAttackers = view.ownPublic.bench.filter(Boolean);
+    const attackers = benchAttackers.length > 0
+      ? benchAttackers : [view.ownPublic.active].filter(Boolean);
     ranked = opponentChoices.map(row => {
-      const attack = bestAttackForSlot(attacker, view, row.target.slot);
-      const liability = prizeLiability(row.target.slot);
+      const target = row.target.slot;
+      const remaining = Math.max(0, target.hp - target.damage);
+      const viable = attackers.map(attacker =>
+        bestAttackForSlot(attacker, view, target)).filter(Boolean);
+      const best = viable.reduce((a, b) =>
+        !a || b.score > a.score ? b : a, null);
+      const liability = prizeLiability(target);
+      const terminalPrizeKO = best?.damage !== null &&
+        best?.damage >= remaining &&
+        Number.isSafeInteger(view.ownPublic.prizeCount) &&
+        view.ownPublic.prizeCount <= liability;
       return {
         ...row,
-        score: (attack?.score ?? -1000) + liability * 1200 -
-          Math.max(0, row.target.slot.hp - row.target.slot.damage)
+        score: (best?.score ?? -1000) + liability * 1200 - remaining +
+          (terminalPrizeKO ? 100000 : 0)
       };
     });
   } else {
