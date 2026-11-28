@@ -160,8 +160,8 @@ function scene(seat){
   return {...x,owner60:owner,opponent60:adversary,dependencies,adapters};
 }
 
-function checkedDecision(worker,request,init,sequence){
-  const admitted=protocol.validateRequest(request,init,sequence,new Set());
+function checkedDecision(worker,request,init,sequence,seenRequestIds){
+  const admitted=protocol.validateRequest(request,init,sequence,seenRequestIds);
   const result=worker.decideWithAudit(request);
   protocol.validateDecision(result.decision,request.prompt,admitted.actionTokens);
   protocol.validatePolicyAudit(result.policyAudit,request,result.decision,
@@ -205,6 +205,7 @@ for(const seat of [0,1]){
     const init={role:'candidate',seat,
       policyVersion:candidateWorker.POLICY_VERSION,config:{}};
     const worker=candidateWorker.createPolicy(init);
+    const seenRequestIds=new Set();
     const rootReq={
       schema:protocol.REQUEST_SCHEMA,type:'decision',
       requestId:'agent6-actual-door-root-'+seat,sequence:0,
@@ -213,7 +214,7 @@ for(const seat of [0,1]){
       publicEventReceipt:adapters.eventReceipt(state,seat),
       actionFrontier:root.actionFrontier
     };
-    const rootDecision=checkedDecision(worker,rootReq,init,0);
+    const rootDecision=checkedDecision(worker,rootReq,init,0,seenRequestIds);
     assert.deepEqual(rootDecision.decision,
       {kind:'select-action',token:ability[0].token},
       'candidate worker must prefer genuine accelerating Door over manual Bench attachment');
@@ -274,7 +275,7 @@ for(const seat of [0,1]){
         assert.ok(req.prompt.choices.filter(choice=>choice.kind!=='energy')
           .every(choice=>choice.kind==='cancel'),
           'optional native cancellation is permitted, fabricated prompt choice is not');
-        const answer=checkedDecision(worker,req,init,1);
+        const answer=checkedDecision(worker,req,init,1,seenRequestIds);
         promptDecisionAudit=answer.policyAudit;
         assert.equal(answer.decision.kind,'select-choice');
         const chosen=req.prompt.choices.find(c=>c.token===answer.decision.token);
@@ -331,7 +332,7 @@ for(const seat of [0,1]){
         publicEventReceipt:adapters.eventReceipt(state,seat),
         actionFrontier:post.actionFrontier
       };
-      const postResult=checkedDecision(worker,postReq,init,2);
+      const postResult=checkedDecision(worker,postReq,init,2,seenRequestIds);
       const postDecision=postResult.decision;
       assert.ok(['select-action','abstain'].includes(postDecision.kind),
         'spent Door must cause a strict worker alternate root or typed abstention');
