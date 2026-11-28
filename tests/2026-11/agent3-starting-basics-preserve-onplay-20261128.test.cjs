@@ -79,7 +79,9 @@ const cases=[
 for(const seat of [0,1])for(const [label,cards,opts,expected]of cases)
  test(label+' seat '+seat,()=>{
   const req=prompt(seat,cards,opts);
-  protocol.validatePrompt(req.prompt,seat);
+  // Malformed engine-source negatives are expected to be rejected by
+  // the strict protocol itself; do not claim they pass wire validation.
+  if(!opts.wrong)protocol.validatePrompt(req.prompt,seat);
   const got=policy.createPolicy({role:'candidate',seat,
     policyVersion:policy.POLICY_VERSION,config:{}}).decideWithAudit(req);
   const want=typeof expected==='string'?
