@@ -321,7 +321,15 @@ function bombPlanner(o,sourceBenchIndex){
     if(i===available.length||used+available.length-i<n)return;
     visit(i+1,used);
     const e=available[i];
-    for(let j=0;j<recipients.length;j++){
+    // Equal-print Energy cards from discard have the same board effect.
+    // Select only the first k physical occurrences of a printing and keep
+    // their recipient indices nondecreasing. Distinct end boards are all
+    // preserved; the extra physical permutations are strategically identical.
+    const earlier=available.slice(0,i).filter(x=>x.printing===e.printing);
+    if(earlier.some(x=>!assignments.some(a=>a.discardIndex===x.index)))return;
+    const prior=assignments.slice().reverse().find(a=>a.printing===e.printing);
+    const lower=prior?recipients.findIndex(r=>r.zone===prior.zone&&r.index===prior.index):0;
+    for(let j=Math.max(0,lower);j<recipients.length;j++){
       const r=recipients[j];byRecipient[j].push(e);assignments.push({discardIndex:e.index,printing:e.printing,zone:r.zone,index:r.index});
       visit(i+1,used+1);assignments.pop();byRecipient[j].pop();
     }
