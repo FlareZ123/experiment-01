@@ -278,6 +278,96 @@ for(const seat of [0,1]){
   result=decide(p(),suppressed,1,handOpts);
   ok(result.token==='same-claw-ko',
     'Silent Lab prevents hand-Unown setup ahead of KO, seat '+seat);
+  /* Original four-copy Rescue Carrier engine under a non-final three-Prize
+   * Shadow Rider KO. This is a synthetic protocol-valid staged continuation
+   * through actor discard, recovered hand, two Bench plays, Farewell and KO.
+   * It does not replace real pinned native Store acceptance or played games. */
+  const Carrier='Rescue Carrier EVS 154',Vol='Voltorb ROS 21';
+  const carrierRequest=(o,pol,seq)=>decide(pol,o,seq,{
+    schema:protocol.FRONTIER_SCHEMA,items:[
+      {kind:'play-card',token:'carrier-pre-ko',actorPrinting:Carrier},
+      {kind:'attack',token:'claw-ko',actorPrinting:Meg,
+        attackName:'Claw of Darkness',publicMetadata:{attackCostPayable:true}},
+      {kind:'pass',token:'pass'}
+    ]
+  });
+  const initial=shadow();initial.ownPublic.bench=[];
+  initial.ownHand=[Carrier];initial.ownPublic.discard=[Un,Un,Vol];
+  const carPolicy=p();
+  result=carrierRequest(initial,carPolicy,1);
+  ok(result.token==='carrier-pre-ko',
+    'original Carrier before paid non-final three-Prize KO, seat '+seat);
+  const carrierPrompt={
+    schema:protocol.PROMPT_SCHEMA,actingSeat:seat,promptType:'ChooseCardsPrompt',
+    description:'Rescue Carrier',
+    source:{classification:'actor-choice',sourceKind:'card-effect',
+      sourcePrinting:Carrier,effectName:'Rescue Carrier'},
+    choices:[
+      ...['discard-U1','discard-U2'].map(token=>({
+        kind:'card',token,label:Un,printing:Un,
+        publicMetadata:{ownerSeat:'actor',sourceZone:'discard',isOwnerVisible:true}
+      })),
+      {kind:'card',token:'discard-Vol',label:Vol,printing:Vol,
+        publicMetadata:{ownerSeat:'actor',sourceZone:'discard',isOwnerVisible:true}},
+      {kind:'empty-selection',token:'empty',label:'Choose no Pokemon'}
+    ],
+    publicMetadata:{selectionType:'card-combination',sourceZone:'discard',ownerSeat:'actor',
+      isOwnerVisible:true,allowCancel:false,isSecret:false,minimumCount:0,maximumCount:2}
+  };
+  result=decide(carPolicy,initial,2,null,carrierPrompt);
+  ok(JSON.stringify(result.tokens)==='["discard-U1","discard-U2"]',
+    'pre-KO Carrier prioritizes two Unown over Voltorb, seat '+seat);
+  for(let stage=0;stage<2;stage++){
+    const v=shadow();v.ownPublic.bench=Array.from({length:stage},()=>mon(Un,{hp:60}));
+    v.ownHand=Array.from({length:2-stage},()=>Un);v.ownPublic.discard=[Vol];
+    const view={schema:protocol.FRONTIER_SCHEMA,items:[
+      {kind:'play-card',token:'rebench',actorPrinting:Un,
+        publicMetadata:{targetSeat:'actor',targetZone:'bench',
+          targetIndex:stage,isOwnerVisible:true}},
+      {kind:'attack',token:'claw-ko',actorPrinting:Meg,
+        attackName:'Claw of Darkness',publicMetadata:{attackCostPayable:true}},
+      {kind:'pass',token:'pass'}
+    ]};
+    result=decide(carPolicy,v,3+stage,view);
+    ok(result.token==='rebench',
+      'Carrier-recovered Unown rebenched ahead of nonfinal KO stage '+stage+' seat '+seat);
+  }
+  for(let stage=0;stage<2;stage++){
+    const v=shadow();v.ownPublic.bench=Array.from({length:2-stage},()=>mon(Un,{hp:60}));
+    v.ownHand=[];v.ownPublic.discard=[Vol];
+    const view={schema:protocol.FRONTIER_SCHEMA,items:[
+      {kind:'use-ability',token:'fresh-farewell',actorPrinting:Un,
+        publicMetadata:{sourceSeat:'actor',sourceZone:'bench',
+          sourceIndex:0,abilityName:'Farewell Letter'}},
+      {kind:'attack',token:'claw-ko',actorPrinting:Meg,
+        attackName:'Claw of Darkness',publicMetadata:{attackCostPayable:true}},
+      {kind:'pass',token:'pass'}
+    ]};
+    result=decide(carPolicy,v,5+stage,view);
+    ok(result.token==='fresh-farewell',
+      'Carrier-recovered Unown Farewell ahead of KO stage '+stage+' seat '+seat);
+  }
+  const noCards=shadow();noCards.ownPublic.bench=[];noCards.ownHand=[];
+  result=decide(carPolicy,noCards,7,{
+    schema:protocol.FRONTIER_SCHEMA,items:[
+      {kind:'attack',token:'claw-ko',actorPrinting:Meg,
+        attackName:'Claw of Darkness',publicMetadata:{attackCostPayable:true}},
+      {kind:'pass',token:'pass'}
+    ]
+  });
+  ok(result.token==='claw-ko','Carrier/Farewell cycle still attacks, seat '+seat);
+  for(const [caseName,mut] of [
+    ['final prize',v=>{v.ownPublic.prizeCount=3;return v}],
+    ['silent lab',v=>{v.opponentPublic.stadium=['Silent Lab PRC 140'];return v}],
+    ['no Unown',v=>{v.ownPublic.discard=[Vol];return v}]
+  ]){
+    const v=mut(shadow());v.ownPublic.bench=[];v.ownHand=[Carrier];
+    if(caseName!=='no Unown')v.ownPublic.discard=[Un,Un];
+    result=carrierRequest(v,p(),1);
+    ok(result.token==='claw-ko',
+      'Carrier does not defer KO under '+caseName+' seat '+seat);
+  }
+
 }
 
 /* Synthetic post-settlement challenge of the original rank-9 four-copy
