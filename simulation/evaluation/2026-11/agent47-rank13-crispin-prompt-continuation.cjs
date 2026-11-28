@@ -54,7 +54,16 @@ function chooseRank13CrispinContinuation(request) {
        meta?.sourceZone!=='effect-revealed' ||
        meta?.minimumCount!==1 || meta?.maximumCount!==1)return null;
     const own=view.ownPublic??{};
-    if(!match(own.active, /^Regidrago VSTAR SIT(?: 136)?$/i))return null;
+    const active=own.active;
+    const attached=active?.energies;
+    // Only force a Grass-to-active payment when it actually completes the
+    // exact {Grass,Grass,Fire} Apex Dragon cost. An already-funded Regidrago,
+    // an alternate attacker, or a spare early-game Crispin is not the same
+    // decision problem and must delegate rather than absorb this heuristic.
+    if(!match(active, /^Regidrago VSTAR SIT(?: 136)?$/i) ||
+       !Array.isArray(attached) || attached.length!==2 ||
+       attached.filter(card=>match(card,GRASS)).length!==1 ||
+       attached.filter(card=>match(card,FIRE)).length!==1)return null;
     const candidates=prompt.choices.filter(c=>
       c?.kind==='energy' && typeof c.token==='string' &&
       match(c,GRASS) && c.publicMetadata?.ownerSeat==='actor' &&
