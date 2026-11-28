@@ -59,9 +59,9 @@ const cases=[
  ['Hand discard picks Dialga instead of protected Guzma',
   discardPrompt,{onlyProtected:true},
   {kind:'select-choices',tokens:['discard-0']}],
- ['Without Regidrago in prompt, inert Dialga remains cheap discard',
+ ['Without Regidrago, extra Mimikyu already Benched is cheaper than Dialga',
   discardPrompt,{drago:false},
-  {kind:'select-choices',tokens:['discard-2']}]
+  {kind:'select-choices',tokens:['discard-3']}]
 ];
 for(const seat of [0,1])for(const [label,factory,opts,expected]of cases)
  test(label+' seat '+seat,()=>{
