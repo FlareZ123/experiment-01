@@ -10,11 +10,12 @@
  * Crispin AttachEnergyPrompt projection from this branch.
  */
 const base=require('./agent24-rank13-regidrago-opponent-policy.cjs');
-const {chooseRank13VsSeekerFundingLine:recover}=
+const {chooseRank13VsSeekerFundingLine:recover,
+  chooseRank13VsSeekerFundingRoot:recoverRoot}=
   require('./agent47-rank13-vsseeker-funding-line.cjs');
 const {chooseRank13CrispinContinuation:continueCrispin}=
   require('./agent47-rank13-crispin-prompt-continuation.cjs');
-const POLICY_VERSION='agent47-rank13-crispin-overlay-v1';
+const POLICY_VERSION='agent47-rank13-crispin-overlay-v2';
 
 function createPolicy({role,seat,policyVersion,config}) {
   if(policyVersion!==POLICY_VERSION)
@@ -27,7 +28,11 @@ function createPolicy({role,seat,policyVersion,config}) {
       if(request?.role!==role || request?.seat!==seat ||
          request?.observation?.actorSeat!==seat)
         return {kind:'abstain',reasonCode:'ROLE_SEAT_BINDING_MISMATCH'};
-      const decision=recover(request)??continueCrispin(request);
+      // Root-level certification protects a terminal funding line from a
+      // competing high-scored setup Ability before VS Seeker is even played.
+      // Do not use prompt tokens at root or root tokens in a prompt.
+      const decision=request.prompt===null || request.prompt===undefined?
+        recoverRoot(request):recover(request)??continueCrispin(request);
       return decision??main.decide(request);
     }
   });
