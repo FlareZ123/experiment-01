@@ -706,6 +706,12 @@ for(const attackerSeat of [0,1]){
     const {choosePaleMoonEscapeRanger}=
       require('../simulation/twinleaf/2026-11/agent34-pale-moon-escape.cjs');
     const f=stage(attackerSeat,2,false,'Rotom V LOR');
+    // A late-game last-Prize threat: do not assert the generic heuristic
+    // dominates a deliberate sacrifice when the opponent has more Prizes.
+    for(const taken of f.attacker.prizes.slice(1)) {
+      f.attacker.hand.cards.push(...taken.cards.splice(0));
+    }
+    assert.equal(f.attacker.prizes.reduce((sum,slot)=>sum+slot.cards.length,0),1);
     const ownerSeat=1-attackerSeat;
     const threatenedCard=f.defender.active.getPokemonCard();
     const ranger=initializeCards().getCardByName('Pokemon Ranger STS');
