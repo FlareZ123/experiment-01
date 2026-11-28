@@ -54,10 +54,11 @@ function mapPokemon(p,map,opponentMap){
     printing:label(p.printing,map),
     evolutionPrintings:mapped(p.evolutionPrintings,map),
     energies:mapped(p.energies,map),tools:mapped(p.tools,map),
-    abilitySuppressions:Array.isArray(p.abilitySuppressions)?
-      p.abilitySuppressions.map(a=>({...a,
-        sourcePrinting:uniqueVisibleLabel(a.sourcePrinting,
-          map,opponentMap??new Map())})):p.abilitySuppressions};
+    ...(Object.hasOwn(p,'abilitySuppressions')?{abilitySuppressions:
+      Array.isArray(p.abilitySuppressions)?
+        p.abilitySuppressions.map(a=>({...a,
+          sourcePrinting:uniqueVisibleLabel(a.sourcePrinting,
+            map,opponentMap??new Map())})):p.abilitySuppressions}:{})};
 }
 function mapPlayer(p,map,opponentMap){
   if(!p)return p;
@@ -125,10 +126,11 @@ function mapPrompt(prompt,mine,other){
     const m=seat==='actor'?mine:seat==='opponent'?other:null;
     const meta=choice.publicMetadata;
     return {...choice,
-      printing:label(choice.printing,m),
-      publicMetadata:meta?{...meta,
+      ...(Object.hasOwn(choice,'printing')?{
+        printing:label(choice.printing,m)}:{}),
+      ...(Object.hasOwn(choice,'publicMetadata')?{publicMetadata:meta?{...meta,
         ...(Object.hasOwn(meta,'sourcePrinting')?{
-          sourcePrinting:uniqueVisibleLabel(meta.sourcePrinting,mine,other)}:{})}:meta};
+          sourcePrinting:uniqueVisibleLabel(meta.sourcePrinting,mine,other)}:{})}:meta}:{})};
   }):prompt.choices;
   return {...prompt,source,choices,
     publicMetadata:prompt.publicMetadata?{...prompt.publicMetadata,
@@ -163,16 +165,19 @@ function projectSourcePrintings(observation,frontier,sourceMapsBySeat,options={}
       const targetMap=m.targetSeat==='actor'?mine:
         m.targetSeat==='opponent'?other:null;
       return {...item,
-        actorPrinting:label(item.actorPrinting,mine),
-        targetPrinting:label(item.targetPrinting,targetMap),
-        publicMetadata:item.publicMetadata?{...m,
+        ...(Object.hasOwn(item,'actorPrinting')?{
+          actorPrinting:label(item.actorPrinting,mine)}:{}),
+        ...(Object.hasOwn(item,'targetPrinting')?{
+          targetPrinting:label(item.targetPrinting,targetMap)}:{}),
+        ...(Object.hasOwn(item,'publicMetadata')?{publicMetadata:item.publicMetadata?{...m,
           ...(typeof m.priorSourcePrinting==='string'?{
             priorSourcePrinting:label(m.priorSourcePrinting,other)}:{}),
           ...(typeof m.stadiumPrinting==='string'?{
             stadiumPrinting:uniqueVisibleLabel(m.stadiumPrinting,mine,other)}:{}),
           ...(m.attackSource?{attackSource:{...m.attackSource,
-            sourceCardFullName:label(m.attackSource.sourceCardFullName,mine)}}:{})
-        }:item.publicMetadata};
+            ...(Object.hasOwn(m.attackSource,'sourceCardFullName')?{
+              sourceCardFullName:label(m.attackSource.sourceCardFullName,mine)}:{})}}:{})
+        }:item.publicMetadata}:{})};
     })};
   }
   return {observation:view,actionFrontier:mappedFrontier,
