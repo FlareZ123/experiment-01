@@ -2116,3 +2116,42 @@ paired('Agent46: source Path and Silent Lab do not erase payable direct KO but s
   view.opponentPublic.stadium=['Path to the Peak CRE'];
   assert.notEqual(final(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
 });
+
+paired('Agent46: CIN Counter and LPM Unit source energy supply is state and Prize exact',(seat,profile)=>{
+  const tp=pokemon({printing:L,name:'Tapu Lele-GX',hp:170,
+    subtypes:['Basic','GX'],energies:[P,P],
+    attacks:[attack('Energy Drive',['Colorless','Colorless'],'20x')]});
+  const raichu=pokemon({printing:'Alolan Raichu UNM',name:'Alolan Raichu',
+    hp:110,types:['Lightning'],subtypes:['Stage 1'],
+    energies:['Counter Energy CIN','Counter Energy CIN','Unit Energy LPM UPR'],
+    attacks:[attack('Electric Ball',['Lightning','Colorless','Colorless'],'90')]});
+  const view=observation(seat,{active:tp,opponentActive:raichu});
+  view.globalTurn=8;view.ownPublic.prizeCount=2;view.opponentPublic.prizeCount=4;
+  const drive={token:'drive',kind:'attack',attackName:'Energy Drive'};
+  const policy=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile});
+  const rule=()=>policy.decideWithAudit(root(seat,view,[drive])).policyAudit.selectionRuleCode;
+  const supply=(slot,side='opponent')=>worker.__test.publicEnergySupply(slot,view,false,side);
+  assert.equal(supply(raichu).length,5);
+  assert.deepEqual(supply(raichu)[4],['Lightning','Psychic','Metal']);
+  assert.equal(rule(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK'); // 2+5 units ->140>=110.
+  view.opponentPublic.prizeCount=1;
+  assert.equal(supply(raichu).length,3);
+  assert.notEqual(rule(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK'); // 2+3 units ->100<110.
+  // GX/EX attached Counter Energy never gains the conditional 2-unit bonus.
+  view.opponentPublic.prizeCount=4;
+  const gx=pokemon({printing:'Electrode-GX CES',name:'Electrode-GX',
+    subtypes:['Stage 1','GX'],energies:['Counter Energy CIN']});
+  assert.equal(supply(gx).length,1);
+  // Unrecognized Unit type family is unknown, never guessed Colorless.
+  raichu.energies=['Unit Energy UNRECOGNIZED'];
+  assert.equal(supply(raichu),null);
+  // Wondrous costs an extra Colorless for the source attack as well.
+  raichu.energies=['Unit Energy LPM UPR','Counter Energy CIN'];
+  view.opponentPublic.prizeCount=4;
+  view.opponentPublic.stadium=['Wondrous Labyrinth TEU'];
+  assert.equal(worker.__test.publicEnergyCanPay(raichu,raichu.attacks[0],view,false,'opponent'),false);
+  view.opponentPublic.stadium=[];
+  assert.equal(worker.__test.publicEnergyCanPay(raichu,raichu.attacks[0],view,false,'opponent'),true);
+  view.opponentPublic.prizeCount=1;
+  assert.equal(worker.__test.publicEnergyCanPay(raichu,raichu.attacks[0],view,false,'opponent'),false);
+});

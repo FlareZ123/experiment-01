@@ -3613,7 +3613,27 @@ function publicEnergySupply(slot,view,temple=false,side='opponent'){
         !isBasicPokemon(slot)&&!isRuleBoxPokemon(slot)&&holder.prizeCount>other.prizeCount?ENERGY_TYPES:[]);
       continue;
     }
-    if(hasAnyName(name,['Counter Energy','Double Rainbow Energy','Unit Energy','Blend Energy','Boost Energy']))return null;
+    if(hasName(name,'Counter Energy')){
+      const holder=side==='opponent'?view.opponentPublic:view.ownPublic;
+      const other=side==='opponent'?view.ownPublic:view.opponentPublic;
+      // Printed CIN Counter Energy excludes GX and EX, not every Rule Box.
+      const gxOrEX=tags.some(tag=>tag==='GX'||tag==='EX') ||
+        hasAnyName(slot.printing,['-GX','-EX']);
+      const empowered=!gxOrEX && holder.prizeCount>other.prizeCount;
+      add(empowered?2:1,empowered?ENERGY_TYPES:[]);
+      continue;
+    }
+    if(hasName(name,'Unit Energy')){
+      const types=hasAnyName(name,['LPM','LightningPsychicMetal'])?
+        ['Lightning','Psychic','Metal']:
+        hasAnyName(name,['GFW','GrassFireWater'])?
+          ['Grass','Fire','Water']:
+        hasAnyName(name,['FDF','FightingDarknessFairy'])?
+          ['Fighting','Darkness','Fairy']:null;
+      if(!types)return null;
+      add(1,types);continue;
+    }
+    if(hasAnyName(name,['Double Rainbow Energy','Blend Energy','Boost Energy']))return null;
     if(hasAnyName(name,['Jet Energy','Gift Energy','Mist Energy','Capture Energy','Powerful Colorless Energy','Recycle Energy',
       'Lucky Energy','Treasure Energy','V Guard Energy','Draw Energy','Speed Lightning Energy','Wash Water Energy',
       'Horror Psychic Energy','Coating Metal Energy','Stone Fighting Energy','Heat Fire Energy','Hiding Darkness Energy',
@@ -3634,6 +3654,9 @@ function publicEnergyCanPay(slot,attack,view,temple=false,side='opponent'){
     stadiumAndToolEffectsLive(view)===true&&slot.printed?.types?.includes('Psychic')){
     const i=cost.indexOf('Colorless');if(i>=0)cost.splice(i,1);
   }
+  if(stadiums.some(p=>hasName(p,'Wondrous Labyrinth')) &&
+      stadiumAndToolEffectsLive(view)!==false &&
+      !slot.printed?.types?.includes('Fairy'))cost.push('Colorless');
   if(slot.publicRestrictions?.attackCostIncreaseWhileActive>0&&
     (slot===view.ownPublic.active||slot===view.opponentPublic.active)){
     cost.push(...Array(slot.publicRestrictions.attackCostIncreaseWhileActive).fill('Colorless'));
@@ -4518,6 +4541,7 @@ Object.defineProperty(module.exports, '__test', {
     hasOpponentAbilityLockOnFairyZoneHolder, hasOwnFairyZoneHolderLockThreat,
     viewAfterRemovingAbilityStadiums, fieldBlowerHoodBlocksFairyZone,
     paleMoonExtraPsychicAvailable, paleMoonRetreatStatus, paleMoonScore,
+    publicEnergySupply, publicEnergyCanPay,
     projectedStadium, usefulCandidateStadium, chooseEnergyPayment, weaknessMultiplier, stealthyHoodTargetScore
   })
 });
