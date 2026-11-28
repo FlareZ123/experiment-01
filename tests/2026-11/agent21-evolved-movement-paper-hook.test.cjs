@@ -78,7 +78,9 @@ test('compiled prefab hook is scoped, preserves old positives and restores on th
   const answer=withPaperEvolutionMovement(()=>{
     assert.notEqual(prefab.MOVED_TO_ACTIVE_THIS_TURN,native);
     assert.equal(prefab.MOVED_TO_ACTIVE_THIS_TURN(owner,mega),true);
-    assert.equal(prefab.MOVED_TO_ACTIVE_THIS_TURN(owner,old),false);
+    // A stale old-stage instance retains its native historical ID result;
+    // the patch only extends checks of the CURRENT stage in play.
+    assert.equal(prefab.MOVED_TO_ACTIVE_THIS_TURN(owner,old),true);
     owner.movedToActiveThisTurn.push(mega.id);
     assert.equal(prefab.MOVED_TO_ACTIVE_THIS_TURN(owner,mega),true);
     owner.movedToActiveThisTurn.pop();
