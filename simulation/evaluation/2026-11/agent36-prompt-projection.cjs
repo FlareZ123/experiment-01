@@ -729,8 +729,10 @@ function projectAttachEnergyPrompt({
       code:'UNSUPPORTED_ATTACH_ENERGY_PROMPT_SOURCE'
     });
   }
-  assert.ok(store&&typeof store.reduceEffect==='function',
-    'AttachEnergyPrompt projection requires the native Store dynamic-type evaluator');
+  assert.ok(store&&typeof store.reduceEffect==='function'&&store.state===state,
+    'AttachEnergyPrompt projection requires the original pinned Store state');
+  assert.ok(typeof native.Store==='function',
+    'AttachEnergyPrompt projection requires a separate native Store for board type checking');
   assert.ok(typeof native.CheckPokemonTypeEffect==='function'&&
     native.EnergyCard&&native.EnergyType&&native.CardType&&native.SuperType&&
     native.PlayerType&&native.SlotType,
@@ -757,17 +759,52 @@ function projectAttachEnergyPrompt({
       card.name==='Psychic Energy'&&
       Array.isArray(card.provides)&&card.provides.includes(native.CardType.PSYCHIC);
   });
+  // A native CheckPokemonTypeEffect is not a read-only call on the live
+  // Store: pinned Store.reduceEffect() always runs calculatePlayability(),
+  // replacing both players' live playable-card arrays. Perform the complete
+  // dynamic type check on one detached, prototype-preserving native State,
+  // and expose only the public eligible Bench indexes to the worker. The
+  // original physical prompt and chosen native tokens remain untouched.
+  const beforePlayability=state.players.map(player=>({
+    cards:player.playableCardIds,
+    abilities:player.playableHandAbilityCardIds
+  }));
+  const detached=cloneNativeValidationGraph(state);
+  assert.notStrictEqual(detached,state);
+  assert.notStrictEqual(detached.players,state.players);
+  const typeStore=new native.Store({onStateChange(){}});
+  typeStore.state=detached;
+  const scratchActor=detached.players[actorSeat];
+  assert.equal(scratchActor?.id,actor.id,
+    'detached native type-probe actor seat drifted');
+  assert.equal(scratchActor.bench.length,actor.bench.length,
+    'detached native type-probe Bench index drifted');
   const psychicBench=[];
   for(let index=0;index<actor.bench.length;index++){
-    const slot=actor.bench[index];
-    const pokemon=slot?.getPokemonCard?.();
-    if(!pokemon)continue;
-    const effect=new native.CheckPokemonTypeEffect(slot);
-    store.reduceEffect(state,effect);
-    if(Array.isArray(effect.cardTypes)&&effect.cardTypes.includes(native.CardType.PSYCHIC)){
-      psychicBench.push({index,pokemon});
+    const physical=actor.bench[index]?.getPokemonCard?.();
+    const scratchSlot=scratchActor.bench[index];
+    const inspected=scratchSlot?.getPokemonCard?.();
+    if(!physical){
+      assert.equal(inspected,undefined,
+        'detached native type-probe changed an empty Bench slot');
+      continue;
+    }
+    assert.equal(inspected?.fullName,physical.fullName,
+      'detached native type-probe moved the printed Bench identity');
+    const effect=new native.CheckPokemonTypeEffect(scratchSlot);
+    typeStore.reduceEffect(detached,effect);
+    if(Array.isArray(effect.cardTypes)&&
+        effect.cardTypes.includes(native.CardType.PSYCHIC)){
+      psychicBench.push({index,pokemon:physical});
     }
   }
+  state.players.forEach((player,index)=>{
+    assert.strictEqual(player.playableCardIds,beforePlayability[index].cards,
+      'native Psychic Bench projection mutated live playable-card identities');
+    assert.strictEqual(player.playableHandAbilityCardIds,
+      beforePlayability[index].abilities,
+      'native Psychic Bench projection mutated live hand-Ability playability');
+  });
   if(energies.length===0||psychicBench.length===0){
     if(prompt.options?.allowCancel===true){
       addCancelChoice(choices,choiceByToken,prompt,state);
