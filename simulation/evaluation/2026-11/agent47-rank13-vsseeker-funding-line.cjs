@@ -206,6 +206,7 @@ function chooseRank13VsSeekerFundingLine(request) {
       meta.ownerSeat !== 'actor' || meta.isOwnerVisible !== true ||
       meta.sourceZone !== 'discard' || meta.allowCancel !== false ||
       !Array.isArray(prompt.choices) || !view ||
+      request.role !== 'opponent' || request.seat !== view.actorSeat ||
       view.decisionKind !== 'owner-prompt') return null;
 
   const crispin = prompt.choices.filter(choice =>
