@@ -123,6 +123,61 @@ function shadowBindBus(view,items) {
 }
 
 
+
+function chooseStage2BusEscape(view,items) {
+ const own=view?.ownPublic,opp=view?.opponentPublic;
+ const target=opp?.active,active=own?.active;
+ if(!own||!opp||!active||!target||!Array.isArray(own.bench)||
+  !Array.isArray(items)||!has(target.printing,'Vileplume BUS')||
+  target.hp!==140||!Array.isArray(target.tools)||
+  !target.tools.some(x=>has(x,'Stealthy Hood'))||
+  !live(target,'Disgusting Pollen'))return null;
+ const pendingStage2=Array.isArray(view.ownHand)&&view.ownHand.some(x=>
+  has(x,'Dusknoir')&&!has(x,'Trevenant & Dusknoir-GX'));
+ const all=[{s:active,zone:'active',index:0},...own.bench.map((s,index)=>
+  ({s,zone:'bench',index}))].filter(({s})=>s);
+ const shadow=all.find(x=>has(x.s.printing,'Dusknoir')&&
+  !has(x.s.printing,'Trevenant & Dusknoir-GX')&&x.zone==='bench');
+ if(shadow){
+  const retire=items.find(i=>i.kind==='retreat'&&
+    i.publicMetadata?.targetSeat==='actor'&&
+    i.publicMetadata?.targetZone==='bench'&&
+    i.publicMetadata.targetIndex===shadow.index&&
+    i.targetPrinting===shadow.s.printing);
+  if(retire)return select(retire,'V3_PROMOTE_PAID_STAGE2_SHADOW_BIND_ATTACKER');
+ }
+ const d=all.filter(x=>has(x.s.printing,'Dusclops')&&
+  !has(x.s.printing,'Dusknoir'));
+ const nPsi=x=>Array.isArray(x.s?.energies)?x.s.energies.filter(e=>
+   has(e,'Basic Psychic Energy')||has(e,'Telepathic Psychic Energy')).length:0;
+ if(!d.length)return null;
+ // Strongest currently funded Stage1 is developed first; the actual host
+ // action frontier certifies whether today's evolution is legal.
+ const ordered=d.slice().sort((a,b)=>nPsi(b)-nPsi(a)||
+  (a.zone==='active'?-1:1));
+ if(pendingStage2)for(const x of ordered){
+  const evo=items.find(i=>i.kind==='play-card'&&
+   i.publicMetadata?.cardType==='pokemon'&&
+   has(i.actorPrinting,'Dusknoir')&&
+   i.publicMetadata?.targetSeat==='actor'&&
+   i.publicMetadata.targetZone===x.zone&&
+   (x.zone==='active'||i.publicMetadata.targetIndex===x.index)&&
+   (!i.targetPrinting||i.targetPrinting===x.s.printing));
+  if(evo)return select(evo,'V3_EVOLVE_DUSCLOPS_TO_HOODED_BUS_SHADOW_BIND_ATTACKER');
+ }
+ if(view.ownTurnResources?.energyPlayedTurn!==0)return null;
+ const energy=items.find(i=>i.kind==='play-card'&&
+  i.publicMetadata?.cardType==='energy'&&
+  i.publicMetadata?.targetSeat==='actor'&&
+  ordered.some(x=>nPsi(x)<3&&
+   i.publicMetadata.targetZone===x.zone&&
+   (x.zone==='active'||i.publicMetadata.targetIndex===x.index)&&
+   (!i.targetPrinting||i.targetPrinting===x.s.printing))&&
+  (has(i.actorPrinting,'Basic Psychic Energy')||
+    has(i.actorPrinting,'Telepathic Psychic Energy')));
+ return energy?select(energy,'V3_FUND_STAGE2_SHADOW_BIND_THROUGH_BUS_LOCK'):null;
+}
+
 function aceSafe(view){
  const hand=view?.ownHand;
  if(!Array.isArray(hand))return false; // unknown hand cannot price its own loss
@@ -225,7 +280,7 @@ function createPolicy({role,seat,policyVersion,config}) {
      return select(attack,'V3_FINISH_ATTACK_AFTER_SETTLED_BLAST');
    }
    const p=ready(v,items);
-   if(!p)return shadowBindBus(v,items);
+   if(!p)return shadowBindBus(v,items)??chooseStage2BusEscape(v,items);
    pending={
      turn:v.globalTurn,phase:'target',target:opp.active.printing,
      hp:opp.active.hp,initialDamage:opp.active.damage,
@@ -254,4 +309,4 @@ function createPolicy({role,seat,policyVersion,config}) {
  }
  return {decide:r=>decideWithAudit(r).decision,decideWithAudit};
 }
-module.exports={POLICY_VERSION,DECK_PATH,DECK_SHA,createPolicy,ready,validTarget,sourceAttack,shadowBindBus,aceSafe,verifiedAttackDamage,preservedCommonSetup,COMMON_SETUP_REASONS};
+module.exports={POLICY_VERSION,DECK_PATH,DECK_SHA,createPolicy,ready,validTarget,sourceAttack,shadowBindBus,aceSafe,verifiedAttackDamage,preservedCommonSetup,COMMON_SETUP_REASONS,chooseStage2BusEscape};
