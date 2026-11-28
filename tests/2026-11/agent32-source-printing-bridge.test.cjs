@@ -180,3 +180,27 @@ test('admission wrapper validates both native and projected views before worker 
     observation:{...parts.observation,untrustedExtra:'secret'}},
     [map,new Map()],policy));
 });
+
+
+test('Copycat copied Night Watch is host-only before or after source relabel',()=>{
+  const map=buildSourcePrintingMap(source,ids);
+  const view={actorSeat:0,ownHand:[],ownPublic:null,opponentPublic:null};
+  for(const copiedSourcePrinting of [
+    'Trevenant & Dusknoir-GX SMP',
+    'Trevenant & Dusknoir-GX SMP 54'
+  ]){
+    const prompt={source:{sourceKind:'card-effect',
+      sourcePrinting:'Mimikyu GRI',effectName:'Copycat',
+      copiedSourcePrinting,copiedAttackName:'Night Watch'},
+      choices:[],publicMetadata:{selectionType:'card-combination'}};
+    assert.throws(()=>projectSourcePrintings(view,null,[map,new Map()],{prompt}),
+      /HOST_ONLY_PHYSICAL_PROMPT/);
+  }
+  const nonNightWatch={source:{sourceKind:'card-effect',
+    sourcePrinting:'Mimikyu GRI',effectName:'Copycat',
+    copiedSourcePrinting:'Trevenant & Dusknoir-GX SMP',
+    copiedAttackName:'Poltergeist'},
+    choices:[],publicMetadata:{selectionType:'card-combination'}};
+  assert.equal(projectSourcePrintings(view,null,[map,new Map()],{
+    prompt:nonNightWatch}).prompt.source.copiedAttackName,'Poltergeist');
+});
