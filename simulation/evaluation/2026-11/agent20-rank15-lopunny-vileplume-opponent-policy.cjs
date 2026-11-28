@@ -83,17 +83,21 @@ const playable = item => ['attack','play-card','retreat','use-ability','use-stad
 const take = item => ({kind:'select-action',token:item.token});
 const abstain = reasonCode => ({kind:'abstain',reasonCode});
 
-function templeSuppressesSpecialEnergy(o) {
-  const stadium=[...arr(o?.ownPublic?.stadium),...arr(o?.opponentPublic?.stadium)];
-  const temple=stadium.some(x=>/^Temple of Sinnoh ASR(?: 155)?\b/i.test(txt(x)));
-  if(!temple)return false;
-  // The host's own restriction projection reports cases where Stadium and
-  // Tool effects are temporarily suppressed. Do not enforce a muted Temple.
-  const muted=[o?.ownPublic,o?.opponentPublic].some(p=>{
+function stadiumAndToolEffectsMuted(o) {
+  return [o?.ownPublic,o?.opponentPublic].some(p=>{
     const turns=p?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
     return Number.isSafeInteger(turns)&&turns>0;
   });
-  return !muted;
+}
+function templeSuppressesSpecialEnergy(o) {
+  const stadium=[...arr(o?.ownPublic?.stadium),...arr(o?.opponentPublic?.stadium)];
+  const temple=stadium.some(x=>/^Temple of Sinnoh ASR(?: 155)?\b/i.test(txt(x)));
+  return temple&&!stadiumAndToolEffectsMuted(o);
+}
+function jammingSuppressesTools(o) {
+  const stadium=[...arr(o?.ownPublic?.stadium),...arr(o?.opponentPublic?.stadium)];
+  return stadium.some(x=>/^Jamming Tower\b/i.test(txt(x)))&&
+    !stadiumAndToolEffectsMuted(o);
 }
 function sourcePrizeValue(pokemon) {
   const p=txt(pokemon);
@@ -158,7 +162,8 @@ function printedDamage(item,request) {
       // With no certified Stadium-suppression fact, do not invent an
       // exception to the visible Temple effect.
       if(!templeSuppressesSpecialEnergy(o)&&arr(own.energies).some(e=>has(e,P.powerful)))value+=20;
-      if(arr(own.tools).some(e=>has(e,P.choiceBelt))&&/\bV(?:MAX|STAR)?\b/i.test(txt(op)))value+=30;
+      if(!jammingSuppressesTools(o)&&arr(own.tools).some(e=>has(e,P.choiceBelt))&&
+         /\bV(?:MAX|STAR)?\b/i.test(txt(op)))value+=30;
     }
   }
   if(has(own,P.pidgeot)&&item.attackName==='Blustery Wind')value=120;
@@ -443,9 +448,7 @@ function hoodProtectionScore(item,o) {
     x.abilityName==='Irritating Pollen'&&x.suppressed===true&&
     /^(?:Galarian Weezing|Garbodor|Wobbuffet)\b/i.test(x.sourcePrinting??''));
   if(!suppressed)return 0;
-  const jammed=[...arr(o.ownPublic.stadium),...arr(o.opponentPublic?.stadium)]
-    .some(x=>/^Jamming Tower TWM(?: 153)?\b/i.test(txt(x)));
-  return jammed?0:172;
+  return jammingSuppressesTools(o)?0:172;
 }
 function missingEvolutionChannels(o) {
   const own=o.ownPublic;
