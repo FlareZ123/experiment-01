@@ -466,3 +466,75 @@ test('Grand Tree chooses BUS when AOR already established and rejects opponent d
   r.prompt.choices[1].publicMetadata.ownerSeat='opponent';
   assert.equal(decision(r).reasonCode,'UNSUPPORTED_CARD_COMBINATION_SOURCE');
 });
+
+function gustRoot(seat=0) {
+  const r=ghRoot(seat);r.observation.globalTurn=7;
+  r.observation.ownTurnResources={supporterPlayedTurn:0,energyPlayedTurn:0};
+  r.observation.ownPublic=p(pokemon('Bunnelby PRC 121',{hp:70}),
+    [pokemon(MEGA,{hp:330,energies:['Double Colorless Energy SUM 136']}),
+      pokemon('Pidgeot ex OBF 164',{hp:280})],{prizeCount:2});
+  r.observation.opponentPublic=p(pokemon(MIMIKYU,{hp:70}),
+    [pokemon('Shadow Rider Calyrex VMAX CRE 75',{hp:320,damage:120,
+      printed:{stage:'VMAX',weakness:[],resistance:[]}}),
+      pokemon('Shadow Rider Calyrex V CRE 74',{hp:210,damage:0,
+      printed:{stage:'BASIC',weakness:[],resistance:[]}})],{prizeCount:3});
+  r.observation.ownHand=['Guzma BUS 115'];
+  r.actionFrontier.items=[src('Guzma BUS 115','play-card','gust'),{kind:'pass',token:'pass'}];
+  return r;
+}
+for(const seat of [0,1]){
+  test('seat '+seat+': terminal offered Guzma gust targets 3-Prize damaged VMAX then promotes paid Mega',()=>{
+    const r=gustRoot(seat);
+    assert.deepEqual(decision(r),{kind:'select-action',token:'gust'});
+    r.prompt={promptType:'ChoosePokemonPrompt',source:{sourcePrinting:'Guzma BUS 115',effectName:'Guzma'},
+      publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+      choices:[{kind:'pokemon',token:'vmax',printing:'Shadow Rider Calyrex VMAX CRE 75',
+        publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:0}},
+        {kind:'pokemon',token:'v',printing:'Shadow Rider Calyrex V CRE 74',
+        publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:1}}]};
+    assert.deepEqual(decision(r),{kind:'select-choices',tokens:['vmax']});
+    r.prompt.choices=[{kind:'pokemon',token:'pidgeot',printing:'Pidgeot ex OBF 164',
+      publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:1}},
+      {kind:'pokemon',token:'mega',printing:MEGA,
+      publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0}}];
+    assert.deepEqual(decision(r),{kind:'select-choices',tokens:['mega']});
+  });
+}
+test('Guzma is not spent without powered Mega, target or Supporter availability',()=>{
+  const r=gustRoot();r.observation.ownPublic.bench[0].energies=[];
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  r.observation.ownPublic.bench[0].energies=['Double Colorless Energy SUM 136'];
+  r.observation.opponentPublic.bench=[];
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  r.observation.opponentPublic.bench=[pokemon('Shadow Rider Calyrex VMAX CRE 75',{
+    hp:320,damage:120,printed:{stage:'VMAX',weakness:[],resistance:[]}})];
+  r.observation.ownTurnResources.supporterPlayedTurn=7;
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+});
+test('Guzma does not sacrifice Active BUS lock for ordinary gust tempo',()=>{
+  const r=gustRoot();r.observation.ownPublic.active=pokemon('Vileplume BUS 6',{hp:140});
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+});
+test('Guzma rejects opponent-owned choice under actor promotion, wrong index and mixed prompt',()=>{
+  const r=gustRoot();
+  r.prompt={promptType:'ChoosePokemonPrompt',source:{sourcePrinting:'Guzma BUS 115',effectName:'Guzma'},
+    publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+    choices:[{kind:'pokemon',token:'fake',printing:MEGA,
+      publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:0}}]};
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_POKEMON_CHOICE');
+  r.prompt.choices=[{kind:'pokemon',token:'fake',printing:MEGA,
+    publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:1}}];
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_POKEMON_CHOICE');
+  r.prompt.choices.push({kind:'pokemon',token:'mixed',printing:'Shadow Rider Calyrex VMAX CRE 75',
+    publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:0}});
+  assert.equal(decision(r).reasonCode,'UNSUPPORTED_POKEMON_PROMPT');
+});
+test('Guzma does not claim guaranteed KO through protection or 1-Prize idle target',()=>{
+  const r=gustRoot();r.observation.opponentPublic.bench[0].tools=['Stealthy Hood UNB 186'];
+  r.observation.opponentPublic.bench[1].damage=0;
+  r.observation.ownPublic.prizeCount=3;
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  r.observation.opponentPublic.bench=[pokemon('Girafarig LOT 94',{hp:70,
+    printed:{stage:'BASIC',weakness:[],resistance:[]}})];
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+});
