@@ -1,3 +1,5 @@
+**Subsequent full-field extension (13:42 UTC):** This report's 15/29 coverage counts only the two Mega ex + VSTAR classes investigated here. A complete exact-source-rule audit found an **additional old Pokémon-EX gap**: `Ho-Oh-EX DRX22` at rank19 is incorrectly counted as **one**, actually **two** Prizes. Therefore the broader frozen-worker baseline Prize miscount affects **16/29 original lists, 25 source Pokémon rows and 49 physical source copies**. See [complete 29-original-source ledger](agent25-original29-printed-prize-awards-20261128.md) and its 13-case source-rule audit; do not reinterpret the earlier 15/29 as all-class coverage. The 2026 Mega vs VSTAR terminal-Guzma finding below remains valid. **No new game evidence.**
+
 # A field-wide candidate-policy prize-count error: VSTAR and modern Mega Evolution ex
 
 **Finding class:** source-level exact-print/rules + deterministic pure-program regression. This is **not** a validated native Store outcome, matchup win, source-game frequency, or claim against the 99.5% benchmark. The frozen PR #95 candidate worker stays unchanged; the code below is an opt-in proposed successor correction.
