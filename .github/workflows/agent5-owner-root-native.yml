@@ -170,6 +170,7 @@ jobs:
             tests/actor-history-projection.test.cjs \
             tests/2026-11/agent36-flittle-mcts-root-provider.test.cjs \
             tests/2026-11/agent5-information-set-search.test.cjs \
+            tests/2026-11/agent5-general-sum-search.test.cjs \
             tests/2026-11/agent5-twinleaf-belief-search.test.cjs \
             tests/agent4-owner-k1-prize-knowledge.test.cjs \
             tests/agent48-owner-k1-sampler-projection.test.cjs \
