@@ -615,6 +615,30 @@ function scoreSearchCard(printing, observation, context = '') {
   return context ? 10 : 0;
 }
 
+// Shared source-bound root/confirmation gate for a payoff the native engine
+// can actually execute: one pre-existing Water on a non-lock actor Pokémon
+// becomes Benched Water after Articuno's immediate Active switch, feeding
+// Cold Crush-GX against an Energy-bearing opponent. Avoid known Ability locks
+// and protect Snorlax Block / Wobbuffet's own lock Active position.
+function articunoColdCrushWindow(observation) {
+  const own = observation.ownPublic;
+  const opponent = observation.opponentPublic;
+  const actorActive = own?.active?.printing ?? '';
+  if (matches(actorActive, PRINT.snorlax) ||
+      matches(actorActive, PRINT.wobbuffet) ||
+      gxUsed(observation) ||
+      opponentActiveEnergy(observation) < 2) return false;
+  const opposingActive = opponent?.active?.printing ?? '';
+  if (matches(opposingActive, PRINT.wobbuffet) ||
+      /^Iron Thorns ex TEF(?: 77)?$/i.test(opposingActive)) return false;
+  if (stadiumsInPlay(observation).some(stadium =>
+    /^Path to the Peak CRE(?: 148)?$/i.test(valueText(stadium)))) return false;
+  return slots(own).some(row =>
+    !matches(row.pokemon.printing, PRINT.articuno) &&
+    list(row.pokemon.energies).some(energy =>
+      /^Water Energy\b/i.test(valueText(energy))));
+}
+
 function scoreBasicPlay(printing, observation) {
   const own = observation.ownPublic;
   if (matches(printing, PRINT.snorlax)) {
@@ -633,7 +657,10 @@ function scoreBasicPlay(printing, observation) {
     return !boardHas(own, PRINT.mimikyu) && opponentHasProtectedAttacker ? 135 : 0;
   }
   if (matches(printing, PRINT.rotom)) return boardHas(own, PRINT.rotom) ? 25 : 100;
-  if (matches(printing, PRINT.articuno)) return boardHas(own, PRINT.articuno) ? 25 : 85;
+  if (matches(printing, PRINT.articuno)) {
+    if (boardHas(own, PRINT.articuno)) return 25;
+    return articunoColdCrushWindow(observation) ? 235 : 85;
+  }
   if (matches(printing, PRINT.stunfisk)) return boardHas(own, PRINT.stunfisk) ? 25 : 75;
   if (matches(printing, PRINT.regirock)) return boardHas(own, PRINT.regirock) ? 10 : 45;
   return 0;
@@ -1347,12 +1374,7 @@ function promptDecision(request) {
     // setup, but preserve Snorlax's Block and already-spent GX plans.
     const ascentSource = matches(sourcePrinting, PRINT.articuno) &&
       ['Legendary Ascent', 'Articuno-GX'].includes(prompt.source?.effectName);
-    const benchWater = slots(observation.ownPublic).some(row =>
-      row.zone === 'bench' && !matches(row.pokemon.printing, PRINT.articuno) &&
-      list(row.pokemon.energies).some(energy => /^Water Energy\b/i.test(valueText(energy))));
-    const acceptAscent = ascentSource && benchWater && !gxUsed(observation) &&
-      !matches(observation.ownPublic?.active?.printing ?? '', PRINT.snorlax) &&
-      opponentActiveEnergy(observation) >= 2;
+    const acceptAscent = ascentSource && articunoColdCrushWindow(observation);
     const shouldAccept = acceptAscent ||
       (/instant charge/i.test(source) && list(observation.ownHand).length <= 4 &&
         ownDeckCount(observation) > 3) ||
