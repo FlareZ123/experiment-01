@@ -29,7 +29,7 @@ function chooseRank13CrispinContinuation(request) {
   const prompt=request?.prompt,view=request?.observation;
   const meta=prompt?.publicMetadata,source=prompt?.source;
   if(!prompt||!view||view.decisionKind!=='owner-prompt'||
-     request.seat!==view.actorSeat ||
+     request.role!=='opponent' || request.seat!==view.actorSeat ||
      source?.classification!=='actor-choice' ||
      source?.sourceKind!=='card-effect' ||
      !match(source.sourcePrinting,CRISPIN) ||
