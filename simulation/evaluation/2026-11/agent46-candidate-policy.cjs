@@ -1125,7 +1125,7 @@ function scoreEvolutionPlay(item) {
   return -Infinity;
 }
 
-function scoreEnergyPlay(item, view) {
+function scoreEnergyPlay(item, view, receipt) {
   const metadata = item.publicMetadata ?? {};
   if (metadata.targetSeat !== 'actor' ||
       !['active', 'bench'].includes(metadata.targetZone) ||
@@ -1138,11 +1138,13 @@ function scoreEnergyPlay(item, view) {
   // would make the first printed attack payable. This checks a hypothetical
   // actor-owned attachment only; the host still authorizes real root actions.
   if (metadata.targetZone === 'active' && view.opponentPublic.active) {
-    const before = bestAttackForSlot(target, view, view.opponentPublic.active);
+    const before = bestAttackForSlot(target, view, view.opponentPublic.active,
+      { publicEventReceipt: receipt });
     const funded = {
       ...target, energies: [...(target.energies ?? []), item.actorPrinting]
     };
-    const after = bestAttackForSlot(funded, view, view.opponentPublic.active);
+    const after = bestAttackForSlot(funded, view, view.opponentPublic.active,
+      { publicEventReceipt: receipt });
     if (!before && after) return 1120;
   }
   if (opponentHasRegidrago(view) && hasName(target.printing, 'Mimikyu') && count < 2) return 920;
@@ -1295,7 +1297,7 @@ function chooseRoot(view, request) {
   const scoredPlays = plays.map(item => {
     const basic = scoreBasicPlay(item, view);
     const evolution = scoreEvolutionPlay(item);
-    const energy = scoreEnergyPlay(item, view);
+    const energy = scoreEnergyPlay(item, view, request.publicEventReceipt);
     const trainer = scoreTrainerPlay(item, view, request.publicEventReceipt);
     const score = Math.max(basic, evolution, energy, trainer);
     recordPolicyAuditScore(item.token, score, 'NO_ELIGIBLE_PLAY_COMPONENT', [
