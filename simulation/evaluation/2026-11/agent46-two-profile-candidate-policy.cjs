@@ -2112,6 +2112,15 @@ function compressorSeekerSupporterNeed(view,printing,receipt) {
 // so a *held* Raihan is legal after a publicly recorded opposing-turn KO.
 // Project only the single hypothetical discard, then use the existing
 // Raihan evaluator; never guess hidden actual deck composition.
+function compressorRaihanDoubleDumpNeed(view,receipt){
+ if(receipt?.priorOpponentTurnKO?.any!==true||!supporterAvailable(view)||
+  energyAvailableNow(view)||!handHas(view,'VS Seeker')||handHas(view,'Raihan')||
+  discardHas(view,'Raihan')||discardHas(view,'Psychic Energy')||
+  knownFullyPrized(view,'Raihan')||view.ownPublic.deckCount<3||
+  (view.ownPublic.lostZone??[]).some(p=>hasName(p,'Raihan')))return -Infinity;
+ const projected=viewAfterPsychicAttachment(view,'active',0,'Psychic Energy MEE');
+ return projected&&publicFinalAttack(projected,new Set(['Max Geist']))?160:-Infinity;
+}
 function compressorRaihanFuelNeed(view,receipt) {
   if(receipt?.priorOpponentTurnKO?.any!==true ||
      !supporterAvailable(view) || !handHas(view,'Raihan') ||
@@ -2175,6 +2184,10 @@ function searchCandidates(view, prompt, choices, receipt = null) {
     // low-discard-value cards. The actor can recover it with VS Seeker.
     const fuel=Math.max(compressorRaihanFuelNeed(view,receipt),
       compressorStretcherEnergyNeed(view,receipt));
+    const pair=compressorRaihanDoubleDumpNeed(view,receipt);
+    const pairEligible=Number.isFinite(pair)&&prompt.publicMetadata?.maximumCount>=2&&
+      choices.some(choice=>hasName(choice.printing,'Raihan'))&&
+      choices.some(choice=>isBasicEnergyPrinting(choice.printing)&&hasName(choice.printing,'Psychic Energy'));
     rows = choices.map(choice => {
       const need=compressorSeekerSupporterNeed(view,choice.printing,receipt);
       const pokemon=compressorStretcherPokemonNeed(view,choice.printing,receipt);
@@ -2184,6 +2197,7 @@ function searchCandidates(view, prompt, choices, receipt = null) {
         Number.isFinite(need)?2000+need:-Infinity,
         Number.isFinite(pokemon)?2000+pokemon:-Infinity,
         isPsychic&&Number.isFinite(fuel)?2000+fuel:-Infinity,
+        pairEligible&&(hasName(choice.printing,'Raihan')||isPsychic)?2000+pair:-Infinity,
         -discardValue(view,choice.printing,receipt))};
     });
   } else if (sourceZone === 'hand') {
@@ -2360,7 +2374,12 @@ function chooseCardCombination(view, prompt, receipt = null) {
       const at=hand.indexOf(row.choice.printing);if(at>=0)hand.splice(at,1);
     }
   } else if (metadata.sourceZone === 'deck' && prompt.source?.effectName === 'Battle Compressor') {
-    selected = ranked.filter(row=>Number.isFinite(row.score)&&row.score>0)
+    const pair=compressorRaihanDoubleDumpNeed(view,receipt);
+    const raihan=ranked.find(row=>hasName(row.choice.printing,'Raihan'));
+    const psychic=ranked.find(row=>isBasicEnergyPrinting(row.choice.printing)&&hasName(row.choice.printing,'Psychic Energy'));
+    if(Number.isFinite(pair)&&raihan&&psychic&&raihan.choice.token!==psychic.choice.token&&maximum>=2)
+      selected=[raihan.choice,psychic.choice];
+    else selected=ranked.filter(row=>Number.isFinite(row.score)&&row.score>0)
       .slice(0,Math.min(1,maximum)).map(row=>row.choice);
     // Normally minimumCount=0 for this up-to-three deck discard.
     if(selected.length<minimum)
@@ -2489,7 +2508,10 @@ function choosePokemonRecipient(view, prompt, receipt=null, profile=null) {
     const target=view.opponentPublic.active;
     ranked=actorChoices.map(row=>{
       const moved=guzmaSwitch(view,'ownPublic',row.target.index);
-      return {...row,terminal:!!guzmaProjectedFinalAttack(moved),score:guzmaPivotScore(view,moved,row.target.index,receipt)};
+      const direct=guzmaProjectedFinalAttack(moved);
+      const freePivot=direct?null:guzmaFreePivotFinal(view,moved,row.target.index);
+      const terminal=!!(direct||freePivot?.final);
+      return {...row,terminal,score:terminal?30000:guzmaPivotScore(view,moved,row.target.index,receipt)};
     });
     if(ranked.some(row=>row.terminal))ranked=ranked.filter(row=>row.terminal);
   } else if (effectName === 'Guzma' && opponentChoices.length > 0) {
@@ -2978,7 +3000,7 @@ function chooseConfirmPrompt(view, prompt) {
 
 // Mandatory replacement after a Knock Out. Every target is a visible owner Bench
 // slot; rank funded counterattacks above generic setup and avoid needless prize exposure.
-function chooseKnockoutPromotion(view,prompt) {
+function chooseKnockoutPromotionOriginal(view,prompt) {
   const m=prompt.publicMetadata;
   if(view.phase!==3||view.ownPublic.active!==null||
       prompt.promptType!=='ChoosePokemonPrompt'||prompt.description!=='CHOOSE_NEW_ACTIVE_POKEMON'||
@@ -3528,6 +3550,15 @@ function guzmaProjectedFinalAttack(view) {
   const names=new Set((view.ownPublic.active?.attacks??[]).filter(a=>!a.gxAttack).map(a=>a.name));
   return publicFinalAttack(view,names);
 }
+function guzmaFreePivotFinal(before,after,index){
+ if(index<0||!retreatAvailableNow(after)||ownRetreatCost(after)!==0)return null;
+ const original=before.ownPublic.active,benched=after.ownPublic.bench[index];
+ if(!original||!benched||benched.printing!==original.printing)return null;
+ const returned=guzmaSwitch(after,'ownPublic',index);
+ const projected={...returned,ownTurnResources:{...returned.ownTurnResources,retreatedTurn:returned.globalTurn}};
+ const final=guzmaProjectedFinalAttack(projected);
+ return final?{final,projected}:null;
+}
 function guzmaPlans(view,receipt=null) {
   if(!view.ownPublic.active||!view.opponentPublic.active)return [];
   const ownIndices=view.ownPublic.bench.map((slot,i)=>slot?i:-1).filter(i=>i>=0);
@@ -3541,10 +3572,13 @@ function guzmaPlans(view,receipt=null) {
     for(const ownIndex of ownIndices){
       const moved=ownIndex<0?gusted:guzmaSwitch(gusted,'ownPublic',ownIndex);
       const attacker=moved.ownPublic.active;
-      const terminal=guzmaProjectedFinalAttack(moved);
+      const direct=guzmaProjectedFinalAttack(moved);
+      const freePivot=direct?null:guzmaFreePivotFinal(view,moved,ownIndex);
+      const terminal=direct??freePivot?.final;
       if(terminal){
+        const projected=freePivot?.projected??moved,terminalAttacker=projected.ownPublic.active;
         const prizes=prizeLiability(target);
-        const score=prizes*1500+attackScore(attacker,terminal.attack,moved,target,{requirePayable:true})-prizeLiability(attacker)*100;
+        const score=prizes*1500+attackScore(terminalAttacker,terminal.attack,projected,target,{requirePayable:true})-prizeLiability(terminalAttacker)*100;
         rows.push({targetIndex,ownIndex,prizes,unlock:0,score,terminal:true});
         continue;
       }
@@ -3691,7 +3725,7 @@ function scoreTrainerPlay(item, view, receipt, profile) {
     const raihanFuel=compressorRaihanFuelNeed(view,receipt);
     const stretcherFuel=compressorStretcherEnergyNeed(view,receipt);
     const stretcherPokemon=compressorStretcherBestPokemonNeed(view,receipt);
-    const needed=Math.max(seeker,raihanFuel,stretcherFuel,stretcherPokemon);
+    const needed=Math.max(seeker,raihanFuel,stretcherFuel,stretcherPokemon,compressorRaihanDoubleDumpNeed(view,receipt));
     if(Number.isFinite(needed))return 1000+needed;
   }
   const missingBasicV = !knownFullyPrized(view,'Shadow Rider Calyrex V') && !hasBasicShadowRiderV(view) &&
@@ -4235,6 +4269,15 @@ function directTerminalSafeTool(tool) {
   return isText(tool) && DIRECT_TERMINAL_SAFE_TOOLS.some(name=>
     tool===name || tool.startsWith(name+' '));
 }
+const SOURCE_SPIKY_ENERGIES = Object.freeze(["Spiky Energy JTG 159","Spiky Energy JTG 190"]);
+function spikyEnergyDirectFinalSafe(energy,slot,view){
+ if(!SOURCE_SPIKY_ENERGIES.includes(energy))return false;
+ if(slot!==view.opponentPublic.active)return true;
+ const active=view.ownPublic.active;
+ if(!Number.isFinite(active?.hp)||!Number.isFinite(active?.damage))return false;
+ const copies=(slot.energies??[]).filter(e=>SOURCE_SPIKY_ENERGIES.includes(e)).length;
+ return copies>0&&active.hp-active.damage>20*copies;
+}
 function directTerminalSafeStadium(stadium,view){
   if(!isText(stadium))return false;
   if(hasAnyName(stadium,['Tropical Beach','Chaotic Swell','Artazon',
@@ -4256,11 +4299,17 @@ function terminalAbilityProvablyOff(slot, abilityName, view) {
   return !locks.unknown && locks.active.some(source =>
     abilityLockSourceSuppressesTarget(source, 'opponent', slot, view) === true);
 }
+const SOURCE_ABILITY_DIRECT_FINAL_SAFE = Object.freeze([["Kyurem SFA","Plasma Bane"],["Hisuian Goodra VSTAR LOR","Moisture Star"],["Galarian Stunfisk SSH","Snap Trap"],["Rotom V LOR","Instant Charge"],["Articuno-GX CES","Legendary Ascent"],["Snorlax PGO","Block"],["Dusknoir PRE","Cursed Blast"],["Dusclops PRE","Cursed Blast"],["Dusknoir BCR","Sinister Hand"],["Radiant Alakazam SIT","Painful Spoons"],["Bloodmoon Ursaluna ex TWM","Seasoned Skill"],["Vileplume-GX CEC","Fragrant Flower Garden"],["Gloom UNB","Irresistible Aroma"],["Meloetta ex BLK","Debut Performance"],["Pikachu LOR","Pika Dash"],["Mr. Mime PLF","Bench Barrier"],["Koffing CEC","Blow-Away Bomb"],["Oranguru V ASR","Back Order"],["Oricorio-GX CEC","Dance of Tribute"]]);
+function sourceAbilityDirectFinalHarmless(slot,a,view){
+ if(a==='Safeguard'&&hasName(slot?.printing,'Mimikyu PAL'))return slot!==view.opponentPublic.active;
+ return SOURCE_ABILITY_DIRECT_FINAL_SAFE.some(row=>row[1]===a&&hasName(slot?.printing,row[0]));
+}
 function cleanPublicTerminalView(view,direct=false,extraHarmlessAbility=null){
   return view.globalTurn>1&&view.ownPublic.active&&view.opponentPublic.active&&
     opponentBoard(view).every(slot=>
   (slot.abilities??[]).every(a=>
     (direct&&directTerminalHarmlessAbility(slot,a)) ||
+    (direct&&sourceAbilityDirectFinalHarmless(slot,a,view)) ||
     (typeof extraHarmlessAbility==='function'&&extraHarmlessAbility(slot,a)) ||
     ((a==='Garbotoxin'&&hasName(slot.printing,'Garbodor')) ||
       terminalAbilityProvablyOff(slot,a,view))) &&
@@ -4268,7 +4317,7 @@ function cleanPublicTerminalView(view,direct=false,extraHarmlessAbility=null){
     (direct && directTerminalSafeTool(t))) &&
   (slot.energies??[]).every(p=>
     isBasicEnergyPrinting(p) ||
-    (direct && directTerminalSafeSpecialEnergy(p,slot))))&&
+    (direct && (directTerminalSafeSpecialEnergy(p,slot)||spikyEnergyDirectFinalSafe(p,slot,view)))))&&
     // Poison/Burn do not prevent announcing attacks, and status on the
     // *defending* Pokémon never bars incoming direct damage. A candidate
     // Confused attack is probabilistic (not a certain final); Asleep or
@@ -4635,7 +4684,7 @@ function chooseRoot(view, request, profile) {
     item.actorPrinting==='Tropical Beach BWP 50' &&
     item.publicMetadata?.stadiumEffectLive===true &&
     observedStadiums.includes(item.actorPrinting) &&
-    Array.isArray(view.ownHand) && view.ownHand.length<=5 &&
+    Array.isArray(view.ownHand) && view.ownHand.length<7 &&
     Number.isSafeInteger(view.ownPublic.deckCount) &&
     // Its draw-to-seven should leave at least two cards in deck.
     view.ownPublic.deckCount>=9-view.ownHand.length);
@@ -4710,3 +4759,51 @@ Object.defineProperty(module.exports, '__test', {
     projectedStadium, usefulCandidateStadium, chooseEnergyPayment, weaknessMultiplier, stealthyHoodTargetScore
   })
 });
+
+function sourceSnorlaxNextTurnOneAttachmentWin(view,prompt){
+ if(view.phase!==3||view.ownPublic.active!==null||
+  prompt?.promptType!=='ChoosePokemonPrompt'||
+  prompt.description!=='CHOOSE_NEW_ACTIVE_POKEMON'||
+  prompt.source?.classification!=='actor-choice'||
+  prompt.source?.sourceKind!=='engine'||
+  prompt.source?.sourcePrinting!==null||
+  prompt.source.effectName!==prompt.description||
+  prompt.publicMetadata?.minimumCount!==1||
+  prompt.publicMetadata?.maximumCount!==1||
+  prompt.publicMetadata?.allowCancel!==false||
+  !Number.isInteger(view.globalTurn)||view.globalTurn<8||
+  view.ownPublic.deckCount<=0||view.ownPublic.prizeCount!==1||
+  !hasName(view.opponentPublic.active?.printing,'Snorlax PGO')||
+  !Array.isArray(view.ownHand)||
+  effectiveAbilityStatus(view.opponentPublic.active,'Block','opponent',view)!==true)
+   return null;
+ const e=view.ownHand.find(p=>isBasicEnergyPrinting(p)&&hasName(p,'Psychic Energy'));
+ if(!e||!Array.isArray(prompt.choices))return null;
+ for(const choice of prompt.choices){
+  if(choice.kind!=='pokemon'||choice.publicMetadata?.ownerSeat!=='actor'||
+     choice.publicMetadata?.targetZone!=='bench'||
+     !hasName(choice.printing,'Shadow Rider Calyrex VMAX CRE'))continue;
+  const t=slotForPokemonChoice(view,choice);
+  if(!t||!isShadowRiderVmax(t.slot)||t.slot.energies?.length!==2||
+    !t.slot.energies.every(p=>isBasicEnergyPrinting(p)&&hasName(p,'Psychic Energy')))continue;
+  const promoted=switchedPublic(view,'ownPublic',t.index);
+  const attacker=promoted.ownPublic.active;
+  const futureTurn=view.globalTurn+1;
+  const upcoming={...promoted,globalTurn:futureTurn,phase:2,
+    ownHand:view.ownHand.filter((x,i)=>i!==view.ownHand.indexOf(e)),
+    ownPublic:{...promoted.ownPublic,handCount:Math.max(0,(promoted.ownPublic.handCount??1)-1),
+      active:{...attacker,energies:[...attacker.energies,e]}},
+    ownTurnResources:{...view.ownTurnResources,energyPlayedTurn:futureTurn}};
+  if(publicFinalAttack(upcoming,new Set(['Max Geist'])))return choice;
+ }
+ return null;
+}
+function chooseKnockoutPromotion(view,prompt){
+ const prior=chooseKnockoutPromotionOriginal(view,prompt);
+ if(prior?.kind!=='select-choices')return prior;
+ const choice=sourceSnorlaxNextTurnOneAttachmentWin(view,prompt);
+ if(!choice)return prior;
+ recordPolicyAuditScore(choice.token,40000);
+ setPolicyAuditRule('KO_PROMOTION_SNORLAX_BLOCK_NEXT_TURN_FINAL','STRICT_SOURCE_AND_ONE_ATTACH');
+ return {kind:'select-choices',tokens:[choice.token]};
+}
