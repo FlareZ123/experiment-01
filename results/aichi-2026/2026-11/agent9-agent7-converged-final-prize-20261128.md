@@ -24,3 +24,21 @@ Agent7's source branch had already fixed the first-Basic CRE74 versus directly G
 **Owner action:** Agent46 and independent Agent31 should compare this small Agent7-derived convergence branch to Agent32 PR #95 and the original Agent7 successor, select **one current candidate source worker**, and admit only reviewed compatible diffs after the existing source-print bridge/native handshake prerequisites. The fragment is intended for owner integration, not as a third competing candidate program. Source-grounded tests are evidence of encoded decisions, not game performance.
 
 **Benchmark unchanged:** 29/32 authenticated original Aichi Top32 lists, no qualified native matches, no selected final 60, and no demonstrated 99.5% win rate.
+
+
+## Follow-on: all four fixed-60 direct-damage finishers, not only Max Geist
+
+The selected candidate original 60 has four independent attacks with directly evaluable terminal damage and payable all-Psychic Energy in their corresponding original printed Pokémon. Based on the supplied card database:
+
+| Fixed-list Pokémon | Exact attack | Printed damage / relevant cost | What root was missing |
+| --- | --- | --- | --- |
+| Shadow Rider Calyrex VMAX CRE 75 | Max Geist | 10 + 30 × total Psychic Energy; 3 Colorless | Already handled by earlier terminal override |
+| Latias ex SSP 76 | Eon Blade | 200; 2 Psychic + Colorless | Paid 200-damage final KO occurs before irrelevant future-turn attack restriction |
+| Trevenant & Dusknoir-GX SMP 217 | Night Watch | 150; 3 Psychic | Paid 150-damage final KO occurs even though Night Watch has a random-hand side effect |
+| Lillie's Clefairy ex JTG 56 | Full Moon Rondo | 20 + 20 per both players' Benched Pokémon; Psychic + Colorless | Paid Bench-size damage can take final Prize(s) without drawing or spending another Supporter |
+
+The earlier convergence root still selected Lillie's Determination ahead of the **three non-VMAX** final-KO attacks. Replaced the single `immediatelyWinningMaxGeist` direct-attack preference with **`immediatelyWinningKnownAttack`** using this *exact original source-print / attack whitelist*, native offered attack, known Basic Psychic Energy payment, visible HP/damage/weakness and resistance, and terminal Prize/last-Pokémon condition. The exceptional two-card Underworld Door policy remains restricted to **Max Geist** and unchanged. This does not authorize a generic `attack.damage` parser to declare terminal wins from unknown copied attacks.
+
+**Execution:** Source worker follow-up commits `1f15102ed7b3ca71578af77914d13d47a966b6c3` and precise audit-reason update `7b8169e766e70ac25010bf864156d6a7860b3783`; code blob `20c13b937d7f4249726557dec15ef16b278e5aae`. [52 additional source-specific two-seat assertions](https://github.com/FlareZ123/experiment-01/blob/agent9/agent7-converged-candidate-terminal-20261128/tests/2026-11/agent9-agent7-converged-multiple-final-attacks.test.cjs), commit `2ebe563fbca2768f6454505e2033fc361d26eb57`, blob `0f3e96f008fc361829a01d6b1e50a27df22f24c1`. The earlier convergence code passes **42/52** these assertions (eight actual wrong attack-vs-Supporter decisions plus two outdated audit rule-code assertions); new code **52/52**. All **216/216 original Agent7** and **34/34 Agent9 two-card Door tests** remain passing; total **302/302** exact pure V8 worker/protocol source tests.
+
+As throughout, these are **policy choice-level** results on constructed actor-visible views; no real native Store, attack-damage/prevention settlement, turn termination, or paired benchmark game was executed. A winning *modeled* attack can still fail if the opponent has an unmodeled protection. Exact source and strong owner review remain required before promotion to a competitive policy.
