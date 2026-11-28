@@ -294,3 +294,35 @@ native legal Bench overflow or source trigger demonstration.
 16 modules, 286/286 passing.** No native Store, Node,
 CI or full game; both new features need actual pinned
 prompt/action continuation before owner admission.
+
+## State-dependent DCI: Dialga-GX was wrongly protected from discard
+
+The Mimikyu GRI58 Regidrago counter requires the actual
+**Dialga-GX UPR100 attack payload in our discard pile**.
+When opponent Regidrago was known and Dialga had not already
+reached the discard, `discardValue` previously returned **1000**,
+which classified Dialga as effectively undiscardable. This
+conflicted with the deck's own Counter-ALS: if Dialga was drawn
+into hand, Battle Compressor cannot select it *from the deck*,
+and one-card discarding connectors such as
+**Mysterious Treasure FLI113** failed `hasDiscardableHand`
+even when Dialga was exactly the desired disposable card.
+
+The new match-state-specific DCI is **0** for exact
+`Dialga-GX UPR 100` while opposing Regidrago is present
+and no Dialga is in the discard, reverting to 35
+otherwise. As an unpayable Metal-cost attack payload in
+this Psychic-only 60, the card should be fed to the discard
+rather than protected when Regidrago is the matchup.
+This now permits root Mysterious Treasure and prioritizes
+Dialga over Psychic Energy, Guzma and Mimikyu in actual
+`ChooseCardsPrompt` discard-cost choices. Non-Regidrago
+cases retain their own DCI priorities (a redundant Mimikyu
+already in play can be cheaper to discard).
+
+`tests/2026-11/agent3-dialga-payload-discard-dci-regidrago-20261128.test.cjs`
+covers five action/choice forks on both physical seats,
+**10/10** source-policy/strict-protocol V8 cases. This
+is an executable correction to the counterline, not
+proof that Mimikyu can complete Timeless-GX in the native
+Store or that it dominates Regidrago.
