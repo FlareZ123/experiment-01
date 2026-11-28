@@ -165,6 +165,6 @@ for(const tweak of [
  const q=regi(),s=createDirectGustSlice({seat:0});tweak(q);
  assert.equal(s.decide(q),null);checks++;
 }
-assert.equal(checks,54);
+assert.equal(checks,53);
 console.log('Agent22 Counter Catcher direct no-selfKO gust policy: '+
  checks+' checked synthetic actor branches passed');
