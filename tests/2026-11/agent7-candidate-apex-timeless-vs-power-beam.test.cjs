@@ -86,6 +86,26 @@ for(const seat of [0,1]){
     });
     assert.deepEqual(policy.decide(request),{kind:'select-choice',token:'timeless'});
   });
+  test('older XY Mega Pokemon-EX still award exactly TWO Prizes, seat='+seat,()=>{
+    const {policy,request}=fixture(seat,{prizes:3});
+    request.observation.opponentPublic.active=card('M Gardevoir-EX STS 79',{
+      hp:210,damage:30,
+      printed:{types:['Fairy'],subtypes:['MEGA','EX'],
+        retreatCost:['Colorless'],weakness:[],resistance:[]}
+    });
+    // Printed Power Beam 200 could KO but only claim two of our three
+    // remaining Prizes, unlike modern ME1 MEGA ex's three-Prize Rule Box.
+    assert.deepEqual(policy.decide(request),{kind:'select-choice',token:'timeless'});
+  });
+  test('older XY Shaymin-EX awards TWO Prizes, not one, seat='+seat,()=>{
+    const {policy,request}=fixture(seat,{prizes:2});
+    request.observation.opponentPublic.active=card('Shaymin-EX ROS 77',{
+      hp:170,damage:0,
+      printed:{types:['Colorless'],subtypes:['Basic','EX'],
+        retreatCost:['Colorless'],weakness:[],resistance:[]}
+    });
+    assert.deepEqual(policy.decide(request),{kind:'select-choice',token:'power'});
+  });
   test('Power Beam instant final Prize beats nonlethal Timeless, seat='+seat,()=>{
     const {policy,request}=fixture(seat,{remaining:180,prizes:1});
     assert.deepEqual(policy.decide(request),{kind:'select-choice',token:'power'});
