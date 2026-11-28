@@ -73,6 +73,24 @@ const HEAVY_BALL_BASIC = Object.freeze([
   {pattern:P.dialga,copies:1,kind:'dialga'},
   {pattern:P.minior,copies:1,kind:'minior'}
 ]);
+function sourceCardPatternCoverage() {
+  return SOURCE_COUNTS.map(([printing,count])=>({
+    printing,count,
+    patternKeys:Object.entries(P).filter(([,pattern])=>pattern.test(printing))
+      .map(([key])=>key)
+  }));
+}
+function heavyBallBasicCoverage() {
+  return HEAVY_BALL_BASIC.map(row=>{
+    const matches=SOURCE_COUNTS.filter(([printing])=>row.pattern.test(printing));
+    return {
+      kind:row.kind,
+      printing:matches.length===1?matches[0][0]:null,
+      sourceCopies:matches.length===1?matches[0][1]:0,
+      configuredCopies:row.copies
+    };
+  });
+}
 const {previousTurnResponseOptions}=require('../../twinleaf/agent8-ko-supporter-options.cjs');
 const arr = value => Array.isArray(value) ? value : [];
 const text = value => typeof value === 'string' ? value : value?.printing ?? value?.fullName ?? value?.label ?? '';
@@ -1767,5 +1785,5 @@ function createPolicy({role,seat,policyVersion,config}) {
     return rootDecision(request,{enablePatchProjection:config.enablePatchProjection===true});
   }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,sourceCardPatternCoverage,heavyBallBasicCoverage,createPolicy,
   vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,certifiedPsychicBenchTargets,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy,hasFreshPriorOpponentTurnKO,raihanOpportunity,raihanAttachPrompt,raihanSearchPrompt,raihanPrompt,hisuianHeavyBallOpportunity,hisuianHeavyBallPrompt};
