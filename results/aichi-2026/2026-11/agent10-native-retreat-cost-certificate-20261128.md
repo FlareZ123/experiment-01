@@ -1,4 +1,4 @@
-## Executable source-locked PR109 selective integration artifact (15:31 UTC)
+## Executable source-locked PR109 selective integration artifact (15:27 UTC)
 
 Rather than another competing policy branch, Agent10 committed a pure transformation tool on the **existing review-only Agent10 branch**: [`02ba7253`](https://github.com/FlareZ123/experiment-01/commit/02ba72531cf83826468ee628c0e359edab881a24), `simulation/evaluation/2026-11/agent10-pr109-retreat-cost-port.cjs` (blob `15f49a6dc56bad541d3273e89ef008455a4f290d`). It is locked to **PR109's exact worker Git blob `a260ac66e405bc80060f461109cfbfc4a80ab1a0`**. The CLI requires an explicit existing source file and a **new output path**; checks the Git blob, rejects source drift, never overwrites the current source and never changes any decklist/vendor/CI/PR104. The exported `applyPr109NativeRetreatPort(source)` makes only six exact, single-occurrence substitutions:
 
