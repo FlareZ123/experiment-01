@@ -1044,3 +1044,34 @@ for(const seat of [0,1]) {
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' pinned native spaced GX printing reaches Dedechange and Wonder Tag',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active=b('Unown AOR 30');
+    r.observation.globalTurn=4;
+    r.observation.ownHand=['Dedenne GX UNB',vip];
+    r.actionFrontier.items=[{...root('play-card','Dedenne GX UNB','native-dedenne',
+      {targetSeat:'actor',targetZone:'bench',isOwnerVisible:true}),
+      targetPrinting:'Dedenne GX UNB'}];
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'native-dedenne'});
+    r.observation.ownHand=[vip];
+    r.prompt={promptType:'ConfirmPrompt',source:{
+      classification:'actor-choice',sourceKind:'card-effect',
+      sourcePrinting:'Dedenne GX UNB',effectName:'Dedechange'},
+      publicMetadata:{selectionType:'confirm'},
+      choices:[{kind:'confirm',token:'yes',label:'Yes'},
+        {kind:'confirm',token:'no',label:'No'}]};
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choice',token:'yes'});
+    r.prompt=null;
+    r.observation.ownHand=['Tapu Lele GX GRI',vip];
+    r.actionFrontier.items=[{...root('play-card','Tapu Lele GX GRI','native-lele',
+      {targetSeat:'actor',targetZone:'bench',isOwnerVisible:true}),
+      targetPrinting:'Tapu Lele GX GRI'}];
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'native-lele'});
+  });
+}
