@@ -763,7 +763,9 @@ function promptDecision(request) {
     const discard = choices.filter(choice => owner(choice) === 'actor' && zone(choice) === 'discard');
     const multi = ['card-combination', 'pokemon', 'energy-payment', 'prize-slots', 'card-order'].includes(prompt.publicMetadata?.selectionType);
     if (/enhanced hammer/.test(source)) {
-      const selected = choices.filter(c => owner(c) === 'opponent' && isSpecialEnergy(c))
+      const selected = choices.filter(c => c.kind === 'card' && owner(c) === 'opponent' &&
+        zone(c) !== null && !['hand', 'deck', 'discard', 'prize', 'prizes', 'lost-zone'].includes(zone(c)) &&
+        isSpecialEnergy(c))
         .sort((a, b) => specialEnergyValue(b) - specialEnergyValue(a))[0];
       if (!selected) return { kind: 'abstain', reasonCode: 'RANK22_HAMMER_NO_VISIBLE_SPECIAL' };
       return { kind: 'select-choices', tokens: [selected.token] };
