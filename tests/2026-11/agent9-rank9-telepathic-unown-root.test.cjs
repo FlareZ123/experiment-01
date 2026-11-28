@@ -495,4 +495,47 @@ for(const seat of [0,1]){
   ok(d.token==='attack','eventual Claw after Carrier cycle, seat '+seat);
 }
 
+
+/* Wondrous Labyrinth Prism Star, an actual rank-6/24/29 source Stadium,
+ * adds one Colorless to non-Fairy attacks. Do not pass on the required fourth
+ * Energy just because ordinary DDC Claw was previously funded. Conversely
+ * do not waste a fifth attachment, and respect actual stadium nullification.
+ * Real engine legality still governs which actions appear in the frontier. */
+for(const seat of [0,1]){
+  const base=()=>{const o=obs(seat);
+    o.ownHand=[D];o.ownPublic.bench=[];
+    o.opponentPublic.stadium=['Wondrous Labyrinth TEU 158'];
+    o.ownPublic.active.energies=[D,Pr,Pr];
+    return o;
+  };
+  const energyChoice=(o,policy)=>{
+    const items=[
+      {kind:'play-card',token:'attach-fourth',actorPrinting:D,
+        publicMetadata:{targetSeat:'actor',targetZone:'active',
+          targetIndex:0,isOwnerVisible:true}},
+      {kind:'pass',token:'pass'}
+    ];
+    return decide(policy,o,1,{schema:protocol.FRONTIER_SCHEMA,items});
+  };
+  const pol=()=>P.createPolicy({role:'opponent',seat,
+    policyVersion:P.POLICY_VERSION,config:{}});
+  let o=base();
+  ok(energyChoice(o,pol()).token==='attach-fourth',
+    'Wondrous adds a fourth Colorless to Mega Claw, seat '+seat);
+  o=base();o.opponentPublic.stadium=[];
+  ok(energyChoice(o,pol()).token==='pass',
+    'ordinary three-Energy Mega does not waste attachment, seat '+seat);
+  o=base();o.ownPublic.active.energies.push(D);
+  ok(energyChoice(o,pol()).token==='pass',
+    'Wondrous four-Energy Mega avoids fifth attachment, seat '+seat);
+  o=base();o.opponentPublic.publicTurnRestrictions={
+    stadiumAndToolHaveNoEffectTurnsRemaining:1
+  };
+  ok(energyChoice(o,pol()).token==='pass',
+    'suppressed Wondrous loses its cost effect, seat '+seat);
+  o=base();o.ownTurnResources.energyPlayedTurn=true;
+  ok(energyChoice(o,pol()).token==='pass',
+    'cannot choose second manual Energy attachment, seat '+seat);
+}
+
 console.log('passed '+count+' rank9 Telepathic-to-Unown root/search/Farewell decisions');
