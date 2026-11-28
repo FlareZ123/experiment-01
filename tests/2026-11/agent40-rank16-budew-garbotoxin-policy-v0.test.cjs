@@ -969,3 +969,57 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'ultra'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' all two Mega Absol discarded: Karen recovery beats hand-refill Supporter',()=>{
+  const board=own({active:mon('Budew ASC 16'),
+   bench:[mon('Garbodor LTR 68',{tools:['Float Stone BKT 137'],
+    abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]})],
+   discard:['Mega Absol ex MEG 86','Mega Absol ex MEG 86']});
+  const q=root(seat,[play('Karen XYP 177','karen'),play('Marnie SSH 169','marnie'),
+    attack('Itchy Pollen','pollen'),pass],{
+   ownPublic:board,ownHand:['Karen XYP 177','Marnie SSH 169']});
+  assert.equal(policy.karenOwnRecoveryScore(q.observation),685);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'karen'});
+  board.discard=['Mega Absol ex MEG 86'];
+  assert.equal(policy.karenOwnRecoveryScore(q.observation),0);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'marnie'});
+ });
+ test('seat '+seat+' both Trubbish discarded with no existing Garbodor: Karen retrieves lock foundation',()=>{
+  const board=own({active:mon('Budew ASC 16'),bench:[mon('Mega Absol ex MEG 86')],
+   discard:['Trubbish CRI 56','Trubbish CRI 56']});
+  const q=root(seat,[play('Karen XYP 177','karen'),attack('Itchy Pollen','pollen'),pass],{
+   ownPublic:board,ownHand:['Karen XYP 177']});
+  assert.equal(policy.karenOwnRecoveryScore(q.observation),640);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'karen'});
+  board.bench.push(mon('Trubbish CRI 56'));
+  assert.equal(policy.karenOwnRecoveryScore(q.observation),0);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+ });
+ test('seat '+seat+' VS Seeker retrieves Karen after two Mega Absol discarded',()=>{
+  const board=own({active:mon('Budew ASC 16'),
+   discard:['Karen XYP 177','Mega Absol ex MEG 86','Mega Absol ex MEG 86']});
+  const q=root(seat,[play('VS Seeker PHF 109','vs'),
+    attack('Itchy Pollen','pollen'),pass],{
+   ownPublic:board,ownHand:['VS Seeker PHF 109']});
+  assert.equal(policy.karenOwnRecoveryScore(q.observation),685);
+  assert(policy.vsSeekerDenialScore(q.observation,q.actionFrontier.items)>=675);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'vs'});
+  const search=prompt(seat,{source:{sourceKind:'card-effect',sourcePrinting:'VS Seeker PHF 109',effectName:'VS Seeker'},
+   choices:[choice('k','Karen XYP 177','discard'),choice('l',"Lillie's Determination MEG 119",'discard')]},
+   {ownPublic:board,ownHand:['VS Seeker PHF 109']});
+  assert.deepEqual(decide(seat,search),{kind:'select-choices',tokens:['k']});
+ });
+ test('seat '+seat+' Karen discarded and two Mega present on board does not displace live Item lock',()=>{
+  const board=own({active:mon('Budew ASC 16'),
+   bench:[mon('Mega Absol ex MEG 86')],
+   discard:['Mega Absol ex MEG 86','Karen XYP 177']});
+  const q=root(seat,[play('VS Seeker PHF 109','vs'),
+    attack('Itchy Pollen','pollen'),pass],{
+    ownPublic:board,ownHand:['VS Seeker PHF 109']});
+  assert.equal(policy.karenOwnRecoveryScore(q.observation),0);
+  assert.equal(policy.vsSeekerDenialScore(q.observation,q.actionFrontier.items),0);
+  // VS Seeker may still recover other Supporters but this one is not urgent.
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+ });
+}
