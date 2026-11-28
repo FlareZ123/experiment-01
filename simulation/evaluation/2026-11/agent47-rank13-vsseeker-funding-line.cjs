@@ -182,7 +182,8 @@ function chooseRank13VsSeekerFundingRoot(request) {
   const status=assessRank13CrispinEnergyPair(view).status;
   if(status!=='certified-k0-lower-bound' &&
      status!=='certified-fresh-k1')return null;
-  if(!Array.isArray(view?.ownHand) ||
+  if(view?.ownPublic?.publicTurnRestrictions?.itemPlayLocked===true ||
+     !Array.isArray(view?.ownHand) ||
      !view.ownHand.some(card=>isPrint(card,VS_SEEKER)) ||
      !view?.ownPublic?.discard?.some(card=>isPrint(card,CRISPIN)))return null;
   const actions=request?.actionFrontier?.items;
