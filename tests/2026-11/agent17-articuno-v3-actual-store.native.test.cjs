@@ -582,3 +582,131 @@ for (const seat of [0, 1]) {
     });
   }
 }
+
+
+// Eight fixed, reproducibly shuffled legal-setup K0 actor opening hands per
+// seat, rather than the constructed Articuno-in-hand midgame board. Keep this
+// bounded: a native legal first action is NOT an entire game or win receipt.
+// All setup opening hands contain a Basic; rejected hands are real mulligans.
+function seededShuffle(cards, seed) {
+  let x = seed >>> 0;
+  const out = cards.slice();
+  for (let i = out.length - 1; i > 0; i -= 1) {
+    x = (Math.imul(1664525, x) + 1013904223) >>> 0;
+    const j = x % (i + 1);
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+function initialRank3Deal(seat, seed) {
+  const scene = exactRank3PhysicalScene(seat);
+  let cards = null;
+  let hand = null;
+  let basics = [];
+  let rejects = 0;
+  for (; rejects < 128; rejects += 1) {
+    cards = seededShuffle(scene.originalPhysicalCards, seed + rejects * 100003);
+    hand = cards.slice(0, 7);
+    basics = hand.filter(card => card instanceof PokemonCard && card.stage === Stage.BASIC);
+    if (basics.length) break;
+  }
+  assert.ok(basics.length, 'original rank3 Basic mulligan bound exceeded');
+  // Choose Snorlax as lead when present; otherwise the lowest-index Basic.
+  const active = basics.find(card => card.name === 'Snorlax') || basics[0];
+  const prizes = cards.slice(7, 13).map(card => {
+    const slot = new CardList();
+    slot.cards.push(card);
+    return slot;
+  });
+  const deck = cards.slice(13);
+  const draw = deck.shift(); // first-turn normal draw
+  scene.actor.active.cards = [active];
+  scene.actor.active.energies.cards = [];
+  scene.actor.hand.cards = hand.filter(card => card !== active).concat([draw]);
+  scene.actor.deck.cards = deck;
+  scene.actor.prizes = prizes;
+  scene.before = active;
+  scene.water = null;
+  scene.articuno = scene.actor.hand.cards.find(card => card.name === 'Articuno-GX') || null;
+  scene.store.state.turn = 1;
+  assert.equal(scene.actor.deck.cards.length, 46);
+  assert.equal(scene.actor.prizes.length, 6);
+  assert.equal(scene.actor.hand.cards.length, 7);
+  assertExactRank3PhysicalConservation(scene);
+  return { scene, rejects };
+}
+for (const seat of [0, 1]) {
+  test('rank3 original-60 seeded K0 opening full-native root custody, seat ' + seat, () => {
+    const outcomes = { admitted: 0, selected: 0, abstained: 0, mulligans: 0, choices: {} };
+    const pin = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
+    const nativeBindings = {
+      ActionEnumerator, Simulator, cardActions, gameActions,
+      PokemonCard, TrainerCard, EnergyCard, PlayerType, SlotType,
+      Stage, TrainerType, SpecialCondition, EnergyType, CardType,
+      SuperType, GameError, CheckPokemonTypeEffect, StateUtils
+    };
+    const enumerator = createKnownCapFreeActionEnumerator({
+      native: nativeBindings, enginePin: pin
+    });
+    for (let seed = 0; seed < 8; seed += 1) {
+      const { scene, rejects } = initialRank3Deal(seat, 20261128 + seed * 97);
+      outcomes.mulligans += rejects;
+      try {
+        const admitted = buildNativeActionFrontier({
+          state: scene.store.state, actorSeat: seat,
+          native: nativeBindings, enumerator
+        });
+        assertKnownCapFreeAdapterAdmissionClear({
+          enumerator, enginePin: pin, frontierDiagnostics: admitted.diagnostics
+        });
+        assert.ok(admitted.actionFrontier.items.some(item => item.kind === 'pass'));
+        const observation = {
+          actorSeat: seat, globalTurn: 1, decisionKind: 'owner-root',
+          ownHand: scene.actor.hand.cards.map(card => card.fullName),
+          ownTurnResources: { supporterPlayedTurn: 0, gxUsed: false },
+          ownPublic: {
+            active: { printing: scene.before.fullName, energies: [] },
+            bench: [], discard: [], stadium: [],
+            deckCount: scene.actor.deck.cards.length,
+            prizeCount: scene.actor.prizes.length,
+            publicTurnRestrictions: { gxUsed: false }
+          },
+          opponentPublic: {
+            active: {
+              printing: scene.opponent.active.getPokemonCard().fullName,
+              energies: scene.opponent.active.energies.cards.map(card => card.fullName)
+            },
+            bench: [], deckCount: scene.opponent.deck.cards.length,
+            prizeCount: scene.opponent.prizes.length
+          }
+        };
+        const frontier = admitted.actionFrontier;
+        const tokens = protocol.validateFrontier(frontier);
+        const decision = worker.createPolicy({
+          role: 'opponent', seat, policyVersion: worker.POLICY_VERSION, config: {}
+        }).decide({
+          role: 'opponent', seat, observation, prompt: null, actionFrontier: frontier
+        });
+        protocol.validateDecision(decision, null, tokens);
+        outcomes.admitted++;
+        if (decision.kind === 'abstain') {
+          outcomes.abstained++;
+          continue;
+        }
+        const selected = frontier.items.find(item => item.token === decision.token);
+        assert.ok(selected, 'seeded root selected a token absent from full native frontier');
+        outcomes.selected++;
+        const kind = selected.kind + ':' + (selected.actorPrinting || selected.attackName || '');
+        outcomes.choices[kind] = (outcomes.choices[kind] || 0) + 1;
+        scene.store.dispatch(selectedNativeAction(admitted, decision.token));
+        assertExactRank3PhysicalConservation(scene);
+      } finally {
+        scene.provenanceHook.restore();
+      }
+    }
+    assert.equal(outcomes.admitted, 8);
+    assert.equal(outcomes.selected + outcomes.abstained, 8);
+    // A descriptive root-action receipt, not completed turns or win rates.
+    console.log('AGENT17_RANK3_K0_OPENING_ROOT ' + JSON.stringify({ seat, ...outcomes }));
+  });
+}
