@@ -720,6 +720,77 @@ test('Guzma does not strand a sole powered Active VSTAR on the Bench',()=>{
 });
 
 
+test('Kyurem Trifrost selects exactly three distinct opposing target slots, not native minimum one',()=>{
+  const opponentPublic=player({active:pokemon('Budew ASC 16',
+    {hp:30,printed:{subtypes:['Basic'],weakness:[],resistance:[]}}),
+    bench:[
+      pokemon('Dedenne-GX UNB 57',{hp:160,damage:100,
+        printed:{subtypes:['GX'],weakness:[],resistance:[]}}),
+      pokemon('Shadow Rider Calyrex VMAX CRE 75',{hp:320,damage:0,
+        printed:{subtypes:['VMAX'],weakness:[],resistance:[]}}),
+      pokemon('Latias ex SSP 76',{hp:210,damage:180,
+        printed:{subtypes:['ex'],weakness:[],resistance:[]}}),
+      pokemon('Budew ASC 16',{hp:30,damage:0,
+        printed:{subtypes:['Basic'],weakness:[],resistance:[]}})
+    ]});
+  const choice=(token,printing,zone,index,seat='opponent')=>({
+    token,kind:'pokemon',printing,
+    publicMetadata:{ownerSeat:seat,targetZone:zone,
+      ...(zone==='bench'?{benchIndex:index}:{slotIndex:0}),selectionIndex:index}
+  });
+  const choices=[
+    choice('same-dedenne-alias','Dedenne-GX UNB 57','bench',0),
+    choice('bad-own','Regidrago VSTAR SIT 136','active',0,'actor'),
+    choice('tank','Shadow Rider Calyrex VMAX CRE 75','bench',1),
+    choice('budew-bench','Budew ASC 16','bench',3),
+    choice('den','Dedenne-GX UNB 57','bench',0),
+    choice('latias','Latias ex SSP 76','bench',2),
+    choice('budew-active','Budew ASC 16','active',0)
+  ];
+  const p=prompt('Kyurem SFA 47','Trifrost',choices,'ChoosePokemonPrompt',[1,3]);
+  p.publicMetadata.selectionType='pokemon';
+  for(const seat of [0,1]){
+    const r=request({seat,opponentPublic,prompt:p});
+    const decision=promptDecision(r);
+    assert.equal(decision.kind,'select-choices');
+    assert.equal(decision.tokens.length,3);
+    assert.equal(new Set(decision.tokens).size,3);
+    assert.deepEqual(decision.tokens,['same-dedenne-alias','latias','budew-active']);
+    const missing={...p,choices:choices.filter(c=>c.token!=='latias'&&c.token!=='budew-bench')};
+    assert.deepEqual(promptDecision(request({seat,opponentPublic,prompt:missing})),
+      {kind:'abstain',reasonCode:'RANK32_TRIFROST_POKEMON_CHOICE_UNAVAILABLE'});
+    const illegalMax={...p,publicMetadata:{...p.publicMetadata,maximumCount:2}};
+    assert.deepEqual(promptDecision(request({seat,opponentPublic,prompt:illegalMax})),
+      {kind:'abstain',reasonCode:'RANK32_TRIFROST_POKEMON_CHOICE_UNAVAILABLE'});
+  }
+});
+
+test('Kyurem Trifrost chooses all remaining opponent Pokémon when fewer than three',()=>{
+  const choice=(token,printing,zone,index)=>({
+    token,kind:'pokemon',printing,
+    publicMetadata:{ownerSeat:'opponent',targetZone:zone,
+      ...(zone==='bench'?{benchIndex:index}:{slotIndex:0})}
+  });
+  const active=pokemon('Budew ASC 16',{hp:30,printed:{subtypes:['Basic']}});
+  const benched=pokemon('Dedenne-GX UNB 57',{hp:160,printed:{subtypes:['GX']}});
+  for(const seat of [0,1]){
+    const opponentPublic=player({active,bench:[]});
+    const p=prompt('Kyurem SFA 47','Trifrost',[
+      choice('active','Budew ASC 16','active',0)
+    ],'ChoosePokemonPrompt',[1,1]);
+    p.publicMetadata.selectionType='pokemon';
+    assert.deepEqual(promptDecision(request({seat,opponentPublic,prompt:p})),
+      {kind:'select-choices',tokens:['active']});
+    opponentPublic.bench=[benched];
+    p.choices.push(choice('bench','Dedenne-GX UNB 57','bench',0));
+    p.publicMetadata.maximumCount=2;
+    assert.deepEqual(promptDecision(request({seat,opponentPublic,prompt:p})),
+      {kind:'select-choices',tokens:['active','bench']});
+    opponentPublic.active=null;
+    opponentPublic.bench=[];
+  }
+});
+
 test('Guzma zero-retreat Budew pivot executes a staged final-two-Prize route',()=>{
   const active=pokemon(P.regidrago,{energies:[P.energy,P.energy,'Fire Energy MEE 10']});
   const budew=pokemon('Budew ASC 16',{hp:30,printed:{subtypes:['Basic'],retreatCost:[]}});
