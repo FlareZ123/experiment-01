@@ -87,3 +87,24 @@ for(const seat of [0,1]){
     });
   }
 }
+
+
+for(const seat of [0,1]){
+  for(const target of plain){
+    test('seat '+seat+': Guzma terminal Bench-target certification '+target,()=>{
+      const request=req(seat,target,{prizes:2,bench:false});
+      const o=request.observation;
+      const desired=o.opponentPublic.active;
+      o.opponentPublic.active=c('Pidgey FLF 75');
+      o.opponentPublic.bench=[desired];
+      o.ownHand=['Guzma BUS 115'];
+      o.ownTurnResources={supporterPlayedTurn:8};
+      request.actionFrontier.items=[{
+        kind:'play-card',token:'guzma',actorPrinting:'Guzma BUS 115'
+      }];
+      assert.deepEqual(rootDecision(request),{
+        kind:'select-action',token:'guzma'
+      });
+    });
+  }
+}
