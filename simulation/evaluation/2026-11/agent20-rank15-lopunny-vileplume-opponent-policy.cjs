@@ -278,11 +278,37 @@ function energyProvided(card) {
 function attachedEnergyUnits(slot) {
   return arr(slot?.energies).reduce((sum,card)=>sum+energyProvided(card),0);
 }
+// Two copies of Mega Lopunny (or Bunnelby) can share a printing but
+// occupy different physical slots. Native projected actions carry the exact
+// actor-relative target zone/index; use them before any name-only fallback.
+function energyActionTarget(item,own) {
+  const meta=item?.publicMetadata??{};
+  if(meta.targetSeat!==undefined&&meta.targetSeat!=='actor')return null;
+  const printing=item?.targetPrinting;
+  if(typeof printing!=='string'||!printing)return null;
+  let target=null;
+  if(meta.targetZone==='active') {
+    target=own?.active;
+  } else if(meta.targetZone==='bench') {
+    if(!Number.isSafeInteger(meta.targetIndex)||meta.targetIndex<0)return null;
+    target=arr(own?.bench)[meta.targetIndex];
+  } else if(meta.targetZone!==undefined) {
+    return null;
+  } else {
+    // Historical constructed frontiers may omit coordinates. Fall back only
+    // if the printing identifies exactly one visible Pokémon on the board.
+    const matches=slots(own).filter(x=>txt(x)===printing);
+    if(matches.length!==1)return null;
+    target=matches[0];
+  }
+  return target&&txt(target)===printing?target:null;
+}
+
 function energyActionScore(item,o) {
   if(item?.kind!=='play-card'||
     ![P.jet,P.capture,P.doubleColorless,P.powerful,P.grass].some(p=>has(ownPrinting(item),p)))return 0;
   const own=o?.ownPublic,energy=ownPrinting(item);
-  const target=slots(own).find(x=>txt(x)===item.targetPrinting);
+  const target=energyActionTarget(item,own);
   if(!target||!item.targetPrinting)return 0;
   const used=attachedEnergyUnits(target),available=5-benchCount(own);
   if(has(target,P.bus)&&has(energy,P.jet)&&has(own.active,P.bunnelby)&&
