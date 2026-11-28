@@ -26,7 +26,8 @@ function observation(opt = {}) {
   return {
     actorSeat: opt.actorSeat ?? 0, globalTurn: opt.globalTurn ?? 3,
     ownPublic: opt.ownPublic ?? player(), opponentPublic: opt.opponentPublic ?? player(),
-    ownHand: opt.ownHand ?? [], ownTurnResources: { supporterPlayedTurn: 0, vstarUsed: false }
+    ownHand: opt.ownHand ?? [], ownTurnResources: { supporterPlayedTurn: 0, vstarUsed: false,
+      ...(opt.ownTurnResources ?? {}) }
   };
 }
 const root = (items, o = observation()) => ({
