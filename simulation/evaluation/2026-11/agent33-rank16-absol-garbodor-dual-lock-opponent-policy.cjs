@@ -344,15 +344,8 @@ function cardSearchScore(choice, observation) {
   if (matches(printing, PRINT.garbodor)) return hasTrubbish(observation) && !hasGarbodor(observation) ? 340 : 0;
   if (matches(printing, PRINT.boost)) return hasTrubbish(observation) && !hasGarbodor(observation) ? 285 : 0;
   if (matches(printing, PRINT.vip)) return observation.globalTurn <= 2 && benchCount(observation.ownPublic) < 5 ? 230 : 0;
-  if (matches(printing, PRINT.quick)) {
-    return count(observation.ownPublic, PRINT.trubbish) < 2 ||
-      count(observation.ownPublic, PRINT.mega) < 2 ||
-      count(observation.ownPublic, PRINT.dedenne) === 0 ? 190 : 35;
-  }
-  if (matches(printing, PRINT.ultra)) {
-    return handCount(observation) >= 2 &&
-      (count(observation.ownPublic, PRINT.trubbish) < 2 || count(observation.ownPublic, PRINT.mega) < 2) ? 170 : 0;
-  }
+  if(matches(printing,PRINT.quick))return rank16NeedsCoreBasic(observation)?190:25;
+  if(matches(printing,PRINT.ultra))return rank16NeedsCoreBasic(observation)&&handCount(observation)>=2?170:20;
   if (matches(printing, PRINT.darkPatch)) {
     return discardHas(observation.ownPublic, PRINT.dark) &&
       slots(observation.ownPublic).some(row =>
@@ -574,6 +567,12 @@ function scoreAttack(item, observation) {
 }
 // A Ball or Secret Box must discard *other* cards. A hand of protected
 // singletons is not a playable connector merely because the root is offered.
+function rank16NeedsCoreBasic(o) {
+  if(benchCount(o.ownPublic)>=5)return false;
+  return (!hasTrubbish(o)&&!hasGarbodor(o)) ||
+    count(o.ownPublic,PRINT.mega)===0 ||
+    count(o.ownPublic,PRINT.budew)===0;
+}
 function rank16CheapDiscardCount(o,playingPrinting) {
   let excluded=false;
   return list(o?.ownHand).filter(card=>{
@@ -772,13 +771,13 @@ function scoreAction(item, request) {
   if (matches(printing, PRINT.tapuKoko)) return !rank16CanBenchSupport(observation)?0:!hasTapuKoko(observation) ? 105 : 0;
   if (matches(printing, PRINT.budew)) return count(own, PRINT.budew) === 0 ? 265 : 0;
   if (matches(printing, PRINT.vip)) return observation.globalTurn <= 2 && benchCount(own) < 5 ? 240 : 0;
-  if (matches(printing, PRINT.quick)) {
+  if(matches(printing,PRINT.quick)) {
     if(rank16CheapDiscardCount(observation,printing)<1)return 0;
-    return count(own, PRINT.trubbish) < 2 || count(own, PRINT.mega) < 2 || count(own, PRINT.dedenne) === 0 ? 185 : 35;
+    return rank16NeedsCoreBasic(observation)?185:25;
   }
-  if (matches(printing, PRINT.ultra)) {
+  if(matches(printing,PRINT.ultra)) {
     if(rank16CheapDiscardCount(observation,printing)<2)return 0;
-    return count(own, PRINT.trubbish) < 2 || count(own, PRINT.mega) < 2 ? 165 : 0;
+    return rank16NeedsCoreBasic(observation)?165:20;
   }
   if (matches(printing, PRINT.battleCompressor)) {
     return deckCount(observation)>0 && rank16NeedsDarkPatchFuel(observation) &&
