@@ -277,7 +277,8 @@ function cardSearchScore(choice, observation) {
   const printing = textOf(choice);
   if (matches(printing, PRINT.garbodor)) return hasTrubbish(observation) && !hasGarbodor(observation) ? 340 : 0;
   if (matches(printing, PRINT.enhancedHammer)) return hammerLive(observation);
-  if (matches(printing, PRINT.wally)) return supporterScore(printing, observation);
+  if (matches(printing, PRINT.wally) || matches(printing, PRINT.karen))
+    return supporterScore(printing, observation);
   if (matches(printing, PRINT.vikavolt)) return count(observation.ownPublic, PRINT.vikavolt) < 1 ? 270 : 35;
   if (matches(printing, PRINT.boost)) return hasTrubbish(observation) && !hasGarbodor(observation) ? 285 : 0;
   if (matches(printing, PRINT.vip)) return observation.globalTurn <= 2 && benchCount(observation.ownPublic) < 5 ? 230 : 0;
@@ -321,7 +322,7 @@ function cardSearchScore(choice, observation) {
   }
   if (matches(printing, PRINT.vs)) {
     return supporterAvailable(observation) &&
-      [PRINT.guzma, PRINT.marnie, PRINT.wally, PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination]
+      [PRINT.guzma, PRINT.karen, PRINT.marnie, PRINT.wally, PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination]
         .some(pattern => discardHas(observation.ownPublic, pattern)) ? 155 : 0;
   }
   if (matches(printing, PRINT.temple)) return list(observation.opponentPublic?.stadium).length > 0 ? 95 : 15;
@@ -340,8 +341,9 @@ function discardScore(choice, observation) {
   if (matches(printing, PRINT.dedenne) && !hasGarbodor(observation) && handCount(observation) <= 4) return 0;
   if (matches(printing, PRINT.guzma) && supporterAvailable(observation) && benchCount(observation.opponentPublic) > 0) return 0;
   if (matches(printing, PRINT.marnie) && supporterScore(printing, observation) > 0) return 0;
-  if ([PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination, PRINT.crispin, PRINT.wally, PRINT.karen]
+  if ([PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination, PRINT.crispin, PRINT.wally]
     .some(pattern => matches(printing, pattern))) return 0;
+  if (matches(printing, PRINT.karen) && karenScore(observation) > 0) return 0;
   if (matches(printing, PRINT.vs) &&
       ![PRINT.guzma, PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination]
         .some(pattern => discardHas(own, pattern))) return 0;
@@ -430,11 +432,31 @@ function scoreAttack(item, observation) {
   if (/^Suffocating Gas$/i.test(attack) || /^Venomous Hit$/i.test(attack)) return 25;
   return 0;
 }
+function regidragoThreat(observation) {
+  const board = slots(observation.opponentPublic);
+  const hasVstar = board.some(row => /^Regidrago VSTAR\b/i.test(row.pokemon.printing));
+  const hasBasic = board.some(row => /^Regidrago V\b/i.test(row.pokemon.printing));
+  return hasVstar ? 2 : hasBasic ? 1 : 0;
+}
+function regidragoDonorCount(observation) {
+  const names = /^(?:Dragapult ex|Dialga-GX|Kyurem|Hisuian Goodra VSTAR|Noivern ex|Mega Dragonite ex)\b/i;
+  return list(observation.opponentPublic?.discard)
+    .filter(card => names.test(textOf(card))).length;
+}
+function karenScore(observation) {
+  if (!supporterAvailable(observation)) return 0;
+  const opponent = regidragoThreat(observation);
+  const donors = regidragoDonorCount(observation);
+  if (!opponent || !donors) return 0;
+  return opponent === 2 ? 210 + Math.min(donors, 3) * 45 :
+    155 + Math.min(donors, 3) * 40;
+}
 function wallyLineReady(observation) {
   return supporterAvailable(observation) && hasTrubbish(observation) &&
     !hasGarbodor(observation) && deckCount(observation) > 0;
 }
 function supporterScore(card, observation) {
+  if (matches(card, PRINT.karen)) return karenScore(observation);
   if (matches(card, PRINT.marnie)) {
     const opponentHand = opponentHandCount(observation);
     const ownHand = handCount(observation);
@@ -556,7 +578,7 @@ function scoreAction(item, request) {
       matches(row.pokemon.printing, PRINT.trubbish) && row.pokemon.lastPlayedOrEvolvedTurn <= observation.globalTurn);
     return target && !hasGarbodor(observation) ? 170 : 0;
   }
-  if ([PRINT.guzma, PRINT.wally, PRINT.marnie, PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination]
+  if ([PRINT.guzma, PRINT.karen, PRINT.wally, PRINT.marnie, PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination]
     .some(pattern => matches(printing, pattern))) return supporterScore(printing, observation);
   if (matches(printing, PRINT.dark)) {
     const row = slots(own).find(value => value.pokemon.printing === item.targetPrinting);
