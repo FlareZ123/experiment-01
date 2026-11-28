@@ -1,7 +1,8 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { chooseRank13VsSeekerFundingLine: choose } =
+const { chooseRank13VsSeekerFundingLine: choose,
+  assessRank13CrispinEnergyPair: assess } =
   require('../../simulation/evaluation/2026-11/agent47-rank13-vsseeker-funding-line.cjs');
 const rank13 =
   require('../../simulation/evaluation/2026-11/agent24-rank13-regidrago-opponent-policy.cjs');
@@ -85,10 +86,17 @@ test('fail-closed: no Dialga payload, already powered, already used Supporter or
     r => { r.observation.ownPublic.discard.push('Grass Energy MEE 9','Grass Energy MEE 9','Grass Energy MEE 9'); },
     r => { r.observation.ownPublic.discard.push('Fire Energy MEE 10','Fire Energy MEE 10'); },
     r => { r.prompt.publicMetadata.sourceZone = 'opponent-discard'; },
+    r => { r.observation.ownPublic.discard.push('Fire Energy MEE 10');
+      r.observation.ownerK1 = { epoch:2,exactMembershipKnown:true,
+        invalidationReason:null,knownPrintings:[{printing:'Grass Energy MEE',copies:3}] }; },
+    r => { r.observation.ownPublic.discard.push('Grass Energy MEE 9','Grass Energy MEE 9');
+      r.observation.ownerK1 = { epoch:2,exactMembershipKnown:true,
+        invalidationReason:null,knownPrintings:[{printing:'Fire Energy MEE',copies:2}] }; },
     r => { r.observation.ownerK1 = { epoch:2,exactMembershipKnown:true,
-      invalidationReason:null,knownPrintings:[{printing:'Grass Energy MEE',copies:2}] }; },
-    r => { r.observation.ownerK1 = { epoch:2,exactMembershipKnown:true,
-      invalidationReason:null,knownPrintings:[{printing:'Fire Energy MEE',copies:1}] }; }
+      invalidationReason:null,knownPrintings:[{printing:'Grass Energy MEE',copies:2},
+      {printing:'Fire Energy MEE',copies:1}] }; },
+    r => { r.observation.ownPublic.discard.push('Grass Energy MEE 9','Grass Energy MEE 9',
+      'Grass Energy MEE 9','Grass Energy MEE 9'); }
   ];
   for (const mutation of variants) {
     const request = base(); mutation(request); assert.equal(choose(request), null);
@@ -112,10 +120,36 @@ test('fresh actor-only K1 recognizes an intact Grass/Fire deck pair; stale K1 do
   const r=base();
   r.observation.ownerK1={epoch:2,exactMembershipKnown:true,
     invalidationReason:null,knownPrintings:[
-      {printing:'Grass Energy MEE',copies:2},
+      {printing:'Grass Energy MEE',copies:3},
       {printing:'Fire Energy MEE',copies:1}]};
   assert.deepEqual(choose(r),{kind:'select-choices',tokens:['crispin']});
   r.observation.ownerK1={epoch:3,exactMembershipKnown:false,
     invalidationReason:'own-deck-may-have-changed',knownPrintings:[]};
   assert.deepEqual(choose(r),{kind:'select-choices',tokens:['crispin']});
+});
+
+test('K0 pigeonhole proves exact source rank13 still has both Basic Energy types in own deck',()=>{
+  const view=base().observation;
+  const proof=assess(view);
+  assert.equal(proof.status,'certified-k0-lower-bound');
+  assert.deepEqual(proof.lowerBounds,{grass:2,fire:1});
+  // Source has G4/F3, 1 each visibly attached, and at most 1 hidden Prize.
+  // The remaining 3 Grass and 2 Fire must include >=2 Grass and >=1 Fire
+  // in deck even without performing a physical search.
+  view.ownPublic.discard.push('Fire Energy MEE 10');
+  const possible=assess(view);
+  assert.equal(possible.status,'possible-k0');
+  assert.deepEqual(possible.lowerBounds,{grass:2,fire:0});
+});
+test('K1 source conservation: authenticated physical pair certifies, impossible snapshot fails closed',()=>{
+  const view=base().observation;
+  view.ownerK1={epoch:1,exactMembershipKnown:true,invalidationReason:null,
+    knownPrintings:[{printing:'Grass Energy MEE',copies:3},
+      {printing:'Fire Energy MEE',copies:1}]};
+  assert.equal(assess(view).status,'certified-fresh-k1');
+  assert.deepEqual(assess(view).knownDeck,{grass:3,fire:1});
+  view.ownerK1.knownPrintings=[
+    {printing:'Grass Energy MEE',copies:2},
+    {printing:'Fire Energy MEE',copies:1}];
+  assert.equal(assess(view).status,'invalid');
 });
