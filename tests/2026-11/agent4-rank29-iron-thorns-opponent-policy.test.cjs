@@ -2453,3 +2453,88 @@ test('Root retreat scoring resolves exact same-print Bench recipient not first m
   assert.deepEqual(checkedDecision(wrong),
     {kind:'select-action',token:'pass'});
 });
+
+
+test('Thorns mirror Team Skull does not play into seven publicly depleted Energy',()=>{
+  const name='Team Skull Grunt SUM 133';
+  const root=discard=>rootRequest({
+    ownHand:[name],
+    opponentPublic:player({
+      active:pokemon('Iron Thorns ex TWM 77'),
+      handCount:8,publicHand:null,discard
+    }),
+    items:[
+      action('skull','play-card',name,{cardType:'supporter'}),
+      {token:'pass',kind:'pass'}
+    ]
+  });
+  const exposed=[
+    'Speed Lightning Energy RCL 173','Speed Lightning Energy RCL 173',
+    'Speed Lightning Energy RCL 173','Speed Lightning Energy RCL 173',
+    'Capture Energy RCL 171','Capture Energy RCL 171',
+    'Double Colorless Energy SUM 136'
+  ];
+  assert.deepEqual(checkedDecision(root(exposed)),
+    {kind:'select-action',token:'pass'});
+  assert.deepEqual(checkedDecision(root(exposed.slice(0,2))),
+    {kind:'select-action',token:'skull'});
+  assert.deepEqual(checkedDecision(root([
+    ...exposed,'Spiky Energy JTG 159'
+  ])),{kind:'select-action',token:'pass'});
+});
+
+test('Thorns mirror Eri posterior subtracts all 18 publicly exhausted minimum Items',()=>{
+  const items=[
+    ...Array(4).fill('Crushing Hammer POR 71'),
+    ...Array(3).fill('VS Seeker PHF 109'),
+    ...Array(2).fill("Trainers' Mail ROS 92"),
+    ...Array(2).fill('Camping Gear BST 122'),
+    ...Array(2).fill('Tag Call CEC 206'),
+    'Enhanced Hammer TWM 148',
+    'Captivating Poké Puff STS 99','Target Whistle PHF 106',
+    'Field Blower GRI 125','Megaton Blower SSP 182'
+  ];
+  assert.equal(items.length,18);
+  const root=discard=>rootRequest({
+    ownHand:['Eri TEF 146'],
+    opponentPublic:player({
+      active:pokemon('Iron Thorns ex TWM 77'),
+      handCount:8,publicHand:null,discard
+    }),
+    items:[
+      action('eri','play-card','Eri TEF 146',{cardType:'supporter'}),
+      {token:'pass',kind:'pass'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(root(items)),
+    {kind:'select-action',token:'pass'});
+  assert.deepEqual(checkedDecision(root(items.slice(0,2))),
+    {kind:'select-action',token:'eri'});
+});
+
+test('Thorns mirror Sidney counts public Special Energy, attached Tools and Stadiums as exhausted targets',()=>{
+  const targetPublic=[
+    ...Array(4).fill('Speed Lightning Energy RCL 173'),
+    ...Array(2).fill('Capture Energy RCL 171'),
+    'Spiky Energy JTG 159','Double Colorless Energy SUM 136',
+    ...Array(2).fill('Palace Belt BWP 153'),'Handheld Fan TWM 150',
+    'Tool Jammer BST 136',...Array(2).fill('Tropical Beach BWP 50'),
+    "Player's Ceremony SP 127"
+  ];
+  assert.equal(targetPublic.length,15);
+  const root=discard=>rootRequest({
+    ownHand:['Sidney FST 241'],
+    opponentPublic:player({
+      active:pokemon('Iron Thorns ex TWM 77'),
+      handCount:8,publicHand:null,discard
+    }),
+    items:[
+      action('sidney','play-card','Sidney FST 241',{cardType:'supporter'}),
+      {token:'pass',kind:'pass'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(root(targetPublic)),
+    {kind:'select-action',token:'pass'});
+  assert.deepEqual(checkedDecision(root(targetPublic.slice(0,2))),
+    {kind:'select-action',token:'sidney'});
+});
