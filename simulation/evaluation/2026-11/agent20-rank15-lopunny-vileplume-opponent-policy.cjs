@@ -288,6 +288,46 @@ function grandTreePrompt(request) {
   return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
     abstain('NO_LEGAL_CARD_SET');
 }
+function usefulArtazonBasic(o) {
+  const owned=[...slots(o?.ownPublic),...arr(o?.ownHand)];
+  const count=(...patterns)=>owned.filter(x=>patterns.some(pattern=>has(x,pattern))).length;
+  if(count(P.oddish,P.gloom,P.aor,P.bus)<2)return P.oddish;
+  if(count(P.bunnelby)<1)return P.bunnelby;
+  if(count(P.buneary,P.mega)<1)return P.buneary;
+  if(count(P.pidgey,P.pidgeotto,P.pidgeot)<1)return P.pidgey;
+  if(o?.globalTurn<=2&&count(P.fan)<1)return P.fan;
+  return null;
+}
+function artazonPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
+    !actorCardZone(p,'deck')||!Number.isSafeInteger(m.minimumCount)||
+    !Number.isSafeInteger(m.maximumCount)||m.minimumCount>1||m.maximumCount!==1)
+    return abstain('UNSUPPORTED_CARD_COMBINATION_SOURCE');
+  const empty=arr(p.choices).find(x=>x.kind==='empty-selection'&&typeof x.token==='string');
+  if(benchCount(o.ownPublic)>=5)return m.minimumCount===0&&empty?
+    {kind:'select-choice',token:empty.token}:abstain('NO_LEGAL_CARD_SET');
+  const target=usefulArtazonBasic(o);
+  const priority=[target,P.oddish,P.bunnelby,P.buneary,P.pidgey,P.fan,P.budew]
+    .filter(Boolean);
+  const choices=arr(p.choices).filter(x=>x.kind==='card'&&typeof x.token==='string');
+  for(const pat of priority){
+    const found=choices.find(c=>has(c,pat));
+    if(found)return {kind:'select-choices',tokens:[found.token]};
+  }
+  return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
+    abstain('NO_LEGAL_CARD_SET');
+}
+function airMailPrompt(request) {
+  // Pidgeotto TEU123 inspects only the actor-visible top 2. Never peek at
+  // actual deck order or claim knowledge of the third card.
+  const p=request.prompt,m=p.publicMetadata??{};
+  if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
+    !actorCardZone(p,'deck')||m.minimumCount!==1||m.maximumCount!==1||
+    arr(p.choices).filter(c=>c.kind==='card').length>2)
+    return abstain('UNSUPPORTED_CARD_COMBINATION_SOURCE');
+  return quickSearchPrompt(request);
+}
 function quickSearchPrompt(request) {
   const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
   if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
@@ -635,6 +675,15 @@ function rootDecision(request) {
   if(fanCall&&fanNeeds&&benchCount(o.ownPublic)<5&&o.globalTurn<=2)return take(fanCall);
   const grand=items.find(x=>x.kind==='use-stadium'&&has(ownPrinting(x),P.grandTree));
   if(grand&&grandTreeTarget(o))return take(grand);
+  const artazon=items.find(x=>x.kind==='use-stadium'&&has(ownPrinting(x),P.artazon));
+  if(artazon&&benchCount(o.ownPublic)<5&&usefulArtazonBasic(o))return take(artazon);
+  const artazonPlace=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.artazon));
+  if(artazonPlace&&benchCount(o.ownPublic)<5&&usefulArtazonBasic(o))return take(artazonPlace);
+  const airMail=items.find(x=>x.kind==='use-ability'&&
+    x.publicMetadata?.abilityName==='Air Mail'&&
+    (has(ownPrinting(x),/^Pidgeotto TEU(?: 123)?\b/i)||
+     slots(o.ownPublic).some(x=>has(x,/^Pidgeotto TEU(?: 123)?\b/i))));
+  if(airMail)return take(airMail);
   const quick=items.find(x=>x.kind==='use-ability'&&
     x.publicMetadata?.abilityName==='Quick Search'&&
     (has(ownPrinting(x),P.pidgeot)||slots(o.ownPublic).some(c=>has(c,P.pidgeot))));
@@ -732,6 +781,9 @@ function createPolicy({role,seat,policyVersion,config}) {
       if(has(request.prompt?.source?.sourcePrinting,P.fan))return fanCallPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.pidgeot))return quickSearchPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.grandTree))return grandTreePrompt(request);
+      if(has(request.prompt?.source?.sourcePrinting,P.artazon))return artazonPrompt(request);
+      if(has(request.prompt?.source?.sourcePrinting,/^Pidgeotto TEU(?: 123)?\b/i)&&
+        request.prompt?.source?.effectName==='Air Mail')return airMailPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.tagCall))return tagCallPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.guzmaHala))return ghPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.guzma))return guzmaPrompt(request);
@@ -750,4 +802,4 @@ function createPolicy({role,seat,policyVersion,config}) {
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,
   createPolicy,rootDecision,poffinPrompt,printedDamage,movementEvidence,
-  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,grandTreePrompt,grandTreeTarget,guzmaOpportunity,guzmaPrompt,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
+  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,usefulArtazonBasic,artazonPrompt,airMailPrompt,grandTreePrompt,grandTreeTarget,guzmaOpportunity,guzmaPrompt,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
