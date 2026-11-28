@@ -150,12 +150,49 @@ function chooseStage2BusEscape(view,items) {
  }
  const d=all.filter(x=>has(x.s.printing,'Dusclops')&&
   !has(x.s.printing,'Dusknoir'));
- if(!d.length)return null;
+ const base=all.filter(x=>has(x.s.printing,'Duskull'));
+ if(!d.length && base.length && Array.isArray(view.ownHand) &&
+   view.ownHand.some(x=>has(x,'Dusclops'))) {
+   for(const x of base) {
+     const evolve=items.find(i=>i.kind==='play-card'&&
+      i.publicMetadata?.cardType==='pokemon'&&
+      has(i.actorPrinting,'Dusclops')&&
+      i.publicMetadata?.targetSeat==='actor'&&
+      i.publicMetadata?.targetZone===x.zone&&
+      (x.zone==='active'||i.publicMetadata.targetIndex===x.index)&&
+      (!i.targetPrinting||i.targetPrinting===x.s.printing));
+     if(evolve)return select(evolve,'V3_EVOLVE_ESTABLISHED_DUSKULL_INTO_LOCK_BREAKER');
+   }
+ }
+ if(!d.length&&!base.length&&Array.isArray(view.ownHand)&&
+   view.ownHand.some(x=>has(x,'Duskull'))&&
+   own.bench.filter(Boolean).length<5) {
+   const benchDusk=items.find(i=>i.kind==='play-card'&&
+    i.publicMetadata?.cardType==='pokemon'&&has(i.actorPrinting,'Duskull')&&
+    (i.publicMetadata?.targetZone===undefined||
+    (i.publicMetadata.targetZone==='bench'&&
+     i.publicMetadata.targetSeat==='actor')));
+   if(benchDusk)return select(benchDusk,'V3_BENCH_DUSKULL_FOR_STAGE2_LOCK_BREAK');
+ }
+ if(!d.length&&!base.length&&
+   own.bench.filter(Boolean).length<5&&
+   view.ownTurnResources?.energyPlayedTurn===0&&
+   active.printed?.types?.includes('Psychic')===true) {
+   const tpe=items.find(i=>i.kind==='play-card'&&
+    i.publicMetadata?.cardType==='energy'&&
+    has(i.actorPrinting,'Telepathic Psychic Energy')&&
+    i.publicMetadata?.targetSeat==='actor'&&
+    i.publicMetadata.targetZone==='active'&&
+    (!i.targetPrinting||i.targetPrinting===active.printing));
+   if(tpe)return select(tpe,'V3_TPE_RECRUIT_DUSKULL_UNDER_ITEM_AND_BASIC_LOCK');
+ }
+
+ if(!d.length&&!base.length)return null;
  // Strongest currently funded Stage1 is developed first; the actual host
  // action frontier certifies whether today's evolution is legal.
- const ordered=d.slice().sort((a,b)=>nPsi(b)-nPsi(a)||
+ const ordered=(d.length?d:base).slice().sort((a,b)=>nPsi(b)-nPsi(a)||
   (a.zone==='active'?-1:1));
- if(pendingStage2)for(const x of ordered){
+ if(pendingStage2)for(const x of d){
   const evo=items.find(i=>i.kind==='play-card'&&
    i.publicMetadata?.cardType==='pokemon'&&
    has(i.actorPrinting,'Dusknoir')&&
