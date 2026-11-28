@@ -1,6 +1,7 @@
 'use strict';
 
 const assert=require('node:assert/strict');
+const { pendingPaleMoonGXKnockOut } = require('./2026-11/agent34-pale-moon-escape.cjs');
 
 /** @param {object} card @returns {string} */
 const printing=card=>{
@@ -14,7 +15,7 @@ const printing=card=>{
  * @param {object} slot Pinned engine Pokémon card list.
  * @returns {object|null}
  */
-function visiblePokemon(slot){
+function visiblePokemon(slot, owner=null){
   const pokemon=slot.getPokemonCard();
   if(!pokemon)return null;
   const powers=pokemon.powers;
@@ -51,6 +52,9 @@ function visiblePokemon(slot){
     // action is legal: the genuine Store remains the final rules authority.
     specialConditions:[...(slot.specialConditions??[])],
     publicRestrictions:{
+      // Already-announced Pale Moon-GX has a public, player-level delayed KO;
+      // this exact CardList target is otherwise absent from actor observations.
+      ...(owner===null?{}:{pendingPaleMoonGXKnockOut:pendingPaleMoonGXKnockOut(owner,slot)}),
       cannotAttackNextTurn:slot.cannotAttackNextTurn===true,
       cannotUseAttacksNextTurn:[...(slot.cannotUseAttacksNextTurn??[])],
       blockedAttackNameNextTurn:slot.blockedAttackNameNextTurn??null,
@@ -93,7 +97,7 @@ function visiblePokemon(slot){
 /** @param {object} player @param {boolean} [hidePokemon] @returns {object} */
 function publicPlayer(player,hidePokemon=false){
   const pokemonView=slot=>hidePokemon ?
-    (slot.cards.length>0?{concealed:true}:null):visiblePokemon(slot);
+    (slot.cards.length>0?{concealed:true}:null):visiblePokemon(slot,player);
   // Missing or malformed public countdowns remain explicitly unknown.
   const stadiumToolSuppression=player.stadiumAndToolHaveNoEffectTurnsRemaining;
   return {
