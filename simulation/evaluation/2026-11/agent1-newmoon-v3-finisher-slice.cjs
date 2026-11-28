@@ -89,6 +89,28 @@ function ready(view,items) {
      (!x.actorPrinting||x.actorPrinting===d.s.printing)));
  return ability?{ability,attack,check,donor:donors.find(d=>d.i===ability.publicMetadata.sourceIndex)}:null;
 }
+
+/*
+ * Structural v3 alternative: a paid Stage2 Shadow Bind takes the 140HP
+ * Hooded BUS Vileplume directly. Unlike Cursed Blast it concedes no Prize.
+ * The printed Stage2 attacker is not subject to BUS's Basic-only attack ban.
+ */
+function shadowBindBus(view,items) {
+ const active=view?.ownPublic?.active,target=view?.opponentPublic?.active;
+ if(!active||!target||!Array.isArray(items)||
+   !has(active.printing,'Dusknoir')||has(active.printing,'Trevenant & Dusknoir-GX')||
+   !has(target.printing,'Vileplume BUS')||target.hp!==140||
+   !isInt(target.damage)||target.damage>=140||!attackSafe(active)||
+   !Array.isArray(target.tools)||!target.tools.every(x=>has(x,'Stealthy Hood')))
+   return null;
+ const attack=items.find(x=>x.kind==='attack'&&x.attackName==='Shadow Bind'&&
+   x.actorPrinting===active.printing&&x.publicMetadata?.attackCostPayable===true&&
+   x.publicMetadata?.attackSource?.sourceKind==='active-pokemon'&&
+   x.publicMetadata.attackSource.sourceSlot==='ACTIVE'&&
+   x.publicMetadata.attackSource.sourceCardFullName===active.printing);
+ return select(attack,'V3_PAID_STAGE2_SHADOW_BIND_KOS_HOODED_BUS_WITHOUT_SELF_KO');
+}
+
 function createPolicy({role,seat,policyVersion,config}) {
  if(role!=='candidate'||![0,1].includes(seat)||
    policyVersion!==POLICY_VERSION||!config||typeof config!=='object'||
@@ -156,7 +178,7 @@ function createPolicy({role,seat,policyVersion,config}) {
      return select(attack,'V3_FINISH_ATTACK_AFTER_SETTLED_BLAST');
    }
    const p=ready(v,items);
-   if(!p)return null;
+   if(!p)return shadowBindBus(v,items);
    pending={
      turn:v.globalTurn,phase:'target',target:opp.active.printing,
      hp:opp.active.hp,initialDamage:opp.active.damage,
@@ -185,4 +207,4 @@ function createPolicy({role,seat,policyVersion,config}) {
  }
  return {decide:r=>decideWithAudit(r).decision,decideWithAudit};
 }
-module.exports={POLICY_VERSION,DECK_PATH,createPolicy,ready,validTarget,sourceAttack};
+module.exports={POLICY_VERSION,DECK_PATH,createPolicy,ready,validTarget,sourceAttack,shadowBindBus};
