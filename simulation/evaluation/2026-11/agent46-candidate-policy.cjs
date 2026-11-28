@@ -685,15 +685,12 @@ function choosePokemonRecipient(view, prompt) {
       };
     });
   } else if (effectName === 'Guzma' && opponentChoices.length > 0) {
-    const attacker = view.ownPublic.active;
+    // Native Guzma selects the opposing Bench BEFORE selecting our own
+    // Bench switch. Score the best funded own Bench attacker that can take
+    // that target, not the Active which Guzma must switch out.
     ranked = opponentChoices.map(row => {
-      const attack = bestAttackForSlot(attacker, view, row.target.slot);
-      const liability = prizeLiability(row.target.slot);
-      return {
-        ...row,
-        score: (attack?.score ?? -1000) + liability * 1200 -
-          Math.max(0, row.target.slot.hp - row.target.slot.damage)
-      };
+      const pair = bestGuzmaBenchKnockout(view,row.target.slot);
+      return {...row,score:pair?.score ?? -Infinity};
     });
   } else {
     ranked = actorChoices.map(row => {
@@ -1464,14 +1461,32 @@ function hasStadiumRemovalTarget(view) {
     hasName(name, 'Wondrous Labyrinth'));
 }
 
+// The pinned BUS115 Guzma first gusts an OPPONENT Bench target, then swaps
+// our own Active with one of OUR Bench Pokémon. Our current Active is not the
+// eventual attacker, so evaluating its attack creates both false-positive
+// and false-negative projected KOs. Pair paid own-Bench attack options with
+// each potential opponent Bench target, then recompute after physical gust.
+function bestGuzmaBenchKnockout(view, target) {
+  if (!target || !Number.isFinite(target.hp) || !Number.isFinite(target.damage)) return null;
+  const remaining = target.hp-target.damage;
+  if (remaining<=0) return null;
+  let best = null;
+  for (const [index, slot] of (view.ownPublic.bench ?? []).entries()) {
+    if (!slot) continue;
+    const attack = bestAttackForSlot(slot, view, target);
+    if (!attack || !Number.isFinite(attack.damage) || attack.damage<remaining) continue;
+    const score = attack.score + prizeLiability(target)*1200 -
+      prizeLiability(slot)*100;
+    if (!best || score>best.score || (score===best.score&&index<best.index)) {
+      best={index,slot,attack,score};
+    }
+  }
+  return best;
+}
 function canGuzmaForAttack(view) {
-  const active = view.ownPublic.active;
-  if (!active || !view.opponentPublic.active) return false;
-  return view.opponentPublic.bench.some(slot => {
-    if (!slot) return false;
-    const attack = bestAttackForSlot(active, view, slot);
-    return attack && attack.damage >= Math.max(0, slot.hp - slot.damage);
-  });
+  if (!view.opponentPublic?.active) return false;
+  return (view.opponentPublic.bench ?? []).some(slot =>
+    slot && bestGuzmaBenchKnockout(view,slot)!==null);
 }
 
 // Tools are once-attached, non-replaceable Bench/Active allocations.
