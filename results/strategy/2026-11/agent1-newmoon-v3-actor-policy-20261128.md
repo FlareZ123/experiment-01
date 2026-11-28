@@ -23,9 +23,15 @@ The module exports an exact list identity SHA-256 over sorted UTF-8 `id:count\n`
 
 ## Executed evidence
 
-The exact checked-in JavaScript source and test were fetched back from the GitHub repository, evaluated in the V8 runtime with a relative import shim for the existing v2 setup module. **90 assertions passed** over staged synthetic actor-visible decisions: 130+150, 130+200, Stage2 Shadow Bind, funded Stage2 evolution/promotion, both seats, conditional Ace, final-Prize veto, stale prompt/turn, dropped or reduced attack damage, Tool protection, unsupported donors, Setup/VIP/TPE inheritance and Tool Jammer exclusion.
+The exact checked-in JavaScript source and test were fetched back from the GitHub repository, evaluated in the V8 runtime with a relative import shim for the existing v2 setup module. **117 assertions passed** over staged synthetic actor-visible decisions: 130+150, 130+200, Stage2 Shadow Bind, funded Stage2 evolution/promotion, both seats, conditional Ace, final-Prize veto, stale prompt/turn, dropped or reduced attack damage, Tool protection, unsupported donors, Setup/VIP/TPE inheritance and Tool Jammer exclusion.
 
 To reproduce in a Node repository checkout: `node tests/2026-11/agent1-newmoon-v3-finisher-slice.test.cjs`. The local JavaScript execution is not a pinned Twinleaf native `Store` run. There is no successful game, matchup win, or estimate of the v3 field win rate in these results.
+
+### Additional setup decisions exercised
+
+The Stage2 lockbreak now begins as early as an available Duskull: legally bench it, evolve an earlier-turn Duskull into Dusclops and Dusclops into Dusknoir when corresponding native PlayCard actions exist, charge with Basic/Telepathic Psychic and use a funded bench-to-active retreat. Powerglass can supply another **Basic Psychic from the public discard at end of turn**, only on an Active Tool-free evolution with 1–2 Psychic and absent Jamming Tower; this is neither immediate Energy nor guaranteed damage. A legal in-hand Mysterious Treasure can use one genuinely dead post-first-turn Battle VIP as its discard cost, then choose the missing Duskull/Dusclops/Dusknoir from an actor-owner deck prompt, without discarding a strategic singleton. Under BUS Item lock, a free Galarian Articuno V Tool slot can receive Forest Seal Stone, use the actually offered Star Alchemy, and select an appropriate missing stage card from the owner-visible deck search.
+
+A separate production protocol test, [`tests/2026-11/agent1-newmoon-v3-protocol-contract.test.cjs`](../../../tests/2026-11/agent1-newmoon-v3-protocol-contract.test.cjs), executes a **five-phase synthetic same-turn path** through the *actual production* `agent49-policy-protocol.cjs` init, request, decision, and policy-audit validators (initial Cursed Blast root, target prompt, Ace root, Night Watch root, separate Stage2 Shadow Bind root). **5/5** passed in V8 with full native-shape attack-source metadata, including mandatory source index/card name. These are protocol-synthetic requests, not native `Store` outputs or games.
 
 ## Best next decision-changing work
 
