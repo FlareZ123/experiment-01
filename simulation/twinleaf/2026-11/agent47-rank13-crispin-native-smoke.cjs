@@ -131,9 +131,15 @@ function stageOriginalRank13Source60(x) {
   const manifest=require('../../../results/aichi-2026/full-decklists.json');
   const {resolveManifest}=require('../resolve-field.cjs');
   const {CardList}=native('game/store/state/card-list');
-  const all=resolveManifest(manifest,{
+  const original=manifest.decks.find(deck=>deck.rank===13);
+  assert.ok(original,'Original rank13 absent from published field');
+  // Keep resolver work strictly scoped to this one 60. A whole-field
+  // resolve would inspect 28 unrelated lists and might register Japanese
+  // promo research hooks that this source does not need.
+  const scopedManifest={...manifest,decks:[original]};
+  const all=resolveManifest(scopedManifest,{
     allowEquivalentBasicEnergies:true,
-    allowJapanesePromoHooks:true
+    allowJapanesePromoHooks:false
   });
   const source=all.decks.find(deck=>deck.rank===13);
   assert.ok(source,'Aichi rank13 source missing from field manifest');
