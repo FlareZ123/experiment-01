@@ -188,7 +188,7 @@ for(const seat of [0,1]) {
       publicMetadata:{selectionType:'energy-payment',energyCount:1,count:1,allowCancel:false},
       choices:[{token:'energy',kind:'energy',printing:'Psychic Energy MEE 13',
         label:'Psychic Energy MEE 13',
-        publicMetadata:{ownerSeat:'opponent',sourceZone:'attached'}}]});
+        publicMetadata:{ownerSeat:'opponent',sourceZone:'energy'}}]});
     assert.deepEqual(checked(r,seat),{kind:'select-choices',tokens:['energy']});
   });
 }
