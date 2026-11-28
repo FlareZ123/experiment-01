@@ -504,13 +504,35 @@ function scoreAction(item, request) {
     .some(pattern => matches(printing, pattern))) return supporterScore(printing, observation);
   if (matches(printing, PRINT.dark)) {
     const row = slots(own).find(value => value.pokemon.printing === item.targetPrinting);
-    return row && matches(row.pokemon.printing, PRINT.mega) && energyCount(row.pokemon) < 3 ? 190 : 20;
+    if (!row) return 0;
+    const attached = list(row.pokemon.energies);
+    const darkness = attached.filter(e => matches(e, PRINT.dark)).length;
+    const lightning = attached.filter(e => matches(e, PRINT.lightning)).length;
+    if (matches(row.pokemon.printing, PRINT.mega)) {
+      // Terminal Period needs [D][C]; Claw of Darkness needs [D][D][C].
+      if (darkness < 1) return 240;
+      if (darkness < 2) return 220;
+      return attached.length < 3 ? 200 : 15;
+    }
+    if (matches(row.pokemon.printing, PRINT.vikavolt)) {
+      // First aim for [L][C] Paralyzing Bolt without wasting a second Lightning.
+      if (lightning >= 1 && attached.length < 2) return 235;
+      if (lightning >= 2 && attached.length < 3) return 150;
+      return 0;
+    }
+    return 0;
   }
   if (matches(printing, PRINT.lightning)) {
     const row = slots(own).find(value => value.pokemon.printing === item.targetPrinting);
-    if (row && matches(row.pokemon.printing, PRINT.vikavolt))
-      return energyCount(row.pokemon) < 2 ? 230 : energyCount(row.pokemon) < 3 ? 190 : 15;
-    return row && matches(row.pokemon.printing, PRINT.tapuKoko) ? 90 : 10;
+    if (!row) return 0;
+    const attached = list(row.pokemon.energies);
+    const lightning = attached.filter(e => matches(e, PRINT.lightning)).length;
+    if (matches(row.pokemon.printing, PRINT.vikavolt)) {
+      if (lightning < 1) return 260; // Enables [L] half of Paralyzing Bolt.
+      if (lightning < 2 && attached.length < 3) return 175;
+      return attached.length < 3 ? 85 : 0;
+    }
+    return matches(row.pokemon.printing, PRINT.tapuKoko) ? 90 : 0;
   }
   if ([PRINT.float, PRINT.forest, PRINT.muscle].some(pattern => matches(printing, pattern))) {
     const row = slots(own).find(value => value.pokemon.printing === item.targetPrinting);
