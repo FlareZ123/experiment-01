@@ -17,12 +17,21 @@ const candidate=require('../../simulation/evaluation/2026-11/agent46-candidate-p
 const candidateDeck=require('../../results/aichi-2026/candidate-hood-shadow-rider.json');
 const fullField=require('../../results/aichi-2026/full-decklists.json');
 const opponentDeck=fullField.decks.find(d=>d.rank===10);
-const E='Psychic Energy MEE', V='Shadow Rider Calyrex V CRE';
+const E='Psychic Energy SVE 5', V='Shadow Rider Calyrex V CRE';
 const VMAX='Shadow Rider Calyrex VMAX CRE', REG='Regidrago V SIT';
 const M='Marshadow UNB',FOG='Fog Crystal CRE',MIM='Mimikyu GRI';
 const src=(name,set,number)=>name+' '+set+' '+number;
-const nativeOrdered60=deck=>deck.cards.flatMap(c=>
-  Array(c.count).fill(c.name+' '+c.printing.set));
+// The pinned V3 resolver's only two approved fallback printings:
+// source MEE 13 → native SVE 5, source ASC 196 → native SFA 61.
+// Other mock native IDs remain test-only name+set aliases.
+const nativeOrdered60=deck=>deck.cards.flatMap(c=>{
+  const id=c.name==='Psychic Energy'&&c.printing.set==='MEE'&&
+    String(c.printing.number)==='13' ? 'Psychic Energy SVE 5' :
+    c.name==='Night Stretcher'&&c.printing.set==='ASC'&&
+    String(c.printing.number)==='196' ? 'Night Stretcher SFA 61' :
+    c.name+' '+c.printing.set;
+  return Array(c.count).fill(id);
+});
 const restrictions=()=>({
   gxUsed:false,vstarUsed:false,attackLockTurnsRemaining:0,
   attackMaxEnergy:null,attackMaxEnergyTurnsRemaining:0,
@@ -169,6 +178,10 @@ for(const seat of [0,1])for(const mode of ['lethal','second-v','fog','door'])
     const maps=[null,null];
     maps[seat]=bridge.buildSourcePrintingMap(
       candidateDeck,nativeOrdered60(candidateDeck));
+    assert.equal(maps[seat].get('Psychic Energy SVE 5'),
+      'Psychic Energy MEE 13');
+    assert.equal(maps[seat].get('Night Stretcher SFA 61'),
+      'Night Stretcher ASC 196');
     maps[1-seat]=bridge.buildSourcePrintingMap(
       opponentDeck,nativeOrdered60(opponentDeck));
     const parts=bridge.projectAdmittedWorkerParts({
