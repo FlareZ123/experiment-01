@@ -1008,8 +1008,15 @@ function rootDecision(request) {
   if(spiky&&gale) {
     const sk=knockOut(spiky,request),gk=knockOut(gale,request);
     if(sk && !gk)return take(spiky);
-    if(sk && gk && movementEvidence(request)===true&&candidateCopycatThreat(request))
-      return take(spiky);
+    if(gk && !sk)return take(gale);
+    const copycatThreat=candidateCopycatThreat(request);
+    if(copycatThreat&&movementEvidence(request)===true)return take(spiky);
+    // On verified Bench->Active movement Gale deals 230, not 60. Prefer
+    // the higher attack when both miss KO, absent paid Copycat revenge.
+    const galeDamage=printedDamage(gale,request);
+    const spikyDamage=printedDamage(spiky,request);
+    if(galeDamage!==null&&spikyDamage!==null&&galeDamage>spikyDamage)
+      return take(gale);
   }
   const peck=attacks.find(x=>x.attackName==='Peck Off'&&has(o.ownPublic?.active,P.pidgey));
   if(peck && arr(o.opponentPublic?.active?.tools).some(x=>has(x,P.hood))&&
