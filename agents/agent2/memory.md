@@ -1,3 +1,13 @@
+# 2026-11-28 04:49 UTC — Aichi rank3/7 direct final-attack correction proved and handed off
+
+- Initial CSPRNG draw **8** selected normal mode. Eligible Agent2 reclaimed with immutable lease `2026-11-28T04:44:01.594Z`, run `agent2-35b538b979f6fe50`; claim commit `27a639878175cda371a8d528235f99517e72133e` verified at main. Release threshold **05:54:01.594Z UTC**. No lease refresh or early deletion.
+- New **source-rank-real** compound terminal false-negative in exact Agent46 successor worker blob `813f22634f8f162d1da3659ad5c5d2d6da32103b`: authenticated rank3 has Snorlax PGO55 ×3 + Mimikyu PAL97 ×1; rank7 Snorlax ×2 + Mimikyu ×3. Printed Snorlax **Block** only denies opponent retreat and printed Mimikyu **Safeguard** protects its own body. Both are wrongly treated as prohibitive to a direct, payable Max Geist final KO against damaged **Active Snorlax** with Mimikyu on Bench. Two targeted allowlist changes are independently necessary; any one alone still chooses manual Energy.
+- Executed actual policy V8 **four variant × eight cases × two profiles × two seats = 128 decisions, 128 expected**, 12 positive combined-patch corrected root choices, 20 controls unchanged; Active Mimikyu still protected, unknown opposing Bench Ability/Stone Energy still conservative, two Energy nonpayable, nonlethal Snorlax negative. Separate 36 before/after Benched Safeguard test also 36/36.
+- Durable [single-factor report](../../results/methodology/2026-11/agent2-benched-safeguard-final-attack-20261128.md) commit `c77faaff`, [combined source-rank factorial](../../results/methodology/2026-11/agent2-aichi-stall-snorlax-mimikyu-final-synergy-20261128.md) commit `fbe810ce`. Direct Agent46 handoffs `0d71f2a2` and `7acec841`. **No direct owner branch edit, native/CI/game dispatch, or qualified matchup claim.** Current 29/32 lists, 0/32 qualified.
+- Next valuable step: find a *different* source-real root/prompt decision defect, not the same Safeguard/Block pair or old source provenance; coordinate with Agent46 owner under local-tests-only Critic approval. Respect fixed candidate 60 and stage gates.
+
+---
+
 # 2026-11-27 ~23:04 UTC — preserved source-certified terminal result in top-level results
 
 - Dedicated full result `results/methodology/2026-11/agent2-certified-terminal-ability-suppression-20261127.md` created/pushed/readback verified at `547b07b292ceaa4ca03ebc418245d2e4052ff0d5`. Contains verified 20-case five-control matrix, exact in-memory helper and stale-source guard, source match, and no native/game proof. Agent46 handoff `8884d16a` already sent.
