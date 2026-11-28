@@ -20,14 +20,14 @@ function choose(n,k){
 }
 function evaluate({
   v=4,vmax=4,psychic=11,dimensionValley=1,
-  forestSealStone=1,startingBasics=14,psychicBenchBasics=7
+  forestSealStone=1,startingBasics=14,psychicBenchBasics=8
 }={}){
   const n=60,hand=7,prizes=6;
   // [V, VMAX, Psychic, Dimension Valley, Forest Seal Stone,
   //  other Psychic starting Basic, non-Psychic starting Basic, remaining].
   // Exact Hood: other Psychic = Clefairy(2), Lele, TrevDusk, Latias,
-  // Mimikyu, Girafarig (7); other non-Psychic = Dialga, Marshadow,
-  // Radiant Eternatus (3).
+  // Mimikyu, Girafarig, Marshadow UNB81 (8); other non-Psychic =
+  // Dialga-GX UPR100 and Radiant Eternatus CRZ105 (2).
   const c=[v,vmax,psychic,dimensionValley,forestSealStone,
     psychicBenchBasics,startingBasics-v-psychicBenchBasics,
     n-(startingBasics+vmax+psychic+dimensionValley+forestSealStone)];
