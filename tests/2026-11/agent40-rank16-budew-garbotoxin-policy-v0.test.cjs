@@ -1594,3 +1594,82 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,target),{kind:'abstain',reasonCode:'NO_SUPPORTED_POKEMON_CHOICE'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Forest Seal Stone is not wasted on Garbodor when Float is in hand',()=>{
+  const board=own({active:mon('Budew ASC 16'),bench:[
+   mon('Garbodor LTR 68'),mon('Crobat V DAA 104')]});
+  const q=root(seat,[
+   play('Forest Seal Stone SIT 156','fssGarb',{targetSeat:'actor',targetZone:'bench',targetIndex:0}),
+   play('Forest Seal Stone SIT 156','fssCrobat',{targetSeat:'actor',targetZone:'bench',targetIndex:1}),
+   play('Float Stone BKT 137','floatGarb',{targetSeat:'actor',targetZone:'bench',targetIndex:0}),
+   pass],{ownPublic:board,ownHand:[
+    'Forest Seal Stone SIT 156','Float Stone BKT 137']});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'floatGarb'});
+  q.actionFrontier.items.splice(2,1);
+  q.observation.ownHand=['Forest Seal Stone SIT 156'];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'fssCrobat'});
+  const target=prompt(seat,{promptType:'ChoosePokemonPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Forest Seal Stone SIT 156',effectName:'Forest Seal Stone'},
+   publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+   choices:[{kind:'pokemon',token:'garb',printing:'Garbodor LTR 68',
+    publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0}},
+    {kind:'pokemon',token:'crobat',printing:'Crobat V DAA 104',
+    publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:1}}]},
+   {ownPublic:board,ownHand:[],ownTurnResources:{vstarUsed:false}});
+  assert.deepEqual(decide(seat,target),{kind:'select-choices',tokens:['crobat']});
+ });
+ test('seat '+seat+' Muscle Band fallback enables Garbotoxin only when Float is unavailable',()=>{
+  const board=own({active:mon('Budew ASC 16'),bench:[
+   mon('Garbodor LTR 68'),mon('Mega Absol ex MEG 86')]});
+  const garb=play('Muscle Band XY 121','muscleGarb',
+   {targetSeat:'actor',targetZone:'bench',targetIndex:0});
+  const mega=play('Muscle Band XY 121','muscleMega',
+   {targetSeat:'actor',targetZone:'bench',targetIndex:1});
+  const q=root(seat,[garb,mega,pass],{ownPublic:board,
+   ownHand:['Muscle Band XY 121']});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'muscleGarb'});
+  const pc=prompt(seat,{promptType:'ChoosePokemonPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Muscle Band XY 121',effectName:'Muscle Band'},
+   publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+   choices:[{kind:'pokemon',token:'garb',printing:'Garbodor LTR 68',
+    publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0}},
+    {kind:'pokemon',token:'mega',printing:'Mega Absol ex MEG 86',
+    publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:1}}]},
+   {ownPublic:board,ownHand:[]});
+  assert.deepEqual(decide(seat,pc),{kind:'select-choices',tokens:['garb']});
+  q.observation.ownHand=['Muscle Band XY 121','Float Stone BKT 137'];
+  pc.observation.ownHand=['Float Stone BKT 137'];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'muscleMega'});
+  assert.deepEqual(decide(seat,pc),{kind:'select-choices',tokens:['mega']});
+  q.observation.opponentPublic.stadium=['Jamming Tower TWM 153'];
+  pc.observation.opponentPublic.stadium=['Jamming Tower TWM 153'];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  assert.deepEqual(decide(seat,pc),{kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'});
+ });
+ test('seat '+seat+' spent Forest Seal Stone may serve as last-resort Garbotoxin Tool',()=>{
+  const board=own({active:mon('Budew ASC 16'),bench:[
+   mon('Garbodor LTR 68'),mon('Crobat V DAA 104')]});
+  const garb=play('Forest Seal Stone SIT 156','forestGarb',
+   {targetSeat:'actor',targetZone:'bench',targetIndex:0});
+  const crobat=play('Forest Seal Stone SIT 156','forestCrobat',
+   {targetSeat:'actor',targetZone:'bench',targetIndex:1});
+  const q=root(seat,[garb,crobat,pass],{
+   ownPublic:board,ownHand:['Forest Seal Stone SIT 156'],
+   ownTurnResources:{vstarUsed:true}});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'forestGarb'});
+  const pc=prompt(seat,{promptType:'ChoosePokemonPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Forest Seal Stone SIT 156',effectName:'Forest Seal Stone'},
+   publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+   choices:[{kind:'pokemon',token:'garb',printing:'Garbodor LTR 68',
+    publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0}},
+    {kind:'pokemon',token:'crobat',printing:'Crobat V DAA 104',
+    publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:1}}]},
+   {ownPublic:board,ownHand:[],ownTurnResources:{vstarUsed:true}});
+  assert.deepEqual(decide(seat,pc),{kind:'select-choices',tokens:['garb']});
+  q.observation.ownTurnResources.vstarUsed=false;
+  pc.observation.ownTurnResources.vstarUsed=false;
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'forestCrobat'});
+  assert.deepEqual(decide(seat,pc),{kind:'select-choices',tokens:['crobat']});
+ });
+}
