@@ -18,7 +18,7 @@ function remove(a,needle){
 function fixture(seat=0){
  const all=list.entries.flatMap(e=>Array(e.count).fill(physical(e)));
  check(all.length,60);
- const prize=['Dusknoir','Sky Field','Field Blower','Unown','Basic Psychic','Telepathic Psychic']
+ const prize=['Dusknoir SFA 020','Sky Field','Field Blower','Unown','Basic Psychic','Telepathic Psychic']
    .map(n=>remove(all,n));
  const active=remove(all,'Mewtwo & Mew-GX');
  const bench=remove(all,'Dusclops');
