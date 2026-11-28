@@ -267,7 +267,8 @@ function prizeLiability(slot) {
       subtypes.some(value => ['VMAX', 'V-UNION', 'TAG TEAM'].includes(value)) ||
       hasName(printing, 'VMAX') || hasName(printing, 'V-UNION') ||
       hasName(printing, ' & ') && hasName(printing, '-GX')) return 3;
-  if (subtypes.some(value => ['EX', 'ex', 'GX', 'V'].includes(value)) ||
+  if (subtypes.some(value => ['EX', 'ex', 'GX', 'V', 'VSTAR'].includes(value)) ||
+      /\bVSTAR\b/.test(printing) ||
       /-EX(?: |$)/.test(printing) || hasName(printing, '-GX') ||
       / ex(?: |$)/.test(printing) || / V(?: |$)/.test(printing)) return 2;
   return 1;
@@ -1853,6 +1854,58 @@ function activeAttachmentUnlocksMaxGeistKnockout(item, view) {
     remaining>0 && damage>=remaining;
 }
 
+// A source-specific endgame exception, not a general claim that modeled
+// damage proves all protection absent. We only use an ALREADY OFFERED native
+// Max Geist action with its paid active VMAX, observable target HP/Prize value,
+// and known Psychic Energy. After a legal Underworld Door to an eligible
+// Benched Psychic, each additional Basic Psychic adds thirty Max Geist damage.
+function finalMaxGeistAssessment(view,items) {
+  const active=view.ownPublic?.active,target=view.opponentPublic?.active;
+  const attack=active?.attacks?.find(a=>a.name==='Max Geist');
+  if (active?.printing!=='Shadow Rider Calyrex VMAX CRE 75' ||
+      !target || !attack || !canPayAttack(active,attack,view) ||
+      !items.some(item=>item.kind==='attack' &&
+        item.attackName==='Max Geist' &&
+        item.publicMetadata?.attackCostPayable!==false &&
+        item.publicMetadata?.hasUnmodeledModifier!==true) ||
+      !Number.isFinite(target.hp) || !Number.isFinite(target.damage) ||
+      !Array.isArray(target.printed?.weakness) ||
+      !Array.isArray(target.printed?.resistance)) return null;
+  const hp=target.hp-target.damage;
+  if (hp<=0) return null;
+  const finalPrizes=Number.isSafeInteger(view.ownPublic.prizeCount) &&
+    view.ownPublic.prizeCount>0 &&
+    view.ownPublic.prizeCount<=prizeLiability(target);
+  const finalNoBench=Array.isArray(view.opponentPublic.bench) &&
+    view.opponentPublic.bench.every(p=>p===null);
+  if (!finalPrizes && !finalNoBench) return null;
+  const current=estimatedDamage(active,attack,view,target);
+  if (!Number.isFinite(current)) return null;
+  const idx=view.ownPublic.bench.findIndex(p=>
+    p?.printed?.types?.includes('Psychic') && Array.isArray(p.energies));
+  let afterDoor=null;
+  if (idx>=0 && view.ownHand.includes('Psychic Energy MEE 13')) {
+    const following={...view,ownPublic:{...view.ownPublic,
+      bench:view.ownPublic.bench.map((p,i)=>i===idx?
+        {...p,energies:[...p.energies,'Psychic Energy MEE 13']}:p)}};
+    afterDoor=estimatedDamage(active,attack,following,target);
+  }
+  return {hp,current,afterDoor};
+}
+function immediatelyWinningMaxGeist(view,items){
+  const a=finalMaxGeistAssessment(view,items);
+  return a!==null && a.current>=a.hp ?
+    items.find(item=>item.kind==='attack' &&
+      item.attackName==='Max Geist' &&
+      item.publicMetadata?.attackCostPayable!==false &&
+      item.publicMetadata?.hasUnmodeledModifier!==true) ?? null : null;
+}
+function doorMakesFinalMaxGeist(view,items){
+  const a=finalMaxGeistAssessment(view,items);
+  return a!==null && a.current<a.hp &&
+    Number.isFinite(a.afterDoor) && a.afterDoor>=a.hp;
+}
+
 function chooseRoot(view, request) {
   const items = request.actionFrontier.items.filter(item =>
     ['play-card', 'attack', 'retreat', 'use-ability', 'use-stadium', 'pass'].includes(item.kind));
@@ -1871,8 +1924,26 @@ function chooseRoot(view, request) {
       slot?.printed?.types?.includes('Psychic')) &&
     view.ownHand.includes('Psychic Energy MEE 13') &&
     Number.isSafeInteger(view.ownPublic.deckCount) &&
-    view.ownPublic.deckCount>=3
+    (view.ownPublic.deckCount>=3 ||
+      (view.ownPublic.deckCount===2 && doorMakesFinalMaxGeist(view,items)))
   );
+
+  // A final-Prize or final-in-play KO settles the game now. Do not
+  // spend Lillie, Fog Crystal or a Door draw ahead of an already-paid win.
+  const terminalAttack=immediatelyWinningMaxGeist(view,items);
+  if(terminalAttack){
+    setPolicyAuditRule('ROOT_IMMEDIATE_TERMINAL_MAX_GEIST','FIRST_NATIVE_MATCH');
+    recordPolicyAuditRule(terminalAttack.token,'MAX_GEIST_FINAL_PRIZE_NOW');
+    return {kind:'select-action',token:terminalAttack.token};
+  }
+  // With exactly two deck cards, Door draws the last two but the empty
+  // deck only loses on the NEXT own turn. If the new Psychic enables the
+  // winning Max Geist this turn, do not burn the opportunity on a Supporter.
+  if(availableDoor && view.ownPublic.deckCount===2){
+    setPolicyAuditRule('ROOT_TWO_CARD_TERMINAL_DOOR','FIRST_NATIVE_MATCH');
+    recordPolicyAuditRule(availableDoor.token,'DOOR_THEN_FINAL_MAX_GEIST');
+    return {kind:'select-action',token:availableDoor.token};
+  }
 
   const plays = items.filter(item => item.kind === 'play-card');
   const scoredPlays = plays.map(item => {
