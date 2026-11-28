@@ -64,7 +64,7 @@ test('exact pending-target flag changes independently of an identical printed bo
   validateActorObservation(safe,0);
 });
 test('one real native retreat token selected under pending KO and no competing attack',()=>{
-  const offered=[{token:'pass',kind:'pass'},retreat(0,'retreat-action-123'),{token:'fog',kind:'play-card'}];
+  const offered=[{token:'pass',kind:'pass'},retreat(0,'retreat-action-123')];
   assert.deepEqual(choosePaleMoonEscapeRetreat(choiceView(),offered),{
     token:'retreat-action-123',reason:'PUBLIC_PALE_MOON_PENDING_KO_SINGLE_LEGAL_RETREAT'
   });
@@ -78,6 +78,7 @@ test('hard negatives: unknown / absent KO, no legal root, multiple benches, atta
   assert.equal(choosePaleMoonEscapeRetreat(choiceView(true,[{},{}]),offered),null);
   assert.equal(choosePaleMoonEscapeRetreat(choiceView(true,[]),offered),null);
   assert.equal(choosePaleMoonEscapeRetreat(choiceView(),[...offered,{token:'attack',kind:'attack'}]),null);
+  assert.equal(choosePaleMoonEscapeRetreat(choiceView(),[...offered,{token:'fog',kind:'play-card'}]),null);
   assert.equal(choosePaleMoonEscapeRetreat(choiceView(),[...offered,retreat()]),null);
   assert.equal(choosePaleMoonEscapeRetreat(choiceView(),[{...retreat(),
     publicMetadata:{targetSeat:'opponent',targetZone:'bench',targetIndex:0,benchIndex:0}}]),null);
