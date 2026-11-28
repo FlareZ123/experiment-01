@@ -265,7 +265,7 @@ test('actor-owned source deck excludes exact foreign card from source search',()
 });
 
 
-test('Goodra-only Apex donor unlocks Temple with Sky or Megaton; no donor does not',()=>{
+test('Goodra-only Apex donor unlocks Temple with source Sky; no donor does not',()=>{
  for(const seat of [0,1]){
   const original=obs(seat);
   const funded=pokemon(P.star,{energies:[
@@ -279,10 +279,10 @@ test('Goodra-only Apex donor unlocks Temple with Sky or Megaton; no donor does n
     action('sky',P.sky),action('quick',P.quick),
     action('pass','Pass','pass')]),
     {kind:'select-action',token:'sky'});
-  const megaton=action('megaton','Megaton Blower SSP 182');
-  assert.deepEqual(root(seat,locked,[
-    megaton,action('quick',P.quick),action('pass','Pass','pass')]),
-    {kind:'select-action',token:'megaton'});
+  // Rank18 does NOT contain Megaton Blower (other Regidrago ranks do).
+  // The strict source-60 filter must not manufacture a nonexistent out.
+  assert.equal(scoreRoot(action('megaton','Megaton Blower SSP 182'),
+    {observation:locked}),-Infinity);
   const empty=obs(seat,{ownPublic:{...locked.ownPublic,discard:[]}});
   assert.equal(templeUnlocksApex(empty),false);
   assert.equal(token(root(seat,empty,[
