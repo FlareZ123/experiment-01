@@ -1224,3 +1224,47 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,pc),{kind:'select-choices',tokens:['mega']});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' opponent live Garbotoxin blocks on-play draw Abilities and frees Snorlax retreat',()=>{
+  const enemyGarb=mon('Garbodor BKP 57',{tools:['Float Stone BKT 137'],
+   abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]});
+  const us=own({active:mon('Budew ASC 16'),bench:[
+    mon('Trubbish CRI 56'),mon('Mega Absol ex MEG 86')]});
+  const them=opp({active:mon('Snorlax PGO 55'),bench:[enemyGarb]});
+  const q=root(seat,[play('Crobat V DAA 104','crobat'),pass],{
+   ownPublic:us,opponentPublic:them,ownHand:['Crobat V DAA 104']});
+  assert.equal(policy.opponentGarbotoxinStatus(q.observation),'live');
+  assert.equal(policy.benchSupportAbilityUsable('Crobat V DAA 104',q.observation),false);
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  enemyGarb.abilitySuppressions=[];
+  assert.equal(policy.opponentGarbotoxinStatus(q.observation),'unknown');
+  assert.equal(policy.benchSupportAbilityUsable('Crobat V DAA 104',q.observation),false);
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  enemyGarb.abilitySuppressions=[{abilityName:'Garbotoxin',suppressed:true}];
+  assert.equal(policy.opponentGarbotoxinStatus(q.observation),'inactive');
+  assert.equal(policy.benchSupportAbilityUsable('Crobat V DAA 104',q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'crobat'});
+ });
+ test('seat '+seat+' opponent Garbotoxin disabled by Jamming or absent Tool, Hood still protects Snorlax',()=>{
+  const enemyGarb=mon('Garbodor LTR 68',{tools:['Float Stone BKT 137'],
+   abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]});
+  const us=own({active:mon('Budew ASC 16'),bench:[mon('Trubbish CRI 56'),mon('Mega Absol ex MEG 86')]});
+  const enemySnorlax=mon('Snorlax PGO 55',{tools:['Stealthy Hood UNB 186']});
+  const them=opp({active:enemySnorlax,bench:[enemyGarb]});
+  const q=root(seat,[play('Crobat V DAA 104','crobat'),pass],{
+   ownPublic:us,opponentPublic:them,ownHand:['Crobat V DAA 104']});
+  assert.equal(policy.opponentGarbotoxinStatus(q.observation),'live');
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  them.stadium=['Jamming Tower TWM 153'];
+  assert.equal(policy.opponentGarbotoxinStatus(q.observation),'inactive');
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'crobat'});
+  them.stadium=[];enemyGarb.tools=[];
+  assert.equal(policy.opponentGarbotoxinStatus(q.observation),'inactive');
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'crobat'});
+ });
+}
