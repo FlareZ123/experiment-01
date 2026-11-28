@@ -233,14 +233,14 @@ function installCopycatMultiAttackHistory(store){
    */
   const getCopycatChoices=playerId=>{
     const history=getPreviousTurnAttacks(playerId);
-    const paired=history.filter(row=>typeof row.barragePairId==='string');
-    if(paired.length>0){
-      const pairId=paired[paired.length-1].barragePairId;
-      const pair=history.filter(row=>row.barragePairId===pairId);
+    // Do not resurrect an older Barrage pair if a later attack occurred.
+    // The most recent actual attack decides the ordinary Copycat frontier.
+    const last=history[history.length-1];
+    if(last&&typeof last.barragePairId==='string'){
+      const pair=history.filter(row=>row.barragePairId===last.barragePairId);
       if(pair.length===2)
         return pair.filter(isMimikyuCopycatEligibleAttack);
     }
-    const last=history[history.length-1];
     return last&&isMimikyuCopycatEligibleAttack(last)?[last]:[];
   };
 
