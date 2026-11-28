@@ -98,7 +98,23 @@ function sourceAbilityRecoveryOpen(obs){
      own.publicTurnRestrictions?.abilityPokemonPlayLocked===true)return false;
   // Path to the Peak blanks Eldegoss V's Rule Box Ability. Unknown
   // suppression of that Stadium is not a reason to assume Happy Match live.
-  if([...arr(own.stadium),...arr(opp.stadium)].some(x=>is(x,PREFIX.path)))return false;
+  if([...arr(own.stadium),...arr(opp.stadium)].some(x=>
+    is(x,PREFIX.path)||/^Silent Lab PRC(?: 140)?$/.test(name(x))))return false;
+  const opponentActive=name(opp.active?.printing);
+  // Exact Top32 source-backed locks. Freshly benched Eldegoss V has no Tool,
+  // so Initialization, Bide Barricade, and Silent Lab suppress Happy Match.
+  // Sentinel permits Happy Match but stops playing the recovered Supporter.
+  if([
+    /^Iron Thorns ex TWM(?: 77)?$/,
+    /^Wobbuffet PHF(?: 36)?$/,
+    /^Galarian Weezing RCL(?: 113)?$/,
+    /^Stoutland BCR(?: 122)?$/
+  ].some(pattern=>pattern.test(opponentActive)))return false;
+  // Tool-enabled Garbotoxin is a Bench-based lock; observe the attached Tool
+  // rather than treating the mere Pokémon's presence as active suppression.
+  if(board(opp).some(mon=>
+    /^Garbodor (?:BKP(?: 57)?|LTR(?: 68)?)$/.test(name(mon.printing))&&
+    arr(mon.tools).length>0))return false;
   return arr(own.discard).some(recoverableSourceSupporter);
 }
 function eldegossRecoveryValue(obs){
