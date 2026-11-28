@@ -222,6 +222,43 @@ function test() {
  ]);
  same(run(engineSetup,[],draw),{kind:'select-choice',token:'two'},
     'mulligan compensation picks maximum allowable draws');
+ const energyGengar=slot('Gengar & Mimikyu-GX TEU 053','Gengar & Mimikyu-GX',[],[],0);
+ energyGengar.printed.stage='Basic';energyGengar.printed.subtypes=['Basic','TAG TEAM','GX'];
+ const attachWindow=view({active:energyGengar,bench:[],
+  bus:slot('Bunnelby PRC 121','Bunnelby'),oppBench:[],
+  hand:['Telepathic Psychic Energy MEG 088','Basic Psychic Energy']});
+ attachWindow.globalTurn=2;
+ const attach=(token,printing)=>({token,kind:'play-card',actorPrinting:printing,
+  targetPrinting:energyGengar.printing,
+  publicMetadata:{cardType:'energy',handIndex:0,targetSeat:'actor',
+   targetZone:'active',targetIndex:0,isOwnerVisible:true}});
+ same(run(attachWindow,[attach('basic','Basic Psychic Energy'),
+  attach('tpe','Telepathic Psychic Energy MEG 088'),pass()]),
+  {kind:'select-action',token:'tpe'},'TPE attachment bridges one-Psychic opener');
+ attachWindow.ownPublic.active.energies=['Telepathic Psychic Energy MEG 088'];
+ attachWindow.ownHand=['Basic Psychic Energy'];
+ const tpeSearch={schema:P.PROMPT_SCHEMA,actingSeat:0,
+  promptType:'ChooseCardsPrompt',description:'Search up to two Psychic Basics',
+  source:{classification:'actor-choice',sourceKind:'card-effect',
+   sourcePrinting:'Telepathic Psychic Energy MEG 088',
+   effectName:'Telepathic Psychic Energy'},
+  choices:[
+   {token:'dusk',kind:'card',printing:'Duskull VIV 069',
+    publicMetadata:{selectionType:'card-combination',selectionIndex:0,
+     selectedCount:1,sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true}},
+   {token:'mew',kind:'card',printing:'Mewtwo & Mew-GX UNM 071',
+    publicMetadata:{selectionType:'card-combination',selectionIndex:1,
+     selectedCount:1,sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true}},
+   {token:'sol',kind:'card',printing:'Solrock CES 062',
+    publicMetadata:{selectionType:'card-combination',selectionIndex:2,
+     selectedCount:1,sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true}},
+   {token:'empty',kind:'empty-selection',label:'Choose no items'}],
+  publicMetadata:{selectionType:'card-combination',sourceZone:'deck',
+   ownerSeat:'actor',isOwnerVisible:true,isSecret:false,
+   minimumCount:0,maximumCount:2,allowCancel:false}};
+ same(run(attachWindow,[],tpeSearch),
+  {kind:'select-choices',tokens:['dusk','mew']},
+  'TPE owned search gets Duskull/Mewtwo and leaves Bench space');
  const nativeGengar=slot('Gengar & Mimikyu-GX TEU 053','Gengar & Mimikyu-GX',[],[],1);
  nativeGengar.printed.stage='Basic';nativeGengar.printed.subtypes=['Basic','TAG TEAM','GX'];
  const earlyNative=view({active:nativeGengar,bench:[],

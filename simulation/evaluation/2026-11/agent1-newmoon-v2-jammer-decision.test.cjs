@@ -28,7 +28,7 @@ function root(v,items) {return policy.decideWithAudit({role:'candidate',seat:0,
 function prompt(v,effect,type,meta,choices) {
   return policy.decideWithAudit({role:'candidate',seat:0,
     observation:{...v,decisionKind:'owner-prompt'},
-    prompt:{actingSeat:0,promptType:type,source:{sourceKind:'card-effect',classification:'actor-choice',effectName:effect},publicMetadata:meta,choices}});
+    prompt:{actingSeat:0,promptType:type,source:{sourceKind:'card-effect',classification:'actor-choice',effectName:effect,sourcePrinting:effect==='Telepathic Psychic Energy'?'Telepathic Psychic Energy MEG 088':null},publicMetadata:meta,choices}});
 }
 const target=(token,printing,ownerSeat,targetZone='active')=>({token,kind:'pokemon',printing,
   publicMetadata:{ownerSeat,targetZone,isOwnerVisible:true}});
@@ -105,6 +105,55 @@ function earlyStart(active,extra={}) {
 }
 const hh=action('attack','horror-house',{}, {attackName:'Horror House-GX'});
 const poltergeist=action('attack','poltergeist',{}, {attackName:'Poltergeist'});
+check('Psychic energy attachment uses TPE to unlock Gengar before Horror House',()=>{
+ const v=earlyStart(makeSlot('Gengar & Mimikyu-GX TEU 053',{energies:[]}));
+ v.ownTurnResources.energyPlayedTurn=0;
+ const card=(printing,token,zone='active',seat='actor')=>
+  action('play-card',token,{cardType:'energy',targetZone:zone,targetSeat:seat},
+   {actorPrinting:printing,targetPrinting:'Gengar & Mimikyu-GX TEU 053'});
+ assert.equal(sel(root(v,[card('Basic Psychic Energy','basic'),
+   card('Telepathic Psychic Energy','tpe'),pass()])),'tpe');
+ assert.equal(sel(root(v,[card('Telepathic Psychic Energy','bench','bench'),
+   card('Telepathic Psychic Energy','foe','active','opponent'),pass()])),'abstain');
+ v.ownPublic.active.energies=['Telepathic Psychic Energy'];
+ v.ownPublic.publicTurnRestrictions.gxUsed=false;
+ assert.equal(sel(root(v,[hh,pass()])),'horror-house');
+});
+check('TPE actor-owned deck search prioritizes Gengar donor and Duskull',()=>{
+ const v=earlyStart(makeSlot('Mewtwo & Mew-GX UNM 071',{abilities:['Perfection'],
+  energies:['Telepathic Psychic Energy']}));
+ const item=(token,name,i)=>({token,kind:'card',printing:name,publicMetadata:{
+  sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true,selectionIndex:i}});
+ const meta={selectionType:'card-combination',sourceZone:'deck',
+  ownerSeat:'actor',isOwnerVisible:true,minimumCount:0,maximumCount:2};
+ const choices=[item('sol','Solrock CES 062',0),item('dusk','Duskull VIV 069',1),
+  item('gengar','Gengar & Mimikyu-GX TEU 053',2),
+  {kind:'empty-selection',token:'empty'}];
+ assert.equal(sel(prompt(v,'Telepathic Psychic Energy','ChooseCardsPrompt',meta,choices)),'gengar,dusk');
+});
+check('TPE search does not illegally exceed occupied Bench or leak opponent zone',()=>{
+ const v=earlyStart(makeSlot('Mewtwo & Mew-GX UNM 071'),{
+  bench:Array.from({length:5},()=>makeSlot('Unown AOR 030'))});
+ const item={kind:'card',token:'dusk',printing:'Duskull VIV 069',publicMetadata:{
+  sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true}};
+ const meta={selectionType:'card-combination',sourceZone:'deck',ownerSeat:'actor',
+  isOwnerVisible:true,minimumCount:0,maximumCount:2};
+ assert.equal(sel(prompt(v,'Telepathic Psychic Energy','ChooseCardsPrompt',meta,
+  [item,{kind:'empty-selection',token:'empty'}])),'empty');
+ meta.ownerSeat='opponent';
+ assert.equal(sel(prompt(v,'Telepathic Psychic Energy','ChooseCardsPrompt',meta,[item])),'abstain');
+});
+check('TPE attachment under BUS lock unlocks one-Psychic Active Jammer Dusclops',()=>{
+ const v=view({active:dus({tools:['Tool Jammer BST 136'],energies:['Basic Psychic Energy']}),
+  bench:[dus()]});
+ v.ownTurnResources.energyPlayedTurn=0;
+ const card=action('play-card','tpe',{cardType:'energy',targetZone:'active',targetSeat:'actor'},
+  {actorPrinting:'Telepathic Psychic Energy',targetPrinting:'Dusclops SFA 019'});
+ assert.equal(sel(root(v,[card,benchBlast(),pass()])),'tpe');
+ v.ownPublic.active.energies.push('Telepathic Psychic Energy');
+ assert.equal(sel(root(v,[benchBlast(),pass()])),'blast-bench');
+});
+
 check('native Gengar first-turn legal Horror House beats generic printed damage tactic',()=>{
  const v=earlyStart(makeSlot('Gengar & Mimikyu-GX TEU 053',
     {energies:['Basic Psychic Energy']}));

@@ -1,6 +1,6 @@
 'use strict';
 /* Research-only actor-visible decision slice; NOT a full candidate worker or game policy. */
-const POLICY_VERSION = 'agent1-newmoon-tool-jammer-v2-slice-v1';
+const POLICY_VERSION = 'agent1-newmoon-tool-jammer-v2-slice-v2';
 const DECK_SHA = 'aebe9a142e8492be929316bff4b871375e3e478945e01f8c5844037332634fe6';
 const has = (s,n) => typeof s === 'string' && s.includes(n);
 const slots = p => [p?.active,...(Array.isArray(p?.bench)?p.bench:[])].filter(Boolean);
@@ -121,11 +121,14 @@ function chooseRoot(view,frontier) {
   const items=frontier?.items;
   if (!Array.isArray(items)) return null;
   const p=position(view);
-  if (!p) return chooseEscapedBusResponse(view,items) ?? chooseEarlyHorrorHouse(view,items);
+  if (!p) return chooseEscapedBusResponse(view,items) ??
+    chooseActivePsychicAttachment(view,items) ?? chooseEarlyHorrorHouse(view,items);
   const choose=(row,reason)=>row ? {decision:{kind:'select-action',token:row.token},reason}:null;
   const canSelfKO = Number.isSafeInteger(p.opp.prizeCount) &&
     p.opp.prizeCount > 1 && Number.isSafeInteger(p.own.prizeCount) &&
     p.own.prizeCount > 0; // Cursed Blast pays the opponent a Prize.
+  const attachment=chooseActivePsychicAttachment(view,items,p.activeDus);
+  if(attachment)return attachment;
   const isActiveSource=x=>x.publicMetadata?.sourceZone==='active';
   const isBenchSource=x=>x.publicMetadata?.sourceZone==='bench' &&
      Number.isSafeInteger(x.publicMetadata?.sourceIndex) &&
@@ -184,6 +187,83 @@ function chooseRoot(view,frontier) {
       return choose(star,'STAR_ALCHEMY_TO_JAMMER');
   }
   return null;
+}
+
+
+function chooseActivePsychicAttachment(view,items,lockedDusclops=false) {
+  const own=view?.ownPublic,active=own?.active;
+  if (!active || !Array.isArray(items) ||
+      view.ownTurnResources?.energyPlayedTurn!==0) return null;
+  const opening=(has(active.printing,'Gengar & Mimikyu-GX') ||
+     has(active.printing,'Mewtwo & Mew-GX')) &&
+     Number.isSafeInteger(view.globalTurn) && view.globalTurn<=4 &&
+     psychicSupply(active)===0;
+  const rank15=lockedDusclops && isDusclops(active) &&
+     psychicSupply(active)<2;
+  if (!opening && !rank15) return null;
+  const picks=items.filter(x=>x.kind==='play-card' &&
+      x.publicMetadata?.cardType==='energy' &&
+      x.publicMetadata.targetSeat==='actor' &&
+      x.publicMetadata.targetZone==='active' &&
+      (x.targetPrinting===undefined || x.targetPrinting===active.printing) &&
+      (has(x.actorPrinting,'Telepathic Psychic Energy') ||
+       has(x.actorPrinting,'Basic Psychic Energy')));
+  if(!picks.length)return null;
+  const tele=picks.find(x=>has(x.actorPrinting,'Telepathic Psychic Energy'));
+  const select=tele??picks[0];
+  return {decision:{kind:'select-action',token:select.token},
+    reason:tele?'ATTACH_TPE_FOR_ATTACK_AND_SEARCH':'ATTACH_BASIC_PSYCHIC_TO_ATTACK'};
+}
+function chooseTelepathicSearch(view,prompt) {
+  const own=view?.ownPublic,m=prompt?.publicMetadata;
+  if (!own || !Array.isArray(own.bench) ||
+      prompt?.promptType!=='ChooseCardsPrompt' ||
+      !has(prompt.source?.sourcePrinting,'Telepathic Psychic Energy') ||
+      m?.selectionType!=='card-combination' ||
+      m.sourceZone!=='deck' || m.ownerSeat!=='actor' ||
+      m.isOwnerVisible!==true || ![0,1].includes(m.minimumCount) ||
+      !Number.isSafeInteger(m.maximumCount) ||
+      m.maximumCount< m.minimumCount || m.maximumCount>2) return null;
+  const cards=prompt.choices.filter(x=>x.kind==='card' &&
+      typeof x.printing==='string' &&
+      x.publicMetadata?.sourceZone==='deck' &&
+      x.publicMetadata?.ownerSeat==='actor' &&
+      x.publicMetadata?.isOwnerVisible===true);
+  const available=Math.min(5-own.bench.filter(Boolean).length,
+      m.maximumCount,cards.length);
+  if(available<m.minimumCount)return null;
+  if(available===0){
+    const empty=prompt.choices.find(x=>x.kind==='empty-selection');
+    return empty && m.minimumCount===0 ?
+      {decision:{kind:'select-choice',token:empty.token},
+       reason:'TPE_NO_BENCH_CAPACITY'}:null;
+  }
+  const inPlay=n=>slots(own).some(s=>has(s.printing,n));
+  const hasDonor=inPlay('Gengar & Mimikyu-GX') ||
+    (own.discard??[]).some(x=>has(x,'Gengar & Mimikyu-GX'));
+  const hasDusclops=inPlay('Dusclops')||inPlay('Duskull');
+  const score=x=>{
+    const n=x.printing;
+    if(has(n,'Gengar & Mimikyu-GX'))
+      return has(own.active?.printing,'Mewtwo & Mew-GX') && !hasDonor?140:80;
+    if(has(n,'Duskull'))return hasDusclops?72:127;
+    if(has(n,'Mewtwo & Mew-GX'))return inPlay('Mewtwo & Mew-GX')?60:115;
+    if(has(n,'Galarian Articuno V'))return inPlay('Galarian Articuno V')?56:105;
+    if(has(n,'Solrock'))return inPlay('Lunatone')?110:74;
+    if(has(n,'Lunatone'))return inPlay('Solrock')?110:72;
+    if(has(n,'Unown'))return 66;
+    if(has(n,'Latias ex'))return 64;
+    if(has(n,'Squawkabilly ex'))return 59;
+    if(has(n,'Lillie'))return 58;
+    if(has(n,'Klefki'))return 57;
+    return 0;
+  };
+  const picked=cards.slice().sort((a,b)=>score(b)-score(a) ||
+    (a.publicMetadata?.selectionIndex??0)-(b.publicMetadata?.selectionIndex??0))
+    .slice(0,available).map(x=>x.token);
+  return picked.length>=m.minimumCount && picked.length>0 ?
+    {decision:{kind:'select-choices',tokens:picked},
+     reason:'TPE_BASIC_PSYCHIC_BENCH_SEARCH'}:null;
 }
 
 function chooseEngineSetup(view,prompt) {
@@ -263,6 +343,8 @@ function choosePrompt(view,prompt) {
       !Array.isArray(prompt.choices)) return null;
   if(prompt.source?.sourceKind==='engine') return chooseEngineSetup(view,prompt);
   if(prompt.source?.sourceKind!=='card-effect') return null;
+  const tpe=chooseTelepathicSearch(view,prompt);
+  if(tpe)return tpe;
   if (!p) return chooseEarlyPerfectionPrompt(view,prompt);
   const m=prompt.publicMetadata;
   const effect=prompt.source.effectName;
