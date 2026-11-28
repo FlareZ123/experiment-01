@@ -607,9 +607,80 @@ function projectSimplePrompt(prompt, state, choices, choiceByToken) {
   return null;
 }
 
+
+// The pinned Iron Thorns ex TWM Volt Cyclone attack generates a mandatory
+// AttachEnergyPrompt from the actor's Active Pokemon to their own Bench.
+// Unlike Underworld Door, the source is an in-play PokemonCardList and the
+// moved Energy can be Basic OR Special. Enumerate only native-valid moves.
+function projectVoltCycloneEnergyTransfer({
+  prompt,state,actorSeat,native,source,choices,choiceByToken
+}={}) {
+  const actor=state.players[actorSeat];
+  const activeCard=actor?.active?.getPokemonCard?.();
+  const exactSource=source?.sourceKind==='card-effect'&&
+    source.effectName==='Volt Cyclone'&&
+    source.sourcePrinting==='Iron Thorns ex TWM'&&
+    activeCard?.name==='Iron Thorns ex'&&activeCard?.set==='TWM'&&
+    activeCard?.setNumber==='77';
+  const exactPrompt=prompt?.message==='ATTACH_ENERGY_TO_BENCH'&&
+    prompt.cardList===actor?.active&&
+    prompt.playerType===native.PlayerType.BOTTOM_PLAYER&&
+    Array.isArray(prompt.slots)&&prompt.slots.length===1&&
+    prompt.slots[0]===native.SlotType.BENCH&&
+    prompt.filter?.superType===native.SuperType.ENERGY&&
+    Object.keys(prompt.filter).length===1&&
+    prompt.options?.allowCancel===false&&
+    prompt.options?.min===1&&prompt.options?.max===1;
+  if(!exactSource||!exactPrompt)
+    throw Object.assign(new Error('Unsupported Volt Cyclone Energy-transfer source or native shape'),{
+      code:'UNSUPPORTED_VOLT_CYCLONE_ATTACH_ENERGY_SHAPE'
+    });
+  const attached=cardListCards(actor.active.energies);
+  const energies=cardListCards(actor.active).map((card,index)=>({card,index}))
+    .filter(({card})=>card instanceof native.EnergyCard&&
+      card.superType===native.SuperType.ENERGY&&attached.includes(card));
+  for(let benchIndex=0;benchIndex<actor.bench.length;benchIndex++){
+    const recipient=actor.bench[benchIndex]?.getPokemonCard?.();
+    if(!recipient)continue;
+    for(const {card,index} of energies){
+      const rawResult=[{
+        to:{player:native.PlayerType.BOTTOM_PLAYER,slot:native.SlotType.BENCH,index:benchIndex},
+        index
+      }];
+      addChoice(choices,choiceByToken,rawResult,{
+        kind:'energy',
+        printing:printing(card)??card.name,
+        label:'Move '+(printing(card)??card.name)+' from Active to Bench '+(benchIndex+1)+
+          ': '+(printing(recipient)??recipient.name),
+        publicMetadata:{
+          sourceZone:'active',ownerSeat:'actor',isOwnerVisible:true,
+          energyType:card.energyType===native.EnergyType?.SPECIAL?'SPECIAL':'BASIC',
+          zone:'bench',benchIndex,choiceIndex:choices.length,selectedCount:1
+        }
+      },prompt,state);
+    }
+  }
+  if(choices.length===0)
+    throw Object.assign(new Error('No native-valid attached-Energy transfer to actor Bench'),{
+      code:'NO_VALID_VOLT_CYCLONE_ENERGY_TRANSFER'
+    });
+  return {
+    selectionType:'energy-attachment',
+    count:choices.length,
+    minimumCount:1,maximumCount:1,
+    allowCancel:false,sourceZone:'active',ownerSeat:'actor',
+    isOwnerVisible:true,zone:'bench'
+  };
+}
+
 function projectAttachEnergyPrompt({
   prompt,state,actorSeat,native,store,source,choices,choiceByToken
 }={}){
+  if(source?.effectName==='Volt Cyclone'){
+    return projectVoltCycloneEnergyTransfer({
+      prompt,state,actorSeat,native,source,choices,choiceByToken
+    });
+  }
   const actor=state.players[actorSeat];
   const supportedSource=source?.sourceKind==='card-effect'&&
     source.effectName==='Underworld Door'&&
