@@ -132,6 +132,25 @@ The opening heuristic is intentionally observable and non-universal: if the hand
 
 This does **not** claim optimal opening percentages, nor does it inspect future draws or guess opponent identity. Its native setup hook must be mounted **outside** the generic Agent21 setup handler (the inner baseline would intercept first otherwise), and an owning rank15 runner must explicitly enable it; no native game runner has been changed or dispatched here. The executable injected-native prompt tests verify exact both-seat Active/Bench selection, `sourceRank` isolation, native validator rejection/shortening, `maxSelections` constraints, opponent-owner isolation, strict delegation of unsupported/live-turn prompts, and restoration of the original decoder. **22/22 passed** in an in-process CommonJS test shim with stubbed native classes, but **not** a pinned Twinleaf Store setup. The independent research hook remains development-only until owner-approved native validation.
 
+## Exact source60 opening-hand baseline comparison (seeded 300,000)
+
+`simulation/evaluation/2026-11/agent20-rank15-opening-hand-comparison.cjs` reconstructs the **exact source 60** from the existing `SOURCE_COUNTS`, samples seven-card initial hands without replacement using a deterministic xorshift32 seed `0x20C0FFEE`, and compares Agent21's generic first-eligible-Basic/bench-all baseline to the proposed rank15 starting-Basic policy. The raw complete counts and script/policy blob identifiers are preserved at `results/aichi-2026/2026-11/agent20-rank15-opening-hand-comparison-300k-seed20c0ffee.json`.
+
+The 300,000-sample opening-policy outcomes are:
+
+| Measure | Observed | Meaning |
+| --- | ---: | --- |
+| Initial mulligans | 13.911% | Exact analytic 14-Basic mulligan chance 13.915%; a prior redraw is not modeled |
+| Starting Active changed | 32.708% of playable initial hands | Policy chooses a different legal lead, **not** an established benefit |
+| Bunnelby + TM: Evolution + Energy in hand | 2.158% of initial hands | Exact inclusion/exclusion probability **2.1446%** |
+| Old generic lead misses that in-hand Bunnelby line, new policy chooses it | 0.773% of initial hands | Physically realizable first-turn setup **opportunity**, not a guarantee of attack |
+| Eldegoss V held rather than prematurely played in setup | 4.679% of initial hands | Saves a potential later Happy Match, conditional on survival and eventual hand-play |
+| Eldegoss V Benched as only backup | 4.584% of initial hands | Avoid single-Pokémon setup where possible, but forego Happy Match |
+| New Tatsugiri lead when no Supporter access | 3.018% of initial hands | Makes its Active-only search Ability available |
+| Old generic setup would fill all five Bench slots | 0.037% of initial hands | Bench-space gain is infrequent from opening draw alone |
+
+These are **uniform initial-hand behavior statistics**. They do not model mulligan bonuses, first/second player, Prize configurations, subsequent draws, search paths, Item/Supporter lock, native Store outcomes, or game wins. In particular **32.7% changed Active ≠ 32.7% improved games**. The strongest identified rationale for this hook is avoiding poor Active leads and preserving Eldegoss V's hand-triggered Ability, not raw five-slot Bench saturation.
+
 ## Reproducible assets
 
 - Policy: `simulation/evaluation/2026-11/agent20-rank15-lopunny-vileplume-opponent-policy.cjs`
@@ -150,6 +169,7 @@ This does **not** claim optimal opening percentages, nor does it inspect future 
 - Legacy Energy Prize terminal false positives: `tests/2026-11/agent20-rank15-legacy-energy-prize-terminal-heldout.test.cjs` (**20** cases)
 - Life Dew, Island Challenge Amulet and TAG TEAM/V-UNION: `tests/2026-11/agent20-rank15-prize-tools-tagteam-vunion-heldout.test.cjs` (**26** cases)
 - Rank15 native-opening priority hook (isolated fake native prompt): `tests/2026-11/agent20-rank15-owner-setup-priority-heldout.test.cjs` (**22** cases)
+- Reproducible 300,000-hand opener: `simulation/evaluation/2026-11/agent20-rank15-opening-hand-comparison.cjs`; retained JSON at `results/aichi-2026/2026-11/agent20-rank15-opening-hand-comparison-300k-seed20c0ffee.json`
 - Parent strict V3 Temple regressions (not owned by PR93): `tests/2026-11/agent41-rank15-temple-strict-v3-protocol-heldout.test.cjs` (**4** cases)
 - Exact setup hook/test blobs: `1af37b7b632ac21ee294f71cad255bdca2f04289` / `9d43575ff215ea62348d74e35f973001722e59a1`
 - Exact final policy blob: `e05044c170bbfcb4701217afb84a04805df05620`
