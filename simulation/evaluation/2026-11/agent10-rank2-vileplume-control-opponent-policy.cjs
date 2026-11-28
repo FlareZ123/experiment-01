@@ -258,16 +258,26 @@ function opponentHasSpecialEnergy(player) {
       !/^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy\b/i.test(energy)));
 }
 
-function opponentHasGarbotoxin(player) {
-  return boardSlots(player).some(({ pokemon }) => {
-    if (!list(pokemon.abilities).includes('Garbotoxin') ||
-        list(pokemon.tools).length === 0) return false;
-    const suppression = list(pokemon.abilitySuppressions).find(row =>
-      row.abilityName === 'Garbotoxin');
-    // Explicit actor-visible suppression defeats a Tool-bearing Garbotoxin.
-    // Unknown suppression stays conservative rather than guessed inactive.
-    return suppression?.suppressed !== true;
-  });
+function printedAbilityLive(pokemon, abilityName) {
+  if (!pokemon || !list(pokemon.abilities).includes(abilityName)) return false;
+  const suppression = list(pokemon.abilitySuppressions).find(row =>
+    row.abilityName === abilityName);
+  return suppression?.suppressed !== true;
+}
+
+function opponentHasAbilityLock(player) {
+  // Garbotoxin is Bench-capable but needs an attached Pokémon Tool.
+  const garbotoxin = boardSlots(player).some(({ pokemon }) =>
+    printedAbilityLive(pokemon, 'Garbotoxin') &&
+    list(pokemon.tools).length > 0);
+  if (garbotoxin) return true;
+  const active = player?.active;
+  // Wobbuffet PHF Bide Barricade and Weezing RCL Neutralizing Gas
+  // only suppress other Pokémon while their owner occupies Active.
+  return (matches(active?.printing ?? '', /^Wobbuffet PHF(?: |$)/i) &&
+      printedAbilityLive(active, 'Bide Barricade')) ||
+    (matches(active?.printing ?? '', /^Galarian Weezing RCL(?: |$)/i) &&
+      printedAbilityLive(active, 'Neutralizing Gas'));
 }
 
 function opponentHasAnyEnergy(player) {
@@ -355,7 +365,7 @@ function scoreEvolution(card, target, observation) {
     !bunnelbyHasTool(observation, PRINT.tmEvolution) &&
     bunnelbyInPlay(observation) && hasK0PossibleBenchEvolutionTarget(observation);
   const canUseHood = hand.some(value => matches(value, PRINT.stealthyHood)) &&
-    opponentHasGarbotoxin(observation.opponentPublic);
+    opponentHasAbilityLock(observation.opponentPublic);
   const canUseCounterGain = hand.some(value => matches(value, PRINT.counterGain)) &&
     ownBehindOnPrizes(observation);
   const preLockSetupStillNeeded = !ownItemLocked(observation) &&
@@ -442,7 +452,7 @@ function scoreAttack(item, observation) {
   }
   if (name === 'Itchy Pollen') {
     const itemLockLive = boardHas(own, PRINT.vileplume) &&
-      !opponentHasGarbotoxin(observation.opponentPublic);
+      !opponentHasAbilityLock(observation.opponentPublic);
     const supporterLockLive = matches(own.active?.printing ?? '', PRINT.stoutland);
     return !itemLockLive && !supporterLockLive ? 128 : 15;
   }
@@ -527,7 +537,7 @@ function scoreAction(item, request) {
   if (item.kind === 'retreat') {
     if (matches(target, PRINT.stoutland)) {
       const supporterLocked = opponent.publicTurnRestrictions?.supporterPlayLocked === true ||
-        opponentHasGarbotoxin(opponent);
+        opponentHasAbilityLock(opponent);
       return supporterLocked ? 0 : 185;
     }
     if (matches(own.active?.printing ?? '', PRINT.stoutland) &&
@@ -581,7 +591,7 @@ function scoreAction(item, request) {
     if (toBench && targetIsStoutland) {
       // Jet Energy's switch is a way to establish the same Active Sentinel
       // lock as retreat or Guzma; avoid promoting a visibly suppressed one.
-      return opponentHasGarbotoxin(opponent) ? 0 : 198;
+      return opponentHasAbilityLock(opponent) ? 0 : 198;
     }
     return 80;
   }
@@ -620,15 +630,21 @@ function scoreAction(item, request) {
   if (matches(card, PRINT.stealthyHood)) {
     const row = actionTargetPokemon(item, observation);
     if (!row) return 0;
-    const lockCarrier = matches(row.printing, PRINT.vileplume) ||
+    const itemLockCarrier = matches(row.printing, PRINT.vileplume) ||
       matches(row.printing, PRINT.gloom);
+    const supporterLockCarrier = matches(row.printing, PRINT.stoutland);
     const pidgeotEngine = matches(row.printing, PRINT.pidgeot);
-    if (!lockCarrier && !pidgeotEngine) return 0;
-    const threatened = opponentHasGarbotoxin(opponent);
-    if (threatened && !ownItemLocked(observation)) {
-      return lockCarrier ? 205 : 110;
+    if (!itemLockCarrier && !supporterLockCarrier && !pidgeotEngine) return 0;
+    const threatened = opponentHasAbilityLock(opponent);
+    // Pokémon Tools are not Items, even when older printings say Item on top.
+    if (threatened) {
+      if (itemLockCarrier) return 205;
+      if (supporterLockCarrier) {
+        return metadata.targetZone === 'active' ? 200 : 175;
+      }
+      return 110;
     }
-    return lockCarrier ? 65 : 0;
+    return itemLockCarrier ? 65 : 0;
   }
   if (matches(card, PRINT.grandTree)) {
     const liveEvolution = hasUnevolvedBasicFromPriorTurn(own, observation.globalTurn) &&
@@ -729,7 +745,7 @@ function cardPriority(printing, observation, context) {
     if (matches(printing, PRINT.stealthyHood)) {
       const hoodHeld = handCount(hand, PRINT.stealthyHood) > 0 ||
         boardSlots(own).some(row => list(row.pokemon.tools).some(tool => matches(tool, PRINT.stealthyHood)));
-      return opponentHasGarbotoxin(observation.opponentPublic) && !hoodHeld ? 160 : 35;
+      return opponentHasAbilityLock(observation.opponentPublic) && !hoodHeld ? 160 : 35;
     }
     if (matches(printing, PRINT.counterGain)) {
       return ownBehindOnPrizes(observation) && handCount(hand, PRINT.counterGain) === 0 ? 135 : 50;
@@ -822,7 +838,7 @@ function cardPriority(printing, observation, context) {
       return handCount(hand, PRINT.jetEnergy) === 0 && !jetInPlay ? 140 : 55;
     }
     if (matches(printing, PRINT.counterGain) && ownBehindOnPrizes(observation)) return 130;
-    if (matches(printing, PRINT.stealthyHood) && opponentHasGarbotoxin(observation.opponentPublic)) return 125;
+    if (matches(printing, PRINT.stealthyHood) && opponentHasAbilityLock(observation.opponentPublic)) return 125;
     if (matches(printing, PRINT.guzmaHala) && canUseGuzmaHalaMode1(observation, { guzmaInHand: true })) return 120;
     if (matches(printing, PRINT.tagCall) && sourceCopyPossible(observation, PRINT.guzmaHala) && canUseGuzmaHalaMode1(observation, { excludePatterns: [PRINT.tagCall], guzmaInHand: true })) return 115;
     if (matches(printing, PRINT.oddish) && !boardHas(own, PRINT.oddish)) return 105;
@@ -920,7 +936,7 @@ function scorePokemonChoice(choice, observation, context) {
       // On the mandatory self-switch, preserve the main lock when its
       // Ability is live. Otherwise prefer a Bunnelby attack/mill pivot.
       if (matches(printing, PRINT.stoutland)) {
-        return opponentHasGarbotoxin(observation.opponentPublic) ? 20 : 190;
+        return opponentHasAbilityLock(observation.opponentPublic) ? 20 : 190;
       }
       if (matches(printing, PRINT.bunnelby)) {
         return observation.opponentPublic?.deckCount <= 8 ? 180 : 160;
