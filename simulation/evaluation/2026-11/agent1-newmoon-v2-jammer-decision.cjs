@@ -50,6 +50,15 @@ function chooseRoot(view,frontier) {
     // active Dusclops when the second copy is not demonstrably available.
     const lethal=Number.isFinite(p.bus.hp) && Number.isFinite(p.bus.damage) &&
       p.bus.hp-p.bus.damage<=50;
+    // A paid ordinary attack on a 50-HP-or-less BUS avoids the immediate
+    // Cursed Blast self-KO and its gifted Prize. Do not assume that an attack
+    // from an Asleep/Paralyzed/Confused Active is guaranteed to resolve.
+    const condition=p.active.specialConditions;
+    const attackRisk=!Array.isArray(condition) || condition.some(x=>
+      Number.isSafeInteger(x) || ['ASLEEP','PARALYZED','CONFUSED'].includes(String(x).toUpperCase()));
+    const payableWillow=items.find(x=>x.kind==='attack' && x.attackName==='Will-O-Wisp');
+    if (lethal && psychic(p.active)>=2 && !attackRisk && payableWillow)
+      return choose(payableWillow,'SAFE_WILLOW_LETHAL_WITHOUT_SELF_KO');
     if (lethal && canSelfKO && p.own.bench.some(Boolean) &&
         abilityLive(p.active,'Cursed Blast')) {
       const blast=items.find(x=>useAbility(x,'Cursed Blast') && isActiveSource(x));
@@ -58,6 +67,18 @@ function chooseRoot(view,frontier) {
     const benchBlast=items.find(x=>useAbility(x,'Cursed Blast') && isBenchSource(x));
     if (benchBlast && canSelfKO && psychic(p.active)>=2 && p.bus.hp-p.bus.damage>50)
       return choose(benchBlast,'CURSED_BLAST_BENCH_SETUP');
+    // Once a Benched Dusclops self-KOs, Ace Trainer can be newly legal this turn.
+    // It is only worth inserting before a payable attack if the opponent's
+    // publicly known hand is actually compressed, and the Supporter is unused.
+    if (p.bus.damage>=50 && p.bus.damage<100 && psychic(p.active)>=2 &&
+        Number.isSafeInteger(p.opp.prizeCount) &&
+        Number.isSafeInteger(p.own.prizeCount) &&
+        p.opp.prizeCount < p.own.prizeCount &&
+        Number.isSafeInteger(p.opp.handCount) && p.opp.handCount>3 &&
+        view.ownTurnResources?.supporterPlayedTurn===0) {
+      const ace=items.find(x=>cardAction(x,'Ace Trainer'));
+      if (ace) return choose(ace,'ACE_TRAINER_POST_CURSE_PRE_ATTACK');
+    }
     const willow=items.find(x=>x.kind==='attack' && x.attackName==='Will-O-Wisp');
     if (willow && psychic(p.active)>=2 && p.bus.damage>=50)
       return choose(willow,'WILLOW_WISP_AFTER_BLAST_OR_NO_BENCH');

@@ -3,17 +3,17 @@ const assert=require('node:assert/strict');
 const {POLICY_VERSION,DECK_SHA,createPolicy}=require('./agent1-newmoon-v2-jammer-decision.cjs');
 const makeSlot=(printing,opts={})=>({printing,abilities:opts.abilities??[],
   abilitySuppressions:(opts.abilities??[]).map(abilityName=>({abilityName,suppressed:false})),
-  tools:opts.tools??[],energies:opts.energies??[],hp:opts.hp??140,damage:opts.damage??0});
+  tools:opts.tools??[],energies:opts.energies??[],specialConditions:opts.specialConditions??[],hp:opts.hp??140,damage:opts.damage??0});
 const dus=(opts={})=>makeSlot('Dusclops SFA 019',{abilities:['Cursed Blast'],...opts});
 const bus=(opts={})=>makeSlot('Vileplume BUS 006',{abilities:['Disgusting Pollen'],tools:['Stealthy Hood UNB 186'],...opts});
 const aor=()=>makeSlot('Vileplume AOR 003',{abilities:['Irritating Pollen']});
 const box=()=>({stadiumAndToolHaveNoEffectTurnsRemaining:0});
 const view=(opts={})=>({actorSeat:0,decisionKind:'owner-root',
-  ownHand:opts.hand??['Tool Jammer BST 136'],
+  ownHand:opts.hand??['Tool Jammer BST 136'],ownTurnResources:{supporterPlayedTurn:opts.supporterPlayedTurn??0},
   ownPublic:{active:opts.active??dus({energies:['Basic Psychic Energy','Basic Psychic Energy']}),
     bench:opts.bench??[dus()],stadium:opts.ownStadium??[],prizeCount:opts.ownPrizeCount??3,publicTurnRestrictions:opts.ownRestriction??box()},
   opponentPublic:{active:opts.bus??bus(),bench:opts.opponentBench??[aor()],
-    stadium:opts.oppStadium??[],prizeCount:opts.oppPrizeCount??3,publicTurnRestrictions:opts.oppRestriction??box()}});
+    stadium:opts.oppStadium??[],handCount:opts.oppHandCount??6,prizeCount:opts.oppPrizeCount??3,publicTurnRestrictions:opts.oppRestriction??box()}});
 const action=(kind,token,metadata={},extra={})=>({kind,token,publicMetadata:metadata,...extra});
 const play=()=>action('play-card','play-jammer',{}, {actorPrinting:'Tool Jammer BST 136'});
 const benchBlast=()=>action('use-ability','blast-bench',{abilityName:'Cursed Blast',sourceZone:'bench',sourceIndex:0});
@@ -76,13 +76,45 @@ check('Cursed Blast prompt selects opponent Active, not Benched Garbodor',()=>{
   [target('garb','Garbodor DRX 054','opponent','bench'),target('bus','Vileplume BUS 006','opponent')]);
  assert.equal(sel(r),'bus');
 });
+check('Cursed Blast self-KO makes Ace Trainer legal and hand-compressing before attack',()=>{
+ const v=view({active:dus({tools:['Tool Jammer BST 136'],energies:['Basic Psychic Energy','Basic Psychic Energy']}),
+  bench:[],bus:bus({damage:50}),oppPrizeCount:2,ownPrizeCount:3,oppHandCount:7});
+ const ace=action('play-card','ace',{}, {actorPrinting:'Ace Trainer AOR 069'});
+ assert.equal(sel(root(v,[ace,willow(),pass()])),'ace');
+ v.ownTurnResources.supporterPlayedTurn=1;
+ assert.equal(sel(root(v,[ace,willow(),pass()])),'willow');
+});
+check('Ace is not forced when it would grow source hand or Prize relation is wrong',()=>{
+ const ready=dus({tools:['Tool Jammer BST 136'],energies:['Basic Psychic Energy','Basic Psychic Energy']});
+ const ace=action('play-card','ace',{}, {actorPrinting:'Ace Trainer AOR 069'});
+ const noCompression=view({active:ready,bench:[],bus:bus({damage:50}),oppPrizeCount:2,ownPrizeCount:3,oppHandCount:2});
+ assert.equal(sel(root(noCompression,[ace,willow(),pass()])),'willow');
+ const noLead=view({active:ready,bench:[],bus:bus({damage:50}),oppPrizeCount:3,ownPrizeCount:3,oppHandCount:7});
+ assert.equal(sel(root(noLead,[ace,willow(),pass()])),'willow');
+});
+check('Ace does not outrank immediate non-self-KO winning attack when BUS is lethal',()=>{
+ const v=view({active:dus({tools:['Tool Jammer BST 136'],energies:['Basic Psychic Energy','Basic Psychic Energy']}),
+  bench:[makeSlot('Mewtwo & Mew-GX UNM 071')],bus:bus({damage:100}),oppPrizeCount:2,ownPrizeCount:1,oppHandCount:7});
+ const ace=action('play-card','ace',{}, {actorPrinting:'Ace Trainer AOR 069'});
+ assert.equal(sel(root(v,[ace,activeBlast(),willow(),pass()])),'willow');
+});
 check('after 50 counters chooses paid Will-O-Wisp',()=>{
  const v=view({active:dus({tools:['Tool Jammer BST 136'],energies:['Basic Psychic Energy','Basic Psychic Energy']}),
    bench:[],bus:bus({damage:50})});
  assert.equal(sel(root(v,[willow(),pass()])),'willow');
 });
-check('after 100 counters chooses lethal Active Cursed Blast over attack',()=>{
+check('after 100 counters prefers safe Will-O-Wisp over self-KO Cursed Blast',()=>{
  const v=view({active:dus({tools:['Tool Jammer BST 136'],energies:['Basic Psychic Energy','Basic Psychic Energy']}),
+  bench:[makeSlot('Mewtwo & Mew-GX UNM 071')],bus:bus({damage:100})});
+ assert.equal(sel(root(v,[activeBlast(),willow(),pass()])),'willow');
+});
+check('when Willow is absent, funded Active Blast can still remove BUS',()=>{
+ const v=view({active:dus({tools:['Tool Jammer BST 136'],energies:['Basic Psychic Energy','Basic Psychic Energy']}),
+  bench:[makeSlot('Mewtwo & Mew-GX UNM 071')],bus:bus({damage:100})});
+ assert.equal(sel(root(v,[activeBlast(),pass()])),'blast-active');
+});
+check('Confused Active favors guaranteed lethal Ability over risky attack',()=>{
+ const v=view({active:dus({tools:['Tool Jammer BST 136'],energies:['Basic Psychic Energy','Basic Psychic Energy'],specialConditions:['CONFUSED']}),
   bench:[makeSlot('Mewtwo & Mew-GX UNM 071')],bus:bus({damage:100})});
  assert.equal(sel(root(v,[activeBlast(),willow(),pass()])),'blast-active');
 });

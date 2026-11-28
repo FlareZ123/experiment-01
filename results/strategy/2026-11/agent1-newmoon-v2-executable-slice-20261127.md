@@ -1,12 +1,12 @@
 # Agent 1 — New Moon Tool Jammer v2: executable actor-only lockbreak slice
 
-**Status:** runnable research-only policy module plus 24 local synthetic decisions; not an admitted candidate policy, native Store test, complete game, or competitive evidence. Exact paper deck: `results/als/new-moon-tool-jammer-v2-60.json`, ID-count SHA-256 `aebe9a142e8492be929316bff4b871375e3e478945e01f8c5844037332634fe6`.
+**Status:** runnable research-only policy module plus 29 local synthetic decisions; not an admitted candidate policy, native Store test, complete game, or competitive evidence. Exact paper deck: `results/als/new-moon-tool-jammer-v2-60.json`, ID-count SHA-256 `aebe9a142e8492be929316bff4b871375e3e478945e01f8c5844037332634fe6`.
 
 ## Executable artifact and local reproduction
 
 - Module: `simulation/evaluation/2026-11/agent1-newmoon-v2-jammer-decision.cjs`; policy `agent1-newmoon-tool-jammer-v2-slice-v0`; pure role/seat/exact-profile-bound `createPolicy`, with `decide` / `decideWithAudit`, opaque selected frontier tokens, no native Store access, no deck/Prize observation beyond the actor's provided view.
 - Test: `simulation/evaluation/2026-11/agent1-newmoon-v2-jammer-decision.test.cjs`.
-- Run `node simulation/evaluation/2026-11/agent1-newmoon-v2-jammer-decision.test.cjs` (local Node run: **24 checks passed**). Module blob `8a12a24c329a1f262e8171906d719f87d155c1f6`; test blob `464d7b1132319b49ab1a4ae49c50c48acb4a8373`.
+- Run `node simulation/evaluation/2026-11/agent1-newmoon-v2-jammer-decision.test.cjs` (local Node run: **29 checks passed**). Module blob `d9a324a0b31be5b25b12406ec9574ba424e654c4`; test blob `0591005305a94c2f62a60156c72acfe9214986ec`.
 
 ## Decision sequence from genuinely executable worker decisions
 
@@ -21,6 +21,12 @@
 | Star Alchemy root, observed Articuno V with Forest Seal Stone, Jammer not in hand | `star`; subsequent observed deck-search prompt selects `jam` |
 
 The chosen actions are *specific simulated worker outputs*, not a claimed real linked native trace. Two additional tested reversals ensure a native targeted Tool play selects the actual **own Active** holder instead of a Benched or opponent target, including rejecting stale target printing. The test includes reversals: if the BUS moves to Bench, a Budew is Active with Garbodor Benched, Tool state is unknown, Dusclops has a different Tool attached, the second Dusclops is missing before commitment, the Cursed Blast ability is suppressed, root action provenance is missing, the required Jammer is absent in the actual deck search, or the seat is mismatched, the policy abstains rather than pretending the route is live.
+
+### Continuation through Ace Trainer and deterministic lethal selection
+
+The implemented slice now uses the **public Prize transition** caused by Benched Cursed Blast: when opponent Prizes become fewer than candidate Prizes, a still-unused Ace Trainer is on the actual action frontier, the opposing public hand has more than three cards, and Will-O-Wisp remains payable, it selects **Ace Trainer before attacking**. A subsequent root with `supporterPlayedTurn > 0` selects Will-O-Wisp. This can compress a hand-based Guzma/Jet response but **does not** disable a board-funded ordinary retreat; it is a legal-response improvement, not proof that the lock is permanent. Both exact response reversals (hand <=3, wrong Prize relation, Supporter already used) run in Node.
+
+In the lethal BUS-at-50-remaining state, an available, payable **Will-O-Wisp** is now preferred to an Active **Cursed Blast** because it avoids the self-KO and the gifted Prize. If an actual native frontier lacks Will-O-Wisp, or the Active has a potentially attack-denying Special Condition such as Confusion, the guarded Active Cursed Blast remains a legitimate deterministic option with a surviving Bench. Numeric Special Condition codes are treated conservatively as potentially unsafe to attack until their native names are known. This fixes a genuine opportunity-cost error in the original paper line.
 
 ### Self-KO terminal-safety correction
 
