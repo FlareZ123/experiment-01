@@ -1425,12 +1425,32 @@ const {createSlice,visiblePrintedDuoDamage}=/* Static countercatcher sequence mo
 const has=(x,s)=>typeof x==='string'&&x.includes(s);
 const int=x=>Number.isSafeInteger(x)&&x>=0;
 const select=(x,reason)=>({decision:{kind:'select-action',token:x.token},reason});
+// Every direct-gust target is anchored to a distinct *published* Aichi
+// card printing's exact HP and two-/three-Prize rule, crosschecked against
+// resources/cards/en and the 29 authenticated original source 60s. This
+// deliberately excludes unknown rule-box identities and single-Prizers.
+const DIRECT_GUST_TARGETS=Object.freeze([
+ ['Mega Lopunny ex',330,3],['Mega Kangaskhan ex',300,3],
+ ['Mega Absol ex',280,3],['Mega Dragonite ex',370,3],
+ ['Regidrago VSTAR',280,2],
+ ['Dedenne-GX',160,2],['Tapu Lele-GX',170,2],
+ ['Squawkabilly ex',160,2],['Crobat V',180,2],
+ ['Genesect V',190,2],['Pidgeot ex',280,2],
+ ['Articuno-GX',170,2],['Rotom V',190,2],
+ ['Iron Thorns ex',230,2]
+]);
 const TOPS=Object.freeze([
  {name:'Mega Lopunny ex',hp:330,prizes:3,attackName:'Miraculous Duo-GX',attackDamage:200},
  {name:'Mega Kangaskhan ex',hp:300,prizes:3,attackName:'Miraculous Duo-GX',attackDamage:200},
  {name:'Mega Absol ex',hp:280,prizes:3,attackName:'Miraculous Duo-GX',attackDamage:200},
  {name:'Mega Dragonite ex',hp:370,prizes:3,attackName:'Miraculous Duo-GX',attackDamage:200},
- {name:'Regidrago VSTAR',hp:280,prizes:2,attackName:'Night Watch',attackDamage:150}
+ {name:'Regidrago VSTAR',hp:280,prizes:2,attackName:'Night Watch',attackDamage:150},
+ // Two-Prize support cards are especially strong tie-2-2 conversion
+ // targets: 130 counters leave each exact printed HP>130 alive, and a
+ // funded printed Mewtwo GX200 takes our final two after Item gust.
+ ...DIRECT_GUST_TARGETS.filter(([name,,prizes])=>
+   prizes===2&&name!=='Regidrago VSTAR').map(([name,hp,prizes])=>
+   ({name,hp,prizes,attackName:'Miraculous Duo-GX',attackDamage:200}))
 ]);
 function abilitySource(own,items){
  if(!Array.isArray(own?.bench)||!Array.isArray(items))return null;
@@ -1554,8 +1574,7 @@ function visiblePrintedDuoDamage(own,opp,target){
     !Array.isArray(target?.tools)||target.tools.length||
     !Array.isArray(target.printed?.resistance)||
     target.printed.resistance.some(r=>r?.type==='Psychic')||
-    !['Mega Lopunny ex','Mega Kangaskhan ex','Mega Absol ex',
-      'Mega Dragonite ex','Regidrago VSTAR'].some(n=>has(target.printing,n)))
+    !DIRECT_GUST_TARGETS.some(([n,h])=>has(target.printing,n)&&target.hp===h))
    return null;
  const dragon=has(target.printing,'Mega Dragonite ex')&&
    Array.isArray(target.printed.types)&&
@@ -1695,7 +1714,13 @@ function createSlice({seat}){
    }
    reset();return null;
   }
-  if(own.prizeCount!==opp.prizeCount||own.prizeCount<=1||
+  // Tied Prizes: self-KO *newly unlocks* Counter Catcher.
+  // At 3-2: the Item is already legal, but Blast supplies otherwise
+  // missing 130 damage to a full-HP three-Prize target, and self-KO
+  // leaves opponent at one Prize (not an immediate loss).
+  const newlyEnables=own.prizeCount===opp.prizeCount;
+  const stillPlayable=own.prizeCount===3&&opp.prizeCount===2;
+  if(!(newlyEnables||stillPlayable)||own.prizeCount<=1||
      !Array.isArray(v.ownHand)||
      !v.ownHand.some(x=>has(x,'Counter Catcher')))return null;
   const blast=abilitySource(own,items);
@@ -1718,7 +1743,9 @@ function createSlice({seat}){
     attackName:check.def.attackName,
     ownPrizes:own.prizeCount,opponentPrizes:opp.prizeCount,
     attackerPrinting:own.active.printing};
-   return select(blast,'A22_BEGIN_BLAST_TO_ENABLE_COUNTERCATCHER_TERMINAL');
+   return select(blast,newlyEnables?
+     'A22_BEGIN_BLAST_TO_ENABLE_COUNTERCATCHER_TERMINAL':
+     'A22_BEGIN_BLAST_TO_DAMAGE_FOR_ALREADY_LEGAL_COUNTERCATCHER');
   }
   return null;
  }
@@ -1727,7 +1754,7 @@ function createSlice({seat}){
 module.exports={createSlice,validRootTarget,offeredMewtwoAttack,
  abilitySource,ownerBenchChoice,certifiedDamage,
  nightWatchDonor,psychicCostPhysicallyReady,ownerPerfectionNightWatchPrompt,
- visiblePrintedDuoDamage};
+ visiblePrintedDuoDamage,DIRECT_GUST_TARGETS};
 
 return module.exports;})();
 const {createDirectGustSlice}=/* Static direct gust module, private lexical scope. */
@@ -1742,7 +1769,7 @@ const {createDirectGustSlice}=/* Static direct gust module, private lexical scop
  * printed Miraculous Duo-GX or UseAbility/Perfection -> ChooseAttackPrompt.
  * No hidden zone reads, guessed tokens or actual native game claims.
  */
-const {offeredMewtwoAttack,ownerBenchChoice,ownerPerfectionNightWatchPrompt,visiblePrintedDuoDamage,psychicCostPhysicallyReady,nightWatchDonor,certifiedDamage}=/* Static countercatcher sequence for direct gust module, private lexical scope. */
+const {offeredMewtwoAttack,ownerBenchChoice,ownerPerfectionNightWatchPrompt,visiblePrintedDuoDamage,psychicCostPhysicallyReady,nightWatchDonor,certifiedDamage,DIRECT_GUST_TARGETS}=/* Static countercatcher sequence for direct gust module, private lexical scope. */
 (()=>{const module={exports:{}};
 'use strict';
 /**
@@ -1760,12 +1787,32 @@ const {offeredMewtwoAttack,ownerBenchChoice,ownerPerfectionNightWatchPrompt,visi
 const has=(x,s)=>typeof x==='string'&&x.includes(s);
 const int=x=>Number.isSafeInteger(x)&&x>=0;
 const select=(x,reason)=>({decision:{kind:'select-action',token:x.token},reason});
+// Every direct-gust target is anchored to a distinct *published* Aichi
+// card printing's exact HP and two-/three-Prize rule, crosschecked against
+// resources/cards/en and the 29 authenticated original source 60s. This
+// deliberately excludes unknown rule-box identities and single-Prizers.
+const DIRECT_GUST_TARGETS=Object.freeze([
+ ['Mega Lopunny ex',330,3],['Mega Kangaskhan ex',300,3],
+ ['Mega Absol ex',280,3],['Mega Dragonite ex',370,3],
+ ['Regidrago VSTAR',280,2],
+ ['Dedenne-GX',160,2],['Tapu Lele-GX',170,2],
+ ['Squawkabilly ex',160,2],['Crobat V',180,2],
+ ['Genesect V',190,2],['Pidgeot ex',280,2],
+ ['Articuno-GX',170,2],['Rotom V',190,2],
+ ['Iron Thorns ex',230,2]
+]);
 const TOPS=Object.freeze([
  {name:'Mega Lopunny ex',hp:330,prizes:3,attackName:'Miraculous Duo-GX',attackDamage:200},
  {name:'Mega Kangaskhan ex',hp:300,prizes:3,attackName:'Miraculous Duo-GX',attackDamage:200},
  {name:'Mega Absol ex',hp:280,prizes:3,attackName:'Miraculous Duo-GX',attackDamage:200},
  {name:'Mega Dragonite ex',hp:370,prizes:3,attackName:'Miraculous Duo-GX',attackDamage:200},
- {name:'Regidrago VSTAR',hp:280,prizes:2,attackName:'Night Watch',attackDamage:150}
+ {name:'Regidrago VSTAR',hp:280,prizes:2,attackName:'Night Watch',attackDamage:150},
+ // Two-Prize support cards are especially strong tie-2-2 conversion
+ // targets: 130 counters leave each exact printed HP>130 alive, and a
+ // funded printed Mewtwo GX200 takes our final two after Item gust.
+ ...DIRECT_GUST_TARGETS.filter(([name,,prizes])=>
+   prizes===2&&name!=='Regidrago VSTAR').map(([name,hp,prizes])=>
+   ({name,hp,prizes,attackName:'Miraculous Duo-GX',attackDamage:200}))
 ]);
 function abilitySource(own,items){
  if(!Array.isArray(own?.bench)||!Array.isArray(items))return null;
@@ -1889,8 +1936,7 @@ function visiblePrintedDuoDamage(own,opp,target){
     !Array.isArray(target?.tools)||target.tools.length||
     !Array.isArray(target.printed?.resistance)||
     target.printed.resistance.some(r=>r?.type==='Psychic')||
-    !['Mega Lopunny ex','Mega Kangaskhan ex','Mega Absol ex',
-      'Mega Dragonite ex','Regidrago VSTAR'].some(n=>has(target.printing,n)))
+    !DIRECT_GUST_TARGETS.some(([n,h])=>has(target.printing,n)&&target.hp===h))
    return null;
  const dragon=has(target.printing,'Mega Dragonite ex')&&
    Array.isArray(target.printed.types)&&
@@ -2030,7 +2076,13 @@ function createSlice({seat}){
    }
    reset();return null;
   }
-  if(own.prizeCount!==opp.prizeCount||own.prizeCount<=1||
+  // Tied Prizes: self-KO *newly unlocks* Counter Catcher.
+  // At 3-2: the Item is already legal, but Blast supplies otherwise
+  // missing 130 damage to a full-HP three-Prize target, and self-KO
+  // leaves opponent at one Prize (not an immediate loss).
+  const newlyEnables=own.prizeCount===opp.prizeCount;
+  const stillPlayable=own.prizeCount===3&&opp.prizeCount===2;
+  if(!(newlyEnables||stillPlayable)||own.prizeCount<=1||
      !Array.isArray(v.ownHand)||
      !v.ownHand.some(x=>has(x,'Counter Catcher')))return null;
   const blast=abilitySource(own,items);
@@ -2053,7 +2105,9 @@ function createSlice({seat}){
     attackName:check.def.attackName,
     ownPrizes:own.prizeCount,opponentPrizes:opp.prizeCount,
     attackerPrinting:own.active.printing};
-   return select(blast,'A22_BEGIN_BLAST_TO_ENABLE_COUNTERCATCHER_TERMINAL');
+   return select(blast,newlyEnables?
+     'A22_BEGIN_BLAST_TO_ENABLE_COUNTERCATCHER_TERMINAL':
+     'A22_BEGIN_BLAST_TO_DAMAGE_FOR_ALREADY_LEGAL_COUNTERCATCHER');
   }
   return null;
  }
@@ -2062,7 +2116,7 @@ function createSlice({seat}){
 module.exports={createSlice,validRootTarget,offeredMewtwoAttack,
  abilitySource,ownerBenchChoice,certifiedDamage,
  nightWatchDonor,psychicCostPhysicallyReady,ownerPerfectionNightWatchPrompt,
- visiblePrintedDuoDamage};
+ visiblePrintedDuoDamage,DIRECT_GUST_TARGETS};
 
 return module.exports;})();
 const int=x=>Number.isSafeInteger(x)&&x>=0;
@@ -2071,24 +2125,24 @@ const select=(x,reason)=>({decision:{kind:'select-action',token:x.token},reason}
 function targetPrizesAndHp(t){
  if(!t||!int(t.hp)||!int(t.damage)||t.damage>=t.hp||
     !Array.isArray(t.tools)||t.tools.length)return null;
- const known=[
-  ['Mega Lopunny ex',330,3],['Mega Kangaskhan ex',300,3],
-  ['Mega Absol ex',280,3],['Mega Dragonite ex',370,3],
-  ['Regidrago VSTAR',280,2]];
- const k=known.find(([n,h])=>has(t.printing,n)&&t.hp===h);
+ const k=DIRECT_GUST_TARGETS.find(([n,h])=>has(t.printing,n)&&t.hp===h);
  return k?{prize:k[2],remaining:t.hp-t.damage}:null;
 }
 function choosePotentialFinish(own,opp,items,t){
  const current=targetPrizesAndHp(t);
  if(!current||!int(own?.prizeCount)||current.prize<own.prizeCount)return null;
- const night=offeredMewtwoAttack(own,items,'Night Watch',opp);
- if(night&&current.remaining<=150)
-   return {attackName:'Night Watch',rootAction:night,requiredDamage:150};
+ // A terminal paid printed attack is better than Ability-powered copied
+ // damage, especially when gusting Iron Thorns ex into Active turns off
+ // Mewtwo's Perfection ability. GX conservation has no value after a win.
  const printed=offeredMewtwoAttack(own,items,'Miraculous Duo-GX',opp);
  const amount=visiblePrintedDuoDamage(own,opp,t);
  if(printed&&Number.isFinite(amount)&&amount>=current.remaining)
    return {attackName:'Miraculous Duo-GX',rootAction:printed,
     requiredDamage:current.remaining,projectedDamage:amount};
+ if(has(t.printing,'Iron Thorns ex'))return null;
+ const night=offeredMewtwoAttack(own,items,'Night Watch',opp);
+ if(night&&current.remaining<=150)
+   return {attackName:'Night Watch',rootAction:night,requiredDamage:150};
  return null;
 }
 function itemFromOwnHand(view,items){
@@ -2151,6 +2205,7 @@ function createDirectGustSlice({seat}){
       own.active?.printing!==state.actorPrinting||
       opp.active?.printing!==state.printing||opp.active.hp!==state.hp||
       opp.active.damage<state.initialDamage||!int(opp.active.damage)||
+      opp.active.damage>=opp.active.hp||
       !Array.isArray(opp.active.tools)||opp.active.tools.length){
      reset();return null;
    }
@@ -2180,12 +2235,14 @@ function createDirectGustSlice({seat}){
    alternatives.push({index:i,target:t,choice});
   }
   if(!alternatives.length)return null;
-  // Prefer no-GX donor attack if already payable, then target more Prizes,
-  // stable physical Bench index.
+  // Terminal printed attacks avoid extra copy prompts/Ability lock.
+  // Within the same attack family prefer the smallest remaining HP, then
+  // a deterministic owner-visible physical Bench index.
   alternatives.sort((a,b)=>
-    Number(a.choice.attackName!=='Night Watch')-
-    Number(b.choice.attackName!=='Night Watch')||
-    b.target.hp-a.target.hp||a.index-b.index);
+    Number(a.choice.attackName!=='Miraculous Duo-GX')-
+    Number(b.choice.attackName!=='Miraculous Duo-GX')||
+    (a.target.hp-a.target.damage)-(b.target.hp-b.target.damage)||
+    a.index-b.index);
   const picked=alternatives[0];
   state={turn:v.globalTurn,phase:'gust-target',
    index:picked.index,printing:picked.target.printing,hp:picked.target.hp,
