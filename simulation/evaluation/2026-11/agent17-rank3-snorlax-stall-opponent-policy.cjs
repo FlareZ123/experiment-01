@@ -1239,7 +1239,8 @@ function promptDecision(request) {
     // The pinned Articuno-GX CES Legendary Ascent prompt transfers attached
     // Water Energy from an actor-owned Bench slot to the physical Active.
     // This is not a ChooseEnergyPrompt payment; use each unique native token.
-    if (!/legendary ascent/i.test(source) ||
+    if (!matches(sourcePrinting, PRINT.articuno) ||
+        !['Legendary Ascent', 'Articuno-GX'].includes(prompt.source?.effectName) ||
         selectionType !== 'energy-transfer' ||
         metadata.ownerSeat !== 'actor' ||
         metadata.sourceZone !== 'bench' ||
@@ -1345,7 +1346,7 @@ function promptDecision(request) {
     // MoveEnergyPrompt. Do not decline a credible immediate Cold Crush-GX
     // setup, but preserve Snorlax's Block and already-spent GX plans.
     const ascentSource = matches(sourcePrinting, PRINT.articuno) &&
-      prompt.source?.effectName === 'Legendary Ascent';
+      ['Legendary Ascent', 'Articuno-GX'].includes(prompt.source?.effectName);
     const benchWater = slots(observation.ownPublic).some(row =>
       row.zone === 'bench' && !matches(row.pokemon.printing, PRINT.articuno) &&
       list(row.pokemon.energies).some(energy => /^Water Energy\b/i.test(valueText(energy))));
