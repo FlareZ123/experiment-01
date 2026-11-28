@@ -1587,20 +1587,11 @@ function scoreTrainerPlay(item, view, receipt) {
 function freeRetreatKnown(view) {
   const active = view.ownPublic.active;
   if (!active) return false;
+  // Tool-specific liveness is distinct from a native legal retreat offer:
+  // Jamming Tower, opposing Active Tool Jammer, or Shiftry may suppress
+  // Float Stone while an Energy-paid retreat action remains available.
   const hasFloatStone = active.tools.some(tool => hasName(tool, 'Float Stone'));
-  if (hasFloatStone) {
-    const ownSuppression =
-      view.ownPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining;
-    const opponentSuppression =
-      view.opponentPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining;
-    // Jamming Tower suppresses the attached Float Stone independently of
-    // the Shiftry-based per-player Stadium/Tool suppression counters.
-    const jammingTowerLive=[
-      ...view.ownPublic.stadium,...view.opponentPublic.stadium
-    ].some(stadium=>hasName(stadium,'Jamming Tower'));
-    if (!jammingTowerLive && ownSuppression === 0 &&
-        opponentSuppression === 0) return true;
-  }
+  if (hasFloatStone && toolsKnownLive(view)) return true;
   const isBasic = active.printed.subtypes.includes('Basic');
   return isBasic && skylinerStatus(view) === true;
 }
