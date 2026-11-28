@@ -26,6 +26,7 @@ function pendingPaleMoonGXKnockOut(player, slot) {
 function choosePaleMoonEscapeRetreat(view, items) {
   if (view?.decisionKind !== 'owner-root' ||
       view?.ownPublic?.active?.publicRestrictions?.pendingPaleMoonGXKnockOut !== true ||
+      view?.opponentPublic?.prizeCount !== 1 ||
       !Array.isArray(items) ||
       items.some(item => !['pass','retreat'].includes(item?.kind))) return null;
   const benches = view.ownPublic.bench;
@@ -53,6 +54,7 @@ function choosePaleMoonEscapeRetreat(view, items) {
 function choosePaleMoonEscapeRanger(view, items) {
   if (view?.decisionKind !== 'owner-root' ||
       view?.ownPublic?.active?.publicRestrictions?.pendingPaleMoonGXKnockOut !== true ||
+      view?.opponentPublic?.prizeCount !== 1 ||
       !Array.isArray(items) ||
       items.some(item => !['pass','play-card'].includes(item?.kind))) return null;
   const available = items.filter(item => item?.kind === 'play-card');
