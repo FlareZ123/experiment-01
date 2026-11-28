@@ -2643,3 +2643,109 @@ test('Native-validated Tool prompts never require literal word Tool in card name
       {kind:'select-choices',tokens:['unknown']});
   }
 });
+
+
+test('Pinned Field Blower stadium-vs-two-tools option uses native SelectOptionPrompt',()=>{
+  for(const seat of [0,1]){
+    const opponent=player({
+      active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{
+        tools:['Forest Seal Stone SIT 156']}),
+      bench:[pokemon('Tapu Lele-GX GRI 60',{
+        tools:['Stealthy Hood UNB 186']})]
+    });
+    const source=actorChoiceSource('Field Blower GRI 125','Field Blower');
+    const choices=[
+      {token:'stadium',kind:'option',label:'Discard the Stadium and up to 1 Tool',
+        publicMetadata:{choiceIndex:0}},
+      {token:'tools',kind:'option',label:'Discard up to 2 Tools',
+        publicMetadata:{choiceIndex:1}}
+    ];
+    const base={
+      seat,promptType:'SelectOptionPrompt',source,
+      publicMetadata:{selectionType:'option',count:2,allowCancel:false},
+      choices
+    };
+    const protectedStadium=promptRequest({...base,observation:{
+      ownPublic:player({stadium:['Thunder Mountain ♢ LOT 191']}),
+      opponentPublic:opponent
+    }});
+    assert.deepEqual(checkedDecision(protectedStadium,seat),
+      {kind:'select-choice',token:'tools'});
+    const harmful=promptRequest({...base,observation:{
+      ownPublic:player({stadium:['Temple of Sinnoh ASR 155']}),
+      opponentPublic:opponent
+    }});
+    assert.deepEqual(checkedDecision(harmful,seat),
+      {kind:'select-choice',token:'stadium'});
+  }
+});
+
+test('Pinned Field Blower physical ChoosePokemonPrompt chooses actual opponent Tool-bearing slots',()=>{
+  for(const seat of [0,1]){
+    const choices=[
+      pokemonChoice('empty','Tapu Lele-GX GRI 60','opponent','bench',0),
+      pokemonChoice('equipped','Tapu Lele-GX GRI 60','opponent','bench',1),
+      pokemonChoice('actor-tool','Iron Thorns ex TWM 77','actor','active',0)
+    ];
+    choices[0].publicMetadata.selectionIndex=1;
+    choices[1].publicMetadata.selectionIndex=0;
+    const req=promptRequest({
+      seat,promptType:'ChoosePokemonPrompt',
+      source:actorChoiceSource('Field Blower GRI 125','Field Blower'),
+      publicMetadata:{selectionType:'pokemon',minimumCount:0,
+        maximumCount:2,allowCancel:false,isSecret:false},
+      choices,
+      observation:{
+        ownPublic:player({active:pokemon('Iron Thorns ex TWM 77',{
+          tools:['Palace Belt BWP 153']})}),
+        opponentPublic:player({bench:[
+          pokemon('Tapu Lele-GX GRI 60',{tools:[]}),
+          pokemon('Tapu Lele-GX GRI 60',{
+            tools:['Technical Machine: Devolution PAR 177']})
+        ]})
+      }
+    });
+    assert.deepEqual(checkedDecision(req,seat),
+      {kind:'select-choices',tokens:['equipped']});
+  }
+});
+
+test('Pinned Faba SelectPrompt picks public opponent Special Energy, then exact physical holder',()=>{
+  for(const seat of [0,1]){
+    const owner=player({active:pokemon('Iron Thorns ex TWM 77')});
+    const opponent=player({bench:[
+      pokemon('Tapu Lele-GX GRI 60',{tools:['Stealthy Hood UNB 186']}),
+      pokemon('Tapu Lele-GX GRI 60',{
+        energies:['Double Colorless Energy SUM 136']})
+    ]});
+    const source=actorChoiceSource('Faba LOT 173','Faba');
+    const select=promptRequest({
+      seat,promptType:'SelectPrompt',source,
+      publicMetadata:{selectionType:'option',count:2,allowCancel:false},
+      observation:{ownPublic:owner,opponentPublic:opponent},
+      choices:[
+        {token:'tool',kind:'option',label:'CHOICE_TOOL',
+          publicMetadata:{choiceIndex:0}},
+        {token:'energy',kind:'option',label:'CHOICE_SPECIAL_ENERGY',
+          publicMetadata:{choiceIndex:1}}
+      ]
+    });
+    assert.deepEqual(checkedDecision(select,seat),
+      {kind:'select-choice',token:'energy'});
+    const choices=[
+      pokemonChoice('with-tool','Tapu Lele-GX GRI 60','opponent','bench',0),
+      pokemonChoice('with-special','Tapu Lele-GX GRI 60','opponent','bench',1)
+    ];
+    choices[0].publicMetadata.selectionIndex=1;
+    choices[1].publicMetadata.selectionIndex=0;
+    const holder=promptRequest({
+      seat,promptType:'ChoosePokemonPrompt',source,
+      publicMetadata:{selectionType:'pokemon',minimumCount:0,
+        maximumCount:1,allowCancel:false,isSecret:false},
+      observation:{ownPublic:owner,opponentPublic:opponent},
+      choices:[choices[1]]
+    });
+    assert.deepEqual(checkedDecision(holder,seat),
+      {kind:'select-choices',tokens:['with-special']});
+  }
+});
