@@ -110,7 +110,9 @@ test('fail-closed: unknown prompt provenance, bounds and paralysis', () => {
     r => { r.prompt.choices[1].token = null; },
     r => { r.observation.ownPublic.active.specialConditions = ['PARALYZED']; },
     r => { r.observation.decisionKind = 'owner-root'; },
-    r => { r.prompt.source.sourcePrinting = 'Quick Ball FST 237'; }
+    r => { r.prompt.source.sourcePrinting = 'Quick Ball FST 237'; },
+    r => { r.role = 'candidate'; },
+    r => { r.seat = 1; }
   ];
   for (const mutation of variants) {
     const request = base(); mutation(request); assert.equal(choose(request), null);
