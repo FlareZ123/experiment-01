@@ -862,10 +862,26 @@ function skylinerIsLive(o) {
     arr(p.abilitySuppressions).some(row=>row?.abilityName==='Skyliner'&&
       row.suppressed===false&&row.reasonCode===null&&row.sourcePrinting===null));
 }
+function emperorEyesDisablesBasicBlock(o) {
+  const ownActive=o?.ownPublic?.active;
+  if(!/^Empoleon V BST(?: 40)?\b/i.test(text(ownActive)))return false;
+  const ownStadiums=[...arr(o?.ownPublic?.stadium),
+    ...arr(o?.opponentPublic?.stadium)];
+  if(ownStadiums.some(st=>/^Path to the Peak\b/i.test(text(st))))
+    return false;
+  if(!arr(ownActive.abilities).includes("Emperor's Eyes"))return false;
+  const live=arr(ownActive.abilitySuppressions).some(row=>
+    row.abilityName==="Emperor's Eyes"&&row.suppressed===false&&
+    row.reasonCode===null&&row.sourcePrinting===null);
+  return live;
+}
 function opponentSnorlaxBlockMayBeLive(o) {
   const active=o?.opponentPublic?.active;
   if(!has(active,P.snorlax))return false;
   if(!arr(active.abilities).includes('Block'))return false;
+  // Empoleon V's live Emperor's Eyes strips the Ability from opposing
+  // non-Rule-Box Basic Snorlax while Empoleon occupies our Active Spot.
+  if(emperorEyesDisablesBasicBlock(o))return false;
   const suppression=arr(active.abilitySuppressions).find(row=>
     row?.abilityName==='Block');
   // If a known Block exists but its liveness is not certified as disabled,
@@ -1457,4 +1473,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
+  emperorEyesDisablesBasicBlock,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
