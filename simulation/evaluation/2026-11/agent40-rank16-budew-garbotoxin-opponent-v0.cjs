@@ -553,7 +553,17 @@ function score(action,req){
 function bestAction(req){
  const items=list(req.actionFrontier?.items).filter(i=>ROOT_KINDS.has(i.kind));
  if(!items.length)return {kind:'abstain',reasonCode:'NO_EXECUTABLE_ACTION'};
- const ranked=items.map(i=>({i,score:score(i,req)})).sort((a,b)=>b.score-a.score);
+ const ranked=items.map(i=>({i,score:score(i,req)}));
+ // Every attack ends the current turn. Do not announce an ordinary attack
+ // while another realistically useful, executable non-turn-ending setup
+ // action is still offered. This is much stronger than local score sorting.
+ const pendingSetup=ranked.some(x=>x.i.kind!=='attack'&&x.i.kind!=='pass'&&
+   !(x.i.kind==='play-card'&&match(x.i.actorPrinting,PRINT.boost))&&
+   x.score>=200);
+ if(pendingSetup){
+  for(const x of ranked)if(x.i.kind==='attack'&&x.score<965)x.score=0;
+ }
+ ranked.sort((a,b)=>b.score-a.score);
  if(ranked[0]?.score>0)return {kind:'select-action',token:ranked[0].i.token};
  const pass=items.find(i=>i.kind==='pass');
  return pass?{kind:'select-action',token:pass.token}:{kind:'abstain',reasonCode:'NO_SUPPORTED_ACTION'};
