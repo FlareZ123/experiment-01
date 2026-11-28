@@ -447,3 +447,82 @@ test('V3 candidate/opponent role adapter is stable under both physical seat perm
     candidateNativeOrdered60:ids,opponentNativeOrdered60:otherIds
   }),/different physical seats/);
 });
+
+
+test('source-wrapped driver accepts NATIVE event receipt before strict worker SHA, both seats',()=>{
+  const opponentSource={cards:[
+    {name:'Penny',count:1,printing:{set:'SVI',number:'999'}},
+    {name:'Psychic Energy',count:59,printing:{set:'SVE',number:'5'}}]};
+  const opponentIds=['Penny SVI',...Array(59).fill('Psychic Energy SVE')];
+  const counts={receipts:0,actor:0};
+  const protocol={
+    validateActorObservation(view,seat){
+      assert.equal(view.actorSeat,seat);counts.actor++;
+    },
+    validatePrompt(prompt){assert.equal(prompt,null);},
+    validatePublicEventReceipt(receipt,view){
+      if(!receipt)return;
+      counts.receipts++;
+      assert.equal(receipt.actorSeat,view.actorSeat);
+      assert.equal(receipt.ownerActive.printing,view.ownPublic.active.printing,
+        'native receipt and actor source label must match at admission');
+      assert.equal(receipt.ownerBench.length,view.ownPublic.bench.length);
+      assert.equal(receipt.ownerBench[0].printing,
+        view.ownPublic.bench[0].printing);
+      assert.equal(receipt.opponentLastTurnAttacks[0].sourcePrinting,
+        view.opponentPublic.active.printing);
+    },
+    validateFrontier(frontier){return new Set(frontier.items.map(item=>item.token));}
+  };
+  const native={observe(_state,seat){return {
+    actorSeat:seat,ownHand:['Penny SVI'],
+    ownPublic:{active:{printing:'Penny SVI'},
+      bench:[{printing:'Psychic Energy SVE'}]},
+    opponentPublic:{active:{printing:'Penny SVI'},bench:[]}
+  };}};
+  const bridge=createCertifiedSourcePrintedHostBridge({
+    native,protocol,sourceDecksBySeat:[source,opponentSource],
+    nativeOrdered60BySeat:[ids,opponentIds]
+  });
+  const maps=[
+    buildSourcePrintingMap(source,ids),
+    buildSourcePrintingMap(opponentSource,opponentIds)
+  ];
+  for(const seat of [0,1]){
+    const nativeView=native.observe({},seat);
+    const sourceView=bridge.native.observe({},seat);
+    const nativeReceipt={actorSeat:seat,ownerActive:{printing:'Penny SVI'},
+      ownerBench:[{printing:'Psychic Energy SVE'}],
+      opponentLastTurnAttacks:[{sourcePrinting:'Penny SVI'}]};
+    const frontier={schema:'fixture',items:[
+      {token:'p',kind:'play-card',actorPrinting:'Penny SVI'}]};
+    // The pre-fix admission would reject this mixed native receipt /
+    // source-printed view with EVENT_OWNER_ACTIVE_MISMATCH. It must remain
+    // rejected for unpaired direct calls; only the certified wrapped host
+    // is allowed to project before performing receipt/observation equality.
+    assert.throws(()=>projectAdmittedWorkerParts({
+      observation:sourceView,prompt:null,publicEventReceipt:nativeReceipt,
+      actionFrontier:frontier
+    },maps,protocol),/native receipt and actor source label/);
+    // Original full-native caller still validates the unmodified receipt.
+    assert.doesNotThrow(()=>projectAdmittedWorkerParts({
+      observation:nativeView,prompt:null,publicEventReceipt:nativeReceipt,
+      actionFrontier:frontier
+    },maps,protocol));
+    const packet=bridge.projectWorkerParts({
+      observation:sourceView,prompt:null,publicEventReceipt:nativeReceipt,
+      actionFrontier:frontier
+    });
+    assert.equal(packet.publicEventReceipt.ownerActive.printing,
+      packet.observation.ownPublic.active.printing);
+    assert.equal(packet.publicEventReceipt.ownerBench[0].printing,
+      packet.observation.ownPublic.bench[0].printing);
+    assert.equal(packet.publicEventReceipt.opponentLastTurnAttacks[0].sourcePrinting,
+      packet.observation.opponentPublic.active.printing);
+    assert.equal(packet.actionFrontier.items[0].actorPrinting,
+      packet.observation.ownHand[0]);
+    assert.deepEqual(packet.actionFrontier.items.map(x=>x.token),['p']);
+  }
+  assert.ok(counts.actor>=10);
+  assert.ok(counts.receipts>=8);
+});
