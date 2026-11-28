@@ -4,7 +4,7 @@
  * Generated from exact sources; do not edit this bundle directly.
  * agent43-regidrago-apex-choice.cjs 65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b
  * agent1-rank12-regidrago-opponent-policy-v2.cjs bfaee2205ea9d0c3b618948fe24ff81075d4ccda
- * agent3-rank32-regidrago-opponent-policy.cjs 830233d435c0d864473759ddcf09a33c9e66f0ce
+ * agent3-rank32-regidrago-opponent-policy.cjs 0abf5cf162c54f9c1f748dcdc0c9c1f32d80525b
  * agent3-rank14-regidrago-opponent-policy.cjs 3a9a5507f51bc001724558df7a90bd79b9480a98
  */
 const __rank14Modules = Object.freeze({
@@ -1397,6 +1397,16 @@ function crispinDeckEnergyChoice(prompt,observation,choices) {
   return min===0&&none?{kind:'select-choice',token:none.token}:
     {kind:'abstain',reasonCode:'RANK32_CRISPIN_NO_DISTINCT_BASIC_TYPES'};
 }
+function protectedDdeInHand(observation) {
+  const hand=list(observation?.ownHand);
+  if(!hand.some(c=>/^Double Dragon Energy ROS 97\b/i.test(print(c))))
+    return false;
+  const attackers=slots(observation?.ownPublic).filter(p=>
+    /^Regidrago V(?:STAR)? SIT 13[56]\b/i.test(print(p)));
+  // Preserve scarce flexible Energy when there is no safe second attacker
+  // or a current attacker still lacks the requisite Grass/Fire types.
+  return attackers.length<2 || attackers.some(p=>apexTypedDeficit(p,observation)>0);
+}
 function scoreAction(action, request) {
   const obs = request?.observation ?? {};
   const own = obs.ownPublic ?? {};
@@ -1405,6 +1415,13 @@ function scoreAction(action, request) {
   const hand = list(obs.ownHand).length;
   const active = own.active;
   const enabledVstar = slots(own).some(p => /^Regidrago VSTAR SIT 136\b/i.test(print(p)));
+  if(protectedDdeInHand(obs) && (
+      (action.kind==='play-card' &&
+        (/^Dedenne-GX UNB 57\b/i.test(name) ||
+         /^Professor Sycamore BKP 107\b/i.test(name))) ||
+      (action.kind==='use-ability' &&
+        /Dedechange/i.test(action?.publicMetadata?.abilityName??action?.label??''))))
+    return 0;
   if(action.kind==='play-card'&&/^Crispin SCR 133\b/i.test(name))
     return crispinAccelerationPriority(obs);
   if(action.kind==='retreat') return retreatToAttackerPriority(action,obs);
@@ -1790,6 +1807,12 @@ function promptDecision(request) {
   const source = context(p);
   const obs = request?.observation ?? {};
   const meta = p.publicMetadata ?? {};
+  if(protectedDdeInHand(obs) && /dedechange/.test(source) &&
+      (p.promptType==='ConfirmPrompt'||p.promptType==='SelectPrompt')) {
+    const no=choices.find(c=>c.kind==='confirm'&&/^(?:no|false|decline)$/i.test(c.label??''));
+    return no?{kind:'select-choice',token:no.token}:
+      {kind:'abstain',reasonCode:'RANK32_DDE_PROTECTED_DRAWDISCARD_PROMPT'};
+  }
   const engine = engineSetupDecision(p,obs,choices);
   if (engine !== null) return engine;
   const min = Number.isSafeInteger(meta.minimumCount) ? meta.minimumCount : 1;
@@ -1989,7 +2012,7 @@ module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
   strongestCopiedDamage,canAttackNow,tacticalGustScore,gustTargetPriority,targetFromGustChoice,
   aceSpecBlowerPriority,muscleBandPriority,evolveRegidragoPriority,retreatToAttackerPriority,
   prizeValue,crispinAccelerationPriority,crispinDeckEnergyChoice,
-  chooseTrifrostTargets};
+  chooseTrifrostTargets,protectedDdeInHand};
 
 },
 "./agent3-rank14-regidrago-opponent-policy.cjs": function(require, module, exports) {
