@@ -115,8 +115,6 @@ function pokemonHasRuleBox(pokemon){
  const subtypes=list(pokemon?.printed?.subtypes).map(x=>String(x).toLowerCase());
  if(subtypes.length)return subtypes.some(x=>
   ['ex','gx','v','vmax','vstar','v-union','tag team','pokemon ex','pokemon v','pokemon-gx'].includes(x));
- const rules=list(pokemon?.printed?.rules);
- if(rules.some(x=>/rule box|(?:Pokémon|Pokemon) ex rule|VMAX rule|VSTAR rule|GX rule/i.test(String(x))))return true;
  // Exact Aichi opponent identities handled by this worker when a native
  // observation omits printed subtype metadata.
  return /^(?:Iron Thorns ex TWM 77|Shadow Rider Calyrex VMAX CRE 75)\b/i.test(name(pokemon?.printing));
