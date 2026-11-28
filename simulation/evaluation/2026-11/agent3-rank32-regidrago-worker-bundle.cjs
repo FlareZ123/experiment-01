@@ -5,7 +5,7 @@
  * Pin the bundle blob after independent review before any native worker use.
  * agent43-regidrago-apex-choice.cjs 65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b
  * agent1-rank12-regidrago-opponent-policy-v2.cjs bfaee2205ea9d0c3b618948fe24ff81075d4ccda
- * agent3-rank32-regidrago-opponent-policy.cjs d047d86f906fe563b7aaaf70dff4b272240c0424
+ * agent3-rank32-regidrago-opponent-policy.cjs 447fad9fd52a6e2433e6731f40d6d4b511454557
  */
 const __rank32Modules = Object.freeze({
 "./agent43-regidrago-apex-choice.cjs": function(require, module, exports) {
@@ -1894,6 +1894,60 @@ function raihanAttachPriority(choice,observation) {
   // inventing an illegal typed-energy assignment.
   return 15;
 }
+function raihanSearchPriority(choice,request) {
+  if(choice?.kind!=='card'||typeof choice.token!=='string')return 0;
+  const name=print(choice),obs=request?.observation??{},own=obs.ownPublic??{};
+  const attackers=slots(own).filter(p=>
+    /^Regidrago V(?:STAR)? SIT 13[56]\b/i.test(print(p)));
+  const basic=attackers.some(p=>/^Regidrago V SIT 135\b/i.test(print(p)));
+  const vstar=attackers.some(p=>/^Regidrago VSTAR SIT 136\b/i.test(print(p)));
+  const unfunded=attackers.some(p=>apexTypedDeficit(p,obs)>0);
+  const needDonor=countDonors(own)===0;
+  // Raihan already attached one Basic Energy; this search should resolve
+  // the next *remaining* bottleneck rather than collecting another generic
+  // access card merely because it is connected to the entire deck.
+  if(/^Regidrago VSTAR SIT 136\b/i.test(name))
+    return basic&&!vstar?340:(basic?285:20);
+  if(/^Regidrago V SIT 135\b/i.test(name))
+    return attackers.length===0?310:(attackers.length===1?165:20);
+  if(/^Double Dragon Energy ROS 97\b/i.test(name))
+    return unfunded?305:120;
+  if(/^Battle Compressor(?: Team Flare Gear)? PHF 92\b/i.test(name))
+    return needDonor&&vstar?320:(needDonor?245:45);
+  if(/^Mysterious Treasure FLI 113\b/i.test(name))
+    return !vstar&&basic?265:90;
+  if(/^Quick Ball FST 237\b/i.test(name))
+    return attackers.length===0?250:75;
+  if(/^Megaton Blower SSP 182\b/i.test(name))
+    return aceSpecBlowerPriority(obs)>=265?
+      Math.min(360,aceSpecBlowerPriority(obs)+5):45;
+  if(/^Counter Catcher PAR 160\b/i.test(name)) {
+    const gust=tacticalGustScore({kind:'play-card',actorPrinting:name},obs);
+    return gust>=385?350:(gust>=230?250:25);
+  }
+  if(/^Muscle Band XY 121\b/i.test(name)){
+    const active=own.active;
+    if(/^Regidrago VSTAR SIT 136\b/i.test(print(active))&&
+        list(active.tools).length===0) {
+      const action={kind:'play-card',actorPrinting:name,
+        targetPrinting:print(active),publicMetadata:{
+          targetSeat:'actor',targetZone:'active'}};
+      const band=muscleBandPriority(action,obs);
+      return band>=300?335:(band>0?165:20);
+    }
+    return 35;
+  }
+  if(/^VS Seeker PHF 109\b/i.test(name)){
+    const best=Math.max(0,...list(own.discard).map(c=>
+      seekerSupporterPriority(c,request)));
+    return best>=290?275:(best>=170?175:20);
+  }
+  if(/^Super Rod PAL 188\b/i.test(name))return attackers.length===0?195:60;
+  if(/^(?:Grass|Fire) Energy\b/i.test(name))return unfunded?165:40;
+  if(/^Lillie's Determination MEG 119\b/i.test(name))
+    return list(obs.ownHand).length<=3?150:35;
+  return 10; // Raihan search selects one available card of any type.
+}
 function promptDecision(request) {
   const p = request?.prompt ?? {};
   const choices = list(p.choices);
@@ -1994,6 +2048,13 @@ function promptDecision(request) {
         {kind:'abstain',reasonCode:'UNRECOGNIZED_SIMPLE_PROMPT'};
     }
     return {kind:'abstain',reasonCode:'RANK32_CYNTHIA_PROMPT_UNPROJECTED'};
+  }
+  if (/raihan/.test(source) &&
+      p.promptType==='ChooseCardsPrompt' &&
+      meta.selectionType==='card-combination' &&
+      meta.sourceZone==='deck' && meta.ownerSeat==='actor') {
+    return chooseMany(choices,c=>raihanSearchPriority(c,request),min,Math.min(max,1),
+      'RANK32_RAIHAN_NO_NATIVE_SEARCH_TARGET');
   }
   if (/raihan/.test(source) &&
       p.promptType==='AttachEnergyPrompt' &&
@@ -2125,7 +2186,7 @@ module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
   aceSpecBlowerPriority,muscleBandPriority,evolveRegidragoPriority,retreatToAttackerPriority,
   prizeValue,crispinAccelerationPriority,crispinDeckEnergyChoice,
   chooseTrifrostTargets,protectedDdeInHand,seekerSupporterPriority,
-  readyMimikyuCounterAls,raihanAttachPriority};
+  readyMimikyuCounterAls,raihanAttachPriority,raihanSearchPriority};
 
 }
 });
