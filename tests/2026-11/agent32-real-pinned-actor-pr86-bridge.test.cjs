@@ -164,10 +164,11 @@ for(const seat of [0,1]){
     assert.equal(printMap.get("Team Rocket's Handiwork FCO"),
       "Team Rocket's Handiwork FCO 112");
     assert.equal(printMap.get('Snorlax PGO'),'Snorlax PGO 55');
-    // Rank3's source identifies BWP 50 whereas the pinned native Beach
-    // is BWP 28. The *resolved source-sixty* binds this equivalence, not
-    // Card.setNumber nor arbitrary same-name matching.
-    assert.equal(printMap.get('Tropical Beach BWP'),'Tropical Beach BWP 50');
+    // Pinned source has *both* Tropical Beach printings: BWP 28 and
+    // independently registered BWP 50. Source rank3 requests BWP 50,
+    // which must retain its exact native ID, not collide with BWP 28.
+    assert.equal(printMap.get('Tropical Beach BWP 50'),'Tropical Beach BWP 50');
+    assert.equal(printMap.has('Tropical Beach BWP'),false);
     const maps=seat===0?[printMap,new Map()]:[new Map(),printMap];
 
     const realFrontier=buildNativeActionFrontier({
