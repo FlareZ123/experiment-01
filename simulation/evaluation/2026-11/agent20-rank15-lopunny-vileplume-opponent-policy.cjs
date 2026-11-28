@@ -677,8 +677,12 @@ function eldCanBench(o) {
   const lockBases=slots(own).filter(x=>
     [P.oddish,P.gloom,P.aor,P.bus].some(p=>has(x,p))).length;
   if(5-benchCount(own)<=Math.max(0,2-lockBases))return false;
-  if([...arr(own.stadium),...arr(o.opponentPublic?.stadium)]
-    .some(x=>/^Path to the Peak CRE(?: 148)?\b/i.test(txt(x))))return false;
+  // Happy Match is a Basic Pokémon V's Ability while Eldegoss is played
+  // from hand to Bench. Both Silent Lab (Basic) and Path (Rule Box) suppress
+  // that trigger unless an explicit Stadium-and-Tool nullification is live.
+  const stadiums=[...arr(own.stadium),...arr(o.opponentPublic?.stadium)];
+  if(!stadiumAndToolEffectsMuted(o)&&
+    stadiums.some(x=>has(x,P.pathPeak)||has(x,P.silentLab)))return false;
   if(has(o.opponentPublic?.active,/^Iron Thorns ex TWM(?: 77)?\b/i))return false;
   return arr(own.discard).some(card=>eldSupporterPriority(card,o)>0);
 }
