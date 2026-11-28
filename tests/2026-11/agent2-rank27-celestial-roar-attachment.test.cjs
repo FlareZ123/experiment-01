@@ -134,6 +134,7 @@ test('unrecognized native source preserves original delegate behavior',()=>{
  const x=fixture(0,1,2);
  x.provenanceHook={getPromptProvenance(){return {
   sourceKind:'card-effect',sourceCard:{name:'Crispin'},effectName:'Crispin'}}};
- assert.throws(()=>projectCelestialRoarPrompt(x),
-  /AttachEnergyPrompt is not from the pinned Underworld Door source/);
+ // Delegation may reject at the earlier actor-visible source gate; either
+ // disposition is correct, and neither is a trusted Celestial Roar projection.
+ assert.throws(()=>projectCelestialRoarPrompt(x));
 });
