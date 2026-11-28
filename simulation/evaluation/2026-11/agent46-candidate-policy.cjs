@@ -1409,9 +1409,15 @@ function scoreTrainerPlay(item, view, receipt) {
         view.ownPublic.publicTurnRestrictions.vstarUsed !== false ||
         view.ownTurnResources.vstarUsed !== false ||
         view.ownPublic.deckCount < 1) return -Infinity;
-    // A once-per-game flexible search is valuable once the V can hold the
-    // Tool; do not attach it to a non-V or sacrifice an occupied Tool slot.
-    return 905;
+    // Reserve ability-critical VMAX's only Tool slot for Stealthy Hood if
+    // the opponent is presenting an Ability-lock threat. The basic V can
+    // carry Star Alchemy without blocking VMAX Underworld Door protection.
+    const isVmax = hasName(target.printing, 'Shadow Rider Calyrex VMAX');
+    if (isVmax && hasAbilityLockThreat(view) &&
+        ownBoard(view).some(slot => slot !== target &&
+          hasName(slot.printing, 'Shadow Rider Calyrex V') &&
+          !(slot.tools ?? []).length)) return 700;
+    return isVmax ? 905 : 920;
   }
   if (hasName(name, 'Unfair Stamp') && receipt?.priorOpponentTurnKO?.any === true) return 980;
   if (hasName(name, 'VS Seeker') && !supporterUsed &&
@@ -1448,8 +1454,21 @@ function scoreTrainerPlay(item, view, receipt) {
   if (hasName(name, 'Dimension Valley') &&
       dimensionValleyStatus(view) === false &&
       ownBoard(view).some(slot => slot.printed.types.includes('Psychic'))) return 600;
-  if (isTool(name) && hasName(name, 'Stealthy Hood') && hasAbilityLockThreat(view) &&
-      ownBoard(view).some(slot => hasName(slot.printing, 'Shadow Rider Calyrex V'))) return 580;
+  if (name === 'Stealthy Hood UNB 186' && hasAbilityLockThreat(view)) {
+    const meta = item.publicMetadata ?? {};
+    const target = meta.targetSeat === 'actor' &&
+      meta.isOwnerVisible === true && meta.targetZone === 'active' ?
+        view.ownPublic.active :
+      meta.targetSeat === 'actor' && meta.isOwnerVisible === true &&
+        meta.targetZone === 'bench' && Number.isSafeInteger(meta.targetIndex) ?
+        view.ownPublic.bench[meta.targetIndex] : null;
+    if (!target || item.targetPrinting !== target.printing ||
+        (target.tools ?? []).length > 0) return -Infinity;
+    if (hasName(target.printing, 'Shadow Rider Calyrex VMAX')) return 980;
+    if (hasName(target.printing, 'Shadow Rider Calyrex V') &&
+        handHas(view, 'Shadow Rider Calyrex VMAX')) return 710;
+    return -Infinity;
+  }
   return -Infinity;
 }
 
