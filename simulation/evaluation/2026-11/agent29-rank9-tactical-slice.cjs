@@ -56,7 +56,19 @@ module.exports = (function build() {
   const num = x => Number.isFinite(x);
   const slots = p => [{zone:'active',index:0,p:p?.active},...L(p?.bench).map((p,index)=>({zone:'bench',index,p}))].filter(x=>x.p && !x.p.concealed);
   const remaining = p => num(p?.hp)&&num(p?.damage) ? p.hp-p.damage : Infinity;
-  const type = t => ({d:'darkness',dark:'darkness',p:'psychic',c:'colorless',l:'lightning',g:'grass',r:'fire',w:'water',f:'fighting',m:'metal',y:'fairy',n:'dragon'}[String(t).toLowerCase()] ?? String(t).toLowerCase());
+  // Native actor observations carry CardType enum integers, not English
+  // symbols: pinned a9905a7 CardType: ANY=0, GRASS=1, FIRE=2,
+  // WATER=3, LIGHTNING=4, PSYCHIC=5, FIGHTING=6, DARK=7,
+  // METAL=8, COLORLESS=9, FAIRY=10, DRAGON=11, NONE=12.
+  // Unknown enum extensions deliberately remain unsupported, not guessed.
+  const type=t=>({
+    1:'grass',2:'fire',3:'water',4:'lightning',5:'psychic',
+    6:'fighting',7:'darkness',8:'metal',9:'colorless',
+    10:'fairy',11:'dragon',
+    d:'darkness',dark:'darkness',p:'psychic',c:'colorless',
+    l:'lightning',g:'grass',r:'fire',w:'water',f:'fighting',
+    m:'metal',y:'fairy',n:'dragon'
+  }[String(t).toLowerCase()]??String(t).toLowerCase());
   function prize(p) {
     const n=name(p), st=L(p?.printed?.subtypes).join(' ');
     if (/Mega .+ ex\b|VMAX\b|&.+-GX\b/i.test(n)||/TAG TEAM|VMAX|MEGA EVOLUTION/i.test(st)) return 3;
