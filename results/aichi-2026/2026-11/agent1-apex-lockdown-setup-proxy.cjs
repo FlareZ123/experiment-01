@@ -18,7 +18,10 @@ const energy=new Set([N.DD,N.GR,N.FI]);
 const stadium=new Set([N.HE,N.SW,"Parallel City","Path to the Peak"]);
 const tool=new Set([N.FL,N.FS,"Muscle Band"]);
 const items=new Set([N.MT,N.QB,N.UB,N.BC,N.VS,N.HB,N.SR,N.EL,N.LO,N.TC,N.MB,"Counter Catcher","Field Blower","Echoing Horn"]);
-const R={[N.V]:2,[N.S]:2,[N.B]:0,[N.L]:1,[N.T]:1,[N.D]:1,[N.Q]:1,[N.W]:2,[N.C]:1,[N.M]:1,[N.Z]:1,[N.DI]:3,[N.GI]:3,[N.PA]:3,[N.KY]:2,[N.KO]:2,[N.GG]:3};
+// Exact printed retreats: Regidrago V SIT 135 = 3, VSTAR SIT 136 = 3,
+// Latias ex SSP 76 = 2 (the latter is normally zero while Skyliner works).
+// Do not grant a cheaper paid retreat when a lock disables Skyliner.
+const R={[N.V]:3,[N.S]:3,[N.B]:0,[N.L]:2,[N.T]:1,[N.D]:1,[N.Q]:1,[N.W]:2,[N.C]:1,[N.M]:1,[N.Z]:1,[N.DI]:3,[N.GI]:3,[N.PA]:3,[N.KY]:2,[N.KO]:2,[N.GG]:3};
 function norm(n){if(n==="Grass Energy")return N.GR;if(n==="Fire Energy")return N.FI;if(n==="Battle Compressor")return N.BC;return n}
 function expand(rows){let out=[];for(const c of rows){if(!Number.isInteger(c.count)||c.count<1)throw Error("bad count");for(let i=0;i<c.count;i++)out.push(norm(c.name));}if(out.length!==60)throw Error("not 60");if(!out.some(x=>basic.has(x)))throw Error("no Basic");return out}
 function mulberry(seed){return ()=>{let t=seed+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296}}
