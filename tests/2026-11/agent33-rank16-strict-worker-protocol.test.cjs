@@ -192,3 +192,34 @@ for(const seat of [0,1]) {
     assert.deepEqual(checked(r,seat),{kind:'select-choices',tokens:['energy']});
   });
 }
+
+/* Source rank16 Battle Compressor -> Dark Patch fuel; up-to-three requires
+ * an explicit native empty-selection option even when choosing nonempty. */
+for(const seat of [0,1]) {
+  const own=player({active:pokemon('Budew ASC 16'),bench:[
+    pokemon('Mega Absol ex MEG 86')]});
+  const opp=player({active:pokemon('Shadow Rider Calyrex VMAX CRE 75')});
+  const hand=['Battle Compressor PHF 92','Dark Patch ASR 139'];
+  test('strict Compressor offered root chooses fuel search seat '+seat,()=>{
+    const r=rootRequest({seat,globalTurn:4,ownPublic:own,
+      opponentPublic:opp,ownHand:hand,items:[
+        {token:'compressor',kind:'play-card',actorPrinting:'Battle Compressor PHF 92'},
+        {token:'pass',kind:'pass',label:'Pass turn'}]});
+    assert.deepEqual(checked(r,seat),{kind:'select-action',token:'compressor'});
+  });
+  test('strict Compressor selects at most two Darkness and a dead VIP seat '+seat,()=>{
+    const r=promptRequest({seat,globalTurn:4,ownPublic:own,
+      opponentPublic:opp,ownHand:hand,
+      promptType:'ChooseCardsPrompt',
+      source:source('Battle Compressor PHF 92','Battle Compressor'),
+      publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:3,allowCancel:false},
+      choices:[card('dark1','Darkness Energy MEE 15','deck'),
+        card('dark2','Darkness Energy MEE 15','deck'),
+        card('dark3','Darkness Energy MEE 15','deck'),
+        card('vip','Battle VIP Pass FST 225','deck'),
+        card('garb','Garbodor LTR 68','deck'),
+        {token:'none',kind:'empty-selection',label:'Choose no cards'}]});
+    assert.deepEqual(checked(r,seat),
+      {kind:'select-choices',tokens:['dark1','dark2','vip']});
+  });
+}
