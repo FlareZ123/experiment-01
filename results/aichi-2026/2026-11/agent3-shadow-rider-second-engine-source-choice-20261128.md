@@ -326,3 +326,69 @@ covers five action/choice forks on both physical seats,
 is an executable correction to the counterline, not
 proof that Mimikyu can complete Timeless-GX in the native
 Store or that it dominates Regidrago.
+
+## Wondrous Labyrinth changes the counter line's actual Energy horizon
+
+The printed **Mimikyu GRI58 Copycat** attack costs one Psychic
+plus one Colorless. **Wondrous Labyrinth ◇ TEU158** taxes
+non-Fairy Pokémon's attacks by an additional Colorless,
+so the Copycat line needs **three** Basic Psychic cards
+attached rather than two; when **Dimension Valley PHF93**
+is in play instead, one Colorless is removed. The old
+candidate funding policy and Underworld Door prompt scorer
+hard-coded `slotEnergyCount(Mimikyu)<2`, failing to
+fund a Benched Mimikyu with two Psychic under Labyrinth
+even when it had an actual opponent Regidrago matchup.
+
+The new `mimikyuNeedsCopycatEnergy` computes the printed
+base cost plus actor-visible Stadium tax/reduction. It is
+reused for actor-owned **manual Bench attachment**,
+**Underworld Door Bench Energy assignment**, and
+**Raihan Pokémon recipient** priority. Against Regidrago
+with Wondrous and Mimikyu two Psychic, the third Psychic
+now outranks an incremental VMAX attachment; absent the
+tax, when already sufficiently funded, VMAX wins. The
+manual **Active** Mimikyu case deliberately retains the
+existing strict prior-opponent-attack receipt requirement:
+with no fresh Copycat-eligible attack stamp, do not
+consume the only manual attachment to pursue a hypothetical
+Active attack. With a fresh compatible source receipt,
+the existing attack-funding branch already selects it.
+
+`tests/2026-11/agent3-mimikyu-copycat-labyrinth-third-energy-20261128.test.cjs`
+covers twelve game-state/target/source forks across both
+physical seats, **24/24**; the existing
+`agent3-candidate-active-funding-to-first-attack.test.cjs`
+continues to pass its negative and positive fresh-receipt
+checks. This demonstrates a corrected planning channel,
+not native Apex Dragon legality nor a winning attack.
+
+## Sky Field enables Tapu Lele-GX without consuming last engine slot
+
+`Tapu Lele-GX GRI60` Wonder Tag requires on-play Bench
+placement **during your turn**; the opening setup repair
+preserves this card in hand. But the old turn policy
+rejected Tapu once **four** Pokémon were Benched, assuming
+the normal five-slot Bench even when Sky Field raises it
+to eight. Refactored one shared actor-visible
+`candidateBenchCapacity(view)` for Tapu, Radiant and
+Climactic Gate target count. The Tapu decision continues
+to **reserve one spare Bench slot after entry**, so it
+can be played at expanded Bench counts 4, 5 or 6 but
+not 7; only when Wonder Tag has a meaningful Supporter
+channel (none already spent/held, not Active ability
+lock, no duplicate Tapu). Under normal Bench capacity,
+the old fourth-slot reservation is unchanged.
+
+`tests/2026-11/agent3-tapu-wonder-tag-sky-field-reserved-bench-20261128.test.cjs`
+has ten root-choice forks × two physical seats (**20/20**)
+including no-Sky, Sky5/6/7 occupancy and
+ability-lock/Supporter/duplicate negatives.
+
+**Latest cumulative result: 19 source-policy/protocol V8
+test modules, 340/340 passing, split into two actual
+worker+protocol evaluation batches (214 and 126 cases)
+to stay within the connector's per-script tool-call limit.**
+No Node runner, native pinned Store, CI or completed game.
+The 99.5% target is not demonstrated; zero Aichi matchups
+are qualified by this work.
