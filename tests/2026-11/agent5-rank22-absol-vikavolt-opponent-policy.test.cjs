@@ -182,3 +182,44 @@ test('post-evolution Garbodor with empty Tool slot receives Float Stone before a
   assert.deepEqual(policy.promptDecision({observation:o,prompt}),
     {kind:'select-choice',token:'garb'});
 });
+
+test('Battle Compressor root has a real 2-Darkness Dark Patch payoff', () => {
+  const o=observation({globalTurn:3,ownPublic:player({
+    bench:[poke(P.mega)],discard:[]
+  }),ownHand:['Dark Patch ASR 139']});
+  const action={kind:'play-card',actorPrinting:'Battle Compressor PHF 92'};
+  assert.equal(policy.scoreAction(action,root([],o)),260);
+  const exhausted=observation({ownPublic:player({
+    bench:[poke(P.mega)],discard:[P.dark,P.dark]
+  }),ownHand:['Dark Patch ASR 139']});
+  assert.equal(policy.scoreAction(action,root([],exhausted)),0);
+});
+test('Battle Compressor gets two Dark patches then expired VIP, never singleton attacker', () => {
+  const o=observation({globalTurn:3});
+  const prompt={
+    promptType:'ChooseCardsPrompt',
+    source:{sourcePrinting:'Battle Compressor PHF 92',effectName:'Battle Compressor'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:1,maximumCount:3},
+    choices:[choice('dark1',P.dark),choice('dark2',P.dark),
+      choice('vip','Battle VIP Pass FST 225'),choice('mega',P.mega)]
+  };
+  assert.deepEqual(policy.promptDecision({observation:o,prompt}),
+    {kind:'select-choices',tokens:['dark1','dark2','vip']});
+  const oneDark={...o,ownPublic:player({discard:[P.dark]})};
+  assert.deepEqual(policy.promptDecision({observation:oneDark,prompt}),
+    {kind:'select-choices',tokens:['dark1','vip']});
+});
+test('Battle Compressor preserves still-live first-turn VIP and fails closed on bad bounds', () => {
+  const o=observation({globalTurn:2});
+  const prompt={
+    promptType:'ChooseCardsPrompt',
+    source:{sourcePrinting:'Battle Compressor PHF 92',effectName:'Battle Compressor'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:1,maximumCount:3},
+    choices:[choice('vip','Battle VIP Pass FST 225'),choice('dark1',P.dark)]
+  };
+  assert.deepEqual(policy.promptDecision({observation:o,prompt}),
+    {kind:'select-choices',tokens:['dark1']});
+  assert.deepEqual(policy.promptDecision({observation:o,prompt:{
+    ...prompt, publicMetadata:{selectionType:'card-combination',minimumCount:4,maximumCount:4}
+  }}),{kind:'abstain',reasonCode:'RANK22_COMPRESSOR_SCHEMA_UNSUPPORTED'});
+});
