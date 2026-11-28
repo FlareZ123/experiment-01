@@ -181,9 +181,11 @@ Before v2 can replace v1 operationally, require:
 
 ## Architecture recommendation update
 
-**Promote Tool Jammer v2 over the exact parent v1 as the stronger current paper challenger.**
+**Historical 27-Nov recommendation: promote Tool Jammer v2 over its exact v1 parent as a paper challenger. This is now analytically disputed and must not be treated as an unqualified strength ranking or an operational promotion.**
 
 The reason is not novelty or one-card iteration. The new card occupies a Trainer subtype that survives the exact Item lock which disables the parent's existing Hood answers, and it converts a near-hard authenticated lock state into a concrete Stage-1 recovery sequence.
+
+**28-Nov comparative update:** the two-Dusclops line gives away two Prizes, has a 27.6355% Basic-valid *initial Prize configuration* obstruction for two Dusclops plus Jammer before first Prize-taking, and competes with a Boss's Orders Supporter gust path that can preserve an already funded Active Mewtwo, KO AOR for one Prize and disrupt two random opponent hand cards. Restricted opening-card access is Boss 24.0569% versus Jammer 14.2690%, but this does not evaluate the legal turn, funding, or strongest source response. Source Karen/Bunnelby double TM: Evolution can rebuild AOR after the KO, so neither line is proven decisive. See [one direct decision/evidence](2026-11/agent38-boss-vs-jammer-restricted-k0-access.md). **Current honest status:** v2 remains a candidate, not demonstrably stronger than the parent or the preexisting Guzma/Sky challenger; only an actual same-state owner-controlled actor decision plus opponent reply can distinguish them.
 
 v1 should remain preserved as the parent/control list. v2 is still **unqualified**: the new 60 needs the same actor-visible policy discipline and eventually native/full-game evidence when that work is permitted.
 
