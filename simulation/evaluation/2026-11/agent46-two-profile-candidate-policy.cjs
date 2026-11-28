@@ -3598,10 +3598,32 @@ function guzmaFreePivotMultiPrize(before,after,index){
   const projected={...returned,ownTurnResources:{
     ...returned.ownTurnResources,retreatedTurn:returned.globalTurn}};
   const target=projected.opponentPublic.active;
+  // A single-Prize knockout can be the tactically decisive line when
+  // it removes the lone live source of Item/Ability lock and restores the
+  // candidate's future search or Underworld Door acceleration.
+  // Recognize only source-exact AOR Irritating Pollen and LTR/BKP Garbotoxin.
+  const liveOther=abilityName=>opponentBoard(before).some(slot=>
+    slot!==target&&(slot.abilities??[]).includes(abilityName)&&
+    effectiveAbilityStatus(slot,abilityName,'opponent',before)!==false);
+  const vileBreak=prizeLiability(target)===1&&
+    hasName(target?.printing,'Vileplume AOR')&&
+    (target?.abilities??[]).includes('Irritating Pollen')&&
+    effectiveAbilityStatus(target,'Irritating Pollen','opponent',projected)===true&&
+    itemLocked(before)&&!liveOther('Irritating Pollen');
+  const garbBreak=prizeLiability(target)===1&&
+    (hasName(target?.printing,'Garbodor BKP')||
+     hasName(target?.printing,'Garbodor LTR'))&&
+    (target?.abilities??[]).includes('Garbotoxin')&&
+    (target?.tools??[]).length>0&&
+    effectiveAbilityStatus(target,'Garbotoxin','opponent',projected)===true&&
+    !liveOther('Garbotoxin')&&
+    ownBoard(before).some(slot=>isShadowRiderVmax(slot)&&
+      effectiveAbilityStatus(slot,'Underworld Door','actor',before)===false);
+  const lockBreak=vileBreak||garbBreak;
   // This player-wide attack effect survives switching the Active Pokemon.
   // The corresponding final-Prize projection already rejects it; a
   // nonterminal Max Geist plan must not silently evade the same constraint.
-  if(!target||prizeLiability(target)<2||
+  if(!target||(prizeLiability(target)<2&&!lockBreak)||
      prizeLiability(target)>=projected.ownPublic.prizeCount||
      projected.opponentPublic.prizeCount<=3||
      (projected.ownPublic.publicTurnRestrictions?.attackMaxEnergyTurnsRemaining??0)>0||
@@ -4274,6 +4296,9 @@ function directTerminalHarmlessAbility(slot,name){
     (name==='Initialization'&&hasName(slot.printing,'Iron Thorns ex')) ||
     (name==='Bide Barricade'&&hasName(slot.printing,'Wobbuffet')) ||
     (name==='Irritating Pollen'&&hasName(slot.printing,'Vileplume AOR')) ||
+    // Garbotoxin suppresses Abilities, not a paid attack's direct damage.
+    (name==='Garbotoxin'&&(hasName(slot.printing,'Garbodor BKP')||
+      hasName(slot.printing,'Garbodor LTR'))) ||
     (name==='Disgusting Pollen'&&hasName(slot.printing,'Vileplume BUS')) ||
     (name==='Sentinel'&&hasName(slot.printing,'Stoutland BCR')) ||
     (name==='Mischievous Lock'&&hasName(slot.printing,'Klefki')) ||
