@@ -38,6 +38,7 @@ const P = Object.freeze({
   poffin:/^Buddy-Buddy Poffin TEF(?: 144)?\b/i,
   tagCall:/^Tag Call CEC(?: 206)?\b/i,
   guzmaHala:/^Guzma & Hala CEC(?: 193)?\b/i,
+  guzma:/^Guzma BUS(?: 115)?\b/i,
   tmEvolution:/^Technical Machine: Evolution PAR(?: 178)?\b/i,
   jet:/^Jet Energy PAL(?: 190)?\b/i,
   capture:/^Capture Energy RCL(?: 171)?\b/i,
@@ -337,6 +338,61 @@ function quickSearchPrompt(request) {
   return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
     abstain('NO_LEGAL_CARD_SET');
 }
+function guzmaOpportunity(o) {
+  // Proposed gust is intentionally *not* a native damage projection. It
+  // requires an observable powered Bench attacker and target, then selects
+  // only when the printed unmodified Gale Thrust could secure Prize tempo.
+  const own=o?.ownPublic,opp=o?.opponentPublic;
+  if(!own||!opp||!opp.active||has(own.active,P.bus)||!supporterUnused(o))
+    return null;
+  const bench=arr(own.bench),targets=arr(opp.bench);
+  const attackerIndex=bench.findIndex(x=>has(x,P.mega)&&arr(x.energies).length>=1&&
+    arr(x.publicRestrictions?.cannotUseAttacksNextTurn).length===0&&
+    x.publicRestrictions?.cannotAttackNextTurn!==true);
+  if(attackerIndex<0)return null;
+  const attacker=bench[attackerIndex];
+  if(arr(attacker.tools).some(x=>has(x,P.choiceBelt)))return null;
+  if(opp.publicTurnRestrictions?.abilityPokemonPlayLocked) { /* no consequence to gust */ }
+  const prizes=Number.isSafeInteger(own.prizeCount)?own.prizeCount:null;
+  const ranked=targets.map((x,index)=>{
+    if(!x||!Number.isSafeInteger(x.hp)||!Number.isSafeInteger(x.damage)||
+      x.hp<=x.damage||x.hp-x.damage>230||
+      arr(x.tools).length>0||
+      arr(x.printed?.weakness).length>0||
+      arr(x.printed?.resistance).length>0||
+      arr(x.abilitySuppressions).length>0) return null;
+    const prizeValue=sourcePrizeValue(x);
+    const terminal=prizes!==null&&prizes>0&&prizes<=prizeValue;
+    // Don't expend the Supporter on a merely one-Prize intermediate gust.
+    if(!terminal && prizeValue<2)return null;
+    return {opponentIndex:index,attackerIndex,terminal,
+      score:(terminal?1000:0)+prizeValue*100+(x.hp-x.damage)};
+  }).filter(Boolean).sort((a,b)=>b.score-a.score||
+    a.opponentIndex-b.opponentIndex);
+  return ranked[0]??null;
+}
+function guzmaPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='ChoosePokemonPrompt'||m.selectionType!=='pokemon'||
+    !Number.isSafeInteger(m.minimumCount)||!Number.isSafeInteger(m.maximumCount)||
+    m.minimumCount!==1||m.maximumCount!==1)
+    return abstain('UNSUPPORTED_POKEMON_PROMPT');
+  const chance=guzmaOpportunity(o);
+  if(!chance)return abstain('NO_SUPPORTED_POKEMON_CHOICE');
+  const source=arr(p.choices).filter(c=>c.kind==='pokemon'&&
+    typeof c.token==='string'&&c.publicMetadata?.targetZone==='bench');
+  const enemy=source.filter(c=>c.publicMetadata?.ownerSeat==='opponent');
+  const ours=source.filter(c=>c.publicMetadata?.ownerSeat==='actor');
+  if(enemy.length&&ours.length)return abstain('UNSUPPORTED_POKEMON_PROMPT');
+  const owner=enemy.length?'opponent':'actor';
+  const index=owner==='opponent'?chance.opponentIndex:chance.attackerIndex;
+  const board=owner==='opponent'?o.opponentPublic:o.ownPublic;
+  const choices=owner==='opponent'?enemy:ours;
+  const found=choices.find(c=>c.publicMetadata?.benchIndex===index&&
+    txt(board.bench[index])===txt(c));
+  return found?{kind:'select-choices',tokens:[found.token]}:
+    abstain('NO_SUPPORTED_POKEMON_CHOICE');
+}
 function fanCallPrompt(request) {
   const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
   if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
@@ -566,6 +622,9 @@ function rootDecision(request) {
   const peck=attacks.find(x=>x.attackName==='Peck Off'&&has(o.ownPublic?.active,P.pidgey));
   if(peck && arr(o.opponentPublic?.active?.tools).some(x=>has(x,P.hood))&&
       !doubleBaseCutExposed(request))return take(peck);
+  const gustOpportunity=guzmaOpportunity(o);
+  const gust=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.guzma));
+  if(gust&&gustOpportunity?.terminal)return take(gust);
   // First-turn Fan Call is a free actor-owned search for the source's
   // low-HP Colorless setup basics; only trigger when a useful slot is missing.
   const fanCall=items.find(x=>x.kind==='use-ability'&&
@@ -602,6 +661,7 @@ function rootDecision(request) {
     has(x.targetPrinting,P.bunnelby));
   if(attachJet&&slots(o.ownPublic).some(x=>has(x,P.bunnelby)&&
      arr(x.tools).some(c=>has(c,P.tmEvolution)))&&missingEvolutionChannels(o))return take(attachJet);
+  if(gust&&gustOpportunity&&!gustOpportunity.terminal)return take(gust);
   const gh=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.guzmaHala));
   if(gh&&ghLineFeasible(o,P.guzmaHala))return take(gh);
   const tag=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.tagCall));
@@ -674,6 +734,7 @@ function createPolicy({role,seat,policyVersion,config}) {
       if(has(request.prompt?.source?.sourcePrinting,P.grandTree))return grandTreePrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.tagCall))return tagCallPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.guzmaHala))return ghPrompt(request);
+      if(has(request.prompt?.source?.sourcePrinting,P.guzma))return guzmaPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.tmEvolution))return evolutionPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.bunnelby)&&
         request.prompt?.promptType==='ConfirmPrompt')return omegaBarragePrompt(request);
@@ -689,4 +750,4 @@ function createPolicy({role,seat,policyVersion,config}) {
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,
   createPolicy,rootDecision,poffinPrompt,printedDamage,movementEvidence,
-  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,grandTreePrompt,grandTreeTarget,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
+  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,grandTreePrompt,grandTreeTarget,guzmaOpportunity,guzmaPrompt,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
