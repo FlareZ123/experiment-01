@@ -304,5 +304,95 @@ for(const tweak of [
  without.observation.opponentPublic.bench[0].damage=40;
  assert.equal(createSlice({seat:0}).decide(without).decision.token,'blast');checks++;
 }
-assert.equal(checks,92);
+
+// Native action-frontier does not expose damageAfterResistance. The printed
+// Miraculous Duo-GX 200 branch can still propose a conditional paper win
+// when visible original printing has 200, no Stadium/Tools/Resistance, and
+// the post-gust nominal 200 reaches remaining HP. Do not call it verified.
+{
+ const clean=f();
+ clean.observation.ownPublic.stadium=[];
+ clean.observation.opponentPublic.stadium=[];
+ clean.observation.ownPublic.active.tools=[];
+ clean.observation.ownPublic.active.attacks=[{
+  name:'Miraculous Duo-GX',damage:200}];
+ clean.observation.opponentPublic.bench[0].printed={resistance:[]};
+ delete clean.actionFrontier.items[1].publicMetadata.damageAfterResistance;
+ const s=createSlice({seat:0});
+ assert.equal(s.decide(clean).decision.token,'blast');checks++;
+ assert.equal(s.decide(prompt(clean,'Cursed Blast','bench',0)).
+   decision.tokens[0],'bench-pick');checks++;
+ const post=clone(clean);post.observation.opponentPublic.prizeCount=2;
+ post.observation.opponentPublic.bench[0].damage=130;
+ post.actionFrontier.items=[{
+  kind:'play-card',token:'catchNative',
+  actorPrinting:'Counter Catcher PAR',
+  publicMetadata:{cardType:'trainer',handIndex:0}}];
+ assert.equal(s.decide(post).decision.token,'catchNative');checks++;
+ assert.equal(s.decide(prompt(post,'Counter Catcher','bench',130)).
+   decision.tokens[0],'bench-pick');checks++;
+ const final=clone(post);
+ final.observation.opponentPublic.active=clone(post.observation.opponentPublic.bench[0]);
+ final.observation.opponentPublic.bench=[post.observation.opponentPublic.active];
+ final.actionFrontier.items=[clone(clean.actionFrontier.items[1])];
+ const a=s.decide(final);
+ assert.equal(a.decision.token,'duo');checks++;
+ assert.equal(a.reason,'A22_MIRACULOUS_GX_PRINTED_BASE_CONDITIONAL_TERMINAL');checks++;
+ const sUnknown=createSlice({seat:0});
+ sUnknown.decide(clean);sUnknown.decide(prompt(clean,'Cursed Blast','bench',0));
+ sUnknown.decide(post);sUnknown.decide(prompt(post,'Counter Catcher','bench',130));
+ const modified=clone(final);modified.observation.ownPublic.stadium=['Temple of Sinnoh ASR'];
+ assert.equal(sUnknown.decide(modified),null);checks++;
+}
+// Perfection donor can be physically in discard, which is explicitly allowed
+// by the printed ability and produces an owner-visible ChooseAttackPrompt.
+// Synthetic direct BENCH_ATTACK Night Watch is *not* a native source action.
+{
+ const q=regidrago(),s=createSlice({seat:0});
+ q.observation.ownPublic.bench.pop();
+ q.observation.ownPublic.discard=['Trevenant & Dusknoir-GX SMP SM217'];
+ assert.equal(s.decide(q).decision.token,'blast');checks++;
+ const p=prompt(q,'Cursed Blast','bench',0);
+ assert.equal(s.decide(p).decision.tokens[0],'bench-pick');checks++;
+ const post=clone(q);post.observation.opponentPublic.prizeCount=1;
+ post.observation.opponentPublic.bench[0].damage=130;
+ post.actionFrontier.items=[{
+  kind:'play-card',token:'catchDiscard',
+  actorPrinting:'Counter Catcher PAR',
+  publicMetadata:{cardType:'trainer',handIndex:0}}];
+ assert.equal(s.decide(post).decision.token,'catchDiscard');checks++;
+ assert.equal(s.decide(prompt(post,'Counter Catcher','bench',130)).
+  decision.tokens[0],'bench-pick');checks++;
+ const finish=clone(post);
+ finish.observation.opponentPublic.active=clone(post.observation.opponentPublic.bench[0]);
+ finish.observation.opponentPublic.bench=[post.observation.opponentPublic.active];
+ finish.actionFrontier.items=[clone(q.actionFrontier.items[1])];
+ assert.equal(s.decide(finish).decision.token,'perfection');checks++;
+ const choose=nightPrompt(finish);
+ choose.prompt.choices[0].publicMetadata.sourceZone='discard';
+ assert.equal(s.decide(choose).decision.token,'nw');checks++;
+ const fake=regidrago();
+ fake.actionFrontier.items[1]={
+  kind:'attack',token:'fakeNight',
+  actorPrinting:'Trevenant & Dusknoir-GX SMP SM217',
+  attackName:'Night Watch',
+  publicMetadata:{attackCostPayable:true,attackSource:{
+   sourceKind:'bench-pokemon',sourceSlot:'BENCH',sourceIndex:1,
+   sourceCardFullName:'Trevenant & Dusknoir-GX SMP SM217',
+   attackName:'Night Watch'}}
+ };
+ assert.equal(createSlice({seat:0}).decide(fake),null);checks++;
+ const temple=regidrago();
+ temple.observation.ownPublic.active.energies=[
+   'Telepathic Psychic Energy ME388',
+   'Telepathic Psychic Energy ME388',
+   'Telepathic Psychic Energy ME388'];
+ temple.observation.opponentPublic.stadium=['Temple of Sinnoh ASR'];
+ assert.equal(createSlice({seat:0}).decide(temple),null);checks++;
+ const notEnough=regidrago();
+ notEnough.observation.ownPublic.active.energies=[
+   'Basic Psychic Energy SVE005','Basic Psychic Energy SVE005'];
+ assert.equal(createSlice({seat:0}).decide(notEnough),null);checks++;
+}
+assert.equal(checks,108);
 console.log('Agent22 actor-countercatcher exact multi-prompt slice: '+checks+' synthetic checks passed');
