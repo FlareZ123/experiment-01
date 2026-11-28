@@ -154,6 +154,16 @@ function isText(value) {
 function hasName(value, name) {
   return isText(value) && value.includes(name);
 }
+// The actor view preserves the native CardType / attack-cost enum values,
+// normally uppercase. Historical constructed fixtures used title case.
+// Normalize enum comparisons only; never relax printed card identities.
+function typeEquals(value,upperName) {
+  return typeof value==='string' && value.toUpperCase()===upperName;
+}
+function printedHasType(slot,upperName) {
+  return Array.isArray(slot?.printed?.types) &&
+    slot.printed.types.some(type=>typeEquals(type,upperName));
+}
 
 function hasAnyName(value, names) {
   return names.some(name => hasName(value, name));
@@ -189,12 +199,12 @@ function opponentHasRegidrago(view) {
 
 function opponentHasDragon(view) {
   return opponentBoard(view).some(slot =>
-    Array.isArray(slot.printed?.types) && slot.printed.types.includes('Dragon'));
+    printedHasType(slot,'DRAGON'));
 }
 
 function isDragon(slot) {
   return Boolean(slot && (
-    slot.printed?.types?.includes('Dragon') ||
+    printedHasType(slot,'DRAGON') ||
     hasName(slot.printing, 'Regidrago')
   ));
 }
@@ -294,8 +304,8 @@ function dimensionValleyStatus(view) {
 function effectiveAttackCost(slot, attack, view) {
   const cost = Array.isArray(attack?.cost) ? attack.cost : [];
   let required = cost.length;
-  if (required > 0 && cost.includes('Colorless') &&
-      slot?.printed?.types?.includes('Psychic') &&
+  if (required > 0 && cost.some(type=>typeEquals(type,'COLORLESS')) &&
+      printedHasType(slot,'PSYCHIC') &&
       dimensionValleyStatus(view) === true) {
     required -= 1;
   }
@@ -306,7 +316,7 @@ function effectiveAttackCost(slot, attack, view) {
  // Null means the actor-visible suppression state cannot justify a playable
  // hypothetical attack; the native action frontier still decides real legality.
 function wondrousLabyrinthTax(slot, view) {
-  if (slot?.printed?.types?.includes('Fairy')) return 0;
+  if (printedHasType(slot,'FAIRY')) return 0;
   const stadiums = [...view.ownPublic.stadium, ...view.opponentPublic.stadium];
   if (!stadiums.some(name => hasName(name, 'Wondrous Labyrinth'))) return 0;
   const own = view.ownPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining;
@@ -333,8 +343,8 @@ function canPayAttack(slot, attack, view) {
       attached.length < effectiveAttackCost(slot, attack, view) + labyrinthTax) {
     return false;
   }
-  const typed = attack.cost.filter(type => type !== 'Colorless');
-  return typed.every(type => type === 'Psychic') &&
+  const typed = attack.cost.filter(type=>!typeEquals(type,'COLORLESS'));
+  return typed.every(type=>typeEquals(type,'PSYCHIC')) &&
     attached.filter(id => hasName(id, 'Psychic Energy')).length >= typed.length;
 }
 
@@ -1193,7 +1203,7 @@ function chooseUnderworldEnergyAssignment(view, prompt) {
         m?.sourceZone !== 'hand' || m.ownerSeat !== 'actor' ||
         m.isOwnerVisible !== true || m.energyType !== 'BASIC' ||
         m.zone !== 'bench' || !slot ||
-        !slot.printed?.types?.includes('Psychic')) {
+        !printedHasType(slot,'PSYCHIC')) {
       recordPolicyAuditUnscored(choice.token, 'UNTRUSTED_ENERGY_SELECTION');
       continue;
     }
@@ -1568,7 +1578,7 @@ function scoreTrainerPlay(item, view, receipt) {
       boardHas(view, "Lillie's Clefairy ex")) return 620;
   if (hasName(name, 'Dimension Valley') &&
       dimensionValleyStatus(view) === false &&
-      ownBoard(view).some(slot => slot.printed.types.includes('Psychic'))) return 600;
+      ownBoard(view).some(slot => printedHasType(slot,'PSYCHIC'))) return 600;
   if (isTool(name) && hasName(name, 'Stealthy Hood') && hasAbilityLockThreat(view) &&
       ownBoard(view).some(slot => hasName(slot.printing, 'Shadow Rider Calyrex V'))) return 580;
   return -Infinity;
@@ -1624,7 +1634,7 @@ function chooseRetreat(view, items, receipt) {
 function eligibleCandidateDoor(view, actions) {
   if (!handHas(view, 'Psychic Energy') ||
       view.ownPublic.deckCount < 3 ||
-      !view.ownPublic.bench.some(p => p?.printed?.types?.includes('Psychic'))) {
+      !view.ownPublic.bench.some(p => printedHasType(p,'PSYCHIC'))) {
     return null;
   }
   return actions.find(a => a.kind === 'use-ability' &&
