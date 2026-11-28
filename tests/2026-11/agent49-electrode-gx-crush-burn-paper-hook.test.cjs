@@ -47,6 +47,7 @@ function hostSetup(n,seat){
   assert.equal(normalizeElectrodeGXPrintedAttack(el,replacements),true);
   const effect=new AttackEffect(el);
   const state={owner:{seat,energyCount:n,moved:[],usedGX:false}};
+  effect.player=state.owner;
   let pending=null;
   const store={prompt(next,prompt,callback){
     pending={next,prompt,callback};
@@ -124,8 +125,8 @@ test('wrong attack, attack identity or wrong printing leaves the reducer untouch
     'other source printing retains its own original reducer calculation');
 });
 
-test('reject zero, over-max and malformed native transfer counts without moving cards',()=>{
-  for(const bad of [null,[],Array.from({length:4},()=>({card:{name:'Energy'}}))]){
+test('reject null, over-max and malformed native transfer counts without moving cards',()=>{
+  for(const bad of [null,Array.from({length:4},()=>({card:{name:'Energy'}}))]){
     const f=hostSetup(3,0);
     f.wrapped.call(f.el,f.store,f.state,f.effect);
     assert.throws(()=>f.pending().callback(bad),
@@ -267,4 +268,22 @@ test('failed install on an unexpected CES48 template restores previously edited 
     'a pre-validation failure must rollback the already-modified template');
   assert.equal(Expected.prototype.reduceEffect,beforeReducer);
   assert.equal(Manager.prototype.getCardByName,beforeGet);
+});
+
+
+
+test('printed any amount permits zero transfers and still consumes GX once per game',()=>{
+  for(const seat of [0,1]){
+    const f=hostSetup(2,seat);
+    f.effect.player=f.state.owner;
+    assert.equal(f.wrapped.call(f.el,f.store,f.state,f.effect),f.state);
+    assert.equal(f.pending().prompt.options.min,0);
+    assert.equal(f.pending().prompt.options.max,2);
+    const empty=f.pending().callback([]);
+    assert.equal(empty,f.state);
+    assert.equal(f.state.owner.moved.length,0);
+    assert.equal(f.effect.damage,30,'the zero-discard attack retains only 30 printed damage');
+    assert.equal(f.state.owner.usedGX,true,
+      'zero physical transfers may never leave a GX attack available again');
+  }
 });
