@@ -260,7 +260,7 @@ function guzmaOpportunity(o) {
     prizeValue:sourcePrizeTarget(pokemon),remaining:pokemon?.hp-pokemon?.damage,
     // Guzma promotes a Benched Clefairy: use its future Psychic weakness,
     // not merely the current active Pokémon's weakness modifier.
-    predictedDamage:baseDamage*clefairyWeaknessAgainst(o,pokemon)}))
+    predictedDamage:clefairyRondoDamage(o,pokemon,baseDamage)}))
     .filter(t=>t.pokemon && Number.isFinite(t.remaining)&&t.remaining>0&&
       t.prizeValue>=2 && t.predictedDamage>=t.remaining)
     .sort((a,b)=>b.prizeValue-a.prizeValue||a.remaining-b.remaining||a.index-b.index);
@@ -655,6 +655,21 @@ function clefairyWeaknessAgainst(o,target) {
   if(isDragonPokemon(target)&&liveFairyZone(o))return 2;
   return printedPsychicWeak?2:1;
 }
+function psychicResistanceLoss(target) {
+  const row=arr(target?.printed?.resistance).find(r=>
+    String(r?.type).toUpperCase()==='PSYCHIC');
+  if(!row)return 0;
+  const value=String(row.value??'').replace(/^[−–]/,'-');
+  if(!/^-\d+$/.test(value))return 0;
+  return Math.abs(Number(value));
+}
+function clefairyRondoDamage(o,target,rawBaseDamage) {
+  if(!safeInt(rawBaseDamage)||!target)return null;
+  // Damage order: base => Psychic Weakness => printed Psychic Resistance.
+  // All other effective modifiers require a native paper-fidelity witness.
+  const doubled=rawBaseDamage*clefairyWeaknessAgainst(o,target);
+  return Math.max(0,doubled-psychicResistanceLoss(target));
+}
 function rondoWeaknessMultiplier(o,target) {
   return has(o?.ownPublic?.active,P.clefairy)?
     clefairyWeaknessAgainst(o,target):1;
@@ -669,7 +684,7 @@ function projectedRondo(o) {
   // certified by this slice. A native attack could still face a protection effect.
   if(opp.active?.effectUnknown===true||opp.active?.damageModifiersUnknown===true)return null;
   const total=benchCount(own)+benchCount(opp);
-  return {damage:20*(1+total)*rondoWeaknessMultiplier(o,opp.active),
+  return {damage:clefairyRondoDamage(o,opp.active,20*(1+total)),
     remaining:opp.active.hp-opp.active.damage,total};
 }
 function sourcePrizeTarget(p) {
@@ -1101,4 +1116,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
+  rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
