@@ -29,8 +29,10 @@ const mistRefillScreen=function mistRefillScreen(n=100000,seed=28112031){
      const gust=(s.Guzma||0)>0;
      const hammers=s.Hammer||0;
      const hammerP=1-Math.pow(0.5,hammers);
-     const h=count(cand.slice(0,7).concat(cand[13])),d=count(cand.slice(14));
-     if(!h.R)continue;h.R--;
+     const opening=cand.slice(0,7);
+     if(!opening.includes('R'))continue; // opening Active chosen before T1 draw
+     const h=count(opening.concat(cand[13])),d=count(cand.slice(14));
+     h.R--;
      if(h.P>0)h.P--;
      else if(h.F>0&&d.P>0){h.F--;d.P--;}
      else if(h.Arven>0&&d.F>0&&d.P>0){h.Arven--;d.F--;d.P--;}
