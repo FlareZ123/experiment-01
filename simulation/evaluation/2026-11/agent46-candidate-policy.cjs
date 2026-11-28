@@ -1134,6 +1134,17 @@ function scoreEnergyPlay(item, view) {
     ? view.ownPublic.active : view.ownPublic.bench[metadata.targetIndex];
   if (!target || (item.targetPrinting && target.printing !== item.targetPrinting)) return -Infinity;
   const count = slotEnergyCount(target);
+  // Do not pass with a Psychic in hand when one manual Active attachment
+  // would make the first printed attack payable. This checks a hypothetical
+  // actor-owned attachment only; the host still authorizes real root actions.
+  if (metadata.targetZone === 'active' && view.opponentPublic.active) {
+    const before = bestAttackForSlot(target, view, view.opponentPublic.active);
+    const funded = {
+      ...target, energies: [...(target.energies ?? []), item.actorPrinting]
+    };
+    const after = bestAttackForSlot(funded, view, view.opponentPublic.active);
+    if (!before && after) return 1120;
+  }
   if (opponentHasRegidrago(view) && hasName(target.printing, 'Mimikyu') && count < 2) return 920;
   if (hasName(target.printing, 'Shadow Rider Calyrex VMAX') &&
       psychicEnergyCount(view) < 5 && count < 5) return 880;
