@@ -309,7 +309,13 @@ test('Carmine discard payoff is conditional on Apex donors and guarded UDP',()=>
   assert.equal(carmineScore(live)>scoreRoot(quick,{observation:live}),true);
   assert.deepEqual(root(seat,live,[carmine,quick,pass]),
     {kind:'select-action',token:'carmine'});
+  // With two attackers established, discarding donor Dragons outranks
+  // more VIP bench width; without any V, first secure one through VIP.
   assert.deepEqual(root(seat,live,[carmine,vip,quick,pass]),
+    {kind:'select-action',token:'carmine'});
+  const vAbsent=obs(seat,{...live,ownPublic:{
+    ...live.ownPublic,active:pokemon(P.budew),bench:[]}});
+  assert.deepEqual(root(seat,vAbsent,[carmine,vip,quick,pass]),
     {kind:'select-action',token:'vip'});
   const withPrime=obs(seat,{...live,ownHand:[
     ...live.ownHand,'Prime Catcher TEF 157']});
