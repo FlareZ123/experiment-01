@@ -865,9 +865,21 @@ function canUseGuzmaHalaMode1(observation, options = {}) {
   const hasTool = hand.some(printing => matches(printing, PRINT.tmEvolution)) ||
     bunnelbyHasTool(observation, PRINT.tmEvolution);
   const wantTool = !hasTool && sourceCopyPossible(observation, PRINT.tmEvolution);
+  const currentBunnelby = boardSlots(observation.ownPublic).find(row =>
+    matches(row.pokemon.printing, PRINT.bunnelby))?.pokemon;
   const hasJet = hand.some(printing => matches(printing, PRINT.jetEnergy)) ||
-    bunnelbyHasTool(observation, PRINT.jetEnergy);
-  const wantJet = bunnelbyOnBench(observation) && !bunnelbyActive(observation) &&
+    list(currentBunnelby?.energies).some(printing => matches(printing, PRINT.jetEnergy));
+  const hasAnyPlayableEnergyInHand = hand.some(printing =>
+    [PRINT.jetEnergy,PRINT.captureEnergy,PRINT.memoryEnergy,PRINT.grassEnergy]
+      .some(pattern => matches(printing, pattern)));
+  const activeBunnelbyUnfunded = bunnelbyActive(observation) &&
+    list(observation.ownPublic?.active?.energies).length === 0 &&
+    !hasAnyPlayableEnergyInHand;
+  // Jet can power an already Active Bunnelby, not only pivot a Benched one.
+  // The old bunnelbyHasTool(Jet Energy) query was also checking the wrong zone.
+  const benchBunnelbyNeedsJet = bunnelbyOnBench(observation) &&
+    !bunnelbyActive(observation);
+  const wantJet = (activeBunnelbyUnfunded || benchBunnelbyNeedsJet) &&
     !hasJet && sourceCopyPossible(observation, PRINT.jetEnergy);
   const guzmaAvailable = options.guzmaInHand === true ||
     sourceCopyPossible(observation, PRINT.guzmaHala);
