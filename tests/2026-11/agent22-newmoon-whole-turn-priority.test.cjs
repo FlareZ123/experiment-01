@@ -44,7 +44,7 @@ const gh=()=>({
  wanted:[{role:'stadium',name:'Sky Field'},{role:'tool',name:'Stealthy Hood'},
  {role:'specialEnergy',name:'Telepathic Psychic Energy'}]}});
 function root(b){return {actorStateFingerprint:'actor-public-root',
- branchContexts:{fairyZoneDirect:null,duskExactAttack:null,
+ branchContexts:{fairyZoneDirect:null,duskTerminalBlast:null,duskExactAttack:null,
  duskDragonRondo:null,duskThornsRondo:null,guzmaHala:null,...b}};}
 function check(r,status,branch){
  const o=choose(r);assert.equal(o.status,status);
@@ -75,7 +75,7 @@ check(root({guzmaHala:b}),'none');
 b=gh();b.own.hand[1].lowOpportunityCost=false;b.own.hand[2].lowOpportunityCost=false;
 x=check(root({guzmaHala:b}),'candidate','guzmaHala');
 assert.equal(x.entry.mode,'stadium-only');
-x=check(root({}),'none');assert.equal(x.evaluations.length,5);
+x=check(root({}),'none');assert.equal(x.evaluations.length,6);
 x=check({branchContexts:{fairyZoneDirect:fairy()}},'unsupported');
 assert.equal(x.reason,'NO_COMMON_NATIVE_ACTOR_STATE_FINGERPRINT');
 x=check(root({duskExactAttack:false}),'unsupported');
@@ -90,5 +90,13 @@ b=fairy();b.public.totalHp=b.public.remainingHp=370;b.own.gxAlreadyUsed=false;
 b.combat.offers=[offer('Miraculous Duo-GX','Basic',200)];
 x=check(root({fairyZoneDirect:b,duskExactAttack:blast()}),'candidate','fairyZoneDirect');
 assert.equal(x.firstAction.name,'Miraculous Duo-GX');
-assert.equal(count,18);
+const terminal={public:{ownPrizesRemaining:2,opponentPrizesRemaining:3,
+ targets:[{token:'enemy-vstar',remainingHp:100,prizeValue:2,abilityCountersApply:true}]},
+ own:{benchedDusknoirReady:true},
+ combat:{abilityLegal:true,abilityNotSuppressed:true,reactiveEffectsResolved:true}};
+x=check(root({duskTerminalBlast:terminal,duskExactAttack:blast(),
+ guzmaHala:gh()}),'candidate','duskTerminalBlast');
+assert.equal(x.firstAction.targetToken,'enemy-vstar');
+assert.equal(x.entry.projectedOwnPrizesAfterKO,0);
+assert.equal(count,19);
 console.log('Agent22 whole-turn composite: '+count+' synthetic contracts passed');
