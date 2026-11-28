@@ -161,8 +161,14 @@ for (const seat of [0, 1]) {
     assert.equal(support('Plumeria BUS'), support('Plumeria BUS 120'));
     assert.ok(support('Plumeria BUS') > 0);
     assert.equal(support('Plumeria BUS 121'), 0);
-    assert.equal(score('Capture Energy RCL','energy','Bunnelby PRC'),
-      score('Capture Energy RCL 171','energy','Bunnelby PRC 121'));
+    // Slot identity must agree exactly with actor-observed Active printing.
+    // The original fixture uses a numbered Bunnelby; native state instead
+    // emits set-only printing. Test both self-consistent states, not a mixed
+    // target label that publicRootTargetSlot correctly rejects.
+    const numberedCapture = score('Capture Energy RCL 171','energy','Bunnelby PRC 121');
+    assert.ok(numberedCapture > 0);
+    observation.ownPublic.active.printing = 'Bunnelby PRC';
+    assert.equal(score('Capture Energy RCL','energy','Bunnelby PRC'), numberedCapture);
     assert.equal(score('Capture Energy RCL 172','energy','Bunnelby PRC'), 0);
   });
 }
