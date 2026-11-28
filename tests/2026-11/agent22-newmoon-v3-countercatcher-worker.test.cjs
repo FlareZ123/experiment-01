@@ -109,5 +109,47 @@ check(supportedDirectTerminal(unknown.observation,unknown.actionFrontier.items),
 const resistance=clone(natural);
 resistance.observation.opponentPublic.active.printed.resistance=[{type:'Psychic',value:-20}];
 check(supportedDirectTerminal(resistance.observation,resistance.actionFrontier.items),false);
-assert.equal(assertions,19);
+// Already-behind Prize clock (3>2) makes Counter Catcher legal *now*.
+// Gust a previously damaged Mega, take the final 3 Prizes WITHOUT Dusk KO.
+const behind=base();
+behind.observation.opponentPublic.prizeCount=2;
+behind.observation.opponentPublic.bench=[{
+ printing:'Mega Absol ex ME1',hp:280,damage:80,tools:[],
+ printed:{resistance:[]}}];
+behind.observation.ownPublic.active.tools=[];
+behind.observation.ownPublic.active.attacks=[{
+ name:'Miraculous Duo-GX',damage:200}];
+behind.observation.ownPublic.stadium=[];
+behind.observation.opponentPublic.stadium=[];
+behind.actionFrontier.items.unshift({kind:'play-card',token:'catchDirect',
+ actorPrinting:'Counter Catcher PAR',
+ publicMetadata:{cardType:'trainer',handIndex:0}});
+const directGust=createPolicy({role:'candidate',seat:0,
+ policyVersion:POLICY_VERSION,config:{}});
+r=directGust.decideWithAudit(behind);
+check(r.decision.token,'catchDirect');
+check(r.policyAudit.selectionRuleCode,
+ 'A22_DIRECT_CC_GUST_NO_DUSK_SELF_KO_TERMINAL');
+const directPrompt=benchPrompt(behind,'Counter Catcher PAR','Counter Catcher');
+directPrompt.prompt.choices[0].printing='Mega Absol ex ME1';
+r=directGust.decideWithAudit(directPrompt);
+check(r.decision.tokens[0],'target-0');
+const newActive=clone(behind);
+newActive.observation.opponentPublic.active=clone(behind.observation.opponentPublic.bench[0]);
+newActive.observation.opponentPublic.bench=[behind.observation.opponentPublic.active];
+newActive.actionFrontier.items=[clone(behind.actionFrontier.items[2])];
+r=directGust.decideWithAudit(newActive);
+check(r.decision.token,'duo');
+check(r.policyAudit.selectionRuleCode,
+ 'A22_DIRECT_CC_PRINTED_GX_CONDITIONAL_TERMINAL');
+// Once the Item is played, a malformed reply cannot be handed to the
+// parent v3 policy or silently interpreted as a new self-KO route.
+const aborted=createPolicy({role:'candidate',seat:0,
+ policyVersion:POLICY_VERSION,config:{}});
+aborted.decideWithAudit(behind);
+const badReply=clone(directPrompt);badReply.prompt.source.effectName='Unknown';
+r=aborted.decideWithAudit(badReply);
+check(r.decision.kind,'abstain');
+check(r.policyAudit.selectionRuleCode,'A22_DIRECT_GUST_SEQUENCE_ABORTED');
+assert.equal(assertions,26);
 console.log('Agent22 v3 Counter Catcher worker overlay: '+assertions+' checked decisions passed');
