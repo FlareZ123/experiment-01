@@ -1077,7 +1077,16 @@ function engineSetupDecision(request) {
               PRINT.memoryEnergy,PRINT.grassEnergy].some(p=>matches(card,p))){
               reserveEnergy=true;return false;
             }
-            return discardPriority({printing:card},request.observation)>=48;
+            // V2's generic discard heuristic is deliberately permissive.
+          // The opening Hala payment test must protect exact setup/lock
+          // singletons rather than counting them as effortless discards.
+          const protectedLines=[PRINT.guzmaHala,PRINT.guzma,PRINT.vileplume,
+            PRINT.vileplumeGx,PRINT.stoutland,PRINT.pidgeot,PRINT.gloom,
+            PRINT.herdier,PRINT.pidgeotto,PRINT.grandTree,PRINT.stealthyHood,
+            PRINT.cassius,PRINT.karen,PRINT.plumeria,PRINT.gladion,PRINT.faba,
+            PRINT.lusamine,PRINT.bellelba,PRINT.teamYell,PRINT.peonia];
+          if(protectedLines.some(pattern=>matches(card,pattern)))return false;
+          return discardPriority({printing:card},request.observation)>=48;
           });
           fundedViaHala=expendable.length>=2;
         }
