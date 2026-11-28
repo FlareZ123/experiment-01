@@ -1,0 +1,13 @@
+"use strict";
+const test=require("node:test"),assert=require("node:assert/strict");
+const fs=require("node:fs"),path=require("node:path");
+const {propose}=require("../../results/aichi-2026/2026-11/agent1-apex-axe-blast-first-action.cjs");
+const field=JSON.parse(fs.readFileSync(path.join(__dirname,"../../results/aichi-2026/full-decklists.json"),"utf8"));
+const ac={"name":"Regidrago VSTAR","printing":{"set":"SIT","number":"136"}},h={"name":"Haxorus","printing":{"set":"BLK","number":"70"}};
+const q=(rank,name,set,num,x={})=>({physicalSeat:0,opponentRank:rank,opponentActive:{name,printing:{set,number:num}},ownActive:ac,ownAttachedEnergy:["Double Dragon Energy","Basic Grass Energy"],ownDiscard:[h],certifiedNativeApexAllowed:true,certifiedTargetEffectsAllowKO:true,ownPrizesRemaining:2,certifiedTargetPrizes:2,...x});
+test("All Iron Thorns ranks: both seats immediate no-damage knockout",()=>{for(const r of [6,24,29])for(const s of [0,1]){let x=propose(field,q(r,"Iron Thorns ex","TWM","77",{physicalSeat:s}));assert.equal(x.status,"certified-terminal-first-action");assert.equal(x.attackDamage,0);assert.equal(x.attachedHandheldFanTrigger,false);assert.equal(x.attachedSpikyEnergyTrigger,false);}});
+test("Mimikyu PAL97 Safeguard prevents damage not effect",()=>{for(const r of [3,7])assert.equal(propose(field,q(r,"Mimikyu","PAL","97",{ownPrizesRemaining:1,certifiedTargetPrizes:1})).terminal,true)});
+test("TAGTEAM and Mega Basic accepted; evolved Mega Dragonite rejected",()=>{assert.equal(propose(field,q(19,"Arceus & Dialga & Palkia-GX","CEC","156",{ownPrizesRemaining:3,certifiedTargetPrizes:3})).terminal,true);assert.equal(propose(field,q(8,"Mega Absol ex","MEG","86",{ownPrizesRemaining:3,certifiedTargetPrizes:3})).targetBasic,true);assert.equal(propose(field,q(14,"Mega Dragonite ex","ASC","152")).status,"evolution-target-not-eligible");});
+test("Nonterminal is an option, not automatically best",()=>{assert.equal(propose(field,q(26,"Meloetta ex","BLK","44",{ownPrizesRemaining:4})).status,"nonterminal-attack-option");});
+test("Unfunded, wrong donor, uncertified native and immunity fail closed",()=>{let o=q(6,"Iron Thorns ex","TWM","77");for(const [k,v,want] of [["ownDiscard",[],"exact-haxorus-donor-absent"],["certifiedNativeApexAllowed",null,"native-attack-legality-not-certified"],["certifiedTargetEffectsAllowKO",false,"attack-effect-ko-not-certified"],["ownAttachedEnergy",["Basic Grass Energy"],"apex-base-cost-unfunded"]])assert.equal(propose(field,{...o,[k]:v}).status,want);});
+test("Original source proof required",()=>{assert.equal(propose(field,q(6,"Iron Thorns ex","TWM","999")).status,"not-in-authenticated-original-source");assert.equal(propose(field,q(25,"Iron Thorns ex","TWM","77")).status,"unknown-opponent-source");});
