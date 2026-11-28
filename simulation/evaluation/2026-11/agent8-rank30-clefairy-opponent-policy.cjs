@@ -93,7 +93,9 @@ const PUBLIC_ABORT = Object.freeze({
   R30_ULTRA_NO_POKEMON:'NO_LEGAL_CARD_SET',
   R30_ENGINE_SETUP_UNSUPPORTED:'UNSUPPORTED_PROMPT_TYPE',
   R30_ENGINE_SETUP_NO_BASIC:'NO_LEGAL_CARD_SET',
-  R30_ENGINE_SETUP_NO_EMPTY:'NO_LEGAL_CARD_SET'
+  R30_ENGINE_SETUP_NO_EMPTY:'NO_LEGAL_CARD_SET',
+  R30_BLOWER_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
+  R30_BLOWER_NO_UNIQUE_TARGET:'NO_LEGAL_CARD_SET'
 });
 const no = reasonCode => ({kind:'abstain',reasonCode:PUBLIC_ABORT[reasonCode]??reasonCode});
 const act = x => ({kind:'select-action',token:x.token});
@@ -1017,6 +1019,39 @@ function rank30EngineSetupPrompt(request) {
   return no('R30_ENGINE_SETUP_UNSUPPORTED');
 }
 
+function fieldBlowerOpportunity(o) {
+  const opp=o?.opponentPublic,own=o?.ownPublic;
+  const active=opp?.active;
+  if(!has(active,P.snorlax)||!arr(active.tools).some(t=>has(t,P.float)))
+    return false;
+  // A mixed owner/zone ChooseCardsPrompt loses per-card custody. Do not use
+  // Field Blower when more than one visible Float Stone could be selected.
+  const allTools=[...slots(own),...slots(opp)]
+    .flatMap(p=>arr(p.tools));
+  if(allTools.filter(t=>has(t,P.float)).length!==1)return false;
+  const miniorActive=has(own?.active,P.minior)&&
+    arr(own.active.energies).length>=1;
+  const miniorBench=arr(own?.bench).some(p=>has(p,P.minior));
+  const attachmentAvailable=o?.ownTurnResources?.energyPlayedTurn===0&&
+    arr(o?.ownHand).some(c=>has(c,P.basicPsychic)||has(c,P.telepathic));
+  return miniorActive||(miniorBench&&attachmentAvailable);
+}
+function fieldBlowerPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(!sameSource(p,P.blower)||p.promptType!=='ChooseCardsPrompt'||
+     m.selectionType!=='card-combination'||m.isOwnerVisible!==true||
+     !['tool','mixed'].includes(m.sourceZone)||
+     !['opponent','mixed'].includes(m.ownerSeat)||
+     !safeInt(m.minimumCount)||!safeInt(m.maximumCount)||
+     m.minimumCount>1||m.maximumCount>2)
+    return no('R30_BLOWER_PROMPT_UNSUPPORTED');
+  if(!fieldBlowerOpportunity(o))
+    return no('R30_BLOWER_NO_UNIQUE_TARGET');
+  const target=arr(p.choices).filter(c=>c.kind==='card'&&
+    typeof c.token==='string'&&has(c,P.float));
+  if(target.length!==1)return no('R30_BLOWER_NO_UNIQUE_TARGET');
+  return picks(target);
+}
 function rootDecision(request,{enablePatchProjection=false}={}) {
   const o=request.observation, items=availableCards(request);
   if(!items.length)return no('R30_NO_OFFERED_ROOT');
@@ -1037,6 +1072,10 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
     if(retrievedGuzma&&supporterAvailable(o)&&
        arr(o.ownPublic?.discard).some(x=>has(x,P.guzma)))return act(retrievedGuzma);
   }
+  // Strip a unique opposing Snorlax Float Stone before the prepared
+  // Minior Far-Flying Meteor / Gravitational Tackle counter sequence.
+  const forceBlower=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.blower));
+  if(forceBlower&&fieldBlowerOpportunity(o))return act(forceBlower);
   // If Field Blower removes Sky Field, the attack's damage may fall below KO.
   // No Field Blower line is opened before a still-available Rondo attack.
   const sky=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.sky));
@@ -1138,6 +1177,7 @@ function createPolicy({role,seat,policyVersion,config}) {
     if(request.prompt!==null){
       if(request.prompt?.source?.sourceKind==='engine')
         return rank30EngineSetupPrompt(request);
+      if(sameSource(request.prompt,P.blower))return fieldBlowerPrompt(request);
       if(sameSource(request.prompt,P.box))return boxPrompt(request);
       if(sameSource(request.prompt,P.ultra))return ultraBallPrompt(request);
       if(sameSource(request.prompt,P.quickBall))return quickBallPrompt(request);
@@ -1161,4 +1201,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
+  fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
