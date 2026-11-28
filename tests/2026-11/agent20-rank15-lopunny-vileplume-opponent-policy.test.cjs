@@ -911,3 +911,71 @@ test('Xtransceiver head owner-zone and exact K1 zero-Supporters restrictions',()
       publicMetadata:{ownerSeat:'opponent',sourceZone:'deck'}}]};
   assert.equal(decision(r).reasonCode,'UNSUPPORTED_CARD_COMBINATION_SOURCE');
 });
+
+function eldRoot(seat=0){
+  const r=karenRoot(seat);r.observation.globalTurn=8;
+  r.observation.ownPublic=p(pokemon('Bunnelby PRC 121',{hp:60}),
+    [pokemon('Oddish UNB 5',{hp:50}),pokemon('Oddish UNB 5',{hp:50})],
+    {discard:['Karen XYP 177','Guzma & Hala CEC 193']});
+  r.observation.ownHand=['Eldegoss V RCL 19'];
+  r.actionFrontier.items=[src('Eldegoss V RCL 19','play-card','eld')];
+  return r;
+}
+for(const seat of [0,1]){
+  test('seat '+seat+': Eldegoss V enters reserved Bench and recovers source Karen under Regidrago pressure',()=>{
+    const r=eldRoot(seat);
+    assert.deepEqual(decision(r),{kind:'select-action',token:'eld'});
+    r.prompt={promptType:'ChooseCardsPrompt',
+      source:{sourcePrinting:'Eldegoss V RCL 19',effectName:'Happy Match'},
+      publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:1},
+      choices:[{...card('Guzma & Hala CEC 193','gh'),
+        publicMetadata:{ownerSeat:'actor',sourceZone:'discard'}},
+        {...card('Karen XYP 177','k'),
+        publicMetadata:{ownerSeat:'actor',sourceZone:'discard'}}]};
+    assert.deepEqual(decision(r),{kind:'select-choices',tokens:['k']});
+  });
+}
+test('Eldegoss preserves remaining Vileplume Bench capacity and declines blocked Ability',()=>{
+  const r=eldRoot();r.observation.ownPublic.bench=[
+    pokemon('Buneary PFL 83',{hp:60}),
+    pokemon('Pidgeotto TEU 123',{hp:80}),
+    pokemon('Fan Rotom SCR 118',{hp:70})];
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  r.observation.ownPublic.bench=[pokemon('Oddish UNB 5',{hp:50}),
+    pokemon('Oddish UNB 5',{hp:50})];
+  r.observation.ownPublic.stadium=['Path to the Peak CRE 148'];
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  r.observation.ownPublic.stadium=[];
+  r.observation.opponentPublic.active=pokemon('Iron Thorns ex TWM 77',{hp:230});
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+});
+test('Eldegoss Happy Match cannot recover opponent or fabricated discard card',()=>{
+  const r=eldRoot();r.prompt={promptType:'ChooseCardsPrompt',
+    source:{sourcePrinting:'Eldegoss V RCL 19',effectName:'Happy Match'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:1},
+    choices:[{...card('Karen XYP 177','fake'),
+      publicMetadata:{ownerSeat:'opponent',sourceZone:'discard'}}]};
+  assert.equal(decision(r).reasonCode,'UNSUPPORTED_DISCARD_RETRIEVAL');
+  r.prompt.choices=[{...card('Guzma BUS 115','not-held'),
+    publicMetadata:{ownerSeat:'actor',sourceZone:'discard'}}];
+  assert.equal(decision(r).reasonCode,'NO_LEGAL_CARD_SET');
+});
+test('Eldegoss Float Up attacks then safely shuffles with Bench, refuses zero-Pokemon loss',()=>{
+  const r=eldRoot();
+  r.observation.ownPublic.active=pokemon('Eldegoss V RCL 19',{hp:180,
+    energies:['Double Colorless Energy SUM 136']});
+  r.actionFrontier.items=[{kind:'attack',token:'float',attackName:'Float Up'}];
+  assert.deepEqual(decision(r),{kind:'select-action',token:'float'});
+  r.prompt={promptType:'ConfirmPrompt',
+    source:{sourcePrinting:'Eldegoss V RCL 19',effectName:'Float Up'},
+    publicMetadata:{selectionType:'confirm'},
+    choices:[{kind:'confirm',token:'yes',label:'Yes'},
+      {kind:'confirm',token:'no',label:'No'}]};
+  assert.deepEqual(decision(r),{kind:'select-choice',token:'yes'});
+  r.observation.ownPublic.bench=[];
+  assert.deepEqual(decision(r),{kind:'select-choice',token:'no'});
+});
+test('Eldegoss does not Bench without an actor-owned Supporter in discard',()=>{
+  const r=eldRoot();r.observation.ownPublic.discard=['Grass Energy MEE 9'];
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+});
