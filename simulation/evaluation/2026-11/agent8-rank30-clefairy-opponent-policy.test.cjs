@@ -3,6 +3,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {
   POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,
+  sourceCardPatternCoverage,heavyBallBasicCoverage,
   createPolicy,rootDecision,projectedRondo
 } = require('./agent8-rank30-clefairy-opponent-policy.cjs');
 const clef="Lillie's Clefairy ex JTG 56", box='Secret Box TWM 163';
@@ -1703,3 +1704,18 @@ for(const seat of [0,1]) {
       {kind:'select-choice',token:'empty'});
   });
 }
+
+test('all 32 rank30 source printings map to exactly one policy identity pattern',()=>{
+  const coverage=sourceCardPatternCoverage();
+  assert.equal(SOURCE_COUNTS.reduce((sum,row)=>sum+row[1],0),60);
+  assert.equal(coverage.length,32);
+  assert.equal(coverage.every(row=>row.patternKeys.length===1),true,
+    JSON.stringify(coverage.filter(row=>row.patternKeys.length!==1)));
+});
+test('Heavy Ball Basic inventory matches every source Basic printing and copy count',()=>{
+  const coverage=heavyBallBasicCoverage();
+  assert.equal(coverage.length,12);
+  assert.equal(coverage.every(row=>row.printing!==null&&
+    row.sourceCopies===row.configuredCopies),true,JSON.stringify(coverage));
+  assert.equal(coverage.reduce((sum,row)=>sum+row.configuredCopies,0),16);
+});
