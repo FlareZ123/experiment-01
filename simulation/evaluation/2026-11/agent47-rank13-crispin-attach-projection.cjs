@@ -59,6 +59,7 @@ function projectRank13CrispinPrompt(options={}) {
     prompt.filter?.superType===native.SuperType.ENERGY &&
     prompt.filter?.energyType===native.EnergyType.BASIC &&
     prompt.options?.allowCancel===false &&
+    prompt.options?.differentTargets===true &&
     prompt.options?.min===1 && prompt.options?.max===1 &&
     Array.isArray(prompt.cardList?.cards) &&
     prompt.cardList.cards.length===2 &&
