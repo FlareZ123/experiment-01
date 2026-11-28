@@ -39,7 +39,7 @@ function planJointKnownTurn({powerInput,makeDonationInput,physical}={}){
    // recovered copy when Dowsing remains unspent. Rather than presume that
    // fifth use, try all three/four/five-action ceilings and verify each
    // concrete trace with the shared physical spending gate.
-   for(const pumpBudget of [3,4,5]){
+   for(const pumpBudget of [0,1,2,3,4,5]){
      const donation=planDonationResources({...base,pumps:pumpBudget});
      if(donation.status!=='solved'){
        anyLimit ||= donation.status==='limit';
