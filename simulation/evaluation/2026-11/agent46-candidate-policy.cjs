@@ -648,7 +648,16 @@ function searchCandidates(view, prompt, choices) {
   const effectName = prompt.source?.effectName ?? '';
   const sourceZone = prompt.publicMetadata?.sourceZone;
   let rows;
-  if (sourceZone === 'discard' && effectName === 'VS Seeker' &&
+  if (sourceZone === 'prizes' && effectName === 'Hisuian Heavy Ball' &&
+      prompt.source?.sourcePrinting === 'Hisuian Heavy Ball ASR 146') {
+    rows = choices.map(choice => ({choice,score:
+      opponentHasRegidrago(view) && hasName(choice.printing, 'Mimikyu GRI') &&
+        !boardHas(view,'Mimikyu') && !handHas(view,'Mimikyu') ? 1250 :
+      opponentHasRegidrago(view) && hasName(choice.printing,'Dialga-GX UPR') &&
+        !boardHas(view,'Dialga-GX') && !handHas(view,'Dialga-GX') ? 1100 :
+      searchNeedScore(view, choice.printing, effectName)
+    }));
+  } else if (sourceZone === 'discard' && effectName === 'VS Seeker' &&
       prompt.source?.sourcePrinting === 'VS Seeker PHF 109') {
     rows = choices.map(choice => ({
       choice, score: wonderTagSupporterScore(view, choice.printing)
@@ -706,7 +715,8 @@ function chooseCardCombination(view, prompt) {
     'Get Lost': 'Girafarig LOT 94',
     'VS Seeker': 'VS Seeker PHF 109',
     'Night Stretcher': 'Night Stretcher SFA 61',
-    'Star Alchemy': 'Forest Seal Stone SIT 156'
+    'Star Alchemy': 'Forest Seal Stone SIT 156',
+    'Hisuian Heavy Ball': 'Hisuian Heavy Ball ASR 146'
   };
   const effect = prompt.source?.effectName;
   if (Object.hasOwn(ownerSourceBindings, effect) &&
@@ -746,6 +756,15 @@ function chooseCardCombination(view, prompt) {
   }
 
   if (metadata.sourceZone === 'prizes' && choices.length === 0) {
+    // Hisuian Heavy Ball legally inspected its now-visible Prize set but
+    // found no eligible Basic. Native max1/min0 permits the empty choice.
+    // Other Prize prompts must still fail closed without identity evidence.
+    if (minimum === 0 && prompt.source?.effectName === 'Hisuian Heavy Ball' &&
+        prompt.source?.sourcePrinting === 'Hisuian Heavy Ball ASR 146' &&
+        prompt.publicMetadata?.isOwnerVisible === true) {
+      const empty = prompt.choices.find(choice => choice.kind === 'empty-selection');
+      if (empty) return {kind:'select-choice',token:empty.token};
+    }
     return abstain('HIDDEN_PRIZE_IDENTITY');
   }
 
@@ -1424,6 +1443,15 @@ function scoreTrainerPlay(item, view, receipt) {
       !handHas(view, 'Arven') && !handHas(view, "Lillie's Determination") &&
       view.ownPublic.discard.some(printing =>
         wonderTagSupporterScore(view, printing) > 0)) return 745;
+  // This is an Item root; its later actor-owned temporary Prize scan is a
+  // separate native ChooseCardsPrompt. K0 uncertainty remains: use only
+  // against Regidrago when a singleton counter Basic is currently missing.
+  if (name === 'Hisuian Heavy Ball ASR 146' &&
+      view.ownPublic.prizeCount > 0 && opponentHasRegidrago(view) &&
+      ((!boardHas(view,'Mimikyu') && !handHas(view,'Mimikyu') &&
+          !discardHas(view,'Mimikyu')) ||
+       (!boardHas(view,'Dialga-GX') && !handHas(view,'Dialga-GX') &&
+          !discardHas(view,'Dialga-GX')))) return 870;
   if (hasName(name, 'Night Stretcher') &&
       view.ownPublic.discard.some(printing =>
         nightStretcherRecoveryScore(view, printing) > 0)) return 690;
