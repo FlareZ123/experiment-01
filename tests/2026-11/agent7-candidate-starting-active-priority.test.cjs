@@ -51,6 +51,13 @@ for(const seat of [0,1]){
     assert.deepEqual(policy.decide(request),
       {kind:'select-choices',tokens:['card1','card2']});
   });
+  test('native setup selection order (non-monotonic indexes) determines Active '+seat,()=>{
+    const {policy,request,prompt}=fixture(seat,[M,R,T,V]);
+    const decision=policy.decide(request);
+    assert.deepEqual(decision,
+      {kind:'select-choices',tokens:['card3','card0']});
+    assert.deepEqual(protocol.validateDecision(decision,prompt,new Set()),decision);
+  });
   test('Radiant and Lele only: lead Lele, retain Radiant Gate option '+seat,()=>{
     const {policy,request}=fixture(seat,[R,T]);
     assert.deepEqual(policy.decide(request),
