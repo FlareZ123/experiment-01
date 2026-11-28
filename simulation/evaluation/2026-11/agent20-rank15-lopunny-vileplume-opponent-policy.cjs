@@ -39,6 +39,8 @@ const P = Object.freeze({
   tagCall:/^Tag Call CEC(?: 206)?\b/i,
   guzmaHala:/^Guzma & Hala CEC(?: 193)?\b/i,
   guzma:/^Guzma BUS(?: 115)?\b/i,
+  karen:/^Karen XYP(?: 177)?\b/i,
+  regidrago:/^Regidrago VSTAR SIT(?: 136)?\b/i,
   tmEvolution:/^Technical Machine: Evolution PAR(?: 178)?\b/i,
   jet:/^Jet Energy PAL(?: 190)?\b/i,
   capture:/^Capture Energy RCL(?: 171)?\b/i,
@@ -175,6 +177,32 @@ function usefulBasic(item,o) {
   if(has(p,P.bunnelby))return board.some(x=>has(x,P.bunnelby))?0:35;
   if(has(p,P.fan))return board.some(x=>has(x,P.fan))?0:30;
   return 0;
+}
+const REGIDRAGO_DRAGON_PAYLOADS = Object.freeze([
+  /^Dialga-GX UPR(?: 100)?\b/i,
+  /^Dragapult ex TWM(?: 130)?\b/i,
+  /^Kyurem SFA(?: 47)?\b/i,
+  /^Noivern ex PAL(?: 153)?\b/i,
+  /^Hisuian Goodra VSTAR LOR(?: 136)?\b/i,
+  /^Koraidon ex TEF(?: 120)?\b/i,
+  /^Mega Dragonite ex ASC(?: 152)?\b/i,
+  /^Salamence ex JTG(?: 114)?\b/i
+]);
+function karenOpportunity(o) {
+  const op=o?.opponentPublic;
+  if(!op||!supporterUnused(o))return false;
+  const activeDrago=has(op.active,P.regidrago);
+  const poweredBenchDrago=arr(op.bench).some(x=>has(x,P.regidrago)&&
+    arr(x.energies).length>=2);
+  if(!activeDrago&&!poweredBenchDrago)return false;
+  const publicPayloads=arr(op.discard).filter(c=>
+    REGIDRAGO_DRAGON_PAYLOADS.some(p=>has(c,p)));
+  const distinct=new Set(publicPayloads.map(txt)).size;
+  if(distinct>=2)return true;
+  // Even one Timeless-GX payload is a near-term extra-turn threat before
+  // the opponent spends GX; however after its GX use, this special case dies.
+  return distinct===1&&publicPayloads.some(c=>has(c,REGIDRAGO_DRAGON_PAYLOADS[0]))&&
+    op.publicTurnRestrictions?.gxUsed===false;
 }
 function k1Available(o,patterns) {
   // K0 is epistemic uncertainty; absence from public discard ≠ in deck.
@@ -696,6 +724,8 @@ function rootDecision(request) {
   const gustOpportunity=guzmaOpportunity(o);
   const gust=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.guzma));
   if(gust&&gustOpportunity?.terminal)return take(gust);
+  const karen=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.karen));
+  if(karen&&karenOpportunity(o))return take(karen);
   // First-turn Fan Call is a free actor-owned search for the source's
   // low-HP Colorless setup basics; only trigger when a useful slot is missing.
   const fanCall=items.find(x=>x.kind==='use-ability'&&
@@ -832,5 +862,5 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,
-  createPolicy,rootDecision,poffinPrompt,printedDamage,movementEvidence,
+  createPolicy,rootDecision,poffinPrompt,printedDamage,movementEvidence,karenOpportunity,REGIDRAGO_DRAGON_PAYLOADS,
   candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,k1Available,k1EvoTarget,usefulArtazonBasic,artazonPrompt,airMailPrompt,grandTreePrompt,grandTreeTarget,guzmaOpportunity,guzmaPrompt,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
