@@ -83,7 +83,7 @@ for(const seat of [0,1]){
     ownerPrompt(seat,[donor]),{kind:'select-choices',tokens:['card-0']}));
   test('Opponent-discard prompt requires typed Girafarig source '+seat,()=>check(
     ownerPrompt(seat,[donor],{wrongSource:true}),
-    {kind:'abstain',reasonCode:'UNTRUSTED_CARD_SELECTION'}));
+    {kind:'abstain',reasonCode:'UNTRUSTED_PROMPT_SOURCE'}));
   test('Opponent-discard prompt rejects hidden choices '+seat,()=>{
     const req=ownerPrompt(seat,[donor],{visible:false});
     check(req,{kind:'abstain',reasonCode:'UNTRUSTED_CARD_SELECTION'});
