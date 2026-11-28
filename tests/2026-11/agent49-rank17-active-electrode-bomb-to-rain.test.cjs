@@ -1023,3 +1023,44 @@ test('CES48 GX physical prompt rejects missing source, blocked energy and count 
       /physical Energy differs/);
   }
 });
+
+
+
+test('printed zero-discard GX chooses no attached Energy yet still takes terminal 30-damage KO',()=>{
+  for(const seat of [0,1]){
+    const f=setup(seat,4),unit=Object.assign(new EnergyCard(),
+      {fullName:'Unit Energy LPM UPR',name:'Unit Energy LPM'});
+    // The GX's Lightning+Colorless cost is already funded: 0 is the
+    // OPTIONAL discard count, not a free unpayable attack.
+    f.owner.active=slot(E,[unit,new EnergyCard()]);
+    f.owner.bench[0]=slot(R);
+    f.view.ownPublic.active=viewSlot(E,['Unit Energy LPM UPR',P]);
+    f.view.ownPublic.bench=[viewSlot(R),null,null,null,null];
+    f.view.ownPublic.prizeCount=1;
+    f.view.ownPublic.publicTurnRestrictions.gxUsed=false;
+    f.view.opponentPublic.active={
+      ...viewSlot(U,[],'Basic'),hp:60,damage:40
+    };
+    f.view.opponentPublic.bench=[viewSlot('Regidrago VSTAR SIT',[],'VSTAR')];
+    const action={kind:'attack',token:'gx',actorPrinting:E,
+      attackName:'Crush and Burn-GX',
+      publicMetadata:{gxAttack:true,attackCostPayable:true}};
+    assert.deepEqual(f.decide(1,null,[action]),{kind:'select-action',token:'gx'});
+    const p=crushBurnPrompt(f),projection=p.projection.promptProjection;
+    assert.equal(projection.publicMetadata.minimumCount,0);
+    assert.equal(projection.publicMetadata.maximumCount,2);
+    assert.equal(projection.choices.length,2);
+    const selection=f.decide(2,projection);
+    assert.deepEqual(selection,{kind:'select-choices',tokens:[]},
+      'a printed attack with any amount can discard no physical Energy');
+    protocol.validateDecision(selection,projection,new Set());
+    const out=f.settle(p.prompt,p.projection,selection);
+    assert.deepEqual(out.rawResult,[]);
+    assert.equal(30+50*selection.tokens.length,30);
+    assert.ok(30>=f.view.opponentPublic.active.hp-f.view.opponentPublic.active.damage);
+    assert.equal(f.owner.active.energies.cards.length,2,
+      'zero-discard GX must retain both Energy cards paying the attack cost');
+    // Native GX marker is asserted by the separate reversible hook tests,
+    // since this host suite does not execute the real pinned reducer.
+  }
+});
