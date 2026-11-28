@@ -19,6 +19,11 @@ const OPAQUE_MARKER=Symbol.for('agent25.paper-opaque-printing-v1');
 const EXACT_PAPER_PRINTING_ALIASES=Object.freeze({
   'Grand Tree SCR':Object.freeze({
     nativeName:'Great Tree SCR',set:'SCR',number:'136'
+  }),
+  // Printed accented Pokémon is historically registered under ASCII Pokemon.
+  // Agent6's native owner-root Ranger work uses Pokemon Ranger STS.
+  'Pokémon Ranger STS':Object.freeze({
+    nativeName:'Pokemon Ranger STS',set:'STS',number:'104'
   })
 });
 function resolvePaperPrintedCard(manager,row){
