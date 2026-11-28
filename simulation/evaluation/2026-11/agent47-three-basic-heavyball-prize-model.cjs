@@ -31,7 +31,7 @@ function choose(n,k){
 
 function openingPrizeAccessibility({
   deckSize=60,handSize=7,prizeCount=6,
-  basicCount,criticalBasics,heavyBalls
+  basicCount,criticalBasics,heavyBalls=0
 }){
   for(const value of [deckSize,handSize,prizeCount,basicCount,
     criticalBasics,heavyBalls]){
