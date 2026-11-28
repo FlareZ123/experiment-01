@@ -1210,3 +1210,35 @@ for(const seat of [0,1]) {
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' known K1 deck without Basic prevents wasted Quick Ball',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active={printing:clef,energies:[psychic,psychic]};
+    r.observation.ownPublic.stadium=['Sky Field ROS 89'];
+    r.observation.ownPublic.bench=[
+      b('Unown AOR 30'),b('Unown AOR 30'),b('Latias ex SSP 76'),
+      b('Crobat V DAA 104'),b('Squawkabilly ex PAL 169'),
+      b('Dedenne-GX UNB 57')];
+    r.observation.opponentPublic.active={
+      printing:'Iron Thorns ex TWM 77',hp:230,damage:0};
+    r.observation.opponentPublic.bench=[
+      b('Iron Thorns ex TWM 77'),b('Iron Thorns ex TWM 77'),
+      b('Iron Thorns ex TWM 77'),b('Iron Thorns ex TWM 77')];
+    r.observation.ownHand=['Quick Ball FST 237',vip];
+    r.observation.globalTurn=4;
+    r.actionFrontier.items=[root('play-card','Quick Ball FST 237','quick')];
+    r.observation.ownerK1={exactMembershipKnown:true,
+      knownPrintings:[{printing:'Psychic Energy MEE 13',copies:4},
+        {printing:'Wondrous Patch PFL 94',copies:2}]};
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    r.observation.ownerK1.knownPrintings.push({
+      printing:'Unown AOR 30',copies:1});
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'quick'});
+    r.observation.ownerK1=null;
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'quick'});
+  });
+}
