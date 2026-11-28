@@ -93,7 +93,7 @@ test('partial installation error rolls back already-installed source hooks',()=>
   const dep=injected();
   dep.girafarigGetLost.prefabs={WAS_ATTACK_USED:null};
   assert.throws(()=>withPaperSourceFidelity(()=>42,dep),
-    /expected 'function',got object/);
+    /expected function,got object/);
   assert.deepEqual(originalDescriptors(),before);
 });
 
