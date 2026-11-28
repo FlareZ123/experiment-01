@@ -33,6 +33,7 @@ const PRINT = Object.freeze({
   quick: /^Quick Ball FST 237\b/i,
   ultra: /^Ultra Ball MEG 131\b/i,
   darkPatch: /^Dark Patch ASR 139\b/i,
+  enhancedHammer: /^Enhanced Hammer TWM 148\b/i,
   boost: /^Boost Shake EVS 142\b/i,
   battleCompressor: /^Battle Compressor PHF 92\b/i,
   secret: /^Secret Box TWM 163\b/i,
@@ -258,6 +259,7 @@ function cardSearchScore(choice, observation) {
   if (owner(choice) !== 'actor' || zone(choice) !== 'deck') return 0;
   const printing = textOf(choice);
   if (matches(printing, PRINT.garbodor)) return hasTrubbish(observation) && !hasGarbodor(observation) ? 340 : 0;
+  if (matches(printing, PRINT.enhancedHammer)) return hammerLive(observation);
   if (matches(printing, PRINT.vikavolt)) return count(observation.ownPublic, PRINT.vikavolt) < 1 ? 270 : 35;
   if (matches(printing, PRINT.boost)) return hasTrubbish(observation) && !hasGarbodor(observation) ? 285 : 0;
   if (matches(printing, PRINT.vip)) return observation.globalTurn <= 2 && benchCount(observation.ownPublic) < 5 ? 230 : 0;
@@ -493,6 +495,7 @@ function scoreAction(item, request) {
   if (matches(printing, PRINT.ultra)) {
     return hand.length >= 2 && (count(own, PRINT.trubbish) < 2 || count(own, PRINT.mega) < 2) ? 165 : 0;
   }
+  if (matches(printing, PRINT.enhancedHammer)) return hammerLive(observation);
   if (matches(printing, PRINT.battleCompressor)) {
     const needsDarkPatchPayload = hasMegaAbsol(observation) &&
       slots(own).some(row => row.zone === 'bench' &&
@@ -621,6 +624,32 @@ function secretBoxTargets(prompt, choices, observation) {
   if (selected.length < minimum) return { kind: 'abstain', reasonCode: 'SECRET_BOX_CATEGORY_SET_INCOMPLETE' };
   return { kind: 'select-choices', tokens: selected.slice(0, maximum).map(choice => choice.token) };
 }
+const AICHI_SPECIAL_ENERGY_NAMES = /^(?:Double Dragon Energy|Capture Energy|Speed Lightning Energy|Double Colorless Energy|Reversal Energy|Counter Energy|Unit Energy LPM|Telepathic Psychic Energy|Jet Energy|Prism Energy|Spiky Energy|Memory Energy|Recycle Energy|Powerful Colorless Energy)\b/i;
+function isSpecialEnergy(card) {
+  const marker = card?.energyType ?? card?.publicMetadata?.energyType ??
+    card?.printed?.energyType;
+  if (typeof marker === 'string' && /special/i.test(marker)) return true;
+  if (typeof marker === 'string' && /basic/i.test(marker)) return false;
+  return AICHI_SPECIAL_ENERGY_NAMES.test(textOf(card));
+}
+function specialEnergyValue(card) {
+  if (!isSpecialEnergy(card)) return 0;
+  const printing = textOf(card);
+  if (/Double Dragon Energy/i.test(printing)) return 295;
+  if (/Double Colorless Energy|Reversal Energy|Counter Energy/i.test(printing)) return 250;
+  if (/Jet Energy|Telepathic Psychic Energy/i.test(printing)) return 230;
+  return 185;
+}
+function hammerTargetScore(row) {
+  if (!row) return 0;
+  const values = list(row.pokemon?.energies).map(specialEnergyValue);
+  const best = values.length ? Math.max(...values) : 0;
+  return best > 0 ? best + (row.zone === 'active' ? 10 : 0) : 0;
+}
+function hammerLive(observation) {
+  return slots(observation?.opponentPublic).reduce((best, row) =>
+    Math.max(best, hammerTargetScore(row)), 0);
+}
 function rank22CompressorTargets(prompt, deck, observation) {
   const metadata = prompt.publicMetadata ?? {};
   const min = metadata.minimumCount, max = metadata.maximumCount;
@@ -733,6 +762,12 @@ function promptDecision(request) {
     const deck = choices.filter(choice => owner(choice) === 'actor' && zone(choice) === 'deck');
     const discard = choices.filter(choice => owner(choice) === 'actor' && zone(choice) === 'discard');
     const multi = ['card-combination', 'pokemon', 'energy-payment', 'prize-slots', 'card-order'].includes(prompt.publicMetadata?.selectionType);
+    if (/enhanced hammer/.test(source)) {
+      const selected = choices.filter(c => owner(c) === 'opponent' && isSpecialEnergy(c))
+        .sort((a, b) => specialEnergyValue(b) - specialEnergyValue(a))[0];
+      if (!selected) return { kind: 'abstain', reasonCode: 'RANK22_HAMMER_NO_VISIBLE_SPECIAL' };
+      return { kind: 'select-choices', tokens: [selected.token] };
+    }
     if (/battle compressor/.test(source)) {
       return rank22CompressorTargets(prompt, deck, observation);
     }
@@ -826,6 +861,11 @@ function promptDecision(request) {
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_PROMPT' };
   }
   if (prompt.promptType === 'ChoosePokemonPrompt') {
+    if (/enhanced hammer/.test(source)) {
+      return singleChoice(prompt, choices.filter(choice => owner(choice) === 'opponent'),
+        choice => hammerTargetScore(opponentPokemon(choice, observation)),
+        'RANK22_HAMMER_NO_SPECIAL_TARGET');
+    }
     if (/motivate/.test(source)) {
       return singleChoice(prompt, choices.filter(choice => owner(choice) === 'actor' && zone(choice) === 'bench'),
         choice => {
