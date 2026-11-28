@@ -492,7 +492,7 @@ function projectChooseEnergy(prompt, state, actorSeat, choices, choiceByToken) {
 function projectMoveEnergy(prompt, state, actorSeat, native, source, choices, choiceByToken) {
   if (source.sourceKind !== 'card-effect' ||
       !/^Articuno-GX CES(?: 31)?$/.test(source.sourcePrinting ?? '') ||
-      source.effectName !== 'Legendary Ascent' ||
+      !['Legendary Ascent', 'Articuno-GX'].includes(source.effectName) ||
       enumName(native.PlayerType, prompt.playerType) !== 'BOTTOM_PLAYER' ||
       !Array.isArray(prompt.slots) ||
       !prompt.slots.some(x => enumName(native.SlotType, x) === 'ACTIVE') ||
