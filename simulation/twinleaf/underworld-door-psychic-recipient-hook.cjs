@@ -44,13 +44,24 @@ function installUnderworldDoorPsychicRecipientHook(){
     if(!owner.bench.some(isPsychicSlot))
       throw new GameError(GameMessage.CANNOT_USE_POWER);
     /** @param {Array<{to:object,card:object}>|null} transfers */
-    function recipientsPsychic(transfers){
+    function recipientsPsychic(transfers,validationState){
       if(transfers===null)return true;
       if(Array.isArray(transfers)&&transfers.length===0)return true;
       if(!Array.isArray(transfers)||transfers.length!==1)return false;
+      // Host cloned-Store validation decodes into a detached EnergyCard and
+      // passes the detached State to prompt.validate. Reference membership
+      // against *live* owner.hand is necessarily false for that legal card.
+      // Use the exact State whose prompt decoder supplied the card, while
+      // retaining the live physical Bench as the authoritative paper target.
+      // An ordinary native validator/callback without a State still uses
+      // the original owner and remains reference-identity strict.
+      const checkedOwner=Array.isArray(validationState?.players)?
+        validationState.players.find(p=>p?.id===owner.id):null;
+      const checkedHand=(checkedOwner??owner).hand?.cards;
+      if(!Array.isArray(checkedHand))return false;
       return transfers.every(({to,card})=>{
         if(!(card instanceof EnergyCard)||
-           !owner.hand.cards.includes(card)||
+           !checkedHand.includes(card)||
            card.energyType!==EnergyType.BASIC||
            !card.provides.includes(CardType.PSYCHIC))return false;
         if(to?.player!==PlayerType.BOTTOM_PLAYER||
@@ -79,8 +90,8 @@ function installUnderworldDoorPsychicRecipientHook(){
       if(!isUnderworldDoorPrompt)
         return before.call(store,current,prompt,then);
       const originalValidate=prompt.validate.bind(prompt);
-      prompt.validate=result=>
-        originalValidate(result)&&recipientsPsychic(result);
+      prompt.validate=(result,validationState)=>
+        originalValidate(result)&&recipientsPsychic(result,validationState);
       return before.call(store,current,prompt,transfers=>{
         if(!recipientsPsychic(transfers))
           throw new GameError(GameMessage.INVALID_PROMPT_RESULT);
