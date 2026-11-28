@@ -71,6 +71,18 @@ for(const seat of [0,1]){
   const nativeSearch=decide(nativePolicy,nativeObs,2,null,search(seat,Native));
   ok(JSON.stringify(nativeSearch.tokens)==='["u1","u2"]',
      'native M3 prompt source retained and selected, seat '+seat);
+  // K0 permits an uncertain Prize configuration. Once the source-bound
+  // prompt reveals only Gengar, refuse to expose that three-Prize liability.
+  const unknown=obs(seat);
+  const emptyPolicy=P.createPolicy({role:'opponent',seat,
+    policyVersion:P.POLICY_VERSION,config:{}});
+  const pending=decide(emptyPolicy,unknown,1,frontier());
+  ok(pending.token==='attach','K0 source-unknown root selected, seat '+seat);
+  const emptySearch=search(seat);
+  emptySearch.choices=emptySearch.choices.filter(c=>c.token==='g'||c.token==='empty');
+  const nothing=decide(emptyPolicy,unknown,2,null,emptySearch);
+  ok(nothing.kind==='select-choice'&&nothing.token==='empty',
+     'K1 empty search does not expose Gengar, seat '+seat);
   // Post-search board with a newly Benched Unown. Use Farewell Letter
   // before taking the already-funded attack; this is synthetic, not Store.
   const after=obs(seat);
