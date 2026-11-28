@@ -56,6 +56,18 @@ The source's Guzma BUS115 uses an opposing Bench selection followed by a mandato
 
 The change shares `readyGuzmaMega` between the planning root and own-switch prompt. It additionally removes a blanket veto of the source Mega attacker when **Choice Belt** is attached: Belt cannot reduce a base-230 moved Gale Thrust, and Jamming Tower disabling its bonus still leaves 230. Hence a visibly guaranteed base-230 KO remains a terminal Guzma regardless of whether Belt's extra +30 currently applies. Opposing target Tools or unresolved defender modifiers still prevent a certainty claim. Both-seat tests cover restricted first Mega versus legal second Mega, Jamming/Belt present and absent, and defender-Tool conservative negatives.
 
+## Original 15-Pokémon source attack surface, not just Mega Lopunny
+
+The original rank15 60 includes 15 Pokémon printing lines. Before this change, the worker's `printedDamage` only modeled Mega Lopunny's two attacks plus Pidgey Peck Off and Pidgeot ex Blustery Wind. This left **11 additional original-print fixed-damage attacks** opaque, including Oddish Seed Bomb (20), Gloom Drool (30), Vileplume AOR Solar Beam (70), Vileplume BUS Downer Shock (60), Buneary Kick (20), Pidgeotto TEU Gust (30), Pidgeotto MEW Flap (20), Fan Rotom Assault Landing (70 when a Stadium is in play), Budew Itchy Pollen (10), Eldegoss V Float Up (50), and Tatsugiri Surf (50). The attack/printing mappings and costs were read from the supplied complete card pool, not inferred from Pokémon names.
+
+The corrected `sourcePrintedType` and `applyTypedWeaknessResistance` model Grass, Colorless, and Dragon Weakness/Resistance for these source prints. Powerful Colorless +20 applies **only** to Colorless Pokémon; Choice Belt +30 can apply to **any Pokémon type** when hitting a V and its Tool effect is live. A Stadium-nullifying effect does *not* remove a Stadium from play, so Fan Rotom's Assault Landing condition remains satisfied if a muted Stadium is still physically there. With no Stadium, Assault Landing does nothing and cannot be made damaging through PCE/Belt. Attacks printed with no damage (such as Bunnelby's Burrow/Rototiller and Oddish's Stun Spore) are not incorrectly treated as arbitrary 0-damage attacks capable of gaining modifiers.
+
+**Eldegoss V Float Up** shuffles the attacking Pokémon and attached cards back into the deck after attacking. A purported final-Prize Knock Out with **no other own Pokémon in play** therefore also empties the player's board; the worker no longer certifies this as an unqualified terminal win. The attack's 50 printed damage is still available when a Bench Pokémon remains.
+
+The decision impact goes beyond arithmetic: when the source Pidgeot ex holds live PCE+Belt versus a 170-HP-remaining Shadow Rider V, `Blustery Wind` becomes an immediate 170-damage terminal attack ahead of setup; Temple or Jamming can remove the required boost and restore the preference for setup. Budew with live Belt can deliver a 40-damage final-Prize `Itchy Pollen`; Fan Rotom can deliver a boosted terminal `Assault Landing` only when a Stadium exists.
+
+The committed comprehensive source attack test file covers all 11 original fixed-damage cards, typed Weakness, nonmatching resistance, correct PCE/Belt scope, empty/muted Stadium conditions, nondamaging move negatives, Float Up sole-Pokémon loss avoidance, and immediate-Prize attack-versus-setup choices on both physical seats. These remain **constructed actor-only decisions, not authenticated native-Store attack resolution**.
+
 ## Reproducible assets
 
 - Policy: `simulation/evaluation/2026-11/agent20-rank15-lopunny-vileplume-opponent-policy.cjs`
@@ -65,9 +77,10 @@ The change shares `readyGuzmaMega` between the planning root and own-switch prom
 - Colorless source damage: `tests/2026-11/agent20-rank15-colorless-modifiers-heldout.test.cjs` (**12** cases)
 - Grand Tree target age/slot/Active: `tests/2026-11/agent20-rank15-grandtree-physical-evolution-heldout.test.cjs` (**18** cases)
 - Guzma own attacker promise / Belt lower-bound: `tests/2026-11/agent20-rank15-guzma-prompt-attacker-binding-heldout.test.cjs` (**14** cases)
-- Exact final policy blob: `8003b552de2ce7e2c2e5205785fa34bd23747d64`
-- Exact test blobs: `04aa7326f3d2c3bf18b115ca48d6988021c511cb`, `99418a2ca86cc651773af5cf3248979e4563317c`, `5d99721052439eb84849b4094ad98e0c6bd16132`, `fea7ca06fc33741301619f13dd8782a2ccfcd57a`, `7fa0f188ae3b889e16163fb8af639632dd4816e8`, `ad0d6d4c0c4259827ec70ef1b298e11d90cbcb5e`
-- Executed both committed test files against the exact policy blob with a JavaScript CommonJS V8 shim for `node:test`, `node:assert/strict`, and the policy module: **82 passed / 0 failed**. This confirms synchronous decision assertions only. The V8 shim is not Node CLI, pinned Twinleaf Store, native protocol, source-deck game, or competitive qualification.
+- Complete original fixed-attack surface: `tests/2026-11/agent20-rank15-source-fixed-attack-damage-heldout.test.cjs` (**80** cases)
+- Exact final policy blob: `834ab54bcdd11c78bf36e5fdf6e22d5bfff7ac9b`
+- Exact test blobs: `04aa7326f3d2c3bf18b115ca48d6988021c511cb`, `99418a2ca86cc651773af5cf3248979e4563317c`, `5d99721052439eb84849b4094ad98e0c6bd16132`, `fea7ca06fc33741301619f13dd8782a2ccfcd57a`, `7fa0f188ae3b889e16163fb8af639632dd4816e8`, `ad0d6d4c0c4259827ec70ef1b298e11d90cbcb5e`, `757fb4f866d5013f6bb6a76eb92a4813ee3c549d`
+- Executed both committed test files against the exact policy blob with a JavaScript CommonJS V8 shim for `node:test`, `node:assert/strict`, and the policy module: **162 passed / 0 failed**. This confirms synchronous decision assertions only. The V8 shim is not Node CLI, pinned Twinleaf Store, native protocol, source-deck game, or competitive qualification.
 
 The original PR90 head reproduced the wrong Jet and TM selections and the absent correct Hood decision before the follow-on patch. Neither PR90 nor PR93 should be treated as an admission to main or a frozen policy. Both may be challenged through independent actor-visible native continuation before any owner-approved game. No CI or V3 dispatch was performed here.
 
