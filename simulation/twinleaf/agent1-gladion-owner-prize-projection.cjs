@@ -88,7 +88,7 @@ function projected({prompt,state,actorSeat,attested}={}){
      {minimumCount:1,maximumCount:1})
  };
  const projection=Object.freeze({
-  schema:protocol.PROMPT_SCHEMA,actingSeat,
+  schema:protocol.PROMPT_SCHEMA,actingSeat:actorSeat,
   promptType:prompt.constructor.name,
   description:typeof prompt.message==='string'?prompt.message:'Choose a Prize card',
   source:Object.freeze(source),choices:Object.freeze(choices),
