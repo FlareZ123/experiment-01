@@ -206,7 +206,7 @@ function score(action,req){
   const target=name(action.targetPrinting);
   if(match(target,PRINT.budew)&&!match(own.active?.printing,PRINT.budew)){
    // Only a mobility preference; does not assert that Itchy Pollen will be funded.
-   return liveGarbotoxin(o)&&!hasFundedAttack(items)?490:285;
+   return o.globalTurn<=4?700:(liveGarbotoxin(o)&&!hasFundedAttack(items)?490:285);
   }
   if(match(target,PRINT.mega))return 330;
   return 0;
@@ -230,6 +230,15 @@ function score(action,req){
   if(!t||list(t.pokemon.tools).length!==0)return 0;
   if(match(p,PRINT.forest)){
    return match(t.pokemon.printing,PRINT.crobat)&&!o.ownTurnResources?.vstarUsed?440:0;
+  }
+  if(match(p,PRINT.float)&&t.zone==='active'&&!match(t.pokemon.printing,PRINT.budew)&&
+     o.globalTurn<=4&&canTool&&onBoard(own,PRINT.budew)&&
+     o.ownTurnResources?.retreatedTurn!==o.globalTurn&&
+     t.pokemon.publicRestrictions?.cannotRetreat!==true){
+   const paid=items.some(a=>a.kind==='retreat'&&match(a.targetPrinting,PRINT.budew));
+   const cost=Array.isArray(t.pokemon.printed?.retreatCost)?t.pokemon.printed.retreatCost.length:null;
+   const missingPayment=cost!==null&&list(t.pokemon.energies).length<cost;
+   if(!paid||missingPayment)return 740;
   }
   if(match(t.pokemon.printing,PRINT.garbodor)&&canTool&&!liveGarbotoxin(o)){
    return setupAbilityPending(items,o)?130:600;
