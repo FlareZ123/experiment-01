@@ -34,6 +34,9 @@ function chooseRoot(view,frontier) {
   const items=frontier?.items;
   if (!Array.isArray(items)) return null;
   const choose=(row,reason)=>row ? {decision:{kind:'select-action',token:row.token},reason}:null;
+  const canSelfKO = Number.isSafeInteger(p.opp.prizeCount) &&
+    p.opp.prizeCount > 1 && Number.isSafeInteger(p.own.prizeCount) &&
+    p.own.prizeCount > 0; // Cursed Blast pays the opponent a Prize.
   const isActiveSource=x=>x.publicMetadata?.sourceZone==='active';
   const isBenchSource=x=>x.publicMetadata?.sourceZone==='bench' &&
      Number.isSafeInteger(x.publicMetadata?.sourceIndex) &&
@@ -43,12 +46,13 @@ function chooseRoot(view,frontier) {
     // active Dusclops when the second copy is not demonstrably available.
     const lethal=Number.isFinite(p.bus.hp) && Number.isFinite(p.bus.damage) &&
       p.bus.hp-p.bus.damage<=50;
-    if (lethal && abilityLive(p.active,'Cursed Blast')) {
+    if (lethal && canSelfKO && p.own.bench.some(Boolean) &&
+        abilityLive(p.active,'Cursed Blast')) {
       const blast=items.find(x=>useAbility(x,'Cursed Blast') && isActiveSource(x));
       if (blast) return choose(blast,'CURSED_BLAST_LETHAL_ACTIVE');
     }
     const benchBlast=items.find(x=>useAbility(x,'Cursed Blast') && isBenchSource(x));
-    if (benchBlast && psychic(p.active)>=2 && p.bus.hp-p.bus.damage>50)
+    if (benchBlast && canSelfKO && psychic(p.active)>=2 && p.bus.hp-p.bus.damage>50)
       return choose(benchBlast,'CURSED_BLAST_BENCH_SETUP');
     const willow=items.find(x=>x.kind==='attack' && x.attackName==='Will-O-Wisp');
     if (willow && psychic(p.active)>=2 && p.bus.damage>=50)

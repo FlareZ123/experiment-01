@@ -11,9 +11,9 @@ const box=()=>({stadiumAndToolHaveNoEffectTurnsRemaining:0});
 const view=(opts={})=>({actorSeat:0,decisionKind:'owner-root',
   ownHand:opts.hand??['Tool Jammer BST 136'],
   ownPublic:{active:opts.active??dus({energies:['Basic Psychic Energy','Basic Psychic Energy']}),
-    bench:opts.bench??[dus()],publicTurnRestrictions:opts.ownRestriction??box()},
+    bench:opts.bench??[dus()],prizeCount:opts.ownPrizeCount??3,publicTurnRestrictions:opts.ownRestriction??box()},
   opponentPublic:{active:opts.bus??bus(),bench:opts.opponentBench??[aor()],
-    publicTurnRestrictions:opts.oppRestriction??box()}});
+    prizeCount:opts.oppPrizeCount??3,publicTurnRestrictions:opts.oppRestriction??box()}});
 const action=(kind,token,metadata={},extra={})=>({kind,token,publicMetadata:metadata,...extra});
 const play=()=>action('play-card','play-jammer',{}, {actorPrinting:'Tool Jammer BST 136'});
 const benchBlast=()=>action('use-ability','blast-bench',{abilityName:'Cursed Blast',sourceZone:'bench',sourceIndex:0});
@@ -83,8 +83,25 @@ check('after 50 counters chooses paid Will-O-Wisp',()=>{
 });
 check('after 100 counters chooses lethal Active Cursed Blast over attack',()=>{
  const v=view({active:dus({tools:['Tool Jammer BST 136'],energies:['Basic Psychic Energy','Basic Psychic Energy']}),
-  bench:[],bus:bus({damage:100})});
+  bench:[makeSlot('Mewtwo & Mew-GX UNM 071')],bus:bus({damage:100})});
  assert.equal(sel(root(v,[activeBlast(),willow(),pass()])),'blast-active');
+});
+check('Active Cursed Blast cannot self-KO the last Pokémon even for BUS KO',()=>{
+ const v=view({active:dus({tools:['Tool Jammer BST 136'],energies:['Basic Psychic Energy','Basic Psychic Energy']}),
+   bench:[],bus:bus({damage:100})});
+ assert.equal(sel(root(v,[activeBlast(),willow(),pass()])),'willow');
+});
+check('Cursed Blast refuses to award opponent their final Prize',()=>{
+ const ready=dus({tools:['Tool Jammer BST 136'],energies:['Basic Psychic Energy','Basic Psychic Energy']});
+ const doomed=view({active:ready,bench:[dus()],oppPrizeCount:1});
+ assert.equal(sel(root(doomed,[benchBlast(),activeBlast(),willow(),pass()])),'abstain');
+ const ko=view({active:ready,bench:[makeSlot('Mewtwo & Mew-GX UNM 071')],bus:bus({damage:100}),oppPrizeCount:1});
+ assert.equal(sel(root(ko,[activeBlast(),pass()])),'abstain');
+});
+check('Unknown Prize counts must not authorize a self-KO tactic',()=>{
+ const v=view({active:dus({tools:['Tool Jammer BST 136'],energies:['Basic Psychic Energy','Basic Psychic Energy']})});
+ delete v.opponentPublic.prizeCount;
+ assert.equal(sel(root(v,[benchBlast(),pass()])),'abstain');
 });
 check('no donor bench means no premature Jammer attachment',()=>{
  assert.equal(sel(root(view({bench:[]}),[play(),pass()])),'abstain');
@@ -131,7 +148,7 @@ check('Ability root without source coordinate fails closed',()=>{
 check('suppressed Dusclops Ability is never selected',()=>{
  const a=dus({tools:['Tool Jammer BST 136'],energies:['Basic Psychic Energy','Basic Psychic Energy']});
  a.abilitySuppressions=[{abilityName:'Cursed Blast',suppressed:true}];
- const v=view({active:a,bench:[],bus:bus({damage:100})});
+ const v=view({active:a,bench:[makeSlot('Mewtwo & Mew-GX UNM 071')],bus:bus({damage:100})});
  assert.equal(sel(root(v,[activeBlast(),pass()])), 'abstain');
 });
 console.log(JSON.stringify({suite:'newmoon-v2-jammer-research-slice',checks,qualifiedGameCount:0}));

@@ -1,12 +1,12 @@
 # Agent 1 — New Moon Tool Jammer v2: executable actor-only lockbreak slice
 
-**Status:** runnable research-only policy module plus 20 local synthetic decisions; not an admitted candidate policy, native Store test, complete game, or competitive evidence. Exact paper deck: `results/als/new-moon-tool-jammer-v2-60.json`, ID-count SHA-256 `aebe9a142e8492be929316bff4b871375e3e478945e01f8c5844037332634fe6`.
+**Status:** runnable research-only policy module plus 23 local synthetic decisions; not an admitted candidate policy, native Store test, complete game, or competitive evidence. Exact paper deck: `results/als/new-moon-tool-jammer-v2-60.json`, ID-count SHA-256 `aebe9a142e8492be929316bff4b871375e3e478945e01f8c5844037332634fe6`.
 
 ## Executable artifact and local reproduction
 
 - Module: `simulation/evaluation/2026-11/agent1-newmoon-v2-jammer-decision.cjs`; policy `agent1-newmoon-tool-jammer-v2-slice-v0`; pure role/seat/exact-profile-bound `createPolicy`, with `decide` / `decideWithAudit`, opaque selected frontier tokens, no native Store access, no deck/Prize observation beyond the actor's provided view.
 - Test: `simulation/evaluation/2026-11/agent1-newmoon-v2-jammer-decision.test.cjs`.
-- Run `node simulation/evaluation/2026-11/agent1-newmoon-v2-jammer-decision.test.cjs` (local Node run: **20 checks passed**). Module blob `16538c203d9ad9f2049c2a125c09aff951270afa`; test blob `6340987160f91afa8cfc30c24905c88f2f2cd631`.
+- Run `node simulation/evaluation/2026-11/agent1-newmoon-v2-jammer-decision.test.cjs` (local Node run: **23 checks passed**). Module blob `a53dac394e87049cef0361ecad9e4bf03d98ce31`; test blob `ffb74e9a389aee8de739b1f3901de932b40aac38`.
 
 ## Decision sequence from genuinely executable worker decisions
 
@@ -21,6 +21,10 @@
 | Star Alchemy root, observed Articuno V with Forest Seal Stone, Jammer not in hand | `star`; subsequent observed deck-search prompt selects `jam` |
 
 The chosen actions are *specific simulated worker outputs*, not a claimed real linked native trace. Two additional tested reversals ensure a native targeted Tool play selects the actual **own Active** holder instead of a Benched or opponent target, including rejecting stale target printing. The test includes reversals: if the BUS moves to Bench, a Budew is Active with Garbodor Benched, Tool state is unknown, Dusclops has a different Tool attached, the second Dusclops is missing before commitment, the Cursed Blast ability is suppressed, root action provenance is missing, the required Jammer is absent in the actual deck search, or the seat is mismatched, the policy abstains rather than pretending the route is live.
+
+### Self-KO terminal-safety correction
+
+The first executable version incorrectly selected an Active Dusclops's lethal Cursed Blast even when that Dusclops was the **last Pokémon in play**, and it could give an opponent with **one Prize remaining** the final Prize. Such a constructed 140-HP BUS KO is not necessarily a win: Cursed Blast KOs its own user, so both Prize settlement and the no-Pokémon loss condition matter. The revised worker only selects *either* Cursed Blast branch if both public `prizeCount` fields are known and the opponent has at least two Prizes remaining; the **Active** Cursed Blast branch additionally requires at least one other surviving Pokémon on the candidate Bench. Unknown public Prize counts conservatively abstain. The corresponding local negative controls make the original false-lethal outcome fail and cover the one-Prize and no-Bench cases. The policy does not claim a general terminal adjudication oracle; restrictive policy choices can still abstain from legal useful plays.
 
 **What decision changed?** The New Moon v2 hypothesis now has a real narrow actor-only worker implementation whose selected action can be challenged against a legal alternative. It is a stronger evidence class than the frozen paper case count. **What did not change?** No final 60, Hood/Lockbridge two-profile approved release, V3 owner gate, CI, matchup status, or win-rate claim changed.
 
