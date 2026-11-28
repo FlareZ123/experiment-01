@@ -355,10 +355,19 @@ function nominalGuzmaRetreatTrap(target, opponent) {
     return false;
   }
   if (opponentSkylinerMayBeLive(opponent)) {
+    // Native actorObservation can expose the engine's numeric Stage enum,
+    // whereas isolated actor-view fixtures may use symbolic strings. Never
+    // coerce an unknown numeric stage through /^basic$/ (which would treat a
+    // native Basic as a non-Basic and falsely bypass Skyliner). The observed
+    // physical evolution stack is public and gives a safer Basic signal.
+    const stack = list(target.evolutionPrintings);
     const stage = target.printed?.stage;
     const hasBasicSubtype = list(target.printed?.subtypes).some(subtype =>
       /^basic$/i.test(subtype));
-    if (!stage || /^basic$/i.test(stage) || hasBasicSubtype) return false;
+    const mayBeBasic = stack.length > 0 ? stack.length === 1 :
+      (typeof stage !== 'string' || !stage ||
+        /^basic$/i.test(stage) || hasBasicSubtype);
+    if (mayBeBasic) return false;
   }
   return true;
 }
