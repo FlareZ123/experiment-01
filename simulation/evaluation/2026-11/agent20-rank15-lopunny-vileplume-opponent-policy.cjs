@@ -1136,9 +1136,13 @@ function evolutionPrompt(request) {
           if(usedSlots.has(index)||!has(knownBench[index],pattern))continue;
           usedSlots.add(index);
         }else{
-          const available=knownBench.findIndex((slot,i)=>!usedSlots.has(i)&&has(slot,pattern));
-          if(available<0)continue;
-          usedSlots.add(available);
+          // A name-only token cannot identify which of two identical
+          // physical targets would evolve. Do not map an arbitrary
+          // same-print token onto the first unclaimed Bench slot.
+          const matching=knownBench.map((slot,i)=>({slot,i}))
+            .filter(x=>has(x.slot,pattern));
+          if(matching.length!==1||usedSlots.has(matching[0].i))continue;
+          usedSlots.add(matching[0].i);
         }
         selected.push(c);
         if(selected.length>=m.maximumCount)break;
