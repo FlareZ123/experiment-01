@@ -207,10 +207,34 @@ function ghLineFeasible(o,excluded) {
   return missingEvolutionChannels(o)&&supporterUnused(o)&&
     disposableCards(o,excluded).length>=2;
 }
+function actorCardZone(p,zone) {
+  const m=p.publicMetadata??{};
+  const choices=arr(p.choices).filter(x=>x.kind==='card');
+  if(m.sourceZone!==undefined&&m.sourceZone!==zone)return false;
+  if(m.ownerSeat!==undefined&&m.ownerSeat!=='actor')return false;
+  if(m.isOwnerVisible===false)return false;
+  if(choices.some(x=>x.publicMetadata?.ownerSeat!==undefined&&
+    x.publicMetadata.ownerSeat!=='actor'))return false;
+  if(choices.some(x=>x.publicMetadata?.sourceZone!==undefined&&
+    x.publicMetadata.sourceZone!==zone))return false;
+  const ownerKnown=m.ownerSeat==='actor'||
+    (choices.length>0&&choices.every(x=>x.publicMetadata?.ownerSeat==='actor'));
+  const zoneKnown=m.sourceZone===zone||
+    (choices.length>0&&choices.every(x=>x.publicMetadata?.sourceZone===zone));
+  return ownerKnown&&zoneKnown;
+}
+function actorPokemonBench(p) {
+  const m=p.publicMetadata??{};
+  if(m.targetZone!==undefined&&m.targetZone!=='bench')return [];
+  if(m.ownerSeat!==undefined&&m.ownerSeat!=='actor')return [];
+  return arr(p.choices).filter(x=>x.kind==='pokemon'&&
+    x.publicMetadata?.ownerSeat==='actor'&&x.publicMetadata?.targetZone==='bench'&&
+    typeof x.token==='string');
+}
 function tagCallPrompt(request) {
   const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
   if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
-    m.sourceZone!=='deck'||m.ownerSeat!=='actor'||m.isOwnerVisible!==true||
+    !actorCardZone(p,'deck')||
     !Number.isSafeInteger(m.minimumCount)||!Number.isSafeInteger(m.maximumCount)||
     m.minimumCount<0||m.maximumCount>2||m.maximumCount<m.minimumCount)
     return abstain('UNSUPPORTED_CARD_COMBINATION_SOURCE');
@@ -237,15 +261,18 @@ function ghPrompt(request) {
     return no?{kind:'select-choice',token:no.token}:
       abstain('UNRECOGNIZED_SIMPLE_PROMPT');
   }
+  const fromChoices=new Set(arr(p.choices).filter(x=>x.kind==='card')
+    .map(x=>x.publicMetadata?.sourceZone).filter(Boolean));
+  const zone=m.sourceZone??(fromChoices.size===1?[...fromChoices][0]:null);
   if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
-    !['hand','deck'].includes(m.sourceZone)||m.ownerSeat!=='actor'||
-    m.isOwnerVisible!==true||!Number.isSafeInteger(m.minimumCount)||
+    !['hand','deck'].includes(zone)||!actorCardZone(p,zone)||
+    !Number.isSafeInteger(m.minimumCount)||
     !Number.isSafeInteger(m.maximumCount)||m.maximumCount<m.minimumCount||
-    m.maximumCount>(m.sourceZone==='deck'?3:2))
+    m.maximumCount>(zone==='deck'?3:2))
     return abstain('UNSUPPORTED_CARD_COMBINATION_SOURCE');
   const available=arr(p.choices).filter(c=>c.kind==='card'&&typeof c.token==='string');
   let selected=[];
-  if(m.sourceZone==='hand'){
+  if(zone==='hand'){
     if(m.minimumCount>2||m.maximumCount!==2)return abstain('BAD_CARD_SELECTION_BOUNDS');
     const handCounts=new Map();
     for(const h of arr(o.ownHand))handCounts.set(txt(h),(handCounts.get(txt(h))??0)+1);
@@ -290,7 +317,7 @@ function evolutionPrompt(request) {
   const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
   const own=o?.ownPublic;
   if(p.promptType==='ChooseCardsPrompt'&&m.selectionType==='card-combination'&&
-    m.ownerSeat==='actor'&&m.isOwnerVisible===true&&m.sourceZone==='deck'&&
+    actorCardZone(p,'deck')&&
     Number.isSafeInteger(m.minimumCount)&&Number.isSafeInteger(m.maximumCount)&&
     m.maximumCount<=2&&m.minimumCount<=m.maximumCount){
     const bench=arr(own?.bench).filter(Boolean);
@@ -328,11 +355,32 @@ function evolutionPrompt(request) {
       abstain('NO_LEGAL_CARD_SET');
   }
   if(p.promptType==='ChoosePokemonPrompt'&&m.selectionType==='pokemon'&&
-    m.targetZone==='bench'&&m.maximumCount===1&&m.minimumCount===1){
-    const option=arr(p.choices).find(x=>x.kind==='pokemon'&&
-      x.publicMetadata?.ownerSeat==='actor'&&x.publicMetadata?.targetZone==='bench'&&
-      [P.gloom,P.oddish,P.pidgeotto,P.buneary,P.pidgey].some(pat=>has(x,pat)));
-    return option?{kind:'select-choices',tokens:[option.token]}:
+    Number.isSafeInteger(m.minimumCount)&&Number.isSafeInteger(m.maximumCount)&&
+    m.maximumCount<=2&&m.minimumCount<=m.maximumCount){
+    const knownBench=arr(own?.bench);
+    const selected=[],usedSlots=new Set();
+    const candidates=actorPokemonBench(p);
+    for(const pattern of [P.gloom,P.oddish,P.pidgeotto,P.buneary,P.pidgey]){
+      for(const c of candidates){
+        if(!has(c,pattern)||selected.some(x=>x.token===c.token))continue;
+        const index=c.publicMetadata?.benchIndex;
+        if(Number.isSafeInteger(index)){
+          if(usedSlots.has(index)||!has(knownBench[index],pattern))continue;
+          usedSlots.add(index);
+        }else{
+          const available=knownBench.findIndex((slot,i)=>!usedSlots.has(i)&&has(slot,pattern));
+          if(available<0)continue;
+          usedSlots.add(available);
+        }
+        selected.push(c);
+        if(selected.length>=m.maximumCount)break;
+      }
+      if(selected.length>=m.maximumCount)break;
+    }
+    if(selected.length>=m.minimumCount&&selected.length)
+      return {kind:'select-choices',tokens:selected.map(x=>x.token)};
+    const empty=arr(p.choices).find(x=>x.kind==='empty-selection'&&typeof x.token==='string');
+    return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
       abstain('NO_SUPPORTED_POKEMON_CHOICE');
   }
   return abstain('UNSUPPORTED_PROMPT_TYPE');
@@ -364,13 +412,11 @@ function busActivePromotionOpportunity(o) {
 function busRetreatPrompt(request) {
   const p=request.prompt,m=p.publicMetadata??{};
   if(p.promptType!=='ChoosePokemonPrompt'||m.selectionType!=='pokemon'||
-    m.targetZone!=='bench'||m.minimumCount!==1||m.maximumCount!==1)
+    (m.targetZone!==undefined&&m.targetZone!=='bench')||m.minimumCount!==1||m.maximumCount!==1)
     return abstain('UNSUPPORTED_POKEMON_PROMPT');
   if(!busActivePromotionOpportunity(request.observation))
     return abstain('NO_SUPPORTED_POKEMON_CHOICE');
-  const choices=arr(p.choices).filter(x=>x.kind==='pokemon'&&
-    x.publicMetadata?.ownerSeat==='actor'&&x.publicMetadata?.targetZone==='bench'&&
-    has(x,P.bus));
+  const choices=actorPokemonBench(p).filter(x=>has(x,P.bus));
   return choices.length===1?{kind:'select-choices',tokens:[choices[0].token]}:
     abstain('NO_SUPPORTED_POKEMON_CHOICE');
 }
@@ -443,8 +489,7 @@ function rootDecision(request) {
 function poffinPrompt(request) {
   const p=request.prompt,meta=p.publicMetadata??{},o=request.observation;
   if(p.promptType!=='ChooseCardsPrompt'||meta.selectionType!=='card-combination'||
-     meta.ownerSeat!=='actor'||meta.isOwnerVisible!==true||
-     meta.sourceZone!=='deck'||!Number.isSafeInteger(meta.minimumCount)||
+     !actorCardZone(p,'deck')||!Number.isSafeInteger(meta.minimumCount)||
      !Number.isSafeInteger(meta.maximumCount)||meta.minimumCount<0||
      meta.maximumCount>2||meta.maximumCount<meta.minimumCount)
     return abstain('UNSUPPORTED_CARD_COMBINATION_SOURCE');
@@ -499,4 +544,4 @@ function createPolicy({role,seat,policyVersion,config}) {
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,
   createPolicy,rootDecision,poffinPrompt,printedDamage,movementEvidence,
-  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
+  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
