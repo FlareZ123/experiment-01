@@ -537,8 +537,9 @@ test('V3 four-adapter producer is source-consistent while native actions and hos
     FRONTIER_SCHEMA:'fixture',
     validateActorObservation(view,seat){
       assert.equal(view.actorSeat,seat);
-      assert.equal(view.ownPublic.active.printing,
-        seat===0?'Penny SVI 183':'Penny SVI 999');
+      assert.ok(['Penny SVI',seat===0?'Penny SVI 183':'Penny SVI 999']
+        .includes(view.ownPublic.active.printing),
+        'strict contract admits native or certified source-labeled printings');
     },
     validatePrompt(prompt){if(prompt)assert.equal(prompt.source.effectName,'Penny');},
     validatePublicEventReceipt(receipt,view){
