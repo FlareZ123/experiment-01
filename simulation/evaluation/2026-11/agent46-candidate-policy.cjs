@@ -250,13 +250,17 @@ function prizeLiability(slot) {
   // The original Aichi source field includes modern Mega Evolution ex (three
   // Prizes) and VSTAR (two).  Do not confuse modern Mega ex with older
   // M Pokémon-EX, which is NOT a three-Prize Mega Evolution ex.
-  const subtypes = (slot.printed?.subtypes ?? []).map(x =>
-    String(x).toUpperCase());
+  const rawSubtypes = slot.printed?.subtypes ?? [];
+  const subtypes = rawSubtypes.map(x => String(x).toUpperCase());
   const printing = slot.printing ?? '';
+  // Both old M Pokémon-EX and modern Mega Evolution ex use subtype MEGA.
+  // Only the latter grants three Prizes; source prints distinguish ex from EX.
+  const modernMega = (rawSubtypes.includes('MEGA') &&
+    rawSubtypes.includes('ex')) || /^Mega .+ ex(?: |$)/i.test(printing);
   if (subtypes.some(value =>
-      ['VMAX', 'V-UNION', 'TAG TEAM', 'MEGA'].includes(value)) ||
+      ['VMAX', 'V-UNION', 'TAG TEAM'].includes(value)) ||
       hasName(printing, 'VMAX') || hasName(printing, 'V-UNION') ||
-      /^Mega .+ ex(?: |$)/i.test(printing) ||
+      modernMega ||
       (hasName(printing, ' & ') && hasName(printing, '-GX'))) return 3;
   if (subtypes.some(value =>
       ['EX', 'GX', 'V', 'VSTAR'].includes(value)) ||
