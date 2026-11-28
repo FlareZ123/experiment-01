@@ -286,12 +286,15 @@ function setupAbilityPending(items,o){
  ));
 }
 function urgentShadowRiderGarbotoxin(o){
- // Only count VMAX engines whose Underworld Door is actually live. This
- // includes typed suppression receipts, Path to the Peak, same-side
- // Garbotoxin, and Jamming's removal of opposing Hood protection.
+ // Count only engines that are live now AND vulnerable to our prospective
+ // Garbotoxin. A working Stealthy Hood protects from the opposing Ability;
+ // Jamming disables that Tool effect. Global Stadium/typed suppression and
+ // the opponent's own Garbotoxin are resolved by opponentLockAbilityLive.
  return slots(o.opponentPublic).filter(({pokemon:p})=>
   /^Shadow Rider Calyrex VMAX CRE 75\b/i.test(name(p.printing))&&
-  opponentLockAbilityLive(o,p,'Underworld Door')).length>=2;
+  opponentLockAbilityLive(o,p,'Underworld Door')&&
+  (!toolEnabled(o)||!list(p.tools).some(t=>/^Stealthy Hood UNB 186\b/i.test(name(t)))))
+  .length>=2;
 }
 function hasFundedAttack(items){
  return list(items).some(x=>x.kind==='attack'&&x.publicMetadata?.attackCostPayable===true);
