@@ -1076,3 +1076,31 @@ for(const seat of [0,1]) {
       {kind:'select-action',token:'native-lele'});
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' low-hand Marnie refresh never outraces manual Clefairy funding',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active={printing:clef,energies:[psychic]};
+    r.observation.ownPublic.bench=[b('Latias ex SSP 76')];
+    r.observation.ownTurnResources.supporterPlayedTurn=0;
+    r.observation.globalTurn=4;
+    r.observation.ownHand=['Marnie SSH 169',psychic];
+    r.actionFrontier.items=[
+      root('play-card','Marnie SSH 169','marnie'),
+      {...root('play-card',psychic,'attach',
+        {targetSeat:'actor',targetZone:'active',isOwnerVisible:true}),
+        targetPrinting:clef}];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'attach'});
+    r.observation.ownPublic.active.energies.push(psychic);
+    r.observation.ownHand=['Marnie SSH 169'];
+    r.actionFrontier.items=[root('play-card','Marnie SSH 169','marnie')];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'marnie'});
+    r.observation.ownHand.push(clef);
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    r.observation.ownHand=['Marnie SSH 169',vip];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'marnie'});
+    r.observation.globalTurn=1;
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  });
+}
