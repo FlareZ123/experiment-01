@@ -140,7 +140,12 @@ for (const seat of [0, 1]) {
         const confirm = projectAndDecide(scene);
         assert.equal(confirm.prompt.constructor.name, 'ConfirmPrompt');
         assert.equal(confirm.decision.kind, 'select-choice');
-        assert.equal(confirm.projection.choiceByToken.get(confirm.decision.token), true);
+        assert.equal(confirm.projection.choiceByToken.get(confirm.decision.token), true,
+          'Actual Articuno Confirm declined: ' + JSON.stringify({
+            source: confirm.projection.promptProjection.source,
+            observed: request(scene, confirm.projection).observation,
+            decision: confirm.decision
+          }));
         dispatchPromptChoice({
           store: scene.store, prompt: confirm.prompt,
           state: scene.store.state, actorSeat: seat,
