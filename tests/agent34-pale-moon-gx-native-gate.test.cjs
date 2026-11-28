@@ -891,3 +891,72 @@ for(const attackingSeat of [0,1]){
     }));
   });
 }
+
+/**
+ * Authored-only native Store case: a legal same-turn V -> VMAX evolution
+ * must make the public Pale Moon target stale, even if the pinned queue
+ * itself retains the old attack effect without paper cleanup hooks.
+ * This is not a full game or a CI/fixture authorization.
+ */
+for(const attackingSeat of [0,1]){
+  test('pinned Shadow Rider VMAX evolution removes public last-Prize Pale Moon threat, attacking seat '+attackingSeat,()=>{
+    const {AttackAction}=native('game/store/actions/game-actions');
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    const {ResolvePromptAction}=
+      native('game/store/actions/resolve-prompt-action');
+    const {GamePhase}=native('game/store/state/state');
+    const {actorObservation}=
+      require('../simulation/twinleaf/actor-observation-contract.cjs');
+    const {validateActorObservation}=
+      require('../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
+    const {rescuePaleMoonTerminalPass}=
+      require('../simulation/twinleaf/2026-11/agent34-pale-moon-escape.cjs');
+    const f=stage(attackingSeat,2,false,'Shadow Rider Calyrex V CRE');
+    for(const taken of f.attacker.prizes.slice(1))
+      f.attacker.hand.cards.push(...taken.cards.splice(0));
+    const ownerSeat=1-attackingSeat;
+    const vmax=initializeCards().getCardByName('Shadow Rider Calyrex VMAX CRE');
+    assert.ok(vmax);
+    vmax.id=379000+attackingSeat;
+    f.defender.hand.cards.push(vmax);
+    f.store.dispatch(new AttackAction(f.attacker.id,'Pale Moon-GX'));
+    assert.equal(f.defender.pendingEndOfTurnEffects.length,1);
+    let attempts=0;
+    while(f.state.prompts.some(prompt=>prompt.result===undefined)){
+      assert.ok(attempts<8);
+      const prompt=f.state.prompts.find(prompt=>prompt.result===undefined);
+      assert.equal(prompt.constructor.name,'WaitPrompt');
+      f.store.dispatch(new ResolvePromptAction(prompt.id,true));attempts++;
+    }
+    f.state.turn=5;f.state.activePlayer=ownerSeat;
+    f.state.phase=GamePhase.PLAYER_TURN;
+    const before=actorObservation(f.state,ownerSeat);
+    assert.equal(before.ownPublic.active.publicRestrictions.pendingPaleMoonGXKnockOut,true);
+    assert.equal(before.ownPublic.active.printing,'Shadow Rider Calyrex V CRE');
+    const evolution={token:'native-printing-evolution',kind:'play-card',
+      actorPrinting:'Shadow Rider Calyrex VMAX CRE',
+      targetPrinting:'Shadow Rider Calyrex V CRE',
+      publicMetadata:{targetSeat:'actor',targetZone:'active',targetIndex:0}};
+    assert.equal(rescuePaleMoonTerminalPass(before,[
+      {token:'pass',kind:'pass'},evolution],'pass')?.token,evolution.token);
+    const handIndex=f.defender.hand.cards.indexOf(vmax);
+    assert.ok(handIndex>=0);
+    f.store.dispatch(new PlayCardAction(f.defender.id,handIndex,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }));
+    assert.equal(f.defender.active.getPokemonCard().fullName,
+      'Shadow Rider Calyrex VMAX CRE');
+    assert.equal(f.defender.active.pokemonPlayedTurn,5,
+      'evolution timestamp must identify the current owner turn');
+    const after=actorObservation(f.state,ownerSeat);
+    validateActorObservation(after,ownerSeat);
+    assert.equal(after.ownPublic.active.publicRestrictions.pendingPaleMoonGXKnockOut,false);
+    console.log('AGENT34_NATIVE_PALE_MOON_VMAX_EVOLVE_PUBLIC_CUE',
+      JSON.stringify({attackingSeat,ownerSeat,
+        candidate:'Shadow Rider Calyrex VMAX CRE',
+        attackerPrizeCount:f.attacker.prizes.reduce((sum,p)=>sum+p.cards.length,0),
+        actorThreatedBefore:true,actorThreatAfter:false,
+        qualifiedCompetitiveGames:0}));
+  });
+}
