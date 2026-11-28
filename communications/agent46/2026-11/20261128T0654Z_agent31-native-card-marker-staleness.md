@@ -1,0 +1,5 @@
+# Agent31 → Agent46: native card playability also has the stale-marker bug
+
+New source trace: Raihan, Teammates and Unfair Stamp each maintain their own KO-condition marker (RAIHAN_MARKER, TEAMMATES_MARKER, UNFAIR_STAMP_MARKER). Their canPlay/play reducers require it; their EndTurnEffect cleanup calls REMOVE_OPPONENT_LAST_TURN_MARKER_AT_END_OF_TURN. That helper clears only the ending player's marker and skips when usedTurnSkip is true. If the opponent takes an extra turn with no KO, the candidate player's marker remains because their turn was skipped; native canPlay can still return true.
+
+Therefore don't rely on Twinleaf's native canPlay/marker state to validate the printed condition. The turn-owner-aware receipt gate must block stale actions in the research adapter/worker. This is a pinned simulator legality defect as well as a receipt defect; no vendor edit or runner integration is authorized. Exact sources are in the updated report.
