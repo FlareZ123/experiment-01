@@ -217,4 +217,45 @@ for (const seat of [0, 1]) {
       { kind: 'select-action', token: 'guzma' });
   });
 
+  for (const [printing, ability, hp] of [
+    ['Wobbuffet PHF 36', 'Bide Barricade', 110],
+    ['Galarian Weezing RCL 113', 'Neutralizing Gas', 130]
+  ]) {
+    test('seat ' + seat + ': target ' + printing +
+      ' is not a trap because its promoted Active Ability disables the own locks', () => {
+      const view = actorView(seat);
+      view.opponentPublic.bench[1] = {
+        printing, hp, damage: 0, energies: [], tools: [],
+        abilities: [ability], printed: { retreatCost: ['COLORLESS', 'COLORLESS'] }
+      };
+      assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)), pass());
+    });
+
+    test('seat ' + seat + ': target ' + printing +
+      ' is skipped when an actual nonblocking zero-Energy target exists', () => {
+      const view = actorView(seat);
+      view.opponentPublic.bench[1] = {
+        printing, hp, damage: 0, energies: [], tools: [],
+        abilities: [ability], printed: { retreatCost: ['COLORLESS', 'COLORLESS'] }
+      };
+      const alternative = {
+        printing: duplicate, hp: 210, damage: 0, energies: [], tools: [],
+        printed: { stage: 'BASIC', retreatCost: ['COLORLESS', 'COLORLESS'] }
+      };
+      view.opponentPublic.bench[2] = alternative;
+      assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)),
+        { kind: 'select-action', token: 'guzma' });
+      const request = promptRequest(seat, view, 'opponent');
+      request.prompt.choices.push({
+        token: 'bench-2', kind: 'pokemon', printing: alternative.printing,
+        label: alternative.printing, publicMetadata: {
+          ownerSeat: 'opponent', targetZone: 'bench',
+          benchIndex: 2, selectionIndex: 2, selectionType: 'pokemon',
+          isOwnerVisible: true
+        }
+      });
+      assert.deepEqual(policy(seat).decide(request), pick(2));
+    });
+  }
+
 }
