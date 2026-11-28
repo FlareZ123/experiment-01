@@ -1978,3 +1978,34 @@ for(const seat of [0,1]){
   assert.equal(policy.opponentSnorlaxBlock(q.observation),false);
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Flutter Mane suppresses Active Crobat Star Alchemy only, not Bench Crobat',()=>{
+  const crobat=mon('Crobat V DAA 104',{tools:['Forest Seal Stone SIT 156']});
+  const board=own({active:crobat,bench:[]});
+  const their=opp({active:mon('Flutter Mane TEF 78')});
+  const q=root(seat,[ability('Star Alchemy','star'),pass],{
+   ownPublic:board,opponentPublic:their,
+   ownTurnResources:{vstarUsed:false}});
+  assert.equal(policy.activeFlutterManeLock(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  board.active=mon('Budew ASC 16');board.bench=[crobat];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
+  their.active=mon('Regidrago VSTAR SIT 136');
+  board.active=crobat;board.bench=[];
+  assert.equal(policy.activeFlutterManeLock(q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
+ });
+ test('seat '+seat+' Forest Seal Stone attachment avoids Flutter-locked Active Crobat',()=>{
+  const crobat=mon('Crobat V DAA 104');
+  const board=own({active:crobat,bench:[]});
+  const their=opp({active:mon('Flutter Mane TEF 78')});
+  const q=root(seat,[play('Forest Seal Stone SIT 156','forest',{
+   targetSeat:'actor',targetZone:'active'}),pass],{
+   ownPublic:board,opponentPublic:their,
+   ownHand:['Forest Seal Stone SIT 156'],ownTurnResources:{vstarUsed:false}});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  their.active=mon('Regidrago VSTAR SIT 136');
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'forest'});
+ });
+}
