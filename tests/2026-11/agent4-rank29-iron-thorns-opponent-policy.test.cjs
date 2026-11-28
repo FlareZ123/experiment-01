@@ -1549,7 +1549,7 @@ test('unrecognized opposing archetype with hidden hand is never granted invented
   const req=rootRequest({
     ownHand:['Eri TEF 146'],
     opponentPublic:player({
-      active:pokemon('Iron Thorns ex TWM 77'),
+      active:pokemon('Regidrago VSTAR SIT 136'),
       handCount:8,publicHand:null
     }),
     items:[
@@ -2248,4 +2248,50 @@ test('Volt Cyclone direct terminal KO beats VS Seeker winning gust and is not a 
   });
   assert.deepEqual(checkedDecision(cape),
     {kind:'select-action',token:'seeker'});
+});
+
+
+test('rank29 hidden-hand disruption is active against visible Thorns mirrors from ranks6/29',()=>{
+  for(const name of ['Eri TEF 146','Team Skull Grunt SUM 133','Sidney FST 241']){
+    const base={
+      ownHand:[name],
+      items:[
+        action('disrupt','play-card',name,{cardType:'supporter'}),
+        {token:'pass',kind:'pass'}
+      ]
+    };
+    const high=rootRequest({...base,opponentPublic:player({
+      active:pokemon('Iron Thorns ex TWM 77'),
+      handCount:8,publicHand:null
+    })});
+    assert.deepEqual(checkedDecision(high),
+      {kind:'select-action',token:'disrupt'});
+    const low=rootRequest({...base,opponentPublic:player({
+      active:pokemon('Iron Thorns ex TWM 77'),
+      handCount:1,publicHand:null
+    })});
+    assert.deepEqual(checkedDecision(low),{kind:'select-action',token:'pass'});
+  }
+});
+
+test('publicly revealed zero-target Thorns mirror hand overrides source-category prior',()=>{
+  for(const name of ['Eri TEF 146','Team Skull Grunt SUM 133','Sidney FST 241']){
+    const req=rootRequest({
+      ownHand:[name],
+      opponentPublic:player({
+        active:pokemon('Iron Thorns ex TWM 77'),handCount:8,
+        publicHand:[
+          'Guzma BUS 115','Plumeria BUS 120','Team Flare Grunt XY 129',
+          'Lusamine CIN 96','Cynthia & Caitlin CEC 189',
+          'Faba LOT 173','Peonia CRE 149','Lillie s Determination MEG 119'
+        ]
+      }),
+      items:[
+        action('disrupt','play-card',name,{cardType:'supporter'}),
+        {token:'pass',kind:'pass'}
+      ]
+    });
+    assert.deepEqual(checkedDecision(req),
+      {kind:'select-action',token:'pass'});
+  }
 });
