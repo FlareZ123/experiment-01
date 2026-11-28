@@ -200,6 +200,11 @@ for(const [name,hp,prize] of registered){
   printed:{resistance:[]}};
  assert.equal(createDirectGustSlice({seat:0}).decide(q),null);checks++;
 }
-assert.equal(checks,82);
+{
+ const q=regi();q.observation.ownPublic.active.
+  abilitySuppressions[0].suppressed=null;
+ assert.equal(createDirectGustSlice({seat:0}).decide(q).decision.token,'cc');checks++;
+}
+assert.equal(checks,83);
 console.log('Agent22 Counter Catcher direct no-selfKO gust policy: '+
  checks+' checked synthetic actor branches passed');
