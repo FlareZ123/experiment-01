@@ -1007,3 +1007,38 @@ test('MEGA ex prints are three-Prize targets, unlike ordinary two-Prize ex',()=>
     ownPublic:own,opponentPublic:{...opp,bench:[ordinary]}})),null);
  }
 });
+
+
+test('pinned actor observation has empty subtypes; source Mega/TAG TEAM still 3 Prize',()=>{
+ for(const seat of [0,1]){
+  const blank=printing=>pokemon(printing,{
+    printed:{types:['Colorless'],subtypes:[]},damage:0,hp:300});
+  const exact=[
+   ['Mega Kangaskhan ex MEG',3],['Mega Kangaskhan ex MEG 104',3],
+   ['Mega Absol ex MEG',3],['Mega Lopunny ex PFL',3],
+   ['Mega Dragonite ex ASC',3],
+   ['Gengar & Mimikyu-GX TEU',3],
+   ['Arceus & Dialga & Palkia-GX CEC',3],
+   ['Trevenant & Dusknoir-GX SMP',3],
+   ['Squawkabilly ex PAL',2],
+   ['Mew VMAX FST',3],['Regidrago VSTAR SIT',2],
+   ['Ho-Oh-EX DRX',2],['Lillie\'s Clefairy ex JTG',2],
+   ['Mimikyu GRI',1]
+  ];
+  for(const [printing,expected] of exact)
+   assert.equal(publicPrizeValue(blank(printing)),expected,printing);
+  const original=observation(seat);
+  const own={...original.ownPublic,
+    bench:[pokemon(P.star,{energies:[
+      'Double Dragon Energy ROS 97','Grass Energy MEE 9']})],
+    discard:[P.dragapult],prizeCount:3};
+  const target=blank('Mega Kangaskhan ex MEG');target.hp=300;target.damage=120;
+  const opponent={...original.opponentPublic,bench:[target]};
+  const state=observation(seat,{ownPublic:own,opponentPublic:opponent});
+  assert.equal(finalPrizePrimeTarget(state)?.index,0);
+  target.printing='Gengar & Mimikyu-GX TEU';target.hp=240;target.damage=65;
+  assert.equal(finalPrizePrimeTarget(state)?.index,0);
+  target.printing='Squawkabilly ex PAL';
+  assert.equal(finalPrizePrimeTarget(state),null);
+ }
+});
