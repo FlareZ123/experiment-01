@@ -1340,6 +1340,19 @@ function scoreEnergyPlay(item, view, receipt) {
     ? view.ownPublic.active : view.ownPublic.bench[metadata.targetIndex];
   if (!target || (item.targetPrinting && target.printing !== item.targetPrinting)) return -Infinity;
   const count = slotEnergyCount(target);
+  // Do not divert the last held Psychic into a Benched Underworld Door
+  // recipient while Max Geist in the Active Spot remains underfunded.
+  // This priority is ONLY a one-copy hand/underfunded Active situation:
+  // with two held Psychic, Door can consume one and still leave a manual
+  // attachment to the Active; other stronger playable actions keep priority.
+  if (metadata.targetZone === 'active' &&
+      hasName(target.printing, 'Shadow Rider Calyrex VMAX') &&
+      count < 2 && psychicEnergyCount(view) >= 5 &&
+      view.ownHand.filter(card => hasName(card, 'Psychic Energy')).length === 1 &&
+      target.attacks?.some(attack => attack.name === 'Max Geist' &&
+        Array.isArray(attack.cost) && attack.cost.length === 3)) {
+    return 895;
+  }
   if (hasName(target.printing, 'Girafarig LOT') &&
       opponentHasRegidrago(view) &&
       (view.opponentPublic.discard ?? []).length > 0 &&
