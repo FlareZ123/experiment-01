@@ -1225,6 +1225,22 @@ function chooseRoot(view, request) {
     ['play-card', 'attack', 'retreat', 'use-ability', 'use-stadium', 'pass'].includes(item.kind));
   const pass = items.find(item => item.kind === 'pass');
 
+  const availableDoor=items.find(item=>
+
+    item.publicMetadata?.abilityName==='Underworld Door' &&
+    item.publicMetadata?.sourceSeat==='actor' &&
+    ['active','bench'].includes(item.publicMetadata?.sourceZone) &&
+    item.actorPrinting==='Shadow Rider Calyrex VMAX CRE 75' &&
+    ownBoard(view).some(slot=>
+      slot.printing===item.actorPrinting &&
+      slot.abilities?.includes('Underworld Door')) &&
+    view.ownPublic.bench.some(slot=>
+      slot?.printed?.types?.includes('Psychic')) &&
+    view.ownHand.includes('Psychic Energy MEE 13') &&
+    Number.isSafeInteger(view.ownPublic.deckCount) &&
+    view.ownPublic.deckCount>=3
+  );
+
   const plays = items.filter(item => item.kind === 'play-card');
   const scoredPlays = plays.map(item => {
     const basic = scoreBasicPlay(item, view);
@@ -1242,6 +1258,18 @@ function chooseRoot(view, request) {
   }).filter(row => Number.isFinite(row.score)).sort((a, b) =>
     b.score - a.score || a.item.token.localeCompare(b.item.token));
   if (scoredPlays.length > 0) {
+    // One held Psychic is an exclusive resource: manual attachment now
+    // prevents this turn's otherwise legal Underworld Door draw-two.
+    // Underworld Door itself attaches the SAME physical Energy, and does not
+    // end the turn. Keep all non-Energy plays ahead of this check, and do not
+    // override a manual attachment when a second Psychic remains available.
+    if (availableDoor && scoredPlays[0].item.actorPrinting === 'Psychic Energy MEE 13' &&
+        view.ownHand.filter(p => p === 'Psychic Energy MEE 13').length === 1) {
+      recordPolicyAuditRule(availableDoor.token,'UNDERWORLD_SINGLE_ENERGY_CONTENTION');
+      setPolicyAuditRule('ROOT_UNDERWORLD_BEFORE_SINGLE_MANUAL_ATTACHMENT',
+        'RETAIN_ONLY_PSYCHIC_FOR_REPEATABLE_DRAW');
+      return {kind:'select-action',token:availableDoor.token};
+    }
     setPolicyAuditRule('ROOT_PLAY_MAX_COMPONENT_SCORE', 'SCORE_DESC_TOKEN_ASC');
     return { kind: 'select-action', token: scoredPlays[0].item.token };
   }
@@ -1259,21 +1287,7 @@ function chooseRoot(view, request) {
   // The pinned action frontier preflights marker/Ability suppression; here
   // require its exact source-bound printing, a real Psychic Bench recipient,
   // owner-visible Basic Psychic Energy and enough deck for the two draws.
-  const door=items.find(item=>
-    item.kind==='use-ability' &&
-    item.publicMetadata?.abilityName==='Underworld Door' &&
-    item.publicMetadata?.sourceSeat==='actor' &&
-    ['active','bench'].includes(item.publicMetadata?.sourceZone) &&
-    item.actorPrinting==='Shadow Rider Calyrex VMAX CRE 75' &&
-    ownBoard(view).some(slot=>
-      slot.printing===item.actorPrinting &&
-      slot.abilities?.includes('Underworld Door')) &&
-    view.ownPublic.bench.some(slot=>
-      slot?.printed?.types?.includes('Psychic')) &&
-    view.ownHand.includes('Psychic Energy MEE 13') &&
-    Number.isSafeInteger(view.ownPublic.deckCount) &&
-    view.ownPublic.deckCount>=3
-  );
+  const door=availableDoor;
   if(door){
     recordPolicyAuditRule(door.token,'UNDERWORLD_DOOR_ENERGY_AND_TWO_DRAW');
     setPolicyAuditRule('ROOT_UNDERWORLD_DOOR_BEFORE_ATTACK','FIRST_CERTIFIED_ENERGY_ACCELERATION');
