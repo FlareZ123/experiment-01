@@ -184,3 +184,18 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['q','f','m','s']});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' unknown Garbotoxin state disallows speculative setup Ability',()=>{
+  const equipped=mon('Garbodor BKP 57',{tools:['Float Stone BKT 137'],abilitySuppressions:null});
+  const q=root(seat,[ability('Dedechange','dede'),attack('Itchy Pollen','pollen'),pass],
+   {ownPublic:own({active:mon('Budew ASC 16'),bench:[equipped]}),ownHand:['Darkness Energy MEE 15']});
+  assert.equal(policy.garbotoxinStatus(q.observation),'unknown');
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+  equipped.abilitySuppressions=[{abilityName:'Garbotoxin',suppressed:false}];
+  assert.equal(policy.garbotoxinStatus(q.observation),'live');
+  equipped.abilitySuppressions=[{abilityName:'Garbotoxin',suppressed:true}];
+  assert.equal(policy.garbotoxinStatus(q.observation),'inactive');
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'dede'});
+ });
+}
