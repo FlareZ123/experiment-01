@@ -969,7 +969,192 @@ function emptyOrAbstain(prompt, choices, reasonCode) {
   return { kind: 'abstain', reasonCode };
 }
 
+function engineSetupDecision(request) {
+  const prompt=request.prompt, meta=prompt?.publicMetadata??{}, source=prompt?.source??{};
+  const abstain=reasonCode=>({kind:'abstain',reasonCode});
+  if(request.observation?.phase!==1) return abstain('UNSUPPORTED_ENGINE_SETUP_PHASE');
+  if(source.classification!=='actor-choice'||source.sourceKind!=='engine'||
+     source.sourcePrinting!==null||source.effectName!==prompt.description)
+    return abstain('UNTRUSTED_ENGINE_SETUP_PROMPT');
+  const choices=list(prompt.choices);
+  if(prompt.description==='CHOOSE_STARTING_POKEMONS'&&prompt.promptType==='ChooseCardsPrompt') {
+    if(meta.selectionType!=='card-combination'||meta.sourceZone!=='hand'||
+       meta.ownerSeat!=='actor'||meta.isOwnerVisible!==true||meta.isSecret!==false||
+       meta.allowCancel!==false||![0,1].includes(meta.minimumCount)||
+       !Number.isSafeInteger(meta.maximumCount)||
+       meta.maximumCount<meta.minimumCount||meta.maximumCount>6)
+      return abstain('BAD_STARTING_POKEMON_SETUP_PROMPT');
+    const selected=[]; let empty=null,last=-1;
+    for(const choice of choices) {
+      if(choice.kind==='empty-selection') {
+        if(empty) return abstain('BAD_STARTING_POKEMON_EMPTY_CHOICE');
+        empty=choice;continue;
+      }
+      const m=choice.publicMetadata??{};
+      if(choice.kind!=='card'||typeof choice.printing!=='string'||
+         choice.label!==choice.printing||!Number.isSafeInteger(m.selectionIndex)||
+         m.selectionIndex<=last||m.selectedCount!==1||
+         m.sourceZone!=='hand'||m.ownerSeat!=='actor'||m.isOwnerVisible!==true)
+        return abstain('UNTRUSTED_STARTING_POKEMON_CHOICE');
+      last=m.selectionIndex;
+      selected.push({token:choice.token,printing:choice.printing,index:m.selectionIndex});
+    }
+    if(meta.minimumCount===0){
+      // Pinned setup-reducer.ts reuses CHOOSE_STARTING_POKEMONS for the
+      // optional *Bench-only* placement after opponent mulligan draws.
+      // Unlike the min=1 initial setup, EVERY selected card now goes Bench.
+      const occupied=list(request.observation?.ownPublic?.bench).filter(Boolean).length;
+      const capacity=Math.max(0,5-occupied);
+      const chosen=[],used=new Set();
+      const initial=request.observation?.ownPublic??{};
+      const order=[PRINT.oddish,PRINT.lillipup,PRINT.pidgey,
+        PRINT.fanRotom,PRINT.bunnelby,PRINT.budew,PRINT.relicanth,
+        PRINT.girafarig,PRINT.mrMime,PRINT.jirachi];
+      for(const pattern of order){
+        if(chosen.length>=capacity||chosen.length>=meta.maximumCount)break;
+        if(boardHas(initial,pattern))continue;
+        const card=selected.find(row=>!used.has(row.token)&&
+          matches(row.printing,pattern));
+        if(card){chosen.push(card.token);used.add(card.token);}
+      }
+      if(chosen.length>0)return {kind:'select-choices',tokens:chosen};
+      return empty&&empty.label==='Choose no items'?
+        {kind:'select-choice',token:empty.token}:abstain('NO_STARTING_POKEMON_CHOICE');
+    }
+    // The first selected Basic becomes Active. Hand order is not a strategy:
+    // leading a first-turn Bunnelby enables Barrage/Technical Machine: Evolution.
+    // Do not automatically fill all five Bench slots with incidental Basics;
+    // this deck needs room for three distinct evolution lines and a pivot.
+    const setupHand=list(request.observation?.ownHand);
+    const hasStageBasic=selected.some(row=>
+      [PRINT.oddish,PRINT.lillipup,PRINT.pidgey].some(p=>matches(row.printing,p)));
+    const hasFanCall=selected.some(row=>matches(row.printing,PRINT.fanRotom));
+    const tm=setupHand.some(card=>matches(card,PRINT.tmEvolution));
+    const energy=setupHand.some(card=>
+      matches(card,PRINT.jetEnergy)||matches(card,PRINT.captureEnergy)||
+      matches(card,PRINT.memoryEnergy)||matches(card,PRINT.grassEnergy));
+    const immediateEvolutionRoute=tm&&energy&&(hasStageBasic||hasFanCall);
+    const halaHeld=setupHand.some(card=>matches(card,PRINT.guzmaHala));
+    const accessibleHala=halaHeld||
+      (setupHand.some(card=>matches(card,PRINT.tagCall))&&
+       sourceCopyPossible(request.observation,PRINT.guzmaHala));
+    let fundedViaHala=false;
+    // A direct TM/Jet pair is not the only T1 Evolution line: Guzma & Hala
+    // can fetch both, and Tag Call can find that Supporter. Check payment
+    // after the exact proposed setup to avoid optimistic connector counting.
+    if(accessibleHala&&meta.maximumCount>=2&&(hasStageBasic||hasFanCall)&&
+       (tm||sourceCopyPossible(request.observation,PRINT.tmEvolution))&&
+       (energy||sourceCopyPossible(request.observation,PRINT.jetEnergy))){
+      const active=selected.find(row=>matches(row.printing,PRINT.bunnelby));
+      if(active){
+        const chosen=[active],used=new Set([active.token]);
+        for(const pattern of [PRINT.oddish,PRINT.lillipup,PRINT.pidgey,
+          PRINT.fanRotom,PRINT.relicanth,PRINT.bunnelby]){
+          if(chosen.length>=Math.min(meta.maximumCount,5))break;
+          if(matches(active.printing,pattern))continue;
+          const next=selected.find(row=>!used.has(row.token)&&
+            matches(row.printing,pattern));
+          if(next){chosen.push(next);used.add(next.token);}
+        }
+        const hasTarget=chosen.slice(1).some(row=>
+          [PRINT.oddish,PRINT.lillipup,PRINT.pidgey,PRINT.fanRotom].some(p=>
+            matches(row.printing,p)));
+        if(hasTarget){
+          const remaining=setupHand.slice();
+          for(const row of chosen){
+            const i=remaining.findIndex(card=>samePrinting(card,row.printing));
+            if(i>=0)remaining.splice(i,1);
+          }
+          const source=halaHeld?PRINT.guzmaHala:PRINT.tagCall;
+          const sourceIndex=remaining.findIndex(card=>matches(card,source));
+          if(sourceIndex>=0)remaining.splice(sourceIndex,1);
+          let reserveTool=false,reserveEnergy=false;
+          const expendable=remaining.filter(card=>{
+            if(!reserveTool&&matches(card,PRINT.tmEvolution)){
+              reserveTool=true;return false;
+            }
+            if(!reserveEnergy&&[PRINT.jetEnergy,PRINT.captureEnergy,
+              PRINT.memoryEnergy,PRINT.grassEnergy].some(p=>matches(card,p))){
+              reserveEnergy=true;return false;
+            }
+            return discardPriority({printing:card},request.observation)>=48;
+          });
+          fundedViaHala=expendable.length>=2;
+        }
+      }
+    }
+    // Budew's Itchy Pollen costs no Energy, but funded T1 Evolution can be
+    // more valuable. An unpayable Hala connector is not a real line.
+    const budewLockLead=setupHand.length>=7&&
+      !immediateEvolutionRoute&&!fundedViaHala&&
+      selected.some(row=>matches(row.printing,PRINT.budew))&&
+      selected.some(row=>matches(row.printing,PRINT.bunnelby));
+    const activeRank=printing=>
+      matches(printing,PRINT.budew)&&budewLockLead?440:
+      matches(printing,PRINT.bunnelby)?400:
+      matches(printing,PRINT.budew)?380:
+      matches(printing,PRINT.fanRotom)?360:
+      matches(printing,PRINT.girafarig)?280:
+      matches(printing,PRINT.jirachi)?270:
+      matches(printing,PRINT.relicanth)?260:
+      matches(printing,PRINT.mrMime)?240:
+      matches(printing,PRINT.lillipup)?220:
+      matches(printing,PRINT.pidgey)?210:
+      matches(printing,PRINT.oddish)?200:100;
+    const active=selected.slice().sort((a,b)=>
+      activeRank(b.printing)-activeRank(a.printing)||a.index-b.index)[0];
+    if(!active) return abstain('INSUFFICIENT_STARTING_POKEMON_CHOICES');
+    const tokens=[active.token],used=new Set(tokens);
+    // Four starting Bench occupants at most leaves one emergency/pivot slot.
+    // A second copy of an already represented Basic stays in hand.
+    const desiredBench=budewLockLead?
+      [PRINT.oddish,PRINT.lillipup,PRINT.bunnelby,PRINT.fanRotom,
+        PRINT.pidgey,PRINT.relicanth]:
+      [PRINT.oddish,PRINT.lillipup,PRINT.pidgey,
+        PRINT.fanRotom,PRINT.relicanth,PRINT.bunnelby];
+    for(const pattern of desiredBench) {
+      if(tokens.length>=Math.min(meta.maximumCount,5))break;
+      if(matches(active.printing,pattern))continue;
+      const candidate=selected.find(row=>!used.has(row.token)&&
+        matches(row.printing,pattern));
+      if(candidate){tokens.push(candidate.token);used.add(candidate.token);}
+    }
+    return tokens.length>=meta.minimumCount&&tokens.length<=meta.maximumCount?
+      {kind:'select-choices',tokens}:abstain('INSUFFICIENT_STARTING_POKEMON_CHOICES');
+  }
+  if(prompt.description==='GO_FIRST'&&prompt.promptType==='ConfirmPrompt'){
+    if(meta.selectionType!=='confirm'||choices.length!==2||
+       choices.filter(c=>c.kind==='confirm'&&c.label==='Yes').length!==1||
+       choices.filter(c=>c.kind==='confirm'&&c.label==='No').length!==1)
+      return abstain('BAD_GO_FIRST_SETUP_PROMPT');
+    // Rank-2 Bunnelby's T1 TM Evolution attack becomes available going second.
+    return {kind:'select-choice',token:choices.find(c=>c.label==='No').token};
+  }
+  if(prompt.description==='WANT_TO_DRAW_CARDS'&&prompt.promptType==='SelectPrompt'){
+    if(meta.selectionType!=='option'||meta.allowCancel!==false||
+       !Number.isSafeInteger(meta.count)||meta.count<1)
+      return abstain('BAD_MULLIGAN_DRAW_SETUP_PROMPT');
+    const seen=new Set();let best=null;
+    for(const choice of choices){
+      const i=choice.publicMetadata?.choiceIndex;
+      if(choice.kind!=='option'||!Number.isSafeInteger(i)||i<0||
+         i>=meta.count||seen.has(i)||
+         choice.label!=='Draw '+(meta.count-1-i)+' card(s)')
+        return abstain('BAD_MULLIGAN_DRAW_CHOICE_INDEX');
+      seen.add(i);if(!best||i<best.publicMetadata.choiceIndex)best=choice;
+    }
+    return best?{kind:'select-choice',token:best.token}:abstain('NO_MULLIGAN_DRAW_OPTION');
+  }
+  return abstain('UNSUPPORTED_ENGINE_SETUP_PROMPT');
+}
+
+
 function promptDecision(request) {
+  // Pinned setup-reducer creates these engine-owned prompts. Initial
+  // CHOOSE_STARTING_POKEMONS min=1 sets Active+Bench; mulligan-bonus min=0
+  // only adds Bench Pokémon. They are separate semantic continuations.
+  if (['CHOOSE_STARTING_POKEMONS', 'GO_FIRST', 'WANT_TO_DRAW_CARDS']
+      .includes(request.prompt?.description)) return engineSetupDecision(request);
   const prompt = request.prompt;
   const choices = list(prompt?.choices);
   const metadata = prompt?.publicMetadata ?? {};
