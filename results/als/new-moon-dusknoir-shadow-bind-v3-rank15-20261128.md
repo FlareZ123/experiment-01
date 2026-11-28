@@ -1,0 +1,49 @@
+# New Moon v3: Dusknoir's Shadow Bind as a no-self-KO rank-15 lockbreak
+
+**Agent 22, 28 November 2026. Evidence class:** exact English card text in the bundled card pool, Advanced Player's Rulebook evolution/Item/attack rules, a legal-printing one-for-one 60-card construction, and exact finite-population combinatorics. **Not** an observed game, competent policy result, best-deck nomination or win-rate estimate.
+
+## Concrete proposed fixed 60
+
+[New Moon Dusknoir Shadow Bind v3](new-moon-dusknoir-shadow-bind-v3-60.json) is a reproducible counterfactual to [New Moon Tool Jammer v2](new-moon-tool-jammer-v2-60.json):
+
+- Remove **1 Tool Jammer BST 136**, add **1 Dusknoir SFA 20**.
+- Equivalently, starting from the retained New Moon Lockbreak v1, remove the second **Sky Field ROS 89**, add one **Dusknoir SFA 20**.
+- Exactly **60** cards, **20 Pokémon / 34 Trainers / 6 Energy**, 35 unique card IDs. The existing **2 Duskull VIV 69** and **2 Dusclops SFA 19** remain; no other count changes.
+- Dusknoir SFA 20 is marked English Expanded Legal in the provided card database; no claim is made that this list is stronger than the active Hood Shield hypothesis.
+
+This is a **new attack class rather than a second Tool-access route**. The key card is an existing evolution chain's Stage 2 rather than a Basic-Ability counter.
+
+## New conditional answer to source rank 15
+
+The original rank-15 list can establish **AOR Vileplume on Bench** (Item lock) plus **BUS Vileplume Active with Stealthy Hood** (Basic attack restriction and protection from the opponent's Abilities). Two Dusclops Cursed Blasts with Tool Jammer can clear the Active lock only across two player turns while conceding **two Prizes to the opponent**. This is a poor line near the opponent's Prize-clock finish; Agent38 corrected the original v2 rationale on 28 November.
+
+**Dusknoir SFA 20** has:
+
+- **Stage 2, evolves from Dusclops**.
+- **Shadow Bind [P][P][C]**, **150 attack damage**; prevents the Defending Pokémon's retreat on its next turn.
+- **Cursed Blast**, an optional Ability that places 13 damage counters and Knocks Out its own Dusknoir. This Ability is *not* the rank-15 answer: the opponent's Hood can block an effect of this Ability, and the self-KO costs a Prize.
+
+In a genuinely reachable state where the Dusknoir evolution is available, the Dusclops has been in play long enough to evolve, the Pokémon is or can become Active, three required Energy units are attached, and no separate damage prevention or attack inhibition applies: **evolve to Dusknoir, use Shadow Bind, deal 150 to the 140-HP Active BUS Vileplume, take one opposing Prize, and concede no self-KO Prize**. This Stage-2 attack is not prohibited by BUS's Basic-only restriction, does not play an Item, does not target BUS with an Ability, and is not prevented by Stealthy Hood. The AOR Item lock remains active afterward, so this is a **BUS removal**, not an automatic full lock clear. Its 160-HP one-Prize attacking body may itself be Knocked Out later.
+
+Crucial **tradeoff**: compared with the existing Hooded Clefairy Full Moon Rondo/TPE route, Dusknoir is independent of combined Bench occupancy and does not expose a two-Prize Basic to attack, but requires two legal evolution steps and three attached Energy cards rather than two. Compared with the Tool Jammer/two-Dusclops line it avoids the guaranteed two self-KOs, but likely needs longer setup and must draw/reach a singleton Stage 2. Compared with a Guzma/Boss gust on the Benched AOR, it removes BUS rather than Item lock. No dominance claim is justified without opponent-aware sequencing.
+
+## Exact initial Prize structural gate
+
+The source-independent physical-deal test is: draw an initial 7 uniformly from the fixed 60, reject hands with no Basic Pokémon, then set six Prizes uniformly from the other 53 cards. Check that **named prerequisites have at least the stated count outside Prizes**, whether in the initial hand or still in the deck. The New Moon variants all have 17 Basics. The compact [exact enumerator](../../scripts/2026-11/agent22-rank15-dusknoir-prize-gates.py) partitions the 60 into named disjoint physical-copy categories and exhausts the legal seven / six-Prize compositions.
+
+| Conditional route and required unprized cards | Gate probability given legal seven |
+| --- | ---: |
+| v3: >=1 Duskull of 2, >=1 Dusclops of 2, singleton Dusknoir | **88.390934915%** |
+| v2: both Dusclops of 2, singleton Tool Jammer | **72.364539436%** |
+| v2, also require >=1 Duskull of 2 | **71.701821449%** |
+| Hypothetical one-Hood route: singleton Clefairy, singleton Stealthy Hood | **80.914341626%** |
+
+These are **not action-access probabilities**, still less win rates: they ignore draw/search timing, Dusknoir evolution legality at the actual turn, Energy funding, Bench/Active positioning, VSTAR availability, opposing interaction, damaged boards, and alternative attackers. The v2 two-Dusclops route assumes both Stage-1 bodies are necessary for the documented 50+50+50 sequence; the extra Duskull requirement is shown separately so the routes are not falsely presented as having identical prerequisite counts.
+
+The v3 Dusknoir line's structural gate exceeds v2's complete one-Duskull two-Dusclops-Jammer gate by **16.6891 percentage points**. That gain does not establish superior playability: it trades Prize exposure and self-KO risk for a deeper evolution/three-Energy clock.
+
+## Minimum decisive experiment
+
+Keep v2 and v3 fixed, use the **exact original rank-15 60**, both physical seats and actual first-turn strata, and an **actor-visible policy** capable of choosing between evolve/attach/promote/Shadow Bind and the original Jammer/Cursed Blast attack sequence. The source must actively pursue AOR+BUS+Hood where legal, make sensible retreat/gust choices, and exploit the opponent's Prize clock. Classify: (a) natural joint-lock exposure; (b) whether Dusknoir could legally evolve and pay [P][P][C] before opponent closure; (c) legal alternative responses including Hooded Clefairy and gust; (d) exact self-KO Prize consumption; (e) naturally adjudicated outcome with complete traces. A staged proof of the 150-damage attack alone is mechanics evidence, not matchup competence.
+
+**Disposition:** Preserve v3 as an unqualified, materially different paper challenger. Do **not** overwrite v2, change the live Hood Shield nomination, run forbidden owner-controlled V3 fixtures, or represent a Prize gate as a win probability. The right next decision is which **single flex-slot response** remains robust to the original rank-15 opponent's best answer, not another count of merely theoretical access paths.
