@@ -1,7 +1,8 @@
 'use strict';
-/* Rank-8 Aichi Absol/Garbodor opponent policy v1.
-   Deterministic, actor-view-only and fail-closed. This is a source-bound prototype,
-   not a competent-opponent attestation or native matchup result. */
+/* Aichi rank-16 Absol/Garbodor/Budew opponent policy v1.
+ * Derived from Agent44's rank-8 family worker; immutable original rank-16
+ * source counts, actor-visible decision interface, and fail-closed prompts.
+ * Development prototype, never a competence or native-game attestation. */
 /* Agent33: rank16 original source, developmental actor-only dual lock. Fork of Agent44 rank8. */
 const POLICY_VERSION = 'agent33-rank16-absol-garbodor-dual-lock-v1';
 const SOURCE_RANK = 16;
@@ -435,7 +436,15 @@ function opponentHandDiscardScore(choice, observation) {
 }
 
 function rank16ToolSuppressed(o) {
-  return /Jamming Tower/i.test(textOf(o?.ownPublic?.stadium)||textOf(o?.opponentPublic?.stadium));
+  // The validated actor projection represents Stadiums as an array; treating
+  // the array itself as a card silently misses Jamming Tower suppression.
+  const stadiums = [o?.ownPublic?.stadium, o?.opponentPublic?.stadium];
+  const jamming = stadiums.some(value =>
+    /Jamming Tower/i.test(textOf(value)) ||
+    list(value).some(card => /Jamming Tower/i.test(textOf(card))));
+  const suppressedTurn = [o?.ownPublic, o?.opponentPublic].some(player =>
+    Number(player?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining) > 0);
+  return jamming || suppressedTurn;
 }
 function rank16LockLive(o) {
   return !rank16ToolSuppressed(o)&&slots(o?.ownPublic).some(row=>
