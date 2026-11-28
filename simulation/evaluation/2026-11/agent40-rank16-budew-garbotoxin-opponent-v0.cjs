@@ -70,10 +70,10 @@ function toolEnabled(o){
  const n=o?.ownPublic?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
  return n===null||n===undefined||n===0;
 }
-function garbotoxinStatus(o){
+function garbotoxinStatusForSide(o,player){
  if(!toolEnabled(o))return 'inactive';
  let unknown=false;
- for(const {pokemon:p} of slots(o.ownPublic)){
+ for(const {pokemon:p} of slots(player)){
   if(!match(p.printing,PRINT.garbodor)||list(p.tools).length===0)continue;
   const suppression=list(p.abilitySuppressions).find(x=>x.abilityName==='Garbotoxin');
   if(suppression?.suppressed===false)return 'live';
@@ -81,8 +81,14 @@ function garbotoxinStatus(o){
  }
  return unknown?'unknown':'inactive';
 }
+function garbotoxinStatus(o){return garbotoxinStatusForSide(o,o.ownPublic);}
+function opponentGarbotoxinStatus(o){return garbotoxinStatusForSide(o,o.opponentPublic);}
 function liveGarbotoxin(o){return garbotoxinStatus(o)==='live';}
-function usableOwnAbilities(o){return garbotoxinStatus(o)==='inactive';}
+function usableOwnAbilities(o){
+ // Either equipped Garbodor shuts off Rule-Box draw / Star Alchemy.
+ // Unknown opposing suppression must not be treated as safely inactive.
+ return garbotoxinStatus(o)==='inactive'&&opponentGarbotoxinStatus(o)==='inactive';
+}
 function activeOpponentAbilityWorking(o,printing,abilityName){
  const p=o.opponentPublic?.active;
  if(!match(p?.printing,printing))return false;
@@ -99,7 +105,7 @@ function opponentLockAbilityLive(o,pokemon,abilityName){
   /^Stealthy Hood UNB 186\b/i.test(name(x)));
  // Once our own equipped Garbotoxin is confirmed active it suppresses
  // the opponent's automatic lock except where Stealthy Hood protects it.
- return !(liveGarbotoxin(o)&&!hood);
+ return !((liveGarbotoxin(o)||opponentGarbotoxinStatus(o)==='live')&&!hood);
 }
 function opponentVileplumeItemLock(o){
  const explicit=o.ownPublic?.publicTurnRestrictions?.itemPlayLocked===true;
@@ -991,4 +997,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,prizeYield,activeMimikyuSafeguard,regidragoPayloadCount,karenOwnRecoveryScore,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,drawSupporterScore,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,liveGarbotoxin};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,prizeYield,activeMimikyuSafeguard,regidragoPayloadCount,karenOwnRecoveryScore,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,drawSupporterScore,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,opponentGarbotoxinStatus,liveGarbotoxin};
