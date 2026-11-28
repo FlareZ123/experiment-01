@@ -501,3 +501,62 @@ for (const seat of [0, 1]) {
     }
   });
 }
+
+
+// Aichi rank 3 contains precisely two Water Energy. Exercise both actual
+// objects and both full-card indices in the same native MoveEnergyPrompt; a
+// single-transfer green result would not catch index shifting or aliasing.
+for (const seat of [0, 1]) {
+  for (const zeroHook of [false, true]) {
+    test('rank3 native two Water Energy objects transfer together, seat ' + seat +
+      ', zeroHook=' + zeroHook, () => {
+      const scene = fixture(seat);
+      const extra = initializeCards().getCardByName('Water Energy SVE');
+      assert.ok(extra, 'pinned additional Water Energy missing');
+      extra.id = 8900 + seat;
+      scene.actor.active.cards.push(extra);
+      scene.actor.active.energies.cards.push(extra);
+      const restore = zeroHook ? installArticunoZeroMovementPromptHook() : null;
+      try {
+        const playIndex = scene.actor.hand.cards.indexOf(scene.articuno);
+        scene.store.dispatch(new PlayCardAction(scene.actor.id, playIndex, {
+          player: PlayerType.BOTTOM_PLAYER, slot: SlotType.BENCH, index: 0
+        }));
+        const confirm = projectAndDecide(scene);
+        assert.equal(confirm.projection.choiceByToken.get(confirm.decision.token), true);
+        dispatchPromptChoice({
+          store: scene.store, prompt: confirm.prompt, state: scene.store.state,
+          actorSeat: seat, projection: confirm.projection,
+          decision: confirm.decision, native: bindings
+        });
+        assert.equal(scene.actor.active.getPokemonCard(), scene.articuno);
+        assert.deepEqual(scene.actor.bench[0].energies.cards, [scene.water, extra]);
+        const move = projectAndDecide(scene);
+        assert.equal(move.prompt.constructor.name, 'MoveEnergyPrompt');
+        assert.equal(move.prompt.options.min, zeroHook ? 0 : 1);
+        assert.equal(move.decision.kind, 'select-choices');
+        assert.equal(move.decision.tokens.length, 2);
+        const raw = move.decision.tokens.map(t => move.projection.choiceByToken.get(t));
+        assert.deepEqual(raw.map(item => item.index), [1, 2],
+          'each raw index must address the physical CardList.cards, not energies ordinal');
+        const resolved = dispatchPromptChoice({
+          store: scene.store, prompt: move.prompt, state: scene.store.state,
+          actorSeat: seat, projection: move.projection,
+          decision: move.decision, native: bindings
+        });
+        assert.equal(resolved.decoded.length, 2);
+        assert.deepEqual(scene.actor.active.energies.cards, [scene.water, extra]);
+        assert.equal(scene.actor.bench[0].energies.cards.length, 0);
+        scene.store.dispatch(new AttackAction(scene.actor.id, 'Cold Crush-GX'));
+        assert.equal(scene.actor.usedGX, true);
+        assert.equal(scene.actor.active.energies.cards.length, 0);
+        assert.equal(scene.opponent.active.energies.cards.length, 0);
+        assert.ok(scene.actor.discard.cards.includes(scene.water));
+        assert.ok(scene.actor.discard.cards.includes(extra));
+      } finally {
+        scene.provenanceHook.restore();
+        if (restore) restore();
+      }
+    });
+  }
+}
