@@ -83,7 +83,8 @@ test('Crispin attach refuses non-Active or ambiguous Grass assignment',()=>{
 });
 test('Crispin search rejects source/protocol/owner/scope mismatches',()=>{
   const mutators=[
-    r=>{r.seat=1;},r=>{r.prompt.source.effectName='Other';},
+    r=>{r.seat=1;},r=>{r.role='candidate';},
+    r=>{r.prompt.source.effectName='Other';},
     r=>{r.prompt.source.sourcePrinting='Crispin OTHER';},
     r=>{r.prompt.publicMetadata.maximumCount=3;},
     r=>{r.prompt.publicMetadata.isOwnerVisible=false;},
