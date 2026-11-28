@@ -17,7 +17,7 @@ const own=read('agent22-newmoon-v3-countercatcher-worker.cjs');
 const outPath=path.join(here,'agent22-newmoon-v3-countercatcher-worker-standalone.cjs');
 const v2Need="const oldSetup=require('./agent1-newmoon-v2-jammer-decision.cjs');";
 const v3Need="const parent=require('./agent1-newmoon-v3-finisher-slice.cjs');";
-const seqNeed="const {createSlice}=require('./agent22-newmoon-countercatcher-actor-sequence.cjs');";
+const seqNeed="const {createSlice,visiblePrintedDuoDamage}=require('./agent22-newmoon-countercatcher-actor-sequence.cjs');";
 const replaceOnce=(txt,needle,value)=>{
  if(txt.split(needle).length!==2)throw Error('BUNDLE_SOURCE_CONTRACT_DRIFT: '+needle);
  return txt.replace(needle,value);
@@ -34,7 +34,7 @@ const v3Standalone=replaceOnce(v3,v2Need,
  'const oldSetup='+scoped('v2 setup',v2)+';');
 const ownStandalone=replaceOnce(
  replaceOnce(own,v3Need,'const parent='+scoped('v3 parent',v3Standalone)+';'),
- seqNeed,'const {createSlice}='+scoped('countercatcher sequence',seq)+';');
+ seqNeed,'const {createSlice,visiblePrintedDuoDamage}='+scoped('countercatcher sequence',seq)+';');
 if(/require\s*\(/.test(ownStandalone))
  throw Error('BUNDLE_UNEXPECTED_RUNTIME_REQUIRE');
 fs.writeFileSync(outPath,ownStandalone,'utf8');
