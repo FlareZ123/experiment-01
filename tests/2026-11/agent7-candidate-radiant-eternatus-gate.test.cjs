@@ -94,6 +94,23 @@ for(const seat of [0,1]){
     assert.deepEqual(picks,{kind:'select-choices',tokens:['first','second']});
     assert.deepEqual(protocol.validateDecision(picks,selection,new Set()),picks);
   });
+  test('direct Gate VMAX does not masquerade as Basic V for Bench backup, seat='+seat,()=>{
+    const {policy,request,view}=setup(seat,{globalTurn:5,
+      active:target('Mimikyu GRI 58')});
+    const max=target(VMAX,{subtypes:['VMAX','V']});
+    view.ownPublic.bench=[max,target(VMAX,{subtypes:['VMAX','V']})];
+    view.ownHand=[V];
+    request.actionFrontier.items=[
+      {token:'v-backup',kind:'play-card',actorPrinting:V,
+        targetPrinting:V,publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:2}},
+      {token:'pass',kind:'pass'}
+    ];
+    assert.deepEqual(policy.decide(request),
+      {kind:'select-action',token:'v-backup'});
+    // A genuine Basic V already established is different; conserve Bench.
+    view.ownPublic.bench.push(target(V,{subtypes:['Basic','V']}));
+    assert.deepEqual(policy.decide(request),{kind:'select-action',token:'pass'});
+  });
   test('source-or-effect spoofing rejected, seat='+seat,()=>{
     const {policy,request,view}=setup(seat);
     view.decisionKind='owner-prompt';
