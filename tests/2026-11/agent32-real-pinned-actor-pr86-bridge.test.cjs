@@ -80,6 +80,10 @@ for(const seat of [0,1]){
     assert.equal(snorlax.stage,Stage.BASIC);
     replaceActive(x.owner,[snorlax]);
     x.owner.active.damage=70;
+    // Only rank3 source cards on the rank3 side: the generic Agent5 stage
+    // starts with Regidrago V, which is NOT in Aichi rank3's fixed 60.
+    x.owner.bench[1].cards.length=0;
+    x.owner.bench[1].cards.push(createCard(manager,'Galarian Stunfisk SSH'));
     // Non-Snorlax damaged Basic creates a truly executable Penny target.
     x.owner.bench[1].damage=50;
     x.owner.hand.cards.length=0;
@@ -172,6 +176,7 @@ for(const seat of [0,1]){
     assert.equal(printMap.get("Team Rocket's Handiwork FCO"),
       "Team Rocket's Handiwork FCO 112");
     assert.equal(printMap.get('Snorlax PGO'),'Snorlax PGO 55');
+    assert.equal(printMap.get('Galarian Stunfisk SSH'),'Galarian Stunfisk SSH 132');
     // Pinned source has *both* Tropical Beach printings: BWP 28 and
     // independently registered BWP 50. Source rank3 requests BWP 50,
     // which must retain its exact native ID, not collide with BWP 28.
@@ -244,7 +249,7 @@ for(const seat of [0,1]){
     assert.equal(chosePennyTarget,true);
     assert.equal(x.state.prompts.some(p=>p.result===undefined),false);
     assert.equal(x.owner.bench[1].cards.length,0);
-    assert.equal(x.owner.hand.cards.some(c=>c.fullName==='Regidrago V SIT'),true);
+    assert.equal(x.owner.hand.cards.some(c=>c.fullName==='Galarian Stunfisk SSH'),true);
 
   });
 }
