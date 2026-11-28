@@ -11,10 +11,15 @@ const source={cards:[
 ]};
 const ids=['Penny SVI',"Team Rocket's Handiwork FCO",
   ...Array(58).fill('Psychic Energy SVE')];
+// Both seats must be certified from complete source inventories. Even a
+// development opponent with only one printing needs a real 60-card map.
+const certifiedOpponentMap=buildSourcePrintingMap({cards:[
+  {name:'Psychic Energy',count:60,printing:{set:'SVE',number:'5'}}
+]},Array(60).fill('Psychic Energy SVE'));
 
 for(const seat of [0,1])test('source-60 projection actor seat '+seat,()=>{
   const verified=buildSourcePrintingMap(source,ids);
-  const opponent=new Map();
+  const opponent=certifiedOpponentMap;
   const maps=seat===0?[verified,opponent]:[opponent,verified];
   const view={actorSeat:seat,ownHand:['Penny SVI'],
     ownPublic:{active:{printing:'Psychic Energy SVE',
@@ -52,8 +57,8 @@ test('ambiguous or incomplete source mapping fails closed',()=>{
     /ambiguous source printings/);
   const view={actorSeat:0,ownHand:[],ownPublic:null,opponentPublic:null};
   assert.throws(()=>projectSourcePrintings(view,{items:[]},[
-    new Map([['Penny SVI','Penny SVI 183']]),new Map()]),
-    /nonempty source-printing map must be created/);
+    new Map([['Penny SVI','Penny SVI 183']]),certifiedOpponentMap]),
+    /source-printing map must be created/);
 });
 
 
@@ -72,7 +77,7 @@ test('source-projected receipt, prompt and K1 stay shape-safe',()=>{
     publicMetadata:{selectionType:'card-combination',ownerSeat:'actor'}};
   const frontier={schema:'fixture',items:[{kind:'play-card',token:'a',
     actorPrinting:'Penny SVI',publicMetadata:{cardType:'trainer'}}]};
-  const projected=projectSourcePrintings(view,frontier,[map,new Map()],{
+  const projected=projectSourcePrintings(view,frontier,[map,certifiedOpponentMap],{
     prompt,publicEventReceipt:receipt});
   assert.equal(projected.observation.ownPublic.active.printing,
     projected.publicEventReceipt.ownerActive.printing);
@@ -113,17 +118,17 @@ test('certified map is fail-closed against post-build mutations',()=>{
   const m=buildSourcePrintingMap(source,ids);
   const view={actorSeat:0,ownHand:['Penny SVI'],ownPublic:null,
     opponentPublic:null};
-  assert.equal(projectSourcePrintings(view,null,[m,new Map()])
+  assert.equal(projectSourcePrintings(view,null,[m,certifiedOpponentMap])
     .observation.ownHand[0],'Penny SVI 183');
   m.set('Penny SVI','INJECTED_CARD_NAME');
-  assert.throws(()=>projectSourcePrintings(view,null,[m,new Map()]),
-    /nonempty source-printing map must be created/);
+  assert.throws(()=>projectSourcePrintings(view,null,[m,certifiedOpponentMap]),
+    /source-printing map must be created/);
   m.set('Penny SVI','Penny SVI 183');
-  assert.equal(projectSourcePrintings(view,null,[m,new Map()])
+  assert.equal(projectSourcePrintings(view,null,[m,certifiedOpponentMap])
     .observation.ownHand[0],'Penny SVI 183');
   m.set('Forged Native','Penny SVI 183');
-  assert.throws(()=>projectSourcePrintings(view,null,[m,new Map()]),
-    /nonempty source-printing map must be created/);
+  assert.throws(()=>projectSourcePrintings(view,null,[m,certifiedOpponentMap]),
+    /source-printing map must be created/);
 });
 
 
@@ -170,7 +175,7 @@ test('admission wrapper validates both native and projected views before worker 
     actionFrontier:{items:[{token:'native-0',kind:'play-card',
       actorPrinting:'Penny SVI',publicMetadata:{}}]}
   };
-  const mapped=projectAdmittedWorkerParts(parts,[map,new Map()],policy);
+  const mapped=projectAdmittedWorkerParts(parts,[map,certifiedOpponentMap],policy);
   assert.deepEqual(order,[
     'view-Penny SVI','prompt','receipt','frontier-Penny SVI',
     'view-Penny SVI 183','prompt','receipt','frontier-Penny SVI 183'
@@ -178,7 +183,7 @@ test('admission wrapper validates both native and projected views before worker 
   assert.deepEqual(mapped.actionFrontier.items.map(x=>x.token),['native-0']);
   assert.throws(()=>projectAdmittedWorkerParts({...parts,
     observation:{...parts.observation,untrustedExtra:'secret'}},
-    [map,new Map()],policy));
+    [map,certifiedOpponentMap],policy));
 });
 
 
@@ -193,7 +198,7 @@ test('Copycat copied Night Watch is host-only before or after source relabel',()
       sourcePrinting:'Mimikyu GRI',effectName:'Copycat',
       copiedSourcePrinting,copiedAttackName:'Night Watch'},
       choices:[],publicMetadata:{selectionType:'card-combination'}};
-    assert.throws(()=>projectSourcePrintings(view,null,[map,new Map()],{prompt}),
+    assert.throws(()=>projectSourcePrintings(view,null,[map,certifiedOpponentMap],{prompt}),
       /HOST_ONLY_PHYSICAL_PROMPT/);
   }
   const nonNightWatch={source:{sourceKind:'card-effect',
@@ -201,7 +206,7 @@ test('Copycat copied Night Watch is host-only before or after source relabel',()
     copiedSourcePrinting:'Trevenant & Dusknoir-GX SMP',
     copiedAttackName:'Poltergeist'},
     choices:[],publicMetadata:{selectionType:'card-combination'}};
-  assert.equal(projectSourcePrintings(view,null,[map,new Map()],{
+  assert.equal(projectSourcePrintings(view,null,[map,certifiedOpponentMap],{
     prompt:nonNightWatch}).prompt.source.copiedAttackName,'Poltergeist');
 });
 
@@ -220,7 +225,7 @@ test('native pass and optional prompt choices keep exact JSON key sets',()=>{
       {token:'target',kind:'pokemon',printing:'Penny SVI',
         publicMetadata:{ownerSeat:'actor'}}],
     publicMetadata:{selectionType:'pokemon'}};
-  const after=projectSourcePrintings(view,frontier,[map,new Map()],{prompt});
+  const after=projectSourcePrintings(view,frontier,[map,certifiedOpponentMap],{prompt});
   assert.deepEqual(after.actionFrontier.items[0],{token:'pass',kind:'pass'});
   assert.deepEqual(after.actionFrontier.items[1],
     {token:'attack',kind:'attack',attackName:'Attack Name'});
@@ -331,7 +336,7 @@ test('native.observe source wrapper seals frozen view before driver digest',()=>
     assert.equal(seat,0);
     return raw;
   },sentinel:42};
-  const wrapped=wrapSourcePrintedObserver(native,[mine,new Map()],validator);
+  const wrapped=wrapSourcePrintedObserver(native,[mine,certifiedOpponentMap],validator);
   const observation=wrapped.observe({stage:'fixture'},0);
   assert.equal(calls,1);
   assert.equal(wrapped.sentinel,42);
@@ -344,7 +349,7 @@ test('native.observe source wrapper seals frozen view before driver digest',()=>
   assert.equal(Object.isFrozen(raw.ownPublic.active),false);
   const driverSha=sha(observation);
   const later=projectSourcePrintings(observation,{schema:'fixture',items:[]},
-    [mine,new Map()]).observation;
+    [mine,certifiedOpponentMap]).observation;
   assert.equal(sha(later),driverSha,
     'later frontier/receipt projection must not mutate the driver actor SHA');
   assert.equal(wrapped.observe({stage:'fixture'},0).ownHand[0],
@@ -634,4 +639,162 @@ test('V3 four-adapter producer is source-consistent while native actions and hos
   assert.equal(promptCalls,4);
   assert.equal(dispatchCalls,2);
   assert.equal(wrapped.promptProjection.resolveHostOnlyPrompt().action.native,true);
+});
+
+
+test('source-qualified global Stadium activation works for either player, fails closed on alias conflict',()=>{
+  const psychic={name:'Psychic Energy',count:60,
+    printing:{set:'SVE',number:'5'}};
+  const ownDeck={cards:[psychic]};
+  const otherDeck={cards:[
+    {name:'Tropical Beach',count:1,printing:{set:'BWP',number:'50'}},
+    {name:'Psychic Energy',count:59,printing:{set:'SVE',number:'5'}}
+  ]};
+  const mine=buildSourcePrintingMap(ownDeck,
+    Array(60).fill('Psychic Energy SVE'));
+  const other=buildSourcePrintingMap(otherDeck,
+    ['Tropical Beach BWP',...Array(59).fill('Psychic Energy SVE')]);
+  for(const seat of [0,1]){
+    const maps=seat===0?[mine,other]:[other,mine];
+    const view={actorSeat:seat,ownHand:[],
+      ownPublic:{active:null,bench:[],stadium:[],discard:[],lostZone:[]},
+      opponentPublic:{active:null,bench:[],stadium:['Tropical Beach BWP'],
+        discard:[],lostZone:[]}};
+    const frontier={schema:'aichi-action-frontier-v1',items:[
+      {token:'stadium',kind:'use-stadium',
+        actorPrinting:'Tropical Beach BWP',
+        publicMetadata:{stadiumEffectLive:true,
+          stadiumPrinting:'Tropical Beach BWP'}},
+      {token:'pass',kind:'pass'}
+    ]};
+    const actual=projectSourcePrintings(view,frontier,maps);
+    assert.equal(actual.observation.opponentPublic.stadium[0],
+      'Tropical Beach BWP 50');
+    assert.equal(actual.actionFrontier.items[0].actorPrinting,
+      'Tropical Beach BWP 50',
+      'actor may use a publicly visible opponent-owned Stadium');
+    assert.equal(actual.actionFrontier.items[0].publicMetadata.stadiumPrinting,
+      'Tropical Beach BWP 50');
+    assert.deepEqual(actual.actionFrontier.items[1],
+      {token:'pass',kind:'pass'});
+  }
+  const conflictingActorDeck={cards:[
+    {name:'Tropical Beach',count:1,printing:{set:'BWP',number:'51'}},
+    {name:'Psychic Energy',count:59,printing:{set:'SVE',number:'5'}}
+  ]};
+  const conflictingMine=buildSourcePrintingMap(conflictingActorDeck,
+    ['Tropical Beach BWP',...Array(59).fill('Psychic Energy SVE')]);
+  const ambiguous=projectSourcePrintings(
+    {actorSeat:0,ownHand:[],ownPublic:null,opponentPublic:null},
+    {schema:'aichi-action-frontier-v1',items:[
+      {token:'stadium',kind:'use-stadium',
+        actorPrinting:'Tropical Beach BWP',
+        publicMetadata:{stadiumEffectLive:true}}]},
+    [conflictingMine,other]);
+  assert.equal(ambiguous.actionFrontier.items[0].actorPrinting,
+    'Tropical Beach BWP',
+    'source-60 conflicting native ID must not be assigned to either art');
+  // A genuine globally visible Stadium CardList resolves the owner even
+  // when two authenticated source decks resolve different printings to the
+  // same engine ID. Test both pre-digest projected and raw observations.
+  for(const seat of [0,1]){
+    const maps=seat===0?[conflictingMine,other]:[other,conflictingMine];
+    for(const stamped of [false,true]){
+      const view={actorSeat:seat,ownHand:[],
+        ownPublic:{active:null,bench:[],stadium:[]},
+        opponentPublic:{active:null,bench:[],
+          stadium:[stamped?'Tropical Beach BWP 50':'Tropical Beach BWP']}};
+      const frontier={schema:'aichi-action-frontier-v1',items:[
+        {token:'stadium',kind:'use-stadium',
+          actorPrinting:'Tropical Beach BWP',
+          publicMetadata:{stadiumEffectLive:true,
+            stadiumPrinting:'Tropical Beach BWP'}}]};
+      const otherOwned=projectSourcePrintings(view,frontier,maps);
+      assert.equal(otherOwned.actionFrontier.items[0].actorPrinting,
+        'Tropical Beach BWP 50',
+        'opponent public Stadium zone is sufficient to resolve source owner');
+      assert.equal(otherOwned.actionFrontier.items[0].publicMetadata.stadiumPrinting,
+        'Tropical Beach BWP 50',
+        'Stadium metadata must agree with source-qualified action identity');
+      assert.equal(otherOwned.observation.opponentPublic.stadium[0],
+        'Tropical Beach BWP 50');
+      const ownView={actorSeat:seat,ownHand:[],
+        ownPublic:{active:null,bench:[],
+          stadium:[stamped?'Tropical Beach BWP 51':'Tropical Beach BWP']},
+        opponentPublic:{active:null,bench:[],stadium:[]}};
+      const ownerOwned=projectSourcePrintings(ownView,frontier,maps);
+      assert.equal(ownerOwned.actionFrontier.items[0].actorPrinting,
+        'Tropical Beach BWP 51',
+        'actor public Stadium zone resolves actor-owned printing');
+      assert.equal(ownerOwned.actionFrontier.items[0].publicMetadata.stadiumPrinting,
+        'Tropical Beach BWP 51',
+        'Stadium metadata must agree with actor-owned source-qualified action identity');
+    }
+  }
+
+});
+
+
+test('pinned native Tropical Beach BWP28 must retain authenticated Aichi BWP50 identity',()=>{
+  // At Twinleaf pin a9905a76, set-black-and-white-promos/tropical-beach.ts:
+  // fullName='Tropical Beach BWP', set='BWP', setNumber='28'. The authenticated
+  // Aichi ranks 3/6/29 label this playable card BWP 50 in their source 60.
+  const nativeClassCard={fullName:'Tropical Beach BWP',
+    name:'Tropical Beach',set:'BWP',setNumber:'28'};
+  const original={cards:[
+    {name:'Tropical Beach',count:1,printing:{set:'BWP',number:'50'}},
+    {name:'Psychic Energy',count:59,printing:{set:'SVE',number:'5'}}
+  ]};
+  const blank={cards:[{name:'Psychic Energy',count:60,
+    printing:{set:'SVE',number:'5'}}]};
+  const sourceOwner=buildSourcePrintingMap(original,
+    [nativeClassCard.fullName,...Array(59).fill('Psychic Energy SVE')]);
+  const sourceActor=buildSourcePrintingMap(blank,
+    Array(60).fill('Psychic Energy SVE'));
+  assert.notEqual(
+    [nativeClassCard.name,nativeClassCard.set,nativeClassCard.setNumber].join(' '),
+    'Tropical Beach BWP 50',
+    'raw native metadata cannot be treated as original source printing');
+  for(const seat of [0,1]){
+    const maps=seat===0?[sourceActor,sourceOwner]:[sourceOwner,sourceActor];
+    const publicView={actorSeat:seat,ownHand:[],
+      ownPublic:{active:null,bench:[],stadium:[]},
+      opponentPublic:{active:null,bench:[],stadium:[nativeClassCard.fullName]}};
+    const nativeFrontier={schema:'aichi-action-frontier-v1',items:[
+      {kind:'use-stadium',token:'beach',actorPrinting:nativeClassCard.fullName,
+        publicMetadata:{stadiumEffectLive:true,
+          stadiumPrinting:nativeClassCard.fullName}},
+      {kind:'pass',token:'pass'}
+    ]};
+    const mapped=projectSourcePrintings(publicView,nativeFrontier,maps);
+    assert.equal(mapped.observation.opponentPublic.stadium[0],
+      'Tropical Beach BWP 50');
+    assert.equal(mapped.actionFrontier.items[0].actorPrinting,
+      'Tropical Beach BWP 50');
+    assert.equal(mapped.actionFrontier.items[0].publicMetadata.stadiumPrinting,
+      'Tropical Beach BWP 50');
+    assert.notEqual(mapped.actionFrontier.items[0].actorPrinting,
+      'Tropical Beach BWP 28');
+    assert.equal(nativeClassCard.fullName,'Tropical Beach BWP',
+      'source projection must never mutate native executable identity');
+  }
+});
+
+
+test('uncertified empty and copied maps are refused in both physical seats',()=>{
+  const real=buildSourcePrintingMap(source,ids);
+  for(const seat of [0,1]){
+    const view={actorSeat:seat,ownHand:['Penny SVI'],
+      ownPublic:null,opponentPublic:null};
+    const maps=seat===0?[real,new Map()]:[new Map(),real];
+    assert.throws(()=>projectSourcePrintings(view,null,maps),
+      /source-printing map must be created/);
+    const cloned=new Map(certifiedOpponentMap);
+    const copies=seat===0?[real,cloned]:[cloned,real];
+    assert.throws(()=>projectSourcePrintings(view,null,copies),
+      /source-printing map must be created/);
+    assert.equal(projectSourcePrintings(view,null,
+      seat===0?[real,certifiedOpponentMap]:[certifiedOpponentMap,real])
+      .observation.ownHand[0],'Penny SVI 183');
+  }
 });

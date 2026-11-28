@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const certifiedMaps=new WeakMap();
 function certifiedMapUnchanged(map){
   if(!(map instanceof Map))return false;
-  if(map.size===0)return true;
+  // No uncertified empty-map bypass: both physical seats require a full source 60.
   const snap=certifiedMaps.get(map);
   return snap instanceof Map&&snap.size===map.size&&[...snap].every(
     ([nativePrinting,sourcePrinting])=>map.get(nativePrinting)===sourcePrinting);
@@ -138,6 +138,24 @@ function mapPrompt(prompt,mine,other){
         sourcePrinting:uniqueVisibleLabel(
           prompt.publicMetadata.sourcePrinting,mine,other)}:{})}:prompt.publicMetadata};
 }
+/**
+ * A globally playable Stadium belongs to the player whose Stadium CardList
+ * currently holds it, not necessarily to the player choosing USE_STADIUM.
+ * This ownership is public in the raw actor view (and remains so after an
+ * earlier pre-digest source-print projection). Use it to resolve otherwise
+ * ambiguous shared native IDs without revealing either player's hidden zones.
+ */
+function stadiumActionPrinting(nativeId,view,mine,other){
+  const visibleIn=(source,mapping)=>Array.isArray(source?.stadium)&&
+    source.stadium.some(value=>
+      value===nativeId||value===label(nativeId,mapping));
+  const own=visibleIn(view?.ownPublic,mine);
+  const opp=visibleIn(view?.opponentPublic,other);
+  if(own&&!opp)return label(nativeId,mine);
+  if(opp&&!own)return label(nativeId,other);
+  return uniqueVisibleLabel(nativeId,mine,other);
+}
+
 function mapOwnerK1(snapshot,map){
   if(!snapshot)return snapshot;
   return {...snapshot,knownPrintings:Array.isArray(snapshot.knownPrintings)?
@@ -149,7 +167,7 @@ function projectSourcePrintings(observation,frontier,sourceMapsBySeat,options={}
   assert.ok(observation?.actorSeat===0||observation?.actorSeat===1);
   assert.ok(Array.isArray(sourceMapsBySeat)&&sourceMapsBySeat.length===2);
   assert.ok(sourceMapsBySeat.every(m=>certifiedMapUnchanged(m)),
-    'nonempty source-printing map must be created from a complete resolved 60');
+    'source-printing map must be created from a complete resolved 60');
   const seat=observation.actorSeat;
   const mine=sourceMapsBySeat[seat],other=sourceMapsBySeat[1-seat];
   const view={...observation,
@@ -166,14 +184,22 @@ function projectSourcePrintings(observation,frontier,sourceMapsBySeat,options={}
         m.targetSeat==='opponent'?other:null;
       return {...item,
         ...(Object.hasOwn(item,'actorPrinting')?{
-          actorPrinting:label(item.actorPrinting,mine)}:{}),
+          // A globally playable Stadium effect can originate from either
+          // player's source 60. Never attribute an opponent-owned Stadium
+          // to the acting player's card inventory; conflicting print IDs
+          // remain raw rather than guessing who physically played it.
+          actorPrinting:item.kind==='use-stadium'
+            ? stadiumActionPrinting(item.actorPrinting,observation,mine,other)
+            : label(item.actorPrinting,mine)}:{}),
         ...(Object.hasOwn(item,'targetPrinting')?{
           targetPrinting:label(item.targetPrinting,targetMap)}:{}),
         ...(Object.hasOwn(item,'publicMetadata')?{publicMetadata:item.publicMetadata?{...m,
           ...(typeof m.priorSourcePrinting==='string'?{
             priorSourcePrinting:label(m.priorSourcePrinting,other)}:{}),
           ...(typeof m.stadiumPrinting==='string'?{
-            stadiumPrinting:uniqueVisibleLabel(m.stadiumPrinting,mine,other)}:{}),
+            stadiumPrinting:item.kind==='use-stadium'
+              ? stadiumActionPrinting(m.stadiumPrinting,observation,mine,other)
+              : uniqueVisibleLabel(m.stadiumPrinting,mine,other)}:{}),
           ...(m.attackSource?{attackSource:{...m.attackSource,
             ...(Object.hasOwn(m.attackSource,'sourceCardFullName')?{
               sourceCardFullName:label(m.attackSource.sourceCardFullName,mine)}:{})}}:{})
