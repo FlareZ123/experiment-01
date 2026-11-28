@@ -90,7 +90,10 @@ const PUBLIC_ABORT = Object.freeze({
   R30_MAIL_NO_USEFUL_CARD:'NO_LEGAL_CARD_SET',
   R30_ULTRA_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
   R30_ULTRA_PAYMENT_UNAVAILABLE:'NO_LEGAL_CARD_SET',
-  R30_ULTRA_NO_POKEMON:'NO_LEGAL_CARD_SET'
+  R30_ULTRA_NO_POKEMON:'NO_LEGAL_CARD_SET',
+  R30_ENGINE_SETUP_UNSUPPORTED:'UNSUPPORTED_PROMPT_TYPE',
+  R30_ENGINE_SETUP_NO_BASIC:'NO_LEGAL_CARD_SET',
+  R30_ENGINE_SETUP_NO_EMPTY:'NO_LEGAL_CARD_SET'
 });
 const no = reasonCode => ({kind:'abstain',reasonCode:PUBLIC_ABORT[reasonCode]??reasonCode});
 const act = x => ({kind:'select-action',token:x.token});
@@ -863,6 +866,97 @@ function bestManualPsychicAttachment(items,o) {
   return rows[0]?.item??null;
 }
 
+function startingActiveRank(printing) {
+  if(has(printing,P.clefairy))return 120;
+  if(/^Latias ex SSP(?: 76)?\b/i.test(text(printing)))return 110;
+  if(has(printing,P.unown))return 85;
+  if(has(printing,P.minior))return 75;
+  if(has(printing,P.mimikyu))return 70;
+  if(/^Empoleon V BST(?: 40)?\b/i.test(text(printing)))return 60;
+  if(/^Crobat V DAA(?: 104)?\b/i.test(text(printing)))return 55;
+  if(/^Dedenne-GX UNB(?: 57)?\b/i.test(text(printing)))return 50;
+  if(/^Squawkabilly ex PAL(?: 169)?\b/i.test(text(printing)))return 45;
+  if(/^Fezandipiti ex ASC(?: 142)?\b/i.test(text(printing)))return 40;
+  return 1;
+}
+function startingBenchRank(printing) {
+  if(has(printing,P.clefairy))return 120;
+  if(/^Latias ex SSP(?: 76)?\b/i.test(text(printing)))return 115;
+  if(has(printing,P.unown))return 75;
+  // Draw-on-play support Pokémon should not be inert setup Bench liabilities.
+  // Minior, Mimikyu and Dialga are conditional ALS resources; retain in hand.
+  return 0;
+}
+function rank30EngineSetupPrompt(request) {
+  const p=request.prompt,o=request.observation,m=p?.publicMetadata??{};
+  if(o?.phase!==1||p?.source?.sourceKind!=='engine'||
+     p.source.sourcePrinting!==null||
+     p.source.classification!=='actor-choice')return no('R30_ENGINE_SETUP_UNSUPPORTED');
+  if(p.promptType==='ChooseCardsPrompt'&&
+     p.source.effectName==='CHOOSE_STARTING_POKEMONS'&&
+     p.description==='CHOOSE_STARTING_POKEMONS') {
+    if(m.selectionType!=='card-combination'||m.sourceZone!=='hand'||
+       m.ownerSeat!=='actor'||m.isOwnerVisible!==true||
+       !safeInt(m.minimumCount)||!safeInt(m.maximumCount)||
+       m.minimumCount>m.maximumCount||m.maximumCount>7)
+       return no('R30_ENGINE_SETUP_UNSUPPORTED');
+    const cards=arr(p.choices).filter(c=>c.kind==='card'&&
+      typeof c.token==='string'&&
+      c.publicMetadata?.sourceZone==='hand'&&
+      c.publicMetadata?.ownerSeat==='actor'&&
+      c.publicMetadata?.isOwnerVisible===true&&
+      startingActiveRank(c)>0);
+    const availableBench=Math.max(0,5-benchCount(o.ownPublic));
+    if(m.minimumCount===1&&o.ownPublic?.active===null) {
+      const choices=cards.slice().sort((a,b)=>
+        startingActiveRank(b)-startingActiveRank(a));
+      if(!choices.length)return no('R30_ENGINE_SETUP_NO_BASIC');
+      const first=choices[0];
+      const others=choices.slice(1)
+        .filter(c=>startingBenchRank(c)>0)
+        .sort((a,b)=>startingBenchRank(b)-startingBenchRank(a));
+      const selected=[first,...others.slice(0,availableBench)];
+      if(selected.length>m.maximumCount)selected.length=m.maximumCount;
+      return picks(selected);
+    }
+    if(m.minimumCount===0&&o.ownPublic?.active!==null) {
+      const selected=cards.filter(c=>startingBenchRank(c)>0)
+        .sort((a,b)=>startingBenchRank(b)-startingBenchRank(a))
+        .slice(0,Math.min(availableBench,m.maximumCount));
+      if(selected.length)return picks(selected);
+      const empty=arr(p.choices).find(c=>
+        c.kind==='empty-selection'&&typeof c.token==='string');
+      return empty?{kind:'select-choice',token:empty.token}:
+        no('R30_ENGINE_SETUP_NO_EMPTY');
+    }
+    return no('R30_ENGINE_SETUP_UNSUPPORTED');
+  }
+  if(p.promptType==='ConfirmPrompt'&&p.source.effectName==='GO_FIRST'&&
+     p.description==='GO_FIRST'&&m.selectionType==='confirm') {
+    // First-player default preserves the earliest setup and manual attachment.
+    const yes=arr(p.choices).find(c=>c.kind==='confirm'&&
+      /^yes$/i.test(c.label??'')&&typeof c.token==='string');
+    return yes?{kind:'select-choice',token:yes.token}:
+      no('R30_ENGINE_SETUP_UNSUPPORTED');
+  }
+  if(p.promptType==='SelectPrompt'&&
+     p.source.effectName==='WANT_TO_DRAW_CARDS'&&
+     p.description==='WANT_TO_DRAW_CARDS'&&m.selectionType==='option'&&
+     safeInt(m.count)) {
+    const options=arr(p.choices).filter(c=>c.kind==='option'&&
+      typeof c.token==='string');
+    const ranked=options.map(c=>{
+      const match=/^Draw (\d+) card\(s\)$/i.exec(c.label??'');
+      const index=c.publicMetadata?.choiceIndex;
+      return {c,draw:match?Number(match[1]):-1,index};
+    }).filter(x=>x.draw>=0&&safeInt(x.index)&&x.index<m.count);
+    ranked.sort((a,b)=>b.draw-a.draw||a.index-b.index);
+    return ranked.length?{kind:'select-choice',token:ranked[0].c.token}:
+      no('R30_ENGINE_SETUP_UNSUPPORTED');
+  }
+  return no('R30_ENGINE_SETUP_UNSUPPORTED');
+}
+
 function rootDecision(request,{enablePatchProjection=false}={}) {
   const o=request.observation, items=availableCards(request);
   if(!items.length)return no('R30_NO_OFFERED_ROOT');
@@ -980,6 +1074,8 @@ function createPolicy({role,seat,policyVersion,config}) {
     if(!request.observation?.ownPublic||!request.observation?.opponentPublic||
        !Array.isArray(request.observation?.ownHand))return no('R30_OBSERVATION_INCOMPLETE');
     if(request.prompt!==null){
+      if(request.prompt?.source?.sourceKind==='engine')
+        return rank30EngineSetupPrompt(request);
       if(sameSource(request.prompt,P.box))return boxPrompt(request);
       if(sameSource(request.prompt,P.ultra))return ultraBallPrompt(request);
       if(sameSource(request.prompt,P.quickBall))return quickBallPrompt(request);
@@ -1003,4 +1099,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
+  rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
