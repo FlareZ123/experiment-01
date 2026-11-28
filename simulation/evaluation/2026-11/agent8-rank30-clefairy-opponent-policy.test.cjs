@@ -13,7 +13,8 @@ const root=(kind,name,token,meta={})=>({kind,actorPrinting:name,token,publicMeta
 const card=(name,token)=>({kind:'card',printing:name,token});
 function request(seat=0) {
   return {role:'opponent',seat,prompt:null,
-    observation:{actorSeat:seat,globalTurn:4,ownHand:[],ownTurnResources:{vstarUsed:false,supporterPlayedTurn:0},
+    publicEventReceipt:{actorSeat:seat,turn:4,priorOpponentTurnKO:{turn:3,any:true,byAttack:true}},
+    observation:{actorSeat:seat,globalTurn:4,decisionKind:'owner-root',ownHand:[],ownTurnResources:{vstarUsed:false,supporterPlayedTurn:0},
       ownPublic:{active:{printing:clef,hp:190,damage:0,energies:[psychic,psychic]},
         bench:[],discard:[],stadium:[],prizeCount:3,deckCount:23},
       opponentPublic:{active:{printing:'Shadow Rider Calyrex VMAX CRE 75',hp:320,damage:0},
@@ -1527,5 +1528,70 @@ for(const seat of [0,1]) {
     r.observation.ownPublic.bench.pop();
     r.observation.ownTurnResources.pokemonPlayLocked=true;
     assert.equal(policy(seat).decide(r).reasonCode,'NO_LEGAL_CARD_SET');
+  });
+}
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' Raihan root requires a fresh KO, Basic Energy, and a charged Clefairy target',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active={printing:clef,energies:[psychic]};
+    r.observation.ownPublic.discard=[psychic];
+    r.observation.ownHand=['Raihan EVS 152'];
+    r.actionFrontier.items=[root('play-card','Raihan EVS 152','raihan'),
+      root('pass','','pass')];
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'raihan'});
+    r.publicEventReceipt.priorOpponentTurnKO.turn=2;
+    assert.notDeepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'raihan'});
+    r.publicEventReceipt.priorOpponentTurnKO={any:true,byAttack:true};
+    assert.notDeepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'raihan'});
+    r.publicEventReceipt.priorOpponentTurnKO={turn:3,any:true,byAttack:true};
+    r.observation.ownPublic.discard=[];
+    assert.notDeepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'raihan'});
+  });
+  test('seat '+seat+' Raihan attach chooses Basic Psychic for a Clefairy attack target',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active={printing:clef,energies:[psychic]};
+    r.observation.ownPublic.bench=[b(clef)];
+    r.prompt={
+      promptType:'AttachEnergyPrompt',
+      source:{sourcePrinting:'Raihan EVS 152',effectName:'Raihan'},
+      publicMetadata:{selectionType:'energy-attachment',ownerSeat:'actor',
+        isOwnerVisible:true,sourceZone:'discard',minimumCount:1,maximumCount:1},
+      choices:[
+        {kind:'energy',printing:psychic,token:'active-energy',
+          publicMetadata:{sourceZone:'discard',ownerSeat:'actor',
+            isOwnerVisible:true,targetZone:'active',targetSeat:'actor'}},
+        {kind:'energy',printing:psychic,token:'bench-energy',
+          publicMetadata:{sourceZone:'discard',ownerSeat:'actor',
+            isOwnerVisible:true,targetZone:'bench',benchIndex:0,targetSeat:'actor'}}
+      ]
+    };
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choice',token:'active-energy'});
+  });
+  test('seat '+seat+' Raihan deck search takes fresh Fez when hand is small',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active={printing:clef,energies:[psychic,psychic]};
+    r.observation.ownHand=[];
+    r.prompt={
+      promptType:'ChooseCardsPrompt',
+      source:{sourcePrinting:'Raihan EVS 152',effectName:'Raihan'},
+      publicMetadata:{selectionType:'card-combination',ownerSeat:'actor',
+        isOwnerVisible:true,sourceZone:'deck',minimumCount:1,maximumCount:1},
+      choices:[
+        card('Fezandipiti ex ASC 142','fez'),
+        card('Latias ex SSP 76','latias'),
+        card('Guzma BUS 115','guzma')
+      ]
+    };
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choices',tokens:['fez']});
+    r.publicEventReceipt.priorOpponentTurnKO.turn=2;
+    assert.equal(policy(seat).decide(r).reasonCode,'UNSUPPORTED_CARD_COMBINATION_SOURCE');
   });
 }
