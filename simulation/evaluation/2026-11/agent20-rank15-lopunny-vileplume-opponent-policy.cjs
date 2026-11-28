@@ -61,12 +61,20 @@ const P = Object.freeze({
   artazon:/^Artazon PAL(?: 171)?\b/i,
   pathPeak:/^Path to the Peak CRE(?: 148)?\b/i,
   silentLab:/^Silent Lab PRC(?: 140)?\b/i,
-  thorns:/^Iron Thorns ex TWM(?: 77)?\b/i,
+  thorns:/^Iron Thorns ex TEF(?: 77)?\b/i,
+  galarianWeezing:/^Galarian Weezing RCL(?: 113)?\b/i,
+  wobbuffet:/^Wobbuffet PHF(?: 36)?\b/i,
+  klefki:/^Klefki SVI(?: 96)?\b/i,
+  alolanMuk:/^Alolan Muk SUM(?: 58)?\b/i,
+  garbotoxinGarbodor:/^Garbodor (?:BKP(?: 57)?|DRX(?: 54)?)\b/i,
   grass:/^Grass Energy (?:(?:MEE(?: 9)?)|(?:BLW(?: 105)?)|(?:BW(?: 105)?))\b/i,
   hood:/^Stealthy Hood UNB(?: 186)?\b/i,
   floatStone:/^Float Stone BKT(?: 137)?\b/i,
   powerful:/^Powerful Colorless Energy DAA(?: 176)?\b/i,
   choiceBelt:/^Choice Belt PAL(?: 176)?\b/i,
+  legacy:/^Legacy Energy TWM(?: 167)?\b/i,
+  lifeDew:/^Life Dew PLF(?: 107)?\b/i,
+  islandAmulet:/^Island Challenge Amulet CEC(?: (?:194|265))?\b/i,
   mimikyu:/^Mimikyu GRI(?: 58)?\b/i,
   girafarig:/^Girafarig LOT(?: 94)?\b/i,
   valley:/^Dimension Valley PHF(?: 93)?\b/i
@@ -83,23 +91,46 @@ const playable = item => ['attack','play-card','retreat','use-ability','use-stad
 const take = item => ({kind:'select-action',token:item.token});
 const abstain = reasonCode => ({kind:'abstain',reasonCode});
 
-function templeSuppressesSpecialEnergy(o) {
-  const stadium=[...arr(o?.ownPublic?.stadium),...arr(o?.opponentPublic?.stadium)];
-  const temple=stadium.some(x=>/^Temple of Sinnoh ASR(?: 155)?\b/i.test(txt(x)));
-  if(!temple)return false;
-  // The host's own restriction projection reports cases where Stadium and
-  // Tool effects are temporarily suppressed. Do not enforce a muted Temple.
-  const muted=[o?.ownPublic,o?.opponentPublic].some(p=>{
+function stadiumAndToolEffectsMuted(o) {
+  return [o?.ownPublic,o?.opponentPublic].some(p=>{
     const turns=p?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
     return Number.isSafeInteger(turns)&&turns>0;
   });
-  return !muted;
 }
-function sourcePrizeValue(pokemon) {
+function templeSuppressesSpecialEnergy(o) {
+  const stadium=[...arr(o?.ownPublic?.stadium),...arr(o?.opponentPublic?.stadium)];
+  const temple=stadium.some(x=>/^Temple of Sinnoh ASR(?: 155)?\b/i.test(txt(x)));
+  return temple&&!stadiumAndToolEffectsMuted(o);
+}
+function toolEffectsSuppressed(o) {
+  // The global restriction mutes BOTH Stadium and Tool effects. It may
+  // silence Jamming Tower, but it still directly silences Choice Belt/Hood.
+  const stadium=[...arr(o?.ownPublic?.stadium),...arr(o?.opponentPublic?.stadium)];
+  return stadiumAndToolEffectsMuted(o)||
+    stadium.some(x=>/^Jamming Tower\b/i.test(txt(x)));
+}
+function sourcePrizeValue(pokemon,o) {
   const p=txt(pokemon);
-  if (/^Mega .* ex\b/i.test(p)||/\bVMAX\b/i.test(p)) return 3;
-  if (/\b(?:ex| VSTAR| V|GX|EX)\b/i.test(p)||/-GX\b/i.test(p)) return 2;
-  return 1;
+  const subtypes=arr(pokemon?.printed?.subtypes);
+  const tagTeam=/&.+-GX\b/i.test(p)||subtypes.some(x=>
+    /^TAG[ _-]?TEAM$/i.test(String(x)));
+  const vunion=/\bV-UNION\b/i.test(p)||subtypes.some(x=>
+    /^V[ _-]?UNION$/i.test(String(x)));
+  // Paper Expanded includes three-Prize TAG TEAM-GX and Pokémon V-UNION,
+  // not just VMAX and Mega Evolution ex.
+  const normal=tagTeam||vunion||/^Mega .* ex\b/i.test(p)||/\bVMAX\b/i.test(p)?3:
+    /\b(?:ex| VSTAR| V|GX|EX)\b/i.test(p)||/-GX\b/i.test(p)?2:1;
+  // The actor's public state does not prove that Legacy's once-per-game
+  // Prize discount was already spent. Assume a live copy still applies.
+  const activeLegacy=arr(pokemon?.energies).some(x=>has(x,P.legacy))&&
+    !templeSuppressesSpecialEnergy(o);
+  const activeTools=arr(pokemon?.tools);
+  const liveTools=!toolEffectsSuppressed(o);
+  const lifeDew=liveTools&&activeTools.some(x=>has(x,P.lifeDew));
+  // Island Challenge Amulet affects Pokémon-GX only, never Pokémon-EX.
+  const island=liveTools&&/(?:-GX\b| GX\b)/i.test(p)&&
+    activeTools.some(x=>has(x,P.islandAmulet));
+  return Math.max(0,normal-Number(activeLegacy)-Number(lifeDew)-Number(island));
 }
 function movementEvidence(request) {
   const o=request.observation, r=request.publicEventReceipt;
@@ -108,12 +139,12 @@ function movementEvidence(request) {
   return typeof r.ownerActive.movedFromBenchToActiveThisTurn==='boolean' ?
     r.ownerActive.movedFromBenchToActiveThisTurn:null;
 }
-function applyColorlessWeaknessResistance(base,target) {
-  if(!Number.isFinite(base)||base<0)return null;
+function applyTypedWeaknessResistance(base,target,attackerType) {
+  if(!Number.isFinite(base)||base<0||!attackerType)return null;
   let damage=base;
   for(const row of arr(target?.printed?.weakness)){
     const type=typeof row==='string'?row:row?.type;
-    if(type!=='Colorless')continue;
+    if(type!==attackerType)continue;
     const val=String(row?.value??'');
     const mul=/^[x×*]([2-9])$/.exec(val);
     const plus=/^\+([1-9]\d*)$/.exec(val);
@@ -123,12 +154,23 @@ function applyColorlessWeaknessResistance(base,target) {
   }
   for(const row of arr(target?.printed?.resistance)){
     const type=typeof row==='string'?row:row?.type;
-    if(type!=='Colorless')continue;
+    if(type!==attackerType)continue;
     const value=String(row?.value??'');
     if(!/^-[1-9]\d*$/.test(value))return null;
     damage=Math.max(0,damage+Number(value));
   }
   return damage;
+}
+function applyColorlessWeaknessResistance(base,target) {
+  return applyTypedWeaknessResistance(base,target,'Colorless');
+}
+function sourcePrintedType(pokemon) {
+  if([P.mega,P.pidgey,P.pidgeotto,P.pidgeot,P.buneary,P.bunnelby,P.fan].
+      some(p=>has(pokemon,p)))return 'Colorless';
+  if([P.oddish,P.gloom,P.aor,P.bus,P.budew,P.eldegoss].
+      some(p=>has(pokemon,p)))return 'Grass';
+  if(has(pokemon,/^Tatsugiri TWM(?: 131)?\b/i))return 'Dragon';
+  return null;
 }
 function printedDamage(item,request) {
   const o=request.observation,own=o?.ownPublic?.active,op=o?.opponentPublic?.active;
@@ -138,11 +180,14 @@ function printedDamage(item,request) {
       meta.hasPrevention===true) return null;
   if(Number.isSafeInteger(meta.damageAfterResistance)&&meta.damageAfterResistance>=0)
     return meta.damageAfterResistance;
-  // V3 presents printed Weakness/Resistance as {type,value} arrays.
-  // Other-type modifiers do not affect source Colorless attackers. Spiky
-  // Hopper explicitly ignores defensive effects, not Weakness/Resistance.
+  const type=sourcePrintedType(own);
+  if(!type)return null;
+  // Spiky Hopper shreds defender effects but still applies Weakness/Resistance.
+  // Other attacks fail closed if opaque defensive effects may change damage.
   const bypass=has(own,P.mega)&&item.attackName==='Spiky Hopper';
-  if(!bypass&&(arr(op.tools).length||
+  // Life Dew changes Prize yield but does not modify attack damage. Its
+  // visible Tool is safe to account for through sourcePrizeValue instead.
+  if(!bypass&&(arr(op.tools).some(x=>!has(x,P.lifeDew))||
      arr(op.abilitySuppressions).some(x=>x.suppressed===false)))return null;
   let value=null;
   if(has(own,P.mega)) {
@@ -152,18 +197,39 @@ function printedDamage(item,request) {
       value=moved?230:60;
     }
     if(item.attackName==='Spiky Hopper')value=160;
-    if(value!==null){
-      // Temple of Sinnoh makes Special Energy provide only Colorless;
-      // its other effects (including Powerful Colorless' +20) are disabled.
-      // With no certified Stadium-suppression fact, do not invent an
-      // exception to the visible Temple effect.
-      if(!templeSuppressesSpecialEnergy(o)&&arr(own.energies).some(e=>has(e,P.powerful)))value+=20;
-      if(arr(own.tools).some(e=>has(e,P.choiceBelt))&&/\bV(?:MAX|STAR)?\b/i.test(txt(op)))value+=30;
-    }
   }
+  // The full original rank15 source printing inventory: fixed-damage attack
+  // branches, not global guesses about similarly named later card printings.
   if(has(own,P.pidgeot)&&item.attackName==='Blustery Wind')value=120;
   if(has(own,P.pidgey)&&item.attackName==='Peck Off')value=10;
-  return value===null?null:applyColorlessWeaknessResistance(value,op);
+  if(has(own,P.pidgeotto)) {
+    if(/^Pidgeotto TEU(?: 123)?\b/i.test(txt(own))&&item.attackName==='Gust')value=30;
+    if(/^Pidgeotto MEW(?: 17)?\b/i.test(txt(own))&&item.attackName==='Flap')value=20;
+  }
+  if(has(own,P.buneary)&&item.attackName==='Kick')value=20;
+  if(has(own,P.fan)&&item.attackName==='Assault Landing') {
+    // Printed attack: with no Stadium in play, it does nothing; suppressing
+    // Stadium effects does not remove a Stadium from play.
+    if(![...arr(o.ownPublic?.stadium),...arr(o.opponentPublic?.stadium)].length)
+      return 0;
+    value=70;
+  }
+  if(has(own,P.oddish)&&item.attackName==='Seed Bomb')value=20;
+  if(has(own,P.gloom)&&item.attackName==='Drool')value=30;
+  if(has(own,P.aor)&&item.attackName==='Solar Beam')value=70;
+  if(has(own,P.bus)&&item.attackName==='Downer Shock')value=60;
+  if(has(own,P.budew)&&item.attackName==='Itchy Pollen')value=10;
+  if(has(own,P.eldegoss)&&item.attackName==='Float Up')value=50;
+  if(has(own,/^Tatsugiri TWM(?: 131)?\b/i)&&item.attackName==='Surf')value=50;
+
+  if(value===null)return null;
+  // PCE boosts only Colorless Pokémon, but Choice Belt boosts every Type.
+  // Both modifiers act before Weakness/Resistance and only when still live.
+  if(type==='Colorless'&&!templeSuppressesSpecialEnergy(o)&&
+    arr(own.energies).some(e=>has(e,P.powerful)))value+=20;
+  if(!toolEffectsSuppressed(o)&&arr(own.tools).some(e=>has(e,P.choiceBelt))&&
+    /\bV(?:MAX|STAR)?\b/i.test(txt(op)))value+=30;
+  return applyTypedWeaknessResistance(value,op,type);
 }
 function knockOut(item,request) {
   const op=request.observation?.opponentPublic?.active;
@@ -174,8 +240,20 @@ function knockOut(item,request) {
 function terminal(item,request) {
   if(!knockOut(item,request))return false;
   const o=request.observation;
+  // A knockout of the opponent's sole remaining Pokémon wins by emptying
+  // their board even when the attack takes fewer than our remaining Prizes.
+  // Do not invent a clean win if our sole Eldegoss V simultaneously leaves
+  // play via Float Up: that can produce simultaneous loss conditions.
+  if(arr(o.opponentPublic?.bench).length===0&&
+     !(item.attackName==='Float Up'&&has(o.ownPublic?.active,P.eldegoss)&&
+       benchCount(o.ownPublic)===0))return true;
+  // Float Up removes Eldegoss V itself from play after attacking. If it was
+  // our only Pokémon, we also have no Pokémon in play; do not certify that
+  // simultaneous game-ending position as a straightforward win.
+  if(item.attackName==='Float Up'&&has(o.ownPublic?.active,P.eldegoss)&&
+    benchCount(o.ownPublic)===0)return false;
   return Number.isSafeInteger(o.ownPublic?.prizeCount)&&o.ownPublic.prizeCount>0&&
-    (o.ownPublic.prizeCount<=sourcePrizeValue(o.opponentPublic.active)||
+    (o.ownPublic.prizeCount<=sourcePrizeValue(o.opponentPublic.active,o)||
      benchCount(o.opponentPublic)===0);
 }
 function candidateCopycatThreat(request) {
@@ -377,7 +455,10 @@ function retreatPrompt(request) {
   const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
   if(p.promptType!=='ChoosePokemonPrompt'||m.selectionType!=='pokemon'||
     m.minimumCount!==1||m.maximumCount!==1)return abstain('UNSUPPORTED_POKEMON_PROMPT');
-  const target=positionTarget(o);
+  // Preserve the terminal root's concrete physical target at a subsequent
+  // Retreat ChoosePokemonPrompt. Generic positioning would prefer a BUS
+  // Vileplume over the paid Mega and lose the offered immediate victory.
+  const target=terminalGalePromotionTarget(request)??positionTarget(o);
   if(!target)return abstain('NO_SUPPORTED_POKEMON_CHOICE');
   const found=actorPokemonBench(p).find(c=>
     c.publicMetadata?.benchIndex===target.index&&txt(c)===target.printing);
@@ -403,9 +484,60 @@ function retreatActionTargets(item,target,own) {
   return bench.filter(Boolean).length===1&&bench[target.index]!==null;
 }
 
-function mobilityActions(items,o) {
+// Rank-1 Shadow Rider V concrete response window. A stationary one-Energy
+// Mega can attack for just 60; a different already-evolved, powered Benched
+// Mega becomes a 230-damage Gale attacker *when it itself moves*. Do not
+// overvalue the current Active merely because its 1-C Gale is payable.
+// Only override the general movement policy on a visible terminal 2-Prize KO,
+// an explicit current-stationary movement receipt, and a native offered move.
+// Constrain a predicted Gale winner to known plain V/ex printings: an
+// unmodeled defender (e.g. Arceus VSTAR) must not receive a false win.
+const TERMINAL_GALE_CERTIFIED_TARGET=/^(?:Shadow Rider Calyrex V CRE(?: 74)?|Iron Thorns ex TEF(?: 77)?|Regidrago V SIT(?: 135)?|Genesect V FST(?: 185)?|Mew V FST(?: 113)?|Lugia V SIT(?: 138)?|Crobat V DAA(?: 104)?)\b/i;
+function terminalGalePromotionTarget(request,{jetTarget=null}={}) {
+  const o=request?.observation,own=o?.ownPublic,op=o?.opponentPublic?.active;
+  if(!own||!has(op,TERMINAL_GALE_CERTIFIED_TARGET)||
+    (has(own.active,P.mega)&&movementEvidence(request)!==false))return null;
+  if(arr(op.tools).some(x=>!has(x,P.lifeDew))||
+     arr(op.abilitySuppressions).some(x=>x.suppressed===false))return null;
+  const remaining=Number.isSafeInteger(op.hp)&&Number.isSafeInteger(op.damage)?
+    op.hp-op.damage:null;
+  const gale=applyColorlessWeaknessResistance(230,op);
+  // A real KO of the sole opposing Pokemon wins by board depletion even
+  // when Life Dew or Legacy Energy leaves multiple Prize cards outstanding.
+  const opposingBench=o?.opponentPublic?.bench;
+  const boardOut=Array.isArray(opposingBench)&&!opposingBench.some(Boolean);
+  const prizeWin=Number.isSafeInteger(own.prizeCount)&&own.prizeCount>0&&
+    own.prizeCount<=sourcePrizeValue(op,o);
+  if(remaining===null||remaining<=0||gale===null||gale<remaining||
+    (!prizeWin&&!boardOut))return null;
+  const bench=arr(own.bench);
+  const index=jetTarget?bench.indexOf(jetTarget):
+    bench.findIndex(x=>x&&readyGuzmaMega(x,o));
+  if(index<0||(jetTarget&&!jetPoweredGaleEligible(bench[index])))return null;
+  return {index,printing:bench[index].printing};
+}
+function terminalGalePromotionAction(items,request) {
+  const target=terminalGalePromotionTarget(request);
+  const own=request.observation.ownPublic;
+  if(target){
+    const retreat=items.find(x=>retreatActionTargets(x,target,own));
+    if(retreat)return retreat;
+  }
+  // Jet both pays the [C] Gale cost and physically promotes the exact
+  // Benched Mega, even if no Energy was attached to that Mega beforehand.
+  // Plain Retreat still requires a previously funded Mega.
+  if(templeSuppressesSpecialEnergy(request.observation))return null;
+  for(const item of items){
+    if(item.kind!=='play-card'||!has(ownPrinting(item),P.jet))continue;
+    const intended=ownActionTarget(item,own);
+    if(intended&&terminalGalePromotionTarget(request,{jetTarget:intended}))
+      return item;
+  }
+  return null;
+}
+function mobilityActions(items,o,request) {
   const own=o?.ownPublic;
-  const target=positionTarget(o);
+  const target=terminalGalePromotionTarget(request)??positionTarget(o);
   if(!target)return null;
   const retreat=items.find(x=>retreatActionTargets(x,target,own));
   if(retreat)return retreat;
@@ -435,15 +567,15 @@ function capturePrompt(request) {
 function hoodProtectionScore(item,o) {
   if(item?.kind!=='play-card'||!has(ownPrinting(item),P.hood)||
     !has(item.targetPrinting,P.aor))return 0;
-  const target=slots(o.ownPublic).find(x=>has(x,P.aor)&&arr(x.tools).length===0);
-  if(!target)return 0;
+  // Two AOR Vileplume copies are distinct board objects. Protect the exact
+  // Pokémon named by the native action, not an arbitrary same-printing copy.
+  const target=ownActionTarget(item,o?.ownPublic);
+  if(!target||!has(target,P.aor)||arr(target.tools).length!==0)return 0;
   const suppressed=arr(target.abilitySuppressions).some(x=>
     x.abilityName==='Irritating Pollen'&&x.suppressed===true&&
     /^(?:Galarian Weezing|Garbodor|Wobbuffet)\b/i.test(x.sourcePrinting??''));
   if(!suppressed)return 0;
-  const jammed=[...arr(o.ownPublic.stadium),...arr(o.opponentPublic?.stadium)]
-    .some(x=>/^Jamming Tower TWM(?: 153)?\b/i.test(txt(x)));
-  return jammed?0:172;
+  return toolEffectsSuppressed(o)?0:172;
 }
 function missingEvolutionChannels(o) {
   const own=o.ownPublic;
@@ -519,7 +651,10 @@ function actorPokemonBench(p) {
 function grandTreeTarget(o) {
   if(!Number.isSafeInteger(o?.globalTurn)||o.globalTurn<=2)return null;
   const own=o.ownPublic;
-  const established=arr(own?.bench).filter(x=>x&&
+  // Grand Tree can evolve an eligible Active Basic too. Prefer an established
+  // Benched target when available to preserve the rank15 Bench lock plan.
+  const board=[...arr(own?.bench),own?.active];
+  const established=board.filter(x=>x&&
     Number.isSafeInteger(x.lastPlayedOrEvolvedTurn)&&
     x.lastPlayedOrEvolvedTurn<o.globalTurn);
   return established.find(x=>has(x,P.oddish)&&k1Available(o,[P.gloom])!==false)||
@@ -533,12 +668,25 @@ function grandTreePrompt(request) {
      Number.isSafeInteger(m.minimumCount)&&Number.isSafeInteger(m.maximumCount)&&
      m.minimumCount<=1&&m.maximumCount<=1){
     const target=grandTreeTarget(o);
-    const c=actorPokemonBench(p).find(c=>{
-      if(!target||!has(c,has(target,P.oddish)?P.oddish:
-        has(target,P.pidgey)?P.pidgey:P.buneary))return false;
-      const i=c.publicMetadata?.benchIndex;
-      return !Number.isSafeInteger(i)||
-        o.ownPublic.bench[i]?.printing===target.printing;
+    const bench=arr(own.bench);
+    const targetIndex=target?bench.indexOf(target):-1;
+    const activeTarget=!!target&&target===own.active;
+    // A freshly played Oddish is ineligible even when its printing is
+    // identical to an established copy elsewhere. Match the physical zone,
+    // owner and Bench index. An Active selection is unambiguous by zone.
+    const sameNameCount=target?bench.filter(x=>x&&txt(x)===txt(target)).length:0;
+    const c=arr(p.choices).find(c=>{
+      if(!target||c.kind!=='pokemon'||typeof c.token!=='string'||
+        c.publicMetadata?.ownerSeat!=='actor'||txt(c)!==txt(target))return false;
+      if(activeTarget){
+        return c.publicMetadata?.targetZone==='active'&&
+          (m.targetZone===undefined||m.targetZone==='active');
+      }
+      if(targetIndex<0||c.publicMetadata?.targetZone!=='bench'||
+         (m.targetZone!==undefined&&m.targetZone!=='bench'))return false;
+      const index=c.publicMetadata?.benchIndex;
+      return Number.isSafeInteger(index) ? index===targetIndex:
+        sameNameCount===1;
     });
     if(c)return {kind:'select-choices',tokens:[c.token]};
     const empty=arr(p.choices).find(c=>c.kind==='empty-selection'&&typeof c.token==='string');
@@ -550,22 +698,22 @@ function grandTreePrompt(request) {
      !Number.isSafeInteger(m.maximumCount)||m.minimumCount>1||m.maximumCount>1)
     return abstain('UNSUPPORTED_CARD_COMBINATION_SOURCE');
   const board=slots(own);
-  let priorities=[];
-  // The stage-one search happens while the prior-turn Basic remains in play;
-  // the second prompt occurs after the engine has already evolved to Stage 1.
-  if(board.some(x=>has(x,P.gloom))){
-    priorities=board.some(x=>has(x,P.aor))?[P.bus,P.aor]:[P.aor,P.bus];
-  }else if(board.some(x=>has(x,P.oddish))){
-    priorities=[P.gloom];
-  }else if(board.some(x=>has(x,P.pidgeotto))){
-    priorities=[P.pidgeot];
-  }else if(board.some(x=>has(x,P.pidgey))){
-    priorities=[P.pidgeotto];
-  }else if(board.some(x=>has(x,P.buneary))){
-    priorities=[P.mega];
-  }
+  const priorities=[];
+  // An existing Gloom is NOT proof that Grand Tree's current evolution
+  // target belongs to its chain. A Pidgeotto may have just evolved during
+  // the same Grand Tree resolution while another Gloom remains on the board.
+  // Consider each *offered* legal evolutionary family, rather than using
+  // else-if on unrelated board members to shadow the actual offered card.
+  if(board.some(x=>has(x,P.gloom)))
+    priorities.push(...(board.some(x=>has(x,P.aor))?[P.bus,P.aor]:[P.aor,P.bus]));
+  if(board.some(x=>has(x,P.pidgeotto)))priorities.push(P.pidgeot);
+  if(board.some(x=>has(x,P.oddish)))priorities.push(P.gloom);
+  if(board.some(x=>has(x,P.pidgey)))priorities.push(
+    /^Pidgeotto TEU(?: 123)?\b/i,/^Pidgeotto MEW(?: 17)?\b/i);
+  if(board.some(x=>has(x,P.buneary)))priorities.push(P.mega);
+  const choices=arr(p.choices).filter(c=>c.kind==='card'&&typeof c.token==='string');
   for(const pat of priorities){
-    const c=arr(p.choices).find(c=>c.kind==='card'&&has(c,pat)&&typeof c.token==='string');
+    const c=choices.find(c=>has(c,pat));
     if(c)return {kind:'select-choices',tokens:[c.token]};
   }
   const empty=arr(p.choices).find(c=>c.kind==='empty-selection'&&typeof c.token==='string');
@@ -588,15 +736,36 @@ function eldSupporterPriority(card,o) {
   if(has(card,P.n))return 50;
   return 0;
 }
+function hasLiveLockAbility(pokemon,printing,abilityName) {
+  if(!has(pokemon,printing))return false;
+  return !arr(pokemon?.abilitySuppressions).some(x=>
+    x?.abilityName===abilityName&&x?.suppressed===true);
+}
+function opponentDisablesEldegossAbility(o) {
+  const opponent=o?.opponentPublic,active=opponent?.active;
+  if(hasLiveLockAbility(active,P.thorns,'Initialization')||
+     hasLiveLockAbility(active,P.galarianWeezing,'Neutralizing Gas')||
+     hasLiveLockAbility(active,P.wobbuffet,'Bide Barricade')||
+     hasLiveLockAbility(active,P.klefki,'Mischievous Lock'))
+    return true;
+  return [active,...arr(opponent?.bench)].some(x=>
+    hasLiveLockAbility(x,P.alolanMuk,'Power of Alchemy')||
+    (hasLiveLockAbility(x,P.garbotoxinGarbodor,'Garbotoxin')&&
+     arr(x?.tools).length>0));
+}
 function eldCanBench(o) {
   const own=o?.ownPublic;
   if(!own||benchCount(own)>=5)return false;
   const lockBases=slots(own).filter(x=>
     [P.oddish,P.gloom,P.aor,P.bus].some(p=>has(x,p))).length;
   if(5-benchCount(own)<=Math.max(0,2-lockBases))return false;
-  if([...arr(own.stadium),...arr(o.opponentPublic?.stadium)]
-    .some(x=>/^Path to the Peak CRE(?: 148)?\b/i.test(txt(x))))return false;
-  if(has(o.opponentPublic?.active,/^Iron Thorns ex TWM(?: 77)?\b/i))return false;
+  // Happy Match is a Basic Pokémon V's Ability while Eldegoss is played
+  // from hand to Bench. Both Silent Lab (Basic) and Path (Rule Box) suppress
+  // that trigger unless an explicit Stadium-and-Tool nullification is live.
+  const stadiums=[...arr(own.stadium),...arr(o.opponentPublic?.stadium)];
+  if(!stadiumAndToolEffectsMuted(o)&&
+    stadiums.some(x=>has(x,P.pathPeak)||has(x,P.silentLab)))return false;
+  if(opponentDisablesEldegossAbility(o))return false;
   return arr(own.discard).some(card=>eldSupporterPriority(card,o)>0);
 }
 function floatUpPrompt(request) {
@@ -786,30 +955,98 @@ function quickSearchPrompt(request) {
   return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
     abstain('NO_LEGAL_CARD_SET');
 }
+function jetPoweredGaleEligible(x) {
+  // Jet provides Gale Thrust's [C] itself, even to an unpowered Mega.
+  return has(x,P.mega)&&
+    arr(x.publicRestrictions?.cannotUseAttacksNextTurn).length===0&&
+    x.publicRestrictions?.cannotAttackNextTurn!==true;
+}
+function readyGuzmaMega(x,o) {
+  return jetPoweredGaleEligible(x)&&attachedEnergyUnits(x,o)>=1;
+}
+
+// Distinct two-action terminal line: Guzma moves an unpowered Bench Mega,
+// then the actor's still-unused normal Basic Grass attachment pays Gale [C].
+// Require both steps from visible, owner-owned state, not projected hand odds.
+// Exact original rank15 inventory: two Basic Grass plus five Special
+// Energy copies that can each fund Gale Thrust's [C] via one hand attach.
+// Under live Temple of Sinnoh they still provide one Colorless.
+const SOURCE_GALE_ENERGY_FAMILIES=[
+  P.grass,P.jet,P.capture,P.doubleColorless,P.powerful
+];
+function handPayableGaleEnergy(o) {
+  const resource=o?.ownTurnResources,turn=o?.globalTurn;
+  if(!Number.isSafeInteger(turn)||
+     !Number.isSafeInteger(resource?.energyPlayedTurn)||
+     resource.energyPlayedTurn>=turn||resource.energyPlayLocked===true)return [];
+  // A known special-energy ban (e.g., Shadow Mist) forbids those five
+  // sources; absent a trustworthy false flag, only Basic Grass is safe.
+  const specialsAllowed=resource.specialEnergyPlayLocked===false;
+  return arr(o?.ownHand).filter(card=>has(card,P.grass)||
+    (specialsAllowed&&SOURCE_GALE_ENERGY_FAMILIES.slice(1)
+      .some(pattern=>has(card,pattern))));
+}
+function sameGaleEnergyPrinting(a,b) {
+  return SOURCE_GALE_ENERGY_FAMILIES.some(pattern=>has(a,pattern)&&has(b,pattern));
+}
+function handFundableGuzmaMegaIndex(o) {
+  if(!handPayableGaleEnergy(o).length)return -1;
+  return arr(o?.ownPublic?.bench).findIndex(x=>x&&
+    jetPoweredGaleEligible(x)&&attachedEnergyUnits(x,o)===0);
+}
+function certifiedLastPrizeMovedGale(o,op) {
+  if(!o?.ownPublic||!has(op,TERMINAL_GALE_CERTIFIED_TARGET)||
+     !Number.isSafeInteger(op.hp)||!Number.isSafeInteger(op.damage)||
+     op.hp<=op.damage||arr(op.tools).some(x=>!has(x,P.lifeDew))||
+     arr(op.abilitySuppressions).some(x=>x.suppressed===false))return false;
+  const hit=applyColorlessWeaknessResistance(230,op);
+  return hit!==null&&hit>=op.hp-op.damage&&
+    Number.isSafeInteger(o.ownPublic.prizeCount)&&o.ownPublic.prizeCount>0&&
+    o.ownPublic.prizeCount<=sourcePrizeValue(op,o);
+}
+function terminalHandGalePayment(items,request) {
+  const o=request.observation,own=o?.ownPublic;
+  if(!own||!has(own.active,P.mega)||movementEvidence(request)!==true||
+     !jetPoweredGaleEligible(own.active)||
+     attachedEnergyUnits(own.active,o)!==0||
+     !certifiedLastPrizeMovedGale(o,o.opponentPublic?.active))return null;
+  const eligibleHand=handPayableGaleEnergy(o);
+  return items.find(item=>item.kind==='play-card'&&
+    eligibleHand.some(card=>sameGaleEnergyPrinting(card,ownPrinting(item)))&&
+    ownActionTarget(item,own)===own.active)??null;
+}
 function guzmaOpportunity(o,{resolvingGuzma=false}={}) {
   // Proposed gust is intentionally *not* a native damage projection. It
   // requires an observable powered Bench attacker and target, then selects
   // only when the printed unmodified Gale Thrust could secure Prize tempo.
   const own=o?.ownPublic,opp=o?.opponentPublic;
-  if(!own||!opp||!opp.active||has(own.active,P.bus)||
+  if(!own||!opp||!opp.active||
     (!resolvingGuzma&&!supporterUnused(o)))
     return null;
+  // Moving BUS Vileplume off Active normally surrenders Basic attack lock,
+  // but preserving the lock cannot be better than a fully certified
+  // last-Prize Guzma + powered Bench Mega moved-Gale knockout.
+  const activeBusLock=has(own.active,P.bus);
   const bench=arr(own.bench),targets=arr(opp.bench);
-  const attackerIndex=bench.findIndex(x=>has(x,P.mega)&&arr(x.energies).length>=1&&
-    arr(x.publicRestrictions?.cannotUseAttacksNextTurn).length===0&&
-    x.publicRestrictions?.cannotAttackNextTurn!==true);
+  const poweredIndex=bench.findIndex(x=>readyGuzmaMega(x,o));
+  const handIndex=poweredIndex<0?handFundableGuzmaMegaIndex(o):-1;
+  const attackerIndex=poweredIndex>=0?poweredIndex:handIndex;
   if(attackerIndex<0)return null;
-  const attacker=bench[attackerIndex];
-  if(arr(attacker.tools).some(x=>has(x,P.choiceBelt)))return null;
+  // Choice Belt can add +30, but never reduces the moved-Gale base 230.
+  // Even when Jamming Tower nullifies the Belt, a guaranteed base-230 KO
+  // remains guaranteed. Do not discard a terminal Guzma because Belt exists.
   const prizes=Number.isSafeInteger(own.prizeCount)?own.prizeCount:null;
   const ranked=targets.map((x,index)=>{
     if(!x||!Number.isSafeInteger(x.hp)||!Number.isSafeInteger(x.damage)||
-      x.hp<=x.damage||arr(x.tools).length>0||
+      x.hp<=x.damage||arr(x.tools).some(t=>!has(t,P.lifeDew))||
       arr(x.abilitySuppressions).some(z=>z.suppressed===false))return null;
     const galeDamage=applyColorlessWeaknessResistance(230,x);
     if(galeDamage===null||x.hp-x.damage>galeDamage)return null;
-    const prizeValue=sourcePrizeValue(x);
+    const prizeValue=sourcePrizeValue(x,o);
     const terminal=prizes!==null&&prizes>0&&prizes<=prizeValue;
+    // No hypothetical hand-funded nonterminal gust or uncertified defender.
+    if(poweredIndex<0&&(!terminal||!has(x,TERMINAL_GALE_CERTIFIED_TARGET)))return null;
+    if(activeBusLock&&!terminal)return null;
     // Don't expend the Supporter on a merely one-Prize intermediate gust.
     if(!terminal && prizeValue<2)return null;
     return {opponentIndex:index,attackerIndex,terminal,
@@ -842,8 +1079,10 @@ function guzmaPrompt(request) {
   // Bench Pokémon moved Active. Its old Bench target is now absent: never
   // recompute the original gust candidate against the changed opponent Bench.
   const bench=arr(o.ownPublic?.bench);
-  const index=bench.findIndex(x=>has(x,P.mega)&&arr(x.energies).length>=1&&
-    x.publicRestrictions?.cannotAttackNextTurn!==true);
+  const funded=bench.findIndex(x=>readyGuzmaMega(x,o));
+  const index=funded>=0?funded:
+    certifiedLastPrizeMovedGale(o,o.opponentPublic?.active)?
+      handFundableGuzmaMegaIndex(o):-1;
   const found=ours.find(c=>c.publicMetadata?.benchIndex===index&&
     txt(bench[index])===txt(c));
   return found?{kind:'select-choices',tokens:[found.token]}:
@@ -1008,9 +1247,13 @@ function evolutionPrompt(request) {
           if(usedSlots.has(index)||!has(knownBench[index],pattern))continue;
           usedSlots.add(index);
         }else{
-          const available=knownBench.findIndex((slot,i)=>!usedSlots.has(i)&&has(slot,pattern));
-          if(available<0)continue;
-          usedSlots.add(available);
+          // A name-only token cannot identify which of two identical
+          // physical targets would evolve. Do not map an arbitrary
+          // same-print token onto the first unclaimed Bench slot.
+          const matching=knownBench.map((slot,i)=>({slot,i}))
+            .filter(x=>has(x.slot,pattern));
+          if(matching.length!==1||usedSlots.has(matching[0].i))continue;
+          usedSlots.add(matching[0].i);
         }
         selected.push(c);
         if(selected.length>=m.maximumCount)break;
@@ -1152,6 +1395,11 @@ function rootDecision(request) {
   const gustOpportunity=guzmaOpportunity(o);
   const gust=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.guzma));
   if(gust&&gustOpportunity?.terminal)return take(gust);
+  // A demonstrated last-Prize movement action must beat mere setup actions.
+  const winningPromotion=terminalGalePromotionAction(items,request);
+  if(winningPromotion)return take(winningPromotion);
+  const afterGuzmaPayment=terminalHandGalePayment(items,request);
+  if(afterGuzmaPayment)return take(afterGuzmaPayment);
   const karen=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.karen));
   if(karen&&karenOpportunity(o))return take(karen);
   // First-turn Fan Call is a free actor-owned search for the source's
@@ -1202,24 +1450,39 @@ function rootDecision(request) {
     return take(attrition);
   const busWindow=busActivePromotionOpportunity(o);
   if(busWindow){
+    const bench=arr(o.ownPublic?.bench);
+    const busIndex=bench.findIndex(x=>x&&has(x,P.bus)&&
+      !arr(x.abilitySuppressions).some(a=>
+        a.abilityName==='Disgusting Pollen'&&a.suppressed===true));
+    const busTarget=busIndex<0?null:{index:busIndex,printing:bench[busIndex].printing};
     const jetBus=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.jet)&&
-      has(x.targetPrinting,P.bus));
+      ownActionTarget(x,o.ownPublic)===bench[busIndex]);
     if(jetBus&&!templeSuppressesSpecialEnergy(o))return take(jetBus);
-    const retreatBus=items.find(x=>x.kind==='retreat'&&
-      (!x.targetPrinting||has(x.targetPrinting,P.bus)));
+    const retreatBus=busTarget&&items.find(x=>retreatActionTargets(x,busTarget,o.ownPublic));
     if(retreatBus)return take(retreatBus);
   }
   const pendingAttrition=attrition;
-  const mobility=mobilityActions(items,o);
+  const mobility=mobilityActions(items,o,request);
   if(mobility)return take(mobility);
-  const attachTm=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.tmEvolution)&&
-    has(x.targetPrinting,P.bunnelby));
-  if(attachTm&&slots(o.ownPublic).some(x=>has(x,P.bunnelby)&&
-     arr(x.tools).length===0)&&missingEvolutionChannels(o))return take(attachTm);
-  const attachJet=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.jet)&&
-    has(x.targetPrinting,P.bunnelby));
-  if(attachJet&&!templeSuppressesSpecialEnergy(o)&&slots(o.ownPublic).some(x=>has(x,P.bunnelby)&&
-     arr(x.tools).some(c=>has(c,P.tmEvolution)))&&missingEvolutionChannels(o))return take(attachJet);
+  const tmTargets=items.filter(x=>{
+    if(x.kind!=='play-card'||!has(ownPrinting(x),P.tmEvolution))return false;
+    const target=ownActionTarget(x,o.ownPublic);
+    return !!target&&has(target,P.bunnelby)&&arr(target.tools).length===0;
+  });
+  // A ready Active Bunnelby can announce Evolution on this turn; a Benched
+  // Bunnelby merely holds the Tool. Do not choose first-offered Bench copy.
+  const attachTm=tmTargets.find(x=>ownActionTarget(x,o.ownPublic)===o.ownPublic.active)??tmTargets[0];
+  if(attachTm&&missingEvolutionChannels(o))return take(attachTm);
+  const attachJet=items.find(x=>{
+    if(x.kind!=='play-card'||!has(ownPrinting(x),P.jet))return false;
+    const target=ownActionTarget(x,o.ownPublic);
+    return !!target&&target!==o.ownPublic.active&&has(target,P.bunnelby)&&
+      arr(target.tools).some(c=>has(c,P.tmEvolution));
+  });
+  // Jet's free promotion is useful only when attached to that exact equipped
+  // Benched Bunnelby. Its ordinary Energy attachment is still scored below.
+  if(attachJet&&!templeSuppressesSpecialEnergy(o)&&missingEvolutionChannels(o))
+    return take(attachJet);
   if(gust&&gustOpportunity&&!gustOpportunity.terminal)return take(gust);
   const gh=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.guzmaHala));
   if(gh&&(ghLineFeasible(o,P.guzmaHala)||ghStadiumOnlyLine(o)))return take(gh);
