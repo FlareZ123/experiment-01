@@ -308,18 +308,32 @@ function toolScore(choice, observation) {
   }
   return 0;
 }
+// Bench AMR: reserve physical space for the three mutually dependent axes
+// (at least one Budew, one Trubbish/Garbodor, one Mega Absol attacker).
+// A searchable support Pokemon is not playable if it consumes a required slot.
+function rank16CoreBenchReserve(o) {
+  const own=o.ownPublic;
+  return (count(own,PRINT.budew)===0?1:0)+
+    (!hasTrubbish(o)&&!hasGarbodor(o)?1:0)+
+    (count(own,PRINT.mega)===0?1:0);
+}
+function rank16CanBenchSupport(o) {
+  return benchCount(o.ownPublic)+rank16CoreBenchReserve(o)<5;
+}
 function basicScore(choice, observation) {
   if (owner(choice) !== 'actor' || zone(choice) !== 'deck') return 0;
   const printing = textOf(choice);
   const own = observation.ownPublic;
-  if (matches(printing, PRINT.trubbish)) return !hasGarbodor(observation) && count(own, PRINT.trubbish) < 2 ? 320 : 20;
-  if (matches(printing, PRINT.mega)) return count(own, PRINT.mega) < 2 ? 275 : 25;
-  if (matches(printing, PRINT.dedenne)) return !hasGarbodor(observation) && handCount(observation) <= 4 ? 190 : 35;
-  if (matches(printing, PRINT.crobat)) return handCount(observation) <= 4 ? 175 : 35;
-  if (matches(printing, PRINT.squawk)) return observation.globalTurn <= 2 && handCount(observation) <= 2 ? 155 : 15;
-  if (matches(printing, PRINT.tapuLele)) return supporterAvailable(observation) ? 135 : 35;
-  if (matches(printing, PRINT.tapuKoko)) return !hasTapuKoko(observation) && discardCount(own, PRINT.lightning) >= 2 ? 145 : 45;
-  if (matches(printing, PRINT.budew)) return count(own, PRINT.budew) === 0 && observation.globalTurn <= 3 ? 75 : 10;
+  if (matches(printing, PRINT.trubbish)) return !hasTrubbish(observation) && !hasGarbodor(observation) ?
+    365+(benchCount(own)>=4?40:0) : 20;
+  if (matches(printing, PRINT.mega)) return count(own, PRINT.mega) === 0 ? 330 : count(own, PRINT.mega) === 1 ? 170 : 25;
+  if (matches(printing, PRINT.dedenne)) return !rank16CanBenchSupport(observation) ? 0 : !hasGarbodor(observation) && handCount(observation) <= 4 ? 190 : 35;
+  if (matches(printing, PRINT.crobat)) return !rank16CanBenchSupport(observation) ? 0 : handCount(observation) <= 4 ? 175 : 35;
+  if (matches(printing, PRINT.squawk)) return !rank16CanBenchSupport(observation) ? 0 : observation.globalTurn <= 2 && handCount(observation) <= 2 ? 155 : 15;
+  if (matches(printing, PRINT.tapuLele)) return !rank16CanBenchSupport(observation) ? 0 : supporterAvailable(observation) ? 135 : 35;
+  if (matches(printing, PRINT.tapuKoko)) return !rank16CanBenchSupport(observation) ? 0 : !hasTapuKoko(observation) && discardCount(own, PRINT.lightning) >= 2 ? 145 : 45;
+  if (matches(printing, PRINT.budew)) return count(own, PRINT.budew) === 0 ?
+    350+(benchCount(own)>=4?200:benchCount(own)>=3?100:0) : 10;
   return 0;
 }
 function cardSearchScore(choice, observation) {
@@ -588,11 +602,11 @@ function scoreAction(item, request) {
   if (matches(printing, PRINT.trubbish)) return count(own, PRINT.trubbish) < 2 ? 210 : 20;
   if (matches(printing, PRINT.garbodor)) return hasTrubbish(observation) && !hasGarbodor(observation) ? 240 : 55;
   if (matches(printing, PRINT.mega)) return count(own, PRINT.mega) < 2 ? 190 : 35;
-  if (matches(printing, PRINT.dedenne)) return !hasGarbodor(observation) && hand.length <= 4 ? 165 : 30;
-  if (matches(printing, PRINT.crobat)) return hand.length <= 4 ? 125 : 30;
-  if (matches(printing, PRINT.squawk)) return observation.globalTurn <= 2 && hand.length <= 2 ? 100 : 10;
-  if (matches(printing, PRINT.tapuLele)) return supporterAvailable(observation) ? 120 : 30;
-  if (matches(printing, PRINT.tapuKoko)) return !hasTapuKoko(observation) ? 105 : 0;
+  if (matches(printing, PRINT.dedenne)) return !rank16CanBenchSupport(observation)?0:!hasGarbodor(observation) && hand.length <= 4 ? 165 : 30;
+  if (matches(printing, PRINT.crobat)) return !rank16CanBenchSupport(observation)?0:hand.length <= 4 ? 125 : 30;
+  if (matches(printing, PRINT.squawk)) return !rank16CanBenchSupport(observation)?0:observation.globalTurn <= 2 && hand.length <= 2 ? 100 : 10;
+  if (matches(printing, PRINT.tapuLele)) return !rank16CanBenchSupport(observation)?0:supporterAvailable(observation) ? 120 : 30;
+  if (matches(printing, PRINT.tapuKoko)) return !rank16CanBenchSupport(observation)?0:!hasTapuKoko(observation) ? 105 : 0;
   if (matches(printing, PRINT.budew)) return count(own, PRINT.budew) === 0 ? 265 : 0;
   if (matches(printing, PRINT.vip)) return observation.globalTurn <= 2 && benchCount(own) < 5 ? 240 : 0;
   if (matches(printing, PRINT.quick)) {
