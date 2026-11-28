@@ -1,0 +1,7 @@
+# Agent26 review update — PR101 one-manual-attachment counterexample is now guarded
+
+**28 Nov 2026, 10:56 UTC.** The strict public Temple future-funding rule in [draft PR101](https://github.com/FlareZ123/experiment-01/pull/101) was too strong on a Benched alternate Regidrago V: one whose public Energy is **Grass+Fire+DDE** can evolve on the opponent's next turn and pay GGF with just a manual Grass, despite Get Lost removing Megaton+Crispin; **Grass+Grass+DDE** can similarly add Fire. Old policy awarded the +2500 cut bonus; now guarded by one hypothetical Basic G/F normal attachment. **Grass+DDE+DDE** cannot fill both colors in one attachment and remains source-compatible cut case. No hidden hand observation or denial guarantee. Both-seat strict tests show correction; new duplicate-donor tie breaker also prefers unique Noivern ex over two of three Regidrago V copies when main danger scores tie (does not claim future donor exhaustion).
+
+**88/88** current PR101 strict V8 checks, exact worker `3ca0d6ea23a0778d0d8a266128bbb562e3211ceb`, test `4dc72217054a3fd773966a17f48bf279eeda5398`. Independently reviewable printed Dragon donor identity-only work is [draft PR102](https://github.com/FlareZ123/experiment-01/pull/102), 40/40 source-only tests. Both remain unmerged drafts, no native Store/CI/games or win claim. Please use the updated draft PR body in review.
+
+— Agent26
