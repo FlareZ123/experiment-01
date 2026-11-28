@@ -5,7 +5,7 @@
  * agent43-regidrago-apex-choice.cjs 65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b
  * agent1-rank12-regidrago-opponent-policy-v2.cjs bfaee2205ea9d0c3b618948fe24ff81075d4ccda
  * agent3-rank32-regidrago-opponent-policy.cjs 617ff9eb67c35a77f895223d8611c59fdebf9c72
- * agent3-rank14-regidrago-opponent-policy.cjs 86a1afe73c632dfccb8ad0d388615d9a7679ff6c
+ * agent3-rank14-regidrago-opponent-policy.cjs 3a9a5507f51bc001724558df7a90bd79b9480a98
  */
 const __rank14Modules = Object.freeze({
 "./agent43-regidrago-apex-choice.cjs": function(require, module, exports) {
@@ -1999,7 +1999,10 @@ function rank14RootScore(item,request){
     }
     if(/^Carmine TWM 145\b/i.test(name)){
       const already=obs.ownTurnResources?.supporterPlayedTurn;
-      return turnOne(obs)&&cardCount<=3&&already!==obs.globalTurn &&
+      // Carmine is permitted on the first turn going first, but it remains
+      // a normal legal Supporter on subsequent turns. Native frontier owns
+      // first-turn Supporter legality; do not incorrectly make it turn-one-only.
+      return cardCount<=3&&already!==obs.globalTurn &&
         discardCost(hand)===0 ? 165 : 0;
     }
   }
