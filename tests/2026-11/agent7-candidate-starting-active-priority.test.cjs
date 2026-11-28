@@ -11,7 +11,7 @@ const {createPolicy,POLICY_VERSION}=
 const protocol=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const R='Radiant Eternatus CRZ 105',V='Shadow Rider Calyrex V CRE 74',
   L='Latias ex SSP 76',T='Tapu Lele-GX GRI 60',M='Mimikyu GRI 58';
-function request(seat,printings,{min=1,max=6}={}){
+function fixture(seat,printings,{min=1,max=6}={}){
   const choices=printings.map((printing,index)=>({
     token:'card'+index,kind:'card',printing,label:printing,
     publicMetadata:{selectionIndex:index,ownerSeat:'actor',
@@ -41,38 +41,38 @@ function request(seat,printings,{min=1,max=6}={}){
 }
 for(const seat of [0,1]){
   test('Radiant first in shuffled hand; lead V, retain Radiant+Lele for Bench triggers '+seat,()=>{
-    const {policy,request,prompt}=request(seat,[R,V,L,T]);
+    const {policy,request,prompt}=fixture(seat,[R,V,L,T]);
     const d=policy.decide(request);
     assert.deepEqual(d,{kind:'select-choices',tokens:['card1','card2']});
     assert.deepEqual(protocol.validateDecision(d,prompt,new Set()),d);
   });
   test('Lele before V: lead attacker rather than sacrifice Wonder Tag '+seat,()=>{
-    const {policy,request}=request(seat,[T,V,M]);
+    const {policy,request}=fixture(seat,[T,V,M]);
     assert.deepEqual(policy.decide(request),
       {kind:'select-choices',tokens:['card1','card2']});
   });
   test('Radiant and Lele only: lead Lele, retain Radiant Gate option '+seat,()=>{
-    const {policy,request}=request(seat,[R,T]);
+    const {policy,request}=fixture(seat,[R,T]);
     assert.deepEqual(policy.decide(request),
       {kind:'select-choices',tokens:['card1']});
   });
   test('forced only Radiant Basic: no illegal skip of mandatory Active '+seat,()=>{
-    const {policy,request}=request(seat,[R]);
+    const {policy,request}=fixture(seat,[R]);
     assert.deepEqual(policy.decide(request),
       {kind:'select-choices',tokens:['card0']});
   });
   test('extra post-mulligan optional Bench holds Gate and Wonder Tag '+seat,()=>{
-    const {policy,request}=request(seat,[R,T],{min:0,max:2});
+    const {policy,request}=fixture(seat,[R,T],{min:0,max:2});
     assert.deepEqual(policy.decide(request),
       {kind:'select-choice',token:'empty'});
   });
   test('extra optional Bench adds real Basic V, still holds on-play triggers '+seat,()=>{
-    const {policy,request}=request(seat,[R,V,T],{min:0,max:3});
+    const {policy,request}=fixture(seat,[R,V,T],{min:0,max:3});
     assert.deepEqual(policy.decide(request),
       {kind:'select-choices',tokens:['card1']});
   });
   test('full Basics with Radiant in hand does not fill Gate-needed Bench '+seat,()=>{
-    const {policy,request}=request(seat,[R,T,V,V,V,M],{min:1,max:6});
+    const {policy,request}=fixture(seat,[R,T,V,V,V,M],{min:1,max:6});
     assert.deepEqual(policy.decide(request),
       {kind:'select-choices',tokens:['card2','card3']});
   });
