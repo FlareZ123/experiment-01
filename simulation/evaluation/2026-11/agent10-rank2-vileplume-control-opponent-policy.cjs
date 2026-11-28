@@ -563,12 +563,19 @@ function scoreAction(item, request) {
       missingLinePriority(observation) > 0 ? 128 : 70;
   }
   if (matches(card, PRINT.guzma)) {
+    // Native Supporter PlayCardAction can offer the root before target prompts.
+    // A missing root target index is not evidence that no Bench gust exists.
+    if (!list(own.bench).some(Boolean)) return 0;
     const targetIndex = metadata.targetIndex;
     const targetPokemon = metadata.targetSeat === 'opponent' &&
       metadata.targetZone === 'bench' && Number.isSafeInteger(targetIndex) ?
       opponent.bench?.[targetIndex] : null;
-    return targetPokemon ?
-      (remainingHp(targetPokemon) > 0 && remainingHp(targetPokemon) <= 90 ? 88 : 42) : 0;
+    const targets = targetPokemon ? [targetPokemon] :
+      metadata.targetSeat === undefined && metadata.targetZone === undefined ?
+        list(opponent.bench).filter(Boolean) : [];
+    if (targets.length === 0) return 0;
+    return targets.some(pokemon => remainingHp(pokemon) > 0 &&
+      remainingHp(pokemon) <= 90) ? 88 : 42;
   }
   if (matches(card, PRINT.faba)) return opponentHasFabaTarget(opponent) ? 94 : 0;
   if (matches(card, PRINT.plumeria)) return opponentHasAnyEnergy(opponent) ? 78 : 0;
