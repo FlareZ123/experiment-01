@@ -28,7 +28,7 @@ function root(seat,opts={}){
   observation:{actorSeat:seat,decisionKind:'owner-root',ownHand:[RAD],
    ownTurnResources:{supporterPlayedTurn:0},
    ownPublic:side(a,bench,opts.sky),
-   opponentPublic:side(mon('Iron Thorns ex TWM 77'),[])},
+   opponentPublic:side(mon(opts.iron?'Iron Thorns ex TWM 77': 'Latias ex SSP 76'),[])},
   actionFrontier:{schema:protocol.FRONTIER_SCHEMA,items:[
     {kind:'play-card',token:'radiant',actorPrinting:RAD,
      publicMetadata:{targetSeat:'actor',targetZone:'bench',
@@ -74,6 +74,9 @@ const cases=[
   {kind:'select-action',token:'pass'}],
  ['Current payable attacker means skip turn-ending Climactic Gate',
   root,{benchCount:5,sky:true,funded:true},
+  {kind:'select-action',token:'pass'}],
+ ['Active Iron Thorns ability lock rejects Radiant on-play',
+  root,{benchCount:5,sky:true,iron:true},
   {kind:'select-action',token:'pass'}],
  ['Expanded after Radiant at Bench 6 picks exactly two VMAX',
   gatePrompt,{benchCount:5,sky:true},
