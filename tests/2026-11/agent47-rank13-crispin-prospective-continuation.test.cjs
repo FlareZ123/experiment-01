@@ -10,7 +10,8 @@ const {projectRank13CrispinPrompt:project}=
 function request(seat=0) {
   return {role:'opponent',seat,
     observation:{actorSeat:seat,decisionKind:'owner-prompt',
-      ownPublic:{active:{printing:'Regidrago VSTAR SIT 136'}}},
+      ownPublic:{active:{printing:'Regidrago VSTAR SIT 136',
+        energies:[{printing:'Grass Energy MEE 9'},{printing:'Fire Energy MEE 10'}]}}},
     prompt:{
       promptType:'ChooseCardsPrompt',
       source:{classification:'actor-choice',sourceKind:'card-effect',
@@ -57,6 +58,18 @@ test('Crispin search explicitly abstains when no different-type pair exists',()=
   const r=request();r.prompt.choices=r.prompt.choices.filter(c=>!c.token.startsWith('fire'));
   assert.equal(choose(r),null);
 });
+test('Crispin attachment does not co-opt already-funded or wrong-type active energy geometry',()=>{
+  const r=attachmentRequest();
+  r.observation.ownPublic.active.energies.push({printing:'Grass Energy MEE 9'});
+  assert.equal(choose(r),null);
+  r.observation.ownPublic.active.energies=[
+    {printing:'Grass Energy MEE 9'},{printing:'Grass Energy MEE 9'}];
+  assert.equal(choose(r),null);
+  r.observation.ownPublic.active.energies=[
+    {printing:'Fire Energy MEE 10'},{printing:'Fire Energy MEE 10'}];
+  assert.equal(choose(r),null);
+});
+
 test('Crispin attach refuses non-Active or ambiguous Grass assignment',()=>{
   const r=attachmentRequest();
   r.prompt.choices=r.prompt.choices.filter(c=>c.token!=='grass-active');
