@@ -1203,7 +1203,7 @@ function getLostValue(view,printing) {
   const regidrago=opponentHasRegidrago(view);
   if(regidrago&&hasAnyName(printing,['Dialga-GX','Dragapult ex','Giratina VSTAR','Goodra VSTAR',
     'Hisuian Goodra VSTAR','Noivern ex','Haxorus','Flygon ex','Altaria-GX','Dragonite ex',
-    'Garchomp ex','Alolan Exeggutor ex','Duraludon VMAX','Kyurem','Salamence ex','Koraidon ex']))return 500;
+    'Garchomp ex','Alolan Exeggutor ex','Duraludon VMAX','Kyurem','Salamence ex','Koraidon ex','Regidrago V SIT']))return 500;
   if(regidrago&&hasName(printing,'Regidrago VSTAR'))return 300;
   if(hasAnyName(printing,['ACE SPEC','Computer Search','Dowsing Machine','Unfair Stamp','Secret Box',
     'Legacy Energy','Double Dragon Energy','Double Colorless Energy','Pokémon Ranger',
@@ -1224,6 +1224,9 @@ const APEX_PAYLOADS=[
   // and simultaneous Prize resolution are not modeled by this optimistic
   // incoming-damage hazard scorer.
   ['Koraidon ex TEF','Kaiser Tackle',280],
+  // The source all-nine Regidrago Basic V (SIT 135) is itself Dragon type.
+  // Its Dragon Laser is 130 to Active plus 30 to one Bench target.
+  ['Regidrago V SIT','Dragon Laser',130],
   ['Alolan Exeggutor ex SSP','Tropical Frenzy',150],
   ['Hisuian Goodra VSTAR LOR','Rolling Iron',200],['Noivern ex PAL','Covert Flight',70],
   ['Garchomp & Giratina-GX UNM','Calamitous Slash',160],['Garchomp ex PAR','Hydro Lander',160],
@@ -1283,6 +1286,13 @@ function hazardVariants(view,rows,activeKey,payload){
   // still omits defensive bench prevention, so this is an optimistic hazard.
   if(name==='Wide Blast')return [{name,alteredPrizeKey:null,
     hits:rows.filter(row=>row.key!==activeKey).map(row=>[row.key,base])}];
+  if(name==='Dragon Laser'){
+    const bench=rows.filter(row=>row.key!==activeKey);
+    return (bench.length?bench:[null]).map(row=>({
+      name,alteredPrizeKey,hits:[[active.key,modified(active)],
+        ...(row?[[row.key,30]]:[])]
+    }));
+  }
   if(name==='Calamitous Slash')return [{name,alteredPrizeKey,
     hits:[[active.key,modified(active)+(active.damaged?80:0)]]}];
   return [{name,alteredPrizeKey,hits:[[active.key,modified(active)]]}];
