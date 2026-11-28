@@ -175,6 +175,31 @@ function boardHas(view, name) {
   return ownBoard(view).some(slot => hasName(slot.printing, name));
 }
 
+// Fixed Hood Shield inventory: these are distinct original printed cards.
+// Substring matching "Shadow Rider Calyrex V" accidentally matches VMAX,
+// and thereby prevents a second Basic/VMAX engine from developing.
+function shadowRiderLine(view) {
+  const board = ownBoard(view);
+  return {
+    basics: board.filter(p =>
+      p.printing === 'Shadow Rider Calyrex V CRE 74').length,
+    vmax: board.filter(p =>
+      p.printing === 'Shadow Rider Calyrex VMAX CRE 75').length
+  };
+}
+
+function needShadowRiderBasic(view) {
+  const line = shadowRiderLine(view);
+  return line.basics + line.vmax < 2 &&
+    !view.ownHand.includes('Shadow Rider Calyrex V CRE 74');
+}
+
+function needShadowRiderVMAX(view) {
+  const line = shadowRiderLine(view);
+  return line.basics > 0 && line.vmax < 2 &&
+    !view.ownHand.includes('Shadow Rider Calyrex VMAX CRE 75');
+}
+
 function handHas(view, name) {
   return view.ownHand.some(printing => hasName(printing, name));
 }
@@ -245,16 +270,41 @@ function slotByPrinting(player, printing) {
   return player.bench.find(slot => slot?.printing === printing) ?? null;
 }
 
+// Estimated actual Prize yield for a damage Knock Out. Both Legacy Energy
+// and Life Dew can subtract one Prize, including on Benched gust targets.
+// Unknown Legacy once-per-game usage is treated as still available so we
+// never award an unearned final-Prize shortcut.
+function estimatedKnockoutPrizeYield(view, defender) {
+  if (!defender) return 0;
+  const legacy = (defender.energies ?? [])
+    .some(name => hasName(name, 'Legacy Energy')) ? 1 : 0;
+  const lifeDew = (defender.tools ?? [])
+    .some(name => hasName(name, 'Life Dew')) &&
+    toolsKnownLive(view, defender) ? 1 : 0;
+  return Math.max(0, prizeLiability(defender) - legacy - lifeDew);
+}
+
 function prizeLiability(slot) {
   if (!slot) return 1;
-  const subtypes = slot.printed?.subtypes ?? [];
+  // The original Aichi source field includes modern Mega Evolution ex (three
+  // Prizes) and VSTAR (two).  Do not confuse modern Mega ex with older
+  // M Pokémon-EX, which is NOT a three-Prize Mega Evolution ex.
+  const rawSubtypes = slot.printed?.subtypes ?? [];
+  const subtypes = rawSubtypes.map(x => String(x).toUpperCase());
   const printing = slot.printing ?? '';
-  if (subtypes.some(value => ['VMAX', 'V-UNION', 'TAG TEAM'].includes(value)) ||
+  // Both old M Pokémon-EX and modern Mega Evolution ex use subtype MEGA.
+  // Only the latter grants three Prizes; source prints distinguish ex from EX.
+  const modernMega = (rawSubtypes.includes('MEGA') &&
+    rawSubtypes.includes('ex')) || /^Mega .+ ex(?: |$)/i.test(printing);
+  if (subtypes.some(value =>
+      ['VMAX', 'V-UNION', 'TAG TEAM'].includes(value)) ||
       hasName(printing, 'VMAX') || hasName(printing, 'V-UNION') ||
-      hasName(printing, ' & ') && hasName(printing, '-GX')) return 3;
-  if (subtypes.some(value => ['ex', 'GX', 'V'].includes(value)) ||
+      modernMega ||
+      (hasName(printing, ' & ') && hasName(printing, '-GX'))) return 3;
+  if (subtypes.some(value =>
+      ['EX', 'GX', 'V', 'VSTAR'].includes(value)) ||
       hasName(printing, '-GX') || / ex(?: |$)/.test(printing) ||
-      / V(?: |$)/.test(printing)) return 2;
+      / V(?:STAR)?(?: |$)/.test(printing)) return 2;
   return 1;
 }
 
@@ -320,6 +370,22 @@ function wondrousLabyrinthTax(slot, view) {
     if (status === null) return null;
   }
   return 1;
+}
+
+// Mimikyu GRI58's printed Copycat costs Psychic + Colorless. Wondrous
+// Labyrinth adds another Colorless to this non-Fairy attack, so the usual
+// two-Psychic funding heuristic misses the required THIRD attachment.
+// Dimension Valley may instead remove one Colorless. This is an actor
+// energy-planning constraint, not proof the opponent's Apex Dragon receipt
+// is fresh enough to copy on the next attack.
+function mimikyuNeedsCopycatEnergy(view, slot) {
+  if (slot?.printing !== 'Mimikyu GRI 58' ||
+      !opponentHasRegidrago(view)) return false;
+  const tax = wondrousLabyrinthTax(slot, view);
+  if (tax === null) return false;
+  const copycat = {name:'Copycat',cost:['Psychic','Colorless']};
+  return slotEnergyCount(slot) <
+    effectiveAttackCost(slot, copycat, view) + tax;
 }
 
 function canPayAttack(slot, attack, view) {
@@ -500,8 +566,7 @@ function getLostPressure(view) {
 // Supporter search (native ChooseCardsPrompt, not a Yes/No confirmation).
 function wonderTagSupporterScore(view, printing) {
   if (hasName(printing, 'Arven')) {
-    return !boardHas(view, 'Shadow Rider Calyrex V') ||
-      !boardHas(view, 'Shadow Rider Calyrex VMAX') ? 1350 : 520;
+    return needShadowRiderBasic(view) || needShadowRiderVMAX(view) ? 1350 : 520;
   }
   if (hasName(printing, "Lillie's Determination"))
     return view.ownPublic.handCount <= 5 ? 1200 : 520;
@@ -520,13 +585,10 @@ function nightStretcherRecoveryScore(view, printing) {
   if (!isText(printing)) return 0;
   if (hasName(printing, 'Mimikyu') && opponentHasRegidrago(view) &&
       !boardHas(view, 'Mimikyu') && !handHas(view, 'Mimikyu')) return 1050;
-  if (hasName(printing, 'Shadow Rider Calyrex VMAX') &&
-      boardHas(view, 'Shadow Rider Calyrex V') &&
-      !boardHas(view, 'Shadow Rider Calyrex VMAX') &&
-      !handHas(view, 'Shadow Rider Calyrex VMAX')) return 950;
-  if (hasName(printing, 'Shadow Rider Calyrex V') &&
-      !hasName(printing, 'VMAX') && !boardHas(view, 'Shadow Rider Calyrex V') &&
-      !handHas(view, 'Shadow Rider Calyrex V')) return 920;
+  if (printing === 'Shadow Rider Calyrex VMAX CRE 75' &&
+      needShadowRiderVMAX(view)) return 950;
+  if (printing === 'Shadow Rider Calyrex V CRE 74' &&
+      needShadowRiderBasic(view)) return 920;
   if (hasName(printing, "Lillie's Clefairy ex") && opponentHasDragon(view) &&
       !boardHas(view, "Lillie's Clefairy ex") &&
       !handHas(view, "Lillie's Clefairy ex")) return 850;
@@ -542,8 +604,8 @@ function searchNeedScore(view, printing, effectName = '') {
   const regidrago = opponentHasRegidrago(view);
   const dragon = opponentHasDragon(view);
   const board = ownBoard(view);
-  const hasShadowV = board.some(slot => hasName(slot.printing, 'Shadow Rider Calyrex V'));
-  const hasShadowVmax = board.some(slot => hasName(slot.printing, 'Shadow Rider Calyrex VMAX'));
+  const shadow = shadowRiderLine(view);
+  const shadowTotal = shadow.basics + shadow.vmax;
   const hasMimikyu = board.some(slot => hasName(slot.printing, 'Mimikyu'));
   const hasClefairy = board.some(slot => hasName(slot.printing, "Lillie's Clefairy ex"));
   const hasLatias = board.some(slot => hasName(slot.printing, 'Latias ex'));
@@ -557,12 +619,13 @@ function searchNeedScore(view, printing, effectName = '') {
     if (regidrago && !hasMimikyu && !handHas(view, 'Mimikyu')) return 96;
     return -5;
   }
-  if (hasName(printing, 'Shadow Rider Calyrex VMAX')) {
-    if (hasShadowV && !hasShadowVmax && !handHas(view, 'Shadow Rider Calyrex VMAX')) return 94;
+  if (printing === 'Shadow Rider Calyrex VMAX CRE 75') {
+    if (shadow.basics > 0 && shadow.vmax < 2 &&
+        !view.ownHand.includes('Shadow Rider Calyrex VMAX CRE 75')) return 94;
     return -5;
   }
-  if (hasName(printing, 'Shadow Rider Calyrex V')) {
-    if (!hasShadowV && !hasShadowVmax && !handHas(view, 'Shadow Rider Calyrex V')) return 100;
+  if (printing === 'Shadow Rider Calyrex V CRE 74') {
+    if (needShadowRiderBasic(view)) return 100 - 5 * shadowTotal;
     return -5;
   }
   if (hasName(printing, "Lillie's Clefairy ex")) {
@@ -577,17 +640,14 @@ function searchNeedScore(view, printing, effectName = '') {
     return psychicEnergyCount(view) < 5 ? 45 : 5;
   }
   if (hasName(printing, 'Fog Crystal')) {
-    return (!hasShadowV && !hasShadowVmax) || psychicEnergyCount(view) < 3 ? 60 : 10;
+    return needShadowRiderBasic(view) || psychicEnergyCount(view) < 3 ? 60 : 10;
   }
   if (hasName(printing, 'Stealthy Hood')) {
-    const lock = allBoard(view).some(slot =>
-      hasName(slot.printing, 'Iron Thorns ex') ||
-      hasName(slot.printing, 'Garbodor') ||
-      hasName(slot.printing, 'Snorlax PGO'));
     const protectedTarget = board.some(slot =>
-      hasName(slot.printing, 'Shadow Rider Calyrex V') ||
-      hasName(slot.printing, 'Shadow Rider Calyrex VMAX'));
-    return lock && protectedTarget ? 70 : 0;
+      (slot.printing === 'Shadow Rider Calyrex V CRE 74' ||
+       slot.printing === 'Shadow Rider Calyrex VMAX CRE 75') &&
+      !(slot.tools ?? []).length && toolsKnownLive(view, slot));
+    return hasAbilityLockThreat(view) && protectedTarget ? 70 : 0;
   }
   if (hasName(printing, 'Field Blower')) {
     return view.opponentPublic.stadium.some(name =>
@@ -617,8 +677,15 @@ function discardValue(view, printing) {
   if (hasName(printing, 'Psychic Energy')) {
     return psychicEnergyCount(view) >= 5 ? 2 : 80;
   }
-  if (hasName(printing, 'Dialga-GX')) {
-    return opponentHasRegidrago(view) && !discardHas(view, 'Dialga-GX') ? 1000 : 35;
+  if (printing === 'Dialga-GX UPR 100') {
+    // Psychic-only Hood Shield cannot pay Dialga-GX's own Metal attacks.
+    // Against Regidrago, it is a *discard payload* for Mimikyu GRI58's
+    // Copycat -> Apex Dragon -> Timeless-GX line. Its first discard is
+    // strategically desirable, not UDP. Protecting it with DCI=1000
+    // made every one-card discard connector fail AMR with only Dialga
+    // plus protected singleton cards in hand.
+    return opponentHasRegidrago(view) && !discardHas(view, 'Dialga-GX')
+      ? 0 : 35;
   }
   if (hasName(printing, 'Mimikyu')) {
     return opponentHasRegidrago(view) && !boardHas(view, 'Mimikyu') ? 1000 : 30;
@@ -645,6 +712,54 @@ function isItem(printing) {
   return hasAnyName(printing, ITEM_NAMES);
 }
 
+// Exact fixed-candidate BASIC 60-card print inventory: never invent a legal
+// target when a prize projection accidentally includes CRE75 VMAX or a foreign
+// printing. This is a closed-world owner policy, not a general deck parser.
+const HEAVY_BALL_CANDIDATE_BASICS = Object.freeze([
+  'Shadow Rider Calyrex V CRE 74',
+  "Lillie's Clefairy ex JTG 56",
+  'Tapu Lele-GX GRI 60',
+  'Trevenant & Dusknoir-GX SMP 217',
+  'Latias ex SSP 76',
+  'Dialga-GX UPR 100',
+  'Mimikyu GRI 58',
+  'Girafarig LOT 94',
+  'Marshadow UNB 81',
+  'Radiant Eternatus CRZ 105'
+]);
+function heavyBallPrizePriority(view, printing) {
+  // Native owner-choice prompt enumerates eligible BASIC Prize cards.
+  // No projected/known source printing -> no guess.
+  if (!HEAVY_BALL_CANDIDATE_BASICS.includes(printing))
+    return -Infinity;
+  if (printing === 'Mimikyu GRI 58' && opponentHasRegidrago(view) &&
+      !boardHas(view, 'Mimikyu') && !handHas(view, 'Mimikyu')) return 1400;
+  if (printing === 'Shadow Rider Calyrex V CRE 74' &&
+      needShadowRiderBasic(view)) return 1300;
+  if (printing === "Lillie's Clefairy ex JTG 56" &&
+      opponentHasDragon(view) && !boardHas(view, "Lillie's Clefairy ex"))
+    return 1200;
+  if (printing === 'Tapu Lele-GX GRI 60' &&
+      !boardHas(view, 'Tapu Lele-GX') &&
+      !view.ownHand.some(name => hasAnyName(name, [
+        'Arven', "Lillie's Determination", 'Iono', 'Guzma'])))
+    return 1000;
+  if (printing === 'Radiant Eternatus CRZ 105' &&
+      shadowRiderLine(view).vmax === 0 &&
+      countBench(view.ownPublic) <= 3) return 950;
+  if (printing === 'Girafarig LOT 94' && opponentHasRegidrago(view))
+    return 850;
+  if (printing === 'Latias ex SSP 76' && !boardHas(view, 'Latias ex'))
+    return 800;
+  if (printing === 'Dialga-GX UPR 100' && opponentHasRegidrago(view))
+    return 700;
+  if (printing === 'Marshadow UNB 81' &&
+      view.opponentPublic.stadium.length > 0) return 650;
+  // The native prompt has already limited choices to Basic Pokémon;
+  // picking an otherwise ordinary Basic beats surrendering the free rescue.
+  return 100;
+}
+
 function searchCandidates(view, prompt, choices) {
   const effectName = prompt.source?.effectName ?? '';
   const sourceZone = prompt.publicMetadata?.sourceZone;
@@ -654,10 +769,25 @@ function searchCandidates(view, prompt, choices) {
     rows = choices.map(choice => ({
       choice, score: wonderTagSupporterScore(view, choice.printing)
     }));
+  } else if (sourceZone === 'discard' && effectName === 'Raihan' &&
+      prompt.source?.sourcePrinting === 'Raihan EVS 152') {
+    // Raihan's first step attaches one BASIC Energy from the discard pile.
+    // The printed fixed 60 has only Psychic Basic Energy; do not select
+    // arbitrary discarded Trainer/Pokémon cards as energy.
+    rows = choices.map(choice => ({
+      choice,
+      score: choice.printing === 'Psychic Energy MEE 13' ? 1000 : -Infinity
+    }));
   } else if (sourceZone === 'discard' && effectName === 'Night Stretcher' &&
       prompt.source?.sourcePrinting === 'Night Stretcher ASC 196') {
     rows = choices.map(choice => ({
       choice, score: nightStretcherRecoveryScore(view, choice.printing)
+    }));
+  } else if (sourceZone === 'prizes' &&
+      effectName === 'Hisuian Heavy Ball' &&
+      prompt.source?.sourcePrinting === 'Hisuian Heavy Ball ASR 146') {
+    rows = choices.map(choice => ({
+      choice, score: heavyBallPrizePriority(view, choice.printing)
     }));
   } else if (sourceZone === 'deck' && effectName === 'Wonder Tag' &&
       prompt.source?.sourcePrinting === 'Tapu Lele-GX GRI 60') {
@@ -677,12 +807,20 @@ function searchCandidates(view, prompt, choices) {
       choice,
       score: hasName(choice.printing, 'Shadow Rider Calyrex VMAX CRE') ? 1000 : -Infinity
     }));
-  } else if (sourceZone === 'deck' && effectName === 'Battle Compressor') {
+  } else if (sourceZone === 'deck' &&
+      effectName === 'Battle Compressor' &&
+      prompt.source?.sourcePrinting === 'Battle Compressor PHF 92') {
+    // The original card says *up to* three, not discard exactly three.
+    // Select the exact lone attack payload for the opponent Apex Dragon
+    // Copycat counter rather than burning scarce Supporters or VMAX pieces.
+    const needDialga = opponentHasRegidrago(view) &&
+      !discardHas(view, 'Dialga-GX') &&
+      !handHas(view, 'Dialga-GX') &&
+      !boardHas(view, 'Dialga-GX') &&
+      (boardHas(view, 'Mimikyu') || handHas(view, 'Mimikyu'));
     rows = choices.map(choice => ({
-      choice,
-      score: hasName(choice.printing, 'Dialga-GX') &&
-        opponentHasRegidrago(view) && !discardHas(view, 'Dialga-GX') ? 1000 :
-        -discardValue(view, choice.printing)
+      choice, score: needDialga &&
+        choice.printing === 'Dialga-GX UPR 100' ? 1500 : -Infinity
     }));
   } else if (sourceZone === 'hand') {
     rows = choices.map(choice => ({
@@ -707,9 +845,12 @@ function chooseCardCombination(view, prompt) {
     'Get Lost': 'Girafarig LOT 94',
     'VS Seeker': 'VS Seeker PHF 109',
     'Night Stretcher': 'Night Stretcher ASC 196',
+    'Hisuian Heavy Ball': 'Hisuian Heavy Ball ASR 146',
     'Star Alchemy': 'Forest Seal Stone SIT 156',
     'Arven': 'Arven SVI 166',
-    'Teammates': 'Teammates PRC 141'
+    'Teammates': 'Teammates PRC 141',
+    'Raihan': 'Raihan EVS 152',
+    'Battle Compressor': 'Battle Compressor PHF 92'
   };
   const effect = prompt.source?.effectName;
   if (Object.hasOwn(ownerSourceBindings, effect) &&
@@ -742,13 +883,26 @@ function chooseCardCombination(view, prompt) {
       prompt.source?.sourcePrinting === 'Radiant Eternatus CRZ 105') {
     // Radiant is already Benched at this native prompt; do not choose more
     // VMAX than the remaining ordinary Bench slots (Sky Field can expand it).
-    const skyField = [...view.ownPublic.stadium, ...view.opponentPublic.stadium]
-      .some(name => hasName(name, 'Sky Field'));
-    const cap = skyField ? 8 : 5;
+    const cap = candidateBenchCapacity(view);
     maximum = Math.min(maximum, Math.max(0, cap - countBench(view.ownPublic)));
   }
 
   if (metadata.sourceZone === 'prizes' && choices.length === 0) {
+    // A genuinely empty Prize search may complete. If the host supplied
+    // card choices but withheld their identities or mislabeled ownership,
+    // abstain rather than silently surrendering a valuable singleton Item.
+    if (prompt.choices.some(choice => choice.kind === 'card'))
+      return abstain('HIDDEN_PRIZE_IDENTITY');
+    const empty = prompt.choices.find(choice =>
+      choice.kind === 'empty-selection');
+    if (prompt.source?.effectName === 'Hisuian Heavy Ball' &&
+        prompt.source?.sourcePrinting === 'Hisuian Heavy Ball ASR 146' &&
+        metadata.minimumCount === 0 && empty) {
+      setPolicyAuditRule('HEAVY_BALL_EMPTY_OWNER_PRIZE_SELECTION',
+        'ONLY_LEGAL_EMPTY_CHOICE');
+      recordPolicyAuditRule(empty.token, 'NO_BASIC_PRIZE_FOUND');
+      return { kind: 'select-choice', token: empty.token };
+    }
     return abstain('HIDDEN_PRIZE_IDENTITY');
   }
 
@@ -767,8 +921,13 @@ function chooseCardCombination(view, prompt) {
       .sort((a,b) => b.score - a.score ||
         String(a.choice.printing).localeCompare(String(b.choice.printing)));
     selected = groups.slice(0, maximum).map(row => row.choice);
-  } else if (metadata.sourceZone === 'hand' ||
-      (metadata.sourceZone === 'deck' && effect === 'Battle Compressor')) {
+  } else if (metadata.sourceZone === 'deck' && effect === 'Battle Compressor') {
+    // For minimumCount=0, ranked.slice(0, minimum) always returns [],
+    // silently discarding no Dragon donor despite a legal one being offered.
+    // Keep this source-scoped to the frozen Mimikyu/Dialga line.
+    selected = ranked.filter(row => row.score > 0)
+      .slice(0, maximum).map(row => row.choice);
+  } else if (metadata.sourceZone === 'hand') {
     selected = ranked.slice(0, minimum).filter(row => Number.isFinite(row.score))
       .map(row => row.choice);
   } else {
@@ -791,6 +950,32 @@ function chooseCardCombination(view, prompt) {
   // Arven's type-limited pair was selected atomically before cardinality checks.
 
   return { kind: 'select-choices', tokens: selected.map(choice => choice.token) };
+}
+
+function raihanRecipientScore(view, slot) {
+  if (!slot) return -Infinity;
+  const count = slotEnergyCount(slot);
+  let score = 140 - count * 10;
+  const target = view.opponentPublic.active;
+  if (target) {
+    const before = bestAttackForSlot(slot, view, target);
+    const funded = {
+      ...slot, energies: [...(slot.energies ?? []), 'Psychic Energy MEE 13']
+    };
+    const after = bestAttackForSlot(funded, view, target);
+    if (!before && after) score += 1500;
+    const remaining = Math.max(0, target.hp - target.damage);
+    if (after?.damage !== null && after?.damage >= remaining &&
+        (before?.damage === null || before?.damage < remaining)) score += 3000;
+  }
+  if (slot.printing === 'Shadow Rider Calyrex VMAX CRE 75' && count < 5)
+    score += 400;
+  if (mimikyuNeedsCopycatEnergy(view, slot)) score += 900;
+  if (slot.printing === "Lillie's Clefairy ex JTG 56" &&
+      opponentHasDragon(view) && count < 2) score += 700;
+  if (slot.printing === 'Shadow Rider Calyrex V CRE 74' && count < 3)
+    score += 300;
+  return score;
 }
 
 function choosePokemonRecipient(view, prompt) {
@@ -820,11 +1005,20 @@ function choosePokemonRecipient(view, prompt) {
        prompt.source?.sourcePrinting !== 'Acerola BUS 112')) {
     return abstain('UNTRUSTED_PROMPT_SOURCE');
   }
+  if (effectName === 'Raihan' &&
+      (prompt.source?.sourceKind !== 'card-effect' ||
+       prompt.source?.sourcePrinting !== 'Raihan EVS 152')) {
+    return abstain('UNTRUSTED_PROMPT_SOURCE');
+  }
   const actorChoices = visible.filter(row => row.target.ownerSeat === 'actor');
   const opponentChoices = visible.filter(row => row.target.ownerSeat === 'opponent');
 
   let ranked;
-  if (effectName === 'Acerola' && actorChoices.length > 0) {
+  if (effectName === 'Raihan' && actorChoices.length > 0) {
+    ranked = actorChoices.map(row => ({
+      ...row, score: raihanRecipientScore(view, row.target.slot)
+    }));
+  } else if (effectName === 'Acerola' && actorChoices.length > 0) {
     ranked = actorChoices.map(row => {
       const slot = row.target.slot;
       const safeToRemoveActive = slot !== view.ownPublic.active ||
@@ -849,14 +1043,31 @@ function choosePokemonRecipient(view, prompt) {
       };
     });
   } else if (effectName === 'Guzma' && opponentChoices.length > 0) {
-    const attacker = view.ownPublic.active;
+    // Original Guzma BUS 115 first brings an opposing Bench Pokémon Active;
+    // only THEN does it switch our Active with our Bench.  The present Active
+    // is the *departing* Pokémon and must not supply the forecast damage.
+    // Use potential post-switch Bench attackers, as at the root Guzma gate.
+    const benchAttackers = view.ownPublic.bench.filter(Boolean);
+    const attackers = benchAttackers.length > 0
+      ? benchAttackers : [view.ownPublic.active].filter(Boolean);
     ranked = opponentChoices.map(row => {
-      const attack = bestAttackForSlot(attacker, view, row.target.slot);
-      const liability = prizeLiability(row.target.slot);
+      const target = row.target.slot;
+      const remaining = Math.max(0, target.hp - target.damage);
+      const viable = attackers.map(attacker =>
+        bestAttackForSlot(attacker, view, target)).filter(Boolean);
+      const best = viable.reduce((a, b) =>
+        !a || b.score > a.score ? b : a, null);
+      const liability = estimatedKnockoutPrizeYield(view, target);
+      const terminalPrizeKO = target.printing !== 'Mimikyu PAL 97' &&
+        best?.damage !== null &&
+        best?.damage >= remaining &&
+        Number.isSafeInteger(view.ownPublic.prizeCount) &&
+        view.ownPublic.prizeCount > 0 &&
+        view.ownPublic.prizeCount <= liability;
       return {
         ...row,
-        score: (attack?.score ?? -1000) + liability * 1200 -
-          Math.max(0, row.target.slot.hp - row.target.slot.damage)
+        score: (best?.score ?? -1000) + liability * 1200 - remaining +
+          (terminalPrizeKO ? 100000 : 0)
       };
     });
   } else {
@@ -1062,21 +1273,56 @@ function chooseStartingPokemonSetup(prompt) {
     previousIndex = index;
   }
 
-  const selected = cardChoices.slice(0, metadata.maximumCount);
-  if (selected.length < metadata.minimumCount ||
-      (metadata.minimumCount === 0 && cardChoices.length > 0 && selected.length === 0)) {
-    return abstain('INSUFFICIENT_STARTING_POKEMON_CHOICES');
-  }
-  if (metadata.minimumCount === 0 && cardChoices.length === 0) {
-    const empty = emptyChoices[0];
-    return empty
-      ? { kind: 'select-choice', token: empty.token }
-      : abstain('NO_STARTING_POKEMON_CHOICE');
+  // The native initial setup may place an Active Basic and optional Benched
+  // Basics *before a player's turn starts*. Radiant Eternatus's
+  // Climactic Gate and Tapu Lele-GX's Wonder Tag are ON-PLAY-BENCH-DURING-
+  // TURN abilities: auto-benching them at setup consumes the card without
+  // triggering its engine. Likewise, indiscriminate setup-benching leaks
+  // singleton counters and extra multi-Prize liabilities.
+  const activeRank = printing => {
+    if (printing === 'Shadow Rider Calyrex V CRE 74') return 1000;
+    if (printing === 'Girafarig LOT 94') return 840;
+    if (printing === 'Mimikyu GRI 58') return 820;
+    if (printing === 'Latias ex SSP 76') return 780;
+    if (printing === "Lillie's Clefairy ex JTG 56") return 760;
+    if (printing === 'Marshadow UNB 81') return 660;
+    if (printing === 'Dialga-GX UPR 100') return 620;
+    if (printing === 'Tapu Lele-GX GRI 60') return 400;
+    if (printing === 'Radiant Eternatus CRZ 105') return 300;
+    if (printing === 'Trevenant & Dusknoir-GX SMP 217') return 200;
+    return 100;
+  };
+  for (const choice of cardChoices)
+    recordPolicyAuditScore(choice.token, activeRank(choice.printing),
+      'STARTING_ACTIVE_PRIORITY');
+  let selected = [];
+  if (metadata.minimumCount === 1 && cardChoices.length > 0) {
+    const best = [...cardChoices].sort((a,b) =>
+      activeRank(b.printing)-activeRank(a.printing) ||
+      a.publicMetadata.selectionIndex-b.publicMetadata.selectionIndex)[0];
+    selected = [best];
   }
 
-  // The native prompt has already filtered non-Basics through blocked indices.
-  // Preserve its order and let the pinned reducer's callback place cards only
-  // while Bench slots remain; do not impose a second capacity cap here.
+  // Setup only the first two printed Shadow Rider V engines; keep
+  // other Basics in hand for contextual, during-turn Bench placement.
+  const vPrinting = 'Shadow Rider Calyrex V CRE 74';
+  const alreadySelectedV = selected.filter(choice =>
+    choice.printing === vPrinting).length;
+  const extraV = cardChoices.filter(choice =>
+    choice.printing === vPrinting && !selected.some(s => s.token === choice.token))
+    .slice(0, Math.max(0, 2-alreadySelectedV));
+  selected = [...selected, ...extraV].slice(0, metadata.maximumCount);
+
+  if (selected.length < metadata.minimumCount)
+    return abstain('INSUFFICIENT_STARTING_POKEMON_CHOICES');
+  if (selected.length === 0 && metadata.minimumCount === 0) {
+    const empty = emptyChoices[0];
+    return empty ?
+      { kind: 'select-choice', token: empty.token } :
+      abstain('NO_STARTING_POKEMON_CHOICE');
+  }
+  setPolicyAuditRule('STARTING_PRESERVE_ONPLAY_BASIC_FOR_ACTUAL_TURN',
+    'ACTIVE_PRIORITY_THEN_MAX_TWO_ENGINES');
   return { kind: 'select-choices', tokens: selected.map(choice => choice.token) };
 }
 
@@ -1168,6 +1414,46 @@ function chooseEngineSetupPrompt(view, prompt) {
  * Trust only the typed, source-certified, actor-visible native choices,
  * retaining their opaque token and exact Bench index.
  */
+// Raihan EVS152's Basic-from-discard attachment may be exposed as a
+// single native AttachEnergyPrompt with actor-owned active or Bench targets.
+// Select ONLY an opaque native choice carrying a real source-printed Psychic
+// Energy and a matching visible recipient; no fabricated card/slot actions.
+function chooseRaihanEnergyAssignment(view, prompt) {
+  setPolicyAuditRule('RAIHAN_BASIC_FROM_DISCARD_ATTACH', 'SCORE_DESC_INDEX_ASC');
+  const meta = prompt.publicMetadata;
+  const source = prompt.source;
+  if (source?.sourceKind !== 'card-effect' ||
+      source.effectName !== 'Raihan' ||
+      source.sourcePrinting !== 'Raihan EVS 152' ||
+      meta?.selectionType !== 'energy-attachment' ||
+      meta.ownerSeat !== 'actor' || meta.isOwnerVisible !== true ||
+      meta.sourceZone !== 'discard' || meta.energyType !== 'BASIC' ||
+      meta.minimumCount !== 1 || meta.maximumCount !== 1)
+    return abstain('UNTRUSTED_PROMPT_SOURCE');
+  const eligible = [];
+  for (const choice of prompt.choices) {
+    const m = choice.publicMetadata;
+    const slot = m?.zone === 'active' ? view.ownPublic.active :
+      (m?.zone === 'bench' && Number.isSafeInteger(m.benchIndex) &&
+       m.benchIndex >= 0 ? view.ownPublic.bench[m.benchIndex] : null);
+    if (choice.kind !== 'energy' ||
+        choice.printing !== 'Psychic Energy MEE 13' ||
+        m?.sourceZone !== 'discard' || m.ownerSeat !== 'actor' ||
+        m.isOwnerVisible !== true || m.energyType !== 'BASIC' || !slot) {
+      recordPolicyAuditUnscored(choice.token, 'UNTRUSTED_RAIHAN_ENERGY_ASSIGNMENT');
+      continue;
+    }
+    const score = raihanRecipientScore(view, slot);
+    recordPolicyAuditScore(choice.token, score, 'UNSCORED_RAIHAN_RECIPIENT');
+    eligible.push({ choice, score, index: m.zone === 'active' ? -1 : m.benchIndex });
+  }
+  eligible.sort((a,b)=>b.score-a.score || a.index-b.index ||
+    a.choice.token.localeCompare(b.choice.token));
+  return eligible.length ?
+    {kind:'select-choice',token:eligible[0].choice.token} :
+    abstain('NO_VISIBLE_ENERGY_CHOICE');
+}
+
 function chooseUnderworldEnergyAssignment(view, prompt) {
   setPolicyAuditRule('UNDERWORLD_ENERGY_TO_PSYCHIC_BENCH', 'SCORE_DESC_INDEX_ASC');
   const meta=prompt.publicMetadata;
@@ -1198,10 +1484,9 @@ function chooseUnderworldEnergyAssignment(view, prompt) {
       continue;
     }
     let score=120-slotEnergyCount(slot)*10;
-    if (hasName(slot.printing, 'Shadow Rider Calyrex VMAX')) score+=420;
-    if (hasName(slot.printing, 'Shadow Rider Calyrex V')) score+=220;
-    if (opponentHasRegidrago(view) &&
-        hasName(slot.printing, 'Mimikyu') && slotEnergyCount(slot)<2) score+=1000;
+    if (slot.printing === 'Shadow Rider Calyrex VMAX CRE 75') score+=420;
+    else if (slot.printing === 'Shadow Rider Calyrex V CRE 74') score+=220;
+    if (mimikyuNeedsCopycatEnergy(view, slot)) score+=1000;
     if (opponentHasDragon(view) &&
         hasName(slot.printing, "Lillie's Clefairy ex") &&
         slotEnergyCount(slot)<2) score+=700;
@@ -1233,6 +1518,11 @@ function choosePrompt(view, prompt, receipt) {
       prompt.source?.classification !== 'actor-choice') {
     return abstain('UNTRUSTED_PROMPT');
   }
+  // Setup prompt descriptions are reserved for the engine. An untrusted
+  // card-effect cannot impersonate the setup source by copying its label.
+  if (prompt.description === 'CHOOSE_STARTING_POKEMONS' &&
+      prompt.source.sourceKind !== 'engine')
+    return abstain('UNTRUSTED_ENGINE_SETUP_PROMPT');
   if (prompt.source.sourceKind === 'engine') {
     return chooseEngineSetupPrompt(view, prompt);
   }
@@ -1241,6 +1531,8 @@ function choosePrompt(view, prompt, receipt) {
   }
   switch (prompt.promptType) {
     case 'AttachEnergyPrompt':
+      if (prompt.source.effectName === 'Raihan')
+        return chooseRaihanEnergyAssignment(view, prompt);
       return chooseUnderworldEnergyAssignment(view,prompt);
     case 'ChooseCardsPrompt':
       return chooseCardCombination(view, prompt);
@@ -1275,15 +1567,52 @@ function choosePrompt(view, prompt, receipt) {
   }
 }
 
+function candidateBenchCapacity(view) {
+  const skyField = [...view.ownPublic.stadium, ...view.opponentPublic.stadium]
+    .some(stadium => hasName(stadium, 'Sky Field'));
+  return skyField ? 8 : 5;
+}
+
+// These exact Aichi opponent Garbodor printings both carry Garbotoxin:
+// if equipped with a live Pokémon Tool, Abilities on Pokémon in play,
+// in hands, and in discard piles (except Garbotoxin) are suppressed.
+// A Radiant/Tapu *placed from hand* cannot retrigger its entry Ability
+// once the lock lifts. Do not burn an on-play singleton into this lock.
+const AICHI_GARBOTOXIN_PRINTINGS = Object.freeze([
+  'Garbodor LTR 68', 'Garbodor BKP 57'
+]);
+function opponentBlocksEntryAbilities(view) {
+  if (hasName(view.opponentPublic.active?.printing, 'Iron Thorns ex'))
+    return true;
+  // Neutralizing Gas is Active-only. Only the exact historical source
+  // printing is recognized; no vague "Weezing" substring inference.
+  if (view.opponentPublic.active?.printing === 'Galarian Weezing RCL 113')
+    return true;
+  return opponentBoard(view).some(slot => {
+    // Garbotoxin checks whether a Tool card is ATTACHED, not whether
+    // the Tool's own effect is live. Jamming Tower makes Tools have
+    // no effect, but does not detach them: Garbotoxin remains active.
+    if (!AICHI_GARBOTOXIN_PRINTINGS.includes(slot.printing) ||
+        !slot.tools?.length)
+      return false;
+    const flag = (slot.abilitySuppressions ?? [])
+      .find(row => row.abilityName === 'Garbotoxin');
+    return flag?.suppressed !== true;
+  });
+}
+
 function scoreBasicPlay(item, view, receipt) {
   const metadata = item.publicMetadata ?? {};
   if (metadata.targetSeat !== 'actor' || metadata.targetZone !== 'bench') return -Infinity;
   const printing = item.actorPrinting ?? '';
   if (hasName(printing, 'Tapu Lele-GX GRI')) {
+    // Leave at least one open slot after Tapu for the attacker engine.
+    // With Sky Field's eight slots, a five-/six-Pokémon Bench still has
+    // room for Wonder Tag; a fixed >=4 gate silently stranded Tapu.
     if (view.ownTurnResources.supporterPlayedTurn > 0 ||
-        countBench(view.ownPublic) >= 4 ||
+        countBench(view.ownPublic) >= candidateBenchCapacity(view) - 1 ||
         boardHas(view, 'Tapu Lele-GX') ||
-        hasName(view.opponentPublic.active?.printing, 'Iron Thorns ex') ||
+        opponentBlocksEntryAbilities(view) ||
         handHas(view, "Lillie's Determination") ||
         handHas(view, 'Arven')) return -Infinity;
     return 660;
@@ -1292,13 +1621,16 @@ function scoreBasicPlay(item, view, receipt) {
     // Active Iron Thorns ex's Initialization removes non-Future Pokémon
     // Abilities, including this Radiant's on-Bench entry. Do not spend a
     // precious Bench slot expecting a disabled Climactic Gate trigger.
-    if (hasName(view.opponentPublic.active?.printing, 'Iron Thorns ex')) {
+    if (opponentBlocksEntryAbilities(view)) {
       return -Infinity;
     }
-    // Climactic Gate is a turn-ending line; finish search, evolution, and
-    // normal energy first. Radiant takes one Bench slot and needs at least
-    // one more for a VMAX searched directly onto the Bench.
-    if (countBench(view.ownPublic) > 3 ||
+    // Climactic Gate is a turn-ending line. Radiant needs one Bench slot
+    // *for itself* and another slot for at least one VMAX. Sky Field
+    // increases the legal Bench capacity from five to eight, so the old
+    // fixed ">3" gate needlessly blocked live six-/seven-card benches.
+    const slotsAfterRadiant =
+      candidateBenchCapacity(view) - countBench(view.ownPublic) - 1;
+    if (slotsAfterRadiant < 1 ||
         ownBoard(view).filter(slot =>
           hasName(slot.printing, 'Shadow Rider Calyrex VMAX')).length >= 2) {
       return -Infinity;
@@ -1310,9 +1642,12 @@ function scoreBasicPlay(item, view, receipt) {
     if (currentAttack && currentAttack.score > 350) return -Infinity;
     return 320;
   }
-  if (hasName(printing, 'Shadow Rider Calyrex V') &&
-      !hasName(printing, 'VMAX') &&
-      !boardHas(view, 'Shadow Rider Calyrex V')) return 1000;
+  if (printing === 'Shadow Rider Calyrex V CRE 74') {
+    const line = shadowRiderLine(view);
+    const count = line.basics + line.vmax;
+    if (count === 0) return 1000;
+    if (count === 1) return 720;
+  }
   if (hasName(printing, 'Mimikyu') && opponentHasRegidrago(view) &&
       !boardHas(view, 'Mimikyu')) return 950;
   if (hasName(printing, "Lillie's Clefairy ex") && opponentHasDragon(view) &&
@@ -1320,8 +1655,10 @@ function scoreBasicPlay(item, view, receipt) {
   if (hasName(printing, 'Latias ex') && !boardHas(view, 'Latias ex')) return 650;
   if (hasName(printing, 'Girafarig') && opponentHasRegidrago(view) &&
       !boardHas(view, 'Girafarig')) return 450;
-  if (hasName(printing, 'Marshadow') &&
-      view.opponentPublic.stadium.length > 0 && !boardHas(view, 'Marshadow')) return 400;
+  if (printing === 'Marshadow UNB 81' &&
+      !opponentBlocksEntryAbilities(view) &&
+      view.opponentPublic.stadium.length > 0 &&
+      !boardHas(view, 'Marshadow')) return 400;
   return -Infinity;
 }
 
@@ -1357,7 +1694,13 @@ function scoreEnergyPlay(item, view, receipt) {
       { publicEventReceipt: receipt });
     if (!before && after) return 1120;
   }
-  if (opponentHasRegidrago(view) && hasName(target.printing, 'Mimikyu') && count < 2) return 920;
+  // Proactive Copycat funding is for the Bench. If Mimikyu is already
+  // Active, an absent last-attack receipt cannot justify consuming the
+  // sole manual attachment just to reach hypothetical future payment;
+  // its immediate attack-enabling branch above already handles a real
+  // source-stamped Apex Dragon receipt.
+  if (metadata.targetZone === 'bench' &&
+      mimikyuNeedsCopycatEnergy(view, target)) return 920;
   if (hasName(target.printing, 'Shadow Rider Calyrex VMAX') &&
       psychicEnergyCount(view) < 5 && count < 5) return 880;
   if (opponentHasDragon(view) && hasName(target.printing, "Lillie's Clefairy ex") &&
@@ -1384,10 +1727,13 @@ function hasDiscardableHand(view, required = 1, playingPrinting = null) {
 }
 
 function hasAbilityLockThreat(view) {
-  return allBoard(view).some(slot =>
-    hasName(slot.printing, 'Iron Thorns ex') ||
-    hasName(slot.printing, 'Garbodor') ||
-    hasName(slot.printing, 'Snorlax PGO'));
+  // Only opponent-side, operational Ability locks matter. Initialization,
+  // Neutralizing Gas and Snorlax Block require the Active Spot, whereas
+  // Garbotoxin LTR68/BKP57 works from Bench only with a live Tool.
+  // Merely having a spare Iron Thorns or unequipped Garbodor on Bench
+  // must not force Arven/Stealthy Hood into a dominated connector line.
+  return opponentBlocksEntryAbilities(view) ||
+    view.opponentPublic.active?.printing === 'Snorlax PGO 55';
 }
 
 function hasStadiumRemovalTarget(view) {
@@ -1417,13 +1763,11 @@ function canGuzmaForAttack(view, receipt) {
 }
 
 function stoneSearchNeed(view) {
-  const hasVMAX = ownBoard(view).some(slot =>
-    hasName(slot.printing, 'Shadow Rider Calyrex VMAX'));
   const needsCounter = opponentHasRegidrago(view) &&
     !boardHas(view, 'Mimikyu') && !handHas(view, 'Mimikyu');
   const needsEnergy = psychicEnergyCount(view) < 3 &&
     !handHas(view, 'Psychic Energy');
-  return (!hasVMAX && !handHas(view, 'Shadow Rider Calyrex VMAX')) ||
+  return needShadowRiderBasic(view) || needShadowRiderVMAX(view) ||
     needsCounter || needsEnergy;
 }
 
@@ -1444,7 +1788,11 @@ function currentActiveCanRetreat(view) {
     /ASLEEP|PARALYZED/i.test(String(condition)));
 }
 
-function toolsKnownLive(view) {
+function toolsKnownLive(view, recipient) {
+  // Tool Jammer only suppresses Tools attached to the opponent's ACTIVE.
+  // Our Benched V's Forest Seal Stone remains active even while the enemy
+  // Active holds Tool Jammer.  Unknown recipient fails closed.
+  if (!recipient) return false;
   const own = view.ownPublic.publicTurnRestrictions
     .stadiumAndToolHaveNoEffectTurnsRemaining;
   const opp = view.opponentPublic.publicTurnRestrictions
@@ -1452,7 +1800,7 @@ function toolsKnownLive(view) {
   return own === 0 && opp === 0 &&
     ![...view.ownPublic.stadium, ...view.opponentPublic.stadium]
       .some(stadium => hasName(stadium, 'Jamming Tower')) &&
-    !opponentToolJammerActive(view);
+    !(recipient === view.ownPublic.active && opponentToolJammerActive(view));
 }
 
 function ownedToolRecipient(item, view) {
@@ -1489,7 +1837,7 @@ function scoreTrainerPlay(item, view, receipt) {
     const target = ownedToolRecipient(item, view);
     const vstarUsed = view.ownPublic.publicTurnRestrictions.vstarUsed;
     if (target && hasName(target.printing, 'Shadow Rider Calyrex V') &&
-        vstarUsed === false && toolsKnownLive(view) &&
+        vstarUsed === false && toolsKnownLive(view, target) &&
         view.ownPublic.deckCount > 0 && stoneSearchNeed(view) &&
         !hasName(view.opponentPublic.active?.printing, 'Iron Thorns ex')) {
       return 680;
@@ -1502,7 +1850,7 @@ function scoreTrainerPlay(item, view, receipt) {
       view.ownPublic.bench.some(slot => slot &&
         bestAttackForSlot(slot, view, view.opponentPublic.active));
     if (target && target === view.ownPublic.active && fundedSuccessor &&
-        toolsKnownLive(view) && currentActiveCanRetreat(view) &&
+        toolsKnownLive(view, target) && currentActiveCanRetreat(view) &&
         !freeRetreatKnown(view)) return 650;
     return -Infinity;
   }
@@ -1511,6 +1859,23 @@ function scoreTrainerPlay(item, view, receipt) {
   if (hasName(name, 'Teammates PRC') && !supporterUsed &&
       receipt?.priorOpponentTurnKO?.any === true &&
       view.ownPublic.deckCount > 0) return 945;
+  if (name === 'Raihan EVS 152' && !supporterUsed &&
+      receipt?.priorOpponentTurnKO?.any === true &&
+      view.ownPublic.discard.includes('Psychic Energy MEE 13') &&
+      ownBoard(view).length > 0) {
+    const active = view.ownPublic.active;
+    const target = view.opponentPublic.active;
+    const before = target ? bestAttackForSlot(active, view, target,
+      { publicEventReceipt: receipt }) : null;
+    const funded = active && {
+      ...active, energies: [...(active.energies ?? []), 'Psychic Energy MEE 13']
+    };
+    const after = target && funded ? bestAttackForSlot(funded, view, target,
+      { publicEventReceipt: receipt }) : null;
+    // Energy plus any-card tutor beats Teammates when that acceleration
+    // immediately pays a previously unavailable current-Active attack.
+    return !before && after ? 975 : 875;
+  }
   if (hasName(name, 'Pokémon Ranger STS') && !supporterUsed &&
       attackImposedLockNeedsRanger(view, receipt)) return 840;
   if (hasName(name, 'VS Seeker') && !supporterUsed &&
@@ -1520,22 +1885,23 @@ function scoreTrainerPlay(item, view, receipt) {
   if (hasName(name, 'Night Stretcher') &&
       view.ownPublic.discard.some(printing =>
         nightStretcherRecoveryScore(view, printing) > 0)) return 690;
+  if (name === 'Hisuian Heavy Ball ASR 146' &&
+      view.ownPublic.prizeCount > 0) return 835;
   if (hasName(name, 'Field Blower') && hasStadiumRemovalTarget(view)) return 950;
   if (hasName(name, 'Battle Compressor') && opponentHasRegidrago(view) &&
       !discardHas(view, 'Dialga-GX') && !handHas(view, 'Dialga-GX') &&
       !boardHas(view, 'Dialga-GX') && (boardHas(view, 'Mimikyu') || handHas(view, 'Mimikyu'))) return 860;
   if (hasName(name, 'Fog Crystal') &&
-      (!boardHas(view, 'Shadow Rider Calyrex V') || psychicEnergyCount(view) < 3)) return 820;
+      (needShadowRiderBasic(view) || psychicEnergyCount(view) < 3)) return 820;
   if (hasName(name, 'Mysterious Treasure') && hasDiscardableHand(view, 1, name) &&
-      (opponentHasRegidrago(view) || !boardHas(view, 'Shadow Rider Calyrex V'))) return 800;
+      (opponentHasRegidrago(view) || needShadowRiderBasic(view))) return 800;
   if (hasName(name, 'Quick Ball') && hasDiscardableHand(view, 1, name) &&
-      (!boardHas(view, 'Shadow Rider Calyrex V') ||
+      (needShadowRiderBasic(view) ||
        (opponentHasRegidrago(view) && !boardHas(view, 'Mimikyu')))) return 790;
   if (hasName(name, 'Ultra Ball') && hasDiscardableHand(view, 2, name) &&
-      boardHas(view, 'Shadow Rider Calyrex V') &&
-      !boardHas(view, 'Shadow Rider Calyrex VMAX')) return 780;
+      needShadowRiderVMAX(view)) return 780;
   if (hasName(name, 'Arven') && !supporterUsed &&
-      (!boardHas(view, 'Shadow Rider Calyrex V') ||
+      (needShadowRiderBasic(view) || needShadowRiderVMAX(view) ||
        (hasAbilityLockThreat(view) && !ownBoard(view).some(slot =>
          slot.tools.some(tool => hasName(tool, 'Stealthy Hood')))))) return 760;
   if (hasName(name, 'Guzma') && !supporterUsed && canGuzmaForAttack(view, receipt)) return 750;
@@ -1547,7 +1913,7 @@ function scoreTrainerPlay(item, view, receipt) {
         slot.hp - slot.damage <= 150)) return 850;
   if (hasName(name, "Lillie's Determination") && !supporterUsed &&
       (view.ownPublic.handCount <= 5 ||
-       (!boardHas(view, 'Shadow Rider Calyrex V') &&
+       (needShadowRiderBasic(view) &&
         view.ownPublic.handCount <= 8) ||
        view.ownPublic.deckCount <= 10)) return 700;
   if (hasName(name, 'Iono PAL') && !supporterUsed) {
@@ -1569,8 +1935,12 @@ function scoreTrainerPlay(item, view, receipt) {
   if (hasName(name, 'Dimension Valley') &&
       dimensionValleyStatus(view) === false &&
       ownBoard(view).some(slot => slot.printed.types.includes('Psychic'))) return 600;
-  if (isTool(name) && hasName(name, 'Stealthy Hood') && hasAbilityLockThreat(view) &&
-      ownBoard(view).some(slot => hasName(slot.printing, 'Shadow Rider Calyrex V'))) return 580;
+  if (isTool(name) && hasName(name, 'Stealthy Hood') &&
+      hasAbilityLockThreat(view) &&
+      ownBoard(view).some(slot =>
+        (slot.printing === 'Shadow Rider Calyrex V CRE 74' ||
+         slot.printing === 'Shadow Rider Calyrex VMAX CRE 75') &&
+        !(slot.tools ?? []).length && toolsKnownLive(view, slot))) return 580;
   return -Infinity;
 }
 
@@ -1578,13 +1948,7 @@ function freeRetreatKnown(view) {
   const active = view.ownPublic.active;
   if (!active) return false;
   const hasFloatStone = active.tools.some(tool => hasName(tool, 'Float Stone'));
-  if (hasFloatStone) {
-    const ownSuppression =
-      view.ownPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining;
-    const opponentSuppression =
-      view.opponentPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining;
-    if (ownSuppression === 0 && opponentSuppression === 0) return true;
-  }
+  if (hasFloatStone && toolsKnownLive(view, active)) return true;
   const isBasic = active.printed.subtypes.includes('Basic');
   return isBasic && skylinerStatus(view) === true;
 }
@@ -1632,10 +1996,86 @@ function eligibleCandidateDoor(view, actions) {
     hasName(a.actorPrinting, 'Shadow Rider Calyrex VMAX')) ?? null;
 }
 
+// A native-offered, printed-damage terminal attack should not be deferred
+// behind a draw Supporter or surplus Bench play: either can squander the
+// current winning position (including by drawing toward an empty deck).
+// This is a deliberately narrow forecast, not a general damage simulator.
+// We only fast-path the fixed candidate's two well-defined direct attackers;
+// exact native attack actions remain authoritative.
+function candidateTerminalAttack(view, items, receipt) {
+  const attacker = view.ownPublic.active;
+  const defender = view.opponentPublic.active;
+  if (!attacker || !defender) return null;
+  // Safeguard on exact Aichi Mimikyu PAL97 (ranks 3 and 7) prevents ALL
+  // attack damage from Pokémon ex and Pokémon V, including VMAX. The
+  // source-policy fast path must not convert such a guarded hit into a
+  // claimed final-Prize or last-board victory. Conservatively defer even
+  // when Ability suppression status is not fully certified by this view.
+  const attackerClasses = attacker.printed?.subtypes ?? [];
+  const modernExOrV = attackerClasses.includes('ex') ||
+    attackerClasses.some(x => ['V', 'VMAX', 'VSTAR', 'V-UNION'].includes(x)) ||
+    /(?: ex| VMAX| VSTAR| V)(?: |$)/.test(attacker.printing ?? '');
+  // Historical Pokémon-EX and Pokémon-GX are NOT modern Pokémon ex;
+  // the PAL97 text does not grant blanket protection against those.
+  if (defender.printing === 'Mimikyu PAL 97' && modernExOrV)
+    return null;
+  const remaining = defender.hp - defender.damage;
+  if (!Number.isFinite(remaining) || remaining <= 0) return null;
+  const prizes = view.ownPublic.prizeCount;
+  // Legacy Energy TWM167 (five original Aichi lists) and Life Dew PLF107
+  // (one list) subtract one Prize from attack-damage Knock Outs. The once-
+  // per-game Legacy use counter is not publicly certified here, so treat
+  // an attached copy as available (conservative for a terminal forecast).
+  // Jamming Tower disables the Tool effect of Life Dew, not an Energy.
+  const effectivePrizes = estimatedKnockoutPrizeYield(view, defender);
+  const finalPrizeKO = Number.isSafeInteger(prizes) &&
+    prizes > 0 && prizes <= effectivePrizes;
+  // Never reinterpret an omitted/unknown opponent Bench as a known empty one.
+  const boardWipe = Array.isArray(view.opponentPublic.bench) &&
+    view.opponentPublic.bench.every(slot => !slot);
+  if (!finalPrizeKO && !boardWipe) return null;
+
+  // Original Aichi ranks 6 and 29 include Spiky Energy, which puts two
+  // counters on the Attacking Pokémon when the holder is damaged. Do not
+  // label a simultaneous self-KO a sure game win; defer the decision to
+  // the normal root policy when survival is not established.
+  if ((defender.energies ?? []).some(name => hasName(name, 'Spiky Energy')) &&
+      attacker.hp - attacker.damage <= 20) return null;
+
+  let best = null;
+  for (const item of items) {
+    if (item.kind !== 'attack' ||
+        !['Max Geist', 'Eon Blade'].includes(item.attackName)) continue;
+    const attack = (attacker.attacks ?? [])
+      .find(row => row.name === item.attackName);
+    if (!attack) continue;
+    const score = attackScore(attacker, attack, view, defender, {
+      requirePayable: true, publicEventReceipt: receipt
+    });
+    const damage = estimatedDamage(attacker, attack, view, defender);
+    if (!Number.isFinite(score) || damage === null ||
+        damage < remaining) continue;
+    if (!best || score > best.score ||
+        (score === best.score && item.token < best.item.token)) {
+      best = { item, score };
+    }
+  }
+  return best;
+}
+
 function chooseRoot(view, request) {
   const items = request.actionFrontier.items.filter(item =>
     ['play-card', 'attack', 'retreat', 'use-ability', 'use-stadium', 'pass'].includes(item.kind));
   const pass = items.find(item => item.kind === 'pass');
+
+  const terminal = candidateTerminalAttack(view, items,
+    request.publicEventReceipt);
+  if (terminal) {
+    setPolicyAuditRule('ROOT_FORECAST_TERMINAL_ATTACK_BEFORE_RESOURCE_PLAY',
+      'SCORE_DESC_TOKEN_ASC');
+    recordPolicyAuditScore(terminal.item.token, terminal.score);
+    return { kind: 'select-action', token: terminal.item.token };
+  }
 
   const plays = items.filter(item => item.kind === 'play-card');
   const scoredPlays = plays.map(item => {
@@ -1705,11 +2145,11 @@ function chooseRoot(view, request) {
         view.ownPublic.publicTurnRestrictions.vstarUsed !== false ||
         !stoneSearchNeed(view) ||
         view.ownPublic.deckCount <= 0 ||
-        !toolsKnownLive(view) ||
         hasName(view.opponentPublic.active?.printing, 'Iron Thorns ex')) return false;
     return ownBoard(view).some(slot =>
       hasName(slot.printing, 'Shadow Rider Calyrex V') &&
-      slot.tools.some(tool => hasName(tool, 'Forest Seal Stone')));
+      slot.tools.some(tool => hasName(tool, 'Forest Seal Stone')) &&
+      toolsKnownLive(view, slot));
   });
   if (starAlchemy) {
     setPolicyAuditRule('ROOT_FOREST_SEAL_STONE_STAR_ALCHEMY',
