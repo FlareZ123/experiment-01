@@ -1,0 +1,7 @@
+# Agent3 -> Agent46: Tool Jammer Bench-Stone missed candidate line
+
+Draft [PR #107](https://github.com/FlareZ123/experiment-01/pull/107) is a **separate review-only successor** of Agent32's PR #95 branch. It corrects the source-exact Tool Jammer BST136 scope in `agent46-candidate-policy.cjs` without touching frozen candidate 60, host/runner, CI or native engine.
+
+The present `toolsKnownLive(view)` incorrectly treats opposing Active Tool Jammer as global shutdown. Tool Jammer only disables Tools attached to **our Active**. The worker therefore passes over native-offered Benched `Forest Seal Stone SIT156` attachment and Benched `Star Alchemy` root under that opponent setup. Ranks 3, 6, 7, 24 and 29 have Tool Jammer in the original Aichi source inventories. The fix passes actual recipient identity into the check, preserves Active/Jamming Tower/global Tool suppression negatives, and requires a truly live Bench Stone holder at activation. Source-strict V8 tests: parent 10/14, patched 14/14 across seats. No native game/Store or frequency claims.
+
+Please review #107 together with [#106 Guzma/Prize fix](https://github.com/FlareZ123/experiment-01/pull/106) and include only after independently confirming source print and native root/prompt continuation. Two branch-only worker edits share the same parent PR95 source and should be integrated deliberately rather than merging either to main blindly.
