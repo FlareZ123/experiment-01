@@ -5,7 +5,7 @@ const {validateDecision,validatePrompt}=require('../../simulation/evaluation/202
 const {
  POLICY_VERSION,SOURCE_RANK,SOURCE_BLOB_SHA1,SOURCE_PRINTINGS,
  createPolicy,scoreRoot,searchValue,sourceDiscardValue,benchOpen,
- resolveSourcePrinting,templeUnlocksApex,carmineScore
+ resolveSourcePrinting,templeUnlocksApex,carmineScore,resettingHoleScore
 }=require('../../simulation/evaluation/2026-11/agent2-rank18-regidrago-opponent-policy.cjs');
 const P={
  v:'Regidrago V SIT 135',star:'Regidrago VSTAR SIT 136',
@@ -336,5 +336,45 @@ test('Carmine discard payoff is conditional on Apex donors and guarded UDP',()=>
   const noDonor=obs(seat,{...live,ownHand:['Carmine TWM 145',
     'Sky Field ROS 89','Guzma BUS 115','Ultra Ball MEG 131']});
   assert.equal(carmineScore(noDonor)<carmineScore(live),true);
+ }
+});
+
+
+test('Bench-only Marshadow Resetting Hole is a distinct Temple/Path unlock',()=>{
+ for(const seat of [0,1]){
+  const original=obs(seat);
+  const marshadow=pokemon('Marshadow UNB 81',{
+    printed:{types:['Psychic'],subtypes:['Basic']}});
+  const state=obs(seat,{ownPublic:{...original.ownPublic,
+    active:pokemon(P.star,{energies:['Double Dragon Energy ROS 97',
+      'Grass Energy MEE 9']}),
+    bench:[marshadow],
+    stadium:['Temple of Sinnoh ASR 155'],
+    discard:[P.goodra]}});
+  const hole=action('hole','Marshadow UNB 81','use-ability',{
+    publicMetadata:{abilityName:'Resetting Hole'}});
+  const sky=action('sky',P.sky);
+  const quick=action('quick',P.quick);
+  assert.equal(templeUnlocksApex(state),true);
+  assert.equal(resettingHoleScore(state),560);
+  assert.deepEqual(root(seat,state,[hole,quick,action('pass','Pass','pass')]),
+    {kind:'select-action',token:'hole'});
+  assert.deepEqual(root(seat,state,[hole,sky,quick]),
+    {kind:'select-action',token:'sky'});
+  const absent=obs(seat,{ownPublic:{...state.ownPublic,bench:[]}});
+  assert.equal(resettingHoleScore(absent),-Infinity);
+  const wrongSource=action('forged','Marshadow UNB 999','use-ability',{
+    publicMetadata:{abilityName:'Resetting Hole'}});
+  assert.equal(scoreRoot(wrongSource,{observation:state}),-Infinity);
+  const path=obs(seat,{ownPublic:{...state.ownPublic,
+    stadium:['Path to the Peak CRE 148'],discard:[]}});
+  assert.equal(resettingHoleScore(path),395);
+  const used=obs(seat,{ownPublic:{...path.ownPublic,
+    publicTurnRestrictions:{vstarUsed:true}}});
+  assert.equal(resettingHoleScore(used),125);
+  const wide=obs(seat,{ownPublic:{...state.ownPublic,
+    bench:Array.from({length:6},(_,i)=>i===0?marshadow:pokemon(P.v)),
+    stadium:[P.sky]}});
+  assert.equal(resettingHoleScore(wide),-Infinity);
  }
 });
