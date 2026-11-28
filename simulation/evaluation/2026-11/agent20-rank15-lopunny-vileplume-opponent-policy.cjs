@@ -338,12 +338,13 @@ function quickSearchPrompt(request) {
   return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
     abstain('NO_LEGAL_CARD_SET');
 }
-function guzmaOpportunity(o) {
+function guzmaOpportunity(o,{resolvingGuzma=false}={}) {
   // Proposed gust is intentionally *not* a native damage projection. It
   // requires an observable powered Bench attacker and target, then selects
   // only when the printed unmodified Gale Thrust could secure Prize tempo.
   const own=o?.ownPublic,opp=o?.opponentPublic;
-  if(!own||!opp||!opp.active||has(own.active,P.bus)||!supporterUnused(o))
+  if(!own||!opp||!opp.active||has(own.active,P.bus)||
+    (!resolvingGuzma&&!supporterUnused(o)))
     return null;
   const bench=arr(own.bench),targets=arr(opp.bench);
   const attackerIndex=bench.findIndex(x=>has(x,P.mega)&&arr(x.energies).length>=1&&
@@ -352,7 +353,6 @@ function guzmaOpportunity(o) {
   if(attackerIndex<0)return null;
   const attacker=bench[attackerIndex];
   if(arr(attacker.tools).some(x=>has(x,P.choiceBelt)))return null;
-  if(opp.publicTurnRestrictions?.abilityPokemonPlayLocked) { /* no consequence to gust */ }
   const prizes=Number.isSafeInteger(own.prizeCount)?own.prizeCount:null;
   const ranked=targets.map((x,index)=>{
     if(!x||!Number.isSafeInteger(x.hp)||!Number.isSafeInteger(x.damage)||
@@ -377,7 +377,7 @@ function guzmaPrompt(request) {
     !Number.isSafeInteger(m.minimumCount)||!Number.isSafeInteger(m.maximumCount)||
     m.minimumCount!==1||m.maximumCount!==1)
     return abstain('UNSUPPORTED_POKEMON_PROMPT');
-  const chance=guzmaOpportunity(o);
+  const chance=guzmaOpportunity(o,{resolvingGuzma:true});
   if(!chance)return abstain('NO_SUPPORTED_POKEMON_CHOICE');
   const source=arr(p.choices).filter(c=>c.kind==='pokemon'&&
     typeof c.token==='string'&&c.publicMetadata?.targetZone==='bench');
