@@ -1918,7 +1918,8 @@ test('rank29 V3 policyAudit covers opposing Fan prompt and legal empty selection
   const withMove=checkedAudited(promptRequest(fields),0,policy);
   assert.deepEqual(withMove.decision,{kind:'select-choice',token:'move'});
   assert.equal(withMove.policyAudit.evaluations[0].status,'scored');
-  assert.equal(withMove.policyAudit.evaluations[1].status,'not-evaluated');
+  assert.equal(withMove.policyAudit.evaluations[1].status,'scored');
+  assert.equal(withMove.policyAudit.evaluations[1].score,0);
   const withoutMove=checkedAudited(promptRequest({
     ...fields,choices:[fields.choices[1]],
     publicMetadata:{...fields.publicMetadata,count:1},
@@ -1936,6 +1937,7 @@ test('rank29 V3 policyAudit resolves engine setup and abstention without replaye
   const setup=promptRequest({
     promptType:'ConfirmPrompt',
     source:actorChoiceSource(null,'GO_FIRST'),
+    description:'GO_FIRST',
     observation:{phase:1,globalTurn:0},
     publicMetadata:{selectionType:'confirm',minimumCount:1,
       maximumCount:1,allowCancel:false},
