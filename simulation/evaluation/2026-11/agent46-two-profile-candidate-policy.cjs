@@ -3997,7 +3997,20 @@ function directTerminalHarmlessAbility(slot,name){
     (name==='Fan Call'&&hasName(slot.printing,'Fan Rotom')) ||
     (name==='Fusion Strike System'&&hasName(slot.printing,'Genesect V')) ||
     (name==='Resetting Hole'&&hasName(slot.printing,'Marshadow')) ||
-    (name==='Extra Energy Bomb'&&hasName(slot.printing,'Electrode-GX'));
+    (name==='Extra Energy Bomb'&&hasName(slot.printing,'Electrode-GX')) ||
+    // These board restrictions affect what actions can be *played* or which
+    // Abilities work, not direct incoming damage or a resolved Prize KO.
+    // An attack barred by an active lock is still vetoed by its own
+    // cannotAttackPublicly/frontier gate; do not use this for projected plans.
+    (name==='Initialization'&&hasName(slot.printing,'Iron Thorns ex')) ||
+    (name==='Bide Barricade'&&hasName(slot.printing,'Wobbuffet')) ||
+    (name==='Irritating Pollen'&&hasName(slot.printing,'Vileplume AOR')) ||
+    (name==='Disgusting Pollen'&&hasName(slot.printing,'Vileplume BUS')) ||
+    (name==='Sentinel'&&hasName(slot.printing,'Stoutland BCR')) ||
+    (name==='Mischievous Lock'&&hasName(slot.printing,'Klefki')) ||
+    (name==='Neutralizing Gas'&&hasName(slot.printing,'Galarian Weezing')) ||
+    (name==='Power of Alchemy'&&hasName(slot.printing,'Alolan Muk')) ||
+    (name==='Midnight Fluttering'&&hasName(slot.printing,'Flutter Mane'));
 }
 function astralTerminalHarmlessAbility(slot,name){
   return (name==='Safeguard'&&hasName(slot.printing,'Mimikyu PAL')) ||

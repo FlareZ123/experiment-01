@@ -1992,3 +1992,45 @@ paired('Agent46: inert source Stadium must not mask a payable direct final Prize
   view.ownPublic.active.printed.types=['Lightning'];
   assert.notEqual(final(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
 });
+
+paired('Agent46: opponent control locks do not by themselves negate a funded direct Prize KO',(seat,profile)=>{
+  const candidate=vmax(Array(9).fill(P));
+  const view=observation(seat,{active:candidate,opponentActive:defender({hp:280})});
+  view.globalTurn=8;view.ownPublic.prizeCount=2;
+  const max={token:'max',kind:'attack',attackName:'Max Geist'};
+  const policy=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile});
+  const rule=()=>policy.decideWithAudit(root(seat,view,[max])).policyAudit.selectionRuleCode;
+  const lockHolders=[
+    ['Iron Thorns ex TWM','Initialization',true],
+    ['Wobbuffet PHF','Bide Barricade',true],
+    ['Vileplume AOR','Irritating Pollen',false],
+    ['Vileplume BUS','Disgusting Pollen',true],
+    ['Stoutland BCR','Sentinel',true],
+    ['Klefki SVI','Mischievous Lock',true],
+    ['Galarian Weezing RCL','Neutralizing Gas',true],
+    ['Alolan Muk SUM','Power of Alchemy',false],
+    ['Flutter Mane TEF','Midnight Fluttering',true]
+  ];
+  for(const [printing,ability,active] of lockHolders){
+    const lock=pokemon({printing,name:printing,abilities:[ability],suppression:false});
+    if(active){
+      lock.hp=300;lock.damage=0;
+      lock.printed.subtypes=['Basic','ex'];
+      view.opponentPublic.active=lock;
+      view.opponentPublic.bench=[null,null,null,null,null];
+    } else {
+      view.opponentPublic.active=defender({hp:280});
+      view.opponentPublic.bench=[lock,null,null,null,null];
+    }
+    assert.equal(rule(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK',printing);
+  }
+  // Active Vileplume BUS genuinely bars a Basic from using Shadow Mist.
+  const bust=pokemon({printing:'Vileplume BUS',name:'Vileplume',hp:110,damage:100,
+    abilities:['Disgusting Pollen'],suppression:false});
+  view.ownPublic.active=v([P]);view.opponentPublic.active=bust;
+  view.opponentPublic.bench=[null,null,null,null,null];
+  view.ownPublic.prizeCount=1;
+  const mist={token:'mist',kind:'attack',attackName:'Shadow Mist'};
+  const basic=policy.decideWithAudit(root(seat,view,[mist]));
+  assert.notEqual(basic.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+});
