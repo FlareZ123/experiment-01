@@ -499,7 +499,7 @@ function projectMoveEnergy(prompt, state, actorSeat, native, source, choices, ch
       !prompt.slots.some(x => enumName(native.SlotType, x) === 'BENCH') ||
       prompt.filter?.name !== 'Water Energy' ||
       prompt.options?.allowCancel !== false ||
-      prompt.options?.min !== 1 ||
+      ![0, 1].includes(prompt.options?.min) ||
       (prompt.options?.max !== undefined && prompt.options?.max !== null) ||
       (prompt.options?.blockedMap?.length ?? 0) !== 0) {
     throw Object.assign(new Error('Uncertified native MoveEnergyPrompt contract'), {
@@ -564,10 +564,16 @@ function projectMoveEnergy(prompt, state, actorSeat, native, source, choices, ch
       code: 'NO_ELIGIBLE_ENERGY_TRANSFERS'
     });
   }
+  // The exact Articuno zero-movement hook may change min=1 to min=0 once
+  // the Active switch itself has resolved. Make that actual optional native
+  // selection explicit rather than pretending one transfer is mandatory.
+  if (prompt.options.min === 0) {
+    addEmptySelectionChoice(choices, choiceByToken, prompt, state);
+  }
   return {
     selectionType: 'energy-transfer',
-    minimumCount: 1,
-    maximumCount: choices.length,
+    minimumCount: prompt.options.min,
+    maximumCount: choices.filter(choice => choice.kind === 'energy').length,
     allowCancel: false,
     ownerSeat: 'actor',
     sourceZone: 'bench',
