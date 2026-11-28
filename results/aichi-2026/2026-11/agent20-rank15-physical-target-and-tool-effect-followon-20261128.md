@@ -42,6 +42,14 @@ The exact source 60 also carries **Pidgey FLF75** (Peck Off, 10 damage) and **Pi
 
 A live PCE + Choice Belt yields **60 Peck Off** and **170 Blustery Wind** into an unprotected Pokémon V; Jamming Tower reduces the latter to **140**, Temple of Sinnoh reduces it to **150**; a global Stadium-and-Tool-nullifying effect reduces it to **140** irrespective of Jamming/Temple. All examples use card text and actor-visible board modifiers; they are not full attacked-turn / Knock Out receipts. They matter because these cards belong to the *same fixed rank15 source opponent*, rather than being optional speculative off-archetype additions.
 
+## Grand Tree: same-printing Basic age and Active evolution
+
+Grand Tree SCR136 explicitly evolves one of the player's Basic Pokémon *in play*, subject to the prohibition on evolving a Basic put into play this turn. The earlier worker limited target search to Benched Pokémon and compared a selected Grand Tree prompt choice only against the target's **printing**, not its **physical Bench index**. Under a public board with Oddish A placed this turn (Bench index 0) and identical Oddish B established last turn (index 1), it selected A if that token appeared first, even though B was the viable legal evolution target. This directly prevents successful Stage1/Stage2 lock setup.
+
+The correction identifies an established physical target by its `lastPlayedOrEvolvedTurn` and actual Bench index; an indexless same-printing choice is accepted only if it identifies a unique visible Bench printing. It additionally permits an **established Active Basic** when no better eligible Benched target is available and only selects an actor-owned Active token whose zone matches. If the source prompt is explicitly Bench-only, it does not invent an Active selection.
+
+Both-seat constructed cases cover newly planted versus old Oddish in either Bench order, indexless collisions, unique fallback, established Active-only, old Active versus new Bench, new Active versus old Bench, explicitly Bench-restricted negatives, and actual offered `use-stadium` root activation. The correction is a source-policy decision test, not an authenticated pinned Store evolution chain or a game.
+
 ## Reproducible assets
 
 - Policy: `simulation/evaluation/2026-11/agent20-rank15-lopunny-vileplume-opponent-policy.cjs`
@@ -49,9 +57,10 @@ A live PCE + Choice Belt yields **60 Peck Off** and **170 Blustery Wind** into a
 - Tool/Stadium tests: `tests/2026-11/agent20-rank15-jamming-belt-terminal-heldout.test.cjs` (**16** cases)
 - Terminal Mega promotion: `tests/2026-11/agent20-rank15-terminal-gale-promotion-heldout.test.cjs` (**12** cases)
 - Colorless source damage: `tests/2026-11/agent20-rank15-colorless-modifiers-heldout.test.cjs` (**12** cases)
-- Exact final policy blob: `97d324098b6719d14195be9160e9b33086cff7a2`
-- Exact test blobs: `04aa7326f3d2c3bf18b115ca48d6988021c511cb`, `99418a2ca86cc651773af5cf3248979e4563317c`, `5d99721052439eb84849b4094ad98e0c6bd16132`, `fea7ca06fc33741301619f13dd8782a2ccfcd57a`
-- Executed both committed test files against the exact policy blob with a JavaScript CommonJS V8 shim for `node:test`, `node:assert/strict`, and the policy module: **50 passed / 0 failed**. This confirms synchronous decision assertions only. The V8 shim is not Node CLI, pinned Twinleaf Store, native protocol, source-deck game, or competitive qualification.
+- Grand Tree target age/slot/Active: `tests/2026-11/agent20-rank15-grandtree-physical-evolution-heldout.test.cjs` (**18** cases)
+- Exact final policy blob: `669ffab2e38da1fbeee3d662eb40168119d39cbd`
+- Exact test blobs: `04aa7326f3d2c3bf18b115ca48d6988021c511cb`, `99418a2ca86cc651773af5cf3248979e4563317c`, `5d99721052439eb84849b4094ad98e0c6bd16132`, `fea7ca06fc33741301619f13dd8782a2ccfcd57a`, `7fa0f188ae3b889e16163fb8af639632dd4816e8`
+- Executed both committed test files against the exact policy blob with a JavaScript CommonJS V8 shim for `node:test`, `node:assert/strict`, and the policy module: **68 passed / 0 failed**. This confirms synchronous decision assertions only. The V8 shim is not Node CLI, pinned Twinleaf Store, native protocol, source-deck game, or competitive qualification.
 
 The original PR90 head reproduced the wrong Jet and TM selections and the absent correct Hood decision before the follow-on patch. Neither PR90 nor PR93 should be treated as an admission to main or a frozen policy. Both may be challenged through independent actor-visible native continuation before any owner-approved game. No CI or V3 dispatch was performed here.
 
