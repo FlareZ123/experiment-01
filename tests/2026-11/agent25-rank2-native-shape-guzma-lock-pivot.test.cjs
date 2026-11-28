@@ -258,4 +258,52 @@ for (const seat of [0, 1]) {
     });
   }
 
+  function supporterContestedView() {
+    const view = actorView(seat);
+    view.ownHand = ['Guzma BUS 115', 'Guzma & Hala CEC 193',
+      'Grass Energy MEE 9', 'Grass Energy MEE 9'];
+    view.ownPublic.bench[3] = {
+      printing: 'Oddish UNB 5', hp: 50, damage: 0,
+      lastPlayedOrEvolvedTurn: 1, printed: { stage: 'BASIC' }
+    };
+    return view;
+  }
+  function supporterContestedActions(view) {
+    const root = rootRequest(seat, view, false);
+    root.actionFrontier.items.push({
+      token: 'guzma-hala', kind: 'play-card',
+      actorPrinting: 'Guzma & Hala CEC 193',
+      publicMetadata: { cardType: 'trainer', handIndex: 1 }
+    });
+    return root;
+  }
+  test('seat ' + seat + ': established lock pivot outranks competing Guzma & Hala Supporter search', () => {
+    const view = supporterContestedView();
+    assert.deepEqual(policy(seat).decide(supporterContestedActions(view)),
+      { kind: 'select-action', token: 'guzma' });
+  });
+
+  test('seat ' + seat + ': without preexisting Item lock Guzma does not consume the Supporter slot', () => {
+    const view = supporterContestedView();
+    view.opponentPublic.publicTurnRestrictions.itemPlayLocked = false;
+    assert.deepEqual(policy(seat).decide(supporterContestedActions(view)),
+      { kind: 'select-action', token: 'guzma-hala' });
+  });
+
+  test('seat ' + seat + ': free Quick Search still precedes the lock-pivot Supporter', () => {
+    const view = supporterContestedView();
+    view.ownPublic.bench[4] = {
+      printing: 'Pidgeot ex OBF 164', hp: 280,
+      abilities: ['Quick Search'], damage: 0
+    };
+    const request = supporterContestedActions(view);
+    request.actionFrontier.items.push({
+      token: 'quick-search', kind: 'use-ability',
+      actorPrinting: 'Pidgeot ex OBF 164',
+      publicMetadata: { abilityName: 'Quick Search' }
+    });
+    assert.deepEqual(policy(seat).decide(request),
+      { kind: 'select-action', token: 'quick-search' });
+  });
+
 }
