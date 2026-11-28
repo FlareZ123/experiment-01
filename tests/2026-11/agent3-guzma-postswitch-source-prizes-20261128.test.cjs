@@ -85,7 +85,7 @@ const latias = (remain) => mon('Latias ex SSP 76', 210, 210 - remain,
 const drago = (remain) => mon('Regidrago VSTAR SIT 136', 280, 280 - remain,
   ['VSTAR']);
 const mimikyu = (remain) => mon('Mimikyu GRI 58', 70, 70 - remain);
-const oldMega = (remain) => mon('M Rayquaza-EX ROS 76', 230, 230 - remain,
+const oldMega = (remain) => mon('M Rayquaza-EX ROS 76', 220, 220 - remain,
   ['MEGA', 'EX']);
 const cases = [
   ['Guzma uses post-switch Bench Latias rather than departing active',
