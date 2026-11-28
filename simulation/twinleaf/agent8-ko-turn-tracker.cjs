@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent8-store-ko-turn-tracker-v1';
+const VERSION='agent47-opponent-owned-ko-turn-tracker-v2';
 const PINNED='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const BASE=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 
@@ -21,9 +21,34 @@ function createKnockoutTurnTracker(startingTurn){
   assert.ok(safeTurn(startingTurn),'Starting Store turn must be known');
   const coveredFromTurn=startingTurn+1;
   const eventsByTurn=new Map();
-  const completedTurns=new Set();
+  const completedTurns=new Map();
   const uncertainTurns=new Set();
   let recordedEvents=0;
+
+  // A numbered turn may be followed by ANOTHER turn from the same player.
+  // Therefore 'the opponent's last turn' cannot be currentTurn - 1.
+  // Require continuous, authenticated owner coverage through the present.
+  function lastCompletedOpponentTurn(ownerId,opponentId,currentTurn){
+    if(ownerId===undefined||opponentId===undefined||ownerId===opponentId||
+       !safeTurn(currentTurn)||currentTurn<=1)return null;
+    for(let t=currentTurn-1;t>=coveredFromTurn;t--){
+      if(!completedTurns.has(t)||uncertainTurns.has(t))return null;
+      const completedOwner=completedTurns.get(t);
+      if(completedOwner!==ownerId&&completedOwner!==opponentId)return null;
+      if(completedOwner===opponentId)return t;
+    }
+    return null;
+  }
+  function certifiedSnapshot(ownerId,opponentId,currentTurn){
+    const turn=lastCompletedOpponentTurn(ownerId,opponentId,currentTurn);
+    if(turn===null)return null;
+    return Object.freeze({turn,
+      events:Object.freeze((eventsByTurn.get(turn)??[])
+        .filter(row=>row.victimPlayerId===ownerId&&
+          row.attackerPlayerId===opponentId)
+        .map(row=>Object.freeze({...row})))
+    });
+  }
 
   return Object.freeze({
     version:VERSION,
@@ -49,26 +74,30 @@ function createKnockoutTurnTracker(startingTurn){
       assert.ok(safeTurn(turn));
       if(turn>=coveredFromTurn)uncertainTurns.add(turn);
     },
-    completeTurn(turn){
+    completeTurn(turn,ownerPlayerId){
       assert.ok(safeTurn(turn));
-      if(turn>=coveredFromTurn)completedTurns.add(turn);
+      assert.ok(ownerPlayerId!==undefined && ownerPlayerId!==null,
+        'Completed turn must have an authenticated owner');
+      if(turn<coveredFromTurn)return;
+      const before=completedTurns.get(turn);
+      if(before!==undefined && before!==ownerPlayerId){
+        uncertainTurns.add(turn);
+        return;
+      }
+      completedTurns.set(turn,ownerPlayerId);
     },
+    lastCompletedOpponentTurn,
+    snapshotWithTurn:certifiedSnapshot,
     snapshot(ownerPlayerId,opponentPlayerId,currentTurn){
-      if(ownerPlayerId===undefined||opponentPlayerId===undefined||
-         !safeTurn(currentTurn)||currentTurn<=1)return null;
-      const previousTurn=currentTurn-1;
-      if(previousTurn<coveredFromTurn||
-         !completedTurns.has(previousTurn)||
-         uncertainTurns.has(previousTurn))return null;
-      return Object.freeze((eventsByTurn.get(previousTurn)??[])
-        .filter(row=>row.victimPlayerId===ownerPlayerId&&
-          row.attackerPlayerId===opponentPlayerId)
-        .map(row=>Object.freeze({...row})));
+      return certifiedSnapshot(ownerPlayerId,opponentPlayerId,currentTurn)?.events??null;
     },
     audit(){
       return Object.freeze({
         version:VERSION,coveredFromTurn,recordedEvents,
-        completedTurns:Object.freeze([...completedTurns].sort((a,b)=>a-b)),
+        completedTurns:Object.freeze([...completedTurns.keys()].sort((a,b)=>a-b)),
+        completedTurnOwners:Object.freeze([...completedTurns.entries()]
+          .sort((a,b)=>a[0]-b[0]).map(([turn,ownerPlayerId])=>
+            Object.freeze({turn,ownerPlayerId}))),
         uncertainTurns:Object.freeze([...uncertainTurns].sort((a,b)=>a-b))
       });
     }
@@ -147,8 +176,13 @@ function installStoreKnockoutTurnTracker(store,dependencies={}){
 
     if(effect instanceof EndTurnEffect){
       const afterTurn=safeTurn(result?.turn)?result.turn:state?.turn;
-      if(safeTurn(turn)&&safeTurn(afterTurn)&&afterTurn>turn)
-        tracker.completeTurn(turn);
+      if(safeTurn(turn)&&safeTurn(afterTurn)&&afterTurn>turn){
+        // The effect's player must be the owner of the ending turn. Do not
+        // certify a turn inferred from the post-transition activePlayer.
+        const owner=effect.player;
+        if(owner?.id===actor?.id)tracker.completeTurn(turn,owner.id);
+        else tracker.markUncertain(turn);
+      }
     }
     return result;
   }
