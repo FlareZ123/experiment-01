@@ -247,3 +247,35 @@ for(const seat of [0,1]) {
     assert.deepEqual(checked(request,seat),{kind:'select-action',token:'pass'});
   });
 }
+
+/* Native pinned Twinleaf Dark Patch -> one AttachEnergyPrompt, not
+ * separate Pokémon/Energy prompt phases. Actor discard to Benched Mega. */
+for(const seat of [0,1]){
+  function nativeEnergy(token,index,origin='discard'){
+    return {token,kind:'energy',label:'Basic Darkness to Bench '+index,
+      printing:'Darkness Energy MEE 15',
+      publicMetadata:{sourceZone:origin,ownerSeat:'actor',isOwnerVisible:true,
+        energyType:'BASIC',zone:'bench',benchIndex:index,choiceIndex:index,selectedCount:1}};
+  }
+  const options={selectionType:'energy-attachment',sourceZone:'discard',
+    ownerSeat:'actor',isOwnerVisible:true,energyType:'BASIC',zone:'bench',
+    minimumCount:1,maximumCount:1,allowCancel:false};
+  test('strict Dark Patch native attached Energy token targets unpowered Mega seat '+seat,()=>{
+    const bench=[pokemon('Mega Absol ex MEG 86'),
+      pokemon('Mega Absol ex MEG 86',{energies:['Darkness Energy MEE 15',
+        'Darkness Energy MEE 15','Darkness Energy MEE 15']})];
+    const r=promptRequest({seat,globalTurn:4,
+      ownPublic:player({active:pokemon('Budew ASC 16'),bench}),
+      promptType:'AttachEnergyPrompt',source:source('Dark Patch ASR','Dark Patch'),
+      publicMetadata:options,choices:[nativeEnergy('charge',0),nativeEnergy('full',1)]});
+    assert.deepEqual(checked(r,seat),{kind:'select-choice',token:'charge'});
+  });
+  test('strict Dark Patch denies an opponent hand origin under native prompt seat '+seat,()=>{
+    const r=promptRequest({seat,
+      promptType:'AttachEnergyPrompt',source:source('Dark Patch ASR','Dark Patch'),
+      publicMetadata:{...options,sourceZone:'hand'},
+      choices:[nativeEnergy('forged',0,'hand')]});
+    assert.deepEqual(checked(r,seat),
+      {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'});
+  });
+}
