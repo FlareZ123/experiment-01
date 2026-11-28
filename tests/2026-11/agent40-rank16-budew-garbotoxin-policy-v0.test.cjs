@@ -393,3 +393,36 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['guzma']});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' source Karen before Budew locks Regidrago double Dragon payload',()=>{
+  const my=own({active:mon('Budew ASC 16')});
+  const reg=opp({active:mon('Regidrago VSTAR SIT 136'),bench:[mon('Regidrago V SIT 135')],
+   discard:['Dialga-GX UPR 100','Dragapult ex TWM 130']});
+  const q=root(seat,[play('Karen XYP 177','karen'),play('Marnie SSH 169','marnie'),
+    attack('Itchy Pollen','pollen'),pass],{
+    ownPublic:my,opponentPublic:reg,ownHand:['Marnie SSH 169','Karen XYP 177']});
+  assert.equal(policy.regidragoPayloadCount(q.observation),2);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'karen'});
+  q.observation.ownTurnResources.supporterPlayedTurn=1;
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+ });
+ test('seat '+seat+' Karen does not displace draw without Dragon payload or Regidrago on board',()=>{
+  const reg=opp({active:mon('Regidrago VSTAR SIT 136'),discard:[]});
+  const q=root(seat,[play('Karen XYP 177','karen'),play('Marnie SSH 169','marnie'),pass],{
+   ownHand:['Karen XYP 177','Marnie SSH 169'],opponentPublic:reg});
+  assert.equal(policy.regidragoPayloadCount(q.observation),0);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'marnie'});
+  q.observation.opponentPublic.active=mon('Shadow Rider Calyrex VMAX CRE 75');
+  q.observation.opponentPublic.discard=['Dialga-GX UPR 100','Dragapult ex TWM 130'];
+  assert.equal(policy.regidragoPayloadCount(q.observation),0);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'marnie'});
+ });
+ test('seat '+seat+' VS Seeker returns Karen in actual Regidrago payload threat',()=>{
+  const reg=opp({active:mon('Regidrago VSTAR SIT 136'),discard:['Dragapult ex TWM 130','Noivern ex PAL 153']});
+  const q=prompt(seat,{source:{sourceKind:'card-effect',sourcePrinting:'VS Seeker PHF 109',effectName:'VS Seeker'},
+   choices:[choice('k','Karen XYP 177','discard'),choice('l',"Lillie's Determination MEG 119",'discard')]},
+   {opponentPublic:reg});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['k']});
+ });
+}
