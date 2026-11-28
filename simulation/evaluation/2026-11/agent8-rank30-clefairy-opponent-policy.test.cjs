@@ -1553,6 +1553,16 @@ for(const seat of [0,1]) {
     assert.notDeepEqual(policy(seat).decide(r),
       {kind:'select-action',token:'raihan'});
   });
+  test('seat '+seat+' Raihan is not played when every Clefairy already has two Energy',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active={printing:clef,energies:[psychic,psychic]};
+    r.observation.ownPublic.discard=[psychic];
+    r.observation.ownHand=['Raihan EVS 152'];
+    r.actionFrontier.items=[root('play-card','Raihan EVS 152','raihan'),
+      root('pass','','pass')];
+    assert.notDeepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'raihan'});
+  });
   test('seat '+seat+' Raihan attach chooses Basic Psychic for a Clefairy attack target',()=>{
     const r=request(seat);
     r.observation.ownPublic.active={printing:clef,energies:[psychic]};
@@ -1563,6 +1573,9 @@ for(const seat of [0,1]) {
       publicMetadata:{selectionType:'energy-attachment',ownerSeat:'actor',
         isOwnerVisible:true,sourceZone:'discard',minimumCount:1,maximumCount:1},
       choices:[
+        {kind:'energy',printing:'Telepathic Psychic Energy POR 88',token:'special-active',
+          publicMetadata:{sourceZone:'discard',ownerSeat:'actor',
+            isOwnerVisible:true,targetZone:'active',targetSeat:'actor'}},
         {kind:'energy',printing:psychic,token:'active-energy',
           publicMetadata:{sourceZone:'discard',ownerSeat:'actor',
             isOwnerVisible:true,targetZone:'active',targetSeat:'actor'}},
