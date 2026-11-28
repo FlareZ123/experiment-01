@@ -1272,3 +1272,82 @@ for(const seat of [0,1]) {
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' Field Blower disarms Garbotoxin to restore Dragon Rondo knockout',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active={printing:clef,
+      abilities:['Fairy Zone'],abilitySuppressions:[{
+        abilityName:'Fairy Zone',suppressed:true,
+        reasonCode:'ABILITY_LOCKED',sourcePrinting:'Garbodor BKP 57'}],
+      energies:[psychic,psychic]};
+    r.observation.ownPublic.bench=[
+      b('Latias ex SSP 76'),b('Unown AOR 30'),
+      b('Crobat V DAA 104'),b('Minior PAR 99')];
+    r.observation.opponentPublic.active={
+      printing:'Regidrago VSTAR SIT 136',hp:280,damage:0,
+      printed:{types:['DRAGON'],weakness:[]}};
+    r.observation.opponentPublic.bench=[
+      {printing:'Garbodor BKP 57',tools:['Float Stone BKT 137'],
+       abilities:['Garbotoxin']},
+      b('Regidrago V SIT 135'),b('Regidrago V SIT 135'),
+      b('Regidrago V SIT 135')];
+    r.observation.ownHand=['Field Blower GRI 125'];
+    r.actionFrontier.items=[
+      root('play-card',"Trainers' Mail ROS 92",'mail'),
+      root('play-card','Field Blower GRI 125','blower'),
+      {...root('attack',clef,'rondo'),attackName:'Full Moon Rondo'}];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'blower'});
+    r.prompt={...prompt('tool',[card('Float Stone BKT 137','garb-tool')],0,2),
+      source:{sourcePrinting:'Field Blower GRI 125',effectName:'Field Blower'}};
+    r.prompt.publicMetadata.ownerSeat='opponent';
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choices',tokens:['garb-tool']});
+    r.observation.opponentPublic.bench[0].tools=[];
+    r.observation.ownPublic.active.abilitySuppressions[0]={
+      abilityName:'Fairy Zone',suppressed:false,
+      reasonCode:null,sourcePrinting:null};
+    r.prompt=null;
+    r.actionFrontier.items=[{
+      ...root('attack',clef,'rondo'),attackName:'Full Moon Rondo'}];
+    assert.deepEqual(projectedRondo(r.observation),
+      {damage:360,remaining:280,total:8});
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'rondo'});
+    r.observation.opponentPublic.bench[0].tools=['Float Stone BKT 137'];
+    r.observation.ownPublic.active.abilitySuppressions[0].suppressed=true;
+    r.observation.ownPublic.active.abilitySuppressions[0].reasonCode='ABILITY_LOCKED';
+    r.observation.ownPublic.active.abilitySuppressions[0].sourcePrinting='Garbodor BKP 57';
+    r.observation.ownPublic.bench[0].tools=['Float Stone BKT 137'];
+    r.actionFrontier.items=[root('play-card','Field Blower GRI 125','blower')];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  });
+  test('seat '+seat+' Field Blower clears Path and distinct Garbotoxin Tool together',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active={printing:clef,energies:[psychic,psychic],
+      abilities:['Fairy Zone'],abilitySuppressions:[{
+        abilityName:'Fairy Zone',suppressed:true,
+        reasonCode:'ABILITY_LOCKED',sourcePrinting:'Garbodor LTR 68'}]};
+    r.observation.opponentPublic.active={
+      printing:'Regidrago VSTAR SIT 136',hp:280,damage:0,
+      printed:{types:['DRAGON'],weakness:[]}};
+    r.observation.opponentPublic.bench=[
+      {printing:'Garbodor LTR 68',tools:['Muscle Band XY 121'],
+       abilities:['Garbotoxin']},b('Regidrago V SIT 135')];
+    r.observation.opponentPublic.stadium=['Path to the Peak CRE 148'];
+    r.actionFrontier.items=[root('play-card','Field Blower GRI 125','blower')];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'blower'});
+    r.prompt={...prompt('mixed',[card('Muscle Band XY 121','garb-tool'),
+      card('Path to the Peak CRE 148','path')],0,2),
+      source:{sourcePrinting:'Field Blower GRI 125',effectName:'Field Blower'}};
+    r.prompt.publicMetadata.ownerSeat='mixed';
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choices',tokens:['garb-tool','path']});
+    r.observation.opponentPublic.bench[0].tools=[];
+    r.observation.opponentPublic.stadium=[];
+    r.prompt=null;
+    r.actionFrontier.items=[root('play-card','Field Blower GRI 125','blower')];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  });
+}
