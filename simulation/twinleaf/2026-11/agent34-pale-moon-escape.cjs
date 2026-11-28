@@ -8,6 +8,32 @@ const assert = require('node:assert/strict');
  * This is a PUBLIC tactical fact, not a replacement for paper-correct
  * switch/evolution/devolution cleanup in the Store.
  */
+/**
+ * A printed no-Prize effect makes an impending KO nonterminal even when the
+ * opponent has only one Prize. This is deliberately conservative: if the
+ * current active is a known Prize-free Doll/Shedinja or has Life Dew or
+ * attached Shedinja, do not override Pass based on a false terminal premise.
+ * Legacy Energy does NOT qualify: its reduction requires KO by damage, and
+ * Pale Moon-GX's delayed Knock Out is an attack effect rather than damage.
+ */
+function knownNoPrizeAwardOnPaleMoonKO(view) {
+  const p=view?.ownPublic?.active;
+  const printing=typeof p?.printing==='string'?p.printing:'';
+  const tools=Array.isArray(p?.tools)?p.tools:[];
+  if(printing.startsWith('Shedinja DRX')||
+     printing.startsWith('Robo Substitute')||
+     printing.startsWith('Snorlax Doll')||
+     printing.includes('Poké Doll')||
+     printing.includes('Poke Doll'))return true;
+  return tools.some(tool=>typeof tool==='string'&&(
+    tool.startsWith('Life Dew ')||tool.startsWith('Shedinja LOT')));
+}
+function terminalPaleMoonPrizeRisk(view) {
+  return view?.opponentPublic?.prizeCount===1 &&
+    view?.ownPublic?.active?.publicRestrictions?.pendingPaleMoonGXKnockOut===true &&
+    !knownNoPrizeAwardOnPaleMoonKO(view);
+}
+
 function pendingPaleMoonGXKnockOut(player, slot) {
   const effects = player?.pendingEndOfTurnEffects;
   if (effects === undefined || effects === null) return null;
@@ -30,7 +56,7 @@ function pendingPaleMoonGXKnockOut(player, slot) {
 function choosePaleMoonEscapeRetreat(view, items) {
   if (view?.decisionKind !== 'owner-root' ||
       view?.ownPublic?.active?.publicRestrictions?.pendingPaleMoonGXKnockOut !== true ||
-      view?.opponentPublic?.prizeCount !== 1 ||
+      !terminalPaleMoonPrizeRisk(view) ||
       !Array.isArray(items) ||
       items.some(item => !['pass','retreat'].includes(item?.kind))) return null;
   const benches = view.ownPublic.bench;
@@ -58,7 +84,7 @@ function choosePaleMoonEscapeRetreat(view, items) {
 function choosePaleMoonEscapeRanger(view, items) {
   if (view?.decisionKind !== 'owner-root' ||
       view?.ownPublic?.active?.publicRestrictions?.pendingPaleMoonGXKnockOut !== true ||
-      view?.opponentPublic?.prizeCount !== 1 ||
+      !terminalPaleMoonPrizeRisk(view) ||
       !Array.isArray(items) ||
       items.some(item => !['pass','play-card'].includes(item?.kind))) return null;
   const available = items.filter(item => item?.kind === 'play-card');
@@ -86,7 +112,7 @@ function choosePaleMoonEscapeRanger(view, items) {
 function choosePaleMoonEscapeGuzmaRoot(view, items) {
   if(view?.decisionKind !== 'owner-root' ||
       view?.ownPublic?.active?.publicRestrictions?.pendingPaleMoonGXKnockOut !== true ||
-      view?.opponentPublic?.prizeCount !== 1 ||
+      !terminalPaleMoonPrizeRisk(view) ||
       !Array.isArray(items) ||
       items.some(item => !['pass','play-card'].includes(item?.kind))) return null;
   const benches = [view.ownPublic?.bench,view.opponentPublic?.bench];
@@ -111,7 +137,7 @@ function choosePaleMoonEscapeGuzmaRoot(view, items) {
 function choosePaleMoonEscapeGuzmaPrompt(view, prompt) {
   if(view?.decisionKind!=='owner-prompt' ||
      view?.ownPublic?.active?.publicRestrictions?.pendingPaleMoonGXKnockOut!==true ||
-     view?.opponentPublic?.prizeCount!==1 ||
+     !terminalPaleMoonPrizeRisk(view) ||
      prompt?.promptType!=='ChoosePokemonPrompt' ||
      prompt?.source?.classification!=='actor-choice' ||
      prompt?.source?.sourceKind!=='card-effect' ||
@@ -167,7 +193,7 @@ function choosePaleMoonEscapeGuzmaPrompt(view, prompt) {
 function choosePaleMoonFloatStonePreparation(view,items) {
   if(view?.decisionKind!=='owner-root'||
      view?.ownPublic?.active?.publicRestrictions?.pendingPaleMoonGXKnockOut!==true ||
-     view?.opponentPublic?.prizeCount!==1 || !Array.isArray(items))return null;
+     !terminalPaleMoonPrizeRisk(view) || !Array.isArray(items))return null;
   const player=view.ownPublic,active=player.active,opponent=view.opponentPublic;
   if(!Array.isArray(player.bench) || player.bench.filter(Boolean).length!==1 ||
      !Array.isArray(active?.tools) || active.tools.length!==0 ||
@@ -202,7 +228,7 @@ function rescuePaleMoonTerminalPass(view,items,originalToken) {
   if(!Array.isArray(items) ||
       view?.decisionKind!=='owner-root' ||
       view?.ownPublic?.active?.publicRestrictions?.pendingPaleMoonGXKnockOut!==true ||
-      view?.opponentPublic?.prizeCount!==1)return null;
+      !terminalPaleMoonPrizeRisk(view))return null;
   const passes=items.filter(item=>item?.kind==='pass');
   if(passes.length!==1 || passes[0].token!==originalToken)return null;
   const saves=[];
@@ -235,5 +261,7 @@ module.exports = {
   choosePaleMoonEscapeGuzmaRoot,
   choosePaleMoonEscapeGuzmaPrompt,
   rescuePaleMoonTerminalPass,
-  choosePaleMoonFloatStonePreparation
+  choosePaleMoonFloatStonePreparation,
+  knownNoPrizeAwardOnPaleMoonKO,
+  terminalPaleMoonPrizeRisk
 };
