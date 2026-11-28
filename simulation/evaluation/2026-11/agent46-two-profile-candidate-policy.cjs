@@ -1201,9 +1201,11 @@ function getLostValue(view,printing) {
   }
 
   const regidrago=opponentHasRegidrago(view);
-  if(regidrago&&hasAnyName(printing,['Dialga-GX','Dragapult ex','Giratina VSTAR','Goodra VSTAR',
-    'Hisuian Goodra VSTAR','Noivern ex','Haxorus','Flygon ex','Altaria-GX','Dragonite ex',
-    'Garchomp ex','Alolan Exeggutor ex','Duraludon VMAX','Kyurem']))return 500;
+  // Only source-authenticated printed Dragon payloads in the actually
+  // modeled Apex catalogue deserve high discard-target priority. Unqualified
+  // names are unsafe (FLI Dialga-GX Metal, PRE Noivern ex Colorless, etc).
+  if(regidrago&&APEX_PAYLOADS.some(([donor])=>hasName(printing,donor)))
+    return 500;
   if(regidrago&&hasName(printing,'Regidrago VSTAR'))return 300;
   if(hasAnyName(printing,['ACE SPEC','Computer Search','Dowsing Machine','Unfair Stamp','Secret Box',
     'Legacy Energy','Double Dragon Energy','Double Colorless Energy','Pokémon Ranger',
@@ -1217,10 +1219,25 @@ function getLostValue(view,printing) {
 const APEX_PAYLOADS=[
   ['Kyurem SFA','Trifrost',110],['Dragapult ex TWM','Phantom Dive',200],
   ['Dialga-GX UPR','Timeless-GX',150],['Giratina VSTAR LOR','Lost Impact',280],
-  ['Mega Dragonite ex ASC','Ryuno Glide',330],['Koraidon SSP','Unrelenting Onslaught',180],
+  ['Mega Dragonite ex ASC','Ryuno Glide',330],
+  // The five published Aichi Regidrago lists use Dragon-type Koraidon ex
+  // TEF 120. Fighting-type Koraidon SSP 116 cannot supply an Apex payload.
+  // Kaiser Tackle does 280 to Active and 60 to its own attacker; self-KO
+  // and simultaneous Prize resolution are not modeled by this optimistic
+  // incoming-damage hazard scorer.
+  ['Koraidon ex TEF','Kaiser Tackle',280],
+  // Retribution Strike is 20 + 10 for each damage counter on *the attacker*.
+  // Via Apex Dragon, 'this Pokemon' is the Regidrago currently attacking.
+  ['Koraidon ex TEF','Retribution Strike',20],
+  // The source all-nine Regidrago Basic V (SIT 135) is itself Dragon type.
+  // Its Dragon Laser is 130 to Active plus 30 to one Bench target.
+  ['Regidrago V SIT','Dragon Laser',130],
   ['Alolan Exeggutor ex SSP','Tropical Frenzy',150],
   ['Hisuian Goodra VSTAR LOR','Rolling Iron',200],['Noivern ex PAL','Covert Flight',70],
-  ['Garchomp & Giratina-GX UNM','Calamitous Slash',160],['Garchomp ex PAR','Hydro Lander',160]
+  ['Garchomp & Giratina-GX UNM','Calamitous Slash',160],
+  // Salamence ex JTG 114 is an actual rank-13 donor: Dragon Impact deals
+  // 300 to Active; Wide Blast deals 50 to each opponent Benched Pokemon.
+  ['Salamence ex JTG','Dragon Impact',300],['Salamence ex JTG','Wide Blast',50]
 ];
 function observedPayloads(discard,view){
   return APEX_PAYLOADS.filter(([printing,name])=>discard.some(p=>hasName(p,printing))&&
@@ -1269,6 +1286,25 @@ function hazardVariants(view,rows,activeKey,payload){
       hits:[[active.key,modified(active)],[row.key,60]]});
     return variants;
   }
+  // Wide Blast has no Active damage: every candidate Benched Pokemon takes
+  // 50 damage (bench Weakness/Resistance are not applied). The legacy model
+  // still omits defensive bench prevention, so this is an optimistic hazard.
+  if(name==='Wide Blast')return [{name,alteredPrizeKey:null,
+    hits:rows.filter(row=>row.key!==activeKey).map(row=>[row.key,base])}];
+  if(name==='Retribution Strike'){
+    const counters=Number.isSafeInteger(view.opponentPublic.active?.damage) &&
+      view.opponentPublic.active.damage>=0?
+      Math.floor(view.opponentPublic.active.damage/10):0;
+    return [{name,alteredPrizeKey,
+      hits:[[active.key,modified(active)+10*counters]]}];
+  }
+  if(name==='Dragon Laser'){
+    const bench=rows.filter(row=>row.key!==activeKey);
+    return (bench.length?bench:[null]).map(row=>({
+      name,alteredPrizeKey,hits:[[active.key,modified(active)],
+        ...(row?[[row.key,30]]:[])]
+    }));
+  }
   if(name==='Calamitous Slash')return [{name,alteredPrizeKey,
     hits:[[active.key,modified(active)+(active.damaged?80:0)]]}];
   return [{name,alteredPrizeKey,hits:[[active.key,modified(active)]]}];
@@ -1315,9 +1351,78 @@ function apexHazard(view,discard=view.opponentPublic.discard,rows=hazardBoard(vi
     one(rows.map(r=>r.key)):fixed;
   return {...fixed,potential:potential.maximum,known:true};
 }
+/* Agent26 bounded next-turn funding-cut exception.
+ * A current-turn Apex damage oracle is blind to a Temple-unpaid G+DDE
+ * Regidrago that can gain G+F from recovered Crispin / Megaton removal.
+ * The pair is a tactical priority, never a proof of future attack denial.
+ */
+function visibleTempleRegidragoFundingPairBonus(view,names){
+  if(!Array.isArray(names)||names.length!==2||templeLive(view)!==true)return 0;
+  const opp=view?.opponentPublic,active=opp?.active;
+  if(!active||!hasName(active.printing,'Regidrago VSTAR')||
+     !Array.isArray(active.energies)||active.energies.length<2||
+     active.energies.length>5||
+     !Array.isArray(opp.discard)||!Array.isArray(opp.lostZone)||
+     opp.publicTurnRestrictions?.vstarUsed!==false)return 0;
+  const isGrass=e=>/^(?:Basic )?Grass Energy(?: |$)/.test(e);
+  // One Basic Grass plus 1–4 Double Dragon cards are all Colorless under
+  // Temple, but any DDE can provide both missing Apex colors if Temple
+  // is removed. Extra DDE copies do not create an alternate colored path
+  // while Temple remains active.
+  if(active.energies.filter(isGrass).length!==1||
+     !active.energies.some(e=>hasName(e,'Double Dragon Energy'))||
+     active.energies.some(e=>!isGrass(e)&&!hasName(e,'Double Dragon Energy')))
+    return 0;
+  if(!opp.lostZone.some(e=>hasName(e,'Silent Lab'))||
+     !opp.lostZone.some(e=>hasName(e,'Parallel City')))return 0;
+  if(opp.discard.filter(e=>hasName(e,'Megaton Blower')).length!==1||
+     opp.discard.filter(e=>hasName(e,'Crispin')).length!==1)return 0;
+  // Publicly visible other removal channels prevent any paired source-cut
+  // inference from the two exposed Stadiums / Megaton / Crispin alone.
+  const otherRemoval=['Marshadow UNB','Faba','Field Blower'];
+  if([...opp.discard,...opponentBoard(view).map(p=>p.printing)]
+      .some(p=>hasAnyName(p,otherRemoval)))return 0;
+  const apex={name:'Apex Dragon',cost:['Grass','Grass','Fire']};
+  if(publicEnergyCanPay(active,apex,view,true)!==false)return 0;
+  // An already paid Benched Regidrago V can evolve into VSTAR on the next
+  // opponent turn. Count it as a possible paid attacker, not just VSTARs.
+  const benchRegidrago= (opp.bench??[]).filter(slot=>slot&&
+    (hasName(slot.printing,'Regidrago VSTAR')||
+     (/^Regidrago V(?: |$)/.test(slot.printing))));
+  if(benchRegidrago.some(slot=>
+    publicEnergyCanPay(slot,apex,view,true)===true))return 0;
+  // The opponent gets a fresh normal attachment next turn. A Regidrago V
+  // on the Bench with G+F+DDE or GG+DDE (Temple makes DDE Colorless) can
+  // evolve and self-fund Apex by manually attaching a single Grass/Fire.
+  // Fail closed rather than mislabelling Megaton+Crispin a funding cut.
+  // This is an actor-visible upper-bound possibility, not hidden hand access.
+  if(benchRegidrago.some(slot=>Array.isArray(slot.energies)&&
+    ['Grass Energy SVE','Fire Energy SVE'].some(energy=>
+      publicEnergyCanPay({...slot,energies:[...slot.energies,energy]},
+        apex,view,true)===true)))return 0;
+  const remain=opp.discard.slice();
+  for(const name of names){
+    const i=remain.indexOf(name);
+    if(i<0)return 0;
+    remain.splice(i,1);
+  }
+  // Do NOT give the full cut bonus for merely removing every *observed*
+  // Dragon payload from public discard. Battle Compressor, Ultra Ball,
+  // Quick Ball and Research can move fresh donors from concealed hand/deck
+  // next turn. Public non-observation is not global donor unavailability.
+  // The exact Megaton+Crispin pair instead removes two unique observed
+  // future funding channels under the guarded Temple source geometry.
+  const fundingAfter=remain.some(e=>hasName(e,'Megaton Blower'))||
+     remain.some(e=>hasName(e,'Crispin'));
+  // Not a lock certificate: unknown Stadiums, other future attacks, and
+  // drawn Basic Energy on later turns can still enable alternatives.
+  return !fundingAfter?2500:0;
+}
 function getLostPairs(view,rows){
   const before=apexHazard(view);
   const discarded=view.opponentPublic.discard;
+  const beforeAttackIdentities=new Set(observedPayloads(discarded,view)
+    .map(([printing])=>printing));
   let best=null;
   const cache=new Map();
   for(let i=0;i<rows.length;i++)for(let j=i+1;j<rows.length;j++){
@@ -1330,10 +1435,25 @@ function getLostPairs(view,rows){
       after=apexHazard(view,remain);cache.set(key,after);
     }
     const needed=view.opponentPublic.prizeCount;
+    // Distinct PUBLIC copied-attack options should break an otherwise
+    // equal-value Get Lost tie. Losing two of three Regidrago V copies
+    // leaves Dragon Laser available; losing the singleton Noivern ex
+    // actually reduces the *currently revealed* attack repertoire.
+    // This tiny tie breaker is NOT next-turn denial: new donors can be
+    // discarded later from hidden hand/deck, as the Temple-cut guard notes.
+    // Reuse the same exact physical-removal identity as apexHazard.
+    const remain=discarded.slice();
+    for(const name of names){const k=remain.indexOf(name);if(k>=0)remain.splice(k,1)}
+    const actualAfterIdentities=new Set(observedPayloads(remain,view)
+      .map(([printing])=>printing));
+    const publicOptionsEliminated=[...beforeAttackIdentities]
+      .filter(printing=>!actualAfterIdentities.has(printing)).length;
     const score=(before.maximum>=needed&&after.maximum<needed?5000:0)+
       (before.maximum-after.maximum)*1800+
       ((before.potential??before.maximum)-(after.potential??after.maximum))*400+
-      getLostValue(view,a.printing)+getLostValue(view,b.printing)+controlPairBonus(view,names);
+      getLostValue(view,a.printing)+getLostValue(view,b.printing)+controlPairBonus(view,names)+
+      visibleTempleRegidragoFundingPairBonus(view,names)+
+      100*publicOptionsEliminated;
     if(!best||score>best.score)best={rows:[a,b],score,after};
   }
   return best;
@@ -1343,7 +1463,13 @@ function getLostPlan(view) {
   const values=discard.map(p=>getLostValue(view,p)).sort((a,b)=>b-a);
   if(values.length<2)return -Infinity;
   const best=getLostPairs(view,discard.map((printing,index)=>({printing,index})));
-  if(values[0]<300&&(!best||controlPairBonus(view,best.rows.map(r=>r.printing))===0))return -Infinity;
+  const pairNames=best?.rows?.map(r=>r.printing)??[];
+  // A source-compatible funding denial can be worth using before a Dragon
+  // donor ever appears in the public discard: unseen donors can be discarded
+  // next turn, but the two unique exposed funding resources can be Lost now.
+  if(values[0]<300&&(!best||
+     (controlPairBonus(view,pairNames)===0&&
+      visibleTempleRegidragoFundingPairBonus(view,pairNames)===0)))return -Infinity;
   return (best?.score??values[0]+values[1])+100;
 }
 function tapuCureValue(view,slot){
@@ -4899,7 +5025,7 @@ Object.defineProperty(module.exports, '__test', {
     hasOpponentAbilityLockOnFairyZoneHolder, hasOwnFairyZoneHolderLockThreat,
     viewAfterRemovingAbilityStadiums, fieldBlowerHoodBlocksFairyZone,
     paleMoonExtraPsychicAvailable, paleMoonRetreatStatus, paleMoonScore,
-    publicEnergySupply, publicEnergyCanPay,
+    publicEnergySupply, publicEnergyCanPay, apexHazard,
     projectedStadium, usefulCandidateStadium, chooseEnergyPayment, weaknessMultiplier, stealthyHoodTargetScore
   })
 });
