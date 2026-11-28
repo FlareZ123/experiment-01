@@ -2059,6 +2059,19 @@ function compressorSeekerSupporterNeed(view,printing,receipt) {
   const held=Math.max(0,...view.ownHand.map(p=>supporterNeedScore(view,p,receipt)));
   return needed>held?needed:-Infinity;
 }
+// Another concrete Compressor line is discarding one Basic Psychic Energy
+// so a *held* Raihan is legal after a publicly recorded opposing-turn KO.
+// Project only the single hypothetical discard, then use the existing
+// Raihan evaluator; never guess hidden actual deck composition.
+function compressorRaihanFuelNeed(view,receipt) {
+  if(receipt?.priorOpponentTurnKO?.any!==true ||
+     !supporterAvailable(view) || !handHas(view,'Raihan') ||
+     discardHas(view,'Psychic Energy') || view.ownPublic.deckCount<=0)
+    return -Infinity;
+  const projected={...view,ownPublic:{...view.ownPublic,
+    discard:[...view.ownPublic.discard,'Psychic Energy SVE']}};
+  return raihanNeed(projected,receipt);
+}
 function searchCandidates(view, prompt, choices, receipt = null) {
   const effectName = prompt.source?.effectName ?? '';
   const sourcePrinting = prompt.source?.sourcePrinting ?? '';
@@ -2072,10 +2085,15 @@ function searchCandidates(view, prompt, choices, receipt = null) {
       hasName(sourcePrinting, 'Battle Compressor')) {
     // Choose exactly one needed singleton Supporter, not three arbitrary
     // low-discard-value cards. The actor can recover it with VS Seeker.
+    const fuel=compressorRaihanFuelNeed(view,receipt);
     rows = choices.map(choice => {
       const need=compressorSeekerSupporterNeed(view,choice.printing,receipt);
-      return {choice,score:Number.isFinite(need)?
-        2000+need:-discardValue(view,choice.printing,receipt)};
+      const isPsychic=isBasicEnergyPrinting(choice.printing) &&
+        hasName(choice.printing,'Psychic Energy');
+      return {choice,score:Math.max(
+        Number.isFinite(need)?2000+need:-Infinity,
+        isPsychic&&Number.isFinite(fuel)?2000+fuel:-Infinity,
+        -discardValue(view,choice.printing,receipt))};
     });
   } else if (sourceZone === 'hand') {
     rows = choices.map(choice => ({
@@ -3571,15 +3589,16 @@ function scoreTrainerPlay(item, view, receipt, profile) {
     const need=acerolaNeed(view);
     return Number.isFinite(need)?Math.min(1600,700+need/4):-Infinity;
   }
-  // Source-real singleton retrieval, not speculative deck-thinning:
-  // Compressor -> (Ranger / Raihan / Teammates) in discard -> held VS
-  // Seeker -> currently productive Supporter. Ranger is Hood-only.
+  // Source-real singleton retrieval or a funded Raihan recovery. Never
+  // voluntarily thin or discard protected cards without a supported line.
   if(hasName(name,'Battle Compressor') && !supporterUsed &&
       view.ownPublic.deckCount>0) {
     const candidates=COMPRESSOR_SEEKER_SUPPORTERS.filter(name=>
       name!=='Pokémon Ranger'||profile?.profileId==='hood-shield-shadow-rider-v1');
-    const needed=Math.max(-Infinity,...candidates.map(printing=>
+    const seeker=Math.max(-Infinity,...candidates.map(printing=>
       compressorSeekerSupporterNeed(view,printing,receipt)));
+    const fuel=compressorRaihanFuelNeed(view,receipt);
+    const needed=Math.max(seeker,fuel);
     if(Number.isFinite(needed))return 1000+needed;
   }
   const missingBasicV = !knownFullyPrized(view,'Shadow Rider Calyrex V') && !hasBasicShadowRiderV(view) &&

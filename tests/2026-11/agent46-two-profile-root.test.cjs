@@ -2263,3 +2263,33 @@ test('Agent46: Compressor via VS Seeker restores Raihan or Teammates after a rea
     assert.deepEqual(decide(profile,root(seat,view,[play('compress',bc)])),sel('pass'));
   }
 });
+
+test('Agent46: Compressor fuels held Raihan with precisely one searchable Psychic Energy',()=>{
+  const bc='Battle Compressor PHF',raihan='Raihan EVS';
+  const koReceipt={priorOpponentTurnKO:{any:true}};
+  for(const seat of [0,1])for(const profile of profiles){
+    const view=observation(seat,{active:vmax([P,P]),opponentActive:defender(),
+      ownHand:[bc,raihan],ownDiscard:[]});
+    view.globalTurn=8;
+    const playBC=play('compress',bc),playRaihan=play('raihan',raihan);
+    assert.deepEqual(decide(profile,root(seat,view,[playBC,playRaihan],koReceipt)),
+      sel('compress')); // Direct Raihan has no discard fuel.
+    const choose=cardPrompt(seat,view,bc,'Battle Compressor','deck',
+      [P,teammates='Teammates PRC',D],0,3);
+    choose.publicEventReceipt=koReceipt;
+    assert.deepEqual(decide(profile,choose),mult('card-0'));
+    const after={...view,ownHand:[raihan],ownPublic:{...view.ownPublic,
+      handCount:1,discard:[bc,P]}};
+    assert.deepEqual(decide(profile,root(seat,after,[playRaihan],koReceipt)),
+      sel('raihan'));
+    const noKO=observation(seat,{active:vmax([P,P]),opponentActive:defender(),
+      ownHand:[bc,raihan]});
+    assert.deepEqual(decide(profile,root(seat,noKO,[playBC])),sel('pass'));
+    const noRaihan={...view,ownHand:[bc]};
+    assert.deepEqual(decide(profile,root(seat,noRaihan,[playBC],koReceipt)),sel('pass'));
+    const alreadyEnergy={...view,ownPublic:{...view.ownPublic,
+      discard:[P]}};
+    assert.deepEqual(decide(profile,root(seat,alreadyEnergy,
+      [playBC,playRaihan],koReceipt)),sel('raihan'));
+  }
+});
