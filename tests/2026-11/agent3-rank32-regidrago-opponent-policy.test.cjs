@@ -755,8 +755,8 @@ test('Kyurem Trifrost selects exactly three distinct opposing target slots, not 
     assert.equal(decision.kind,'select-choices');
     assert.equal(decision.tokens.length,3);
     assert.equal(new Set(decision.tokens).size,3);
-    assert.deepEqual(decision.tokens,['same-dedenne-alias','latias','budew-active']);
-    const missing={...p,choices:choices.filter(c=>c.token!=='latias'&&c.token!=='budew-bench')};
+    assert.deepEqual(decision.tokens,['latias','same-dedenne-alias','budew-active']);
+    const missing={...p,choices:choices.filter(c=>['same-dedenne-alias','den','bad-own'].includes(c.token))};
     assert.deepEqual(promptDecision(request({seat,opponentPublic,prompt:missing})),
       {kind:'abstain',reasonCode:'RANK32_TRIFROST_POKEMON_CHOICE_UNAVAILABLE'});
     const illegalMax={...p,publicMetadata:{...p.publicMetadata,maximumCount:2}};
