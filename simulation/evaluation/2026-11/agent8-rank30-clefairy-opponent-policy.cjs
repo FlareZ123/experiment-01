@@ -847,6 +847,74 @@ function candidateCanUseBoardHeldStarAlchemy(observation) {
 // useful as an actual finisher and not just a Skyliner Bench support.
 // Only a certified live Fairy Zone doubles damage against Dragon targets;
 // a native offered Eon Blade root provides payment and attack permission.
+// Fezandipiti ex ASC 142's printed Cruel Arrow attacks either Active or
+// Bench for 100. The opponent-board target is a real ChoosePokemonPrompt,
+// not an attack root token and not a guess about hidden targets. We prefer
+// a certified knockout and then resolve the exact offered prompt.
+function cruelArrowTargetScore(target,zone,o) {
+  if(!target||!safeInt(target.hp)||!safeInt(target.damage)||
+     target.damage>=target.hp||
+     target.effectUnknown===true||target.damageModifiersUnknown===true||
+     target.publicRestrictions?.preventAllDamage===true||
+     target.hasPrevention===true)return null;
+  const harmless=/^(?:Stealthy Hood|Forest Seal Stone|Float Stone|Air Balloon|Rescue Board|Hero's Medal|Life Dew|Ribbon Badge|Island Challenge Amulet|Choice Belt|Choice Band)\b/i;
+  if(arr(target.tools).some(t=>!harmless.test(text(t))))return null;
+  let damage=100;
+  if(zone==='active'){
+    const weak=arr(target?.printed?.weakness).some(w=>
+      String(w?.type).toUpperCase()==='DARKNESS'&&
+      /(?:×|x|\*)2/i.test(String(w.value)));
+    if(weak)damage*=2;
+    const resist=arr(target?.printed?.resistance).find(w=>
+      String(w?.type).toUpperCase()==='DARKNESS');
+    if(resist&&/^[-−–]\d+$/.test(String(resist.value??'')))
+      damage=Math.max(0,damage-Math.abs(Number(String(resist.value).replace(/^[−–]/,'-'))));
+  }
+  const remain=target.hp-target.damage;
+  if(damage<remain)return null;
+  const prize=minimumPrizesOnAttackKnockout(target);
+  const terminal=safeInt(o?.ownPublic?.prizeCount)&&
+    (o.ownPublic.prizeCount<=prize||
+      (zone==='active'&&benchCount(o.opponentPublic)===0));
+  return Object.freeze({zone,damage,remaining:remain,prize,terminal:Boolean(terminal)});
+}
+function cruelArrowKOTargets(o) {
+  if(!o?.opponentPublic)return [];
+  const opponent=o.opponentPublic,targets=[];
+  if(opponent.active){
+    const score=cruelArrowTargetScore(opponent.active,'active',o);
+    if(score)targets.push({...score,index:0,printing:text(opponent.active)});
+  }
+  for(let i=0;i<arr(opponent.bench).length;i++){
+    const p=opponent.bench[i];
+    const score=cruelArrowTargetScore(p,'bench',o);
+    if(score)targets.push({...score,index:i,printing:text(p)});
+  }
+  targets.sort((a,b)=>Number(b.terminal)-Number(a.terminal)||
+    b.prize-a.prize||b.remaining-a.remaining||
+    (a.zone==='active'?-1:b.zone==='active'?1:a.index-b.index));
+  return targets;
+}
+function cruelArrowPrompt(request) {
+  const p=request?.prompt,o=request?.observation,m=p?.publicMetadata??{};
+  if(!sameSource(p,P.fez)||p?.source?.effectName!=='Cruel Arrow'||
+     p.promptType!=='ChoosePokemonPrompt'||
+     m.selectionType!=='pokemon'||m.minimumCount!==1||
+     m.maximumCount!==1||m.allowCancel!==false)
+    return no('R30_CRUEL_ARROW_PROMPT_UNSUPPORTED');
+  const goals=cruelArrowKOTargets(o);
+  for(const goal of goals){
+    const matches=arr(p.choices).filter(c=>{
+      const md=c.publicMetadata??{},zone=md.targetZone;
+      const index=zone==='active'?0:md.benchIndex;
+      return c.kind==='pokemon'&&typeof c.token==='string'&&
+        md.ownerSeat==='opponent'&&md.isOwnerVisible===true&&
+        zone===goal.zone&&index===goal.index&&text(c)===goal.printing;
+    });
+    if(matches.length===1)return {kind:'select-choices',tokens:[matches[0].token]};
+  }
+  return no('R30_CRUEL_ARROW_NO_KO_TARGET');
+}
 function latiasEonBladeKO(o) {
   const attacker=o?.ownPublic?.active,target=o?.opponentPublic?.active;
   if(!has(attacker,P.latias)||!target||
@@ -1834,6 +1902,9 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
     !(a.kind==='play-card'&&[P.guzma,P.marnie,P.raihan].some(p=>
       has(ownPrinting(a),p))));
   if(!items.length)return no('R30_NO_OFFERED_ROOT');
+  const cruelArrow=items.find(a=>a.kind==='attack'&&
+    a.attackName==='Cruel Arrow'&&has(ownPrinting(a),P.fez));
+  if(cruelArrow&&cruelArrowKOTargets(o).length)return act(cruelArrow);
   const latiasBlade=items.find(a=>a.kind==='attack'&&
     a.attackName==='Eon Blade'&&has(ownPrinting(a),P.latias));
   if(latiasBlade&&latiasEonBladeKO(o))return act(latiasBlade);
@@ -2013,6 +2084,7 @@ function createPolicy({role,seat,policyVersion,config}) {
         return onPlayDrawConfirmPrompt(request);
       if(sameSource(request.prompt,P.stretcher))return rescueStretcherPrompt(request);
       if(sameSource(request.prompt,P.raihan))return raihanPrompt(request);
+      if(sameSource(request.prompt,P.fez)&&request.prompt.source?.effectName==='Cruel Arrow')return cruelArrowPrompt(request);
       if(sameSource(request.prompt,P.heavyBall))return hisuianHeavyBallPrompt(request);
       if(sameSource(request.prompt,P.lele))return wonderTagPrompt(request);
       if(sameSource(request.prompt,P.blower))return fieldBlowerPrompt(request);
@@ -2039,4 +2111,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,sourceCardPatternCoverage,heavyBallBasicCoverage,createPolicy,
-  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,certifiedPsychicBenchTargets,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,freeRetreatToPrintedFinisher,manualEnergyCompletesPrintedKO,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,minimumPrizesOnAttackKnockout,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,latiasEonBladeKO,tapuLeleEnergyDriveKO,guaranteedMimikyuCopycatKO,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy,hasFreshPriorOpponentTurnKO,raihanOpportunity,raihanAttachPrompt,raihanSearchPrompt,raihanPrompt,hisuianHeavyBallOpportunity,hisuianHeavyBallPrompt};
+  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,certifiedPsychicBenchTargets,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,freeRetreatToPrintedFinisher,manualEnergyCompletesPrintedKO,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,minimumPrizesOnAttackKnockout,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,cruelArrowTargetScore,cruelArrowKOTargets,cruelArrowPrompt,latiasEonBladeKO,tapuLeleEnergyDriveKO,guaranteedMimikyuCopycatKO,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy,hasFreshPriorOpponentTurnKO,raihanOpportunity,raihanAttachPrompt,raihanSearchPrompt,raihanPrompt,hisuianHeavyBallOpportunity,hisuianHeavyBallPrompt};
