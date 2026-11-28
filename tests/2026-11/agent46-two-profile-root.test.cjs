@@ -2754,8 +2754,10 @@ paired('Agent2: payoff-aware Guzma breaks sole live AOR Item lock or LTR/BKP Gar
     {name:'AOR no Item lock',kind:'vile',unlocked:true,expect:'pass'},
     {name:'AOR second live holder',kind:'vile',duplicate:true,expect:'pass'},
     {name:'LTR live',kind:'garb',printing:'Garbodor LTR 68',expect:'guzma'},
-    {name:'BKP live',kind:'garb',printing:'Garbodor BKP 57',expect:'guzma'},
-    {name:'BKP no Tool',kind:'garb',noTool:true,expect:'pass'},
+    {name:'BKP live with own Float Stone',kind:'garb',printing:'Garbodor BKP 57',expect:'guzma'},
+    {name:'BKP no own Float Stone',kind:'garb',noPivotTool:true,expect:'pass'},
+    {name:'BKP own Float Stone jammed',kind:'garb',jammed:true,expect:'pass'},
+    {name:'BKP no Tool on lock source',kind:'garb',noTool:true,expect:'pass'},
     {name:'BKP suppressed',kind:'garb',suppressed:true,expect:'pass'},
     {name:'BKP second live holder',kind:'garb',duplicate:true,expect:'pass'},
     {name:'BKP already no Door lock',kind:'garb',doorLive:true,expect:'pass'},
@@ -2769,6 +2771,15 @@ paired('Agent2: payoff-aware Guzma breaks sole live AOR Item lock or LTR/BKP Gar
     pivot.printed.retreatCost=['Colorless'];
     attacker.printed.retreatCost=['Colorless','Colorless'];
     const vile=cfg.kind==='vile';
+    // Under live Garbotoxin, Skyliner is suppressed. Float Stone remains
+    // an independent retreat reducer, unless Jamming Tower disables Tools.
+    if(!vile){
+      pivot.tools=cfg.noPivotTool?[]:['Float Stone BKT 137'];
+      if(!cfg.noTool&&!cfg.suppressed) {
+        pivot.abilitySuppressions[0]={...pivot.abilitySuppressions[0],
+          suppressed:true,sourcePrinting:'Garbodor BKP 57'};
+      }
+    }
     const printing=vile?'Vileplume AOR 3':cfg.printing??'Garbodor BKP 57';
     const target=pokemon({
       printing,name:vile?'Vileplume':'Garbodor',
@@ -2798,6 +2809,7 @@ paired('Agent2: payoff-aware Guzma breaks sole live AOR Item lock or LTR/BKP Gar
         sourcePrinting:'Garbodor BKP 57'
       };
     }
+    if(cfg.jammed)view.opponentPublic.stadium=['Jamming Tower TWM 153'];
     if(cfg.unpaid)attacker.energies=[P];
     if(cfg.playerAttackCap)view.ownPublic.publicTurnRestrictions.attackMaxEnergyTurnsRemaining=1;
     assert.deepEqual(decide(profile,root(seat,view,[play('guzma',guzma)])),
