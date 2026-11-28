@@ -1135,3 +1135,44 @@ for(const seat of [0,1]) {
     assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'qb'});
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' Rescue Stretcher retrieves last discarded Clefairy through native labeled mode',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active=b('Unown AOR 30');
+    r.observation.ownPublic.bench=[b('Latias ex SSP 76')];
+    r.observation.ownPublic.discard=[clef,'Minior PAR 99'];
+    r.observation.ownHand=['Rescue Stretcher GRI 130'];
+    r.actionFrontier.items=[root('play-card','Rescue Stretcher GRI 130','stretcher'),
+      root('play-card',"Trainers' Mail ROS 92",'mail')];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'stretcher'});
+    r.prompt={promptType:'SelectPrompt',
+      source:{sourcePrinting:'Rescue Stretcher GRI 130',effectName:'Rescue Stretcher'},
+      publicMetadata:{selectionType:'option',count:2},
+      choices:[
+        {kind:'option',token:'mode-shuffle',label:'Shuffle 3 Pokémon into your deck',
+         publicMetadata:{choiceIndex:1}},
+        {kind:'option',token:'mode-hand',
+         label:'Put 1 Pokémon from your discard pile into your hand',
+         publicMetadata:{choiceIndex:0}}]};
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-choice',token:'mode-hand'});
+    r.prompt={...prompt('discard',[card('Minior PAR 99','minior'),
+      card(clef,'lost-clefairy')],1,1),
+      source:{sourcePrinting:'Rescue Stretcher GRI 130',
+        effectName:'Rescue Stretcher'}};
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choices',tokens:['lost-clefairy']});
+    r.observation.ownHand=[clef];
+    r.observation.ownPublic.discard=['Minior PAR 99'];
+    r.prompt=null;
+    r.actionFrontier.items=[root('play-card',clef,'bench')];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'bench'});
+    // If no valued attacker is missing, do not waste a singleton recycler.
+    r.observation.ownPublic.bench=[b('Latias ex SSP 76'),b(clef),b(clef)];
+    r.observation.ownPublic.discard=[clef];
+    r.observation.ownHand=['Rescue Stretcher GRI 130'];
+    r.actionFrontier.items=[root('play-card','Rescue Stretcher GRI 130','stretcher')];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  });
+}
