@@ -10,7 +10,7 @@ const effect=(target,attack='Pale Moon-GX',type='knock_out')=>
 const retreat=(index=0,token='native:retreat:0')=>
   ({token,kind:'retreat',publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:index,benchIndex:index}});
 const choiceView=(flag=true,bench=[{printing:'Mimikyu GRI 58'}])=>
-  ({decisionKind:'owner-root',ownPublic:{
+  ({decisionKind:'owner-root',opponentPublic:{prizeCount:1},ownPublic:{
     active:{publicRestrictions:{pendingPaleMoonGXKnockOut:flag}},bench
   }});
 
@@ -74,6 +74,7 @@ test('hard negatives: unknown / absent KO, no legal root, multiple benches, atta
   for(const flag of [null,false]){
     assert.equal(choosePaleMoonEscapeRetreat(choiceView(flag),offered),null);
   }
+  assert.equal(choosePaleMoonEscapeRetreat({...choiceView(),opponentPublic:{prizeCount:2}},offered),null);
   assert.equal(choosePaleMoonEscapeRetreat(choiceView(),[{token:'pass',kind:'pass'}]),null);
   assert.equal(choosePaleMoonEscapeRetreat(choiceView(true,[{},{}]),offered),null);
   assert.equal(choosePaleMoonEscapeRetreat(choiceView(true,[]),offered),null);
@@ -85,7 +86,7 @@ test('hard negatives: unknown / absent KO, no legal root, multiple benches, atta
 });
 
 const ranger=(token='ranger1')=>({token,kind:'play-card',actorPrinting:'Pokemon Ranger STS'});
-const rangerView=(flag=true)=>({decisionKind:'owner-root',ownPublic:{
+const rangerView=(flag=true)=>({decisionKind:'owner-root',opponentPublic:{prizeCount:1},ownPublic:{
   active:{publicRestrictions:{pendingPaleMoonGXKnockOut:flag}},
   publicTurnRestrictions:{alteredCreationDamage:false,usedAlteredCreation:false}},
   ownTurnResources:{supporterPlayLocked:false,supporterPlayedTurn:0}
@@ -98,6 +99,7 @@ test('Ranger negatives: no threat, competing Trainer, retreat, Supporter use, ow
   const offered=[{token:'pass',kind:'pass'},ranger()];
   assert.equal(choosePaleMoonEscapeRanger(rangerView(false),offered),null);
   assert.equal(choosePaleMoonEscapeRanger(rangerView(null),offered),null);
+  assert.equal(choosePaleMoonEscapeRanger({...rangerView(),opponentPublic:{prizeCount:2}},offered),null);
   assert.equal(choosePaleMoonEscapeRanger(rangerView(),[...offered,
     {token:'fog',kind:'play-card',actorPrinting:'Fog Crystal CRE'}]),null);
   assert.equal(choosePaleMoonEscapeRanger(rangerView(),[...offered,{token:'retreat',kind:'retreat'}]),null);
