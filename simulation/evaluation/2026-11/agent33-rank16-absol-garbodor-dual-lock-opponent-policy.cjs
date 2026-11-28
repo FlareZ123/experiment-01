@@ -621,6 +621,58 @@ function rank16PlumeriaEnergyScore(choice) {
   if(!['attached','active','bench','in-play'].includes(zone(choice)))return 0;
   return /Double Dragon Energy|Double Colorless Energy|Special Energy|Jet Energy|Legacy Energy/i.test(textOf(choice))?225:150;
 }
+// Battle Compressor PHF92: choose *up to three actual cards from own deck*
+// and discard. Promote Dark Patch funding, not imaginary Dragon payloads.
+function rank16NeedsDarkPatchFuel(o) {
+  return slots(o.ownPublic).some(row=>row.zone==='bench'&&
+    matches(row.pokemon.printing,PRINT.mega)&&energyCount(row.pokemon)<3);
+}
+function rank16CompressorScore(choice,o) {
+  if(owner(choice)!=='actor'||zone(choice)!=='deck')return 0;
+  const printing=textOf(choice);
+  const inDiscard=discardCount(o.ownPublic,PRINT.dark);
+  const patchInHand=list(o.ownHand).some(c=>matches(c,PRINT.darkPatch));
+  if(matches(printing,PRINT.dark)) {
+    if(inDiscard>=2)return 0;
+    return rank16NeedsDarkPatchFuel(o)?(patchInHand?260:185):0;
+  }
+  if(matches(printing,PRINT.vip)&&o.globalTurn>2)return 95;
+  if(matches(printing,PRINT.boost)&&hasGarbodor(o))return 65;
+  if([PRINT.marnie,PRINT.plumeria,PRINT.karen].some(p=>matches(printing,p)) &&
+     list(o.ownHand).some(c=>matches(c,PRINT.vs)))
+    return Math.min(150,Math.max(0,rank16SourceSupporterScore(choice,o)));
+  return 0;
+}
+function rank16CompressorTargets(prompt,choices,o) {
+  const meta=prompt.publicMetadata??{};
+  if(meta.selectionType!=='card-combination')return {
+    kind:'abstain',reasonCode:'BATTLE_COMPRESSOR_UNSUPPORTED_SELECTION'};
+  const minimum=Number.isSafeInteger(meta.minimumCount)?meta.minimumCount:0;
+  const maximum=Number.isSafeInteger(meta.maximumCount)?meta.maximumCount:3;
+  if(maximum>3||minimum>maximum||minimum<0)return {
+    kind:'abstain',reasonCode:'BATTLE_COMPRESSOR_UNEXPECTED_BOUNDS'};
+  const ranked=choices.filter(c=>owner(c)==='actor'&&zone(c)==='deck')
+    .map(c=>({c,score:rank16CompressorScore(c,o)}))
+    .filter(row=>row.score>0).sort((a,b)=>b.score-a.score);
+  const selected=[],darkCap=Math.max(0,2-discardCount(o.ownPublic,PRINT.dark));
+  let darkSelected=0;
+  for(const row of ranked) {
+    if(selected.length===maximum)break;
+    if(matches(row.c,PRINT.dark)){
+      if(darkSelected>=darkCap)continue;
+      darkSelected++;
+    }
+    selected.push(row.c.token);
+  }
+  if(selected.length<minimum)return {
+    kind:'abstain',reasonCode:'BATTLE_COMPRESSOR_NO_SAFE_DECK_SELECTION'};
+  if(!selected.length) {
+    const empty=list(prompt.choices).find(c=>c.kind==='empty-selection');
+    return empty?{kind:'select-choice',token:empty.token}:{
+      kind:'abstain',reasonCode:'BATTLE_COMPRESSOR_NO_SAFE_DECK_SELECTION'};
+  }
+  return {kind:'select-choices',tokens:selected};
+}
 function scoreAction(item, request) {
   const observation = request.observation;
   const own = observation.ownPublic;
@@ -700,6 +752,10 @@ function scoreAction(item, request) {
   if (matches(printing, PRINT.ultra)) {
     if(rank16CheapDiscardCount(observation,printing)<2)return 0;
     return count(own, PRINT.trubbish) < 2 || count(own, PRINT.mega) < 2 ? 165 : 0;
+  }
+  if (matches(printing, PRINT.battleCompressor)) {
+    return deckCount(observation)>0 && rank16NeedsDarkPatchFuel(observation) &&
+      discardCount(own,PRINT.dark)<2?230:0;
   }
   if (matches(printing, PRINT.secret)) {
     return deckCount(observation)>0&&rank16CheapDiscardCount(observation,printing)>=3?335:0;
@@ -855,6 +911,7 @@ function promptDecision(request) {
     if(/trainers' mail/.test(source))return singleChoice(prompt,choices.filter(c=>owner(c)==='actor'),
       c=>cardSearchScore({...c,publicMetadata:{...c.publicMetadata,ownerSeat:'actor',sourceZone:'deck'}},observation),
       'NO_SAFE_TRAINERS_MAIL_ITEM');
+    if(/battle compressor/.test(source))return rank16CompressorTargets(prompt,choices,observation);
     if (/vs seeker/.test(source)) {
       return singleChoice(prompt, discard, choice => rank16SourceSupporterScore(choice, observation), 'NO_VS_SEEKER_SUPPORTER');
     }
@@ -920,7 +977,7 @@ function promptDecision(request) {
     if (/tap[u]? koko|dance of the ancients/.test(source)) {
       return { kind: 'abstain', reasonCode: 'RANK16_TAPU_KOKO_PROMPT_HELD_OUT' };
     }
-    if (/crispin|battle compressor|pokémon communication|pokemon communication|hisuian heavy ball|wally|karen/.test(source)) {
+    if (/crispin|pokémon communication|pokemon communication|hisuian heavy ball|wally|karen/.test(source)) {
       return { kind: 'abstain', reasonCode: 'RANK16_MULTI_STEP_PROMPT_HELD_OUT' };
     }
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_PROMPT' };
