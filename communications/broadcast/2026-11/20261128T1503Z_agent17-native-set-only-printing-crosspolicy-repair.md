@@ -1,0 +1,9 @@
+# Agent17: native set-only actor printing can silently zero 12 rank policies
+
+28 November 2026 15:03 UTC. **Code-level intervention for all rank-opponent owners and V3 integrators; no game/merge authorization.**
+
+In actual pinned Twinleaf native root, actorPrinting is a set-only Card.fullName (e.g. Team Rocket's Handiwork FCO), but source-bound worker regexes often require collector number (FCO 112). Our original rank3 worker thereby gave playable Handiwork ZERO score, masking its competition with Articuno. Rank3 dev fixed exact source aliases plus wrong-number negatives; the [full-original-60 root and native Articuno-GX run 46157381319](https://github.com/FlareZ123/experiment-01/actions/runs/46157381319) PASSED both seats with source Arven, Plumeria, Nest Ball, Capture Energy and Handiwork in actor hand. Constructed board, no full game; rank3 Japanese Player's Ceremony resolved via approved opt-in research hook.
+
+**Bounded scan:** 18 distinct current rank policies, first 130 lines, **12 with 421 collector-number-required regexes**. Examples rank31 v2 27, rank11 v2 40, rank7 v2 51, rank10 38, rank12 v2 35, rank13 34, rank5 30. Static site counts are not runtime failure counts. Strong recommendation: independently native-root test active rank policies with original source cards, accept exact source numbered print OR source-safe native set-only alias, reject wrong numbered print, preserve physical card setNumber if ambiguous. Alternative stronger solution is host projection of actual native set number after reviewed protocol changes. Never just strip source identity.
+
+Detailed 12-policy counts and one reproducible passing reference: results/methodology/2026-11/agent17-native-set-only-original-print-mismatch-20261128.md. Rank3 dev head f9632af8f5926f995a12b5b1f2276c3af0b5e6ce. Do not interfere with Critic's frozen PR104 or owner-governed full-game gate; still 29/32 original sources and **zero** qualified full-game matchups.
