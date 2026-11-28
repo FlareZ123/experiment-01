@@ -199,7 +199,10 @@ function scoreAction(item, request) {
   if (item.kind === 'use-ability') {
     const effect = metadata(item).sourceEffect ?? metadata(item).abilityName ?? item.label ?? '';
     if (/Legacy Star/i.test(effect) && vstarUsed === false) return 220;
-    if (/Dedechange|Squawk and Seize/i.test(effect) && hand <= 3) return 160;
+    if (/Dedechange/i.test(effect) && hand <= 3) return 160;
+    // Squawk and Seize expires after its owner's opening turn, which is
+    // global turn 1 going first or global turn 2 going second.
+    if (/Squawk and Seize/i.test(effect) && turn <= 2 && hand <= 3) return 160;
     if (/Resetting Hole/i.test(effect) && /Sky Field|Parallel City/i.test(stadiumName(observation))) return 125;
     return 0;
   }
@@ -210,7 +213,15 @@ function scoreAction(item, request) {
 
   if (item.kind !== 'play-card') return 0;
 
-  if (matches(printing, PRINT.battleVip)) return turn <= 1 && !boardHas(own, PRINT.regidragoV) && hasBenchSpace(own) ? 210 : 0;
+  if (matches(printing, PRINT.battleVip)) {
+    // Active Regidrago V alone does not fill the Bench: VIP can still get
+    // Budew plus a second attacker. The card works on either player's first
+    // turn, corresponding to global turn 1 or 2.
+    const regidragoCount=boardSlots(own).filter(pokemon=>
+      matches(pokemon,PRINT.regidragoV)||matches(pokemon,PRINT.regidragoVstar)).length;
+    return turn <= 2 && hasBenchSpace(own) &&
+      (regidragoCount < 2 || !boardHas(own, PRINT.budew)) ? 210 : 0;
+  }
   if (matches(printing, PRINT.regidragoV)) return !boardHas(own, PRINT.regidragoV) && hasBenchSpace(own) ? 185 : 0;
   if (matches(printing, PRINT.regidragoVstar)) return boardHas(own, PRINT.regidragoV) && !boardHas(own, PRINT.regidragoVstar) ? 205 : 0;
   if (matches(printing, PRINT.budew)) return !boardHas(own, PRINT.budew) && hasBenchSpace(own) ? 190 : 0;
@@ -218,7 +229,8 @@ function scoreAction(item, request) {
   if (matches(printing, PRINT.compressor)) return payloadCount(own) < 3 ? 170 : 65;
   if (matches(printing, PRINT.treasure)) return !boardHas(own, PRINT.regidragoVstar) ? 150 : 90;
   if (matches(printing, PRINT.quickBall)) return !boardHas(own, PRINT.regidragoV) || !boardHas(own, PRINT.budew) ? 140 : 55;
-  if (matches(printing, PRINT.dedenne) || matches(printing, PRINT.squawk)) return hand <= 3 ? 155 : 35;
+  if (matches(printing, PRINT.dedenne)) return hand <= 3 ? 155 : 35;
+  if (matches(printing, PRINT.squawk)) return turn <= 2 ? (hand <= 3 ? 155 : 35) : 0;
   if (matches(printing, PRINT.tapuLele)) return !hasSupporterInHand(observation) ? 135 : 40;
   const gustPriority = threats.mimikyu ? (discardHas(opponent, PRINT.dialga) ? 250 : 230) :
     (threats.clefairy ? 225 : 95);
