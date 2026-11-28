@@ -623,3 +623,55 @@ for(const seat of [0,1]) {
     assert.equal(policy(seat).decide(r).reasonCode,'UNSUPPORTED_PROMPT_TYPE');
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' Psychic Resistance prevents false terminal Rondo despite native attack',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.bench=Array.from({length:5},()=>b('Unown AOR 30'));
+    r.observation.opponentPublic.bench=Array.from({length:5},()=>b('Mimikyu PAL 97'));
+    r.observation.opponentPublic.active={printing:'Darkness VMAX DAA 100',
+      hp:320,damage:110,printed:{types:['DARKNESS'],weakness:[],
+        resistance:[{type:'PSYCHIC',value:'-30'}]}};
+    r.observation.ownPublic.prizeCount=3;
+    r.actionFrontier.items=[root('play-card',"Trainers' Mail ROS 92",'mail'),
+      {...root('attack',clef,'rondo'),attackName:'Full Moon Rondo'}];
+    assert.deepEqual(projectedRondo(r.observation),{damage:190,remaining:210,total:10});
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'mail'});
+    r.observation.opponentPublic.active.printed.resistance=[];
+    assert.deepEqual(projectedRondo(r.observation),{damage:220,remaining:210,total:10});
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'rondo'});
+  });
+  test('seat '+seat+' Psychic Resistance reverses Guzma target value after Weakness',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active=b('Unown AOR 30');
+    r.observation.ownPublic.bench=[{printing:clef,energies:[psychic,psychic]},
+      b('Latias ex SSP 76'),b('Unown AOR 30')];
+    r.observation.opponentPublic.active={printing:'Snorlax PGO 55',hp:150,damage:0};
+    r.observation.opponentPublic.bench=[
+      {printing:'Psychic-weak VMAX ASR 1',hp:300,damage:110,
+        printed:{weakness:[{type:'PSYCHIC',value:'×2'}],
+          resistance:[{type:'PSYCHIC',value:'-30'}]}},
+      {printing:'Crobat V DAA 104',hp:180,damage:90,printed:{weakness:[]}}];
+    // 20*(1+3+2) =120; Psychic-weak VMAX takes 240-30=210 vs
+    // 190 HP remaining, so still lethal; reduce preexisting damage to 80
+    // (220 remaining) so resistance prevents the KO.
+    r.observation.opponentPublic.bench[0].damage=80;
+    r.observation.ownHand=['Guzma BUS 115'];
+    r.actionFrontier.items=[root('play-card','Guzma BUS 115','gust')];
+    r.prompt={promptType:'ChoosePokemonPrompt',
+      source:{sourcePrinting:'Guzma BUS 115',effectName:'Guzma'},
+      publicMetadata:{selectionType:'pokemon',targetZone:'bench',
+        minimumCount:1,maximumCount:1},
+      choices:[
+        {kind:'pokemon',token:'three-prize',publicMetadata:{
+          ownerSeat:'opponent',targetZone:'bench',benchIndex:0}},
+        {kind:'pokemon',token:'two-prize',publicMetadata:{
+          ownerSeat:'opponent',targetZone:'bench',benchIndex:1}}]};
+    assert.deepEqual(policy(seat).decide(r),{
+      kind:'select-choices',tokens:['two-prize']});
+    r.observation.opponentPublic.bench[0].printed.resistance=[];
+    assert.deepEqual(policy(seat).decide(r),{
+      kind:'select-choices',tokens:['three-prize']});
+  });
+}
