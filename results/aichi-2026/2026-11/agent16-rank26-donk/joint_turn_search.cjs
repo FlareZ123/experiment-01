@@ -20,6 +20,15 @@ function verifyPostPowerProjection(powerInput,powerFinal,donation){
     !['eggs','unown','fixed','handDonors'].every(k=>Array.isArray(donation[k]))||
     (donation.small!==undefined&&!Array.isArray(donation.small)))
    return fail('POST_POWER_PROJECTION_SHAPE');
+ // The power solver has no Stadium or Item-lock-changing action.
+ // An opponent Wobbuffet still locking Grass Propagation cannot be ignored
+ // merely by beginning a separate donation search.
+ if(donation.riskyRuinsActive!==powerInput.ruins)
+   return fail('POST_POWER_STADIUM_MISMATCH');
+ if(donation.itemsPlayable!==powerInput.itemsPlayable)
+   return fail('POST_POWER_ITEM_LOCK_MISMATCH');
+ if(powerFinal.locked===true&&donation.propagationAvailable===true)
+   return fail('WOBBUFFET_STILL_BLOCKS_PROPAGATION');
  const entries=['eggs','unown','fixed','handDonors','small']
    .flatMap(k=>donation[k]??[]);
  const ids=entries.map(p=>p?.id);
