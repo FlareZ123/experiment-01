@@ -71,13 +71,13 @@ for(const seat of [0,1]){
 
   test('real pinned BASIC stage changes rank3 Penny versus Handiwork root decision; seat '+seat,()=>{
     const x=stage(seat),manager=initializeCards();
-    const snorlax=createCard(manager,'Snorlax PGO 55');
+    const snorlax=createCard(manager,'Snorlax PGO');
     assert.equal(snorlax.stage,Stage.BASIC);
     replaceActive(x.owner,[snorlax]);
     x.owner.active.damage=70;
     x.owner.hand.cards.length=0;
-    const penny=createCard(manager,'Penny SVI 183');
-    const handi=createCard(manager,"Team Rocket's Handiwork FCO 112");
+    const penny=createCard(manager,'Penny SVI');
+    const handi=createCard(manager,"Team Rocket's Handiwork FCO");
     x.owner.hand.cards.push(penny,handi);
     x.owner.deck.cards.length=0;
     x.opponent.deck.cards.length=0;
@@ -150,8 +150,8 @@ function stadiumScene(seat){
   x.opponent.active.cards.push(fairy,dce);
   x.opponent.active.energies.cards.push(fairy,dce);
   x.owner.hand.cards.length=0;
-  x.owner.hand.cards.push(createCard(manager,'Wondrous Labyrinth TEU 158'),
-    createCard(manager,'Tropical Beach BWP 50'));
+  x.owner.hand.cards.push(createCard(manager,'Wondrous Labyrinth Prism Star TEU'),
+    createCard(manager,'Tropical Beach BWP'));
   x.owner.stadium.cards.length=0;
   x.opponent.stadium.cards.length=0;
   x.owner.deck.cards.length=0;
@@ -192,7 +192,7 @@ function rank6Root(seat,{rawOldType=false}={}){
   const beach=entries.find(a=>a.kind==='play-card'&&
     a.actorPrinting?.startsWith('Tropical Beach BWP'));
   const wondrous=entries.find(a=>a.kind==='play-card'&&
-    a.actorPrinting?.startsWith('Wondrous Labyrinth TEU'));
+    a.actorPrinting?.startsWith('Wondrous Labyrinth'));
   assert.ok(beach,'Tropical Beach must be genuinely offered and native-legal');
   assert.ok(wondrous,'Wondrous Labyrinth must be genuinely offered and native-legal');
   assert.notEqual(beach.token,wondrous.token);
