@@ -536,3 +536,43 @@ console.log('passed '+(function cologneConnectorSearch(P,protocol){
  }
  return n;
 })(P,protocol)+' Cologne search/connector decisions');
+
+
+console.log('passed '+(function cologneUltraBallFollowThrough(P,protocol){
+ const C='Canceling Cologne ASR 136',D='Dedenne-GX UNB 57',U='Ultra Ball MEG 131',VIP='Battle VIP Pass FST 225',M='Mega Absol ex MEG 86',V='Voltorb ROS 21',W='Wobbuffet PHF 36';
+ const mk=(printing,extra={})=>({printing,hp:280,damage:0,energies:[],tools:[],specialConditions:[],publicRestrictions:{},abilityDetails:[],printed:{stage:'Basic',types:['Darkness'],weakness:[],resistance:[]},...extra});
+ const obs=seat=>({actorSeat:seat,globalTurn:4,ownHand:[C,U,VIP,VIP],ownPublic:{active:mk(M),bench:[mk(V)],discard:[],deckCount:25,prizeCount:6,stadium:[],publicTurnRestrictions:{}},opponentPublic:{active:mk(W,{hp:110,abilityDetails:[{name:'Bide Barricade',text:'non-Psychic lock'}],abilitySuppressions:[{abilityName:'Bide Barricade',suppressed:false}]}),bench:[],prizeCount:6,stadium:[],publicTurnRestrictions:{}},ownTurnResources:{energyPlayedTurn:true,supporterPlayedTurn:0}});
+ const frontier=names=>({schema:protocol.FRONTIER_SCHEMA,items:[...names.map((name,i)=>({kind:'play-card',token:'a'+i,actorPrinting:name,publicMetadata:{}})),{kind:'pass',token:'pass'}]});
+ const choices=(names,zone)=>names.map((printing,i)=>({kind:'card',token:'t'+i,printing,label:printing,publicMetadata:{ownerSeat:'actor',sourceZone:zone,isOwnerVisible:true}}));
+ const prompt=(o,source,items,zone,min,max)=>({schema:protocol.PROMPT_SCHEMA,actingSeat:o.actorSeat,promptType:'ChooseCardsPrompt',description:source,source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:source,effectName:source},choices:[...choices(items,zone),...(min===0?[{kind:'empty-selection',token:'empty',label:'None'}]:[])],publicMetadata:{selectionType:'card-combination',sourceZone:zone,ownerSeat:'actor',isOwnerVisible:true,allowCancel:false,isSecret:false,minimumCount:min,maximumCount:max}});
+ let n=0;const check=(b,l)=>{if(!b)throw Error('Cologne/Ultra '+l);n++};
+ const root=(pol,o,seq,names)=>{const f=frontier(names);const r=pol.decide({role:'opponent',seat:o.actorSeat,sequence:seq,observation:o,prompt:null,actionFrontier:f});protocol.validateDecision(r,null,protocol.validateFrontier(f));return r};
+ const answer=(pol,o,seq,p)=>{protocol.validatePrompt(p,o.actorSeat);const r=pol.decide({role:'opponent',seat:o.actorSeat,sequence:seq,observation:o,prompt:p});protocol.validateDecision(r,p,new Set());return r};
+ for(const seat of [0,1]){
+  let o=obs(seat),pol=P.createPolicy({role:'opponent',seat,policyVersion:P.POLICY_VERSION,config:{}});
+  check(root(pol,o,1,[C,U]).token==='a0','payable Cologne chosen seat '+seat);
+  o.ownHand=[U,VIP,VIP];o.opponentPublic.active.abilitySuppressions[0].suppressed=true;
+  check(root(pol,o,2,[U]).token==='a0','payable Ultra selected seat '+seat);
+  let p=prompt(o,U,[VIP,VIP],'hand',2,2);
+  check(JSON.stringify(answer(pol,o,3,p).tokens)==='["t0","t1"]','two safe costs seat '+seat);
+  o.ownHand=[];p=prompt(o,U,[D,'Sableye V SSH 120'],'deck',0,1);
+  check(answer(pol,o,4,p).tokens?.[0]==='t0','Dedenne selected from deck seat '+seat);
+  o.ownHand=[D];
+  check(root(pol,o,5,[D]).token==='a0','Dedenne played seat '+seat);
+  const cp={schema:protocol.PROMPT_SCHEMA,actingSeat:seat,promptType:'ConfirmPrompt',description:'Dedechange',source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:D,effectName:'Dedechange'},choices:[{kind:'confirm',token:'yes',label:'yes'},{kind:'confirm',token:'no',label:'no'}],publicMetadata:{selectionType:'confirm',ownerSeat:'actor',isOwnerVisible:true}};
+  check(answer(pol,o,6,cp).token==='yes','Dedechange confirmed seat '+seat);
+  for(const [label,mut] of [
+   ['one VIP',v=>{v.ownHand=[C,U,VIP];return v}],
+   ['missing Ultra',v=>{v.ownHand=[C,VIP,VIP];return v}],
+   ['already in discard',v=>{v.ownPublic.discard=[D];return v}],
+   ['missing core',v=>{v.ownPublic.active=mk('Unown AOR 30');return v}],
+   ['opponent lock unknown',v=>{v.opponentPublic.active.abilitySuppressions=[];return v}],
+   ['item locked',v=>{v.ownTurnResources.itemPlayLocked=true;return v}],
+   ['full bench',v=>{v.ownPublic.bench=Array(5).fill(mk(V));return v}],
+   ['Path in play',v=>{v.opponentPublic.stadium=['Path to the Peak CRE 148'];return v}]
+  ]){
+   const v=mut(obs(seat));check(root(P.createPolicy({role:'opponent',seat,policyVersion:P.POLICY_VERSION,config:{}}),v,1,[C,U]).token!=='a0','negative '+label+' seat '+seat);
+  }
+ }
+ return n;
+})(P,protocol)+' Cologne/Ultra Ball complete supported chain decisions');

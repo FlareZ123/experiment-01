@@ -507,11 +507,17 @@ function bombPlanner(o,sourceBenchIndex){
     if(!activeWob(o)||bideState(o)!==false||liveStadium(o,/Silent Lab|Path to the Peak/i)||
        o.ownTurnResources?.itemPlayLocked||o.ownPublic?.publicTurnRestrictions?.itemPlayLocked||
        o.ownTurnResources?.abilityPokemonPlayLocked||o.ownPublic?.publicTurnRestrictions?.abilityPokemonPlayLocked||
-       cap(o)<1||!handHas(o,isDedenne)||ownHas(o,isDedenne)||L(o.ownPublic?.discard).some(isDedenne)||
+       cap(o)<1||ownHas(o,isDedenne)||L(o.ownPublic?.discard).some(isDedenne)||
        Number(o.ownPublic?.deckCount)<=6)return 0;
     const h=L(o.ownHand).filter(x=>!cologne(x)),d=h.find(isDedenne);
-    if(!d||h.length>4||!protectedReset({...o,ownHand:h},name(d)))return 0;
-    return 415;
+    if(d)return h.length<=4&&protectedReset({...o,ownHand:h},name(d))?415:0;
+    // The unheld Dedenne route is supported only through an existing
+    // Ultra Ball and two expendable cards; do not posit a free search.
+    const ball=h.find(x=>match(x,R.ultra));
+    if(!ball||!ownHas(o,mega)||!(ownHas(o,isVol)||ownHas(o,elec))||
+       Number(o.ownPublic?.deckCount)<=8||h.length>5)return 0;
+    const payment=safeCosts(h.filter(x=>!match(x,R.ultra)).map(printing=>({printing})),o,2,name(ball));
+    return payment.length===2?375:0;
   }
   const abilityLive=(p,a)=>p&&!L(p.abilitySuppressions).some(x=>x.abilityName===a&&x.suppressed===true);
   const stadiumCard=x=>/^(?:Silent Lab PRC 140|Path to the Peak CRE 148|PokéStop PGO 68)\b/i.test(name(x));
@@ -625,7 +631,7 @@ function bombPlanner(o,sourceBenchIndex){
     if(isVol(c))return !has(o,isVol)&&!has(o,elec)?385:0;
     if(isToed(c))return !has(o,isToed)&&!has(o,cruel)?210:0;
     if(cruel(c))return has(o,isToed)&&!has(o,cruel)?240:0;
-    if(isDedenne(c))return drawEngineLive(o)&&cap(o)>0&&!has(o,isDedenne)&&L(o.ownHand).length<=3?230:0;
+    if(isDedenne(c))return drawEngineLive(o)&&cap(o)>0&&!has(o,isDedenne)&&L(o.ownHand).length<=3?(activeWob(o)&&bideState(o)===true?340:230):0;
     if(isSquawk(c))return first(o)&&drawEngineLive(o)&&cap(o)>0&&!has(o,isSquawk)&&L(o.ownHand).length<=3?220:0;
     if(isUn(c))return cap(o)>0&&!liveStadium(o,/Silent Lab/i)&&Number(o.ownPublic?.deckCount)>8?175:0;
     if(sableye(c))return !has(o,sableye)&&Number(o.opponentPublic?.active?.damage)>=30?245:0;
@@ -789,7 +795,12 @@ function bombPlanner(o,sourceBenchIndex){
     if(match(x,R.carrier)&&cap(o)>0&&d.some(c=>[isVol,isToed,isUn].some(f=>f(c))&&pokemonSearch(c,o)>0))return 320;
     if(match(x,R.stretcher)&&d.some(c=>pokemonSearch(c,o)>0))return 305;
     if(match(x,R.compressor)&&!deferCompressor(o)&&bombPossible(o)&&d.filter(ePred).length<5&&Number(o.ownPublic?.deckCount)>4)return 325;
-    if(match(x,R.ultra)&&fundCost(h.map(printing=>({printing})),o,2,x).length===2&&(!has(o,mega)||has(o,isVol)&&!has(o,elec)||has(o,isToed)&&!has(o,cruel)||!has(o,isGengar)&&horrorDesired(o)))return 335;
+    if(match(x,R.ultra)&&fundCost(h.map(printing=>({printing})),o,2,x).length===2){
+      if(activeWob(o)&&bideState(o)===true&&drawEngineLive(o)&&!has(o,isDedenne)&&
+         cap(o)>0&&ownHas(o,mega)&&(ownHas(o,isVol)||ownHas(o,elec))&&
+         Number(o.ownPublic?.deckCount)>8)return 390;
+      if(!has(o,mega)||has(o,isVol)&&!has(o,elec)||has(o,isToed)&&!has(o,cruel)||!has(o,isGengar)&&horrorDesired(o))return 335;
+    }
     if(match(x,R.vs)&&o.ownTurnResources?.supporterPlayedTurn===0&&!o.ownTurnResources?.supporterPlayLocked&&d.some(c=>supporterSearch(c,o)>0))return 240;
     if(match(x,R.float)&&p&&p===o.ownPublic?.active&&!L(p.tools).length&&slots(o.ownPublic).some(y=>y.zone==='bench'&&bestAttackAgainst(o,y.p,o.opponentPublic?.active)>0))return 360;
     if(match(x,R.muscle)&&p&&mega(p)&&!L(p.tools).length){

@@ -17,3 +17,11 @@ The rank-9 actor-only worker already recognized when a **held** Canceling Cologn
 ## Scope and remaining work
 
 This closes one concrete search-to-play discrepancy in an existing source-locked rank-9 worker. Agent29 owns this branch's policy decision. Agent49/36 own shared prompt-host acceptance; no change to live benchmark admission, Stage-A, V3, candidate sixties, registered seeds or full-field evidence. Before any promotion, run actual Node/local native-prompt integration on the exact branch and obtain the policy/protocol owners' approval. The full rank-9 worker remains incomplete and is not independently game-competent.
+
+## 28 November 2026 — Cologne → Ultra Ball → Dedechange chain
+
+Closed the separate **Dedenne not held** connector gap. The previous root scorer knew how to spend Cologne only when Dedenne-GX was already in the hand; the returned Dedechange line now also identifies an **already-held Ultra Ball** and exactly two strategically expendable hand cards before spending Cologne. After the visible Bide Barricade suppression is recorded, the existing root/prompt controller prioritizes the payable Ultra Ball and Dedenne deck target against a competing Sableye search, then plays Dedenne and affirms Dedechange. No hidden Dedenne presence is assumed—before a known deck-search K1 this is an accessibility hypothesis, and fully-Prized/nonexistent Dedenne remains a possible failure; no game performance conclusion.
+
+**Executed decision checks:** 28 additional two-seat protocol-validated decisions: Cologne root, Ultra root, both payments, Dedenne deck search, Dedenne play and ConfirmPrompt affirmative, plus eight hard negative premises per seat. Unmodified predecessor fails new positive; amended branch passes **19 total grouped logs** (17 inherited, prior 22-decision Cologne acquisition group, new 28-decision Ultra Ball chain group) in the dependency-free V8 test harness. New synthetic prompts accurately exclude illegal empty-selection tokens for mandatory two-card payments. This is not a pinned native Store or end-to-end game.
+
+Scope: one unchanged exact rank-9 source opponent list, existing actor-only protocol, no new harness/CI/fixture/runner. Continue owner review of shared host Extra Energy Bomb and native self-KO promotion separately.
