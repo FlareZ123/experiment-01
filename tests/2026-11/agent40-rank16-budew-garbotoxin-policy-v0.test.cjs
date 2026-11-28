@@ -2161,3 +2161,18 @@ for(const seat of [0,1]){
   assert.equal(policy.score(q.actionFrontier.items[0],q),670);
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' active Wobbuffet suppresses bench Vileplume but spares Psychic engines',()=>{
+  const wobbuffet=mon('Wobbuffet PHF 36',{abilitySuppressions:null});
+  const vileplume=mon('Vileplume AOR 3',{abilitySuppressions:null});
+  const v1=mon('Shadow Rider Calyrex VMAX CRE 75',{abilitySuppressions:null});
+  const v2=mon('Shadow Rider Calyrex VMAX CRE 75',{abilitySuppressions:null});
+  const enemy=opp({active:wobbuffet,bench:[vileplume,v1,v2]});
+  const q=root(seat,[pass],{opponentPublic:enemy});
+  assert.equal(policy.opponentVileplumeItemLock(q.observation),false);
+  assert.equal(policy.urgentShadowRiderGarbotoxin(q.observation),true);
+  enemy.active=mon('Snorlax PGO 55',{abilitySuppressions:null});
+  assert.equal(policy.opponentVileplumeItemLock(q.observation),true);
+ });
+}
