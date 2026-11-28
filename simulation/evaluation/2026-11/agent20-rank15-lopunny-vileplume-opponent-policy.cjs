@@ -410,9 +410,32 @@ function retreatActionTargets(item,target,own) {
   return bench.filter(Boolean).length===1&&bench[target.index]!==null;
 }
 
-function mobilityActions(items,o) {
+// Rank-1 Shadow Rider V concrete response window. A stationary one-Energy
+// Mega can attack for just 60; a different already-evolved, powered Benched
+// Mega becomes a 230-damage Gale attacker *when it itself moves*. Do not
+// overvalue the current Active merely because its 1-C Gale is payable.
+// Only override the general movement policy on a visible terminal 2-Prize KO,
+// an explicit current-stationary movement receipt, and a native offered move.
+function terminalGalePromotionTarget(request) {
+  const o=request?.observation,own=o?.ownPublic,op=o?.opponentPublic?.active;
+  if(!own||!has(own.active,P.mega)||
+    !has(op,/^Shadow Rider Calyrex V CRE(?: 74)?\b/i)||
+    movementEvidence(request)!==false)return null;
+  if(arr(op.tools).length||arr(op.abilitySuppressions).some(x=>x.suppressed===false))
+    return null;
+  const remaining=Number.isSafeInteger(op.hp)&&Number.isSafeInteger(op.damage)?
+    op.hp-op.damage:null;
+  const gale=applyColorlessWeaknessResistance(230,op);
+  if(remaining===null||remaining<=0||gale===null||gale<remaining||
+    !Number.isSafeInteger(own.prizeCount)||own.prizeCount<1||
+    own.prizeCount>sourcePrizeValue(op))return null;
+  const bench=arr(own.bench);
+  const index=bench.findIndex(x=>x&&has(x,P.mega)&&attachedEnergyUnits(x,o)>=1);
+  return index<0?null:{index,printing:bench[index].printing};
+}
+function mobilityActions(items,o,request) {
   const own=o?.ownPublic;
-  const target=positionTarget(o);
+  const target=terminalGalePromotionTarget(request)??positionTarget(o);
   if(!target)return null;
   const retreat=items.find(x=>retreatActionTargets(x,target,own));
   if(retreat)return retreat;
@@ -1221,7 +1244,7 @@ function rootDecision(request) {
     if(retreatBus)return take(retreatBus);
   }
   const pendingAttrition=attrition;
-  const mobility=mobilityActions(items,o);
+  const mobility=mobilityActions(items,o,request);
   if(mobility)return take(mobility);
   const tmTargets=items.filter(x=>{
     if(x.kind!=='play-card'||!has(ownPrinting(x),P.tmEvolution))return false;
