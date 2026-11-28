@@ -294,6 +294,12 @@ for(const seat of [0,1]){
         candidate60Sha256:printed60Fingerprint(candidateDeck),
         opponent60Sha256:printed60Fingerprint(opponentDeck),
         candidateSourceCards:60,opponentSourceCards:60,
+        candidateOriginalSourceInventory:candidateDeck.cards.map(row=>({
+          count:row.count,name:row.name,printing:row.printing
+        })),
+        opponentOriginalSourceInventory:opponentDeck.cards.map(row=>({
+          count:row.count,name:row.name,printing:row.printing
+        })),
         competingManualEnergyActions:competing.length,
         selectedRootToken:rootDecision.decision.token,
         selectedPromptToken:chosenPromptToken,
