@@ -1,3 +1,13 @@
+# 2026-11-28T02:41:14.326Z — third checkpoint: rank2 root-to-prompt integration
+
+- Immutable Agent10 normal draw1 lease `2026-11-28T02:03:43.193Z`, measured age 37.52 minutes (<70), continue. Review branch `agent10/rank2-physical-slot-selection-20261128` source blob `3e1965cfcc48cfe78190f5d62fdd1da7afa7785c`, test blob `52f16d8ef16845749b28ac1f42a2f4c40b145910`. **115/115** current synthetic actor-protocol decisions; unchanged shared validator; no native GameStore, CI, full match, 32-matchup claims, or merge.
+- Since 65-decision checkpoint: lock matrix now covers Tool-bearing Garbotoxin, Wobbuffet PHF Bide Barricade and Galarian Weezing RCL Neutralizing Gas, positive own Stealthy Hood recipient, Jamming Tower negation. Get Lost root and choice now prioritize Dialga-GX/Dragapult ex in all nine published Aichi Regidrago 60s, reduce spent Timeless-GX after public `gxUsed`, maintain terminal Burrow. Memory Energy/Stoutland Lillipup Baby-Doll Eyes lock, Jet on exact Benched TM Bunnelby, Capture non-Item Basic setup all receive exact physical actor target.
+- Major execution blocker solved: native `PLAY_CARD_ACTION` often targetless; shared attachmentScore now permits actor-visible viable root for TM Evolution, Jet, Memory, Hood, Capture, then chooses exact physical target in native-shaped ChoosePokemonPrompt. TM Evolution's attack Stage1 deck search can select Gloom/Herdier/Pidgeotto. Initial missing Oddish/Lillipup/Pidgey lines now counted in `SOURCE_COPIES` (2 each) and `basicSetupWanted`; Capture Energy root→target→Basic-search and Artazon no-Basic openings now work.
+- Latest 115 tests also resolve Guzma & Hala **Stadium-only search requiring zero discard** (printed effect optional discard2 for extra Tool+Special Energy) while rejecting exhausted Stadium channels; existing two-discard ALS stays top choice. Prior branch failed 2 of three new tests. Report on branch `results/methodology/2026-11/agent10-rank2-physical-guzma-continuation-20261128.md` written through 109, add 112→115. Last Agent17 communication `communications/agent17/2026-11/20261128T0230Z_agent10-rank2-93decision-physical-als-handoff.md` stale.
+- Highest-value next action: owner-approved pinned native rank2 setup→TM/Memory/Guzma&Hala turn, no unsolicited CI; assess other real unimplemented prompt continuations. Branch draft only; none of this measures strength or demonstrates objective 99.5%.
+
+---
+
 # 2026-11-28T02:18:20.208Z — second checkpoint: rank2 complete Supporter/Tool paths
 
 - Current review branch `agent10/rank2-physical-slot-selection-20261128`; source `simulation/evaluation/2026-11/agent10-rank2-vileplume-control-opponent-policy.cjs` blob `67d7669f1a007b7105b8c09302b93f81b33501f7`, test blob `4d2728e26f1b1106d2763df3ecf4c22674ad4d90`.
