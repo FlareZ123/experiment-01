@@ -728,3 +728,49 @@ test('source-qualified global Stadium activation works for either player, fails 
   }
 
 });
+
+
+test('pinned native Tropical Beach BWP28 must retain authenticated Aichi BWP50 identity',()=>{
+  // At Twinleaf pin a9905a76, set-black-and-white-promos/tropical-beach.ts:
+  // fullName='Tropical Beach BWP', set='BWP', setNumber='28'. The authenticated
+  // Aichi ranks 3/6/29 label this playable card BWP 50 in their source 60.
+  const nativeClassCard={fullName:'Tropical Beach BWP',
+    name:'Tropical Beach',set:'BWP',setNumber:'28'};
+  const original={cards:[
+    {name:'Tropical Beach',count:1,printing:{set:'BWP',number:'50'}},
+    {name:'Psychic Energy',count:59,printing:{set:'SVE',number:'5'}}
+  ]};
+  const blank={cards:[{name:'Psychic Energy',count:60,
+    printing:{set:'SVE',number:'5'}}]};
+  const sourceOwner=buildSourcePrintingMap(original,
+    [nativeClassCard.fullName,...Array(59).fill('Psychic Energy SVE')]);
+  const sourceActor=buildSourcePrintingMap(blank,
+    Array(60).fill('Psychic Energy SVE'));
+  assert.notEqual(
+    [nativeClassCard.name,nativeClassCard.set,nativeClassCard.setNumber].join(' '),
+    'Tropical Beach BWP 50',
+    'raw native metadata cannot be treated as original source printing');
+  for(const seat of [0,1]){
+    const maps=seat===0?[sourceActor,sourceOwner]:[sourceOwner,sourceActor];
+    const publicView={actorSeat:seat,ownHand:[],
+      ownPublic:{active:null,bench:[],stadium:[]},
+      opponentPublic:{active:null,bench:[],stadium:[nativeClassCard.fullName]}};
+    const nativeFrontier={schema:'aichi-action-frontier-v1',items:[
+      {kind:'use-stadium',token:'beach',actorPrinting:nativeClassCard.fullName,
+        publicMetadata:{stadiumEffectLive:true,
+          stadiumPrinting:nativeClassCard.fullName}},
+      {kind:'pass',token:'pass'}
+    ]};
+    const mapped=projectSourcePrintings(publicView,nativeFrontier,maps);
+    assert.equal(mapped.observation.opponentPublic.stadium[0],
+      'Tropical Beach BWP 50');
+    assert.equal(mapped.actionFrontier.items[0].actorPrinting,
+      'Tropical Beach BWP 50');
+    assert.equal(mapped.actionFrontier.items[0].publicMetadata.stadiumPrinting,
+      'Tropical Beach BWP 50');
+    assert.notEqual(mapped.actionFrontier.items[0].actorPrinting,
+      'Tropical Beach BWP 28');
+    assert.equal(nativeClassCard.fullName,'Tropical Beach BWP',
+      'source projection must never mutate native executable identity');
+  }
+});
