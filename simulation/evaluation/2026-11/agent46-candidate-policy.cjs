@@ -358,6 +358,22 @@ function wondrousLabyrinthTax(slot, view) {
   return 1;
 }
 
+// Mimikyu GRI58's printed Copycat costs Psychic + Colorless. Wondrous
+// Labyrinth adds another Colorless to this non-Fairy attack, so the usual
+// two-Psychic funding heuristic misses the required THIRD attachment.
+// Dimension Valley may instead remove one Colorless. This is an actor
+// energy-planning constraint, not proof the opponent's Apex Dragon receipt
+// is fresh enough to copy on the next attack.
+function mimikyuNeedsCopycatEnergy(view, slot) {
+  if (slot?.printing !== 'Mimikyu GRI 58' ||
+      !opponentHasRegidrago(view)) return false;
+  const tax = wondrousLabyrinthTax(slot, view);
+  if (tax === null) return false;
+  const copycat = {name:'Copycat',cost:['Psychic','Colorless']};
+  return slotEnergyCount(slot) <
+    effectiveAttackCost(slot, copycat, view) + tax;
+}
+
 function canPayAttack(slot, attack, view) {
   // Fixed Hood Shadow Rider 60 has ONLY Basic Psychic Energy MEE 13:
   // five Psychic cards cannot pay Dialga-GX's Metal-heavy attacks.
@@ -945,8 +961,7 @@ function raihanRecipientScore(view, slot) {
   }
   if (slot.printing === 'Shadow Rider Calyrex VMAX CRE 75' && count < 5)
     score += 400;
-  if (slot.printing === 'Mimikyu GRI 58' &&
-      opponentHasRegidrago(view) && count < 2) score += 900;
+  if (mimikyuNeedsCopycatEnergy(view, slot)) score += 900;
   if (slot.printing === "Lillie's Clefairy ex JTG 56" &&
       opponentHasDragon(view) && count < 2) score += 700;
   if (slot.printing === 'Shadow Rider Calyrex V CRE 74' && count < 3)
@@ -1460,8 +1475,7 @@ function chooseUnderworldEnergyAssignment(view, prompt) {
     let score=120-slotEnergyCount(slot)*10;
     if (slot.printing === 'Shadow Rider Calyrex VMAX CRE 75') score+=420;
     else if (slot.printing === 'Shadow Rider Calyrex V CRE 74') score+=220;
-    if (opponentHasRegidrago(view) &&
-        hasName(slot.printing, 'Mimikyu') && slotEnergyCount(slot)<2) score+=1000;
+    if (mimikyuNeedsCopycatEnergy(view, slot)) score+=1000;
     if (opponentHasDragon(view) &&
         hasName(slot.printing, "Lillie's Clefairy ex") &&
         slotEnergyCount(slot)<2) score+=700;
@@ -1632,7 +1646,7 @@ function scoreEnergyPlay(item, view, receipt) {
       { publicEventReceipt: receipt });
     if (!before && after) return 1120;
   }
-  if (opponentHasRegidrago(view) && hasName(target.printing, 'Mimikyu') && count < 2) return 920;
+  if (mimikyuNeedsCopycatEnergy(view, target)) return 920;
   if (hasName(target.printing, 'Shadow Rider Calyrex VMAX') &&
       psychicEnergyCount(view) < 5 && count < 5) return 880;
   if (opponentHasDragon(view) && hasName(target.printing, "Lillie's Clefairy ex") &&
