@@ -12,14 +12,14 @@ function card(printing,hp,type='Colorless') {
   };
 }
 const safeguardText="Prevent all damage done to this Pokémon by attacks from your opponent's Pokémon ex and Pokémon V.";
-function mimikyu(suppressed=false) {
+function mimikyu(suppressed=false,printing='Mimikyu PAL 97') {
   return {
-    ...card('Mimikyu PAL 97',70,'Psychic'),
+    ...card(printing,70,'Psychic'),
     abilityDetails:[{name:'Safeguard',text:safeguardText}],
     abilitySuppressions:suppressed?[{abilityName:'Safeguard',suppressed:true}]:[]
   };
 }
-function scenario(seat,{activeMimikyu=false,benchMimikyu=true,activeSuppressed=false}={}) {
+function scenario(seat,{activeMimikyu=false,benchMimikyu=true,activeSuppressed=false,nativeName=false}={}) {
   const mega={
     ...card('Mega Absol ex MEG 86',280,'Darkness'),
     energies:[
@@ -36,12 +36,13 @@ function scenario(seat,{activeMimikyu=false,benchMimikyu=true,activeSuppressed=f
     }]
   };
   const girafarig=card('Girafarig LOT 94',90,'Psychic');
-  const active=activeMimikyu?mimikyu(activeSuppressed):snorlax;
+  const printing=nativeName?'Mimikyu PAL':'Mimikyu PAL 97';
+  const active=activeMimikyu?mimikyu(activeSuppressed,printing):snorlax;
   return {
     actorSeat:seat,globalTurn:4,phase:2,ownHand:[],
     ownPublic:{active:mega,bench:[],stadium:[],prizeCount:6,discard:[]},
     opponentPublic:{
-      active,bench:benchMimikyu?[girafarig,mimikyu()]:[girafarig],
+      active,bench:benchMimikyu?[girafarig,mimikyu(false,printing)]:[girafarig],
       stadium:[],prizeCount:6
     },
     ownTurnResources:{
@@ -69,6 +70,15 @@ for(const seat of [0,1]) {
     const o=scenario(seat);
     assert.equal(rank9.payable(o.ownPublic.active,
       ['darkness','darkness','colorless'],-1,o),true);
+    assert.equal(rank9.printedDamage(o,o.ownPublic.active,
+      o.opponentPublic.active,'Claw of Darkness'),200);
+    assert.deepEqual(rank9Root(seat,o),{
+      kind:'select-action',token:'claw'
+    });
+  });
+  test(`seat ${seat}: pinned native Mimikyu PAL fullname also scopes holder-only Safeguard`,()=>{
+    const o=scenario(seat,{nativeName:true});
+    assert.equal(o.opponentPublic.bench[1].printing,'Mimikyu PAL');
     assert.equal(rank9.printedDamage(o,o.ownPublic.active,
       o.opponentPublic.active,'Claw of Darkness'),200);
     assert.deepEqual(rank9Root(seat,o),{
