@@ -1407,7 +1407,7 @@ function createPolicy({role,seat,policyVersion,config}) {
 module.exports={POLICY_VERSION,DECK_PATH,DECK_SHA,createPolicy,ready,validTarget,sourceAttack,shadowBindBus,aceSafe,verifiedAttackDamage,preservedCommonSetup,COMMON_SETUP_REASONS,chooseStage2BusEscape,treasureNeed,chooseTreasureRoot,chooseTreasurePrompt,stage2MissingUnderBus,chooseStage2StarRoot,chooseStage2StarPrompt,actualOwnedAttack,chooseCertifiedLethal,chooseMidgameRefill,choosePaidPressure,choosePerfectionPrompt};
 
 return module.exports;})();
-const {createSlice}=/* Static countercatcher sequence module, private lexical scope. */
+const {createSlice,visiblePrintedDuoDamage}=/* Static countercatcher sequence module, private lexical scope. */
 (()=>{const module={exports:{}};
 'use strict';
 /**
@@ -1448,33 +1448,74 @@ function abilitySource(own,items){
  }
  return null;
 }
-function offeredMewtwoAttack(own,items,name='Miraculous Duo-GX'){
+function nightWatchDonor(own){
+ return Array.isArray(own?.bench)&&own.bench.some(s=>
+   has(s?.printing,'Trevenant & Dusknoir-GX'))||
+   Array.isArray(own?.discard)&&own.discard.some(s=>
+   has(s,'Trevenant & Dusknoir-GX'));
+}
+function psychicCostPhysicallyReady(own,opponent){
+ const p=own?.active;
+ if(!p||!Array.isArray(p.energies)||!Array.isArray(p.specialConditions)||
+    p.specialConditions.some(x=>['ASLEEP','PARALYZED','CONFUSED'].includes(String(x).toUpperCase()))||
+    !Array.isArray(own.stadium)||!Array.isArray(opponent?.stadium))return false;
+ const basic=p.energies.filter(e=>has(e,'Basic Psychic Energy')).length;
+ const telepathic=p.energies.filter(e=>has(e,'Telepathic Psychic Energy')).length;
+ // This is a pre-root guard against burning Dusknoir for a *hypothetical*
+ // Night Watch. The real Perfection ChooseAttackPrompt still checks payment.
+ // Temple of Sinnoh makes TPE Colorless. Unknown special-Energy modifiers
+ // must remain an unverified native-game limitation, never promised damage.
+ const temple=[...own.stadium,...opponent.stadium].some(e=>
+   has(e,'Temple of Sinnoh'));
+ return basic+(temple?0:telepathic)>=3;
+}
+function offeredMewtwoAttack(own,items,name='Miraculous Duo-GX',opponent=null){
  if(!has(own?.active?.printing,'Mewtwo & Mew-GX')||
     !Array.isArray(items)||!Array.isArray(own.bench)||
     !['Miraculous Duo-GX','Night Watch'].includes(name))return null;
- if(name==='Miraculous Duo-GX'&&
-    own.publicTurnRestrictions?.gxUsed!==false)return null;
  const active=own.active;
+ if(name==='Night Watch'){
+  if(!Array.isArray(active.abilities)||
+     !active.abilities.includes('Perfection')||
+     active.abilitySuppressions?.find(y=>y.abilityName==='Perfection')?.suppressed!==false||
+     !nightWatchDonor(own)||!psychicCostPhysicallyReady(own,opponent))
+   return null;
+  return items.find(x=>x.kind==='use-ability'&&
+    x.publicMetadata?.abilityName==='Perfection'&&
+    x.publicMetadata.sourceZone==='active'&&
+    x.publicMetadata.sourceSeat==='actor'&&
+    x.publicMetadata.sourceIndex===0&&
+    x.actorPrinting===active.printing)??null;
+ }
+ if(own.publicTurnRestrictions?.gxUsed!==false)return null;
  return items.find(x=>{
   if(x.kind!=='attack'||x.attackName!==name||
      x.publicMetadata?.attackCostPayable!==true)return false;
   const s=x.publicMetadata.attackSource;
-  if(name==='Miraculous Duo-GX')
-   return x.actorPrinting===active.printing&&
+  return x.actorPrinting===active.printing&&
      s?.sourceKind==='active-pokemon'&&s.sourceSlot==='ACTIVE'&&
      s.sourceCardFullName===active.printing;
-  // Bench GX donor only; discard-copy Perfection prompts require a separate
-  // strictly owner-visible ChooseAttackPrompt handler, not invented evidence.
-  if(!Array.isArray(active.abilities)||!active.abilities.includes('Perfection')||
-     active.abilitySuppressions?.find(y=>y.abilityName==='Perfection')?.suppressed!==false||
-     s?.sourceKind!=='bench-pokemon'||s.sourceSlot!=='BENCH'||
-     !int(s.sourceIndex))return false;
-  const donor=own.bench[s.sourceIndex];
-  return !!donor&&has(donor.printing,'Trevenant & Dusknoir-GX')&&
-    s.sourceCardFullName===donor.printing&&
-    x.actorPrinting===donor.printing&&
-    s.attackName==='Night Watch';
- });
+ })??null;
+}
+function ownerPerfectionNightWatchPrompt(p,seat,own,targetPrinting){
+ if(!p||p.actingSeat!==seat||p.promptType!=='ChooseAttackPrompt'||
+    p.source?.classification!=='actor-choice'||
+    p.source.sourceKind!=='card-effect'||
+    p.source.effectName!=='Perfection'||
+    p.source.sourcePrinting!==own.active?.printing||
+    p.publicMetadata?.selectionType!=='attack'||
+    !Array.isArray(p.choices))return null;
+ const donors=[
+  ...(Array.isArray(own?.bench)?own.bench.map(s=>s?.printing):[]),
+  ...(Array.isArray(own?.discard)?own.discard:[])
+ ].filter(s=>has(s,'Trevenant & Dusknoir-GX'));
+ if(!donors.length||!targetPrinting)return null;
+ return p.choices.find(c=>c.kind==='attack'&&
+   c.publicMetadata?.ownerSeat==='actor'&&
+   c.publicMetadata.isOwnerVisible===true&&
+   ['board','bench','discard','mixed'].includes(c.publicMetadata.sourceZone)&&
+   c.publicMetadata.sourceAttack==='Night Watch'&&
+   donors.includes(c.printing))??null;
 }
 function liveFairyZone(own){
  return Array.isArray(own?.bench)&&own.bench.some(p=>
@@ -1500,16 +1541,37 @@ function validRootTarget(target,own){
  return remaining>130&&remaining<=maxAfterBlast?
    {def,remaining,dragonFairyZoneProjected:dragonWeak}:null;
 }
-function certifiedDamage(attack,target){
+function visiblePrintedDuoDamage(own,opp,target){
+ // The pinned action frontier does NOT expose damageAfterResistance, only
+ // attackCostPayable and source. This is a narrow *nominal printed* estimate,
+ // not an actual Store damage receipt: previously imposed effects can persist.
+ if(!has(own?.active?.printing,'Mewtwo & Mew-GX')||
+    !Array.isArray(own.active.attacks)||
+    !own.active.attacks.some(a=>a?.name==='Miraculous Duo-GX'&&a.damage===200)||
+    !Array.isArray(own.stadium)||!Array.isArray(opp?.stadium)||
+    own.stadium.length||opp.stadium.length||
+    !Array.isArray(own.active.tools)||own.active.tools.length||
+    !Array.isArray(target?.tools)||target.tools.length||
+    !Array.isArray(target.printed?.resistance)||
+    target.printed.resistance.some(r=>r?.type==='Psychic')||
+    !['Mega Lopunny ex','Mega Kangaskhan ex','Mega Absol ex',
+      'Mega Dragonite ex','Regidrago VSTAR'].some(n=>has(target.printing,n)))
+   return null;
+ const dragon=has(target.printing,'Mega Dragonite ex')&&
+   Array.isArray(target.printed.types)&&
+   target.printed.types.includes('Dragon')&&liveFairyZone(own);
+ return 200*(dragon?2:1);
+}
+function certifiedDamage(attack,target,own,opp){
  const m=attack?.publicMetadata;
  if(!m||m.attackCostPayable!==true||
     m.damagePrevented===true||m.hasUnmodeledModifier===true||
     (typeof m.damageReduced==='number'&&m.damageReduced>0)||
-    !Number.isFinite(m.damageAfterResistance)||
-    m.damageAfterResistance<target.hp-target.damage||
     (m.targetHp!==undefined&&m.targetHp!==target.hp)||
     (m.targetDamage!==undefined&&m.targetDamage!==target.damage))return false;
- return true;
+ const dmg=Number.isFinite(m.damageAfterResistance)?
+   m.damageAfterResistance:visiblePrintedDuoDamage(own,opp,target);
+ return Number.isFinite(dmg)&&dmg>=target.hp-target.damage;
 }
 function ownerBenchChoice(p,seat,source,print,index){
  if(!p||p.actingSeat!==seat||p.promptType!=='ChoosePokemonPrompt'||
@@ -1567,6 +1629,18 @@ function createSlice({seat}){
     return {decision:{kind:'select-choices',tokens:[choice.token]},
      reason:'A22_COUNTERCATCHER_GUST_DAMAGED_PRIZE_POKEMON'};
    }
+   if(pending.phase==='perfection-attack-prompt'){
+    const t=opp.active;
+    if(!t||t.printing!==pending.targetPrinting||
+       t.hp!==pending.hp||t.damage<pending.startDamage+130||
+       t.hp-t.damage>150||!nightWatchDonor(own)||
+       !psychicCostPhysicallyReady(own,opp)){reset();return null;}
+    const choice=ownerPerfectionNightWatchPrompt(p,seat,own,pending.targetPrinting);
+    if(!choice){reset();return null;}
+    reset();
+    return {decision:{kind:'select-choice',token:choice.token},
+      reason:'A22_PERFECTION_SELECT_ACTUAL_PAID_NIGHT_WATCH_TERMINAL'};
+   }
    reset();return null;
   }
   if(v.decisionKind!=='owner-root'||request.prompt!==null||
@@ -1603,12 +1677,21 @@ function createSlice({seat}){
       reset();return null;
     }
     const attackName=pending.attackName;
-    const a=offeredMewtwoAttack(own,items,attackName);
-    if(!a||!certifiedDamage(a,t)){reset();return null;}
+    const a=offeredMewtwoAttack(own,items,attackName,opp);
+    if(!a){reset();return null;}
+    if(attackName==='Night Watch'){
+      // Perfection is an Ability, not a fabricated Bench-sourced Attack
+      // action. It raises an owner ChooseAttackPrompt whose eligible choices
+      // encode native payment; selection performs the copied attack.
+      if(t.hp-t.damage>150){reset();return null;}
+      pending.phase='perfection-attack-prompt';
+      return select(a,'A22_USE_ACTUAL_PERFECTION_FOR_NIGHT_WATCH');
+    }
+    if(!certifiedDamage(a,t,own,opp)){reset();return null;}
     reset();
-    return select(a,attackName==='Miraculous Duo-GX'?
-      'A22_MIRACULOUS_GX_AFTER_GUST_FOR_FINAL_THREE_PRIZES':
-      'A22_NIGHT_WATCH_AFTER_GUST_FOR_FINAL_TWO_PRIZES');
+    return select(a,Number.isFinite(a.publicMetadata?.damageAfterResistance)?
+      'A22_MIRACULOUS_GX_NATIVE_ANNOTATED_TERMINAL':
+      'A22_MIRACULOUS_GX_PRINTED_BASE_CONDITIONAL_TERMINAL');
    }
    reset();return null;
   }
@@ -1620,10 +1703,11 @@ function createSlice({seat}){
   for(let i=0;i<opp.bench.length;i++){
    const t=opp.bench[i],check=validRootTarget(t,own);
    if(!check||check.def.prizes!==own.prizeCount)continue;
-   // An actual currently offered, already-paid attack is mandatory.
-   // A printed GX uses Mewtwo's own attack; the non-GX Night Watch
-   // requires present and live Perfection plus a correctly indexed Bench donor.
-   const paid=offeredMewtwoAttack(own,items,check.def.attackName);
+   // Miraculous must be directly printed and already payable. Night
+   // Watch is available only through an offered Perfection Ability plus a
+   // visible Psychic payment and eligible Benched/discarded GX donor; the
+   // actual paid attack is *not* a direct native action.
+   const paid=offeredMewtwoAttack(own,items,check.def.attackName,opp);
    // An opponent's *current Active* might prevent Basic attack damage.
    // That does not prevent paid use of an attack after Counter Catcher gusts
    // a different target. Do not import a pre-gust damagePrevented flag into
@@ -1641,24 +1725,47 @@ function createSlice({seat}){
  return {decide,reset,peek:()=>pending?{...pending}:null};
 }
 module.exports={createSlice,validRootTarget,offeredMewtwoAttack,
- abilitySource,ownerBenchChoice,certifiedDamage};
+ abilitySource,ownerBenchChoice,certifiedDamage,
+ nightWatchDonor,psychicCostPhysicallyReady,ownerPerfectionNightWatchPrompt,
+ visiblePrintedDuoDamage};
 
 return module.exports;})();
 const POLICY_VERSION='agent22-newmoon-v3-postselfko-countercatcher-research-v1';
 const DECK_PATH=parent.DECK_PATH,DECK_SHA=parent.DECK_SHA;
-function supportedDirectTerminal(v,items){
+function directTerminal(v,items){
  if(!v||!Array.isArray(items)||!v.opponentPublic?.active||
-    !Number.isSafeInteger(v.ownPublic?.prizeCount))return false;
+    !Number.isSafeInteger(v.ownPublic?.prizeCount))return null;
  const target=v.opponentPublic.active,need=v.ownPublic.prizeCount;
- // Only when the observable target's identity independently certifies its
- // exact Prize value; never infer unknown Rule Box values from HP alone.
+ // Exact visible printing carries its known Prize value: never infer an
+ // unknown Pokémon's Prize value from its HP, rule box or name substring.
  const prize=target.printing?.includes('Regidrago VSTAR')?2:
    ['Mega Lopunny ex','Mega Kangaskhan ex','Mega Absol ex',
     'Mega Dragonite ex'].some(s=>target.printing?.includes(s))?3:null;
  const lastOpponentPokemon=Array.isArray(v.opponentPublic.bench)&&
    v.opponentPublic.bench.filter(Boolean).length===0;
- return (prize!==null&&prize>=need||lastOpponentPokemon)&&
-   !!parent.chooseCertifiedLethal(v,items);
+ if(!(prize!==null&&prize>=need||lastOpponentPokemon))return null;
+ const nativeAnnotated=parent.chooseCertifiedLethal(v,items);
+ if(nativeAnnotated)return {
+   ...nativeAnnotated,reason:'A22_NATIVE_ANNOTATED_DIRECT_TERMINAL'};
+ const own=v.ownPublic,op=v.opponentPublic;
+ const nominal=visiblePrintedDuoDamage(own,op,target);
+ if(!Number.isFinite(nominal)||
+    !Number.isSafeInteger(target.hp)||!Number.isSafeInteger(target.damage)||
+    target.hp<=target.damage||nominal<target.hp-target.damage||
+    own.publicTurnRestrictions?.gxUsed!==false)return null;
+ const active=own.active;
+ const a=items.find(x=>x.kind==='attack'&&
+   x.attackName==='Miraculous Duo-GX'&&
+   x.actorPrinting===active.printing&&
+   x.publicMetadata?.attackCostPayable===true&&
+   x.publicMetadata.attackSource?.sourceKind==='active-pokemon'&&
+   x.publicMetadata.attackSource.sourceSlot==='ACTIVE'&&
+   x.publicMetadata.attackSource.sourceCardFullName===active.printing);
+ return a?{decision:{kind:'select-action',token:a.token},
+   reason:'A22_PRINTED_DIRECT_BASE_DAMAGE_TERMINAL_PROJECTION'}:null;
+}
+function supportedDirectTerminal(v,items){
+ return directTerminal(v,items)!==null;
 }
 function createPolicy({role,seat,policyVersion,config}){
  if(role!=='candidate'||![0,1].includes(seat)||
@@ -1686,11 +1793,9 @@ function createPolicy({role,seat,policyVersion,config}){
  function decideWithAudit(request){
   const v=request?.observation,items=request?.actionFrontier?.items;
   const hadSequence=seq.peek()!==null;
-  if(!hadSequence&&v?.decisionKind==='owner-root'&&
-     supportedDirectTerminal(v,items)){
-    const direct=parent.chooseCertifiedLethal(v,items);
-    if(direct)return withAudit(request,{
-      ...direct,reason:'A22_DIRECT_NO_SELFKO_TERMINAL_PRIORITY'});
+  if(!hadSequence&&v?.decisionKind==='owner-root'){
+    const direct=directTerminal(v,items);
+    if(direct)return withAudit(request,direct);
   }
   const action=seq.decide(request);
   if(action)return withAudit(request,action);
@@ -1708,4 +1813,4 @@ function createPolicy({role,seat,policyVersion,config}){
  return {decide:r=>decideWithAudit(r).decision,decideWithAudit};
 }
 module.exports={POLICY_VERSION,DECK_PATH,DECK_SHA,createPolicy,
- supportedDirectTerminal};
+ supportedDirectTerminal,directTerminal};
