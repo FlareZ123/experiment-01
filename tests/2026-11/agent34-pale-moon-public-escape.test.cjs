@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {pendingPaleMoonGXKnockOut,choosePaleMoonEscapeRetreat,choosePaleMoonEscapeRanger,choosePaleMoonEscapeGuzmaRoot,choosePaleMoonEscapeGuzmaPrompt,rescuePaleMoonTerminalPass}=require('../../simulation/twinleaf/2026-11/agent34-pale-moon-escape.cjs');
+const {pendingPaleMoonGXKnockOut,choosePaleMoonEscapeRetreat,choosePaleMoonEscapeRanger,choosePaleMoonEscapeGuzmaRoot,choosePaleMoonEscapeGuzmaPrompt,rescuePaleMoonTerminalPass,choosePaleMoonFloatStonePreparation}=require('../../simulation/twinleaf/2026-11/agent34-pale-moon-escape.cjs');
 const {actorObservation}=require('../../simulation/twinleaf/actor-observation-contract.cjs');
 const {validateActorObservation}=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 
@@ -206,4 +206,66 @@ test('terminal Pass override does not preempt an original winning attack or choo
     opponentPublic:{prizeCount:1,bench:[{printing:'Regidrago V SIT 135'}]}};
   assert.equal(rescuePaleMoonTerminalPass(v,[...base,ranger(),{token:'guzma',kind:'play-card',actorPrinting:'Guzma BUS'}],'pass'),null);
   assert.equal(rescuePaleMoonTerminalPass(rangerView(),[...base,ranger(),{...base[0],token:'extra-pass'}],'pass'),null);
+});
+
+const floatStoneItem=(zone='active',token='stone')=>({
+  token,kind:'play-card',actorPrinting:'Float Stone BKT',targetPrinting:'Shadow Rider Calyrex VMAX CRE 75',
+  publicMetadata:{targetSeat:'actor',targetZone:zone,targetIndex:0}
+});
+const stoneView=()=>({
+  decisionKind:'owner-root',
+  ownPublic:{
+    active:{printing:'Shadow Rider Calyrex VMAX CRE 75',
+      printed:{retreatCost:['Colorless','Colorless']},tools:[],specialConditions:[],
+      publicRestrictions:{pendingPaleMoonGXKnockOut:true,cannotRetreat:false,
+        cannotRetreatNextTurn:false,cannotRetreatWhileActive:false}},
+    bench:[{printing:'Mimikyu GRI 58'}],stadium:[],
+    publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:0}
+  },
+  opponentPublic:{prizeCount:1,active:{tools:[]},stadium:[],
+    publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:0}},
+  ownTurnResources:{retreatedTurn:0,toolPlayLocked:false}
+});
+test('late-game Float Stone then genuine Retreat is a two-root safe terminal-Pass counterline',()=>{
+  const root=[passLike(),{token:'ability',kind:'use-ability'},floatStoneItem()];
+  function passLike(){return {token:'pass',kind:'pass'};}
+  const prepared=choosePaleMoonFloatStonePreparation(stoneView(),root);
+  assert.deepEqual(prepared,{token:'stone',
+    reason:'PUBLIC_PALE_MOON_FLOAT_STONE_PREPARE_ZERO_RETREAT'});
+  assert.deepEqual(rescuePaleMoonTerminalPass(stoneView(),root,'pass'),{
+    token:'stone',reason:'PUBLIC_PALE_MOON_TERMINAL_PASS_PREPARATION',
+    selectedSourceReason:'PUBLIC_PALE_MOON_FLOAT_STONE_PREPARE_ZERO_RETREAT'
+  });
+  const next={...stoneView(),ownPublic:{...stoneView().ownPublic,
+    active:{...stoneView().ownPublic.active,tools:['Float Stone BKT']}}};
+  const after= [passLike(),retreat(0,'now-free-retreat')];
+  assert.equal(rescuePaleMoonTerminalPass(next,after,'pass')?.token,'now-free-retreat');
+});
+test('Float Stone root rejects active locks, disabled Tools, invalid targets and no Bench',()=>{
+  const base=stoneView();
+  const root=[{token:'pass',kind:'pass'},floatStoneItem()];
+  const mod=(ownPublic,opponentPublic,resources)=>({
+    ...base,ownPublic:{...base.ownPublic,...ownPublic},
+    opponentPublic:{...base.opponentPublic,...opponentPublic},
+    ownTurnResources:{...base.ownTurnResources,...resources}
+  });
+  assert.equal(choosePaleMoonFloatStonePreparation(
+    mod({active:{...base.ownPublic.active,tools:['Forest Seal Stone SIT']}},null,null),root),null);
+  assert.equal(choosePaleMoonFloatStonePreparation(mod({bench:[]},null,null),root),null);
+  assert.equal(choosePaleMoonFloatStonePreparation(mod({stadium:['Jamming Tower TWM']},null,null),root),null);
+  assert.equal(choosePaleMoonFloatStonePreparation(mod({},{
+    active:{tools:['Tool Jammer BST']}},null),root),null);
+  assert.equal(choosePaleMoonFloatStonePreparation(mod({
+    publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:1}},null,null),root),null);
+  assert.equal(choosePaleMoonFloatStonePreparation(mod({},null,{retreatedTurn:1}),root),null);
+  assert.equal(choosePaleMoonFloatStonePreparation(mod({},null,{toolPlayLocked:true}),root),null);
+  assert.equal(choosePaleMoonFloatStonePreparation(mod({
+    active:{...base.ownPublic.active,specialConditions:['asleep']}},null,null),root),null);
+  assert.equal(choosePaleMoonFloatStonePreparation(mod({
+    active:{...base.ownPublic.active,publicRestrictions:{
+      ...base.ownPublic.active.publicRestrictions,cannotRetreat:true}}},null,null),root),null);
+  assert.equal(choosePaleMoonFloatStonePreparation(base,[root[0],floatStoneItem('bench')]),null);
+  assert.equal(choosePaleMoonFloatStonePreparation(base,[...root,floatStoneItem('active','second')]),null);
+  assert.equal(rescuePaleMoonTerminalPass({...base,opponentPublic:{
+    ...base.opponentPublic,prizeCount:2}},root,'pass'),null);
 });
