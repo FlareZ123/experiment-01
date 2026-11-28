@@ -2916,3 +2916,73 @@ paired('Agent2: Hood on Benched Latias opens the full source-paid Garbotoxin loc
   view.ownHand=[hood,guzma,P];
   assert.deepEqual(decide(profile,root(seat,view,rootActions)),sel('hood-vmax'));
 });
+
+paired('Agent2: held Float Stone attaches to Latias before payable Guzma-Garbotoxin KO',(seat,profile)=>{
+  const stone='Float Stone BKT 137',guzma='Guzma BUS';
+  const lat=latias(),attacker=vmax([P,P,P]);
+  lat.printed.retreatCost=['Colorless'];
+  attacker.printed.retreatCost=['Colorless','Colorless'];
+  const garb=pokemon({printing:'Garbodor BKP 57',name:'Garbodor',
+    hp:100,types:['Psychic'],subtypes:['Stage 1'],
+    abilities:['Garbotoxin'],suppression:false,tools:[stone]});
+  for(const slot of [lat,attacker]){
+    slot.abilitySuppressions[0]={...slot.abilitySuppressions[0],
+      suppressed:true,sourcePrinting:garb.printing};
+  }
+  const view=observation(seat,{active:attacker,bench:[lat],
+    opponentActive:defender(),opponentBench:[garb],
+    ownHand:[stone,guzma],globalTurn:4});
+  view.ownPublic.prizeCount=4;
+  view.opponentPublic.prizeCount=6;
+  const actions=[
+    play('float-lat',stone,lat.printing,target('bench',0)),
+    play('guzma',guzma)
+  ];
+  assert.deepEqual(decide(profile,root(seat,view,actions)),sel('float-lat'));
+  const actorPolicy=worker.createPolicy({role:'candidate',seat,
+    policyVersion:worker.POLICY_VERSION,config:profile});
+  const stonePrompt={role:'candidate',seat,
+    observation:{...view,ownHand:[guzma],decisionKind:'owner-prompt',
+      pendingPromptType:'ChoosePokemonPrompt'},
+    publicEventReceipt:null,
+    prompt:{actingSeat:seat,promptType:'ChoosePokemonPrompt',description:null,
+      source:{classification:'actor-choice',sourceKind:'card-effect',
+        sourcePrinting:stone,effectName:'Float Stone'},
+      choices:[
+        {kind:'pokemon',token:'vmax',printing:attacker.printing,label:'Active',
+          publicMetadata:{selectionIndex:0,selectedCount:1,
+            selectionType:'pokemon',ownerSeat:'actor',targetZone:'active',
+            isOwnerVisible:true}},
+        {kind:'pokemon',token:'lat',printing:lat.printing,label:'Bench',
+          publicMetadata:{selectionIndex:0,selectedCount:1,
+            selectionType:'pokemon',ownerSeat:'actor',targetZone:'bench',
+            benchIndex:0,isOwnerVisible:true}}
+      ],publicMetadata:{minimumCount:1,maximumCount:1,
+        allowCancel:false,isSecret:false,selectionType:'pokemon'}}};
+  assert.deepEqual(actorPolicy.decide(stonePrompt),mult('lat'));
+  const equipped={...lat,tools:[stone]};
+  const afterStone={...view,ownHand:[guzma],
+    ownPublic:{...view.ownPublic,handCount:1,
+      bench:[equipped,null,null,null,null]}};
+  assert.deepEqual(decide(profile,root(seat,afterStone,[
+    play('guzma',guzma)])),sel('guzma'));
+  const variants=[
+    ['without Guzma',[stone],6,[garb],false],
+    ['with Psychic in hand',[stone,guzma,P],6,[garb],false],
+    ['two live Garbotoxin sources',[stone,guzma],6,[garb,
+      pokemon({printing:garb.printing,name:'Garbodor',
+        hp:100,types:['Psychic'],subtypes:['Stage 1'],
+        abilities:['Garbotoxin'],suppression:false,tools:[stone]})],false],
+    ['opponent only 3 Prizes',[stone,guzma],3,[garb],false],
+    ['no Tool on Garbotoxin',[stone,guzma],6,[{
+      ...garb,tools:[]}],false],
+    ['Jamming Tower disables Float Stone',[stone,guzma],6,[garb],true]
+  ];
+  for(const [name,hand,opponentPrizes,bench,jammed] of variants){
+    const v={...view,ownHand:hand,
+      opponentPublic:{...view.opponentPublic,
+        prizeCount:opponentPrizes,bench:[...bench,...Array(5-bench.length).fill(null)],
+        stadium:jammed?['Jamming Tower TWM 153']:view.opponentPublic.stadium}};
+    assert.deepEqual(decide(profile,root(seat,v,actions)),sel('pass'),name);
+  }
+});
