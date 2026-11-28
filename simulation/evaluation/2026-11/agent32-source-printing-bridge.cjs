@@ -222,7 +222,12 @@ function projectAdmittedWorkerParts(parts,sourceMapsBySeat,protocol,
   if(observationAlreadySourcePrinted){
     const normalizedObservation=projectSourcePrintings(
       observation,null,sourceMapsBySeat).observation;
-    assert.deepEqual(observation,normalizedObservation,
+    // The frozen observer is JSON-detached; a second nonserializing
+    // projection may include optional undefined keys that were stripped
+    // by the initial JSON roundtrip. Require exact serialized equivalence
+    // (the same semantics as the driver's observation SHA), not object
+    // equivalence on these absent optional keys.
+    assert.equal(JSON.stringify(observation),JSON.stringify(normalizedObservation),
       'pre-driver-SHA actor view must already be source-labeled');
     const mine=sourceMapsBySeat[seat],other=sourceMapsBySeat[1-seat];
     receiptBefore=mapPublicEventReceipt(receiptBefore,mine,other);
