@@ -455,9 +455,16 @@ function rank16ToolSuppressed(o) {
     Number(player?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining) > 0);
   return jamming || suppressedTurn;
 }
+function rank16GarbotoxinSuppressed(pokemon) {
+  // Trust the physical actor projection when a card-specific Ability is
+  // suppressed. Psychic Wobbuffet exemption must not be guessed from type.
+  return list(pokemon?.abilitySuppressions).some(entry=>
+    /^Garbotoxin$/i.test(entry.abilityName??'')&&entry.suppressed===true);
+}
 function rank16LockLive(o) {
   return !rank16ToolSuppressed(o)&&slots(o?.ownPublic).some(row=>
-    matches(row.pokemon.printing,PRINT.garbodor)&&list(row.pokemon.tools).length>0);
+    matches(row.pokemon.printing,PRINT.garbodor)&&
+    list(row.pokemon.tools).length>0&&!rank16GarbotoxinSuppressed(row.pokemon));
 }
 function rank16UntooledGarb(o) {
   return slots(o?.ownPublic).some(row=>matches(row.pokemon.printing,PRINT.garbodor)&&
@@ -590,6 +597,9 @@ function scoreAction(item, request) {
   if (item.kind === 'attack') return scoreAttack(item, observation);
   if (item.kind === 'use-ability') {
     if(rank16UsefulOwnSetup(item,observation))return 475;
+    // Fail closed even if a stale/offered action erroneously exposes a
+    // non-Garbotoxin own Ability through our live Garbotoxin lock.
+    if(rank16LockLive(observation))return 0;
     const ability = metadata.abilityName ?? '';
     if (/^Dedechange$/i.test(ability)) {
       return !hasGarbodor(observation) && hand.length <= 4 && deckCount(observation) > 0 &&
