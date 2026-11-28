@@ -2899,7 +2899,7 @@ function r17CrushBurnTerminalWindow(request){
     r17NewMoonSunbeamLive(v)?Math.max(q.hp,130):q.hp;
   const remaining=maxHp-q.damage;
   if(!Number.isSafeInteger(remaining)||remaining<=0)return null;
-  const needed=Math.max(1,Math.ceil((remaining-30)/50));
+  const needed=Math.max(0,Math.ceil((remaining-30)/50));
   const inventory=new Map(),all=[];
   const append=(p,zone,slotIndex)=>{
     // Empty Bench slots have no Energy; they are not an unknown resource.
@@ -2933,7 +2933,7 @@ function r17CrushBurnEnergyDecision(request,chain){
      m.selectionType!=='energy-payment'||
      m.ownerSeat!=='actor'||m.isOwnerVisible!==true||
      m.sourceZone!=='energy'||m.allowCancel!==false||
-     m.minimumCount!==1||m.maximumCount!==m.energyCount||
+     m.minimumCount!==0||m.maximumCount!==m.energyCount||
      !Number.isSafeInteger(m.energyCount)||
      m.energyCount<chain.requiredDiscard||
      printingValue(active(own(v)))!==chain.sourcePrinting||
