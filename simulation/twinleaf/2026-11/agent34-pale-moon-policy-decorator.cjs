@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict');
-const {rescuePaleMoonTerminalPass,choosePaleMoonEscapeGuzmaPrompt}=
+const {rescuePaleMoonTerminalPass,choosePaleMoonEscapeGuzmaPrompt,choosePaleMoonVSSeekerPrompt}=
   require('./agent34-pale-moon-escape.cjs');
 const protocol=require('../../evaluation/2026-11/agent49-policy-protocol.cjs');
 
@@ -22,8 +22,17 @@ function improveDecision(request,decision){
     if(rescue)return {kind:'select-action',token:rescue.token};
   }
   if(view?.decisionKind==='owner-prompt'&&request.prompt){
-    const rescue=choosePaleMoonEscapeGuzmaPrompt(view,request.prompt);
+    const rescue=choosePaleMoonEscapeGuzmaPrompt(view,request.prompt) ??
+      choosePaleMoonVSSeekerPrompt(view,request.prompt);
     if(!rescue)return decision;
+    if(Array.isArray(rescue.tokens)){
+      if(decision.kind==='select-choices'&&decision.tokens.length===1&&
+         decision.tokens[0]===rescue.tokens[0])return decision;
+      if(decision.kind==='abstain'||decision.kind==='select-choices'){
+        return {kind:'select-choices',tokens:rescue.tokens.slice()};
+      }
+      return decision;
+    }
     if(decision.kind==='abstain') {
       return {kind:'select-choice',token:rescue.token};
     }
@@ -40,20 +49,23 @@ function improveDecision(request,decision){
 function updatedAudit(audit,request,oldDecision,newDecision){
   if(audit===null)return null;
   assert.ok(audit && Array.isArray(audit.evaluations));
-  const oldSelected=oldDecision.kind==='select-action'||oldDecision.kind==='select-choice'?
-    oldDecision.token:null;
-  const newSelected=newDecision.token;
+  const tokensOf=decision=>decision.kind==='select-choices'?
+    decision.tokens:decision.kind==='select-action'||decision.kind==='select-choice'?
+      [decision.token]:[];
+  const oldSelected=tokensOf(oldDecision);
+  const newSelected=tokensOf(newDecision);
   const source=request.prompt?request.prompt.choices:request.actionFrontier.items;
-  assert.ok(source.some(item=>item.token===newSelected),
-    'Pale Moon rescue must select an authentic offered token');
+  assert.ok(newSelected.length>0&&newSelected.every(token=>
+    source.some(item=>item.token===token)),
+    'Pale Moon rescue must select authentic offered tokens');
   const evaluations=audit.evaluations.map(row=>{
-    if(row.token===newSelected) {
+    if(newSelected.includes(row.token)) {
       return row.status==='scored'?{...row}:{
         ...row,status:'rule-selected',score:null,
         reasonCode:'PUBLIC_PALE_MOON_EMERGENCY_RESCUE'
       };
     }
-    if(oldSelected!==null&&row.token===oldSelected&&row.status==='rule-selected') {
+    if(oldSelected.includes(row.token)&&row.status==='rule-selected') {
       return {...row,status:'not-evaluated',score:null,
         reasonCode:'REPLACED_TERMINAL_PASS_OR_EMPTY'};
     }
@@ -63,7 +75,7 @@ function updatedAudit(audit,request,oldDecision,newDecision){
     ...audit,decisionType:newDecision.kind,
     selectionRuleCode:'PUBLIC_PALE_MOON_TERMINAL_ESCAPE',
     tieBreakCode:'EXACT_NATIVE_RESCUE',
-    selectedTokens:[newSelected],
+    selectedTokens:newSelected,
     evaluations
   };
   protocol.validatePolicyAudit(result,request,newDecision,audit.policyVersion);
