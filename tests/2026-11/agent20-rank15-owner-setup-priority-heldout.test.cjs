@@ -123,3 +123,27 @@ for(const seat of [0,1]){
 test('wrong source-rank caller cannot activate hook',()=>{
   assert.throws(()=>withRank15OwnerSetupPriority(()=>null,{...deps,sourceRank:5}));
 });
+
+
+test('pure setup obeys maxSelections=1 with exactly Active',()=>{
+  const hand=[basic('Bunnelby'),basic('Oddish'),
+    trainer('Technical Machine: Evolution'),energy('Grass Energy')];
+  assert.deepEqual(planRank15StartingBasics(
+    hand,legal(hand),{maxSelections:1}).map(c=>c.name),['Bunnelby']);
+});
+test('native completely rejecting subset delegates instead of bypassing validator',()=>{
+  const {state}=stateFor(0,[basic('Bunnelby'),basic('Oddish')],()=>false);
+  const {result,audit}=withRank15OwnerSetupPriority(
+    ()=>new FakeAi(100).decodeNextAction(state),deps);
+  assert.deepEqual(result,{kind:'original-decoder'});
+  assert.equal(audit.setupDecisions,0);
+  assert.equal(audit.delegations,1);
+});
+test('native opponent-owned setup prompt is never intercepted',()=>{
+  const {state,prompt}=stateFor(0,[basic('Bunnelby'),basic('Oddish')]);
+  prompt.playerId=101;
+  const {result,audit}=withRank15OwnerSetupPriority(
+    ()=>new FakeAi(100).decodeNextAction(state),deps);
+  assert.deepEqual(result,{kind:'original-decoder'});
+  assert.equal(audit.delegations,1);
+});
