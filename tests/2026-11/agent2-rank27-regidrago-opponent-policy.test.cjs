@@ -639,3 +639,43 @@ test('rank27 consumes a single mandatory source-bound Celestial Roar composite c
   }
  }
 });
+
+test('two real source Dialga copies do not crowd out a third unique attack payload',()=>{
+ for(const seat of [0,1]){
+  const obs=observation(seat);
+  const choices=[
+   choice('dialga-first',P.dialga),
+   choice('dialga-second',P.dialga),
+   choice('dragapult',P.dragapult),
+   choice('noivern',P.noivern),
+   choice('kyurem','Kyurem SFA 47'),
+   {kind:'empty-selection',token:'empty',label:'Choose no items'}
+  ];
+  const request=promptRequest(seat,obs,'Battle Compressor',P.compressor,
+   'ChooseCardsPrompt',choices,{
+    selectionType:'card-combination',sourceZone:'deck',
+    ownerSeat:'actor',isOwnerVisible:true,
+    minimumCount:0,maximumCount:3,allowCancel:false});
+  const decision=decide(seat,request);
+  assert.deepEqual(decision,{kind:'select-choices',
+    tokens:['dialga-first','dragapult','noivern']});
+  assert.deepEqual(validateDecision(decision,
+    validatePrompt(request.prompt,seat),new Set()),decision);
+  const already=observation(seat,{ownPublic:{
+    ...obs.ownPublic,discard:[P.dialga,P.dragapult,P.noivern]}});
+  const reduced=promptRequest(seat,already,'Battle Compressor',
+    P.compressor,'ChooseCardsPrompt',choices,{
+    selectionType:'card-combination',sourceZone:'deck',ownerSeat:'actor',
+    isOwnerVisible:true,minimumCount:0,maximumCount:3,allowCancel:false});
+  assert.deepEqual(decide(seat,reduced),
+    {kind:'select-choices',tokens:['kyurem']});
+  const allDone=observation(seat,{ownPublic:{
+    ...obs.ownPublic,discard:[P.dialga,P.dragapult,P.noivern,
+      'Kyurem SFA 47','Koraidon ex TEF 120',P.v]}});
+  const exhausted={...request,observation:allDone};
+  assert.deepEqual(decide(seat,exhausted),
+    {kind:'select-choice',token:'empty'});
+  assert.deepEqual(validateDecision(decide(seat,exhausted),
+    validatePrompt(exhausted.prompt,seat),new Set()),decide(seat,exhausted));
+ }
+});
