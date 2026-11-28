@@ -147,7 +147,8 @@ for(const seat of [0,1]) {
     assert.equal(p.promptProjection.publicMetadata.sourceZone,'effect-revealed');
     assert.equal(p.promptProjection.choices.length,4);
     const r={role:'opponent',seat,observation:{actorSeat:seat,
-      decisionKind:'owner-prompt',ownPublic:{active:{printing:'Regidrago VSTAR SIT 136'}}},
+      decisionKind:'owner-prompt',ownPublic:{active:{printing:'Regidrago VSTAR SIT 136',
+        energies:[{printing:'Grass Energy MEE 9'},{printing:'Fire Energy MEE 10'}]}}},
       prompt:p.promptProjection};
     const chosen=choose(r);
     assert.equal(chosen.kind,'select-choice');
