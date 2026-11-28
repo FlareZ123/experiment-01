@@ -38,6 +38,12 @@ This is not hypothetical turn accounting: the pinned `initNextTurn` increments `
 - Same branch, protocol blob `cf49a009525a9a5af3a89f5964eb563e0d9d9e26`: validates the KO fields only as nullable Booleans. It validates the receipt's current `turn`, but has no KO-event turn to compare with the immediately preceding opponent turn.
 - Existing Agent46 root tests use synthetic `{ priorOpponentTurnKO: { any: true } }` receipts; they do not model the Dialga extra-turn sequence or establish KO-turn freshness.
 
+## Why the stale receipt can reach a selected action
+
+The candidate worker's action frontier does not independently enforce these card-specific prior-KO conditions. In the pinned research adapter `simulation/evaluation/2026-11/agent3-known-cap-free-action-enumerator.cjs`, `playSupporterActions` (around lines 156–166) enumerates every Supporter in hand whenever the generic once-per-turn Supporter rule permits; `playItemActions` (around lines 148–154) likewise enumerates every Item. The frontier therefore does not filter Raihan, Teammates, or Unfair Stamp based on the prior-KO event.
+
+The Agent46 worker then scores those frontier items using the stale Boolean: `scoreTrainerPlay` returns high priority for Unfair Stamp at line 3661, Teammates at 3676–77, and Raihan at 3678–79. `chooseRoot` scores every `play-card` item from the frontier at lines 4528–4536 and selects the top item at lines 4563–4565. Thus the stale receipt is not merely an unused heuristic input: it can directly cause selection of a card whose printed prior-opponent-turn condition is not satisfied. The same Boolean also drives retrieval/search planning before that root action.
+
 ## Benchmark relevance
 
 The authenticated Aichi source ledger `results/aichi-2026/full-decklists.json` (blob `ae773f6201d7aa69d31914dbfee66f3fba692200`) contains Dialga-GX in ranks **1, 10, 12, 13, 14, 18, 20, 21, 27, 30, and 32**: 11 of the 29 currently authenticated lists. Both unchanged candidate 60s contain one Dialga-GX, one Raihan, one Teammates, and one Unfair Stamp (plus one Battle Compressor and two VS Seeker). All three prior-KO-gated cards and the candidate's own extra-turn effect therefore occur in the actual candidate inventories; Unfair Stamp's printed condition uses the same opponent-last-turn KO wording. This is a benchmark-relevant legal-action defect, not an exotic unsupported card interaction.
