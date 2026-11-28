@@ -71,7 +71,7 @@ function ownerBenchChoice(p,seat,source,print,index){
     p.source?.classification!=='actor-choice'||
     p.source.sourceKind!=='card-effect'||
     p.source.effectName!==source||
-    !has(p.source.sourcePrinting,source)||
+    !has(p.source.sourcePrinting,source==='Cursed Blast'?'Dusknoir':source)||
     p.publicMetadata?.selectionType!=='pokemon'||
     p.publicMetadata?.minimumCount!==1||
     p.publicMetadata?.maximumCount!==1||
