@@ -8,6 +8,7 @@
  */
 const POLICY_VERSION='agent1-newmoon-dusknoir-v3-finisher-research-v1';
 const DECK_PATH='results/als/new-moon-dusknoir-shadow-bind-v3-60.json';
+const DECK_SHA='0db19a75d0d1ce43128b9a9fdc4fe3013833eaaba4641972af7af30f4b41e7dd'; // sorted UTF-8 id:count lines + final newline
 const has=(v,s)=>typeof v==='string'&&v.includes(s);
 const isInt=x=>Number.isSafeInteger(x);
 const slots=p=>[p?.active,...(Array.isArray(p?.bench)?p.bench:[])].filter(Boolean);
@@ -207,4 +208,4 @@ function createPolicy({role,seat,policyVersion,config}) {
  }
  return {decide:r=>decideWithAudit(r).decision,decideWithAudit};
 }
-module.exports={POLICY_VERSION,DECK_PATH,createPolicy,ready,validTarget,sourceAttack,shadowBindBus};
+module.exports={POLICY_VERSION,DECK_PATH,DECK_SHA,createPolicy,ready,validTarget,sourceAttack,shadowBindBus};
