@@ -15,6 +15,22 @@ const SOURCE_RANK=27;
 const SOURCE_BLOB_SHA1='ae773f6201d7aa69d31914dbfee66f3fba692200';
 const SOURCE_PRINTINGS=Object.freeze([["Regidrago V SIT 135",4],["Regidrago VSTAR SIT 136",3],["Dialga-GX UPR 100",2],["Dragapult ex TWM 130",1],["Koraidon ex TEF 120",1],["Noivern ex PAL 153",1],["Kyurem SFA 47",1],["Dedenne-GX UNB 57",1],["Crobat V DAA 104",1],["Tapu Lele-GX GRI 60",1],["Eldegoss V RCL 19",1],["Latias ex SSP 76",1],["Budew ASC 16",1],["Marshadow UNB 81",1],["Professor Sycamore BKP 107",2],["Guzma BUS 115",2],["Carmine TWM 145",1],["Marnie SSH 169",1],["N FCO 105",1],["Raihan EVS 152",1],["Crispin SCR 133",1],["Mysterious Treasure FLI 113",4],["Quick Ball FST 237",4],["VS Seeker PHF 109",2],["Hisuian Heavy Ball ASR 146",1],["Ultra Ball MEG 131",1],["Net Ball LOT 187",1],["Battle Compressor PHF 92",1],["Super Rod PAL 188",1],["Echoing Horn CRE 136",1],["Prime Catcher TEF 157",1],["Muscle Band XY 121",2],["Parallel City BKT 145",1],["Path to the Peak CRE 148",1],["Double Dragon Energy ROS 97",4],["Grass Energy MEE 9",4],["Fire Energy MEE 10",2]]);
 const SOURCE_SET=new Set(SOURCE_PRINTINGS.map(([name])=>name));
+const SOURCE_RUNTIME_ALIAS=new Map();
+for(const [exact] of SOURCE_PRINTINGS){
+  const alias=exact.replace(/ [0-9][A-Za-z0-9/-]*$/,'');
+  if(alias===exact)throw Error('SOURCE_PRINTING_NUMBER_MISSING');
+  if(SOURCE_RUNTIME_ALIAS.has(alias)&&SOURCE_RUNTIME_ALIAS.get(alias)!==exact)
+    throw Error('AMBIGUOUS_NATIVE_SOURCE_ALIAS');
+  SOURCE_RUNTIME_ALIAS.set(alias,exact);
+}
+function resolveSourcePrinting(raw){
+  if(typeof raw!=='string')return null;
+  // Exact source number always wins. A mismatched explicit number is never
+  // silently stripped to an allowed source id.
+  if(SOURCE_SET.has(raw))return raw;
+  return SOURCE_RUNTIME_ALIAS.get(raw)??null;
+}
+
 const PREFIX=Object.freeze({
   regidragoV:'Regidrago V SIT 135',
   regidragoVstar:'Regidrago VSTAR SIT 136',
@@ -51,8 +67,11 @@ const EXECUTABLE=new Set([
   'play-card','attack','retreat','use-ability','use-stadium','pass'
 ]);
 function arr(value){return Array.isArray(value)?value:[];}
-function name(value){return typeof value==='string'?value:
-  (value?.printing??value?.fullName??value?.actorPrinting??value?.targetPrinting??'');}
+function name(value){
+  const raw=typeof value==='string'?value:
+    (value?.printing??value?.fullName??value?.actorPrinting??value?.targetPrinting??'');
+  return resolveSourcePrinting(raw)??raw;
+}
 function is(value,printing){return name(value)===printing;}
 function board(player){return [player?.active,...arr(player?.bench)].filter(Boolean);}
 function has(player,printing){return board(player).some(p=>is(p,printing));}
@@ -141,6 +160,61 @@ function sourceDiscardValue(printing,obs){
   if(printing===PREFIX.eldegoss&&sourceAbilityRecoveryOpen(obs))return 20;
   return 75;
 }
+const RANK27_ENERGY=Object.freeze({
+  dragon:'Double Dragon Energy ROS 97',
+  grass:'Grass Energy MEE 9',
+  fire:'Fire Energy MEE 10'
+});
+function energyCoverage(energyPrintings){
+  const attached=arr(energyPrintings).map(name);
+  const grass=attached.filter(x=>x===RANK27_ENERGY.grass).length,
+    fire=attached.filter(x=>x===RANK27_ENERGY.fire).length,
+    wildcard=2*attached.filter(x=>x===RANK27_ENERGY.dragon).length;
+  // Exact upper bound on the resources assignable to GG+F while respecting
+  // the two flexible energy units of Double Dragon on a Dragon target.
+  let fulfilled=0;
+  for(let g=0;g<=Math.min(grass,2);g++){
+    for(let f=0;f<=Math.min(fire,1);f++){
+      const flexibleNeeded=2-g+1-f;
+      fulfilled=Math.max(fulfilled,g+f+Math.min(wildcard,flexibleNeeded));
+    }
+  }
+  return Math.min(3,fulfilled);
+}
+function bestRegidragoEnergy(own){
+  return board(own).filter(p=>is(p,PREFIX.regidragoV)||
+    is(p,PREFIX.regidragoVstar)).map(p=>energyCoverage(p.energies));
+}
+function rank27EnergyAttachScore(item,obs){
+  const p=name(item.actorPrinting),meta=item.publicMetadata??{};
+  if(!Object.values(RANK27_ENERGY).includes(p))return null;
+  if(meta.cardType!=='energy'||meta.targetSeat!=='actor'||
+    !['active','bench'].includes(meta.targetZone)||
+    !Number.isSafeInteger(meta.targetIndex)||meta.targetIndex<0)
+    return -Infinity;
+  const own=obs.ownPublic??{};
+  const target=meta.targetZone==='active'?
+    (meta.targetIndex===0?own.active:null):
+    arr(own.bench)[meta.targetIndex]??null;
+  if(!target||typeof target.printing!=='string'||
+    (item.targetPrinting&&name(item.targetPrinting)!==name(target.printing)))
+    return -Infinity;
+  const targetName=name(target.printing),
+    isV=targetName===PREFIX.regidragoV,
+    isStar=targetName===PREFIX.regidragoVstar;
+  if(!isV&&!isStar)return -Infinity;
+  const before=energyCoverage(target.energies),
+    after=energyCoverage([...arr(target.energies),p]);
+  if(after<=before)return -Infinity;
+  const improvement=after-before,ready=after===3;
+  const hasDonor=visibleDonors(obs).length>0;
+  let score=(ready?345:180)+improvement*48+
+    (isStar?14:0)+(meta.targetZone==='active'?8:0);
+  if(ready&&hasDonor)score+=36;
+  if(p===RANK27_ENERGY.dragon)score+=9;
+  if(ready&&!hasDonor)score-=20;
+  return score;
+}
 function ownTurnKOEligible(obs,receipt){
   const turn=receipt?.opponentLastTurnTurn,ko=receipt?.priorOpponentTurnKO;
   return Number.isSafeInteger(turn)&&turn>=0&&turn<obs.globalTurn&&
@@ -162,6 +236,8 @@ function scoreRoot(item,request){
     return -Infinity;
   }
   if(item.kind==='play-card'){
+    const energyAttach=rank27EnergyAttachScore(item,obs);
+    if(energyAttach!==null)return energyAttach;
     if(p===PREFIX.regidragoV)return benchOpen(own)&&state.v+state.vstar<2?320:-Infinity;
     if(p===PREFIX.regidragoVstar)return state.v>0&&state.vstar<2?330:-Infinity;
     if(p===PREFIX.quickBall)return state.v+state.vstar<2?290:90;
@@ -189,7 +265,8 @@ function scoreRoot(item,request){
     }
     if(p===PREFIX.raihan)return ownTurnKOEligible(obs,request.publicEventReceipt)?
       175:-Infinity;
-    if(p===PREFIX.crispin)return state.energy<3?230:55;
+    if(p===PREFIX.crispin)return !bestRegidragoEnergy(own).length?80:
+      bestRegidragoEnergy(own).some(x=>x<3)?235:40;
     if(p===PREFIX.sycamore||p===PREFIX.marnie||p===PREFIX.n)return state.hand<=3?210:60;
     if(p===PREFIX.prime)return board(opp).some(x=>
       /^Mimikyu GRI 58/.test(name(x))||/^Lillie's Clefairy ex JTG 56/.test(name(x)))?
@@ -225,16 +302,17 @@ function pick(choices,score,min=1,max=1,singleSelect=false){
 }
 function effectSource(prompt){
   const s=prompt?.source;
+  const sourcePrinting=resolveSourcePrinting(s?.sourcePrinting);
   return s?.classification==='actor-choice'&&s?.sourceKind==='card-effect'&&
-    SOURCE_SET.has(s.sourcePrinting)&&typeof s.effectName==='string'?
-    s:null;
+    sourcePrinting!==null&&typeof s.effectName==='string'?
+    {...s,sourcePrinting}:null;
 }
 function metadataOwnerVisible(choice){
   const m=choice?.publicMetadata??{};
   return m.ownerSeat==='actor'&&m.isOwnerVisible===true;
 }
 function donorScore(choice,obs){
-  const source=choice?.printing,attack=choice?.publicMetadata?.sourceAttack??'';
+  const source=name(choice?.printing),attack=choice?.publicMetadata?.sourceAttack??'';
   if(!DRAGON_PAYLOADS.has(source)||!visibleDonors(obs).some(x=>name(x)===source)||
       choice.kind!=='attack'||!metadataOwnerVisible(choice)||
       choice.publicMetadata?.sourceZone!=='discard')return -Infinity;
@@ -387,6 +465,28 @@ function choosePrompt(request){
         reason('UNRECOGNIZED_SIMPLE_PROMPT');
     }
   }
+  if(kind==='AttachEnergyPrompt'&&
+     src.sourcePrinting===PREFIX.regidragoV &&
+     src.effectName==='Celestial Roar'){
+    // Native Regidrago V SIT135 discards the top 3 and, when at least one
+    // Basic Energy is found, opens ONE mandatory AttachEnergyPrompt covering
+    // all eligible Energy. Host projects ONE opaque composite choice, never
+    // individual hidden deck indices or an illegal partial payment.
+    const single=choices[0],metadata=single?.publicMetadata??{};
+    const k=meta.minimumCount;
+    if(choices.length!==1||single?.kind!=='energy'||
+      typeof single.token!=='string'||meta.selectionType!=='energy-attachment'||
+      meta.allowCancel!==false||meta.ownerSeat!=='actor'||
+      meta.isOwnerVisible!==true||meta.sourceZone!=='effect-revealed'||
+      meta.zone!=='active'||meta.energyType!=='BASIC'||
+      !Number.isSafeInteger(k)||k<1||k>3||meta.maximumCount!==k||
+      metadata.ownerSeat!=='actor'||metadata.isOwnerVisible!==true||
+      metadata.sourceZone!=='effect-revealed'||metadata.zone!=='active'||
+      metadata.energyType!=='BASIC'||metadata.selectedCount!==k){
+      return reason('UNSUPPORTED_ATTACH_ENERGY_PROMPT');
+    }
+    return {kind:'select-choice',token:single.token};
+  }
   if(kind==='ChooseAttackPrompt'){
     if(src.sourcePrinting!==PREFIX.regidragoVstar||src.effectName!=='Apex Dragon')return reason('UNSUPPORTED_ATTACK_CHOICE_SOURCE');
     return pick(choices,c=>donorScore(c,obs),1,1,true);
@@ -472,4 +572,5 @@ function createPolicy({role,seat,policyVersion,config}){
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_BLOB_SHA1,SOURCE_PRINTINGS,
-  createPolicy,scoreRoot,choosePrompt,donorScore};
+  createPolicy,scoreRoot,choosePrompt,donorScore,resolveSourcePrinting,
+  energyCoverage,rank27EnergyAttachScore};
