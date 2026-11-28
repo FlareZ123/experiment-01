@@ -329,16 +329,24 @@ function enginePrompt(request) {
     return rated.length?{kind:'select-choices',tokens:[rated[0].choice.token]}:
       reason('NO_SUPPORTED_POKEMON_CHOICE');
   }
-  if(e==='CHOOSE_PRIZE_CARD'&&prompt.promptType==='ChoosePrizePrompt'&&
-     Number.isSafeInteger(meta.minimumCount)&&
-     Number.isSafeInteger(meta.maximumCount)&&
-     meta.minimumCount>=1&&meta.minimumCount<=meta.maximumCount&&
-     meta.maximumCount<=6){
-    // Prize identities are hidden; select only published slot tokens, never
-    // infer or rank concealed card faces.
-    const rows=choices.filter(x=>x.kind==='prize'&&typeof x.token==='string');
-    return rows.length>=meta.minimumCount?
-      {kind:'select-choices',tokens:rows.slice(0,meta.minimumCount).map(x=>x.token)}:
+  if((e==='CHOOSE_PRIZE_CARD'||e==='CHOOSE_PRIZE_CARD_TO_DISCARD')&&
+     prompt.promptType==='ChoosePrizePrompt'&&
+     meta.selectionType==='prize-slots'&&
+     meta.sourceZone==='prizes'&&meta.ownerSeat==='actor'&&
+     meta.isOwnerVisible===false&&meta.allowCancel===false&&
+     Number.isSafeInteger(meta.requiredCount)&&
+     meta.requiredCount>=1&&meta.requiredCount<=6){
+    // Twinleaf's pinned ChoosePrize projection publishes slot indices and
+    // requiredCount (not minimumCount/maximumCount). No card faces are exposed.
+    const rows=choices.filter(x=>x.kind==='prize'&&
+      typeof x.token==='string'&&
+      x.publicMetadata?.ownerSeat==='actor'&&
+      x.publicMetadata?.sourceZone==='prizes'&&
+      x.publicMetadata?.isOwnerVisible===false&&
+      Number.isSafeInteger(x.publicMetadata?.selectionIndex)&&
+      x.publicMetadata?.requiredCount===meta.requiredCount);
+    return rows.length>=meta.requiredCount?
+      {kind:'select-choices',tokens:rows.slice(0,meta.requiredCount).map(x=>x.token)}:
       reason('NO_VISIBLE_PRIZE_SLOT');
   }
   return reason('UNSUPPORTED_ENGINE_SETUP_PROMPT');
