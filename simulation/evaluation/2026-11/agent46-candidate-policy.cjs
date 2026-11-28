@@ -1036,6 +1036,69 @@ const WONDER_TAG_SUPPORTERS=Object.freeze([
   'Teammates PRC 141','Acerola BUS 112'
 ]);
 
+function sourceGuzma(prompt){
+  return prompt?.source?.sourceKind==='card-effect' &&
+    prompt.source.sourcePrinting==='Guzma BUS 115' &&
+    prompt.source.effectName==='Guzma';
+}
+function chooseGuzmaPokemon(view,prompt){
+  setPolicyAuditRule('GUZMA_FORCED_SWITCH_AND_GUST',
+    'ACTOR_BENCH_THEN_OPPONENT_BENCH');
+  const meta=prompt.publicMetadata??{};
+  if(!sourceGuzma(prompt) ||
+     meta.selectionType!=='pokemon-choice' ||
+     meta.sourceZone!=='bench' ||
+     meta.minimumCount!==1||meta.maximumCount!==1 ||
+     !['actor','opponent'].includes(meta.ownerSeat) ||
+     ![
+       'SwitchPokemonPrompt','ChoosePokemonPrompt'
+      ].includes(prompt.promptType))
+    return abstain('UNTRUSTED_GUZMA_POKEMON_PROMPT');
+  const self=meta.ownerSeat==='actor';
+  const expectedType=self?'SwitchPokemonPrompt':'ChoosePokemonPrompt';
+  if(prompt.promptType!==expectedType ||
+     prompt.description!==(self?'SWITCH_POKEMON':'CHOOSE_POKEMON'))
+    return abstain('GUZMA_PROMPT_DIRECTION_MISMATCH');
+  const bench=self?view.ownPublic.bench:view.opponentPublic.bench;
+  const choices=prompt.choices.filter(c=>{
+    const idx=c.publicMetadata?.benchIndex;
+    return c.kind==='pokemon' &&
+      c.publicMetadata?.ownerSeat===meta.ownerSeat &&
+      c.publicMetadata?.sourceZone==='bench' &&
+      Number.isSafeInteger(idx)&&idx>=0&&idx<bench.length &&
+      bench[idx]?.printing===c.printing;
+  }).map(c=>{
+    const target=bench[c.publicMetadata.benchIndex];
+    let score=0;
+    if(self){
+      const knockouts=view.opponentPublic.bench.filter(Boolean).map(victim=>{
+        const attack=bestAttackForSlot(target,view,victim);
+        return attack&&attack.damage>=victim.hp-victim.damage?
+          150+40*(victim.prizeValue??1):0;
+      });
+      score=Math.max(0,...knockouts);
+      const fallback=bestAttackForSlot(target,view,view.opponentPublic.active);
+      if(fallback)score+=Math.min(fallback.damage,200)/4;
+      if(hasName(target.printing,'Shadow Rider Calyrex VMAX'))score+=10;
+    }else{
+      const attacker=view.ownPublic.active;
+      const attack=bestAttackForSlot(attacker,view,target);
+      if(attack){
+        const hp=target.hp-target.damage;
+        score=attack.damage>=hp?200+50*(target.prizeValue??1):
+          Math.min(attack.damage,Math.max(hp,0))/8;
+      }
+      score+=Math.max(0,target.damage/20);
+    }
+    return {choice:c,score,index:c.publicMetadata.benchIndex};
+  }).sort((a,b)=>b.score-a.score||a.index-b.index||
+    String(a.choice.token).localeCompare(String(b.choice.token)));
+  if(choices.length===0)return abstain('GUZMA_NO_AUTHENTICATED_BENCH_TARGET');
+  recordPolicyAuditRule(choices[0].choice.token,
+    self?'GUZMA_PROMOTE_REAL_ATTACKER':'GUZMA_GUST_TARGET_PRIZE_ROUTE');
+  return {kind:'select-choice',token:choices[0].choice.token};
+}
+
 function sourceBattleCompressor(prompt){
   return prompt?.source?.sourceKind==='card-effect' &&
     prompt.source.sourcePrinting==='Battle Compressor PHF 92' &&
@@ -1301,6 +1364,12 @@ function choosePrompt(view, prompt, receipt) {
     return abstain('UNTRUSTED_PROMPT_SOURCE');
   }
   switch (prompt.promptType) {
+    case 'SwitchPokemonPrompt':
+    case 'ChoosePokemonPrompt':
+      return prompt.source?.sourcePrinting==='Guzma BUS 115'||
+        prompt.source?.effectName==='Guzma'
+        ? chooseGuzmaPokemon(view,prompt)
+        : abstain('UNSUPPORTED_POKEMON_SELECTION_PROMPT');
     case 'AttachEnergyPrompt':
       return chooseUnderworldDoorAttachment(view, prompt);
     case 'ChooseCardsPrompt':
@@ -1449,19 +1518,21 @@ function hasStadiumRemovalTarget(view) {
 }
 
 function canGuzmaForAttack(view) {
-  const active = view.ownPublic.active;
-  if (!active || !view.opponentPublic.active) return false;
-  return view.opponentPublic.bench.some(slot => {
-    if (!slot) return false;
-    const attack = bestAttackForSlot(active, view, slot);
-    return attack && attack.damage >= Math.max(0, slot.hp - slot.damage);
+  // Guzma MUST switch your Active with a Benched Pokemon before its gust.
+  // A ready attacker in the initial Active Spot is not sufficient proof of
+  // a legal follow-on attack. Require an actually ready Benched attacker.
+  const enemies=view.opponentPublic.bench;
+  if(!Array.isArray(enemies)||!enemies.some(Boolean))return false;
+  return view.ownPublic.bench.some(ready=>{
+    if(!ready)return false;
+    return enemies.some(victim=>{
+      if(!victim)return false;
+      const attack=bestAttackForSlot(ready,view,victim);
+      return attack && attack.damage>=victim.hp-victim.damage;
+    });
   });
 }
 
-// Tools are once-attached, non-replaceable Bench/Active allocations.
-// Score the actual native legal target rather than only the Tool name:
-// attaching Stealthy Hood to a utility Pokemon instead of an attacking
-// Shadow Rider cannot restore Underworld Door under Ability lock.
 function scoreToolAttachment(item,view){
   const name=item.actorPrinting;
   if(!['Forest Seal Stone SIT 156','Stealthy Hood UNB 186',
