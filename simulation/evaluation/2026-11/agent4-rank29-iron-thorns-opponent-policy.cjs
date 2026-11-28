@@ -1555,9 +1555,19 @@ function scorePlayCard(item, request) {
       [PRINT.plumeria,PRINT.teamFlare,PRINT.guzma,PRINT.guzmaHala,PRINT.lusamine,
        PRINT.handiwork,PRINT.cynthiaCaitlin,PRINT.lillie,PRINT.faba,PRINT.eri,
        PRINT.sidney,PRINT.teamSkull].some(pattern => matches(supporter,pattern)));
-    // VS Seeker is itself an Item: value derives from a visible Supporter
-    // resource in public discard, not an unconstrained generic connector.
-    return inDiscard ? 95 : 0;
+    if(!inDiscard)return 0;
+    // A real Item→Supporter→gust→powered Bench attack is one executable
+    // sequence, not three independent access edges. Prefer it over ending
+    // the turn on a smaller Active KO while the final Prizes are on Bench.
+    if(supporterAvailable(observation)&&
+       !hand.some(value=>matches(value,PRINT.guzma)) &&
+       list(own.discard).some(value=>matches(value,PRINT.guzma))){
+      const decisive=slots(opponent).filter(row=>row.zone==='bench')
+        .reduce((best,row)=>Math.max(best,
+          guzmaKnockoutValue(observation,row.pokemon)),0);
+      if(decisive>0)return 280+decisive;
+    }
+    return 95;
   }
   if (matches(card, PRINT.fieldBlower)) {
     const opponentHood = slots(opponent).some(row =>
