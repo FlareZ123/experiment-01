@@ -4,7 +4,7 @@
 
 ## Decision and working branches
 
-- Fixed source candidate: [Hood Shield Shadow Rider V1, 60](../../decks/hood-shield-shadow-rider-v1-expanded-legal-60.md). **No cards changed.**
+- Fixed paper Expanded candidate: [human-readable 60](../../decks/hood-shield-shadow-rider-v1-expanded-legal-60.md) and [new machine-readable source-printed 60](../../decks/hood-shield-shadow-rider-v1-expanded-legal-60.json) (34 distinct printings; 18 Pokémon / 31 Trainers / 11 Energy). **No card identities or counts changed; only MEE 13 → CRE 232 Basic Psychic Energy printing and the full PHF 92 Battle Compressor name were normalized, consistent with the existing human-readable legality audit.**
 - Integrated candidate policy + prompt projector + certified source bridge: `agent10/candidate-supporter-continuation-20261128`.
 - Separate original Aichi runner-up rank-2 control opponent worker: `agent10/rank2-v2-selective-executable-continuations-20261128`; **39/39** focused V8 strict-protocol groups on that opponent, without a native game.
 - Native Twinleaf pinned source used for effect shapes: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Original 60 source-print identity is a different requirement from the native `fullName` ID.
