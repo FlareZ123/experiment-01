@@ -1558,6 +1558,49 @@ test('Plumeria spends Special Energy rather than Basic Fairy Energy from same Po
     kind:'select-choices',tokens:['double-dragon']});
 });
 
+
+function hoodRootAction(token,targetPrinting,zone,index){
+ return {token,kind:'play-card',actorPrinting:'Stealthy Hood UNB 186',
+   targetPrinting,publicMetadata:{cardType:'trainer',handIndex:0,
+     targetSeat:'actor',targetZone:zone,targetIndex:index,isOwnerVisible:true}};
+}
+test('Stealthy Hood protects the Gloom/Vileplume lock line, not first offered Bunnelby',()=>{
+ const request=rootRequest({
+   ownHand:['Stealthy Hood UNB 186'],
+   ownPublic:player({active:pokemon('Bunnelby PRC 121'),bench:[
+     pokemon('Gloom UNB 7',{stage:'STAGE1',subtypes:['Stage 1']})]}),
+   opponentPublic:player({active:pokemon('Garbodor DRX 54',{
+     abilities:['Garbotoxin'],tools:['Float Stone BKT 137']})}),
+   items:[hoodRootAction('bunnelby','Bunnelby PRC 121','active',0),
+     hoodRootAction('gloom','Gloom UNB 7','bench',0),
+     {token:'pass',kind:'pass',label:'Pass turn'}]
+ });
+ assert.deepEqual(checkedDecision(request),{kind:'select-action',token:'gloom'});
+});
+test('Stealthy Hood is preserved if its only offered target is irrelevant to item lock',()=>{
+ const request=rootRequest({
+   ownHand:['Stealthy Hood UNB 186'],
+   ownPublic:player({active:pokemon('Bunnelby PRC 121')}),
+   opponentPublic:player({active:pokemon('Garbodor DRX 54',{
+     abilities:['Garbotoxin'],tools:['Float Stone BKT 137']})}),
+   items:[hoodRootAction('bunnelby','Bunnelby PRC 121','active',0),
+     {token:'pass',kind:'pass',label:'Pass turn'}]
+ });
+ assert.deepEqual(checkedDecision(request),{kind:'select-action',token:'pass'});
+});
+test('Stealthy Hood can preserve a visible Pidgeot engine under opposing Garbotoxin',()=>{
+ const request=rootRequest({
+   ownHand:['Stealthy Hood UNB 186'],
+   ownPublic:player({active:pokemon('Bunnelby PRC 121'),bench:[
+     pokemon('Pidgeot ex OBF 164',{stage:'STAGE2',subtypes:['Stage 2','ex']})]}),
+   opponentPublic:player({active:pokemon('Garbodor DRX 54',{
+     abilities:['Garbotoxin'],tools:['Float Stone BKT 137']})}),
+   items:[hoodRootAction('pidgeot','Pidgeot ex OBF 164','bench',0),
+     {token:'pass',kind:'pass',label:'Pass turn'}]
+ });
+ assert.deepEqual(checkedDecision(request),{kind:'select-action',token:'pidgeot'});
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
