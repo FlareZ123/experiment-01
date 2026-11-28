@@ -807,6 +807,27 @@ function skylinerIsLive(o) {
     arr(p.abilitySuppressions).some(row=>row?.abilityName==='Skyliner'&&
       row.suppressed===false&&row.reasonCode===null&&row.sourcePrinting===null));
 }
+function opponentSnorlaxBlockMayBeLive(o) {
+  const active=o?.opponentPublic?.active;
+  if(!has(active,P.snorlax))return false;
+  if(!arr(active.abilities).includes('Block'))return false;
+  const suppression=arr(active.abilitySuppressions).find(row=>
+    row?.abilityName==='Block');
+  // If a known Block exists but its liveness is not certified as disabled,
+  // do not spend the only Float Stone on an immediate impossible retreat.
+  return suppression?.suppressed!==true;
+}
+function retreatIsForbidden(o) {
+  const active=o?.ownPublic?.active;
+  if(!active)return true;
+  const conditions=arr(active.specialConditions).map(c=>String(c).toUpperCase());
+  const restrictions=active.publicRestrictions??{};
+  return conditions.includes('ASLEEP')||conditions.includes('PARALYZED')||
+    restrictions.cannotRetreat===true||
+    restrictions.cannotRetreatNextTurn===true||
+    restrictions.cannotRetreatWhileActive===true||
+    opponentSnorlaxBlockMayBeLive(o);
+}
 function floatStoneEffectAvailable(o) {
   const own=o?.ownPublic,opp=o?.opponentPublic;
   const stadiums=[...arr(own?.stadium),...arr(opp?.stadium)];
@@ -824,7 +845,7 @@ function floatStoneIsLive(o) {
 }
 function floatStoneMobilityRoot(items,o) {
   if(!o?.ownPublic?.active||has(o.ownPublic.active,P.clefairy)||
-     skylinerIsLive(o)||!floatStoneEffectAvailable(o)||
+     retreatIsForbidden(o)||skylinerIsLive(o)||!floatStoneEffectAvailable(o)||
      arr(o.ownPublic.active.tools).length>0||
      !poweredBenchClefairy(o).length)return null;
   const activePrinting=text(o.ownPublic.active);
@@ -837,12 +858,7 @@ function floatStoneMobilityRoot(items,o) {
 function noCostRetreatOpportunity(o) {
   const active=o?.ownPublic?.active;
   if(!active||!Array.isArray(o?.ownPublic?.bench))return false;
-  const conditions=arr(active.specialConditions).map(c=>String(c).toUpperCase());
-  if(conditions.includes('ASLEEP')||conditions.includes('PARALYZED'))return false;
-  const restrictions=active.publicRestrictions??{};
-  if(restrictions.cannotRetreat===true||
-    restrictions.cannotRetreatNextTurn===true||
-    restrictions.cannotRetreatWhileActive===true)return false;
+  if(retreatIsForbidden(o))return false;
   // Skyliner says Basic Pokémon HAVE NO Retreat Cost: the rulebook gives
   // that wording precedence over added-cost modifiers. A printed zero alone
   // is insufficient, because an unobserved continuous modifier can raise it
@@ -1145,4 +1161,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
+  opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
