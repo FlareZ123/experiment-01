@@ -42,6 +42,28 @@ test('one-slot exact sensitivity: V count, Dimension, FSS, Energy',()=>{
     baseline.percentages.dimensionOrForestT2);
 });
 
+test('source-aware spare-Psychic and Benched-Psychic Door draw adds exact access',()=>{
+  const baseline=evaluate();
+  near(baseline.percentages.withOneUnderworldDoor,1.781340896482);
+  near(baseline.percentages.doorOnlyContribution,0.101514144701);
+  near(evaluate({dimensionValley:2}).percentages.withOneUnderworldDoor,
+    2.694869371572);
+  near(evaluate({forestSealStone:2}).percentages.withOneUnderworldDoor,
+    2.501258039329);
+  near(evaluate({psychic:12}).percentages.withOneUnderworldDoor,
+    2.034145173694);
+  assert.ok(baseline.percentages.withOneUnderworldDoor>
+    baseline.percentages.dimensionOrForestT2);
+  // Zero extra Psychic Bench candidates: a single V cannot be both
+  // initially Active and a separate Underworld Door target.
+  const noTarget=evaluate({v:1,psychicBenchBasics:0});
+  assert.equal(noTarget.doorOnlyContribution.numerator,'0');
+  assert.deepEqual(noTarget.withOneUnderworldDoor,
+    noTarget.dimensionOrForestT2);
+  const noThirdEnergy=evaluate({psychic:2});
+  assert.equal(noThirdEnergy.doorOnlyContribution.numerator,'0');
+});
+
 test('no Dimension target or no VMAX gives zero success even with FSS',()=>{
   for(const input of [{dimensionValley:0},{vmax:0}]){
     const r=evaluate(input);
