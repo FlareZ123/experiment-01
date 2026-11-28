@@ -160,6 +160,8 @@ for (const seat of [0, 1]) {
         assert.equal(move.prompt.options.min, optionalZeroHook ? 0 : 1);
         assert.equal(move.decision.kind, 'select-choices');
         assert.equal(move.decision.tokens.length, 1);
+        assert.equal(move.projection.choiceByToken.get(move.decision.tokens[0]).index, 1,
+          'native transfer must index the full physical card list, not energy subset');
         assert.deepEqual(move.projection.promptProjection.choices
           .filter(choice => choice.kind === 'energy')
           .map(choice => choice.printing), ['Water Energy SVE']);

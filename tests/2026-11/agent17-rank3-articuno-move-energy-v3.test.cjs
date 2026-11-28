@@ -36,23 +36,23 @@ class MoveEnergyPrompt {
   getPerspectivePlayerId() { return this.playerId; }
 }
 
+function actorPhysicalBench() {
+  const stunfisk = card('Galarian Stunfisk', 'Galarian Stunfisk SSH 132');
+  const water1 = card('Water Energy', 'Water Energy MEE 12');
+  const water2 = card('Water Energy', 'Water Energy MEE 12');
+  const snorlax = card('Snorlax', 'Snorlax PGO 55');
+  const psychic = card('Psychic Energy', 'Psychic Energy MEE 13');
+  return [
+    { ...cardList([stunfisk, water1, water2]), energies: cardList([water1, water2]) },
+    { ...cardList([snorlax, psychic]), energies: cardList([psychic]) }
+  ];
+}
+
 function fixture(seat) {
   const player = (id, actor) => ({
     id,
     active: cardList(actor ? [sourceCard] : [card('Regidrago V', 'Regidrago V SIT 135')]),
-    bench: actor ? [
-      {
-        ...cardList([card('Galarian Stunfisk', 'Galarian Stunfisk SSH 132')]),
-        energies: cardList([
-          card('Water Energy', 'Water Energy MEE 12'),
-          card('Water Energy', 'Water Energy MEE 12')
-        ])
-      },
-      {
-        ...cardList([card('Snorlax', 'Snorlax PGO 55')]),
-        energies: cardList([card('Psychic Energy', 'Psychic Energy MEE 13')])
-      }
-    ] : [],
+    bench: actor ? actorPhysicalBench() : [],
     hand: cardList([]), deck: cardList([]), discard: cardList([]),
     lostzone: cardList([]), stadium: cardList([]), supporter: cardList([]),
     prizes: []
@@ -91,11 +91,11 @@ for (const seat of [0, 1]) {
     assert.deepEqual([...projected.choiceByToken.values()], [
       {
         from: { player: 0, slot: 3, index: 0 },
-        to: { player: 0, slot: 2, index: 0 }, index: 0
+        to: { player: 0, slot: 2, index: 0 }, index: 1
       },
       {
         from: { player: 0, slot: 3, index: 0 },
-        to: { player: 0, slot: 2, index: 0 }, index: 1
+        to: { player: 0, slot: 2, index: 0 }, index: 2
       }
     ]);
     const result = select(seat, projected);
@@ -122,6 +122,13 @@ for (const seat of [0, 1]) {
     wrongFilter.prompt.filter.name = 'Psychic Energy';
     assert.throws(() => projector.projectPrompt(wrongFilter), {
       code: 'UNSUPPORTED_ENERGY_TRANSFER_PROMPT'
+    });
+
+    const orphan = fixture(seat);
+    orphan.state.players[seat].bench[0].energies.cards.push(
+      card('Water Energy', 'Water Energy MEE 12'));
+    assert.throws(() => projector.projectPrompt(orphan), {
+      code: 'PHYSICAL_ENERGY_IDENTITY_MISMATCH'
     });
 
     const wrongActor = fixture(seat);
@@ -153,6 +160,7 @@ for (const seat of [0, 1]) {
 function confirmRequest(seat, {
   activePrinting = 'Bunnelby PRC 121',
   benchWater = true,
+  activeWater = false,
   opponentEnergy = 2,
   gxUsed = false,
   effectName = 'Articuno-GX'
@@ -164,7 +172,7 @@ function confirmRequest(seat, {
       ownHand: [],
       ownTurnResources: { gxUsed },
       ownPublic: {
-        active: { printing: activePrinting, energies: [] },
+        active: { printing: activePrinting, energies: activeWater ? ['Water Energy MEE 12'] : [] },
         bench: [
           { printing: 'Articuno-GX CES', energies: [] },
           {
@@ -201,6 +209,16 @@ function confirmRequest(seat, {
 for (const seat of [0, 1]) {
   test('Articuno confirms a payable immediate Cold Crush-GX setup, seat ' + seat, () => {
     const request = confirmRequest(seat);
+    const prompt = protocol.validatePrompt(request.prompt, seat);
+    const actual = rank3.createPolicy({
+      role: 'opponent', seat, policyVersion: rank3.POLICY_VERSION, config: {}
+    }).decide(request);
+    assert.deepEqual(actual, { kind: 'select-choice', token: 'yes' });
+    protocol.validateDecision(actual, prompt, new Set());
+  });
+
+  test('Legendary Ascent counts pre-switch Active Water as post-switch Bench source, seat ' + seat, () => {
+    const request = confirmRequest(seat, { benchWater: false, activeWater: true });
     const prompt = protocol.validatePrompt(request.prompt, seat);
     const actual = rank3.createPolicy({
       role: 'opponent', seat, policyVersion: rank3.POLICY_VERSION, config: {}
