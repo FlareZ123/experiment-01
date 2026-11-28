@@ -64,6 +64,8 @@ jobs:
         run: node --test tests/agent31-forced-guzma-ko.native.test.cjs
       - name: Prove both-seat native Store Guzma recipient continuation
         run: node --test tests/agent43-canonical-guzma-prompt-composition.test.cjs tests/agent43-guzma-prompt-native.test.cjs tests/agent43-guzma-prompt-continuation.test.cjs tests/agent43-guzma-nominal-gust-frontier.test.cjs tests/agent2-held-guzma-mobility-frontier.test.cjs tests/agent43-registered-basic-supply-guzma.test.cjs tests/agent43-field-basic-only-cost-census.test.cjs
+      - name: Agent25 rank2 policy same-Store Guzma physical continuation (no game)
+        run: node --test tests/2026-11/agent25-rank2-guzma-policy-samestore.native.test.cjs
       - name: Original source-first Guzma paired development
         if: ${{ inputs.sourcefirst_development }}
         env:
