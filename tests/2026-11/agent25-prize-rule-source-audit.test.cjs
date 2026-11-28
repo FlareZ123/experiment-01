@@ -5,7 +5,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const ROOT=path.resolve(__dirname,'../..');
 const {basePrizeFromRules:award,frozenPrizeNameHeuristic:old,
-  normalizedPromoNumber,auditPrizeField}=require('../../simulation/evaluation/2026-11/agent25-prize-rule-source-audit.cjs');
+  normalizedPromoNumber,equivalentPrintedName,auditPrizeField}=require('../../simulation/evaluation/2026-11/agent25-prize-rule-source-audit.cjs');
 const load=id=>JSON.parse(fs.readFileSync(path.join(ROOT,'resources/cards/en',id+'.json'),'utf8'));
 const sets=JSON.parse(fs.readFileSync(path.join(ROOT,'resources/sets/en.json'),'utf8'));
 const card=(id,number,name)=>{
@@ -40,11 +40,21 @@ test('old XY Mega EX never inherits modern Mega ex 3-Prize rule',()=>{
   const c=card('xy6','76','M Rayquaza-EX');
   assert.equal(award(c),2);
 });
+test('old Black White Ho-Oh-EX takes two Prizes, frozen worker name heuristic counts one',()=>{
+  assert.equal(award(card('bw6','22','Ho-Oh-EX')),2);
+  assert.equal(old('Ho-Oh-EX'),1);
+});
 test('TAG TEAM 3, VMAX 3, V 2, ordinary 1',()=>{
   assert.equal(award(card('smp','SM217','Trevenant & Dusknoir-GX')),3);
   assert.equal(award(card('swsh6','75','Shadow Rider Calyrex VMAX')),3);
   assert.equal(award(card('swsh6','74','Shadow Rider Calyrex V')),2);
   assert.equal(award(card('sm2','58','Mimikyu')),1);
+});
+test('only documented Prism Star diamond glyph suffix aliases are accepted',()=>{
+  assert.equal(equivalentPrintedName('Ditto ♢','Ditto ◇'),true);
+  assert.equal(equivalentPrintedName('Tapu Koko ♢','Tapu Koko ◇'),true);
+  assert.equal(equivalentPrintedName('Ditto ♢','Tapu Koko ◇'),false);
+  assert.equal(equivalentPrintedName('Ditto ♢','Ditto'),false);
 });
 test('SMP source number resolves exact promo-prefixed native catalogue number',()=>{
   assert.deepEqual(normalizedPromoNumber('SMP','217'),['SM217','217']);
@@ -68,6 +78,15 @@ test('source audit detects exact rule miscounts in two full-60 printed fixtures'
   assert.equal(a.mismatchedCopies,7);
   assert.deepEqual(a.affectedRanks,[8,14]);
   assert.equal(a.rows.find(r=>r.name==='Dedenne-GX').printedPrizeAward,2);
+});
+test('original rank4/8 Prism Star glyph aliases resolve by exact set and number',()=>{
+  const decks=[make(4,[row('Ditto ♢','LOT','154',1)]),
+    make(8,[row('Tapu Koko ♢','TEU','51',1)])];
+  const a=auditPrizeField({decks,sets,loadSet:load});
+  assert.equal(a.matchedRows,2);
+  assert.equal(a.unresolvedRows,0);
+  assert.equal(a.rows[0].symbolAliasUsed,true);
+  assert.equal(a.rows[1].printedPrizeAward,1);
 });
 test('missing original printing remains unresolved, never silently guessed',()=>{
   const decks=[make(5,[row('Card not found in source','CRE','9876',1)])];
