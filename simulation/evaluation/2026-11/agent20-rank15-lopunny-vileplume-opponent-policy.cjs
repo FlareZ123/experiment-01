@@ -455,7 +455,10 @@ function retreatPrompt(request) {
   const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
   if(p.promptType!=='ChoosePokemonPrompt'||m.selectionType!=='pokemon'||
     m.minimumCount!==1||m.maximumCount!==1)return abstain('UNSUPPORTED_POKEMON_PROMPT');
-  const target=positionTarget(o);
+  // Preserve the terminal root's concrete physical target at a subsequent
+  // Retreat ChoosePokemonPrompt. Generic positioning would prefer a BUS
+  // Vileplume over the paid Mega and lose the offered immediate victory.
+  const target=terminalGalePromotionTarget(request)??positionTarget(o);
   if(!target)return abstain('NO_SUPPORTED_POKEMON_CHOICE');
   const found=actorPokemonBench(p).find(c=>
     c.publicMetadata?.benchIndex===target.index&&txt(c)===target.printing);
