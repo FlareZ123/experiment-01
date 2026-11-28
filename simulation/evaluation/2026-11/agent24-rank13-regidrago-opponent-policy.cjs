@@ -457,7 +457,7 @@ function chooseRank13ApexAttack(choices, observation) {
     .sort((a, b) => b.score - a.score || a.index - b.index);
   const best = ranked.find(row => row.score > 0);
   return best ? { kind: 'select-choice', token: best.choice.token } :
-    { kind: 'abstain', reasonCode: 'NO_SUPPORTED_RANK13_APEX_ATTACK' };
+    { kind: 'abstain', reasonCode: 'NO_VISIBLE_ATTACK_CHOICE' };
 }
 
 function chooseAttack(choices, observation, context) {
@@ -484,7 +484,7 @@ function chooseAttack(choices, observation, context) {
     .sort((a, b) => b.score - a.score || a.index - b.index);
   const best = ranked.find(row => row.score > 0);
   return best ? { kind: 'select-choice', token: best.choice.token } :
-    { kind: 'abstain', reasonCode: 'NO_SUPPORTED_RANK13_ATTACK' };
+    { kind: 'abstain', reasonCode: 'NO_VISIBLE_ATTACK_CHOICE' };
 }
 
 function scoreAttack(item, observation) {
@@ -642,7 +642,7 @@ function promptDecision(request) {
     (Number.isSafeInteger(meta.count) ? meta.count : minimum);
 
   if (prompt.promptType === 'PutDamagePrompt') {
-    return { kind: 'abstain', reasonCode: 'RANK13_PUT_DAMAGE_UNSUPPORTED' };
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
   }
 
   if (prompt.promptType === 'ChooseAttackPrompt') {
@@ -816,7 +816,7 @@ function promptDecision(request) {
       }, minimum, maximum, 'NO_RANK13_ENERGY_PAYMENT');
     }
 
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_RANK13_MULTI_SELECT_SOURCE' };
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_COMBINATION_SOURCE' };
   }
 
   if (prompt.promptType === 'ConfirmPrompt' || prompt.promptType === 'SelectPrompt' ||
@@ -835,22 +835,22 @@ function promptDecision(request) {
       return { kind: 'select-choice', token: yes.token };
     }
     if (no) return { kind: 'select-choice', token: no.token };
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_RANK13_OPTIONAL_PROMPT' };
+    return { kind: 'abstain', reasonCode: 'UNRECOGNIZED_SIMPLE_PROMPT' };
   }
 
-  return { kind: 'abstain', reasonCode: 'UNSUPPORTED_RANK13_PROMPT_TYPE' };
+  return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
 }
 
 function bestAction(request) {
   const items = list(request.actionFrontier?.items).filter(item => EXECUTABLE.has(item.kind));
-  if (items.length === 0) return { kind: 'abstain', reasonCode: 'NO_RANK13_EXECUTABLE_ACTION' };
+  if (items.length === 0) return { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ROOT_ACTION' };
   const ranked = items.map((item, index) => ({
     item, index, score: scoreAction(item, request)
   })).sort((a, b) => b.score - a.score || a.index - b.index);
   if (ranked[0]?.score > 0) return { kind: 'select-action', token: ranked[0].item.token };
   const pass = items.find(item => item.kind === 'pass');
   return pass ? { kind: 'select-action', token: pass.token } :
-    { kind: 'abstain', reasonCode: 'NO_SUPPORTED_RANK13_ACTION' };
+    { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ROOT_ACTION' };
 }
 
 function createPolicy({ role, seat, policyVersion, config }) {
