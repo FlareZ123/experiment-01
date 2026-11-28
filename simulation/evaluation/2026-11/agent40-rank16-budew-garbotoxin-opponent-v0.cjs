@@ -111,9 +111,11 @@ function opponentLockAbilityLive(o,pokemon,abilityName){
  if(suppression?.suppressed===false)return true;
  const hood=toolEnabled(o)&&list(pokemon?.tools).some(x=>
   /^Stealthy Hood UNB 186\b/i.test(name(x)));
- // Once our own equipped Garbotoxin is confirmed active it suppresses
- // the opponent's automatic lock except where Stealthy Hood protects it.
- return !((liveGarbotoxin(o)||opponentGarbotoxinStatus(o)==='live')&&!hood);
+ // Hood prevents the effects of OPPONENT'S Abilities only:
+ // a Hood on Snorlax/Mimikyu protects against our Garbodor, never the
+ // opponent's own Garbodor on the same side of the board.
+ const opponentOwnGarb=opponentGarbotoxinStatus(o)==='live';
+ return !(opponentOwnGarb||(liveGarbotoxin(o)&&!hood));
 }
 function opponentVileplumeItemLock(o){
  const explicit=o.ownPublic?.publicTurnRestrictions?.itemPlayLocked===true;
