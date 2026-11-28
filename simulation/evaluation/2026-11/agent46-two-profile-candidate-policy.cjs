@@ -1203,7 +1203,7 @@ function getLostValue(view,printing) {
   const regidrago=opponentHasRegidrago(view);
   if(regidrago&&hasAnyName(printing,['Dialga-GX','Dragapult ex','Giratina VSTAR','Goodra VSTAR',
     'Hisuian Goodra VSTAR','Noivern ex','Haxorus','Flygon ex','Altaria-GX','Dragonite ex',
-    'Garchomp ex','Alolan Exeggutor ex','Duraludon VMAX','Kyurem','Salamence ex']))return 500;
+    'Garchomp ex','Alolan Exeggutor ex','Duraludon VMAX','Kyurem','Salamence ex','Koraidon ex']))return 500;
   if(regidrago&&hasName(printing,'Regidrago VSTAR'))return 300;
   if(hasAnyName(printing,['ACE SPEC','Computer Search','Dowsing Machine','Unfair Stamp','Secret Box',
     'Legacy Energy','Double Dragon Energy','Double Colorless Energy','Pokémon Ranger',
@@ -1217,7 +1217,13 @@ function getLostValue(view,printing) {
 const APEX_PAYLOADS=[
   ['Kyurem SFA','Trifrost',110],['Dragapult ex TWM','Phantom Dive',200],
   ['Dialga-GX UPR','Timeless-GX',150],['Giratina VSTAR LOR','Lost Impact',280],
-  ['Mega Dragonite ex ASC','Ryuno Glide',330],['Koraidon SSP','Unrelenting Onslaught',180],
+  ['Mega Dragonite ex ASC','Ryuno Glide',330],
+  // The five published Aichi Regidrago lists use Dragon-type Koraidon ex
+  // TEF 120. Fighting-type Koraidon SSP 116 cannot supply an Apex payload.
+  // Kaiser Tackle does 280 to Active and 60 to its own attacker; self-KO
+  // and simultaneous Prize resolution are not modeled by this optimistic
+  // incoming-damage hazard scorer.
+  ['Koraidon ex TEF','Kaiser Tackle',280],
   ['Alolan Exeggutor ex SSP','Tropical Frenzy',150],
   ['Hisuian Goodra VSTAR LOR','Rolling Iron',200],['Noivern ex PAL','Covert Flight',70],
   ['Garchomp & Giratina-GX UNM','Calamitous Slash',160],['Garchomp ex PAR','Hydro Lander',160],
