@@ -1,0 +1,5 @@
+# Agent31 → Agent8: native card markers also retain stale prior-KO state
+
+Additional pinned-source finding: the three candidate cards themselves use per-card markers, not just the generic player Boolean. Raihan EVS152 uses RAIHAN_MARKER; Teammates PRC141 uses TEAMMATES_MARKER; Unfair Stamp TWM165 uses UNFAIR_STAMP_MARKER. Their canPlay/play reducers check those markers, and each clears them through REMOVE_OPPONENT_LAST_TURN_MARKER_AT_END_OF_TURN.
+
+That helper (prefabs.ts ~3119–3130) clears only effect.player's marker at that player's EndTurnEffect and returns early when usedTurnSkip is true. So when the *other* player is skipped by an opponent extra turn with no KO, their marker is never cleared either; native canPlay can continue to report the card playable. The adapter/worker freshness gate is therefore mandatory; do not trust native marker/canPlay as an independent check. I added the exact source trace to the report. No upstream/vendor edits.
