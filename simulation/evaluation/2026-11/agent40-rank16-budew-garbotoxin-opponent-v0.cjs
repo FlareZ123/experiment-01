@@ -484,9 +484,12 @@ function clawProjectedKnockoutScore(action,o){
  if(liability>=o.ownPublic?.prizeCount)return 965;
  return liability===3?905:(liability===2?845:770);
 }
-function attackingBenchedMega(o){
+function attackingBenchedMega(o,minimumEnergy=3){
  return slots(o.ownPublic).filter(r=>r.zone==='bench'&&match(r.pokemon.printing,PRINT.mega)&&
-  list(r.pokemon.energies).length>=3);
+  list(r.pokemon.energies).length>=minimumEnergy);
+}
+function terminalPeriodBenchTargetAvailable(o){
+ return slots(o.opponentPublic).some(r=>r.zone==='bench'&&r.pokemon.damage===60);
 }
 function guzmaTargetScore(target,mega,o){
  const rem=Number.isFinite(target?.hp)&&Number.isFinite(target?.damage)?
@@ -495,9 +498,12 @@ function guzmaTargetScore(target,mega,o){
  const liab=prizeYield(target);
  const fauxObservation={...o,ownPublic:{...o.ownPublic,active:mega},
   opponentPublic:{...o.opponentPublic,active:target}};
- if(target.damage===60){
+ if(target.damage===60&&list(mega.energies).length>=2){
   return liab>=o.ownPublic.prizeCount?985:940;
  }
+ // Only Terminal Period is payable with two Basic Darkness. The opponent
+ // cannot be Clawed without the third Energy attached to Mega Absol.
+ if(list(mega.energies).length<3)return 0;
  const claw=clawProjectedKnockoutScore({
   publicMetadata:{attackCostPayable:true},attackName:'Claw of Darkness'
  },fauxObservation);
@@ -509,11 +515,13 @@ function guzmaTargetScore(target,mega,o){
  return energy>0?175+Math.min(energy,3)*20:85;
 }
 function canGuzmaLeadToFundedAttack(o){
- if(attackingBenchedMega(o).length>0)return true;
+ const terminal=terminalPeriodBenchTargetAvailable(o);
+ const need=terminal?2:3;
+ if(attackingBenchedMega(o,need).length>0)return true;
  // If current Mega is active, Guzma switches it to Bench. Re-entry requires
  // a legal retreat from an *already equipped* pivot and an unused retreat.
  const active=o.ownPublic?.active;
- if(!match(active?.printing,PRINT.mega)||list(active.energies).length<3||
+ if(!match(active?.printing,PRINT.mega)||list(active.energies).length<need||
     o.ownTurnResources?.retreatedTurn===o.globalTurn||!toolEnabled(o))return false;
  return slots(o.ownPublic).some(r=>r.zone==='bench'&&
   list(r.pokemon.tools).some(x=>match(x,PRINT.float)));
@@ -524,7 +532,7 @@ function guzmaRootScore(o){
  if(benchCount(o.opponentPublic)===0)return 0;
  if(o.ownTurnResources?.supporterPlayedTurn!==0||o.ownPublic?.publicTurnRestrictions?.supporterPlayLocked===true||
     o.ownTurnResources?.supporterPlayLocked===true||!canGuzmaLeadToFundedAttack(o)&&!opponentSnorlaxBlock(o))return 0;
- const bestMega=attackingBenchedMega(o)[0]?.pokemon??o.ownPublic?.active;
+ const bestMega=attackingBenchedMega(o,terminalPeriodBenchTargetAvailable(o)?2:3)[0]?.pokemon??o.ownPublic?.active;
  if(opponentSnorlaxBlock(o)&&
   !match(o.ownPublic?.active?.printing,PRINT.budew)&&
   slots(o.ownPublic).some(x=>x.zone==='bench'&&match(x.pokemon.printing,PRINT.budew)))
@@ -936,6 +944,9 @@ function promptDecision(req){
     // attack. The native two-stage prompt may expose Snorlax before or the
     // Safeguarded Mimikyu after the opponent's swap; handle both views.
     if(match(self.pokemon.printing,PRINT.budew)&&blockEscape)return 620;
+    if(match(self.pokemon.printing,PRINT.mega)&&
+       list(self.pokemon.energies).length>=2&&
+       o.opponentPublic?.active?.damage===60)return 540;
     if(match(self.pokemon.printing,PRINT.mega)&&list(self.pokemon.energies).length>=3)return 480;
     if(match(self.pokemon.printing,PRINT.budew))return 220;
     if(list(self.pokemon.tools).some(x=>match(x,PRINT.float))&&toolEnabled(o))return 185;
