@@ -2041,3 +2041,44 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Boost Garbotoxin outranks one-turn Budew Pollen into two unhooded Underworld Doors',()=>{
+  const trubbish=mon('Trubbish CRI 56',{tools:['Float Stone BKT 137']});
+  const board=own({active:mon('Budew ASC 16'),bench:[trubbish]});
+  const v1=mon('Shadow Rider Calyrex VMAX CRE 75');
+  const v2=mon('Shadow Rider Calyrex VMAX CRE 75');
+  const their=opp({active:v1,bench:[v2]});
+  const q=root(seat,[play('Boost Shake EVS 142','boost'),
+   attack('Itchy Pollen','pollen'),pass],{
+   globalTurn:4,ownPublic:board,opponentPublic:their,
+   ownHand:['Boost Shake EVS 142'],
+   ownTurnResources:{energyPlayedTurn:true}});
+  assert.equal(policy.urgentShadowRiderGarbotoxin(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'boost'});
+  their.bench=[];
+  assert.equal(policy.urgentShadowRiderGarbotoxin(q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+  their.bench=[v2];v2.tools=['Stealthy Hood UNB 186'];
+  assert.equal(policy.urgentShadowRiderGarbotoxin(q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+  their.stadium=['Jamming Tower TWM 153'];
+  assert.equal(policy.urgentShadowRiderGarbotoxin(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'boost'});
+ });
+ test('seat '+seat+' Boost cannot override immediately payable Terminal Period effect KO',()=>{
+  const trubbish=mon('Trubbish CRI 56',{tools:['Float Stone BKT 137']});
+  const board=own({active:mon('Mega Absol ex MEG 86',{
+   energies:['Darkness Energy MEE 15','Darkness Energy MEE 15']}),
+   bench:[trubbish]});
+  const their=opp({active:mon('Shadow Rider Calyrex VMAX CRE 75',{damage:60}),
+   bench:[mon('Shadow Rider Calyrex VMAX CRE 75')]});
+  const q=root(seat,[play('Boost Shake EVS 142','boost'),
+   attack('Terminal Period','terminal'),pass],{
+   globalTurn:4,ownPublic:board,opponentPublic:their,
+   ownHand:['Boost Shake EVS 142'],
+   ownTurnResources:{energyPlayedTurn:true}});
+  assert.equal(policy.urgentShadowRiderGarbotoxin(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'terminal'});
+ });
+}
