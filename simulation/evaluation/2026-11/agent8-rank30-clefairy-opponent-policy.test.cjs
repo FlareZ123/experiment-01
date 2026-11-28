@@ -675,3 +675,44 @@ for(const seat of [0,1]) {
       kind:'select-choices',tokens:['three-prize']});
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' Float Stone unlocks native retreat to funded Clefairy under Iron Thorns',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active={printing:'Unown AOR 30',tools:[],
+      printed:{stage:'BASIC',retreatCost:['COLORLESS']},
+      specialConditions:[],publicRestrictions:{}};
+    r.observation.ownPublic.bench=[
+      {printing:clef,energies:[psychic,psychic]},
+      {printing:'Latias ex SSP 76',abilities:['Skyliner'],
+        abilitySuppressions:[{abilityName:'Skyliner',suppressed:true,
+          reasonCode:'ABILITY_LOCKED',sourcePrinting:'Iron Thorns ex TWM 77'}]}];
+    r.observation.ownPublic.publicTurnRestrictions={
+      stadiumAndToolHaveNoEffectTurnsRemaining:0};
+    r.observation.opponentPublic.active={printing:'Iron Thorns ex TWM 77',
+      hp:230,damage:0,tools:[]};
+    const toolRoot={...root('play-card','Float Stone BKT 137','float',
+      {targetSeat:'actor',targetZone:'active',isOwnerVisible:true}),
+      targetPrinting:'Unown AOR 30'};
+    const retreatRoot={...root('retreat','Unown AOR 30','retreat',
+      {targetSeat:'actor',targetZone:'bench',benchIndex:0}),
+      targetPrinting:clef};
+    r.actionFrontier.items=[toolRoot,root('pass','','pass')];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'float'});
+    r.observation.ownPublic.active.tools=['Float Stone BKT 137'];
+    r.actionFrontier.items=[retreatRoot,root('pass','','pass')];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'retreat'});
+    // Active opponent Tool Jammer and Jamming Tower each void our Active
+    // Float Stone, so none of the apparent zero-cost moves is certified.
+    r.observation.opponentPublic.active.tools=['Tool Jammer BST 136'];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    r.observation.opponentPublic.active.tools=[];
+    r.observation.opponentPublic.stadium=['Jamming Tower TWM 153'];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    r.observation.opponentPublic.stadium=[];
+    r.observation.ownPublic.publicTurnRestrictions
+      .stadiumAndToolHaveNoEffectTurnsRemaining=null;
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  });
+}
