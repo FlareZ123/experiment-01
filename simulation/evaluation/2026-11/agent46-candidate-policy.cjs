@@ -1172,6 +1172,21 @@ function chooseRetreat(view, items) {
   return best && best.score > 0 ? best.item : null;
 }
 
+// Native root legality is authoritative.  In the fixed Psychic-only 60,
+// Underworld Door attaches a Psychic to an eligible Benched Psychic and draws
+// two, preserving the ordinary once-per-turn hand attachment.  Refuse stale
+// native offers when public/owner-visible prerequisites are missing.
+function eligibleCandidateDoor(view, actions) {
+  if (!handHas(view, 'Psychic Energy') ||
+      view.ownPublic.deckCount < 3 ||
+      !view.ownPublic.bench.some(p => p?.printed?.types?.includes('Psychic'))) {
+    return null;
+  }
+  return actions.find(a => a.kind === 'use-ability' &&
+    a.publicMetadata?.abilityName === 'Underworld Door' &&
+    hasName(a.actorPrinting, 'Shadow Rider Calyrex VMAX')) ?? null;
+}
+
 function chooseRoot(view, request) {
   const items = request.actionFrontier.items.filter(item =>
     ['play-card', 'attack', 'retreat', 'use-ability', 'use-stadium', 'pass'].includes(item.kind));
@@ -1193,6 +1208,19 @@ function chooseRoot(view, request) {
     return { item, score };
   }).filter(row => Number.isFinite(row.score)).sort((a, b) =>
     b.score - a.score || a.item.token.localeCompare(b.item.token));
+  const door = eligibleCandidateDoor(view, items);
+  const best = scoredPlays[0]?.item ?? null;
+  // Do not burn the last hand Psychic as a normal BENCH attachment before
+  // the legal accelerating/drawing Ability. Preserve higher-priority search
+  // and evolution and manual ACTIVE attack-enabling attachments.
+  if (door && (!best || (
+    hasName(best.actorPrinting, 'Psychic Energy') &&
+    best.publicMetadata?.targetZone === 'bench'))) {
+    setPolicyAuditRule('ROOT_UNDERWORLD_DOOR_BEFORE_BENCH_ENERGY',
+      'FIRST_NATIVE_FRONTIER_MATCH');
+    recordPolicyAuditRule(door.token, 'UNDERWORLD_DOOR_ENERGY_DRAW');
+    return {kind:'select-action',token:door.token};
+  }
   if (scoredPlays.length > 0) {
     setPolicyAuditRule('ROOT_PLAY_MAX_COMPONENT_SCORE', 'SCORE_DESC_TOKEN_ASC');
     return { kind: 'select-action', token: scoredPlays[0].item.token };
