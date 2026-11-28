@@ -235,8 +235,12 @@ function checkedDecision(request, seat = 0) {
     config
   };
   const validated = protocol.validateRequest(request, init, request.sequence, new Set());
-  const decision = makePolicy(seat).decide(request);
+  const policy = makePolicy(seat);
+  const decision = policy.decide(request);
   protocol.validateDecision(decision, validated.prompt, validated.actionTokens);
+  const audited = policy.decideWithAudit(request);
+  assert.deepEqual(audited.decision,decision,'audited path must not change play');
+  protocol.validatePolicyAudit(audited.policyAudit,request,decision,POLICY_VERSION);
   return decision;
 }
 
