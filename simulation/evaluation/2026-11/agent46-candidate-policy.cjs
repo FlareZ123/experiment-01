@@ -706,7 +706,8 @@ function chooseCardCombination(view, prompt) {
     'Get Lost': 'Girafarig LOT 94',
     'VS Seeker': 'VS Seeker PHF 109',
     'Night Stretcher': 'Night Stretcher ASC 196',
-    'Star Alchemy': 'Forest Seal Stone SIT 156'
+    'Star Alchemy': 'Forest Seal Stone SIT 156',
+    'Arven': 'Arven SVI 166'
   };
   const effect = prompt.source?.effectName;
   if (Object.hasOwn(ownerSourceBindings, effect) &&
@@ -754,8 +755,18 @@ function chooseCardCombination(view, prompt) {
       String(a.choice.printing).localeCompare(String(b.choice.printing)));
 
   let selected = [];
-  if (metadata.sourceZone === 'hand' ||
-      (metadata.sourceZone === 'deck' && prompt.source?.effectName === 'Battle Compressor')) {
+  if (effect === 'Arven' && metadata.sourceZone === 'deck') {
+    // Printed Arven permits at most one Item and one Pokémon Tool. Two
+    // individually valuable Items are NOT a valid two-card selection.
+    const positive = ranked.filter(row => row.score > 0);
+    const bestItem = positive.find(row => isItem(row.choice.printing));
+    const bestTool = positive.find(row => isTool(row.choice.printing));
+    const groups = [bestItem, bestTool].filter(Boolean)
+      .sort((a,b) => b.score - a.score ||
+        String(a.choice.printing).localeCompare(String(b.choice.printing)));
+    selected = groups.slice(0, maximum).map(row => row.choice);
+  } else if (metadata.sourceZone === 'hand' ||
+      (metadata.sourceZone === 'deck' && effect === 'Battle Compressor')) {
     selected = ranked.slice(0, minimum).filter(row => Number.isFinite(row.score))
       .map(row => row.choice);
   } else {
@@ -775,15 +786,7 @@ function chooseCardCombination(view, prompt) {
     return abstain('NO_LEGAL_CARD_SET');
   }
 
-  if (prompt.source?.effectName === 'Arven' && selected.length >= 2) {
-    const item = selected.find(choice => isItem(choice.printing));
-    const tool = selected.find(choice => isTool(choice.printing));
-    if (item && tool && item.token !== tool.token) {
-      selected = [item, tool].slice(0, Math.min(maximum, Math.max(minimum, 2)));
-    } else if (minimum >= 2) {
-      return abstain('ARVEN_ITEM_TOOL_PAIR_UNAVAILABLE');
-    }
-  }
+  // Arven's type-limited pair was selected atomically before cardinality checks.
 
   return { kind: 'select-choices', tokens: selected.map(choice => choice.token) };
 }
