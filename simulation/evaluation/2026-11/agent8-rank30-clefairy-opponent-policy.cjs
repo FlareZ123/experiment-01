@@ -558,6 +558,10 @@ function vipPrompt(request) {
     !safeInt(m.minimumCount)||!safeInt(m.maximumCount)||m.maximumCount>2)
     return no('R30_VIP_PROMPT_UNSUPPORTED');
   const offered=arr(p.choices).filter(x=>x.kind==='card'&&typeof x.token==='string');
+  const capacity=Math.max(0,(stadium(o)?8:5)-benchCount(o.ownPublic));
+  const maxSelect=Math.min(m.maximumCount,capacity);
+  if(m.minimumCount>maxSelect||o.ownTurnResources?.pokemonPlayLocked===true)
+    return no('R30_VIP_NO_TARGET');
   const picked=[];
   const find=pattern=>offered.find(x=>has(x,pattern)&&!picked.some(y=>y.token===x.token));
   const stall=miniorStallOpportunity(o);
@@ -568,15 +572,15 @@ function vipPrompt(request) {
   const clefsAlready=slots(o.ownPublic).filter(x=>has(x,P.clefairy)).length+
     o.ownHand.filter(x=>has(x,P.clefairy)).length;
   // A first Clefairy and Latias enable attacking + retreat mobility.
-  if(clefsAlready===0 && picked.length<m.maximumCount){
+  if(clefsAlready===0 && picked.length<maxSelect){
     const x=find(P.clefairy);if(x)picked.push(x);
   }
-  if(picked.length<m.maximumCount &&
+  if(picked.length<maxSelect &&
      !slots(o.ownPublic).some(x=>/^Latias ex SSP(?: 76)?\b/i.test(text(x))) &&
      !o.ownHand.some(x=>/^Latias ex SSP(?: 76)?\b/i.test(text(x)))){
     const x=find(/^Latias ex SSP(?: 76)?\b/i);if(x)picked.push(x);
   }
-  if(picked.length<m.maximumCount && clefsAlready+
+  if(picked.length<maxSelect && clefsAlready+
       picked.filter(x=>has(x,P.clefairy)).length<2){
     const x=find(P.clefairy);if(x)picked.push(x);
   }
@@ -1439,10 +1443,19 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   if(sky && skyFieldHandExpansionKO(o))return act(sky);
   const stretcher=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.stretcher));
   if(stretcher&&rescueStretcherTarget(o))return act(stretcher);
+  const vip=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.vip));
+  const missingStarter=!slots(o.ownPublic).some(x=>has(x,P.clefairy))&&
+    !arr(o.ownHand).some(x=>has(x,P.clefairy));
+  const vipSetup=vip&&!isLaterTurn(o)&&
+    o.ownTurnResources?.pokemonPlayLocked!==true&&
+    benchCount(o.ownPublic)<(stadium(o)?8:5);
+  // An unspent first-turn VIP must be deployed before speculative Mail when
+  // there is real setup space. Preserve Mail priority only with an almost-full
+  // Bench already containing the key attackers.
+  if(vipSetup&&(missingStarter||benchCount(o.ownPublic)<=3))return act(vip);
   const mail=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.mail));
   if(mail&&Number.isSafeInteger(o.ownPublic?.deckCount)&&o.ownPublic.deckCount>0)return act(mail);
-  const vip=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.vip));
-  if(vip && benchCount(o.ownPublic)<(stadium(o)?8:5))return act(vip);
+  if(vipSetup)return act(vip);
   const quick=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.quickBall));
   if(quick && canStartQuickBall(o))return act(quick);
   const carrier=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.carrier));
