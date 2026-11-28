@@ -9,8 +9,9 @@
  * prior UPR100 in own discard, and an exposed 70-HP GRI58 defending, Crispin
  * is the only offered Supporter that can fund a same-turn Apex Dragon/Shred KO.
  * Crispin succeeds only if the deck still contains DIFFERENT Basic Energy types
- * (Grass and Fire); this helper does NOT attest such hidden access. It merely
- * selects the prospective winning line over a Guzma pivot that cannot fund it.
+ * (Grass and Fire). Fresh owner K1 or a K0 Prize-count lower-bound sometimes
+ * CERTIFIES both deck types; uncertain K0 remains prospective. It selects
+ * the line over an unfunded Guzma pivot without reading hidden card identity.
  *
  * Branch-only, pure actor-view selector. No RNG, native Store, policy protocol,
  * source 60 mutation, or automatic registration.
@@ -50,17 +51,55 @@ function visibleEnergyUsed(view, pattern) {
   return cards.filter(card=>isPrint(card,pattern)).length;
 }
 
-function freshK1EnergyPairAvailable(view) {
+/**
+ * Exact original rank13 contains Grass x4 and Fire x3. At K0, after counting
+ * every actor-visible nondeck energy, the unaccounted copies occupy ONLY
+ * owner's remaining deck + p physical Prize slots. Therefore each type has
+ * at least max(0, unaccountedCopies - p) copies in deck without any hidden
+ * card identity or probabilistic independence assumption. K1, when fresh,
+ * gives the exact count instead. This is a lower-bound certificate, not an
+ * attack-legality guarantee or a prediction of competitive outcome.
+ */
+function assessRank13CrispinEnergyPair(view) {
+  const own=view?.ownPublic??{};
+  const prizes=own.prizeCount,deck=own.deckCount;
+  if(!Number.isSafeInteger(prizes) || prizes<0 || prizes>6 ||
+     !Number.isSafeInteger(deck) || deck<0)
+    return {status:'unknown',reason:'missing-deck-or-prize-count'};
+  if(deck<2)
+    return {status:'blocked',reason:'fewer-than-two-deck-cards'};
+  const visibleGrass=visibleEnergyUsed(view,GRASS);
+  const visibleFire=visibleEnergyUsed(view,FIRE);
+  const unaccountedGrass=4-visibleGrass;
+  const unaccountedFire=3-visibleFire;
+  if(unaccountedGrass<0 || unaccountedFire<0)
+    return {status:'invalid',reason:'visible-copies-exceed-source-60'};
+  if(unaccountedGrass===0 || unaccountedFire===0)
+    return {status:'blocked',reason:'visible-copies-exhaust-type'};
+  const lowerBounds=Object.freeze({
+    grass:Math.max(0,unaccountedGrass-prizes),
+    fire:Math.max(0,unaccountedFire-prizes)
+  });
   const k1=view?.ownerK1;
-  if(k1?.exactMembershipKnown!==true || k1.invalidationReason!==null ||
-     !Array.isArray(k1.knownPrintings))return true;
-  const inDeck=re=>k1.knownPrintings.reduce((total,row)=>{
-    const copies=Number.isSafeInteger(row?.copies)?row.copies:0;
-    return isPrint(row?.printing,re)?total+copies:total;
-  },0);
-  // K1 is the actor-authenticated deck multiset from a physical search,
-  // NOT opponent-private information. Stale snapshots never veto.
-  return inDeck(GRASS)>=1 && inDeck(FIRE)>=1;
+  if(k1?.exactMembershipKnown===true && k1.invalidationReason===null &&
+     Array.isArray(k1.knownPrintings)){
+    const count=re=>k1.knownPrintings.reduce((total,row)=>
+      total+(isPrint(row?.printing,re) && Number.isSafeInteger(row?.copies)?
+        row.copies:0),0);
+    const knownDeck=Object.freeze({grass:count(GRASS),fire:count(FIRE)});
+    return {
+      status:knownDeck.grass>=1 && knownDeck.fire>=1?
+        'certified-fresh-k1':'blocked',
+      reason:'fresh-owner-deck-membership',
+      knownDeck,lowerBounds
+    };
+  }
+  return {
+    status:lowerBounds.grass>=1 && lowerBounds.fire>=1?
+      'certified-k0-lower-bound':'possible-k0',
+    reason:'visible-energy-plus-prize-pigeonhole',
+    lowerBounds
+  };
 }
 
 function chooseRank13VsSeekerFundingLine(request) {
@@ -116,14 +155,14 @@ function chooseRank13VsSeekerFundingLine(request) {
       r.cannotAttackNextTurn === true || r.cannotUseAttacksNextTurn?.length > 0 ||
       r.attackCostIncreaseNextTurn > 0 || r.attackCostIncreaseWhileActive > 0 ||
       t.attackLockTurnsRemaining > 0 || t.supporterPlayLocked === true ||
-      // Exact source rank13 has Grass x4 and Fire x3. If all copies are
-      // accounted for in actor-visible non-deck zones, Crispin cannot search
-      // the two different Basic types needed for the attached Grass.
-      visibleEnergyUsed(view,GRASS) >= 4 ||
-      visibleEnergyUsed(view,FIRE) >= 3 ||
-      !freshK1EnergyPairAvailable(view)) return null;
+      // A K0 lower-bound proof or fresh K1 can certify both types in deck;
+      // otherwise keep the prospective but uncertain line unless deck/card
+      // exhaustion positively blocks it. No opaque hidden-zone peeking.
+      ['blocked','invalid','unknown'].includes(
+        assessRank13CrispinEnergyPair(view).status)) return null;
 
   return { kind: 'select-choices', tokens: [crispin[0].token] };
 }
 
-module.exports = { chooseRank13VsSeekerFundingLine };
+module.exports = { chooseRank13VsSeekerFundingLine,
+  assessRank13CrispinEnergyPair };
