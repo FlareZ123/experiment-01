@@ -1068,6 +1068,7 @@ for(const seat of [0,1]) {
       {kind:'select-choice',token:'yes'});
     r.prompt=null;
     r.observation.ownHand=['Tapu Lele GX GRI',vip];
+    r.observation.ownTurnResources.supporterPlayedTurn=0;
     r.actionFrontier.items=[{...root('play-card','Tapu Lele GX GRI','native-lele',
       {targetSeat:'actor',targetZone:'bench',isOwnerVisible:true}),
       targetPrinting:'Tapu Lele GX GRI'}];
