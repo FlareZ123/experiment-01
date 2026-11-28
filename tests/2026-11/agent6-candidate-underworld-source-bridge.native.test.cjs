@@ -13,6 +13,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const path=require('node:path');
+const fs=require('node:fs');
 const {createHash}=require('node:crypto');
 const {initializeCards}=require('../../simulation/twinleaf/headless.cjs');
 const {stage}=require('../../simulation/twinleaf/agent5-attack-special-arbitration-native.cjs');
@@ -285,6 +286,8 @@ for(const seat of [0,1]){
         kind:'agent6-pinned-store-underworld-no-game',
         seat,enginePin:PIN,branchWorkerBlob:PR95_WORKER_BLOB,
         bridgeBlob:PR94_BRIDGE_BLOB,
+        exactTestSha256:createHash('sha256').update(fs.readFileSync(__filename)).digest('hex'),
+        checkoutHead:process.env.GITHUB_SHA??'local-unrecorded',
         candidate60Sha256:printed60Fingerprint(candidateDeck),
         opponent60Sha256:printed60Fingerprint(opponentDeck),
         candidateSourceCards:60,opponentSourceCards:60,
