@@ -96,7 +96,7 @@ for(const seat of [0,1]){
         ()=>mon(Vol)));return v},T,true],
     ['deck threshold',v=>{v.ownPublic.deckCount=8;return v},T,true],
     ['all Psychic basics exposed',v=>{v.ownPublic.discard=[Un,Un,Un,Gen];return v},T,true],
-    ['only risky Gengar remains',v=>{v.ownPublic.discard=[Un,Un,Un];return v},T,true]
+    ['only risky Gengar remains',v=>{v.ownPublic.discard=[Un,Un,Un];return v},T,true],
     ['certified remaining basics Prized',v=>{
        v.ownerK1={exactMembershipKnown:true,
          knownPrintings:[{printing:Un,copies:3},{printing:Gen,copies:1}]};
