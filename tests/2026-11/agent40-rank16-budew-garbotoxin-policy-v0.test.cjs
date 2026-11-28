@@ -2269,6 +2269,12 @@ for(const seat of [0,1]){
   enemy.bench=[mon('Snorlax PGO 55',{tools:['Tool Jammer BRS 136']})];
   assert.equal(policy.forestSealStoneUsable(q.observation),true);
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
+  board.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining=1;
+  assert.equal(policy.forestSealStoneUsable(q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  board.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining=0;
+  assert.equal(policy.forestSealStoneUsable(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
  });
  test('seat '+seat+' Tool Jammer blocks attaching Forest Seal to Active Crobat but not Bench Crobat',()=>{
   const crobat=mon('Crobat V DAA 104');
