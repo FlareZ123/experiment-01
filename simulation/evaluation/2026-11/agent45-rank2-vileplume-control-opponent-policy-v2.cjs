@@ -401,6 +401,40 @@ function ownedPokemonForChoice(choice, player) {
   return copies.length === 1 ? copies[0].pokemon : null;
 }
 
+// Unlike a prompt option, a playable Tool/Energy action already has a
+// native target in its public action frontier. Do not confuse two Bunnelby
+// copies when deciding where to attach Jet Energy, TM or a protective Tool.
+function publicActionTarget(item, player) {
+  const meta = item?.publicMetadata ?? {};
+  const printing = item?.targetPrinting ?? '';
+  if (meta.targetSeat && meta.targetSeat !== 'actor') return null;
+  const zone = meta.targetZone;
+  const match = pokemon => Boolean(pokemon) &&
+    (!printing || samePrinting(pokemon.printing, printing));
+  if (zone === 'active') {
+    if (meta.targetIndex !== undefined && meta.targetIndex !== 0) return null;
+    return match(player?.active) ?
+      { pokemon: player.active, zone: 'active', index: 0 } : null;
+  }
+  if (zone === 'bench') {
+    const bench = list(player?.bench);
+    const index = meta.targetIndex;
+    if (Number.isSafeInteger(index)) {
+      const p = bench[index];
+      return match(p) ? { pokemon: p, zone: 'bench', index } : null;
+    }
+    const matches = bench.map((pokemon, i) => ({ pokemon, zone: 'bench', index: i }))
+      .filter(row => match(row.pokemon));
+    return matches.length === 1 ? matches[0] : null;
+  }
+  if (zone !== undefined && zone !== null) return null;
+  // No physical target metadata: accept only an unambiguous observed
+  // printing. Never infer it from selection order or unrelated Tool copies.
+  if (!printing) return null;
+  const matches = boardSlots(player).filter(row => match(row.pokemon));
+  return matches.length === 1 ? matches[0] : null;
+}
+
 function missingLinePriority(observation) {
   const own = observation?.ownPublic ?? {};
   const hand = list(observation?.ownHand);
@@ -615,13 +649,14 @@ function scoreAction(item, request) {
     return bunnelby && (hasJet || bunnelbyActive) && targetReady ? 178 : 88;
   }
   if (matches(card, PRINT.jetEnergy)) {
-    const targetIsBunnelby = matches(target, PRINT.bunnelby);
-    const targetIsStoutland = matches(target, PRINT.stoutland);
-    const hasTm = boardSlots(own).some(row =>
-      list(row.pokemon.tools).some(tool => matches(tool, PRINT.tmEvolution)));
-    if (targetIsBunnelby && hasTm) return 225;
-    if (targetIsStoutland && !matches(own.active?.printing ?? '', PRINT.stoutland)) {
-      const targetPokemon = boardSlots(own).find(row => matches(row.pokemon.printing, PRINT.stoutland))?.pokemon;
+    const targetSlot = publicActionTarget(item, own);
+    const targetPokemon = targetSlot?.pokemon;
+    if (targetSlot?.zone === 'bench' && matches(targetPokemon?.printing, PRINT.bunnelby) &&
+        list(targetPokemon.tools).some(tool => matches(tool, PRINT.tmEvolution))) {
+      return 225;
+    }
+    if (targetSlot?.zone === 'bench' && matches(targetPokemon?.printing, PRINT.stoutland) &&
+        !matches(own.active?.printing ?? '', PRINT.stoutland)) {
       return stoutlandSentinelEffective(observation, targetPokemon) ? 198 : 0;
     }
     return 80;
@@ -631,19 +666,20 @@ function scoreAction(item, request) {
       missingLinePriority(observation) > 0 ? 102 : 18;
   }
   if (matches(card, PRINT.counterGain)) {
+    const targetSlot = publicActionTarget(item, own);
     return ownBehindOnPrizes(observation) &&
-      samePrinting(target, own.active?.printing) ? 190 : 0;
+      targetSlot?.zone === 'active' ? 190 : 0;
   }
   if (matches(card, PRINT.memoryEnergy)) {
     return boardHas(own, PRINT.stoutland) && !boardSlots(own).some(row =>
       list(row.pokemon.energies).some(energy => matches(energy, PRINT.memoryEnergy))) ? 116 : 50;
   }
   if (matches(card, PRINT.stealthyHood)) {
-    const targetSlot = boardSlots(own).find(row =>
-      target ? row.pokemon.printing === target : matches(row.pokemon.printing, PRINT.vileplume));
+    const targetPokemon = publicActionTarget(item, own)?.pokemon ?? null;
     const threatened = opponentHasGarbotoxin(opponent);
-    const alreadyProtected = targetSlot && hasStealthyHood(targetSlot.pokemon);
-    return targetSlot && threatened && !alreadyProtected && !ownToolLocked(observation) ? 205 : 65;
+    const alreadyProtected = targetPokemon && hasStealthyHood(targetPokemon);
+    return targetPokemon && threatened && !alreadyProtected &&
+      !ownToolLocked(observation) ? 205 : 65;
   }
   if (matches(card, PRINT.grandTree)) {
     return hasUnevolvedBasicFromPriorTurn(own, observation.globalTurn) &&
