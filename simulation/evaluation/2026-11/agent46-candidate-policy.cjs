@@ -1240,6 +1240,8 @@ function chooseRoot(view, request) {
   // make an otherwise unused VSTAR Power meaningfully better than passing.
   const starAlchemy = abilities.find(item =>
     item.publicMetadata?.abilityName === 'Star Alchemy' &&
+    item.publicMetadata?.sourceSeat === 'actor' &&
+    ['active','bench'].includes(item.publicMetadata?.sourceZone) &&
     isText(item.actorPrinting) &&
     view.ownPublic.publicTurnRestrictions.vstarUsed === false &&
     Number.isSafeInteger(view.ownPublic.deckCount) &&

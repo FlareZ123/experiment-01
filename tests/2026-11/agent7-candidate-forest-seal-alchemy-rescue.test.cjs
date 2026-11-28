@@ -65,6 +65,15 @@ for(const seat of [0,1]){
       assert.deepEqual(policy.decide(request),{kind:'select-action',token:'pass'});
     });
   }
+  test('source seat spoofing does not count as owned live Tool ability seat='+seat,()=>{
+    const {policy,request}=make(seat);
+    const ability=request.actionFrontier.items.find(x=>x.token==='alchemy');
+    ability.publicMetadata.sourceSeat='opponent';
+    assert.deepEqual(policy.decide(request),{kind:'select-action',token:'pass'});
+    ability.publicMetadata.sourceSeat='actor';
+    ability.publicMetadata.sourceZone='discard';
+    assert.deepEqual(policy.decide(request),{kind:'select-action',token:'pass'});
+  });
   test('Star Alchemy deck search continuation chooses requested high-priority item seat='+seat,()=>{
     const {policy,request,view}=make(seat);
     view.decisionKind='owner-prompt';
@@ -73,7 +82,7 @@ for(const seat of [0,1]){
     const prompt={schema:'aichi-prompt-projection-v1',actingSeat:seat,
       promptType:'ChooseCardsPrompt',description:'CHOOSE_CARD_TO_HAND',
       source:{classification:'actor-choice',sourceKind:'card-effect',
-        sourcePrinting:FSS,effectName:'Forest Seal Stone'},
+        sourcePrinting:FSS,effectName:'Star Alchemy'},
       publicMetadata:{selectionType:'card-combination',sourceZone:'deck',
         ownerSeat:'actor',isOwnerVisible:true,minimumCount:0,maximumCount:1},
       choices:[mk('Psychic Energy CRE 232','energy'),
