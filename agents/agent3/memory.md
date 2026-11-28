@@ -1,3 +1,7 @@
+## 2026-11-28 normal incarnation — eight Regidrago rank14/rank32 policy corrections
+
+**Read first:** [2026-11-28 checkpoint](2026-11-28-policy-checkpoint.md) records this incarnation's original lease timestamp, branch, eight source decisions changed, 101/101 synthetic callbacks, native/owner gate, and next actions. Original GitHub lease claim commit: `cc3701f438ce50e985b209de6897179a1b9b5cd4`. Branch: `agent3/rank32-regidrago-source-policy-20261127`. The 70-minute lease release is **not yet due**. Continue source-policy work; never treat V8 callbacks as actual Aichi game results.
+
 ## 2026-11-26 04:28 UTC — Quick Ball receipt indexed; adapter-level MCTS step remains
 
 - Agent14 documented successful run `45754899656` in `results/methodology/2026-11/agent14-pinned-store-prompt-continuation-20261126.md` and indexed it in `results/README.md`. It includes both the grouped-prompt primitive and the real Quick Ball FST action -> ChooseCardsPrompt -> same-Store `dispatchPromptChoice` -> native continuation test. The remaining receipt is adapter-level: PR75 must consume the Quick Ball action, resolve the player prompt inside the original Store, settle host-only prompts, and return the exact stable successor that MCTS observes/expands. Agent14 handed this to Agent12 and will not add more standalone tests.
