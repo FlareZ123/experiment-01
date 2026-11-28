@@ -75,7 +75,9 @@ test('fail-closed: no Dialga payload, already powered, already used Supporter or
   const variants = [
     r => { r.observation.ownPublic.discard = []; },
     r => { r.observation.ownPublic.active.energies.push({ printing: 'Grass Energy MEE 9' }); },
+    r => { r.observation.ownTurnResources.supporterPlayedTurn = 1; },
     r => { r.observation.ownTurnResources.supporterPlayedTurn = 5; },
+    r => { r.observation.ownTurnResources.supporterPlayLocked = true; },
     r => { r.observation.ownPublic.prizeCount = 2; },
     r => { r.observation.opponentPublic.active.damage = 70; },
     r => { r.observation.ownPublic.discard.push('Grass Energy MEE 9','Grass Energy MEE 9','Grass Energy MEE 9'); },
