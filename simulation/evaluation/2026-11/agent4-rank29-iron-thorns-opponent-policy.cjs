@@ -1589,9 +1589,14 @@ function scoreAttack(item, request) {
   if (!target) return 20;
   const visible=visibleVoltCycloneDamage(target);
   if(visible.knockout){
+    // Knocking Out the opponent's last Pokémon wins immediately even when
+    // there are more Prize cards remaining than this Knock Out would take.
+    // Count physically occupied public Bench slots, not null padding.
+    const opponentBenchOccupied=slots(observation?.opponentPublic)
+      .some(row=>row.zone==='bench');
     const prizes=guzmaTargetPrizeValue(target);
-    if(prizes >= (observation?.ownPublic?.prizeCount ?? 6))
-      return 1000; // direct win is safer than staging an unnecessary search
+    if(!opponentBenchOccupied || prizes >= (observation?.ownPublic?.prizeCount ?? 6))
+      return 1000; // both immediate game-ending conditions outrank denial
     if(matches(target.printing,PRINT.budew))return 220;
     return 150+(prizes-1)*30;
   }
