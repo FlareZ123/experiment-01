@@ -55,15 +55,21 @@ function visibleEnergyUsed(view, pattern) {
 }
 
 /**
- * Exact original rank13 contains Grass x4 and Fire x3. At K0, after counting
- * every actor-visible nondeck energy, the unaccounted copies occupy ONLY
- * owner's remaining deck + p physical Prize slots. Therefore each type has
- * at least max(0, unaccountedCopies - p) copies in deck without any hidden
- * card identity or probabilistic independence assumption. K1, when fresh,
- * gives the exact count instead. This is a lower-bound certificate, not an
- * attack-legality guarantee or a prediction of competitive outcome.
+ * Reusable source-count proof for the Regidrago Crispin family. Supply only
+ * verified, immutable 60-card source Basic counts; never derive source counts
+ * from current hidden zones or an opponent-provided request. The unaccounted
+ * copies must occupy owner's deck + remaining Prize slots. Each type has a
+ * K0 deck lower bound max(0, unaccountedCopies-prizes). This certificate
+ * requires NO hidden Prize identity, shuffle assumption or probabilistic
+ * independence model. K1, when fresh and consistent, provides exact counts.
+ * Attack access, source legality and competitive wins remain separate.
  */
-function assessRank13CrispinEnergyPair(view) {
+function assessSourceCountCrispinEnergyPair(view,sourceCopies) {
+  const sourceGrass=sourceCopies?.grass,sourceFire=sourceCopies?.fire;
+  if(!Number.isSafeInteger(sourceGrass) || sourceGrass<0 ||
+     !Number.isSafeInteger(sourceFire) || sourceFire<0 ||
+     sourceGrass+sourceFire>60)
+    return {status:'invalid',reason:'source-copies-not-verified'};
   const own=view?.ownPublic??{};
   const prizes=own.prizeCount,deck=own.deckCount;
   if(!Number.isSafeInteger(prizes) || prizes<0 || prizes>6 ||
@@ -73,8 +79,8 @@ function assessRank13CrispinEnergyPair(view) {
     return {status:'blocked',reason:'fewer-than-two-deck-cards'};
   const visibleGrass=visibleEnergyUsed(view,GRASS);
   const visibleFire=visibleEnergyUsed(view,FIRE);
-  const unaccountedGrass=4-visibleGrass;
-  const unaccountedFire=3-visibleFire;
+  const unaccountedGrass=sourceGrass-visibleGrass;
+  const unaccountedFire=sourceFire-visibleFire;
   if(unaccountedGrass<0 || unaccountedFire<0)
     return {status:'invalid',reason:'visible-copies-exceed-source-60'};
   if(unaccountedGrass===0 || unaccountedFire===0)
@@ -92,8 +98,8 @@ function assessRank13CrispinEnergyPair(view) {
     const knownDeck=Object.freeze({grass:count(GRASS),fire:count(FIRE)});
     const grassInPrizes=unaccountedGrass-knownDeck.grass;
     const fireInPrizes=unaccountedFire-knownDeck.fire;
-    // A fresh owner snapshot cannot contradict conservation of the source
-    // 4G/3F copies, the current deck size or the finite Prize capacity.
+    // Fresh owner knowledge must conserve caller-supplied original Basic
+    // Energy copies, current deck size and combined Prize capacity.
     // Decline inconsistent authenticated views instead of pretending they
     // prove a line, even if the distinct snapshot's schema was valid.
     const consistent=grassInPrizes>=0 && fireInPrizes>=0 &&
@@ -114,6 +120,11 @@ function assessRank13CrispinEnergyPair(view) {
     reason:'visible-energy-plus-prize-pigeonhole',
     lowerBounds
   };
+}
+
+const RANK13_ENERGY_COPIES=Object.freeze({grass:4,fire:3});
+function assessRank13CrispinEnergyPair(view) {
+  return assessSourceCountCrispinEnergyPair(view,RANK13_ENERGY_COPIES);
 }
 
 function chooseRank13VsSeekerFundingLine(request) {
@@ -179,4 +190,5 @@ function chooseRank13VsSeekerFundingLine(request) {
 }
 
 module.exports = { chooseRank13VsSeekerFundingLine,
-  assessRank13CrispinEnergyPair };
+  assessRank13CrispinEnergyPair,assessSourceCountCrispinEnergyPair,
+  RANK13_ENERGY_COPIES };
