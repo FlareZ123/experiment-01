@@ -16,7 +16,7 @@ This is an **opt-in host adapter**, not a modification to vendor Twinleaf or an 
 
 Tests:
 
-- [Source-bridge pure suite](https://github.com/FlareZ123/experiment-01/blob/agent32/real-pinned-actor-pr86-handoff-20261128/tests/2026-11/agent32-source-printing-bridge.test.cjs): **14 local Node tests passed**, including both seats, public/hidden boundaries, exact schema optional keys, ambiguity, mutation, copied host-only effect, action source/target provenance, pre/post driver SHA consistency. Run `node --test tests/2026-11/agent32-source-printing-bridge.test.cjs` on the branch.
+- [Source-bridge pure suite](https://github.com/FlareZ123/experiment-01/blob/agent32/real-pinned-actor-pr86-handoff-20261128/tests/2026-11/agent32-source-printing-bridge.test.cjs): **15 local Node tests passed**, including both seats, public/hidden boundaries, exact schema optional keys, ambiguity, mutation, copied host-only effect, action source/target provenance, pre/post driver SHA consistency. Run `node --test tests/2026-11/agent32-source-printing-bridge.test.cjs` on the branch.
 - [Native source60→worker→Penny prompt test](https://github.com/FlareZ123/experiment-01/blob/agent32/real-pinned-actor-pr86-handoff-20261128/tests/2026-11/agent32-real-pinned-actor-pr86-bridge.test.cjs): source rank3 vs rank1 exact **physical 60-card multisets**, genuine pinned CardManager/Store/ActionEnumerator/Simulator, both seats. Requires native root Penny selection, source-certified typed Pokémon prompt, **policy-selected** damaged Galarian Stunfisk, native Store resolution. Includes damaged-Active-only and pre-fix numeric Stage controls, plus rank6 Iron Thorns type/Stadium action control. **Syntax checked only; native test has not been executed**.
 
 ## Decision and limitations
@@ -24,3 +24,20 @@ Tests:
 The decisive next gate is one owner-authorized run of the actual compiled pinned Twinleaf native test, then selective integration of this single host bridge and the rank3 policy correction after steward/owner review. Do not bulk-merge the branch, relax the worker protocol, infer unresolved card identities, count these staged roots as games, or infer a qualified Aichi matchup rate. **Qualified competitive games: 0; 99.5% target: not demonstrated.**
 
 Related handoffs: `communications/agent49/2026-11/20261128T0240Z_agent32-real-pinned-actor-schema-integration-test.md`; `communications/agent17/2026-11/20261128T0258Z_agent32-rank3-penny-root-prompt-deadend.md`.
+
+## 2026-11-28 03:20 UTC follow-up: physical slot identity, not merely card printing
+
+The actual rank3 policy has **3 copies of Snorlax PGO 55**. It also searched by printing alone while ranking its **opponent gust targets**, **own Guzma switch targets**, and **retreat / Energy-attachment native root actions**. This conflates separate Active/Bench instances even when the native observer and typed choice supply their public physical target location. The branch now uses shared `publicChoiceSlot` for all three Pokémon prompt scorers, and `publicRootTargetSlot` for retreat, Water Energy and Capture Energy root scoring. Both cross-check the requested printing against the target at `targetZone / benchIndex` (prompt) or `targetZone / targetIndex` (native root) without raw Store access. Penny's root admissibility uses the **same** physical-slot-aware prompt score rather than duplicating arithmetic.
+
+A direct in-memory execution of both the **unpatched current-main rank3 module** and the **branch-patched module** in both physical seats established:
+
+| Controlled source-visible situation | Unpatched current main | Patched branch |
+| --- | --- | --- |
+| Only damaged Active Snorlax, undamaged Bench Basic | Picks Penny, then prompt abstains | Picks Handiwork, avoids forced dead-end |
+| Damaged Benched Snorlax with same printing as Active | Picks Penny, prompt abstains | Picks Penny, selects actual Bench instance |
+| Two identically printed opponent Benched Regidrago V, only second powered with 3 Energy | Gusts first unpowered copy | Gusts second powered copy |
+| Two identically printed own Benched Snorlax, only second with Tool Jammer | Switches first copy | Switches second equipped copy |
+| Two identically printed own Bench targets for retreat, only second with Tool Jammer | Equal score 110 for both | Scores first 110, second 180 |
+| Capture Energy attach targeting Benched Snorlax when Active Snorlax shares print | Incorrectly uses Active's score 150 | Scores Bench 105, Active 150 |
+
+These are **deterministic policy behavior checks**, not native Store games or evidence of win rate. Fourteen pure regression cases (seven per seat) are encoded in `tests/2026-11/agent32-rank3-penny-continuation-policy.test.cjs` on the branch; the relevant decision bodies were evaluated against fetched actual policy modules. The PR86-based branch also needed the already-present-in-main `currentPromptDecision` conversion to `select-choices` for the worker ABI. This alignment was brought forward solely for the branch's native continuation gate; it should not replace current-main owner policy evolution. User action: Agent17 should selectively incorporate physical-slot scoring after its own review; Agent49 should integrate only through the established V3 gate.
