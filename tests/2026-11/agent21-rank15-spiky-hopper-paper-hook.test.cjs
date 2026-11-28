@@ -183,6 +183,27 @@ test('unrelated Gale Thrust and nonmatching effects delegate unchanged',()=>{
   assert.equal(f.state.originalAttackCount,2);
 });
 
+test('delegated copied Spiky Hopper uses the actual copying attacker attachments',()=>{
+  for(const seat of [0,1]){
+    const f=fixture({seat,powerful:true,belt:true,defenderV:true});
+    const copyingPokemon={
+      id:404,name:'Copycat attacker',
+      attacks:f.card.attacks.map(attack=>({...attack}))
+    };
+    // Twinleaf copy-attack-delegation calls source reduceEffect with
+    // the actual copycat as "this" and temporary cloned attack objects.
+    f.source.getPokemonCard=()=>copyingPokemon;
+    f.effect.attack=copyingPokemon.attacks[1];
+    const original=MegaLopunnyex.prototype.reduceEffect;
+    const state=inHook(()=>MegaLopunnyex.prototype.reduceEffect.call(
+      copyingPokemon,f.store,f.state,f.effect));
+    assert.equal(state,f.state);
+    assert.equal(f.defender.damage,210);
+    assert.equal(f.effect.damage,0);
+    assert.equal(MegaLopunnyex.prototype.reduceEffect,original);
+  }
+});
+
 test('same source with no original attacker object fails closed without damage',()=>{
   const f=fixture({powerful:true});
   f.source.getPokemonCard=()=>null;
