@@ -330,3 +330,40 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,pc),{kind:'select-choices',tokens:['dark']});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' physical 200 Claw doubles to 400 vs Darkness-weak Shadow VMAX',()=>{
+  const mega=mon('Mega Absol ex MEG 86',{energies:['Darkness Energy MEE 15','Darkness Energy MEE 15','Darkness Energy MEE 15']});
+  const vmax=mon('Shadow Rider Calyrex VMAX CRE 75',{hp:320,damage:0,printed:{
+   subtypes:['VMAX'],weakness:[{type:'Darkness',value:'×2'}],resistance:[{type:'Fighting',value:'-30'}]}});
+  const c=attack('Claw of Darkness','claw');
+  const q=root(seat,[c,play('Float Stone BKT 137','tool',{targetSeat:'actor',targetZone:'bench',targetIndex:0}),pass],{
+   ownPublic:own({active:mega,bench:[mon('Garbodor LTR 68')]}),opponentPublic:opp({active:vmax})});
+  assert.equal(policy.projectedClawDamage(c,q.observation),400);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'claw'});
+  c.publicMetadata.hasUnmodeledModifier=true;
+  assert.equal(policy.projectedClawDamage(c,q.observation),null);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'tool'});
+ });
+ test('seat '+seat+' Muscle Band applies before Darkness weakness and inactive when Jamming Tower live',()=>{
+  const mega=mon('Mega Absol ex MEG 86',{tools:['Muscle Band XY 121']});
+  const vmax=mon('Shadow Rider Calyrex VMAX CRE 75',{hp:320,printed:{
+   subtypes:['VMAX'],weakness:[{type:'Darkness',value:'×2'}]}});
+  const c=attack('Claw of Darkness','claw');
+  const q=root(seat,[c,pass],{ownPublic:own({active:mega}),opponentPublic:opp({active:vmax})});
+  assert.equal(policy.projectedClawDamage(c,q.observation),440);
+  q.observation.opponentPublic.stadium=['Jamming Tower TWM 153'];
+  assert.equal(policy.projectedClawDamage(c,q.observation),400);
+ });
+ test('seat '+seat+' neutral 200 Claw is not invented one-hit KO into 320 HP VMAX',()=>{
+  const mega=mon('Mega Absol ex MEG 86');
+  const target=mon('Shadow Rider Calyrex VMAX CRE 75',{hp:320,damage:0,printed:{subtypes:['VMAX'],
+   weakness:[{type:'Grass',value:'×2'}]}});
+  const c=attack('Claw of Darkness','claw');
+  const q=root(seat,[c,play('Float Stone BKT 137','tool',{targetSeat:'actor',targetZone:'bench',targetIndex:0}),pass],{
+    ownPublic:own({active:mega,bench:[mon('Garbodor LTR 68')]}),
+    opponentPublic:opp({active:target})});
+  assert.equal(policy.projectedClawDamage(c,q.observation),200);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'tool'});
+ });
+}
