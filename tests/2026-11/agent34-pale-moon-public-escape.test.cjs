@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {pendingPaleMoonGXKnockOut,choosePaleMoonEscapeRetreat,choosePaleMoonEscapeRanger,choosePaleMoonEscapeGuzmaRoot,choosePaleMoonEscapeGuzmaPrompt}=require('../../simulation/twinleaf/2026-11/agent34-pale-moon-escape.cjs');
+const {pendingPaleMoonGXKnockOut,choosePaleMoonEscapeRetreat,choosePaleMoonEscapeRanger,choosePaleMoonEscapeGuzmaRoot,choosePaleMoonEscapeGuzmaPrompt,rescuePaleMoonTerminalPass}=require('../../simulation/twinleaf/2026-11/agent34-pale-moon-escape.cjs');
 const {actorObservation}=require('../../simulation/twinleaf/actor-observation-contract.cjs');
 const {validateActorObservation}=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 
@@ -170,4 +170,40 @@ test('Guzma negatives: extra options, wrong card, forged target and nonterminal 
   const multiple=guzmaPrompt('actor',4,'Mimikyu GRI 58');
   multiple.choices.push({...multiple.choices[0],token:'prompt-1'});
   assert.equal(choosePaleMoonEscapeGuzmaPrompt(base,multiple),null);
+});
+
+test('terminal Pass override rescues despite meaningful other native roots',()=>{
+  const other=[
+    {token:'attack-no-win',kind:'attack',attackName:'Max Geist'},
+    {token:'arven',kind:'play-card',actorPrinting:'Arven SVI'},
+    {token:'ability-door',kind:'use-ability',abilityName:'Underworld Door'}
+  ];
+  const base=[{token:'pass',kind:'pass'},...other];
+  const rangerChoices=[...base,ranger('ranger')];
+  assert.deepEqual(rescuePaleMoonTerminalPass(rangerView(),rangerChoices,'pass'),{
+    token:'ranger',reason:'PUBLIC_PALE_MOON_TERMINAL_PASS_OVERRIDE',
+    selectedSourceReason:'PUBLIC_PALE_MOON_PENDING_KO_ONLY_RANGER_ROOT'
+  });
+  const retreatChoices=[...base,retreat(0,'retreat')];
+  assert.deepEqual(rescuePaleMoonTerminalPass(choiceView(),retreatChoices,'pass'),{
+    token:'retreat',reason:'PUBLIC_PALE_MOON_TERMINAL_PASS_OVERRIDE',
+    selectedSourceReason:'PUBLIC_PALE_MOON_PENDING_KO_SINGLE_LEGAL_RETREAT'
+  });
+  const guzmaChoices=[...base,...guzmaOffers.slice(1)];
+  assert.deepEqual(rescuePaleMoonTerminalPass(guzmaView(),guzmaChoices,'pass'),{
+    token:'guzma-root',reason:'PUBLIC_PALE_MOON_TERMINAL_PASS_OVERRIDE',
+    selectedSourceReason:'PUBLIC_PALE_MOON_LAST_PRIZE_ONLY_GUZMA_ROOT'
+  });
+});
+test('terminal Pass override does not preempt an original winning attack or choose between rescues',()=>{
+  const base=[{token:'pass',kind:'pass'},{token:'attack',kind:'attack'}];
+  assert.equal(rescuePaleMoonTerminalPass(choiceView(),[...base,retreat()],'attack'),null);
+  assert.equal(rescuePaleMoonTerminalPass(choiceView(),[...base,retreat()],'unmatched'),null);
+  assert.equal(rescuePaleMoonTerminalPass(choiceView(false),[...base,retreat()],'pass'),null);
+  assert.equal(rescuePaleMoonTerminalPass({...choiceView(),opponentPublic:{prizeCount:2}},[...base,retreat()],'pass'),null);
+  assert.equal(rescuePaleMoonTerminalPass(choiceView(),[...base,retreat(),retreat(0,'second')],'pass'),null);
+  const v={...rangerView(),ownPublic:{...rangerView().ownPublic,bench:[{printing:'Mimikyu GRI 58'}]},
+    opponentPublic:{prizeCount:1,bench:[{printing:'Regidrago V SIT 135'}]}};
+  assert.equal(rescuePaleMoonTerminalPass(v,[...base,ranger(),{token:'guzma',kind:'play-card',actorPrinting:'Guzma BUS'}],'pass'),null);
+  assert.equal(rescuePaleMoonTerminalPass(rangerView(),[...base,ranger(),{...base[0],token:'extra-pass'}],'pass'),null);
 });
