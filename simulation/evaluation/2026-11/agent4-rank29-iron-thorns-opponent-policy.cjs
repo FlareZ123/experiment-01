@@ -344,6 +344,46 @@ function discardPriority(card, observation) {
   return 30;
 }
 
+// K1 is a certified exact remaining-deck membership witness. A unique card
+// absent from that deck AND from every actor-visible non-Prize zone must still
+// be among the owner's unrevealed Prize cards. Never infer from a K0 deck or
+// an opponent-private zone. All three checked names are singleton rank-29
+// source entries; other cards require explicit source-count modeling.
+function knownPrizedSingleton(observation, pattern) {
+  const k1=observation?.ownerK1;
+  if(k1?.exactMembershipKnown!==true||!Array.isArray(k1.knownPrintings))
+    return false;
+  if(k1.knownPrintings.some(row=>Number.isSafeInteger(row?.copies)&&
+      row.copies>0&&matches(row.printing,pattern)))return false;
+  const own=observation?.ownPublic;
+  if(!own||!Number.isSafeInteger(own.prizeCount)||own.prizeCount<1)return false;
+  const nonPrize=[
+    ...ownHand(observation),
+    ...list(own.discard),...list(own.lostZone),
+    ...list(own.resolvingSupporter),...list(own.stadium),
+    ...slots(own).flatMap(row=>[
+      row.pokemon.printing,
+      ...list(row.pokemon.evolutionPrintings),
+      ...list(row.pokemon.energies),...list(row.pokemon.tools)
+    ])
+  ];
+  return !nonPrize.some(card=>matches(card,pattern));
+}
+
+function peoniaPrizedSingletonUrgency(observation) {
+  const own=observation?.ownPublic;
+  const activeNeedsAccelerator=ownActiveIsThorns(observation)&&
+    !list(own?.active?.energies).some(energy=>matches(energy,PRINT.doubleColorless));
+  if(knownPrizedSingleton(observation,PRINT.doubleColorless))
+    return activeNeedsAccelerator?180:110;
+  if(knownPrizedSingleton(observation,PRINT.thunderMountain))
+    return activeNeedsAccelerator?150:90;
+  if(knownPrizedSingleton(observation,PRINT.megatonBlower)&&
+      (opponentHasTool(observation)||opponentSpecialEnergyCount(observation)>0))
+    return 115;
+  return 0;
+}
+
 function peoniaSafeReplacementCount(observation) {
   return ownHand(observation)
     .filter(card => !matches(card, PRINT.peonia) &&
@@ -1346,10 +1386,13 @@ function scorePlayCard(item, request) {
   }
 
   if (matches(card, PRINT.peonia)) {
+    // Peonia exchanges three physical Prizes for three cards in hand. Do not
+    // burn the Supporter/three good discards merely because a K1 lookup
+    // exists; require a singleton proven absent from every non-Prize zone.
     return supporterAvailable(observation) &&
-      observation.ownerK1?.exactMembershipKnown === true &&
       own.prizeCount >= 3 &&
-      peoniaSafeReplacementCount(observation) >= 3 ? 75 : 0;
+      peoniaSafeReplacementCount(observation) >= 3 ?
+      peoniaPrizedSingletonUrgency(observation) : 0;
   }
   if (matches(card, PRINT.vsSeeker)) {
     const inDiscard = list(own.discard).some(supporter =>
