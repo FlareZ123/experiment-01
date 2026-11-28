@@ -781,6 +781,47 @@ function selectBasicBenchRoot(items,o) {
   return candidates[0]?.item??null;
 }
 
+function skylinerIsLive(o) {
+  const allStadiums=[...arr(o?.ownPublic?.stadium),...arr(o?.opponentPublic?.stadium)];
+  if(allStadiums.some(x=>/^Path to the Peak CRE(?: 148)?\b/i.test(text(x))))return false;
+  return slots(o?.ownPublic).some(p=>/^Latias ex SSP(?: 76)?\b/i.test(text(p))&&
+    arr(p.abilities).includes('Skyliner')&&
+    arr(p.abilitySuppressions).some(row=>row?.abilityName==='Skyliner'&&
+      row.suppressed===false&&row.reasonCode===null&&row.sourcePrinting===null));
+}
+function noCostRetreatOpportunity(o) {
+  const active=o?.ownPublic?.active;
+  if(!active||!Array.isArray(o?.ownPublic?.bench))return false;
+  const conditions=arr(active.specialConditions).map(c=>String(c).toUpperCase());
+  if(conditions.includes('ASLEEP')||conditions.includes('PARALYZED'))return false;
+  const restrictions=active.publicRestrictions??{};
+  if(restrictions.cannotRetreat===true||
+    restrictions.cannotRetreatNextTurn===true||
+    restrictions.cannotRetreatWhileActive===true)return false;
+  // Do not infer a free retreat from unverified tools or attached Energy:
+  // these depend on current card effects, available payment, and prompt support.
+  const printedFree=Array.isArray(active.printed?.retreatCost)&&
+    active.printed.retreatCost.length===0;
+  const basicStage=String(active.printed?.stage??'').toUpperCase()==='BASIC';
+  return printedFree||(basicStage&&skylinerIsLive(o));
+}
+function freeRetreatToClefairy(items,o) {
+  if(!noCostRetreatOpportunity(o)||has(o?.ownPublic?.active,P.clefairy))
+    return null;
+  const ownBench=arr(o.ownPublic?.bench);
+  const options=items.filter(a=>a.kind==='retreat'&&
+    a.publicMetadata?.targetSeat==='actor'&&
+    a.publicMetadata?.targetZone==='bench'&&
+    safeInt(a.publicMetadata?.benchIndex));
+  // The offer is the engine's legal native RetreatAction. Reject a stale or
+  // mismatched target: the policy never guesses a Bench index.
+  return options.find(a=>{
+    const target=ownBench[a.publicMetadata.benchIndex];
+    return target&&has(target,P.clefairy)&&has(a.targetPrinting,P.clefairy)&&
+      arr(target.energies).length>=2;
+  })??null;
+}
+
 function rootDecision(request,{enablePatchProjection=false}={}) {
   const o=request.observation, items=availableCards(request);
   if(!items.length)return no('R30_NO_OFFERED_ROOT');
@@ -837,6 +878,10 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   if(star && starNeedsResource(o,{enablePatchProjection}))return act(star);
   const guzma=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.guzma));
   if(guzma&&guzmaOpportunity(o))return act(guzma);
+  // Prefer a free native RetreatAction to a funded Clefairy over ending a
+  // turn with an inert Active. A tactical 3-Prize Guzma keeps precedence.
+  const freeRetreat=freeRetreatToClefairy(items,o);
+  if(freeRetreat)return act(freeRetreat);
   const marnie=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.marnie));
   if(marnie && threatenSecondTarget(o) &&
     !candidateCanUseBoardHeldStarAlchemy(o))return act(marnie);
@@ -907,4 +952,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  clefairyWeaknessAgainst,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
+  clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
