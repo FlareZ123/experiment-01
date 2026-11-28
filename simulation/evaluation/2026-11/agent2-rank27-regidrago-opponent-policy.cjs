@@ -10,7 +10,7 @@ const base = require('./agent43-rank10-regidrago-opponent-policy.cjs');
 const { evaluateApexAttackChoice } = require('./agent43-regidrago-apex-choice.cjs');
 const { choosePhantomDiveAllocation } = require('./agent43-phantom-dive-allocation.cjs');
 
-const POLICY_VERSION='agent2-rank27-regidrago-source-v1';
+const POLICY_VERSION='agent2-rank27-regidrago-source-v2';
 const SOURCE_RANK=27;
 const SOURCE_BLOB_SHA1='ae773f6201d7aa69d31914dbfee66f3fba692200';
 const SOURCE_PRINTINGS=Object.freeze([["Regidrago V SIT 135",4],["Regidrago VSTAR SIT 136",3],["Dialga-GX UPR 100",2],["Dragapult ex TWM 130",1],["Koraidon ex TEF 120",1],["Noivern ex PAL 153",1],["Kyurem SFA 47",1],["Dedenne-GX UNB 57",1],["Crobat V DAA 104",1],["Tapu Lele-GX GRI 60",1],["Eldegoss V RCL 19",1],["Latias ex SSP 76",1],["Budew ASC 16",1],["Marshadow UNB 81",1],["Professor Sycamore BKP 107",2],["Guzma BUS 115",2],["Carmine TWM 145",1],["Marnie SSH 169",1],["N FCO 105",1],["Raihan EVS 152",1],["Crispin SCR 133",1],["Mysterious Treasure FLI 113",4],["Quick Ball FST 237",4],["VS Seeker PHF 109",2],["Hisuian Heavy Ball ASR 146",1],["Ultra Ball MEG 131",1],["Net Ball LOT 187",1],["Battle Compressor PHF 92",1],["Super Rod PAL 188",1],["Echoing Horn CRE 136",1],["Prime Catcher TEF 157",1],["Muscle Band XY 121",2],["Parallel City BKT 145",1],["Path to the Peak CRE 148",1],["Double Dragon Energy ROS 97",4],["Grass Energy MEE 9",4],["Fire Energy MEE 10",2]]);
@@ -138,7 +138,7 @@ function pick(choices,score,min=1,max=1){
   const ranked=arr(choices).map((c,index)=>({c,index,score:score(c)}))
     .filter(x=>Number.isFinite(x.score)&&x.score>0&&typeof x.c.token==='string')
     .sort((a,b)=>b.score-a.score||a.index-b.index).slice(0,max);
-  if(ranked.length<min)return reason('NO_SOURCE_BOUND_TARGET');
+  if(ranked.length<min)return reason('NO_SUPPORTED_CARD_SELECTION');
   return max===1?{kind:'select-choice',token:ranked[0].c.token}:
     {kind:'select-choices',tokens:ranked.map(x=>x.c.token)};
 }
@@ -171,11 +171,103 @@ function donorScore(choice,obs){
   const e=evaluateApexAttackChoice(choice,obs);
   return Number.isFinite(e.score)?e.score:-Infinity;
 }
+function enginePrompt(request) {
+  const prompt=request.prompt,obs=request.observation,meta=prompt?.publicMetadata??{},
+    source=prompt?.source;
+  if(!prompt||source?.classification!=='actor-choice'||
+    source?.sourceKind!=='engine'||source?.sourcePrinting!==null||
+    source.effectName!==prompt.description)return reason('UNTRUSTED_PROMPT_SOURCE');
+  const e=source.effectName;
+  const choices=arr(prompt.choices);
+  if(e==='GO_FIRST'&&obs.phase===1&&prompt.promptType==='ConfirmPrompt'){
+    const no=choices.find(x=>/^(?:no|false|decline)$/i.test(x.label??''));
+    return no?{kind:'select-choice',token:no.token}:
+      reason('UNRECOGNIZED_GO_FIRST_CHOICES');
+  }
+  if(e==='WANT_TO_DRAW_CARDS'&&obs.phase===1&&prompt.promptType==='SelectPrompt'){
+    // Mulligan bonus cards are optional and source-certified; take the largest
+    // offered legal bonus without looking at any concealed card.
+    const ranked=choices.map((choice,index)=>({
+      choice,index,n:Number(choice?.publicMetadata?.value??choice?.label)
+    })).filter(x=>Number.isSafeInteger(x.n)&&x.n>=0)
+      .sort((a,b)=>b.n-a.n||a.index-b.index);
+    return ranked.length?{kind:'select-choice',token:ranked[0].choice.token}:
+      reason('NO_MULLIGAN_DRAW_OPTION');
+  }
+  if(e==='CHOOSE_STARTING_POKEMONS'&&obs.phase===1&&
+     prompt.promptType==='ChooseCardsPrompt'){
+    if(meta.selectionType!=='card-combination'||meta.sourceZone!=='hand'||
+      meta.ownerSeat!=='actor'||meta.isOwnerVisible!==true||
+      meta.isSecret!==false||meta.allowCancel!==false||
+      (meta.minimumCount!==0&&meta.minimumCount!==1)||
+      !Number.isSafeInteger(meta.maximumCount)||meta.maximumCount<1||
+      meta.maximumCount>6)return reason('BAD_STARTING_POKEMON_SETUP_PROMPT');
+    const boardState=rank27Goal(obs);
+    const initial=meta.minimumCount===1;
+    if(!initial&&!obs.ownPublic.active)return reason('MISSING_ACTIVE_FOR_EXTRA_BENCH');
+    const score=choice=>{
+      if(choice.kind!=='card'||!SOURCE_SET.has(choice.printing)||
+        !metadataOwnerVisible(choice)||choice.publicMetadata?.sourceZone!=='hand'||
+        !Number.isSafeInteger(choice.publicMetadata.selectionIndex)||
+        choice.publicMetadata.selectedCount!==1)return -Infinity;
+      const p=choice.printing;
+      if(initial)return p===PREFIX.regidragoV?600:p===PREFIX.budew?500:
+        p===PREFIX.latias?400:p===PREFIX.dedenne?200:
+        p===PREFIX.crobat?150:p===PREFIX.eldegoss?130:
+        p===PREFIX.tapu?100:-Infinity;
+      if(!benchOpen(obs.ownPublic))return -Infinity;
+      if(p===PREFIX.regidragoV&&boardState.v+boardState.vstar<2)return 500;
+      if(p===PREFIX.budew&&!has(obs.ownPublic,PREFIX.budew))return 400;
+      if(p===PREFIX.latias&&!has(obs.ownPublic,PREFIX.latias))return 250;
+      // Dedenne, Crobat, Tapu Lele and Eldegoss must be played from hand
+      // during a turn for their respective entering-the-Bench Abilities.
+      return -Infinity;
+    };
+    const ranked=choices.map((choice,index)=>({choice,index,score:score(choice)}))
+      .filter(x=>Number.isFinite(x.score)&&x.score>0)
+      .sort((a,b)=>b.score-a.score||a.index-b.index);
+    if(ranked.length)return {kind:'select-choices',tokens:[ranked[0].choice.token]};
+    const empty=choices.find(x=>x.kind==='empty-selection');
+    return !initial&&empty?{kind:'select-choice',token:empty.token}:
+      reason('NO_STARTING_POKEMON_CHOICE');
+  }
+  if(e==='CHOOSE_NEW_ACTIVE_POKEMON'&&prompt.promptType==='ChoosePokemonPrompt'&&
+     meta.selectionType==='pokemon'&&meta.minimumCount===1&&
+     meta.maximumCount===1&&obs.ownPublic.active===null){
+    const rated=choices.map((choice,index)=>{
+      const m=choice?.publicMetadata??{};
+      const slot=m.ownerSeat==='actor'&&m.targetZone==='bench'&&
+        Number.isSafeInteger(m.benchIndex)?
+        arr(obs.ownPublic.bench)[m.benchIndex]??null:null;
+      return {choice,index,score:slot?.printing===PREFIX.regidragoVstar?
+        (visibleDonors(obs).length?550:400):
+        slot?.printing===PREFIX.regidragoV?300:
+        slot?.printing===PREFIX.budew?200:-Infinity};
+    }).filter(x=>Number.isFinite(x.score))
+      .sort((a,b)=>b.score-a.score||a.index-b.index);
+    return rated.length?{kind:'select-choices',tokens:[rated[0].choice.token]}:
+      reason('NO_SUPPORTED_POKEMON_CHOICE');
+  }
+  if(e==='CHOOSE_PRIZE_CARD'&&prompt.promptType==='ChoosePrizePrompt'&&
+     Number.isSafeInteger(meta.minimumCount)&&
+     Number.isSafeInteger(meta.maximumCount)&&
+     meta.minimumCount>=1&&meta.minimumCount<=meta.maximumCount&&
+     meta.maximumCount<=6){
+    // Prize identities are hidden; select only published slot tokens, never
+    // infer or rank concealed card faces.
+    const rows=choices.filter(x=>x.kind==='prize'&&typeof x.token==='string');
+    return rows.length>=meta.minimumCount?
+      {kind:'select-choices',tokens:rows.slice(0,meta.minimumCount).map(x=>x.token)}:
+      reason('NO_VISIBLE_PRIZE_SLOT');
+  }
+  return reason('UNSUPPORTED_ENGINE_SETUP_PROMPT');
+}
+
 function choosePrompt(request){
   const prompt=request.prompt,obs=request.observation;
   if(!prompt||prompt.actingSeat!==request.seat)return reason('UNTRUSTED_PROMPT');
   const src=effectSource(prompt);
-  if(!src)return reason('UNTRUSTED_PROMPT_SOURCE');
+  if(!src)return enginePrompt(request);
   const choices=arr(prompt.choices);
   const meta=prompt.publicMetadata??{};
   const kind=prompt.promptType;
@@ -185,13 +277,13 @@ function choosePrompt(request){
   }
   if(kind==='PutDamagePrompt'){
     if(src.sourcePrinting!==PREFIX.regidragoVstar || src.effectName!=='Apex Dragon' ||
-      request.config?.phantomDiveAllocation!=='complete-choice-token-v1')return reason('PHANTOM_DIVE_ALLOCATION_DISABLED');
+      request.config?.phantomDiveAllocation!=='complete-choice-token-v1')return reason('UNSUPPORTED_PROMPT_TYPE');
     return choosePhantomDiveAllocation(choices,obs);
   }
   if(meta.selectionType==='card-combination'){
     const min=Number.isSafeInteger(meta.minimumCount)?meta.minimumCount:1;
     const max=Number.isSafeInteger(meta.maximumCount)?meta.maximumCount:min;
-    if(min<0||max<min||max>7)return reason('BAD_SOURCE_SELECTION_BOUNDS');
+    if(min<0||max<min||max>7)return reason('BAD_CARD_SELECTION_BOUNDS');
     const e=src.effectName;
     if(src.sourcePrinting===PREFIX.compressor||e==='Battle Compressor'){
       return pick(choices,c=>{
