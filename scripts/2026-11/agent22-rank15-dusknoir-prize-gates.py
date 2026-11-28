@@ -72,6 +72,11 @@ cases = [
       "Mewtwo": 1, "TrevGX": 1}),
     ("v3 direct TrevGX Night Watch + Dusknoir gate", regidrago,
      {"Duskull": 1, "Dusclops": 1, "Dusknoir": 1, "TrevGX": 1}),
+    ("v3 Mewtwo GX Miraculous Duo + Dusknoir 330HP gate", [
+        ("Duskull", 2, True), ("Dusclops", 2, False),
+        ("Dusknoir", 1, False), ("Mewtwo", 2, True),
+        ("other basic", 13, True), ("other nonbasic", 40, False)
+    ], {"Duskull": 1, "Dusclops": 1, "Dusknoir": 1, "Mewtwo": 1}),
 ]
 expected = [
     Fraction(13813723731137, 15627986902094),
@@ -80,6 +85,7 @@ expected = [
     Fraction(399484511, 493712861),
     Fraction(24614475913803, 31255973804188),
     Fraction(31045383146866, 39069967255235),
+    Fraction(27389106032389, 31255973804188),
 ]
 for (label, categories, required), exact in zip(cases, expected):
     p = gate_probability(categories, required)
