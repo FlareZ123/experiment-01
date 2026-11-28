@@ -1341,7 +1341,18 @@ function promptDecision(request) {
       prompt.promptType === 'SelectOptionPrompt') {
     const yes = choices.find(choice => /^(yes|true|confirm)$/i.test(choice.label ?? ''));
     const no = choices.find(choice => /^(no|false|decline|cancel)$/i.test(choice.label ?? ''));
-    const shouldAccept =
+    // The pinned Ability offers the Active switch before its native
+    // MoveEnergyPrompt. Do not decline a credible immediate Cold Crush-GX
+    // setup, but preserve Snorlax's Block and already-spent GX plans.
+    const ascentSource = matches(sourcePrinting, PRINT.articuno) &&
+      prompt.source?.effectName === 'Legendary Ascent';
+    const benchWater = slots(observation.ownPublic).some(row =>
+      row.zone === 'bench' && !matches(row.pokemon.printing, PRINT.articuno) &&
+      list(row.pokemon.energies).some(energy => /^Water Energy\b/i.test(valueText(energy))));
+    const acceptAscent = ascentSource && benchWater && !gxUsed(observation) &&
+      !matches(observation.ownPublic?.active?.printing ?? '', PRINT.snorlax) &&
+      opponentActiveEnergy(observation) >= 2;
+    const shouldAccept = acceptAscent ||
       (/instant charge/i.test(source) && list(observation.ownHand).length <= 4 &&
         ownDeckCount(observation) > 3) ||
       (/tropical beach/i.test(source) && list(observation.ownHand).length < 7 &&
@@ -1392,7 +1403,7 @@ function currentPromptDecision(prompt,decision) {
   if(!prompt||decision?.kind!=='select-choice')return decision;
   const selected=prompt.choices.find(choice=>choice.token===decision.token);
   if(!selected||selected.kind==='cancel'||selected.kind==='empty-selection')return decision;
-  if(['card-combination','pokemon','energy-payment','prize-slots','card-order'].includes(prompt.publicMetadata?.selectionType))
+  if(['card-combination','pokemon','energy-payment','energy-transfer','prize-slots','card-order'].includes(prompt.publicMetadata?.selectionType))
     return {kind:'select-choices',tokens:[decision.token]};
   return decision;
 }
