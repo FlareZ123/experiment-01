@@ -776,6 +776,15 @@ function farewellOpportunity(o) {
      arr(own.active.energies).length<2) && benchCount(own)<cap)return true;
   return false;
 }
+function rondoBenchFillerDemand(o) {
+  const ro=projectedRondo(o),own=o?.ownPublic;
+  if(!ro||ro.damage>=ro.remaining)return null;
+  const open=(stadium(o)?8:5)-benchCount(own);
+  const increment=rondoIncrement(o);
+  if(open<1||!safeInt(increment)||increment<=0)return null;
+  const needed=Math.ceil((ro.remaining-ro.damage)/increment);
+  return needed>=1&&needed<=open?{needed,open}:null;
+}
 function selectBasicBenchRoot(items,o) {
   const own=o.ownPublic, ownBoard=slots(own);
   const offered=items.filter(a=>a.kind==='play-card'&&benchBasicRole(ownPrinting(a)));
@@ -784,7 +793,20 @@ function selectBasicBenchRoot(items,o) {
   const ro=projectedRondo(o);
   const makesKo=ro && ro.damage<ro.remaining && ro.damage+rondoIncrement(o)>=ro.remaining;
   const smallHand=arr(o.ownHand).length<=3;
+  const fill=rondoBenchFillerDemand(o);
   const priority=({kind})=>{
+    // When an already-live Sky Field creates a multi-Bench KO path, every
+    // Basic body can matter, including Minior outside its Snorlax matchup.
+    if(fill&&stadium(o)) {
+      if(kind==='unown')return 150;
+      if(kind==='minior')return 145;
+      if(kind==='clefairy')return 140;
+      if(kind==='latias')return ownBoard.some(x=>/^Latias ex SSP(?: 76)?\b/i.test(text(x)))?0:130;
+      if(kind==='fez')return 70;
+      if(kind==='squawk')return 60;
+      if(kind==='crobat')return 55;
+      if(kind==='dedenne')return 50;
+    }
     if(kind==='clefairy')return clefs===0?115:clefs===1?95:30;
     if(kind==='minior')return miniorStallOpportunity(o)?.knockout?130:0;
     if(kind==='unown')return makesKo?105:smallHand?85:70;
@@ -1215,4 +1237,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  skyFieldHandExpansionKO,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
+  skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
