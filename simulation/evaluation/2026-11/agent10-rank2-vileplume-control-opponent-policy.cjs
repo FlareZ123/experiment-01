@@ -528,11 +528,18 @@ function scoreAction(item, request) {
     }) ? 215 : 0;
   }
   if (matches(card, PRINT.tmEvolution)) {
-    const bunnelby = boardSlots(own).some(row => matches(row.pokemon.printing, PRINT.bunnelby));
     const bunnelbyActive = matches(own.active?.printing ?? '', PRINT.bunnelby);
     const hasJet = handCount(hand, PRINT.jetEnergy) > 0;
     const targetReady = hasK0PossibleBenchEvolutionTarget(observation);
-    return bunnelby && (hasJet || bunnelbyActive) && targetReady ? 178 : 88;
+    const onActiveBunnelby = matches(target, PRINT.bunnelby) &&
+      metadata.targetSeat === 'actor' && metadata.targetZone === 'active' &&
+      bunnelbyActive;
+    const onBenchedBunnelby = matches(target, PRINT.bunnelby) &&
+      metadata.targetSeat === 'actor' && metadata.targetZone === 'bench' &&
+      bunnelbyOnBench(observation) && hasJet;
+    // The TM expires after this turn. Prefer an executable double-evolution
+    // Bunnelby route over a legal-but-stranded Tool target.
+    return targetReady && (onActiveBunnelby || onBenchedBunnelby) ? 178 : 0;
   }
   if (matches(card, PRINT.jetEnergy)) {
     const targetIsBunnelby = matches(target, PRINT.bunnelby);
