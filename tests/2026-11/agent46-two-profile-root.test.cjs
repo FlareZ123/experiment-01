@@ -2328,3 +2328,26 @@ test('Agent46: attack-effect Ranger opens a guaranteed final and defeats competi
       [play('ranger',ranger)])),sel('pass'));
   }
 });
+
+test('Agent46: native unaccented Pokemon Ranger name still reaches legal source tactic',()=>{
+  const native='Pokemon Ranger STS',source='Pokémon Ranger STS',bc='Battle Compressor PHF';
+  for(const seat of [0,1]){
+    const view=observation(seat,{active:v([P]),opponentActive:defender(),
+      ownHand:[native]});
+    view.ownPublic.publicTurnRestrictions.attackLockTurnsRemaining=1;
+    assert.deepEqual(decide(profiles[0],root(seat,view,[play('ranger',native)])),sel('ranger'));
+    // Also accept the exact authenticated source spelling.
+    view.ownHand=[source];
+    assert.deepEqual(decide(profiles[0],root(seat,view,[play('ranger',source)])),sel('ranger'));
+    view.ownHand=[bc,VS];
+    const search=cardPrompt(seat,view,bc,'Battle Compressor','deck',
+      [native,D],0,3);
+    assert.deepEqual(decide(profiles[0],search),mult('card-0'));
+    const recovered={...view,ownHand:[VS],ownPublic:{...view.ownPublic,
+      discard:[bc,native]}};
+    assert.deepEqual(decide(profiles[0],root(seat,recovered,
+      [play('seeker',VS)])),sel('seeker'));
+    const seeker=cardPrompt(seat,recovered,VS,'VS Seeker','discard',[native]);
+    assert.deepEqual(decide(profiles[0],seeker),mult('card-0'));
+  }
+});

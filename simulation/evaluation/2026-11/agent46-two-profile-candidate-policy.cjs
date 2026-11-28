@@ -185,7 +185,16 @@ function isText(value) {
 }
 
 function hasName(value, name) {
-  return isText(value) && value.includes(name);
+  if(!isText(value)||!isText(name))return false;
+  // Pinned Twinleaf STS104 declares "Pokemon Ranger STS" while the
+  // authenticated English source card is "Pokémon Ranger STS".
+  // Admit this *one known exact card-name alias* without widening normal
+  // substring matching or fabricating a new card class.
+  if(name.includes('Pokémon Ranger') && value.includes('Pokemon Ranger'))
+    return value.includes(name.replace('Pokémon Ranger','Pokemon Ranger'));
+  if(name.includes('Pokemon Ranger') && value.includes('Pokémon Ranger'))
+    return value.includes(name.replace('Pokemon Ranger','Pokémon Ranger'));
+  return value.includes(name);
 }
 
 function hasAnyName(value, names) {
