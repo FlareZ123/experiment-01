@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {pendingPaleMoonGXKnockOut,choosePaleMoonEscapeRetreat,choosePaleMoonEscapeRanger}=require('../../simulation/twinleaf/2026-11/agent34-pale-moon-escape.cjs');
+const {pendingPaleMoonGXKnockOut,choosePaleMoonEscapeRetreat,choosePaleMoonEscapeRanger,choosePaleMoonEscapeGuzmaRoot,choosePaleMoonEscapeGuzmaPrompt}=require('../../simulation/twinleaf/2026-11/agent34-pale-moon-escape.cjs');
 const {actorObservation}=require('../../simulation/twinleaf/actor-observation-contract.cjs');
 const {validateActorObservation}=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 
@@ -110,4 +110,47 @@ test('Ranger negatives: no threat, competing Trainer, retreat, Supporter use, ow
   assert.equal(choosePaleMoonEscapeRanger({...rangerView(),
     ownPublic:{...rangerView().ownPublic,publicTurnRestrictions:{
       alteredCreationDamage:false,usedAlteredCreation:true}}},offered),null);
+});
+
+const guzmaView=()=>({decisionKind:'owner-root',opponentPublic:{prizeCount:1,
+  bench:[null,null,{printing:'Regidrago V SIT 135'},null,null]},
+  ownPublic:{active:{publicRestrictions:{pendingPaleMoonGXKnockOut:true}},
+  bench:[null,null,null,null,{printing:'Mimikyu GRI 58'}]},
+  ownTurnResources:{supporterPlayLocked:false,supporterPlayedTurn:0}
+});
+const guzmaOffers=[{token:'pass',kind:'pass'},
+  {token:'guzma-root',kind:'play-card',actorPrinting:'Guzma BUS'}];
+const guzmaPrompt=(who,slot,printing)=>({
+  promptType:'ChoosePokemonPrompt',
+  source:{sourceKind:'card-effect',effectName:'Guzma',sourcePrinting:'Guzma BUS'},
+  publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,allowCancel:false},
+  choices:[{token:'prompt-0',kind:'pokemon',printing,
+    publicMetadata:{ownerSeat:who,targetZone:'bench',benchIndex:slot,selectionIndex:0}}]
+});
+test('Guzma last-Prize root and both prompt continuations use physical Bench identity',()=>{
+  assert.equal(choosePaleMoonEscapeGuzmaRoot(guzmaView(),guzmaOffers).token,'guzma-root');
+  const afterRoot={...guzmaView(),decisionKind:'owner-prompt'};
+  assert.deepEqual(choosePaleMoonEscapeGuzmaPrompt(afterRoot,
+    guzmaPrompt('opponent',2,'Regidrago V SIT 135')),
+    {token:'prompt-0',reason:'PUBLIC_PALE_MOON_GUZMA_EXACT_SINGLE_BENCH_PROMPT'});
+  const ownPrompt=guzmaPrompt('actor',4,'Mimikyu GRI 58');
+  ownPrompt.publicMetadata.minimumCount=0;
+  ownPrompt.choices.push({token:'prompt-1',kind:'empty-selection'});
+  assert.deepEqual(choosePaleMoonEscapeGuzmaPrompt(afterRoot,ownPrompt),
+    {token:'prompt-0',reason:'PUBLIC_PALE_MOON_GUZMA_EXACT_SINGLE_BENCH_PROMPT'});
+});
+test('Guzma negatives: extra options, wrong card, forged target and nonterminal threat',()=>{
+  assert.equal(choosePaleMoonEscapeGuzmaRoot({...guzmaView(),opponentPublic:{...guzmaView().opponentPublic,prizeCount:2}},guzmaOffers),null);
+  assert.equal(choosePaleMoonEscapeGuzmaRoot(guzmaView(),[...guzmaOffers,{token:'fog',kind:'play-card',actorPrinting:'Fog Crystal CRE'}]),null);
+  assert.equal(choosePaleMoonEscapeGuzmaRoot(guzmaView(),[{token:'pass',kind:'pass'},{token:'x',kind:'play-card',actorPrinting:'Guzma GRI'}]),null);
+  const base={...guzmaView(),decisionKind:'owner-prompt'};
+  assert.equal(choosePaleMoonEscapeGuzmaPrompt(base,guzmaPrompt('opponent',0,'Regidrago V SIT 135')),null);
+  const forgedOpponentZero=guzmaPrompt('opponent',2,'Regidrago V SIT 135');
+  forgedOpponentZero.publicMetadata.minimumCount=0;
+  assert.equal(choosePaleMoonEscapeGuzmaPrompt(base,forgedOpponentZero),null);
+  assert.equal(choosePaleMoonEscapeGuzmaPrompt(base,guzmaPrompt('opponent',2,'Mimikyu GRI 58')),null);
+  assert.equal(choosePaleMoonEscapeGuzmaPrompt(base,{...guzmaPrompt('opponent',2,'Regidrago V SIT 135'),source:{sourceKind:'card-effect',effectName:'Guzma',sourcePrinting:'Guzma GRI'}}),null);
+  const multiple=guzmaPrompt('actor',4,'Mimikyu GRI 58');
+  multiple.choices.push({...multiple.choices[0],token:'prompt-1'});
+  assert.equal(choosePaleMoonEscapeGuzmaPrompt(base,multiple),null);
 });
