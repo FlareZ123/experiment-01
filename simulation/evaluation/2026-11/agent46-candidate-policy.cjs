@@ -707,7 +707,8 @@ function chooseCardCombination(view, prompt) {
     'VS Seeker': 'VS Seeker PHF 109',
     'Night Stretcher': 'Night Stretcher ASC 196',
     'Star Alchemy': 'Forest Seal Stone SIT 156',
-    'Arven': 'Arven SVI 166'
+    'Arven': 'Arven SVI 166',
+    'Teammates': 'Teammates PRC 141'
   };
   const effect = prompt.source?.effectName;
   if (Object.hasOwn(ownerSourceBindings, effect) &&
@@ -1455,7 +1456,11 @@ function scoreTrainerPlay(item, view, receipt) {
         !freeRetreatKnown(view)) return 650;
     return -Infinity;
   }
-  if (hasName(name, 'Unfair Stamp') && receipt?.priorOpponentTurnKO?.any === true) return 980;
+  if (hasName(name, 'Unfair Stamp') &&
+      receipt?.priorOpponentTurnKO?.any === true) return 980;
+  if (hasName(name, 'Teammates PRC') && !supporterUsed &&
+      receipt?.priorOpponentTurnKO?.any === true &&
+      view.ownPublic.deckCount > 1) return 945;
   if (hasName(name, 'VS Seeker') && !supporterUsed &&
       !handHas(view, 'Arven') && !handHas(view, "Lillie's Determination") &&
       view.ownPublic.discard.some(printing =>
