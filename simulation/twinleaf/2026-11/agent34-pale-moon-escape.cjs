@@ -42,4 +42,36 @@ function choosePaleMoonEscapeRetreat(view, items) {
   return { token: retreats[0].token, reason: 'PUBLIC_PALE_MOON_PENDING_KO_SINGLE_LEGAL_RETREAT' };
 }
 
-module.exports = { pendingPaleMoonGXKnockOut, choosePaleMoonEscapeRetreat };
+
+/**
+ * A second, distinct complete no-prompt paper reply for a source printing
+ * held by Hood Shield but omitted by Lockbridge. Pinned Pokemon Ranger STS
+ * calls removeAttackEffectsFromPlayerAndPokemon(), which clears the queued
+ * delayed knock_out. Only a single offered native Ranger root versus Pass
+ * qualifies; any additional tactical choice is left to a stronger policy.
+ */
+function choosePaleMoonEscapeRanger(view, items) {
+  if (view?.decisionKind !== 'owner-root' ||
+      view?.ownPublic?.active?.publicRestrictions?.pendingPaleMoonGXKnockOut !== true ||
+      !Array.isArray(items) ||
+      items.some(item => !['pass','play-card'].includes(item?.kind))) return null;
+  const available = items.filter(item => item?.kind === 'play-card');
+  if (available.length !== 1) return null;
+  const ranger = available[0];
+  if (ranger.actorPrinting !== 'Pokemon Ranger STS' ||
+      !(typeof ranger.token === 'string' || Number.isSafeInteger(ranger.token))) return null;
+  const resources = view.ownTurnResources;
+  if (resources?.supporterPlayLocked !== false ||
+      resources?.supporterPlayedTurn !== 0) return null;
+  // Preserve any known continuing own Altered Creation-GX advantages.
+  const own = view.ownPublic?.publicTurnRestrictions;
+  if (own?.alteredCreationDamage !== false ||
+      own?.usedAlteredCreation !== false) return null;
+  return { token: ranger.token, reason: 'PUBLIC_PALE_MOON_PENDING_KO_ONLY_RANGER_ROOT' };
+}
+
+module.exports = {
+  pendingPaleMoonGXKnockOut,
+  choosePaleMoonEscapeRetreat,
+  choosePaleMoonEscapeRanger
+};
