@@ -1315,6 +1315,40 @@ function apexHazard(view,discard=view.opponentPublic.discard,rows=hazardBoard(vi
     one(rows.map(r=>r.key)):fixed;
   return {...fixed,potential:potential.maximum,known:true};
 }
+/* Agent26 bounded next-turn funding-cut exception.
+ * A current-turn Apex damage oracle is blind to a Temple-unpaid G+DDE
+ * Regidrago that can gain G+F from recovered Crispin / Megaton removal.
+ * The pair is a tactical priority, never a proof of future attack denial.
+ */
+function visibleTempleRegidragoFundingPairBonus(view,names){
+  if(!Array.isArray(names)||names.length!==2||
+     !names.some(n=>hasName(n,'Megaton Blower'))||
+     !names.some(n=>hasName(n,'Crispin'))||
+     templeLive(view)!==true)return 0;
+  const opp=view?.opponentPublic,active=opp?.active;
+  if(!active||!hasName(active.printing,'Regidrago VSTAR')||
+     !Array.isArray(active.energies)||active.energies.length!==2||
+     !Array.isArray(opp.discard)||!Array.isArray(opp.lostZone))return 0;
+  const isGrass=e=>/^(?:Basic )?Grass Energy(?: |$)/.test(e);
+  if(active.energies.filter(isGrass).length!==1||
+     active.energies.filter(e=>hasName(e,'Double Dragon Energy')).length!==1)
+    return 0;
+  const publicLost=opp.lostZone;
+  if(!publicLost.some(e=>hasName(e,'Silent Lab'))||
+     !publicLost.some(e=>hasName(e,'Parallel City')))return 0;
+  if(opp.discard.filter(e=>hasName(e,'Megaton Blower')).length!==1||
+     opp.discard.filter(e=>hasName(e,'Crispin')).length!==1)return 0;
+  // Require at least one publicly discarded attack donor. Avoid scoring a
+  // speculative future Regidrago that has no revealed copied-attack payload.
+  if(observedPayloads(opp.discard,view).length===0)return 0;
+  const apex={name:'Apex Dragon',cost:['Grass','Grass','Fire']};
+  if(publicEnergyCanPay(active,apex,view,true)!==false)return 0;
+  if((opp.bench??[]).some(slot=>slot&&hasName(slot.printing,'Regidrago VSTAR')&&
+       publicEnergyCanPay(slot,apex,view,true)===true))return 0;
+  // Not a claimed guarantee: other hidden Stadiums, other attackers, Raihan
+  // after a KO, draw and non-source escape lines may still exist.
+  return 7000;
+}
 function getLostPairs(view,rows){
   const before=apexHazard(view);
   const discarded=view.opponentPublic.discard;
@@ -1333,7 +1367,8 @@ function getLostPairs(view,rows){
     const score=(before.maximum>=needed&&after.maximum<needed?5000:0)+
       (before.maximum-after.maximum)*1800+
       ((before.potential??before.maximum)-(after.potential??after.maximum))*400+
-      getLostValue(view,a.printing)+getLostValue(view,b.printing)+controlPairBonus(view,names);
+      getLostValue(view,a.printing)+getLostValue(view,b.printing)+controlPairBonus(view,names)+
+      visibleTempleRegidragoFundingPairBonus(view,names);
     if(!best||score>best.score)best={rows:[a,b],score,after};
   }
   return best;
