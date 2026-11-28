@@ -1,6 +1,7 @@
 'use strict';
 
 const assert=require('node:assert/strict');
+const {classifyPrintedGXAttack}=require('./printed-gx-attack-classifier.cjs');
 
 /** @param {object} card @returns {string} */
 const printing=card=>{
@@ -72,7 +73,9 @@ function visiblePokemon(slot){
       damage:attack.damage??null,
       damageCalculation:attack.damageCalculation??null,
       text:attack.text??null,
-      gxAttack:attack.gxAttack===true,
+      // Printed GX names/restriction text override missing native flags.
+      // Unknown source identity is conservatively exposed as GX (not safe).
+      gxAttack:classifyPrintedGXAttack(attack)!==false,
       // Public printing-specific attack permission, used only under explicit
       // first-player opening-turn exception tests; native Store is final.
       ...(attack.canUseOnFirstTurn===true?{canUseOnFirstTurn:true}:{}),
