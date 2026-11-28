@@ -301,3 +301,21 @@ test('native protocol accepts bounded real root and prompt decisions',()=>{
     assert.deepEqual(validateDecision(dStart,pStart,new Set()),dStart);
   }
 });
+test('optional no-donor Compressor uses native empty-selection token; never []',()=>{
+ for(const seat of [0,1]){
+   const obs=observation(seat,{ownPublic:{
+     ...observation(seat).ownPublic,
+     discard:[P.dialga,P.dragapult,P.noivern,P.v,P.kyurem]
+   }});
+   const prompt=promptRequest(seat,obs,'Battle Compressor',P.compressor,
+     'ChooseCardsPrompt',[
+       choice('not-donor','Professor Sycamore BKP 107'),
+       {kind:'empty-selection',token:'none',label:'Choose no items'}
+     ],{selectionType:'card-combination',minimumCount:0,
+       maximumCount:3,allowCancel:false});
+   const p=validatePrompt(prompt.prompt,seat);
+   const decision=decide(seat,prompt);
+   assert.deepEqual(decision,{kind:'select-choice',token:'none'});
+   assert.deepEqual(validateDecision(decision,p,new Set()),decision);
+ }
+});
