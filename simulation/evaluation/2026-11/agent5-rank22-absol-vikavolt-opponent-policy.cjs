@@ -568,7 +568,85 @@ function secretBoxTargets(prompt, choices, observation) {
   if (selected.length < minimum) return { kind: 'abstain', reasonCode: 'SECRET_BOX_CATEGORY_SET_INCOMPLETE' };
   return { kind: 'select-choices', tokens: selected.slice(0, maximum).map(choice => choice.token) };
 }
+function rank22SetupDecision(prompt, observation) {
+  if (observation?.phase !== 1 || prompt?.source?.sourceKind !== 'engine' ||
+      prompt.source.sourcePrinting !== null ||
+      prompt.source.effectName !== prompt.description) return null;
+  const source = String(prompt.description || '').toLowerCase();
+  const choices = list(prompt.choices);
+  if (prompt.promptType === 'ConfirmPrompt' && /go_first/.test(source)) {
+    const yes = choices.find(choice => /^yes$/i.test(choice.label ?? ''));
+    return yes ? { kind: 'select-choice', token: yes.token } :
+      { kind: 'abstain', reasonCode: 'RANK22_GO_FIRST_OPTION_MISSING' };
+  }
+  if (prompt.promptType === 'SelectPrompt' && /want_to_draw_cards/.test(source)) {
+    const ranked = choices.map(choice => ({
+      choice,
+      value: Number(choice.publicMetadata?.value ?? choice.label)
+    })).filter(row => Number.isSafeInteger(row.value) && row.value >= 0)
+      .sort((a, b) => b.value - a.value);
+    return ranked.length ? { kind: 'select-choice', token: ranked[0].choice.token } :
+      { kind: 'abstain', reasonCode: 'RANK22_MULLIGAN_OPTION_MISSING' };
+  }
+  if (prompt.promptType !== 'ChooseCardsPrompt' || !/choose_starting_pokemons/.test(source))
+    return null;
+  const meta = prompt.publicMetadata ?? {};
+  const min = meta.minimumCount, max = meta.maximumCount;
+  if (meta.sourceZone !== 'hand' || meta.ownerSeat !== 'actor' ||
+      meta.isOwnerVisible !== true || meta.selectionType !== 'card-combination' ||
+      (min !== 0 && min !== 1) || !Number.isSafeInteger(max) ||
+      max < min || max > 6) {
+    return { kind: 'abstain', reasonCode: 'RANK22_SETUP_SCHEMA_MISMATCH' };
+  }
+  const allowed = [
+    PRINT.vikavolt, PRINT.trubbish, PRINT.mega, PRINT.crobat, PRINT.squawk,
+    PRINT.tapuLele, PRINT.dedenne, PRINT.tapuKoko, PRINT.budew
+  ];
+  const basicChoices = choices.filter(choice => choice.kind === 'card' &&
+    choice.publicMetadata?.ownerSeat === 'actor' &&
+    choice.publicMetadata?.sourceZone === 'hand' &&
+    choice.publicMetadata?.isOwnerVisible === true);
+  if (basicChoices.some(choice => !allowed.some(p => matches(choice, p))))
+    return { kind: 'abstain', reasonCode: 'RANK22_UNKNOWN_SETUP_BASIC' };
+  const hasLightning = list(observation.ownHand).some(card => matches(card, PRINT.lightning));
+  const activeRank = choice =>
+    matches(choice, PRINT.vikavolt) ? (hasLightning ? 110 : 85) :
+    matches(choice, PRINT.trubbish) ? 95 :
+    matches(choice, PRINT.mega) ? 70 :
+    matches(choice, PRINT.budew) ? 55 :
+    matches(choice, PRINT.tapuKoko) ? 45 : 15;
+  const selected = [];
+  const known = slots(observation.ownPublic).map(row => row.pokemon.printing);
+  const ordered = basicChoices.slice().sort((a, b) => activeRank(b) - activeRank(a));
+  if (min === 1) {
+    if (!ordered.length) return { kind: 'abstain', reasonCode: 'RANK22_NO_STARTING_BASIC' };
+    selected.push(ordered.shift());
+    known.push(textOf(selected[0]));
+  } else if (!observation.ownPublic?.active) {
+    return { kind: 'abstain', reasonCode: 'RANK22_POST_BONUS_ACTIVE_MISSING' };
+  }
+  const availableBench = Math.max(0, 5 - benchCount(observation.ownPublic));
+  const benchLimit = Math.min(max - selected.length, availableBench, 3);
+  const benchPreference = [PRINT.trubbish, PRINT.vikavolt, PRINT.mega, PRINT.crobat, PRINT.dedenne];
+  let placed = 0;
+  for (const pattern of benchPreference) {
+    if (placed >= benchLimit || known.some(printing => matches(printing, pattern))) continue;
+    const choice = ordered.find(c => matches(c, pattern) && !selected.includes(c));
+    if (!choice) continue;
+    selected.push(choice);
+    known.push(textOf(choice));
+    placed++;
+  }
+  if (!selected.length) {
+    const empty = choices.find(choice => choice.kind === 'empty-selection');
+    return empty ? { kind: 'select-choice', token: empty.token } :
+      { kind: 'abstain', reasonCode: 'RANK22_NO_EMPTY_SETUP_CHOICE' };
+  }
+  return { kind: 'select-choices', tokens: selected.map(choice => choice.token) };
+}
 function promptDecision(request) {
+  const setup = rank22SetupDecision(request.prompt, request.observation);
+  if (setup !== null) return setup;
   const prompt = request.prompt;
   const observation = request.observation;
   const choices = list(prompt?.choices);
