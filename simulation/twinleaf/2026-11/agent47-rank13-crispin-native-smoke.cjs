@@ -9,6 +9,8 @@
  *
  * Run after compiling pinned vendor:
  *   node simulation/twinleaf/2026-11/agent47-rank13-crispin-native-smoke.cjs
+ * Optional stricter owner-root check (no V3 fixture):
+ *   AGENT47_STRICT_ROOTS=1 node simulation/twinleaf/2026-11/agent47-rank13-crispin-native-smoke.cjs
  *
  * It uses the existing host's native Store, native prompt origin hook,
  * typed owner prompt projector (with one opt-in Crispin extension), native
@@ -21,6 +23,7 @@ const {stage}=require('../agent5-attack-special-arbitration-native.cjs');
 const {initializeCards}=require('../headless.cjs');
 const {actorObservation}=require('../actor-observation-contract.cjs');
 const baseProject=require('../../evaluation/2026-11/agent36-prompt-projection.cjs');
+const rootAdapter=require('../../evaluation/2026-11/agent36-native-action-frontier.cjs');
 const protocol=require('../../evaluation/2026-11/agent49-policy-protocol.cjs');
 const {installPromptProvenanceHook}=
   require('../../evaluation/2026-11/agent36-prompt-provenance.cjs');
@@ -37,7 +40,12 @@ const {AttackAction}=native('game/store/actions/game-actions');
 const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
 const {Store}=native('game/store/store');
 const {EnergyCard}=native('game/store/card/energy-card');
-const {SuperType,EnergyType}=native('game/store/card/card-types');
+const {PokemonCard}=native('game/store/card/pokemon-card');
+const {TrainerCard}=native('game/store/card/trainer-card');
+const {ActionEnumerator}=native('advanced-bot/action-enumerator');
+const {Simulator}=native('game/bots/simulator');
+const {SuperType,EnergyType,CardType,TrainerType}=
+  native('game/store/card/card-types');
 
 const ownerPrintings=Object.freeze({
   active:'Regidrago VSTAR SIT',
@@ -115,8 +123,9 @@ function assertSelected(decision,promptProjection) {
   return decision;
 }
 function nativeContext() {
-  return {Store,ResolvePromptAction,EnergyCard,EnergyType,
-    SuperType,PlayerType,SlotType};
+  return {Store,ResolvePromptAction,PokemonCard,TrainerCard,
+    EnergyCard,EnergyType,CardType,TrainerType,
+    ActionEnumerator,Simulator,SuperType,PlayerType,SlotType};
 }
 function resolveOne(x,policy,provenance,history) {
   const prompt=pending(x.store);
@@ -172,6 +181,41 @@ function playHand(x,printing) {
   x.store.dispatch(new PlayCardAction(x.owner.id,idx,{
     player:PlayerType.ANY,slot:SlotType.BOARD,index:0}));
 }
+function dispatchWorkerRoot(x,policy,wanted,history){
+  const view=actorObservation(x.store.state,x.seat);
+  assert.equal(view.decisionKind,'owner-root');
+  const validated=rootAdapter.buildNativeActionFrontier({
+    state:x.store.state,actorSeat:x.seat,native:nativeContext(),
+    maxItems:64
+  });
+  const request={role:'opponent',seat:x.seat,observation:view,
+    prompt:null,actionFrontier:validated.actionFrontier};
+  const decision=policy.decide(request);
+  const accepted=protocol.validateDecision(decision,null,
+    new Set(validated.actionFrontier.items.map(item=>item.token)));
+  assert.equal(accepted.kind,'select-action',
+    'Full worker must choose a native root action');
+  const chosen=validated.actionFrontier.items
+    .find(item=>item.token===accepted.token);
+  assert.ok(chosen,'selected root action lacks a native frontier item');
+  const selectedPrinting=chosen.actorPrinting??null;
+  const selectedAttack=chosen.attackName??null;
+  if(wanted.startsWith('attack:')){
+    assert.equal(chosen.kind,'attack');
+    assert.equal(selectedAttack,wanted.slice('attack:'.length));
+  }else{
+    assert.equal(chosen.kind,'play-card');
+    assert.equal(selectedPrinting,wanted);
+  }
+  const action=rootAdapter.selectedNativeAction(validated,accepted.token);
+  x.store.dispatch(action);
+  history.push({kind:'actor-root',chosenKind:chosen.kind,
+    chosenPrinting:selectedPrinting,chosenAttack:selectedAttack,
+    enumeratedCount:validated.diagnostics.enumeratedCount,
+    validatedCount:validated.diagnostics.validatedCount,
+    nativeDispatched:true});
+}
+
 function activeEnergyTypes(x){
   return x.owner.active.energies.cards.map(c=>c.name);
 }
@@ -179,15 +223,18 @@ function activeEnergyTypes(x){
 function runSeat(seat) {
   assert.ok(seat===0||seat===1);
   const x=setup(seat),history=[],provenance=installPromptProvenanceHook(x.store);
+  const strictRoots=process.env.AGENT47_STRICT_ROOTS==='1';
   const policy=workerModule.createPolicy({role:'opponent',seat,
     policyVersion:workerModule.POLICY_VERSION,config:{}});
   try{
     assert.deepEqual(activeEnergyTypes(x),['Grass Energy','Fire Energy']);
-    playHand(x,ownerPrintings.vsSeeker);
+    if(strictRoots)dispatchWorkerRoot(x,policy,ownerPrintings.vsSeeker,history);
+    else playHand(x,ownerPrintings.vsSeeker);
     settlePrompts(x,policy,provenance,history);
     assert.equal(x.owner.hand.cards.some(c=>c.fullName===ownerPrintings.crispin),true,
       'native VS Seeker must recover the exact Crispin');
-    playHand(x,ownerPrintings.crispin);
+    if(strictRoots)dispatchWorkerRoot(x,policy,ownerPrintings.crispin,history);
+    else playHand(x,ownerPrintings.crispin);
     settlePrompts(x,policy,provenance,history);
     assert.deepEqual(activeEnergyTypes(x),
       ['Grass Energy','Fire Energy','Grass Energy'],
@@ -195,7 +242,8 @@ function runSeat(seat) {
     assert.equal(x.owner.supporterTurn,1,
       'native Crispin must consume the one-Supporter allowance');
     const before=x.opponent.active.damage;
-    x.store.dispatch(new AttackAction(x.owner.id,'Apex Dragon'));
+    if(strictRoots)dispatchWorkerRoot(x,policy,'attack:Apex Dragon',history);
+    else x.store.dispatch(new AttackAction(x.owner.id,'Apex Dragon'));
     settlePrompts(x,policy,provenance,history);
     const won=x.owner.prizes.length===0;
     assert.ok(x.opponent.active.damage>=before+80 || won,
@@ -209,14 +257,14 @@ function runSeat(seat) {
     return {seat,nativeStoreActionSeq:['VS Seeker','Crispin','Apex Dragon'],
       nativeOwnerPromptHistory:history,
       finalOwnerPrizes:x.owner.prizes.length,
-      nativeStagedLastPrize:true,qualifiedGame:false,
+      nativeStagedLastPrize:true,strictRoots,qualifiedGame:false,
       originalFull60:false,paperSetupLegal:false};
   }finally{
     provenance.restore();
   }
 }
 function main() {
-  return {schema:'agent47-rank13-crispin-staged-native-store-smoke-v1',
+  return {schema:'agent47-rank13-crispin-staged-native-store-smoke-v2',
     enginePin:PIN,policyVersion:workerModule.POLICY_VERSION,
     cases:[runSeat(0),runSeat(1)],qualifiedCompetitiveGames:0,
     note:'Staged native-only integration check. Must be run and validated by owner before any game/CI admission.'};
