@@ -36,6 +36,16 @@ const P = Object.freeze({
   bunnelby:/^Bunnelby PRC(?: 121)?\b/i,
   fan:/^Fan Rotom SCR(?: 118)?\b/i,budew:/^Budew ASC(?: 16)?\b/i,
   poffin:/^Buddy-Buddy Poffin TEF(?: 144)?\b/i,
+  tagCall:/^Tag Call CEC(?: 206)?\b/i,
+  guzmaHala:/^Guzma & Hala CEC(?: 193)?\b/i,
+  tmEvolution:/^Technical Machine: Evolution PAR(?: 178)?\b/i,
+  jet:/^Jet Energy PAL(?: 190)?\b/i,
+  capture:/^Capture Energy RCL(?: 171)?\b/i,
+  doubleColorless:/^Double Colorless Energy SUM(?: 136)?\b/i,
+  xtransceiver:/^Xtransceiver NVI(?: 96)?\b/i,
+  grandTree:/^Grand Tree SCR(?: 136)?\b/i,
+  artazon:/^Artazon PAL(?: 171)?\b/i,
+  grass:/^Grass Energy MEE(?: 9)?\b/i,
   hood:/^Stealthy Hood UNB(?: 186)?\b/i,
   powerful:/^Powerful Colorless Energy DAA(?: 176)?\b/i,
   choiceBelt:/^Choice Belt PAL(?: 176)?\b/i,
@@ -165,6 +175,144 @@ function usefulBasic(item,o) {
   if(has(p,P.fan))return board.some(x=>has(x,P.fan))?0:30;
   return 0;
 }
+function missingEvolutionChannels(o) {
+  const own=o.ownPublic;
+  const bench=arr(own?.bench).filter(Boolean);
+  const target=bench.some(x=>[P.oddish,P.buneary,P.pidgey].some(p=>has(x,p)));
+  const bunnelby=slots(own).some(x=>has(x,P.bunnelby));
+  return bunnelby&&target;
+}
+function supporterUnused(o) {
+  const played=o?.ownTurnResources?.supporterPlayedTurn;
+  return Number.isSafeInteger(played)&&Number.isSafeInteger(o?.globalTurn)&&
+    played<o.globalTurn;
+}
+function discardPriority(card,o) {
+  const hand=arr(o?.ownHand);
+  if(has(card,P.xtransceiver))return 100;
+  if(has(card,P.tagCall))return 85;
+  if(has(card,P.artazon)&&hand.filter(x=>has(x,P.artazon)).length>1)return 55;
+  if(has(card,P.grass)&&hand.filter(x=>has(x,P.grass)).length>1)return 35;
+  return 0;
+}
+function disposableCards(o,excluded=null) {
+  const hand=arr(o?.ownHand).slice();
+  if(excluded){const i=hand.findIndex(x=>has(x,excluded));if(i>=0)hand.splice(i,1);}
+  return hand.map((card,i)=>({card,i,score:discardPriority(card,o)}))
+    .filter(x=>x.score>=55).sort((a,b)=>b.score-a.score||a.i-b.i);
+}
+function ghLineFeasible(o,excluded) {
+  // A legal root alone is not a complete setup plan. Only take this line
+  // with a visible Bench evolution target and two actor-owned discardables.
+  return missingEvolutionChannels(o)&&supporterUnused(o)&&
+    disposableCards(o,excluded).length>=2;
+}
+function tagCallPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
+    m.sourceZone!=='deck'||m.ownerSeat!=='actor'||m.isOwnerVisible!==true||
+    !Number.isSafeInteger(m.minimumCount)||!Number.isSafeInteger(m.maximumCount)||
+    m.minimumCount<0||m.maximumCount>2||m.maximumCount<m.minimumCount)
+    return abstain('UNSUPPORTED_CARD_COMBINATION_SOURCE');
+  const choice=arr(p.choices).find(x=>x.kind==='card'&&typeof x.token==='string'&&has(x,P.guzmaHala));
+  if(choice&&m.maximumCount>=1&&!arr(o.ownHand).some(x=>has(x,P.guzmaHala)))
+    return {kind:'select-choices',tokens:[choice.token]};
+  const empty=arr(p.choices).find(x=>x.kind==='empty-selection'&&typeof x.token==='string');
+  return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
+    abstain('NO_LEGAL_CARD_SET');
+}
+function ghSearchCategory(c) {
+  if(has(c,P.grandTree)||has(c,P.artazon))return 'stadium';
+  if(has(c,P.tmEvolution)||has(c,P.hood))return 'tool';
+  if(has(c,P.jet)||has(c,P.capture)||has(c,P.doubleColorless))return 'energy';
+  return null;
+}
+function ghPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType==='SelectOptionPrompt'&&m.selectionType==='option'){
+    const options=arr(p.choices).filter(c=>c.kind==='option'&&typeof c.token==='string');
+    const yes=options.find(c=>c.publicMetadata?.choiceIndex===1&&/discard 2/i.test(c.label??''));
+    const no=options.find(c=>c.publicMetadata?.choiceIndex===0);
+    if(yes&&ghLineFeasible(o,P.guzmaHala))return {kind:'select-choice',token:yes.token};
+    return no?{kind:'select-choice',token:no.token}:
+      abstain('UNRECOGNIZED_SIMPLE_PROMPT');
+  }
+  if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
+    !['hand','deck'].includes(m.sourceZone)||m.ownerSeat!=='actor'||
+    m.isOwnerVisible!==true||!Number.isSafeInteger(m.minimumCount)||
+    !Number.isSafeInteger(m.maximumCount)||m.maximumCount<m.minimumCount||
+    m.maximumCount>(m.sourceZone==='deck'?3:2))
+    return abstain('UNSUPPORTED_CARD_COMBINATION_SOURCE');
+  const available=arr(p.choices).filter(c=>c.kind==='card'&&typeof c.token==='string');
+  let selected=[];
+  if(m.sourceZone==='hand'){
+    if(m.minimumCount!==2||m.maximumCount!==2)return abstain('BAD_CARD_SELECTION_BOUNDS');
+    const handCounts=new Map();
+    for(const h of arr(o.ownHand))handCounts.set(txt(h),(handCounts.get(txt(h))??0)+1);
+    const physicallyOwned=available.filter(c=>{
+      const key=txt(c),left=handCounts.get(key)??0;
+      if(!left)return false;
+      handCounts.set(key,left-1);return true;
+    });
+    selected=physicallyOwned.map((c,i)=>({c,i,score:discardPriority(c,o)}))
+      .filter(x=>x.score>=55).sort((a,b)=>b.score-a.score||a.i-b.i)
+      .slice(0,2).map(x=>x.c);
+  } else {
+    const bench=arr(o.ownPublic?.bench).filter(Boolean);
+    const ready=bench.some(x=>[P.oddish,P.buneary,P.pidgey].some(q=>has(x,q)));
+    const priorities=[
+      [P.grandTree,ready?110:30],[P.artazon,70],
+      [P.tmEvolution,missingEvolutionChannels(o)?120:40],[P.hood,35],
+      [P.jet,slots(o.ownPublic).some(x=>has(x,P.bunnelby))?115:45],
+      [P.doubleColorless,65],[P.capture,55]
+    ];
+    for(const category of ['stadium','tool','energy']){
+      const candidate=available.map((c,i)=>({c,i,cat:ghSearchCategory(c),
+        score:priorities.find(([pat])=>has(c,pat))?.[1]??0}))
+        .filter(x=>x.cat===category&&x.score>0)
+        .sort((a,b)=>b.score-a.score||a.i-b.i)[0];
+      if(candidate)selected.push(candidate);
+    }
+    selected=selected.sort((a,b)=>b.score-a.score||a.i-b.i)
+      .slice(0,m.maximumCount).map(x=>x.c);
+  }
+  if(selected.length<m.minimumCount)return abstain('NO_LEGAL_CARD_SET');
+  if(selected.length)return {kind:'select-choices',tokens:selected.map(x=>x.token)};
+  const empty=arr(p.choices).find(c=>c.kind==='empty-selection'&&typeof c.token==='string');
+  return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
+    abstain('NO_LEGAL_CARD_SET');
+}
+function evolutionPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},own=request.observation?.ownPublic;
+  if(p.promptType==='ChooseCardsPrompt'&&m.selectionType==='card-combination'&&
+    m.ownerSeat==='actor'&&m.isOwnerVisible===true&&m.sourceZone==='deck'&&
+    Number.isSafeInteger(m.minimumCount)&&Number.isSafeInteger(m.maximumCount)&&
+    m.maximumCount<=2&&m.minimumCount<=m.maximumCount){
+    const bench=arr(own?.bench).filter(Boolean);
+    const wants=bench.map(x=>has(x,P.oddish)?P.gloom:
+      has(x,P.buneary)?P.mega:has(x,P.pidgey)?P.pidgeotto:null).filter(Boolean);
+    const selected=[],used=new Set();
+    for(const pattern of wants){
+      const c=arr(p.choices).find(x=>x.kind==='card'&&!used.has(x.token)&&
+        typeof x.token==='string'&&has(x,pattern));
+      if(c){selected.push(c);used.add(c.token);}
+      if(selected.length>=m.maximumCount)break;
+    }
+    if(selected.length>=m.minimumCount&&selected.length)return {kind:'select-choices',tokens:selected.map(x=>x.token)};
+    const empty=arr(p.choices).find(x=>x.kind==='empty-selection'&&typeof x.token==='string');
+    return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
+      abstain('NO_LEGAL_CARD_SET');
+  }
+  if(p.promptType==='ChoosePokemonPrompt'&&m.selectionType==='pokemon'&&
+    m.targetZone==='bench'&&m.maximumCount===1&&m.minimumCount===1){
+    const option=arr(p.choices).find(x=>x.kind==='pokemon'&&
+      x.publicMetadata?.ownerSeat==='actor'&&x.publicMetadata?.targetZone==='bench'&&
+      [P.oddish,P.buneary,P.pidgey].some(pat=>has(x,pat)));
+    return option?{kind:'select-choices',tokens:[option.token]}:
+      abstain('NO_SUPPORTED_POKEMON_CHOICE');
+  }
+  return abstain('UNSUPPORTED_PROMPT_TYPE');
+}
 function rootDecision(request) {
   const o=request.observation;
   const items=arr(request.actionFrontier?.items).filter(playable);
@@ -183,6 +331,24 @@ function rootDecision(request) {
   const peck=attacks.find(x=>x.attackName==='Peck Off'&&has(ownPrinting(x),P.pidgey));
   if(peck && arr(o.opponentPublic?.active?.tools).some(x=>has(x,P.hood))&&
       !doubleBaseCutExposed(request))return take(peck);
+  const tmAttack=attacks.find(x=>x.attackName==='Evolution'&&
+    has(ownPrinting(x),P.bunnelby)&&
+    arr(o.ownPublic?.active?.tools).some(c=>has(c,P.tmEvolution)));
+  if(tmAttack&&arr(o.ownPublic?.bench).some(x=>x&&
+     [P.oddish,P.buneary,P.pidgey].some(p=>has(x,p))))return take(tmAttack);
+  const attachTm=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.tmEvolution)&&
+    has(x.targetPrinting,P.bunnelby));
+  if(attachTm&&slots(o.ownPublic).some(x=>has(x,P.bunnelby)&&
+     arr(x.tools).length===0)&&missingEvolutionChannels(o))return take(attachTm);
+  const attachJet=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.jet)&&
+    has(x.targetPrinting,P.bunnelby));
+  if(attachJet&&slots(o.ownPublic).some(x=>has(x,P.bunnelby)&&
+     arr(x.tools).some(c=>has(c,P.tmEvolution)))&&missingEvolutionChannels(o))return take(attachJet);
+  const gh=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.guzmaHala));
+  if(gh&&ghLineFeasible(o,P.guzmaHala))return take(gh);
+  const tag=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.tagCall));
+  if(tag&&!arr(o.ownHand).some(c=>has(c,P.guzmaHala))&&
+    ghLineFeasible(o,P.tagCall))return take(tag);
   // Only a complete offered two-Basic deck-search line is initiated here.
   const poffin=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.poffin));
   if(poffin&&benchCount(o.ownPublic)<5&&
@@ -246,6 +412,9 @@ function createPolicy({role,seat,policyVersion,config}) {
       return abstain('ROLE_SEAT_OBSERVATION_MISMATCH');
     if(request.prompt!==null){
       if(has(request.prompt?.source?.sourcePrinting,P.poffin))return poffinPrompt(request);
+      if(has(request.prompt?.source?.sourcePrinting,P.tagCall))return tagCallPrompt(request);
+      if(has(request.prompt?.source?.sourcePrinting,P.guzmaHala))return ghPrompt(request);
+      if(has(request.prompt?.source?.sourcePrinting,P.tmEvolution))return evolutionPrompt(request);
       return abstain('UNSUPPORTED_PROMPT_TYPE');
     }
     return rootDecision(request);
@@ -253,4 +422,4 @@ function createPolicy({role,seat,policyVersion,config}) {
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,
   createPolicy,rootDecision,poffinPrompt,printedDamage,movementEvidence,
-  candidateCopycatThreat,doubleBaseCutExposed};
+  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible};
