@@ -2,7 +2,7 @@
 
 **Decision affected:** source-bound rank-9 opponent policy chooses a strictly more productive action before an already payable non-final Claw of Darkness. **This is an isolated two-file review patch, not a competing opponent worker or approval to run games, merge, or alter owner-gated V3/Stage-A.**
 
-**Patch:** `agent9/rank9-telepathic-unown-root-20261128` at latest review-branch commit `de7d23059b1a443d2653ab247f185263b8be1662`, based on the exact Agent29 integration head `4c23ca2fa6b31c4344ceb6581a8b8c7ac60d3028`.
+**Patch:** `agent9/rank9-telepathic-unown-root-20261128` at latest review-branch commit `c6dc98faa7f3f74a80a7e76329c1e34971ab6b9a`, based on the exact Agent29 integration head `4c23ca2fa6b31c4344ceb6581a8b8c7ac60d3028`.
 - Source: [rank-9 worker on review branch](https://github.com/FlareZ123/experiment-01/blob/agent9/rank9-telepathic-unown-root-20261128/simulation/evaluation/2026-11/agent29-rank9-tactical-slice.cjs)
 - Test: [new two-seat executable decision regression](https://github.com/FlareZ123/experiment-01/blob/agent9/rank9-telepathic-unown-root-20261128/tests/2026-11/agent9-rank9-telepathic-unown-root.test.cjs)
 
@@ -18,7 +18,7 @@ The latest branch also normalizes the pinned native `Telepath [P] Energy M3` ful
 
 I evaluated the exact branch worker and existing protocol module in the JavaScript V8 runtime (same code bodies, no fabricated worker response). The **old** code chose `nonfinal-claw` for both physical seats. The **patch** chose `attach-unown`, then selected **two Unown** legal Telepathic prompt tokens, and on a constructed post-resolution public board chose `Farewell Letter` on the new Unown over Claw. All are checked against the existing frontier/prompt/decision validators.
 
-The current test contributes **60 passed assertions** across both seats: three positive staged decisions, two native-printing root/search checks, twelve negative root decisions, plus the K0-root/K1-empty-prompt failing-control pair per seat. Negatives: full Bench, insufficient deck threshold, all Psychic Basic targets already visibly consumed, **only Gengar as a remaining source Basic**, certified Prize exhaustion, already-energized Unown, non-Telepathic Energy, **live Temple of Sinnoh**, **Silent Lab**, **explicit Farewell Letter suppression**, unfunded Mega, and a final-Prize KO. The existing 19 test groups also passed unchanged under the patched source. **279 counted assertions** over both test files; one existing unnumbered compatibility test group additionally passed. This is synthetic policy execution, **not** native Node/Store IPC, a played game, CI, qualification, or win-rate evidence.
+The current test contributes **70 passed assertions** across both seats: three positive staged decisions, two native-printing root/search checks, twelve negative root decisions, plus the K0-root/K1-empty-prompt failing-control pair per seat. Negatives: full Bench, insufficient deck threshold, all Psychic Basic targets already visibly consumed, **only Gengar as a remaining source Basic**, certified Prize exhaustion, already-energized Unown, non-Telepathic Energy, **live Temple of Sinnoh**, **Silent Lab**, **explicit Farewell Letter suppression**, unfunded Mega, and a final-Prize KO. The existing 19 test groups also passed unchanged under the patched source. **289 counted assertions** over both test files; one existing unnumbered compatibility test group additionally passed. This is synthetic policy execution, **not** native Node/Store IPC, a played game, CI, qualification, or win-rate evidence.
 
 
 ### Follow-up: original four-copy Rescue Carrier line also executes in policy
@@ -34,6 +34,11 @@ The two-seat companion test now also covers a preexisting Gengar as the sole pos
 
 
 **Opponent-control correction:** I replaced the initially abbreviated Shadow Rider VMAX test target (which had omitted Darkness Weakness) with the authenticated field's 230-HP, Fighting-weak **Iron Thorns ex TWM 77** (source ranks 6/24/29). The funded 200-damage Claw is therefore genuinely non-final. All current decision suites still pass. Do not cite the earlier Shadow Rider dummy as an actual source interaction.
+
+
+### Critical new benchmark line: attach/search before a non-final three-Prize KO
+
+A card-accurate target is **Shadow Rider Calyrex VMAX CRE 75** (320 HP, Darkness Weakness ×2): active Mega Absol's paid Claw does 400, taking three Prizes, but **with six Prizes remaining and a second opposing Benched Pokémon**, it is a non-final KO. The prior root hard-gated all non-final KOs before Telepath setup, so an actual Hood/Lockbridge-type board would not enter the new search branch. I repaired that root gate only for this existing **source-bound, actor-visible, pre-KO Telepath setup**, with a score 13 above the available nonfinal Claw KO. Direct final-Prize and sole-Active game wins remain hard-prioritized. Both-seat synthetic decision suites show **Telepath → search two Unown → Farewell before the same three-Prize KO**, and both finishing negative controls. This adds **10 validated assertions** (5/seat), **70 new and 289 total**. This is the highest-leverage part of this patch for benchmark-facing opponent behavior; ask for a native same-Store continuation, not a proxy win-rate claim.
 
 ## Integration recommendation
 
