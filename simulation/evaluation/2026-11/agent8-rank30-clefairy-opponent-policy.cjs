@@ -1329,9 +1329,14 @@ function handIsSafeToReset(o,excludePrinting=null) {
 function hasFreshPriorOpponentTurnKO(request) {
   const turn=request?.observation?.globalTurn;
   const ko=request?.publicEventReceipt?.priorOpponentTurnKO;
-  // Twinleaf's owner-side KO Boolean can survive a skipped owner turn after
-  // Timeless-GX. Require the independent Store event's actual turn stamp.
-  return safeInt(turn)&&turn>1&&ko?.any===true&&ko.turn===turn-1;
+  // Native KO Boolean / globalTurn-1 are unsound across consecutive turns.
+  // Require the research-observed last *opponent-owned* completed turn.
+  const receipt=request?.publicEventReceipt;
+  const last=receipt?.opponentLastTurnTurn;
+  return safeInt(turn)&&turn>1&&
+    receipt?.opponentLastTurnOwnerCertified===true&&
+    safeInt(last)&&last<turn&&
+    ko?.any===true&&ko.turn===last;
 }
 // Raihan's native KO marker can survive a skipped owner turn too; the stamped
 // event receipt, not the native action frontier, is the freshness authority.
