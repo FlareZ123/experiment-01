@@ -21,6 +21,8 @@ const candidateDeck=require('../../results/aichi-2026/candidate-hood-shadow-ride
 const field=require('../../results/aichi-2026/full-decklists.json');
 const candidateWorker=require('../../simulation/evaluation/2026-11/agent46-candidate-policy.cjs');
 const protocol=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
+const {createValidationRandomScope,seededRandom}=
+  require('../../simulation/evaluation/2026-11/agent49-native-fixture-game.cjs');
 const {resolvePrintedDeck,printed60Fingerprint}=
   require('../../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 const {createCertifiedV3RoleAdapters}=
@@ -50,6 +52,7 @@ function nativeBindings(){
   const play=native('game/store/actions/play-card-action');
   return {
     ActionEnumerator:native('advanced-bot/action-enumerator').ActionEnumerator,
+    Store:native('game/store/store').Store,
     Simulator:native('game/bots/simulator').Simulator,
     PokemonCard:native('game/store/card/pokemon-card').PokemonCard,
     EnergyCard:native('game/store/card/energy-card').EnergyCard,
@@ -172,6 +175,12 @@ for(const seat of [0,1]){
     try{
     const x=scene(seat);
     const {store,state,owner,adapters,dependencies}=x;
+    // The production host revalidates a worker token in a detached native
+    // Simulator under an isolated deterministic RNG, before the physical
+    // Store dispatch. Exercise that same boundary rather than hand-dispatch.
+    const withValidationRandom=createValidationRandomScope({
+      ambientRandom:Math.random,physicalRandom:seededRandom(0x37b451c0+seat)
+    });
     const initial=adapters.native.observe(state,seat);
     assert.ok(Object.isFrozen(initial),'pre-digest actor view must be frozen');
     assert.equal(initial.ownPublic.active.printing,
@@ -179,9 +188,10 @@ for(const seat of [0,1]){
     assert.deepEqual(initial.ownHand,['Psychic Energy MEE 13']);
     assert.equal(initial.opponentPublic.active.printing,'Shadow Rider Calyrex V CRE 74');
     assert.equal(initial.opponentPublic.prizeSlots.some(s=>s.printing!==undefined),false);
-    const root=adapters.actionFrontier.buildNativeActionFrontier({
-      state,actorSeat:seat,native:dependencies
-    });
+    const root=withValidationRandom(()=>
+      adapters.actionFrontier.buildNativeActionFrontier({
+        state,actorSeat:seat,native:dependencies
+      }));
     const available=root.actionFrontier.items;
     const ability=available.filter(item=>item.kind==='use-ability'&&
       item.actorPrinting==='Shadow Rider Calyrex VMAX CRE 75'&&
@@ -207,7 +217,15 @@ for(const seat of [0,1]){
     assert.deepEqual(rootDecision.decision,
       {kind:'select-action',token:ability[0].token},
       'candidate worker must prefer genuine accelerating Door over manual Bench attachment');
-    const physicalAction=rootHost.selectedNativeAction(root,rootDecision.decision.token);
+    const actionValidationEvidence={};
+    const physicalAction=rootHost.dispatchSelectedNativeAction({
+      store,frontier:root,token:rootDecision.decision.token,
+      state,actorSeat:seat,native:dependencies,withValidationRandom,
+      dispatch:false,validationEvidence:actionValidationEvidence
+    });
+    assert.equal(actionValidationEvidence.selectedActionValidated,true);
+    assert.equal(actionValidationEvidence.fullOriginalStoreStateUnchanged,true);
+    assert.equal(actionValidationEvidence.nativeValidationStoreMode,'cloned-store');
     assert.strictEqual(physicalAction,root.actionByToken.get(ability[0].token),
       'no invented action: worker token resolves to original host physical Action');
     const handEnergy=owner.hand.cards[0];
@@ -218,7 +236,7 @@ for(const seat of [0,1]){
     const beforeEnergyStamp=owner.energyPlayedTurn;
     const hook=installPromptProvenanceHook(store);
     let projectedPrompt=null,chosenPromptToken=null,promptCount=0;
-    let promptDecisionAudit=null;
+    let promptDecisionAudit=null,promptNativeValidation=null;
     try{
       store.dispatch(physicalAction);
       for(let i=0;i<32;i++){
@@ -264,11 +282,16 @@ for(const seat of [0,1]){
           'source V should be preferred recipient against Shadow Rider mirror');
         assert.ok(projected.choiceByToken.has(answer.decision.token),
           'worker choice token must refer to original physical native result');
-        promptHost.dispatchPromptChoice({
+        const prompted=promptHost.dispatchPromptChoice({
           store,prompt:pending,state,actorSeat:seat,
           projection:projected,decision:answer.decision,
-          native:{ResolvePromptAction},dispatch:true
+          native:{ResolvePromptAction,Store:dependencies.Store},
+          withValidationRandom,dispatch:true
         });
+        promptNativeValidation=prompted.validationReceipt;
+        assert.equal(promptNativeValidation?.nativeValidationStoreMode,'cloned-store');
+        assert.equal(promptNativeValidation?.fullOriginalStoreStateUnchanged,true);
+        assert.equal(promptNativeValidation?.clonedPromptResolved,true);
         projectedPrompt=req.prompt;
         chosenPromptToken=answer.decision.token;
       }
@@ -287,9 +310,10 @@ for(const seat of [0,1]){
       assert.equal(state.turn,beforeTurn,
         'Ability and associated mandatory prompt must not finish turn');
       assert.equal(state.activePlayer,seat);
-      const post=adapters.actionFrontier.buildNativeActionFrontier({
-        state,actorSeat:seat,native:dependencies
-      });
+      const post=withValidationRandom(()=>
+        adapters.actionFrontier.buildNativeActionFrontier({
+          state,actorSeat:seat,native:dependencies
+        }));
       assert.equal(post.actionFrontier.items.some(a=>
         a.kind==='use-ability'&&
         a.actorPrinting==='Shadow Rider Calyrex VMAX CRE 75'&&
@@ -345,6 +369,16 @@ for(const seat of [0,1]){
           opponentActive:initial.opponentPublic.active?.printing,
           ownPrizeSlotCount:initial.ownPublic.prizeSlots.length,
           opponentPrizeSlotCount:initial.opponentPublic.prizeSlots.length
+        },
+        rootNativeValidation:{
+          selectedActionValidated:actionValidationEvidence.selectedActionValidated,
+          mode:actionValidationEvidence.nativeValidationStoreMode,
+          originalStoreUnchanged:actionValidationEvidence.fullOriginalStoreStateUnchanged
+        },
+        promptNativeValidation:{
+          mode:promptNativeValidation?.nativeValidationStoreMode,
+          originalStoreUnchanged:promptNativeValidation?.fullOriginalStoreStateUnchanged,
+          clonedPromptResolved:promptNativeValidation?.clonedPromptResolved
         },
         strictRootDecision:{
           kind:rootDecision.decision.kind,selectedTokens:rootDecision.policyAudit.selectedTokens,
