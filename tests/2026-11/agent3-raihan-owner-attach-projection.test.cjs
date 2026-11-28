@@ -202,6 +202,20 @@ test('Raihan native BOARD wildcard permits only real own slots after validation'
   assert.throws(()=>project(x),/contract mismatch/);
 });
 
+test('explicit V3 prompt-projector override leaves host-only base methods intact',()=>{
+  const override=projection.createOptInRaihanPromptProjection();
+  assert.equal(override.resolveHostOnlyPrompt,base.resolveHostOnlyPrompt);
+  assert.equal(override.validateRawPromptResult,base.validateRawPromptResult);
+  assert.equal(override.projectPrompt,projection.projectRaihanOwnerAttachPrompt);
+  assert.equal(Object.isFrozen(override),true);
+  const x=setup(0),projected=override.projectPrompt({
+    prompt:x.prompt,state:x.state,actorSeat:x.seat,
+    native,provenanceHook:x.hook
+  });
+  assert.equal(projected.promptProjection.choices.length,4);
+  assert.equal(base.projectPrompt===override.projectPrompt,false);
+});
+
 test('Raihan projection delegates unrelated prompt to shared projector',()=>{
   const x=setup(0);
   const other={sourceKind:'card-effect',sourceCard:{name:'Crispin',fullName:'Crispin SCR'}};
