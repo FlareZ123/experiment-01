@@ -245,19 +245,20 @@ test('Squawkabilly Motivate attacks, targets Mega Absol, and selects Darkness En
     choices: [card('dark1', P.dark, 'discard'), card('dark2', P.dark, 'discard')] });
   assert.deepEqual(checked(energy), { kind: 'select-choices', tokens: ['dark1', 'dark2'] });
 });
-test('Mega Absol Terminal Period is selected only at the exact six-counter threshold', () => {
-  const exact = rootRequest({ opponentPublic: player({ active: pokemon('Shadow Rider Calyrex VMAX CRE 75',
-    { hp: 320, damage: 300, subtypes: ['VMAX'] }) }), items: [
-    { token: 'terminal', kind: 'attack', attackName: 'Terminal Period', publicMetadata: { attackCostPayable: true, targetDamage: 300 } },
-    { token: 'pass', kind: 'pass' }
-  ] });
-  assert.deepEqual(checked(exact), { kind: 'select-action', token: 'terminal' });
-  const below = rootRequest({ opponentPublic: player({ active: pokemon('Shadow Rider Calyrex VMAX CRE 75',
-    { hp: 320, damage: 290, subtypes: ['VMAX'] }) }), items: [
-    { token: 'terminal', kind: 'attack', attackName: 'Terminal Period', publicMetadata: { attackCostPayable: true, targetDamage: 290 } },
-    { token: 'pass', kind: 'pass' }
-  ] });
-  assert.deepEqual(checked(below), { kind: 'select-action', token: 'pass' });
+test('Mega Absol Terminal Period selects only at exactly six damage counters (60 damage)', () => {
+  const candidate = damage => rootRequest({
+    opponentPublic: player({ active: pokemon('Shadow Rider Calyrex VMAX CRE 75',
+      { hp: 320, damage, subtypes: ['VMAX'] }) }), items: [
+      { token: 'terminal', kind: 'attack', attackName: 'Terminal Period',
+        publicMetadata: { attackCostPayable: true, targetDamage: damage } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checked(candidate(60)), { kind: 'select-action', token: 'terminal' });
+  for (const damage of [0, 50, 70, 290, 300]) {
+    assert.deepEqual(checked(candidate(damage)), { kind: 'select-action', token: 'pass' },
+      'six counters are 60 damage, not 300: '+damage);
+  }
 });
 test('Claw of Darkness chooses a high-value revealed opponent card', () => {
   const request = promptRequest({ promptType: 'ChooseCardsPrompt', source: source(P.mega, 'Claw of Darkness'),
