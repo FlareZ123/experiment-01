@@ -72,3 +72,54 @@ for(const seat of [0,1]){
     });
   });
 }
+
+
+function cardSearchRequest(seat,bench,offered,max=2){
+  return {role:'opponent',seat,observation:{
+    actorSeat:seat,globalTurn:3,ownPublic:{
+      active:C('Bunnelby PRC 121'),bench:bench.map(C)
+    }},
+    prompt:{promptType:'ChooseCardsPrompt',
+      source:{sourcePrinting:'Technical Machine: Evolution PAR 178',
+        effectName:'Evolution'},
+      publicMetadata:{selectionType:'card-combination',minimumCount:1,
+        maximumCount:max,ownerSeat:'actor',sourceZone:'deck'},
+      choices:offered.map((printing,i)=>({
+        kind:'card',token:'deck-'+i,printing,
+        publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}
+      }))
+    }
+  };
+}
+for(const seat of [0,1]){
+  for(const [name,bench,offered,expected] of [
+    ['two Gloom copies both taken for two Oddish',[
+      'Oddish UNB 5','Oddish UNB 5'],[
+      'Gloom UNB 7','Gloom UNB 7'],['deck-0','deck-1']],
+    ['TEU + MEW Pidgeotto for two Pidgey',[
+      'Pidgey FLF 75','Pidgey FLF 75'],[
+      'Pidgeotto TEU 123','Pidgeotto MEW 17'],['deck-0','deck-1']],
+    ['two Mega Lopunny for two Buneary',[
+      'Buneary PFL 83','Buneary PFL 83'],[
+      'Mega Lopunny ex PFL 84','Mega Lopunny ex PFL 84'],
+      ['deck-0','deck-1']],
+    ['Gloom plus Mega for mixed Oddish and Buneary',[
+      'Oddish UNB 5','Buneary PFL 83'],[
+      'Gloom UNB 7','Mega Lopunny ex PFL 84'],['deck-0','deck-1']],
+    ['only one eligible copy offered cannot invent second Gloom',[
+      'Oddish UNB 5','Oddish UNB 5'],[
+      'Gloom UNB 7'],['deck-0']]
+  ]){
+    test('seat '+seat+': TM deck evolution: '+name,()=>{
+      assert.deepEqual(evolutionPrompt(cardSearchRequest(seat,bench,offered)),{
+        kind:'select-choices',tokens:expected
+      });
+    });
+  }
+  test('seat '+seat+': TM deck card search maximum one is binding',()=>{
+    const r=evolutionPrompt(cardSearchRequest(seat,
+      ['Oddish UNB 5','Oddish UNB 5'],
+      ['Gloom UNB 7','Gloom UNB 7'],1));
+    assert.deepEqual(r,{kind:'select-choices',tokens:['deck-0']});
+  });
+}
