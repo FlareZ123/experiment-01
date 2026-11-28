@@ -83,6 +83,30 @@ function garbotoxinStatus(o){
 }
 function liveGarbotoxin(o){return garbotoxinStatus(o)==='live';}
 function usableOwnAbilities(o){return garbotoxinStatus(o)==='inactive';}
+function activeOpponentAbilityWorking(o,printing,abilityName){
+ const p=o.opponentPublic?.active;
+ if(!match(p?.printing,printing))return false;
+ const state=list(p.abilitySuppressions).find(x=>x.abilityName===abilityName);
+ // If the view cannot prove suppression, do not assume that a Bench support
+ // Pokémon's on-play Ability will function through a known Active lock.
+ return state?.suppressed!==true;
+}
+function benchSupportAbilityUsable(printing,o){
+ if(!usableOwnAbilities(o))return false;
+ if(activeOpponentAbilityWorking(o,/^Iron Thorns ex TWM 77\b/i,'Initialization'))return false;
+ if(activeOpponentAbilityWorking(o,/^Wobbuffet PHF 36\b/i,'Bide Barricade')){
+  return match(printing,PRINT.tapu); // Psychic Tapu Lele-GX escapes Bide Barricade
+ }
+ return true;
+}
+function benchSupportFits(o){
+ const p=o.ownPublic;
+ let required=0;
+ if(!onBoard(p,PRINT.mega))required++;
+ if(!onBoard(p,PRINT.trubbish)&&!onBoard(p,PRINT.garbodor))required++;
+ if(!onBoard(p,PRINT.budew))required++;
+ return 5-benchCount(p)>required;
+}
 function hasProtectedHand(o){
  const h=list(o.ownHand),p=o.ownPublic;
  if(h.some(c=>match(c,PRINT.secret)))return true;
@@ -409,7 +433,8 @@ function score(action,req){
  if(action.kind==='use-stadium')return 0;
  if(action.kind!=='play-card')return 0;
  if(match(p,PRINT.crobat)||match(p,PRINT.dedenne)||match(p,PRINT.tapu)||match(p,PRINT.squawk)){
-  if(benchCount(own)>=5||!usableOwnAbilities(o)||own.publicTurnRestrictions?.abilityPokemonPlayLocked===true)return 0;
+  if(!benchSupportFits(o)||!benchSupportAbilityUsable(p,o)||
+    own.publicTurnRestrictions?.abilityPokemonPlayLocked===true)return 0;
   if(match(p,PRINT.crobat))return handCount(o)<=4&&deckCount(o)>0?710:0;
   if(match(p,PRINT.tapu))return o.ownTurnResources?.supporterPlayedTurn===0&&deckCount(o)>0?645:0;
   if(match(p,PRINT.dedenne))return canRiskFullHandDiscard(o)?705:0;
@@ -793,4 +818,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,regidragoPayloadCount,karenDenialScore,vsSeekerDenialScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,toolEnabled,garbotoxinStatus,liveGarbotoxin};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,regidragoPayloadCount,karenDenialScore,vsSeekerDenialScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,toolEnabled,garbotoxinStatus,liveGarbotoxin};
