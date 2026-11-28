@@ -191,7 +191,21 @@ function promptRequest(options = {}) {
     description: options.description ?? 'Choose a legal option',
     source: options.source,
     choices: options.choices ?? [],
-    ...(options.publicMetadata ? { publicMetadata: options.publicMetadata } : {})
+    // Fill native actor selection metadata missing in older test fixtures.
+    publicMetadata: options.publicMetadata ?? (
+      options.promptType==='ChooseCardsPrompt' ?
+        {selectionType:'card-combination',minimumCount:1,maximumCount:1,allowCancel:false,isSecret:false} :
+      options.promptType==='ChoosePokemonPrompt' ?
+        {selectionType:'pokemon',minimumCount:1,maximumCount:1,allowCancel:false,isSecret:false} :
+      options.promptType==='ChooseEnergyPrompt' ?
+        {selectionType:'energy-payment',energyCount:1,allowCancel:false,isSecret:false} :
+      options.promptType==='ChooseAttackPrompt' ?
+        {selectionType:'attack',allowCancel:false} :
+      options.promptType==='ChoosePrizePrompt' ?
+        {selectionType:'prize-slots',minimumCount:1,maximumCount:1,allowCancel:false,isSecret:false} :
+      options.promptType==='ConfirmPrompt' ?
+        {selectionType:'confirm',allowCancel:false} :
+      {selectionType:'option',allowCancel:false})
   };
   return {
     schema: protocol.REQUEST_SCHEMA,
@@ -293,7 +307,7 @@ test('Tag Call is played before evolving into the self-imposed Vileplume Item lo
       { token: 'vileplume', kind: 'play-card', actorPrinting: 'Vileplume AOR 3',
         targetPrinting: 'Gloom UNB 7',
         publicMetadata: { cardType: 'pokemon', handIndex: 3,
-          targetSeat: 'actor', targetZone: 'bench', targetIndex: 0 } },
+          targetSeat: 'actor', targetZone: 'bench', targetIndex: 0, isOwnerVisible: true } },
       { token: 'tag-call', kind: 'play-card', actorPrinting: 'Tag Call CEC 206',
         publicMetadata: { cardType: 'trainer', handIndex: 0 } },
       { token: 'pass', kind: 'pass' }
@@ -316,7 +330,7 @@ test('Vileplume is established promptly once no pre-lock Item or Supporter remai
       { token: 'vileplume', kind: 'play-card', actorPrinting: 'Vileplume AOR 3',
         targetPrinting: 'Gloom UNB 7',
         publicMetadata: { cardType: 'pokemon', handIndex: 0,
-          targetSeat: 'actor', targetZone: 'bench', targetIndex: 0 } },
+          targetSeat: 'actor', targetZone: 'bench', targetIndex: 0, isOwnerVisible: true } },
       { token: 'pass', kind: 'pass' }
     ]
   });
@@ -339,7 +353,7 @@ test('Stoutland is promoted to Active when its Supporter lock is not yet live', 
       { token: 'retreat-stoutland', kind: 'retreat',
         actorPrinting: 'Bunnelby PRC 121', targetPrinting: 'Stoutland BCR 122',
         publicMetadata: { benchIndex: 0, targetSeat: 'actor',
-          targetZone: 'bench', targetIndex: 0 } },
+          targetZone: 'bench', targetIndex: 0, isOwnerVisible: true } },
       { token: 'pass', kind: 'pass' }
     ]
   });
@@ -581,7 +595,7 @@ test('unknown card-combination sources fail closed', () => {
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'abstain',
-    reasonCode: 'UNSUPPORTED_CARD_SELECTION_SOURCE'
+    reasonCode: 'UNSUPPORTED_CARD_COMBINATION_SOURCE'
   });
 });
 
@@ -589,7 +603,7 @@ test('unknown attack-choice sources fail closed', () => {
   const request = promptRequest({
     promptType: 'ChooseAttackPrompt',
     source: actorChoiceSource(null, 'Unrecognized attack selector'),
-    choices: [{ token: 'unknown', kind: 'option', label: 'Unknown attack' }]
+    choices: [{ token: 'unknown', kind: 'attack', label: 'Unknown attack' }]
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'abstain',
@@ -603,7 +617,9 @@ test('unknown prompt types fail closed', () => {
     source: actorChoiceSource(null, 'Unknown engine choice'),
     choices: [{ token: 'x', kind: 'option', label: 'Unknown' }]
   });
-  assert.deepEqual(checkedDecision(request), {
+  // Unregistered prompt classes are rejected by the host schema before the
+  // worker receives them. Exercise its fail-closed branch directly.
+  assert.deepEqual(policy.decide(request), {
     kind: 'abstain',
     reasonCode: 'UNSUPPORTED_PROMPT_TYPE'
   });
@@ -682,7 +698,7 @@ test('Stoutland is not promoted through a visible Garbotoxin ability suppression
       { token: 'retreat-stoutland', kind: 'retreat',
         actorPrinting: 'Bunnelby PRC 121', targetPrinting: 'Stoutland BCR 122',
         publicMetadata: { benchIndex: 0, targetSeat: 'actor',
-          targetZone: 'bench', targetIndex: 0 } },
+          targetZone: 'bench', targetIndex: 0, isOwnerVisible: true } },
       { token: 'pass', kind: 'pass' }
     ]
   });
@@ -727,11 +743,11 @@ test('Counter Gain is attached to the Active attacker when behind on Prizes and 
       { token: 'vileplume', kind: 'play-card', actorPrinting: 'Vileplume AOR 3',
         targetPrinting: 'Gloom UNB 7',
         publicMetadata: { cardType: 'pokemon', handIndex: 1,
-          targetSeat: 'actor', targetZone: 'bench', targetIndex: 0 } },
+          targetSeat: 'actor', targetZone: 'bench', targetIndex: 0, isOwnerVisible: true } },
       { token: 'counter-gain', kind: 'play-card', actorPrinting: 'Counter Gain SSP 169',
         targetPrinting: 'Bunnelby PRC 121',
         publicMetadata: { cardType: 'trainer', handIndex: 0,
-          targetSeat: 'actor', targetZone: 'active', targetIndex: 0 } },
+          targetSeat: 'actor', targetZone: 'active', targetIndex: 0, isOwnerVisible: true } },
       { token: 'pass', kind: 'pass' }
     ]
   });
@@ -753,7 +769,7 @@ test('Counter Gain is not spent when the source player is not behind on Prizes',
       { token: 'counter-gain', kind: 'play-card', actorPrinting: 'Counter Gain SSP 169',
         targetPrinting: 'Bunnelby PRC 121',
         publicMetadata: { cardType: 'trainer', handIndex: 0,
-          targetSeat: 'actor', targetZone: 'active', targetIndex: 0 } },
+          targetSeat: 'actor', targetZone: 'active', targetIndex: 0, isOwnerVisible: true } },
       { token: 'pass', kind: 'pass' }
     ]
   });
