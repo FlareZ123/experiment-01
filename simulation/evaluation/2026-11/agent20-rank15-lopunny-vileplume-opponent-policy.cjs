@@ -1068,22 +1068,23 @@ function rootDecision(request) {
   if(immediate)return take(immediate);
   const gale=attacks.find(x=>x.attackName==='Gale Thrust'&&has(o.ownPublic?.active,P.mega));
   const spiky=attacks.find(x=>x.attackName==='Spiky Hopper'&&has(o.ownPublic?.active,P.mega));
+  let preferredMegaAttack=null;
   if(spiky&&gale) {
     const sk=knockOut(spiky,request),gk=knockOut(gale,request);
-    if(sk && !gk)return take(spiky);
-    if(gk && !sk)return take(gale);
+    if(sk && !gk)preferredMegaAttack=spiky;
+    if(gk && !sk)preferredMegaAttack=gale;
     const copycatThreat=candidateCopycatThreat(request);
-    if(copycatThreat&&movementEvidence(request)===true)return take(spiky);
+    if(copycatThreat&&movementEvidence(request)===true)preferredMegaAttack=spiky;
     // On verified Bench->Active movement Gale deals 230, not 60. Prefer
     // the higher attack when both miss KO, absent paid Copycat revenge.
     const galeDamage=printedDamage(gale,request);
     const spikyDamage=printedDamage(spiky,request);
-    if(galeDamage!==null&&spikyDamage!==null&&galeDamage>spikyDamage)
-      return take(gale);
+    if(!preferredMegaAttack&&galeDamage!==null&&spikyDamage!==null&&galeDamage>spikyDamage)
+      preferredMegaAttack=gale;
   }
   const peck=attacks.find(x=>x.attackName==='Peck Off'&&has(o.ownPublic?.active,P.pidgey));
-  if(peck && arr(o.opponentPublic?.active?.tools).some(x=>has(x,P.hood))&&
-      !doubleBaseCutExposed(request))return take(peck);
+  const preferredPeck=peck&&arr(o.opponentPublic?.active?.tools).some(x=>has(x,P.hood))&&
+      !doubleBaseCutExposed(request)?peck:null;
   const gustOpportunity=guzmaOpportunity(o);
   const gust=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.guzma));
   if(gust&&gustOpportunity?.terminal)return take(gust);
@@ -1119,7 +1120,7 @@ function rootDecision(request) {
   const tmAttack=attacks.find(x=>x.attackName==='Evolution'&&
     has(o.ownPublic?.active,P.bunnelby)&&
     arr(o.ownPublic?.active?.tools).some(c=>has(c,P.tmEvolution)));
-  if(tmAttack&&k1EvoTarget(o))return take(tmAttack);
+  const pendingTmAttack=tmAttack&&k1EvoTarget(o)?tmAttack:null;
   const eldegoss=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.eldegoss));
   if(eldegoss&&eldCanBench(o))return take(eldegoss);
   const n=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.n));
@@ -1131,7 +1132,7 @@ function rootDecision(request) {
     return take(xtransceiver);
   const floatUp=items.find(x=>x.kind==='attack'&&x.attackName==='Float Up'&&
     has(o.ownPublic?.active,P.eldegoss));
-  if(floatUp)return take(floatUp);
+  const pendingFloatUp=floatUp;
   const attrition=bunnelbyAttritionAction(items,o);
   if(attrition?.attackName==='Rototiller'&&o.ownPublic?.deckCount<=1)
     return take(attrition);
@@ -1144,7 +1145,7 @@ function rootDecision(request) {
       (!x.targetPrinting||has(x.targetPrinting,P.bus)));
     if(retreatBus)return take(retreatBus);
   }
-  if(attrition)return take(attrition);
+  const pendingAttrition=attrition;
   const mobility=mobilityActions(items,o);
   if(mobility)return take(mobility);
   const attachTm=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.tmEvolution)&&
@@ -1182,13 +1183,22 @@ function rootDecision(request) {
   const aorLive=slots(o.ownPublic).some(x=>has(x,P.aor)&&
     !arr(x.abilitySuppressions).some(z=>
       z.abilityName==='Irritating Pollen'&&z.suppressed===true));
+  // Nonterminal attacks end our turn. First complete offered Basic/evolution
+  // setup; only immediately terminal KOs may pre-empt those opportunities.
+  const setup=items.map((item,index)=>({item,index,
+    score:item.kind==='play-card'?Math.max(usefulEvolution(item,o),usefulBasic(item,o)):0}))
+    .filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.index-b.index)[0];
+  if(setup)return take(setup.item);
   if(itchy&&o.globalTurn<=4&&!aorLive&&
     o.opponentPublic?.publicTurnRestrictions?.itemPlayLocked!==true)
     return take(itchy);
-
+  if(pendingTmAttack)return take(pendingTmAttack);
+  if(pendingAttrition)return take(pendingAttrition);
+  if(pendingFloatUp)return take(pendingFloatUp);
+  if(preferredMegaAttack)return take(preferredMegaAttack);
+  if(preferredPeck)return take(preferredPeck);
   const scored=items.map((item,index)=>{
     let score=0;
-    if(item.kind==='play-card')score=Math.max(usefulEvolution(item,o),usefulBasic(item,o));
     if(item.kind==='attack') {
       if(item===peck && doubleBaseCutExposed(request))score=0;
       else if(knockOut(item,request))score=100;
