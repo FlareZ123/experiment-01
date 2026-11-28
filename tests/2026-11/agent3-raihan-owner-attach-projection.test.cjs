@@ -19,7 +19,7 @@ class CardList {
 const native={
   EnergyCard,EnergyType:{BASIC:'BASIC',SPECIAL:'SPECIAL'},
   PlayerType:{BOTTOM_PLAYER:0,TOP_PLAYER:1},
-  SlotType:{ACTIVE:0,BENCH:1}
+  SlotType:{ACTIVE:0,BENCH:1,BOARD:2}
 };
 class AttachEnergyPrompt {
   constructor(actor,options={}){
@@ -149,6 +149,18 @@ test('Raihan rejects zero eligible Basic Energy rather than fabricating a token'
   x.actor.discard.cards=[x.special];
   assert.throws(()=>project(x),/No native-valid/);
 });
+test('Raihan native BOARD wildcard permits only real own slots after validation',()=>{
+  const x=setup(1);
+  x.prompt.slots=[native.SlotType.BOARD];
+  const got=project(x);
+  assert.equal(got.promptProjection.choices.length,4);
+  const represented=new Set(got.promptProjection.choices.map(
+    c=>c.publicMetadata.zone));
+  assert.deepEqual([...represented].sort(),['active','bench']);
+  x.prompt.slots=[999];
+  assert.throws(()=>project(x),/contract mismatch/);
+});
+
 test('Raihan projection delegates unrelated prompt to shared projector',()=>{
   const x=setup(0);
   const other={sourceKind:'card-effect',sourceCard:{name:'Crispin',fullName:'Crispin SCR'}};
