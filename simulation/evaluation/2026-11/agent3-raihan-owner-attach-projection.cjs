@@ -95,8 +95,7 @@ function projectRaihanOwnerAttachPrompt(options={}){
         sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true,
         energyType:'BASIC',zone:target.zone,
         ...(target.zone==='bench'?{benchIndex:target.index}:{}),
-        choiceIndex:choices.length,selectedCount:1,
-        targetPrinting:printing(target.pokemon)
+        choiceIndex:choices.length,selectedCount:1
       })
     }));
     choiceByToken.set(token,raw);
