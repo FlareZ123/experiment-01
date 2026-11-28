@@ -99,6 +99,12 @@ function benchSupportAbilityUsable(printing,o){
  }
  return true;
 }
+function forestSealLinePending(o){
+ if(o.ownTurnResources?.vstarUsed||!benchSupportAbilityUsable('Crobat V DAA 104',o))return false;
+ const crobat=slots(o.ownPublic).find(x=>match(x.pokemon.printing,PRINT.crobat)&&
+  list(x.pokemon.tools).length===0);
+ return Boolean(crobat)&&list(o.ownHand).some(c=>match(c,PRINT.forest));
+}
 function benchSupportOnceThisTurnAlreadyUsed(printing,o){
  if(!match(printing,PRINT.crobat)&&!match(printing,PRINT.dedenne)&&!match(printing,PRINT.squawk))return false;
  return slots(o.ownPublic).some(r=>name(r.pokemon.printing)===name(printing)&&
@@ -452,7 +458,7 @@ function score(action,req){
     list(x.pokemon.tools).length>0);
   // Playing Garbodor on an already equipped Trubbish immediately switches
   // off our own on-board setup Abilities, unlike simply equipping Trubbish.
-  if(equipped&&setupAbilityPending(items,o))return 140;
+  if(equipped&&(setupAbilityPending(items,o)||forestSealLinePending(o)))return 140;
   return 620;
  }
  if(match(p,PRINT.trubbish))return benchCount(own)<5&&!onBoard(own,PRINT.trubbish)?555:20;
@@ -461,7 +467,7 @@ function score(action,req){
  if(match(p,PRINT.float)||match(p,PRINT.muscle)||match(p,PRINT.forest)){
   if(!t||list(t.pokemon.tools).length!==0)return 0;
   if(match(p,PRINT.forest)){
-   return match(t.pokemon.printing,PRINT.crobat)&&!o.ownTurnResources?.vstarUsed?440:0;
+   return match(t.pokemon.printing,PRINT.crobat)&&!o.ownTurnResources?.vstarUsed&&benchSupportAbilityUsable(p,o)?440:0;
   }
   if(match(p,PRINT.float)&&t.zone==='active'&&!match(t.pokemon.printing,PRINT.budew)&&
      o.globalTurn<=4&&canTool&&onBoard(own,PRINT.budew)&&
@@ -830,4 +836,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,regidragoPayloadCount,karenDenialScore,vsSeekerDenialScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,toolEnabled,garbotoxinStatus,liveGarbotoxin};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,regidragoPayloadCount,karenDenialScore,vsSeekerDenialScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,toolEnabled,garbotoxinStatus,liveGarbotoxin};
