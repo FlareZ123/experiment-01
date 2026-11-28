@@ -1108,38 +1108,69 @@ function rank30EngineSetupPrompt(request) {
   return no('R30_ENGINE_SETUP_UNSUPPORTED');
 }
 
-function fieldBlowerOpportunity(o) {
+function fieldBlowerTargetPrintings(o) {
   const opp=o?.opponentPublic,own=o?.ownPublic;
-  const active=opp?.active;
-  if(!has(active,P.snorlax)||!arr(active.tools).some(t=>has(t,P.float)))
-    return false;
-  // A mixed owner/zone ChooseCardsPrompt loses per-card custody. Do not use
-  // Field Blower when more than one visible Float Stone could be selected.
+  if(!opp||!own)return [];
   const allTools=[...slots(own),...slots(opp)]
-    .flatMap(p=>arr(p.tools));
-  if(allTools.filter(t=>has(t,P.float)).length!==1)return false;
-  const miniorActive=has(own?.active,P.minior)&&
+    .flatMap(p=>arr(p.tools)).map(t=>text(t));
+  const uniqueTool=printing=>allTools.filter(t=>t===printing).length===1;
+  const chosen=[];
+  const ownAbilityRole=slots(own).some(p=>has(p,P.clefairy)||
+    /^Latias ex SSP(?: 76)?\b/i.test(text(p))||
+    has(p,P.crobat)||has(p,P.fez)||has(p,P.lele));
+  const active=opp.active;
+  const miniorActive=has(own.active,P.minior)&&
     arr(own.active.energies).length>=1;
-  const miniorBench=arr(own?.bench).some(p=>has(p,P.minior));
-  const attachmentAvailable=o?.ownTurnResources?.energyPlayedTurn===0&&
-    arr(o?.ownHand).some(c=>has(c,P.basicPsychic)||has(c,P.telepathic));
-  return miniorActive||(miniorBench&&attachmentAvailable);
+  const miniorBench=arr(own.bench).some(p=>has(p,P.minior));
+  const canAttach=o.ownTurnResources?.energyPlayedTurn===0&&
+    arr(o.ownHand).some(c=>has(c,P.basicPsychic)||has(c,P.telepathic));
+  if(has(active,P.snorlax)&&(miniorActive||(miniorBench&&canAttach))) {
+    const floater=arr(active.tools).find(t=>has(t,P.float));
+    if(floater&&uniqueTool(text(floater)))chosen.push(text(floater));
+  }
+  // Garbotoxin locks can be cleared only if every equipped Garbodor is
+  // disarmed. An ambiguous equal-name Tool cannot be safely targeted using
+  // the generic card-combination projection's source choice tokens.
+  if(ownAbilityRole) {
+    const armed=slots(opp).filter(p=>
+      /^Garbodor (?:LTR(?: 68)?|BKP(?: 57)?)\b/i.test(text(p))&&
+      arr(p.abilities).includes('Garbotoxin')&&arr(p.tools).length===1);
+    const armedTools=armed.map(p=>text(p.tools[0]));
+    if(armedTools.length&&armedTools.length<=2&&
+       armedTools.every(t=>uniqueTool(t))&&
+       new Set(armedTools).size===armedTools.length)
+      for(const t of armedTools)if(!chosen.includes(t))chosen.push(t);
+    const stadiums=[...arr(own.stadium),...arr(opp.stadium)];
+    const blockers=stadiums.map(c=>text(c)).filter(t=>
+      /^(?:Path to the Peak CRE(?: 148)?|Silent Lab PRC(?: 140)?)\b/i.test(t));
+    const uniqueBlockers=[...new Set(blockers)];
+    if(uniqueBlockers.length===1&&!chosen.includes(uniqueBlockers[0]))
+      chosen.push(uniqueBlockers[0]);
+  }
+  return chosen.slice(0,2);
+}
+function fieldBlowerOpportunity(o) {
+  return fieldBlowerTargetPrintings(o).length>0;
 }
 function fieldBlowerPrompt(request) {
   const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
   if(!sameSource(p,P.blower)||p.promptType!=='ChooseCardsPrompt'||
      m.selectionType!=='card-combination'||m.isOwnerVisible!==true||
-     !['tool','mixed'].includes(m.sourceZone)||
-     !['opponent','mixed'].includes(m.ownerSeat)||
+     !['tool','stadium','mixed'].includes(m.sourceZone)||
+     !['opponent','actor','mixed'].includes(m.ownerSeat)||
      !safeInt(m.minimumCount)||!safeInt(m.maximumCount)||
-     m.minimumCount>1||m.maximumCount>2)
+     m.minimumCount>2||m.maximumCount>2)
     return no('R30_BLOWER_PROMPT_UNSUPPORTED');
-  if(!fieldBlowerOpportunity(o))
+  const targets=fieldBlowerTargetPrintings(o),chosen=[];
+  for(const printing of targets) {
+    const offered=arr(p.choices).filter(c=>c.kind==='card'&&
+      typeof c.token==='string'&&text(c)===printing);
+    if(offered.length===1)chosen.push(offered[0]);
+    if(chosen.length>=m.maximumCount)break;
+  }
+  if(chosen.length<m.minimumCount||!chosen.length)
     return no('R30_BLOWER_NO_UNIQUE_TARGET');
-  const target=arr(p.choices).filter(c=>c.kind==='card'&&
-    typeof c.token==='string'&&has(c,P.float));
-  if(target.length!==1)return no('R30_BLOWER_NO_UNIQUE_TARGET');
-  return picks(target);
+  return picks(chosen);
 }
 function skyFieldHandExpansionKO(o) {
   const own=o?.ownPublic,ro=projectedRondo(o);
@@ -1494,4 +1525,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
+  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
