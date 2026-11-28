@@ -326,3 +326,39 @@ test('owner Bench prompt without top-level targetZone may choose two separate Gl
   r.prompt.choices[1].publicMetadata.benchIndex=0;
   assert.deepEqual(decision(r),{kind:'select-choices',tokens:['g1']});
 });
+
+test('first-turn Fan Call finds source Bunnelby, Pidgey and Buneary as offered deck tokens',()=>{
+  const r=root();r.observation.globalTurn=2;
+  r.observation.ownPublic=p(pokemon('Fan Rotom SCR 118',{hp:70}));
+  r.observation.ownHand=[];r.actionFrontier.items=[
+    {kind:'use-ability',token:'fan-call',actorPrinting:'Fan Rotom SCR 118',
+      publicMetadata:{abilityName:'Fan Call'}},src('Buddy-Buddy Poffin TEF 144','pass','pass')];
+  assert.deepEqual(decision(r),{kind:'select-action',token:'fan-call'});
+  r.prompt={promptType:'ChooseCardsPrompt',source:{sourcePrinting:'Fan Rotom SCR 118',effectName:'Fan Call'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:3},
+    choices:[
+      {...card('Pidgeotto TEU 123','evo'),publicMetadata:{sourceZone:'deck',ownerSeat:'actor'}},
+      {...card('Buneary PFL 83','bun'),publicMetadata:{sourceZone:'deck',ownerSeat:'actor'}},
+      {...card('Bunnelby PRC 121','bunnelby'),publicMetadata:{sourceZone:'deck',ownerSeat:'actor'}},
+      {...card('Pidgey FLF 75','pidgey'),publicMetadata:{sourceZone:'deck',ownerSeat:'actor'}}]};
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['bunnelby','pidgey','bun']});
+});
+test('Fan Call prioritizes missing lines and rejects full Bench or nonactor deck',()=>{
+  const r=root();r.observation.globalTurn=1;
+  r.observation.ownPublic=p(pokemon('Fan Rotom SCR 118',{hp:70}),
+    [pokemon('Bunnelby PRC 121',{hp:60})]);
+  r.observation.ownHand=['Pidgey FLF 75'];
+  r.actionFrontier.items=[{kind:'use-ability',token:'fan',
+    actorPrinting:'Fan Rotom SCR 118',publicMetadata:{abilityName:'Fan Call'}}];
+  assert.deepEqual(decision(r),{kind:'select-action',token:'fan'});
+  r.prompt={promptType:'ChooseCardsPrompt',source:{sourcePrinting:'Fan Rotom SCR 118',effectName:'Fan Call'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:3},
+    choices:[{...card('Buneary PFL 83','bun'),publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}},
+      {...card('Pidgeotto MEW 17','evo'),publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}}]};
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['bun','evo']});
+  r.prompt.choices[0].publicMetadata.ownerSeat='opponent';
+  assert.equal(decision(r).reasonCode,'UNSUPPORTED_CARD_COMBINATION_SOURCE');
+  r.prompt=null;
+  r.observation.ownPublic.bench=Array.from({length:5},()=>pokemon('Budew ASC 16',{hp:30}));
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+});
