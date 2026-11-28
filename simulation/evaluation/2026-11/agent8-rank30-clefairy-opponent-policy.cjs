@@ -1112,7 +1112,7 @@ function needWonderTag(o) {
      !safeInt(o.ownPublic?.deckCount)||o.ownPublic.deckCount<=0||
      !leleAbilityAccessIsSafe(o))return false;
   const holdingSupporter=arr(o.ownHand).some(c=>
-    has(c,P.guzma)||has(c,P.marnie)||has(c,P.raihan));
+    has(c,P.guzma)||has(c,P.marnie));
   return !holdingSupporter&&
     (arr(o.ownHand).length<=3||guzmaOpportunity(o)!==null);
 }
@@ -1127,10 +1127,9 @@ function wonderTagPrompt(request) {
   const offered=arr(p.choices).filter(c=>c.kind==='card'&&
     typeof c.token==='string');
   const gust=guzmaOpportunity(o);
-  const priorKO=request.publicEventReceipt?.priorOpponentTurnKO?.any===true;
-  const preference=gust?[P.guzma,P.marnie,P.raihan]:
-    priorKO?[P.raihan,P.marnie,P.guzma]:
-    [P.marnie,P.guzma,P.raihan];
+  // Raihan is present in the source but its native attach/search continuation
+  // is not yet supported by this worker. Do not search for a dead action.
+  const preference=gust?[P.guzma,P.marnie]:[P.marnie,P.guzma];
   const picked=preference.flatMap(pat=>offered.filter(c=>has(c,pat)))[0];
   if(picked)return picks([picked]);
   const empty=arr(p.choices).find(c=>c.kind==='empty-selection'&&
