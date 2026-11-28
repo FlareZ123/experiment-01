@@ -458,3 +458,22 @@ for(const seat of [0,1]){
   });
  }
 }
+
+for(const seat of [0,1]){
+ test('unique public Noivern option beats two redundant Regidrago V copies, seat '+seat,()=>{
+  const v=view(seat);
+  v.ownPublic.stadium=[]; // This is independent of Temple funding.
+  v.opponentPublic.active.energies=[
+    'Grass Energy SVE','Grass Energy SVE','Fire Energy SVE'];
+  v.opponentPublic.publicTurnRestrictions.gxUsed=true;
+  // Three physical Regidrago V are a plausible source-list discard; removing
+  // two leaves a Dragon Laser donor. The unique Noivern has a different
+  // tactical attack option not eliminated by removing two redundant V cards.
+  v.opponentPublic.discard=[
+    'Regidrago V SIT','Regidrago V SIT',
+    'Regidrago V SIT','Noivern ex PAL'];
+  assert.deepEqual(decision(prompt(seat,v)),{
+    kind:'select-choices',tokens:['card-0','card-3']
+  });
+ });
+}
