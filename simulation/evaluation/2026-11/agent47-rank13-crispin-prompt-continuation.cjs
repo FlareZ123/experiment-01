@@ -11,6 +11,8 @@
  * different-type requirement. This selector explicitly chooses one of each.
  */
 
+const {requiredBasicForApex}=
+  require('./agent47-rank13-vsseeker-funding-line.cjs');
 const CRISPIN = /^Crispin SCR(?: 133)?$/i;
 // Source rank13 lists MEE #9/#10; the pinned Twinleaf Basic Energy
 // classes are canonical MEE #1/#2. Equivalent Basic printings are
@@ -59,17 +61,15 @@ function chooseRank13CrispinContinuation(request) {
     const own=view.ownPublic??{};
     const active=own.active;
     const attached=active?.energies;
-    // Only force a Grass-to-active payment when it actually completes the
-    // exact {Grass,Grass,Fire} Apex Dragon cost. An already-funded Regidrago,
-    // an alternate attacker, or a spare early-game Crispin is not the same
-    // decision problem and must delegate rather than absorb this heuristic.
+    // Only complete the exact GGF Apex cost: G+F -> attach Grass,
+    // or G+G -> attach Fire. Other plays delegate to unchanged worker.
+    const need=requiredBasicForApex(attached);
     if(!match(active, /^Regidrago VSTAR SIT(?: 136)?$/i) ||
-       !Array.isArray(attached) || attached.length!==2 ||
-       attached.filter(card=>match(card,GRASS)).length!==1 ||
-       attached.filter(card=>match(card,FIRE)).length!==1)return null;
+       need===null)return null;
+    const desired=need==='grass'?GRASS:FIRE;
     const candidates=prompt.choices.filter(c=>
       c?.kind==='energy' && typeof c.token==='string' &&
-      match(c,GRASS) && c.publicMetadata?.ownerSeat==='actor' &&
+      match(c,desired) && c.publicMetadata?.ownerSeat==='actor' &&
       c.publicMetadata?.zone==='active' &&
       c.publicMetadata?.sourceZone==='effect-revealed' &&
       c.publicMetadata?.isOwnerVisible===true);
