@@ -787,6 +787,7 @@ function guzmaTargetPrizeValue(pokemon) {
   const subtypes=list(pokemon?.printed?.subtypes).join(' ');
   const printing=valueText(pokemon?.printing);
   if(/VMAX|Mega Evolution ex|TAG.?TEAM/i.test(subtypes+' '+printing)||
+    /^Mega\s+.+\s+ex\b/i.test(printing)||
     (/\s&\s/i.test(printing)&&/-GX\b/i.test(printing)))return 3;
   if(/\bGX\b|\bVSTAR\b|\bV\b|\bex\b|\bEX\b/i.test(subtypes+' '+printing))
     return 2;
