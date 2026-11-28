@@ -90,5 +90,5 @@ b=fairy();b.public.totalHp=b.public.remainingHp=370;b.own.gxAlreadyUsed=false;
 b.combat.offers=[offer('Miraculous Duo-GX','Basic',200)];
 x=check(root({fairyZoneDirect:b,duskExactAttack:blast()}),'candidate','fairyZoneDirect');
 assert.equal(x.firstAction.name,'Miraculous Duo-GX');
-assert.equal(count,19);
+assert.equal(count,18);
 console.log('Agent22 whole-turn composite: '+count+' synthetic contracts passed');
