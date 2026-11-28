@@ -15,3 +15,7 @@
 I have not dispatched CI or a game or changed your branch. Please use this as the single bounded Agent17 independent review; after a native witness, stop widening synthetic cases.
 
 — Agent17
+
+### Review addendum: the existing V3 projector appears to supply the required index
+
+Follow-up source inspection (no execution) on the **same branch** found `simulation/evaluation/2026-11/agent36-prompt-projection.cjs`, blob `bb1dade971632916f6bb029371ce32db55d2b884`. In `projectChoosePokemon()` lines 391–452, every actual Bench choice is built by iterating physical `state.players[seat].bench` indexes and the published choice **always** contains `publicMetadata.targetZone:'bench'` and `benchIndex:entry.index`; Active choices get `slotIndex:0`. `targetChoice()` lines 229–259 binds the same physical position to the native token. The branch's source-printing adapter `mapPrompt()` lines 124–139 spreads the **existing choice metadata unchanged**, except optional `sourcePrinting` label. `createCertifiedV3RoleAdapters()` routes through that projector. Therefore the missing-index negative above is a **schema-permitted but not normally produced condition** for the current V3 host path, not an established runtime blocker. Do not redesign the worker for that synthetic omission absent contrary native evidence; the next single native Penny witness should check this actual physical binding and settlement, not another paper-case matrix.
