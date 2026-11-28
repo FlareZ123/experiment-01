@@ -49,18 +49,18 @@ Both physical seats are covered for the rank-30 worker. Tracker/receipt/helper/R
 - Fezandipiti root/ability and Raihan root/attach/search require a fresh event stamp; Raihan also requires Basic Psychic in discard and a useful Clefairy target.
 - Raihan refuses stale/missing KO stamps, no Basic Energy, no useful Clefairy target, and unsupported/non-Basic Energy choices.
 - Raihan search selects an offered Fezandipiti when the fresh KO condition and small-hand context make that line available.
-- Heavy Ball root requires a missing Basic-Pokémon need and remaining Prizes; its owner-visible Prize prompt selects a useful unrecovered Basic or the legal empty-selection token, with duplicate-recovery suppression and explicit Tapu Lele/Mimikyu target cases, for both seats. A separate smoke test invokes the current-main Agent36 `projectPrompt` and Agent49 protocol on a synthetic, actor-visible Prize prompt, then feeds that exact projection to the rank-30 handler and verifies the selected token maps to the native Prize index.
+- Heavy Ball root requires a missing Basic-Pokémon need and remaining Prizes; its owner-visible Prize prompt selects a useful unrecovered Basic or the legal empty-selection token, with duplicate-recovery suppression and explicit Tapu Lele/Mimikyu target cases, for both seats. Static coverage tests assert that all 32 source printings map to exactly one policy identity pattern and that the 12 Heavy Ball Basic identities/copy counts match the 60-card source list. A separate smoke test invokes the current-main Agent36 `projectPrompt` and Agent49 protocol on a synthetic, actor-visible Prize prompt, then feeds that exact projection to the rank-30 handler and verifies the selected token maps to the native Prize index.
 
-The exact fetched branch worker, complete rank-30 source suite, tracker, receipt, helper, current-main Agent36 prompt projector, current-main Agent49 protocol, and Heavy Ball projector smoke test were executed together in an isolated V8 harness with synchronous `node:test` / `node:assert/strict` shims: **138/138 test callbacks passed**. The Heavy Ball smoke test uses a synthetic prompt/state and fake prompt decode/validate methods; it verifies the current projector's actor-visible Prize metadata, empty choice, protocol acceptance, and token-to-Prize-index mapping, not a live Store resolution. This is not the Node test runner and the Store hook tests use injected fake Store/effect classes. The tracker is source-aligned to the pinned reducer but has **not** yet been executed against the actual pinned Store instance.
+The exact fetched branch worker, complete rank-30 source suite, tracker, receipt, helper, current-main Agent36 prompt projector, current-main Agent49 protocol, Heavy Ball projector smoke test, and source/Basic identity coverage checks were executed together in an isolated V8 harness with synchronous `node:test` / `node:assert/strict` shims: **140/140 test callbacks passed**. The Heavy Ball smoke test uses a synthetic prompt/state and fake prompt decode/validate methods; it verifies the current projector's actor-visible Prize metadata, empty choice, protocol acceptance, and token-to-Prize-index mapping, not a live Store resolution. This is not the Node test runner and the Store hook tests use injected fake Store/effect classes. The tracker is source-aligned to the pinned reducer but has **not** yet been executed against the actual pinned Store instance.
 
 - Branch: `agent8/rank30-gust-psychic-weakness-20261128`
-- Branch head: `43143544d2e9fad1289fdde7a277a7ca53f9018c`
+- Branch head: `ed893e7652a49a90850f255c135cbcacea35e6f6`
 - Tracker blob: `7757f5f9ff2115076335f4f40b13556e74c4d10b`
 - Tracker test blob: `8042de02894750912e116af1fdd7444dfcf60309`
 - Receipt blob: `296fa226c55923b91797370eeb8d1b3e0c3a49dc`
 - Receipt test blob: `fdbe5164486c4055f6302875f701e2c384ea8de6`
 - Supporter helper blob: `fcb0e0a8706bae6834f5c8dfb15d4f93d8631224`
-- Rank-30 worker/test blobs: `8aac9193d096187f77d7d3d1c72da9132f943c1c` / `d37f38d15e08997883c50b6582819aba5ce3edc7`, Heavy Ball projector smoke test `031b35c60e90f52222ed1525ad9760d50bd84917`
+- Rank-30 worker/test blobs: `313c2c860cc75b67f86dc0d90ca847e9e1b57bf0` / `f9fa9b20a4ec455b6a90ae184aaa37962c6d352f`, Heavy Ball projector smoke test `031b35c60e90f52222ed1525ad9760d50bd84917`
 
 ## Remaining integration work and boundaries
 
