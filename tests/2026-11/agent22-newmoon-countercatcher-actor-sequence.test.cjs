@@ -184,5 +184,36 @@ for(const tweak of [
  const z=createSlice({seat:0}),q=regidrago();tweak(q);
  assert.equal(z.decide(q),null);checks++;
 }
-assert.equal(checks,68);
+
+// Damage prevention on the OLD opponent Active is not automatically a
+// permanent Basic-attack prohibition after gusting a different defender.
+// Actual post-gust offer/damage must still independently certify success.
+{
+ const s=createSlice({seat:0}),q=regidrago();
+ q.actionFrontier.items[1].publicMetadata.damagePrevented=true;
+ assert.equal(s.decide(q).decision.token,'blast');checks++;
+ const p=prompt(q,'Cursed Blast','bench',0);
+ assert.equal(s.decide(p).decision.tokens[0],'bench-pick');checks++;
+ const post=clone(q);post.observation.opponentPublic.prizeCount=1;
+ post.observation.opponentPublic.bench[0].damage=130;
+ post.actionFrontier.items=[{kind:'play-card',token:'catchAfterBarrier',
+  actorPrinting:'Counter Catcher PAR160',
+  publicMetadata:{cardType:'trainer',handIndex:0}}];
+ assert.equal(s.decide(post).decision.token,'catchAfterBarrier');checks++;
+ assert.equal(s.decide(prompt(post,'Counter Catcher','bench',130)).decision.tokens[0],
+  'bench-pick');checks++;
+ const now=clone(post);
+ now.observation.opponentPublic.active=clone(post.observation.opponentPublic.bench[0]);
+ now.observation.opponentPublic.bench=[post.observation.opponentPublic.active];
+ now.actionFrontier.items=[clone(q.actionFrontier.items[1])];
+ now.actionFrontier.items[0].publicMetadata.damagePrevented=false;
+ now.actionFrontier.items[0].publicMetadata.damageAfterResistance=150;
+ assert.equal(s.decide(now).decision.token,'night');checks++;
+ const bad=createSlice({seat:0});
+ bad.decide(q);bad.decide(p);bad.decide(post);
+ bad.decide(prompt(post,'Counter Catcher','bench',130));
+ now.actionFrontier.items[0].publicMetadata.damagePrevented=true;
+ assert.equal(bad.decide(now),null);checks++;
+}
+assert.equal(checks,74);
 console.log('Agent22 actor-countercatcher exact multi-prompt slice: '+checks+' synthetic checks passed');
