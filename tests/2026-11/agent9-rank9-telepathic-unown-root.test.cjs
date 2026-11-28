@@ -370,6 +370,64 @@ for(const seat of [0,1]){
 
 }
 
+
+/* Public global lock veto. Garbodor's Garbotoxin needs an attached Tool;
+ * Alolan Muk's Power of Alchemy is passive; Galarian Weezing's Neutralizing
+ * Gas is Active-only. All prevent Farewell on a NEW unprotected Basic Unown.
+ * A direct, already-paid KO must not be delayed for dead draw routes. */
+for(const seat of [0,1]){
+  const shadow=()=>{
+    const o=obs(seat);
+    o.opponentPublic.active=mon('Shadow Rider Calyrex VMAX CRE 75',{hp:320,
+      printed:{stage:'VMAX',subtypes:['VMAX'],types:['Psychic'],
+        weakness:[{type:'Darkness',value:'×2'}],resistance:[]}});
+    o.opponentPublic.bench=[mon("Lillie's Clefairy ex JTG 56",{hp:190})];
+    return o;
+  };
+  const locks=[
+    ['Garbotoxin',o=>{
+      o.opponentPublic.bench.push(mon('Garbodor BKP 57',{hp:100,
+        tools:['Float Stone BKT 137'],abilityDetails:[{name:'Garbotoxin'}],
+        printed:{stage:'Stage1',subtypes:['Stage1'],types:['Psychic'],
+          weakness:[{type:'Psychic',value:'×2'}],resistance:[]}}));return o;}],
+    ['Power of Alchemy',o=>{
+      o.opponentPublic.bench.push(mon('Alolan Muk SUM 58',{hp:120,
+        abilityDetails:[{name:'Power of Alchemy'}],
+        printed:{stage:'Stage1',subtypes:['Stage1'],types:['Darkness'],
+          weakness:[],resistance:[]}}));return o;}],
+    ['Neutralizing Gas',o=>{
+      o.opponentPublic.active=mon('Galarian Weezing RCL 113',{hp:130,
+        abilityDetails:[{name:'Neutralizing Gas'}],
+        printed:{stage:'Stage1',subtypes:['Stage1'],types:['Darkness'],
+          weakness:[],resistance:[]}});return o;}]
+  ];
+  const reply=(o,actorPrinting,target=false)=>{
+    const items=[{kind:'play-card',token:'setup',actorPrinting,
+      publicMetadata:target?
+        {targetSeat:'actor',targetZone:'bench',
+          targetIndex:0,isOwnerVisible:true}:{}}];
+    const attack={kind:'attack',token:'attack',actorPrinting:Meg,
+      attackName:'Claw of Darkness',publicMetadata:{attackCostPayable:true}};
+    return decide(P.createPolicy({role:'opponent',seat,
+      policyVersion:P.POLICY_VERSION,config:{}}),o,1,{
+      schema:protocol.FRONTIER_SCHEMA,items:[...items,attack,
+        {kind:'pass',token:'pass'}]
+    });
+  };
+  for(const [lockName,lock] of locks){
+    let o=lock(shadow());o.ownHand=[T];
+    ok(reply(o,T,true).token==='attack',
+      lockName+' blocks Telepath-to-Unown pre-KO, seat '+seat);
+    o=lock(shadow());o.ownHand=[Un];o.ownPublic.bench=[];
+    ok(reply(o,Un,true).token==='attack',
+      lockName+' blocks hand-Unown pre-KO, seat '+seat);
+    o=lock(shadow());o.ownHand=['Rescue Carrier EVS 154'];
+    o.ownPublic.bench=[];o.ownPublic.discard=[Un,Un];
+    ok(reply(o,'Rescue Carrier EVS 154').token==='attack',
+      lockName+' blocks Carrier/Unown pre-KO, seat '+seat);
+  }
+}
+
 /* Synthetic post-settlement challenge of the original rank-9 four-copy
  * Rescue Carrier engine: once searched Unown cycle into discard, physically
  * replaying recovered copies can unlock two more Farewell Letter draws
