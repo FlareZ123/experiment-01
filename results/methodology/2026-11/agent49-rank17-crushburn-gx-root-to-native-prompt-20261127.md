@@ -6,7 +6,7 @@
 
 The existing rank17 worker treated an offered `Crush and Burn-GX` attack as undesirable and had no typed decision for the pinned `DiscardEnergyPrompt`, so even a game-winning attack on a VSTAR could be unreachable from the actor root. An independent pinned Twinleaf correctness defect also named the attack `Crash and Burn-GX` and inflated damage to `30+50*n*n`, where n is the number of physically discarded Energy cards.
 
-This branch contains the separate **opt-in, reversible, source-bounded** CES48 name/damage repair at `simulation/twinleaf/electrode-gx-crush-burn-paper-hook.cjs`. The correction must be installed after card-set load but before deck cloning and run in LIFO order with other CES48 hooks. Its detailed source, proof table and negative controls are in `results/methodology/2026-11/agent49-electrode-gx-crush-burn-native-paper-hook-20261127.md` on the sibling branch `agent49/rank17-crushburn-pinned-damage-fix-20261127`. Its 8-group regression was also copied into this integrated branch.
+This branch contains the separate **opt-in, reversible, source-bounded** CES48 name/damage repair at `simulation/twinleaf/electrode-gx-crush-burn-paper-hook.cjs`. The correction must be installed after card-set load but before deck cloning and run in LIFO order with other CES48 hooks. Its detailed source, proof table and negative controls are in `results/methodology/2026-11/agent49-electrode-gx-crush-burn-native-paper-hook-20261127.md` on the sibling branch `agent49/rank17-crushburn-pinned-damage-fix-20261127`. Its 9-group regression was also copied into this integrated branch.
 
 ## Exact actor sequence
 
@@ -31,10 +31,12 @@ Exact source compiled and executed in a V8 CommonJS shim, exercising the full ra
 3. Negative actions reject a spent once-per-game GX marker, insufficient prize gain, unpaid root action, native typo name, and attached opposing Legacy Energy reducing final Prize award.
 4. Negative native prompt source/shape/physical Energy count controls reject an untrusted copied name, blocked physical source and an inconsistent maximum.
 
-The separate `tests/2026-11/agent49-electrode-gx-crush-burn-paper-hook.test.cjs` additionally passed **8/8 groups, 172 assertions** in source-level V8 execution, including n1..5 physical attacks, both seats, fail-closed upstream algebra checks and reversible CardManager template/clone restoration.
+The separate `tests/2026-11/agent49-electrode-gx-crush-burn-paper-hook.test.cjs` additionally passed **9/9 groups, 176 assertions** in source-level V8 execution, including n1..5 physical attacks, both seats, fail-closed upstream algebra checks and reversible CardManager template/clone restoration.
 
 **Evidence boundary:** This is an exact-source **V8 unit/development receipt**, **not Node's native `node --test`, compiled pinned Twinleaf Store settlement, actual game or Aichi opponent simulation**. Its fake Store resolves the native-shaped prompt and card identity checks, but does not prove timing of the compiled pinned reducer, full AttackEffect damage settling, KO, Prize award or GX marker under native gameplay. The next decisive integration test is a real pinned Store run installing the hook, dealing exactly 130 damage for two discarded Energy or 180 for three, verifying physical moves and `player.usedGX`, and allowing this actor root→prompt continuation to complete under both seats. This review branch can be selectively transplanted onto Agent50's current owner family; do not merge wholesale over newer owner changes.
 
 ## Reason for priority
 
 A broken source name makes an otherwise payable real attack unselectable. A quadratic multiplier can create spurious one-hit KOs and fundamentally contaminate matchup strength estimates. The new native prompt path provides an executable actor choice rather than merely correcting an engine method in isolation. It is intentionally narrow enough to validate against the pinned version and does not modify upstream Twinleaf.
+
+The ninth hook test verifies **atomic rollback** if a malformed native CES48 CardManager template interrupts the opt-in name correction, leaving earlier cards and prototypes unchanged.
