@@ -465,6 +465,28 @@ function choosePrompt(request){
         reason('UNRECOGNIZED_SIMPLE_PROMPT');
     }
   }
+  if(kind==='AttachEnergyPrompt'&&
+     src.sourcePrinting===PREFIX.regidragoV &&
+     src.effectName==='Celestial Roar'){
+    // Native Regidrago V SIT135 discards the top 3 and, when at least one
+    // Basic Energy is found, opens ONE mandatory AttachEnergyPrompt covering
+    // all eligible Energy. Host projects ONE opaque composite choice, never
+    // individual hidden deck indices or an illegal partial payment.
+    const single=choices[0],metadata=single?.publicMetadata??{};
+    const k=meta.minimumCount;
+    if(choices.length!==1||single?.kind!=='energy'||
+      typeof single.token!=='string'||meta.selectionType!=='energy-attachment'||
+      meta.allowCancel!==false||meta.ownerSeat!=='actor'||
+      meta.isOwnerVisible!==true||meta.sourceZone!=='effect-revealed'||
+      meta.zone!=='active'||meta.energyType!=='BASIC'||
+      !Number.isSafeInteger(k)||k<1||k>3||meta.maximumCount!==k||
+      metadata.ownerSeat!=='actor'||metadata.isOwnerVisible!==true||
+      metadata.sourceZone!=='effect-revealed'||metadata.zone!=='active'||
+      metadata.energyType!=='BASIC'||metadata.selectedCount!==k){
+      return reason('UNSUPPORTED_ATTACH_ENERGY_PROMPT');
+    }
+    return {kind:'select-choice',token:single.token};
+  }
   if(kind==='ChooseAttackPrompt'){
     if(src.sourcePrinting!==PREFIX.regidragoVstar||src.effectName!=='Apex Dragon')return reason('UNSUPPORTED_ATTACK_CHOICE_SOURCE');
     return pick(choices,c=>donorScore(c,obs),1,1,true);
