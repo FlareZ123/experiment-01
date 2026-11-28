@@ -2128,11 +2128,37 @@ function compressorStretcherEnergyNeed(view,receipt) {
   if(!handHas(view,'Night Stretcher') ||
      handHas(view,'Psychic Energy') ||
      discardHas(view,'Psychic Energy') ||
-     view.ownPublic.deckCount<2)return -Infinity;
+     view.ownPublic.deckCount<2 ||
+     view.ownPublic.discard.some(p=>recoveryNeedScore(view,p,receipt)>=70))
+    return -Infinity;
   const projected={...view,ownPublic:{...view.ownPublic,
     discard:[...view.ownPublic.discard,'Psychic Energy SVE']}};
   const need=recoveryNeedScore(projected,'Psychic Energy SVE',receipt);
   return Number.isFinite(need)&&need>=70?need:-Infinity;
+}
+const COMPRESSOR_STRETCHER_POKEMON=Object.freeze([
+  'Shadow Rider Calyrex V CRE','Shadow Rider Calyrex VMAX CRE',
+  "Lillie's Clefairy ex JTG",'Tapu Lele-GX GRI',
+  'Trevenant & Dusknoir-GX UNM','Radiant Eternatus CRZ',
+  'Girafarig LOT'
+]);
+function compressorStretcherPokemonNeed(view,printing,receipt){
+  if(!handHas(view,'Night Stretcher') ||
+     view.ownPublic.deckCount<2 ||
+     // Direct Night Stretcher on an already productive discard target
+     // dominates spending a second Item before the same recovery.
+     view.ownPublic.discard.some(p=>recoveryNeedScore(view,p,receipt)>=70) ||
+     !COMPRESSOR_STRETCHER_POKEMON.some(name=>hasName(printing,name)) ||
+     handHas(view,printing) || knownFullyPrized(view,printing) ||
+     (view.ownPublic.lostZone??[]).some(p=>hasName(p,printing)) ||
+     (!hasName(printing,'Shadow Rider Calyrex VMAX')&&!hasOpenBench(view)))
+    return -Infinity;
+  const need=recoveryNeedScore(view,printing,receipt);
+  return Number.isFinite(need)&&need>=70?need:-Infinity;
+}
+function compressorStretcherBestPokemonNeed(view,receipt){
+  return Math.max(-Infinity,...COMPRESSOR_STRETCHER_POKEMON.map(printing=>
+    compressorStretcherPokemonNeed(view,printing,receipt)));
 }
 function searchCandidates(view, prompt, choices, receipt = null) {
   const effectName = prompt.source?.effectName ?? '';
@@ -2151,10 +2177,12 @@ function searchCandidates(view, prompt, choices, receipt = null) {
       compressorStretcherEnergyNeed(view,receipt));
     rows = choices.map(choice => {
       const need=compressorSeekerSupporterNeed(view,choice.printing,receipt);
+      const pokemon=compressorStretcherPokemonNeed(view,choice.printing,receipt);
       const isPsychic=isBasicEnergyPrinting(choice.printing) &&
         hasName(choice.printing,'Psychic Energy');
       return {choice,score:Math.max(
         Number.isFinite(need)?2000+need:-Infinity,
+        Number.isFinite(pokemon)?2000+pokemon:-Infinity,
         isPsychic&&Number.isFinite(fuel)?2000+fuel:-Infinity,
         -discardValue(view,choice.printing,receipt))};
     });
@@ -3662,7 +3690,8 @@ function scoreTrainerPlay(item, view, receipt, profile) {
       compressorSeekerSupporterNeed(view,printing,receipt)));
     const raihanFuel=compressorRaihanFuelNeed(view,receipt);
     const stretcherFuel=compressorStretcherEnergyNeed(view,receipt);
-    const needed=Math.max(seeker,raihanFuel,stretcherFuel);
+    const stretcherPokemon=compressorStretcherBestPokemonNeed(view,receipt);
+    const needed=Math.max(seeker,raihanFuel,stretcherFuel,stretcherPokemon);
     if(Number.isFinite(needed))return 1000+needed;
   }
   const missingBasicV = !knownFullyPrized(view,'Shadow Rider Calyrex V') && !hasBasicShadowRiderV(view) &&

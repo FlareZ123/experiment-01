@@ -2451,3 +2451,37 @@ test('Agent46: Battle Compressor and Night Stretcher form an exact no-KO Psychic
     assert.deepEqual(decide(profile,root(seat,nearEmpty,[compressor])),sel('pass'));
   }
 });
+
+test('Agent46: Compressor-Stretcher turns a real deck VMAX into an immediately playable evolution',()=>{
+  const bc='Battle Compressor PHF',stretcher='Night Stretcher SFA';
+  for(const seat of [0,1])for(const profile of profiles){
+    const view=observation(seat,{active:v([P]),bench:[v([])],
+      opponentActive:defender(),ownHand:[bc,stretcher,P]});
+    view.globalTurn=8;
+    const compressor=play('compress',bc),recover=play('recover',stretcher);
+    assert.deepEqual(decide(profile,root(seat,view,[compressor])),sel('compress'));
+    const choose=cardPrompt(seat,view,bc,'Battle Compressor','deck',[M,P,D],0,3);
+    assert.deepEqual(decide(profile,choose),mult('card-0'));
+    const absent=cardPrompt(seat,view,bc,'Battle Compressor','deck',[P,D],0,3);
+    assert.deepEqual(decide(profile,absent),choice('empty'));
+    const after={...view,ownHand:[stretcher,P],ownPublic:{...view.ownPublic,
+      discard:[bc,M],handCount:2,deckCount:view.ownPublic.deckCount-1}};
+    assert.deepEqual(decide(profile,root(seat,after,[recover])),sel('recover'));
+    const pick=cardPrompt(seat,after,stretcher,'Night Stretcher','discard',[M,bc]);
+    assert.deepEqual(decide(profile,pick),mult('card-0'));
+    const ready={...after,ownHand:[M,P],ownPublic:{...after.ownPublic,
+      handCount:2,discard:[bc,stretcher]}};
+    assert.deepEqual(decide(profile,root(seat,ready,
+      [play('evolve',M,null,target('active',0))])),sel('evolve'));
+    // Direct Stretcher on a useful already-discarded evolution dominates
+    // spending Compressor just to access another copy.
+    const direct={...view,ownPublic:{...view.ownPublic,discard:[M]}};
+    assert.deepEqual(decide(profile,root(seat,direct,[compressor,recover])),sel('recover'));
+    const noStretcher={...view,ownHand:[bc,P]};
+    assert.deepEqual(decide(profile,root(seat,noStretcher,[compressor])),sel('pass'));
+    const alreadyHeld={...view,ownHand:[bc,stretcher,P,M]};
+    assert.deepEqual(decide(profile,root(seat,alreadyHeld,[compressor])),sel('pass'));
+    const almostEmpty={...view,ownPublic:{...view.ownPublic,deckCount:1}};
+    assert.deepEqual(decide(profile,root(seat,almostEmpty,[compressor])),sel('pass'));
+  }
+});
