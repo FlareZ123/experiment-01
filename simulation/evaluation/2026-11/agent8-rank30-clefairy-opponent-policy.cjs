@@ -853,7 +853,9 @@ function guaranteedMimikyuCopycatKO(request) {
      r.opponentCopycatChoices.length!==1||
      !Array.isArray(r.opponentLastTurnAttacks)||
      !safeInt(r.opponentLastTurnTurn)||
-     r.opponentLastTurnTurn>=o.globalTurn)return null;
+     // Until a turn-owner-attested receipt can cross the shared V3 boundary,
+     // a nonadjacent turn stamp may be stale after an extra opponent turn.
+     r.opponentLastTurnTurn!==o.globalTurn-1)return null;
   const selected=r.opponentCopycatChoices[0];
   if(!selected||selected.gxAttack!==false||selected.copycatAttack!==false||
      selected.turn!==r.opponentLastTurnTurn||
