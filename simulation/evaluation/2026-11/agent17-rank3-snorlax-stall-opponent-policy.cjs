@@ -734,14 +734,17 @@ function scoreAction(item, request) {
       // NO_VISIBLE_POKEMON_TARGET. Evaluate the same known public features
       // as ownPickupScore, leaving strict native legality to the Store.
       const usable = slots(own).some(row => {
-        // Use the exact same identity lookup and scoring as the real prompt
-        // worker, including collisions between an Active and Benched copy
-        // of the same printing. An independent approximate score may choose
-        // Penny here then fail at the forced ChoosePokemonPrompt.
+        // Reuse exact downstream prompt scoring with *physical slot identity*.
+        // One protected Active Snorlax and one damaged Bench Snorlax can have
+        // the same source printing; print-only lookup collapses them.
         if (row.pokemon.printed?.stage !== 'BASIC') return false;
         return ownPickupScore({
           printing: row.pokemon.printing,
-          publicMetadata: { ownerSeat: 'actor' }
+          publicMetadata: {
+            ownerSeat: 'actor',
+            targetZone: row.zone,
+            ...(row.zone === 'bench' ? { benchIndex: row.index } : { slotIndex: 0 })
+          }
         }, observation) > 0;
       });
       return usable ? 90 : 0;
@@ -873,8 +876,18 @@ function opponentPokemonScore(choice, observation) {
 function ownPickupScore(choice, observation) {
   if (choiceOwner(choice) !== 'actor') return 0;
   const printing = valueText(choice);
-  const row = slots(observation.ownPublic).find(item => item.pokemon.printing === printing);
-  if (!row) return 0;
+  const rows = slots(observation.ownPublic);
+  const meta = choice?.publicMetadata ?? {};
+  // Native ChoosePokemonPrompt reports a public physical Bench index or
+  // Active slot. Use that instead of a first-match printing search: rank3
+  // has three identically printed Snorlax, and the first match is often the
+  // protected Active Snorlax even when an eligible damaged Bench copy exists.
+  const zone = choiceZone(choice);
+  const row = zone === 'active' ? rows.find(item => item.zone === 'active') :
+    zone === 'bench' && Number.isSafeInteger(meta.benchIndex) ?
+      rows.find(item => item.zone === 'bench' && item.index === meta.benchIndex) :
+      rows.find(item => item.pokemon.printing === printing);
+  if (!row || row.pokemon.printing !== printing) return 0;
   if (row.zone === 'active' && matches(row.pokemon.printing, PRINT.snorlax)) return 0;
   return (row.pokemon.damage ?? 0) * 2 + energyCount(row.pokemon) * 10 +
     (matches(row.pokemon.printing, PRINT.rotom) || matches(row.pokemon.printing, PRINT.articuno) ? 20 : 0);
