@@ -48,14 +48,16 @@ function terminalPaleMoonPrizeRisk(view) {
   return allPokemonLoss || finalPrizeLoss;
 }
 
-function pendingPaleMoonGXKnockOut(player, slot) {
+function pendingPaleMoonGXKnockOut(player, slot, currentTurn=null) {
   const effects = player?.pendingEndOfTurnEffects;
   if (effects === undefined || effects === null) return null;
   assert.ok(Array.isArray(effects), 'Pale Moon public effect queue must be an array');
-  // Pale Moon-GX affects the Defending Pokemon, not a future Bench target.
-  // The pinned engine retains stale pending records after Active -> Bench;
-  // such a record is NOT a live attack effect under paper switch rules.
+  // Moving to Bench or evolving the threatened Active removes attack effects
+  // under paper rules. The raw pinned queue can retain either stale entry.
   if (player.active !== slot) return false;
+  if(Number.isSafeInteger(currentTurn) && currentTurn>0 &&
+     slot?.pokemonPlayedTurn===currentTurn &&
+     Array.isArray(slot?.cards) && slot.cards.length>1) return false;
   return effects.some(effect => effect?.type === 'knock_out' &&
     effect?.attack?.name === 'Pale Moon-GX' && effect?.target === slot);
 }
@@ -372,6 +374,28 @@ function choosePaleMoonArvenPrompt(view,prompt) {
  * lower Prize liability and physical index; it does not claim general
  * evaluation superiority across future turns.
  */
+/**
+ * A printed VMAX evolution in the current native frontier is an actual
+ * attack-effect reset. The Paper rules remove the scheduled Pale Moon KO
+ * as the Active evolves; a Store cleanup hook is still mandatory before
+ * any native turn-end result can count as paper evidence.
+ */
+function offeredPaleMoonShadowRiderEvolutions(view,items) {
+  if(view?.decisionKind!=='owner-root' ||
+     !terminalPaleMoonPrizeRisk(view) ||
+     view?.ownPublic?.active?.printing!=='Shadow Rider Calyrex V CRE' ||
+     !Array.isArray(items))return [];
+  return items.filter(item=>item?.kind==='play-card'&&
+    item.actorPrinting==='Shadow Rider Calyrex VMAX CRE'&&
+    item.publicMetadata?.targetSeat==='actor'&&
+    item.publicMetadata?.targetZone==='active'&&
+    item.publicMetadata?.targetIndex===0&&
+    (item.targetPrinting===undefined ||
+      item.targetPrinting===view.ownPublic.active.printing)&&
+    (typeof item.token==='string'||Number.isSafeInteger(item.token)))
+    .map(item=>item.token).sort((a,b)=>String(a).localeCompare(String(b)));
+}
+
 function offeredPaleMoonRetreatChoices(view,items) {
   if(!terminalPaleMoonPrizeRisk(view)||!Array.isArray(items)||
      !Array.isArray(view?.ownPublic?.bench))return [];
@@ -415,11 +439,14 @@ function rescuePaleMoonTerminalPass(view,items,originalToken) {
     item?.kind==='play-card'&&item.actorPrinting==='Guzma BUS'?
       [choosePaleMoonEscapeGuzmaRoot(view,[passes[0],item])]:[]
     ).filter(Boolean);
-  // Zero-print retreat normally preserves both Energy and Supporter use.
-  // Otherwise printed Ranger retains the Active and avoids Energy payment,
-  // Guzma buys a gust plus switch, and paid retreat is a last resort.
+  // A legal evolution preserves Energy and Supporter, and removes the
+  // queued effect under paper rules. Otherwise prefer a zero-printed retreat,
+  // a printed Ranger, a Guzma switch, or an authentic paid retreat.
+  const evolve=offeredPaleMoonShadowRiderEvolutions(view,items)[0];
   const printedFree=view.ownPublic?.active?.printed?.retreatCost?.length===0;
-  const chosen=printedFree&&retreat?{
+  const chosen=evolve!==undefined?{
+      token:evolve,reason:'PUBLIC_PALE_MOON_SHADOW_RIDER_EVOLVE_ESCAPE'}:
+    printedFree&&retreat?{
       token:retreat.token,reason:'PUBLIC_PALE_MOON_PRINTED_ZERO_RETREAT'}:
     ranger.length>0?ranger.sort((a,b)=>String(a.token).localeCompare(String(b.token)))[0]:
     guzma.length>0?guzma.sort((a,b)=>String(a.token).localeCompare(String(b.token)))[0]:
@@ -451,5 +478,6 @@ module.exports = {
   canPaleMoonFloatStoneEscape,
   choosePaleMoonArvenPreparation,
   choosePaleMoonArvenPrompt,
-  offeredPaleMoonRetreatChoices
+  offeredPaleMoonRetreatChoices,
+  offeredPaleMoonShadowRiderEvolutions
 };
