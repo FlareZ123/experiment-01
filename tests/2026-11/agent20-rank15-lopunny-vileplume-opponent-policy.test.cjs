@@ -539,3 +539,74 @@ test('Guzma does not claim guaranteed KO through protection or 1-Prize idle targ
     printed:{stage:'BASIC',weakness:[],resistance:[]}})];
   assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
 });
+
+function artazonRoot(seat=0){
+  const r=ghRoot(seat);r.observation.globalTurn=3;
+  r.observation.ownPublic=p(pokemon('Bunnelby PRC 121',{hp:70}),
+    [pokemon('Pidgeot ex OBF 164',{hp:280})]);
+  r.observation.ownHand=[];r.actionFrontier.items=[
+    {kind:'use-stadium',token:'use-artazon',actorPrinting:'Artazon PAL 171'},
+    {kind:'pass',token:'pass'}];return r;
+}
+for(const seat of [0,1]){
+  test('seat '+seat+': Artazon activated from public stadium and selects missing Oddish from actor deck',()=>{
+    const r=artazonRoot(seat);
+    assert.deepEqual(decision(r),{kind:'select-action',token:'use-artazon'});
+    r.prompt={promptType:'ChooseCardsPrompt',
+      source:{sourcePrinting:'Artazon PAL 171',effectName:'Artazon'},
+      publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:1},
+      choices:[
+        {...card('Oddish UNB 5','oddish'),publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}},
+        {...card('Buneary PFL 83','buneary'),publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}},
+        {...card('Mega Lopunny ex PFL 84','illegal-ex'),publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}}]};
+    assert.deepEqual(decision(r),{kind:'select-choices',tokens:['oddish']});
+  });
+}
+test('Artazon supports Item-locked board and prefers Bunnelby after two Oddish are present',()=>{
+  const r=artazonRoot();r.observation.ownPublic.active=pokemon('Vileplume AOR 3',{hp:130});
+  r.observation.ownPublic.bench=[pokemon('Oddish UNB 5',{hp:50}),
+    pokemon('Oddish UNB 5',{hp:50})];
+  r.observation.ownPublic.publicTurnRestrictions={itemPlayLocked:true};
+  assert.deepEqual(decision(r),{kind:'select-action',token:'use-artazon'});
+  r.prompt={promptType:'ChooseCardsPrompt',
+    source:{sourcePrinting:'Artazon PAL 171',effectName:'Artazon'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:1},
+    choices:[{...card('Oddish UNB 5','o'),publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}},
+      {...card('Bunnelby PRC 121','b'),publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}}]};
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['b']});
+});
+test('Artazon full Bench refuses root and chooses legal empty token',()=>{
+  const r=artazonRoot();r.observation.ownPublic.bench=Array.from({length:5},()=>pokemon('Budew ASC 16',{hp:30}));
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  r.prompt={promptType:'ChooseCardsPrompt',source:{sourcePrinting:'Artazon PAL 171',effectName:'Artazon'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:1},
+    choices:[{...card('Oddish UNB 5','o'),publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}},
+      {kind:'empty-selection',token:'empty'}]};
+  assert.deepEqual(decision(r),{kind:'select-choice',token:'empty'});
+});
+test('Artazon rejects opponent-owned deck choices',()=>{
+  const r=artazonRoot();r.prompt={promptType:'ChooseCardsPrompt',
+    source:{sourcePrinting:'Artazon PAL 171',effectName:'Artazon'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:1},
+    choices:[{...card('Oddish UNB 5','o'),
+      publicMetadata:{ownerSeat:'opponent',sourceZone:'deck'}}]};
+  assert.equal(decision(r).reasonCode,'UNSUPPORTED_CARD_COMBINATION_SOURCE');
+});
+test('TEU Pidgeotto Air Mail chooses best of actually revealed two cards',()=>{
+  const r=artazonRoot();r.observation.ownPublic.bench=[pokemon('Pidgeotto TEU 123',{hp:60}),
+    pokemon('Gloom UNB 7',{hp:80})];
+  r.actionFrontier.items=[{kind:'use-ability',token:'mail',
+    actorPrinting:'Pidgeotto TEU 123',publicMetadata:{abilityName:'Air Mail'}}];
+  assert.deepEqual(decision(r),{kind:'select-action',token:'mail'});
+  r.prompt={promptType:'ChooseCardsPrompt',
+    source:{sourcePrinting:'Pidgeotto TEU 123',effectName:'Air Mail'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:1,maximumCount:1},
+    choices:[{...card('Karen XYP 177','karen'),
+      publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}},
+      {...card('Vileplume AOR 3','aor'),
+      publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}}]};
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['aor']});
+  r.prompt.choices.push({...card('Guzma BUS 115','third'),
+    publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}});
+  assert.equal(decision(r).reasonCode,'UNSUPPORTED_CARD_COMBINATION_SOURCE');
+});
