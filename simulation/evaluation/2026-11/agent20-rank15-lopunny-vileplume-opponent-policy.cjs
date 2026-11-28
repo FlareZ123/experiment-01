@@ -487,18 +487,26 @@ function retreatActionTargets(item,target,own) {
 // overvalue the current Active merely because its 1-C Gale is payable.
 // Only override the general movement policy on a visible terminal 2-Prize KO,
 // an explicit current-stationary movement receipt, and a native offered move.
+// Constrain a predicted Gale winner to known plain V/ex printings: an
+// unmodeled defender (e.g. Arceus VSTAR) must not receive a false win.
+const TERMINAL_GALE_CERTIFIED_TARGET=/^(?:Shadow Rider Calyrex V CRE(?: 74)?|Iron Thorns ex TEF(?: 77)?|Regidrago V SIT(?: 135)?|Genesect V FST(?: 185)?|Mew V FST(?: 113)?|Lugia V SIT(?: 138)?|Crobat V DAA(?: 104)?)\b/i;
 function terminalGalePromotionTarget(request) {
   const o=request?.observation,own=o?.ownPublic,op=o?.opponentPublic?.active;
-  if(!own||!has(op,/^Shadow Rider Calyrex V CRE(?: 74)?\b/i)||
+  if(!own||!has(op,TERMINAL_GALE_CERTIFIED_TARGET)||
     (has(own.active,P.mega)&&movementEvidence(request)!==false))return null;
   if(arr(op.tools).some(x=>!has(x,P.lifeDew))||
      arr(op.abilitySuppressions).some(x=>x.suppressed===false))return null;
   const remaining=Number.isSafeInteger(op.hp)&&Number.isSafeInteger(op.damage)?
     op.hp-op.damage:null;
   const gale=applyColorlessWeaknessResistance(230,op);
+  // A real KO of the sole opposing Pokemon wins by board depletion even
+  // when Life Dew or Legacy Energy leaves multiple Prize cards outstanding.
+  const opposingBench=o?.opponentPublic?.bench;
+  const boardOut=Array.isArray(opposingBench)&&!opposingBench.some(Boolean);
+  const prizeWin=Number.isSafeInteger(own.prizeCount)&&own.prizeCount>0&&
+    own.prizeCount<=sourcePrizeValue(op,o);
   if(remaining===null||remaining<=0||gale===null||gale<remaining||
-    !Number.isSafeInteger(own.prizeCount)||own.prizeCount<1||
-    own.prizeCount>sourcePrizeValue(op,o))return null;
+    (!prizeWin&&!boardOut))return null;
   const bench=arr(own.bench);
   const index=bench.findIndex(x=>x&&readyGuzmaMega(x,o));
   return index<0?null:{index,printing:bench[index].printing};
