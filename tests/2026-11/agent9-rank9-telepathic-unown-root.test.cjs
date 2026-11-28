@@ -11,6 +11,8 @@ const mon=(printing,extra={})=>({
   printed:{stage:'Basic',types:['Psychic'],subtypes:['Basic'],weakness:[],resistance:[]},
   ...extra
 });
+// Rank-6/24/29 original Iron Thorns ex is 230 HP, Fighting-weak;
+// nonfinal Claw (200, no Darkness Weakness) is an authentic Aichi class.
 const obs=seat=>({
   actorSeat:seat,globalTurn:4,ownHand:[T],
   ownPublic:{
@@ -18,7 +20,9 @@ const obs=seat=>({
       printed:{stage:'Basic',types:['Darkness'],subtypes:['Basic'],weakness:[],resistance:[]}}),
     bench:[mon(Un,{hp:60})],deckCount:21,prizeCount:6,discard:[],stadium:[],publicTurnRestrictions:{}
   },
-  opponentPublic:{active:mon('Shadow Rider Calyrex VMAX CRE 75',{hp:320}),
+  opponentPublic:{active:mon('Iron Thorns ex TWM 77',{hp:230,
+      printed:{stage:'Basic',types:['Lightning'],subtypes:['Basic'],
+        weakness:[{type:'Fighting',value:'×2'}],resistance:[]}}),
     bench:[],deckCount:21,prizeCount:6,discard:[],stadium:[],publicTurnRestrictions:{}},
   ownTurnResources:{supporterPlayedTurn:0,energyPlayedTurn:false}
 });
@@ -125,7 +129,7 @@ for(const seat of [0,1]){
        v.ownPublic.bench[0].abilitySuppressions=[
          {abilityName:'Farewell Letter',suppressed:true}];return v},T,true],
     ['attacker not funded',v=>{v.ownPublic.active.energies=[D];return v},T,false],
-    ['final Prize attack',v=>{v.ownPublic.prizeCount=3;
+    ['final Prize attack',v=>{v.ownPublic.prizeCount=2;
         v.opponentPublic.active.hp=190;return v},T,true]
   ];
   for(const [what,mut,energy,payable] of cases){
