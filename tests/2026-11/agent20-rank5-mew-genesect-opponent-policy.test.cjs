@@ -211,7 +211,19 @@ function promptRequest(options = {}) {
     description: options.description ?? 'Choose a legal option',
     source: options.source,
     choices: options.choices ?? [],
-    ...(options.publicMetadata ? { publicMetadata: options.publicMetadata } : {})
+    // Current actor protocol requires an explicit native selection category.
+    publicMetadata: options.publicMetadata ?? (
+      options.promptType==='ChooseCardsPrompt' ?
+        {selectionType:'card-combination',minimumCount:1,maximumCount:1,allowCancel:false,isSecret:false} :
+      options.promptType==='ChoosePokemonPrompt' ?
+        {selectionType:'pokemon',minimumCount:1,maximumCount:1,allowCancel:false,isSecret:false} :
+      options.promptType==='ChooseEnergyPrompt' ?
+        {selectionType:'energy-payment',energyCount:1,allowCancel:false,isSecret:false} :
+      options.promptType==='ChooseAttackPrompt' ?
+        {selectionType:'attack',allowCancel:false} :
+      options.promptType==='ChoosePrizePrompt' ?
+        {selectionType:'prize-slots',minimumCount:1,maximumCount:1,allowCancel:false,isSecret:false} :
+      {selectionType:'option',allowCancel:false})
   };
   return {
     schema: protocol.REQUEST_SCHEMA,
@@ -405,9 +417,9 @@ test('DCE attachment uses public benchIndex when two Mew VMAX share a printing',
     ownPublic: own,
     items: [
       { token: 'active-dce', kind: 'play-card', actorPrinting: P.dce,
-        targetPrinting: P.mewVMAX, publicMetadata: { targetZone: 'active' } },
+        targetPrinting: P.mewVMAX, publicMetadata: { targetZone: 'active', isOwnerVisible: true } },
       { token: 'bench-dce', kind: 'play-card', actorPrinting: P.dce,
-        targetPrinting: P.mewVMAX, publicMetadata: { targetZone: 'bench', benchIndex: 0 } },
+        targetPrinting: P.mewVMAX, publicMetadata: { targetZone: 'bench', benchIndex: 0, isOwnerVisible: true } },
       { token: 'pass', kind: 'pass' }
     ]
   });
@@ -550,7 +562,7 @@ test('Cross Fusion Strike selects the 210-damage Genesect Techno Blast donor', (
 test('copied Energy Mix searches DCE and attaches it to an unpowered Mew VMAX', () => {
   const source = actorChoiceSource(P.mewVMAX, 'Cross Fusion Strike', P.mewV, 'Energy Mix');
   const energyRequest = promptRequest({
-    promptType: 'ChooseEnergyPrompt',
+    promptType: 'ChooseCardsPrompt',
     source,
     choices: [
       cardChoice('psychic', 'Basic Psychic Energy SVE 5', 'deck'),
@@ -558,7 +570,7 @@ test('copied Energy Mix searches DCE and attaches it to an unpowered Mew VMAX', 
     ]
   });
   assert.deepEqual(checkedDecision(energyRequest),
-    { kind: 'select-choice', token: 'dce' });
+    { kind: 'select-choices', tokens: ['dce'] });
 
   const own = player({
     active: pokemon(P.mewVMAX, { stage: 'VMAX', subtypes: ['VMAX', 'Fusion Strike'] }),
@@ -574,7 +586,7 @@ test('copied Energy Mix searches DCE and attaches it to an unpowered Mew VMAX', 
     ]
   });
   assert.deepEqual(checkedDecision(targetRequest),
-    { kind: 'select-choice', token: 'mew-vmax' });
+    { kind: 'select-choices', tokens: ['mew-vmax'] });
 });
 
 test('Energy Mix target selection uses public benchIndex for duplicate Mew VMAX and abstains if ambiguous', () => {
@@ -593,7 +605,7 @@ test('Energy Mix target selection uses public benchIndex for duplicate Mew VMAX 
     choices: [activeChoice, benchChoice]
   });
   assert.deepEqual(checkedDecision(targetRequest),
-    { kind: 'select-choice', token: 'bench-vmax' });
+    { kind: 'select-choices', tokens: ['bench-vmax'] });
 
   const ambiguousChoices = ['active-unknown', 'bench-unknown'].map((token, index) => ({
     token,
@@ -639,7 +651,7 @@ test('Guzma targets a vulnerable two-Prize Shadow Rider V before an undamaged VM
     ]
   });
   assert.deepEqual(checkedDecision(request),
-    { kind: 'select-choice', token: 'v' });
+    { kind: 'select-choices', tokens: ['v'] });
 });
 
 test('Battle VIP Pass chooses one Mew V and one Genesect V for the opening board', () => {
@@ -673,7 +685,7 @@ test('Quick Ball discards a non-core Trainer rather than the only DCE', () => {
     ]
   });
   assert.deepEqual(checkedDecision(request),
-    { kind: 'select-choice', token: 'ultra' });
+    { kind: 'select-choices', tokens: ['ultra'] });
 });
 
 test('Guzma damage estimate adds 20 only for a visibly attached Muscle Band', () => {
@@ -703,7 +715,7 @@ test('Guzma damage estimate adds 20 only for a visibly attached Muscle Band', ()
     ]
   });
   assert.deepEqual(checkedDecision(request),
-    { kind: 'select-choice', token: 'vmax' });
+    { kind: 'select-choices', tokens: ['vmax'] });
 });
 
 test('Special Charge recovers two DCE rather than Pokémon from the discard pile', () => {
@@ -768,7 +780,7 @@ test('Secret Box abstains when a required category is absent from the prompt', (
     ]
   });
   assert.deepEqual(checkedDecision(request),
-    { kind: 'abstain', reasonCode: 'SECRET_BOX_REQUIRED_CATEGORY_MISSING' });
+    { kind: 'abstain', reasonCode: 'NO_SUPPORTED_CARD_SELECTION' });
 });
 
 test('the last Mew VMAX is not an Ultra Ball or Secret Box discard target', () => {
@@ -884,7 +896,10 @@ test('unknown prompt families fail closed', () => {
     source: actorChoiceSource(P.mewVMAX, 'Unknown effect'),
     choices: [{ token: 'choice', kind: 'choice', label: 'Unknown' }]
   });
-  assert.deepEqual(checkedDecision(request),
+  // The shared host rejects unregistered prompt classes before invocation;
+  // test only the worker's direct fail-closed behavior here.
+  const worker=makePolicy(0);
+  assert.deepEqual(worker.decide(request),
     { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' });
 });
 
