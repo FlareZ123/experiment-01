@@ -995,8 +995,14 @@ function promptDecision(request) {
       p.promptType==='AttachEnergyPrompt' &&
       meta.selectionType==='energy-attachment'&&
       meta.sourceZone==='discard'&&meta.ownerSeat==='actor') {
-    return chooseMany(choices,c=>raihanAttachPriority(c,obs),1,1,
-      'RANK32_RAIHAN_NO_SAFE_PUBLIC_ASSIGNMENT');
+    // energy-attachment is a strict single-select prompt. Collection
+    // multi-select would be rejected by the frozen protocol.
+    const ranked=choices.map((choice,index)=>({
+      choice,index,score:raihanAttachPriority(choice,obs)
+    })).sort((a,b)=>b.score-a.score||a.index-b.index);
+    return ranked[0]?.score>0?
+      {kind:'select-choice',token:ranked[0].choice.token}:
+      {kind:'abstain',reasonCode:'RANK32_RAIHAN_NO_SAFE_PUBLIC_ASSIGNMENT'};
   }
   if (/vs seeker/.test(source) &&
       p.promptType==='ChooseCardsPrompt' &&
