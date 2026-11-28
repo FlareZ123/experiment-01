@@ -733,3 +733,24 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'crobat'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Tool-bearing Garbodor cannot preempt legal pending Wonder Tag search',()=>{
+  const board=own({active:mon('Budew ASC 16'),bench:[
+   mon('Trubbish CRI 56',{tools:['Float Stone BKT 137']}),
+   mon('Tapu Lele-GX GRI 60')]});
+  const q=root(seat,[play('Garbodor LTR 68','garb'),ability('Wonder Tag','tag'),
+    attack('Itchy Pollen','pollen'),pass],{
+   ownPublic:board,ownHand:['Garbodor LTR 68','Marnie SSH 169']});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'tag'});
+  q.actionFrontier.items=[play('Garbodor LTR 68','garb'),attack('Itchy Pollen','pollen'),pass];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'garb'});
+ });
+ test('seat '+seat+' no need to delay evolution if Trubbish not yet Tool-equipped',()=>{
+  const board=own({active:mon('Budew ASC 16'),bench:[
+   mon('Trubbish CRI 56',{tools:[]}),mon('Tapu Lele-GX GRI 60')]});
+  const q=root(seat,[play('Garbodor LTR 68','garb'),ability('Wonder Tag','tag'),pass],{
+   ownPublic:board,ownHand:['Garbodor LTR 68']});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'garb'});
+ });
+}
