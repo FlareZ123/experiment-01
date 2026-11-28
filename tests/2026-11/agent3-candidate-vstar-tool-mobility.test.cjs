@@ -9,6 +9,12 @@ const VMAX='Shadow Rider Calyrex VMAX CRE 75';
 const FOREST='Forest Seal Stone SIT 156';
 const FLOAT='Float Stone BKT 137';
 const MIM='Mimikyu GRI 58';
+const fundedVMAX=()=>{
+  const slot=mon(VMAX,[],3);
+  slot.attacks=[{name:'Max Geist',
+    cost:['Colorless','Colorless','Colorless'],damage:'10+'}];
+  return slot;
+};
 const mon=(printing,tools=[],energyCount=0)=>({
   name:printing.split(' CRE')[0],printing,hp:210,damage:0,
   printed:{stage:'BASIC',subtypes:['Basic'],types:['Psychic'],
@@ -106,11 +112,24 @@ for (const seat of [0,1]){
    searchPrompt(seat,{sourcePrinting:'Mimikyu GRI 58'}),
    {kind:'abstain',reasonCode:'UNTRUSTED_PROMPT_SOURCE'}));
  test('Float Stone on stuck Active with a Bench successor '+seat,()=>check(
-   rootTool(seat,FLOAT,{bench:[mon(MIM)]}),
+   rootTool(seat,FLOAT,{bench:[fundedVMAX()]}),
    {kind:'select-action',token:'attach-tool'}));
  test('Float Stone no Bench option not wasted '+seat,()=>check(
    rootTool(seat,FLOAT),{kind:'select-action',token:'pass'}));
+ test('Float Stone unfunded Bench is not useful '+seat,()=>check(
+   rootTool(seat,FLOAT,{bench:[mon(MIM)]}),
+   {kind:'select-action',token:'pass'}));
+ test('Float Stone suppressed by Jamming Tower '+seat,()=>{
+   const input=rootTool(seat,FLOAT,{bench:[fundedVMAX()]});
+   input.observation.opponentPublic.stadium=['Jamming Tower TWM 153'];
+   check(input,{kind:'select-action',token:'pass'});
+ });
+ test('Forest Stone deferred under opposing Iron Thorns lock '+seat,()=>{
+   const input=rootTool(seat,FOREST);
+   input.observation.opponentPublic.active.printing='Iron Thorns ex TWM 77';
+   check(input,{kind:'select-action',token:'pass'});
+ });
  test('Float Stone cannot replace existing Tool '+seat,()=>check(
-   rootTool(seat,FLOAT,{active:mon(V,[FOREST]),bench:[mon(MIM)]}),
+   rootTool(seat,FLOAT,{active:mon(V,[FOREST]),bench:[fundedVMAX()]}),
    {kind:'select-action',token:'pass'}));
 }
