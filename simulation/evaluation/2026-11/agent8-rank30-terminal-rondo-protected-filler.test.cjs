@@ -85,3 +85,40 @@ for(const seat of [0,1]) {
     assert.deepEqual(policy(seat).decide(req),{kind:'select-action',token:'play-0'});
   });
 }
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' Legacy Energy reduces the guaranteed prizes and protects techs',()=>{
+    const req=state(seat,{prizes:3,stadium:true});
+    const victim=req.observation.opponentPublic.active;
+    victim.energies=['Legacy Energy TWM 167'];
+    assert.equal(worker.minimumPrizesOnAttackKnockout(victim),2);
+    assert.deepEqual(policy(seat).decide(req),{kind:'select-action',token:'rondo'});
+    req.observation.ownPublic.prizeCount=2;
+    const d=policy(seat).decide(req);
+    assert.equal(d.kind,'select-action');
+    assert.ok(d.token.startsWith('play-'));
+    victim.tools=["Hero's Medal VIV 152"];
+    assert.equal(worker.minimumPrizesOnAttackKnockout(victim),1);
+    assert.deepEqual(policy(seat).decide(req),{kind:'select-action',token:'rondo'});
+  });
+  test('seat '+seat+' last-opponent-Pokemon KO remains terminal despite Legacy Energy',()=>{
+    const req=state(seat,{prizes:6,stadium:true,techs:['Mimikyu GRI 58'],hp:140});
+    req.observation.opponentPublic.bench=[];
+    req.observation.opponentPublic.active.energies=['Legacy Energy TWM 167'];
+    assert.deepEqual(policy(seat).decide(req),{kind:'select-action',token:'play-0'});
+  });
+}
+test('visible paper Prize-reduction cards provide conservative lower bounds',()=>{
+  const target={printing:'Shadow Rider Calyrex VMAX CRE 75'};
+  assert.equal(worker.minimumPrizesOnAttackKnockout(target),3);
+  assert.equal(worker.minimumPrizesOnAttackKnockout({...target,
+    energies:['Legacy Energy TWM 167']}),2);
+  assert.equal(worker.minimumPrizesOnAttackKnockout({...target,
+    tools:["Hero's Medal VIV 152"]}),2);
+  assert.equal(worker.minimumPrizesOnAttackKnockout({...target,
+    energies:['Legacy Energy TWM 167'],tools:["Hero's Medal VIV 152"]}),1);
+  assert.equal(worker.minimumPrizesOnAttackKnockout({
+    printing:'Unown AOR 30',tools:['Life Dew PLF 107']}),0);
+  assert.equal(worker.minimumPrizesOnAttackKnockout({
+    printing:'Dialga-GX UPR 100',tools:['Island Challenge Amulet CEC 194']}),1);
+});
