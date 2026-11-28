@@ -18,26 +18,27 @@ This is an exact *necessary physical access* question, distinct from the much ha
 | 0, structural control | 10.7890% | 10.5421% |
 | **1, actual provisional fixed 60** | **0.958196%** | **0.939893%** |
 | **2, hypothetical non-Basic-for-Heavy-Ball slot substitution** | **0.067344%** | **0.066429%** |
+| **1 Hisuian Heavy Ball + 1 Gladion Supporter, hypothetical mixed-channel substitution** | **0.067344%** | **0.066429%** |
 | 3, structural control | 0.003508% | 0.003485% |
 
-**The one-to-two Heavy Ball substitution would reduce *this specific pre-Prize collapse event* by about 0.87346 percentage points, or approximately 14.1×, conditional on a valid seven-card opening.** It is *not* an estimated win-rate improvement, card-swap recommendation, or evidence that two Heavy Balls is the best fixed 60.
+**Either second-recuperator substitution would reduce *this specific pre-Prize collapse event* by about 0.87346 percentage points, or approximately 14.1×, conditional on a valid seven-card opening.** Gladion SM4 95 is a paper-Expanded-legal Supporter that can retrieve any one face-down Prize card into hand; it can retrieve either needed Basic directly, and counts as one independent recovery channel for this *location-only* event. Hence a mixed Heavy Ball + Gladion model has **identical exact Prize-location risk** to two Heavy Balls, despite radically different in-game usability. It is *not* an estimated win-rate improvement, card-swap recommendation, or evidence that two Heavy Balls is the best fixed 60.
 
 The full exact model handles all Prize compositions jointly (including two Mimikyu and Dialga all Prized, recovery-card Prizing, and multiple needed recoveries), rather than adding marginal singleton Prize probabilities. It does not assume individual Prize events are independent.
 
 ## Reproducible exact computation
 
 - [Exact BigInt model](../../../scripts/agent21-hood-mimikyu-dialga-prize-collapse.cjs)
-- [Focused tests](../../../tests/2026-11/agent21-hood-mimikyu-dialga-prize-collapse.test.cjs): **6/6 isolated JavaScript tests PASS**, including an independent exhaustive small-deck enumeration.
+- [Focused tests](../../../tests/2026-11/agent21-hood-mimikyu-dialga-prize-collapse.test.cjs): **7/7 isolated JavaScript tests PASS**, including an independent exhaustive small-deck enumeration.
 - Input deck: `results/decks/hood-shadow-rider-v1-mimikyu2-challenger-60.json` (unchanged source).
 
-The code asserts the exact source inventory and 14 Basic count; enumerates Prized counts of Mimikyu, Dialga, Heavy Ball and other Basic/non-Basic cards; weights each possible multiset composition by the product of binomial coefficients; and marks failure when required recovered Pokémon groups (all Dialga Prized and/or both Mimikyu Prized) exceed the available non-Prized Heavy Balls.
+The code asserts the exact source inventory and 14 Basic count; enumerates Prized counts of Mimikyu, Dialga, Heavy Ball, optional Gladion and other Basic/non-Basic cards; weights each possible multiset composition by the product of binomial coefficients; and marks failure when required recovered Pokémon groups (all Dialga Prized and/or both Mimikyu Prized) exceed the available non-Prized recovery cards (Heavy Ball Items and, in the mixed case, one Gladion Supporter).
 
 For mulligan-conditioned openings, for each possible six-Prize composition it weights by the exact number of seven-card hands from the remaining 54 that contain at least one Basic:
 `C(54,7) - C(54 - remaining_Basics,7)`, then divides by all corresponding valid hand and Prize configurations. It does **not** model the opponent's mulligans or extra initial draw cards. No Monte Carlo seed error exists: the stated probabilities are exact combinatorial enumerations under explicitly defined random-deal assumptions.
 
 ## Actionability and disconfirming conditions
 
-**What a testable noncosmetic change would be:** preregister a *single, unchanged* alternative 60 with a second Heavy Ball replacing **one specific non-Basic slot**, while keeping the original as control, and evaluate actual line availability across all nine authenticated Regidrago opponent sixties. Before any full games, test true native Item payment/Prized-Basic extraction, availability under opponent Budew Item lock, and the Mimikyu→Apex Dragon→Timeless-GX counter chain. Compare the **slot removed** for its own high-impact tactical value; simply doubling Heavy Ball improves one mathematical failure event but may reduce overall performance if the cut was vital.
+**What a testable noncosmetic change would be:** preregister separately (i) a *single, unchanged* alternative 60 with a second Heavy Ball, and (ii) a distinct 60 with one Gladion, each replacing the **same specific non-Basic slot**, while keeping the original as control, and evaluate actual line availability across all nine authenticated Regidrago opponent sixties. In the mixed case, Gladion costs a Supporter action but works through Item lock and retrieves non-Basic Prized cards; Heavy Ball is an Item with no Supporter contention but fails under Item lock and retrieves only Basic Pokémon. These different unlock channels cannot be ranked by identical static Prize-location probabilities. Before any full games, test true native Item payment/Prized-Basic extraction, availability under opponent Budew Item lock, and the Mimikyu→Apex Dragon→Timeless-GX counter chain. Compare the **slot removed** for its own high-impact tactical value; simply doubling Heavy Ball improves one mathematical failure event but may reduce overall performance if the cut was vital.
 
 **Why this calculation is not a win rate:** it assumes every non-Prized Mimikyu, Dialga and Heavy Ball can be accessed when needed; ignores Stage/energy/attack timing, K0 versus K1 knowledge, needed discard connector, Ability/Item/Supporter locks, Bench capacity, Supporter contention, winning without this line, obtaining Prizes normally, prizes reclaimed later, both player strategies and the nine opponent policies. A card may be physically accessible but unrealistic to deploy. Conversely, a game may still be won when the modeled line collapses.
 
