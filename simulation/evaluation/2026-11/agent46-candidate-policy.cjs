@@ -773,12 +773,20 @@ function searchCandidates(view, prompt, choices) {
       choice,
       score: hasName(choice.printing, 'Shadow Rider Calyrex VMAX CRE') ? 1000 : -Infinity
     }));
-  } else if (sourceZone === 'deck' && effectName === 'Battle Compressor') {
+  } else if (sourceZone === 'deck' &&
+      effectName === 'Battle Compressor' &&
+      prompt.source?.sourcePrinting === 'Battle Compressor PHF 92') {
+    // The original card says *up to* three, not discard exactly three.
+    // Select the exact lone attack payload for the opponent Apex Dragon
+    // Copycat counter rather than burning scarce Supporters or VMAX pieces.
+    const needDialga = opponentHasRegidrago(view) &&
+      !discardHas(view, 'Dialga-GX') &&
+      !handHas(view, 'Dialga-GX') &&
+      !boardHas(view, 'Dialga-GX') &&
+      (boardHas(view, 'Mimikyu') || handHas(view, 'Mimikyu'));
     rows = choices.map(choice => ({
-      choice,
-      score: hasName(choice.printing, 'Dialga-GX') &&
-        opponentHasRegidrago(view) && !discardHas(view, 'Dialga-GX') ? 1000 :
-        -discardValue(view, choice.printing)
+      choice, score: needDialga &&
+        choice.printing === 'Dialga-GX UPR 100' ? 1500 : -Infinity
     }));
   } else if (sourceZone === 'hand') {
     rows = choices.map(choice => ({
@@ -807,7 +815,8 @@ function chooseCardCombination(view, prompt) {
     'Star Alchemy': 'Forest Seal Stone SIT 156',
     'Arven': 'Arven SVI 166',
     'Teammates': 'Teammates PRC 141',
-    'Raihan': 'Raihan EVS 152'
+    'Raihan': 'Raihan EVS 152',
+    'Battle Compressor': 'Battle Compressor PHF 92'
   };
   const effect = prompt.source?.effectName;
   if (Object.hasOwn(ownerSourceBindings, effect) &&
@@ -880,8 +889,13 @@ function chooseCardCombination(view, prompt) {
       .sort((a,b) => b.score - a.score ||
         String(a.choice.printing).localeCompare(String(b.choice.printing)));
     selected = groups.slice(0, maximum).map(row => row.choice);
-  } else if (metadata.sourceZone === 'hand' ||
-      (metadata.sourceZone === 'deck' && effect === 'Battle Compressor')) {
+  } else if (metadata.sourceZone === 'deck' && effect === 'Battle Compressor') {
+    // For minimumCount=0, ranked.slice(0, minimum) always returns [],
+    // silently discarding no Dragon donor despite a legal one being offered.
+    // Keep this source-scoped to the frozen Mimikyu/Dialga line.
+    selected = ranked.filter(row => row.score > 0)
+      .slice(0, maximum).map(row => row.choice);
+  } else if (metadata.sourceZone === 'hand') {
     selected = ranked.slice(0, minimum).filter(row => Number.isFinite(row.score))
       .map(row => row.choice);
   } else {
