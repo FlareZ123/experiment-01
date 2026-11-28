@@ -467,7 +467,7 @@ function score(action,req){
  if(match(p,PRINT.float)||match(p,PRINT.muscle)||match(p,PRINT.forest)){
   if(!t||list(t.pokemon.tools).length!==0)return 0;
   if(match(p,PRINT.forest)){
-   return match(t.pokemon.printing,PRINT.crobat)&&!o.ownTurnResources?.vstarUsed&&benchSupportAbilityUsable(p,o)?440:0;
+   return match(t.pokemon.printing,PRINT.crobat)&&!o.ownTurnResources?.vstarUsed&&benchSupportAbilityUsable(p,o)?570:0;
   }
   if(match(p,PRINT.float)&&t.zone==='active'&&!match(t.pokemon.printing,PRINT.budew)&&
      o.globalTurn<=4&&canTool&&onBoard(own,PRINT.budew)&&
