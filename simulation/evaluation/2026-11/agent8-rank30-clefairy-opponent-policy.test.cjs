@@ -1478,3 +1478,45 @@ for(const seat of [0,1]) {
     assert.equal(policy(seat).decide(r).reasonCode,'NO_LEGAL_CARD_SET');
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' first-turn Battle VIP precedes speculative Mail when setup slots exist',()=>{
+    const r=request(seat);
+    r.observation.globalTurn=1;
+    r.observation.ownPublic.active=b('Unown AOR 30');
+    r.observation.ownPublic.bench=[b('Latias ex SSP 76')];
+    r.observation.ownHand=['Battle VIP Pass FST 225',"Trainers' Mail ROS 92"];
+    r.actionFrontier.items=[
+      root('play-card',"Trainers' Mail ROS 92",'mail'),
+      root('play-card','Battle VIP Pass FST 225','vip')];
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'vip'});
+    r.observation.ownPublic.bench=[
+      b(clef),b(clef),b('Latias ex SSP 76'),b('Unown AOR 30')];
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'mail'});
+    r.observation.ownPublic.bench=[b('Latias ex SSP 76')];
+    r.observation.globalTurn=4;
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'mail'});
+  });
+  test('seat '+seat+' VIP search selects one Basic with one open Bench place',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active=b('Unown AOR 30');
+    r.observation.ownPublic.bench=[
+      b('Crobat V DAA 104'),b('Dedenne-GX UNB 57'),
+      b('Unown AOR 30'),b('Minior PAR 99')];
+    r.prompt={...prompt('deck',[card(clef,'clefairy'),
+      card('Latias ex SSP 76','latias')],0,2),
+      source:{sourcePrinting:'Battle VIP Pass FST 225',
+        effectName:'Battle VIP Pass'}};
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choices',tokens:['clefairy']});
+    r.observation.ownPublic.bench.push(b('Squawkabilly ex PAL 169'));
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_LEGAL_CARD_SET');
+    r.observation.ownPublic.bench.pop();
+    r.observation.ownTurnResources.pokemonPlayLocked=true;
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_LEGAL_CARD_SET');
+  });
+}
