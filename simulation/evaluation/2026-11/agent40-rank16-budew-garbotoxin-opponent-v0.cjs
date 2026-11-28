@@ -42,6 +42,7 @@ const PRINT=Object.freeze({
  jamming:/^Jamming Tower TWM 153\b/i,
  skyField:/^Sky Field ROS 89\b/i,
  path:/^Path to the Peak (?:CRE 148|ASR 213)\b/i,
+ silentLab:/^Silent Lab PRC 140\b/i,
  klefki:/^Klefki (?:SVI 96|PAF 159)\b/i,
  dimensionValley:/^Dimension Valley\b/i,
  thunderMountain:/^Thunder Mountain\b/i
@@ -98,6 +99,10 @@ function pathToThePeakInPlay(o){
  return [...list(o?.ownPublic?.stadium),...list(o?.opponentPublic?.stadium)]
   .some(s=>match(s,PRINT.path));
 }
+function silentLabInPlay(o){
+ return [...list(o?.ownPublic?.stadium),...list(o?.opponentPublic?.stadium)]
+  .some(s=>match(s,PRINT.silentLab));
+}
 function activeKlefkiLock(o){
  return activeOpponentAbilityWorking(o,PRINT.klefki,'Mischievous Lock');
 }
@@ -107,7 +112,7 @@ function usableOwnAbilities(o){
  // and active Klefki's Basic Pokémon suppression apply to them.
  return garbotoxinStatus(o)==='inactive'&&
   opponentGarbotoxinStatus(o)==='inactive'&&
-  !pathToThePeakInPlay(o)&&!activeKlefkiLock(o);
+  !pathToThePeakInPlay(o)&&!silentLabInPlay(o)&&!activeKlefkiLock(o);
 }
 function activeOpponentAbilityWorking(o,printing,abilityName){
  const p=o.opponentPublic?.active;
@@ -755,7 +760,8 @@ function score(action,req){
   // sacrificing live access to Items or Supporters in this policy.
   if(replacingJammingRestoresHoodedLock(o))return 0;
   const opposingStadium=[...list(opp.stadium),...list(own.stadium)];
-  if(pathToThePeakInPlay(o)&&garbotoxinStatus(o)==='inactive'&&
+  if((pathToThePeakInPlay(o)||silentLabInPlay(o))&&
+     garbotoxinStatus(o)==='inactive'&&
      opponentGarbotoxinStatus(o)==='inactive'&&!activeKlefkiLock(o)){
    const useful=slots(own).some(x=>match(x.pokemon.printing,PRINT.crobat)&&
     list(x.pokemon.tools).some(t=>match(t,PRINT.forest))&&
@@ -1195,4 +1201,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,prizeYield,activeMimikyuSafeguard,regidragoPayloadCount,karenOwnRecoveryScore,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,drawSupporterScore,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,opponentGarbotoxinStatus,liveGarbotoxin,benchCapacity,replacingJammingRestoresHoodedLock,pathToThePeakInPlay,activeKlefkiLock};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,prizeYield,activeMimikyuSafeguard,regidragoPayloadCount,karenOwnRecoveryScore,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,drawSupporterScore,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,opponentGarbotoxinStatus,liveGarbotoxin,benchCapacity,replacingJammingRestoresHoodedLock,pathToThePeakInPlay,silentLabInPlay,activeKlefkiLock};
