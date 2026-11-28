@@ -3032,3 +3032,43 @@ test('replacing Wondrous with Thunder Mountain unlocks DCE-only final-prize Volt
       {kind:'select-action',token:'flare'});
   }
 });
+
+test('Temple removal reactivates Spiky recoil: deny false terminal premium on simultaneous Prize finish',()=>{
+  const items=[
+    action('thunder','play-card','Thunder Mountain ◇ LOT 191',{cardType:'stadium'}),
+    action('flare','play-card','Team Flare Grunt XY 129',{cardType:'supporter'}),
+    {token:'pass',kind:'pass'}
+  ];
+  for(const seat of [0,1])for(const opponentPrizes of [2,3])
+    for(const ownDamage of [220,0]){
+      const request=rootRequest({
+        seat,items,
+        ownHand:['Thunder Mountain ◇ LOT 191','Team Flare Grunt XY 129'],
+        ownPublic:player({
+          active:pokemon('Iron Thorns ex TWM 77',{
+            energies:['Speed Lightning Energy RCL 173','Double Colorless Energy SUM 136'],
+            damage:ownDamage
+          }),
+          bench:[pokemon('Iron Thorns ex TWM 77')],
+          stadium:['Temple of Sinnoh ASR 155'],
+          prizeCount:2
+        }),
+        opponentPublic:player({
+          active:pokemon('Iron Thorns ex TWM 77',{
+            energies:['Spiky Energy JTG 159'],damage:120
+          }),
+          bench:[pokemon('Shadow Rider Calyrex V CRE 74')],
+          prizeCount:opponentPrizes
+        })
+      });
+      // After Thunder replaces Temple, Spiky's 20-counter reflection is
+      // live. Lethal own-active reflection while opponent has <=2 Prizes
+      // yields simultaneous final Prizes, not our game win.
+      const unsafe=opponentPrizes===2&&ownDamage===220;
+      assert.deepEqual(checkedDecision(request,seat),
+        {kind:'select-action',token:unsafe?'flare':'thunder'});
+      const audit=makePolicy(seat).decideWithAudit(request);
+      assert.equal(audit.policyAudit.evaluations.find(x=>x.token==='thunder').score,
+        unsafe?115:925);
+    }
+});

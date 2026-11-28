@@ -1721,11 +1721,24 @@ function templeThornsAttackUnlock(observation,replacingWithThunder=false,
     lightningUnits>=1&&totalUnits>=3;
   if(!payable)return null;
   const target=opponentActive(observation);
-  const ko=target&&visibleVoltCycloneDamage(target).knockout;
+  const visible=target&&visibleVoltCycloneDamage(target);
+  const ko=visible?.knockout===true;
   const prizeEnd=ko&&guzmaTargetPrizeValue(target)>=
     (observation.ownPublic?.prizeCount??6);
   const boardEnd=ko&&!slots(observation.opponentPublic)
     .some(row=>row.zone==='bench');
+  // Replacing Temple also REACTIVATES the opponent's Spiky Energy. A
+  // nominal final-Prize hit is not a win if its post-damage counters KO
+  // our final Active or let the opponent take its last Prizes. Do not
+  // give the replacement Stadium a terminal-unlock premium in that state.
+  const spikyRecoil=ko&&visible.damage>0?
+    20*list(target.energies).filter(energy=>
+      matches(energy,PRINT.spikyEnergy)).length:0;
+  const ownerHp=remainingHp(active);
+  const recoilKOs=spikyRecoil>0&&ownerHp>0&&ownerHp<=spikyRecoil;
+  const ownerBench=slots(observation.ownPublic).some(row=>row.zone==='bench');
+  if(recoilKOs&&(!ownerBench ||
+      (observation.opponentPublic?.prizeCount??6)<=2))return null;
   return {potentialTerminal:prizeEnd||boardEnd};
 }
 
