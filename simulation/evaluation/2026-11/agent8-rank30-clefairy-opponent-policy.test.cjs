@@ -1267,7 +1267,8 @@ for(const seat of [0,1]) {
     r.actionFrontier.items=[root('play-card','VS Seeker PHF 109','seeker')];
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
     r.observation.ownHand=['VS Seeker PHF 109'];
-    r.observation.ownTurnResources.supporterPlayedTurn=1;
+    // supporterPlayedTurn is an absolute turn index, not a Boolean marker.
+    r.observation.ownTurnResources.supporterPlayedTurn=r.observation.globalTurn;
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   });
 }
