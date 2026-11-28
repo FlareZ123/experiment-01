@@ -378,3 +378,16 @@ for(const seat of [0,1]){
    {kind:'select-choices',tokens:['card-2','card-3']});
  });
 }
+
+for(const seat of [0,1]){
+ test("Fighting Koraidon ex ASC must not inherit TEF's Dragon donor score, seat "+seat,()=>{
+  const v=view(seat);
+  v.ownPublic.stadium=[];
+  v.opponentPublic.active.energies=[
+   'Grass Energy SVE','Grass Energy SVE','Fire Energy SVE'];
+  v.opponentPublic.discard=[
+   'Koraidon ex ASC','Battle VIP Pass FST','Psychic Energy SVE'];
+  assert.deepEqual(decision(root(seat,v)),
+   {kind:'select-action',token:'pass'});
+ });
+}
