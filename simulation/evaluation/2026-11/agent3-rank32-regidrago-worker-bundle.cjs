@@ -5,7 +5,7 @@
  * Pin the bundle blob after independent review before any native worker use.
  * agent43-regidrago-apex-choice.cjs 65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b
  * agent1-rank12-regidrago-opponent-policy-v2.cjs bfaee2205ea9d0c3b618948fe24ff81075d4ccda
- * agent3-rank32-regidrago-opponent-policy.cjs 8cb838c794015d8d8c25d82f739a2090a63d714d
+ * agent3-rank32-regidrago-opponent-policy.cjs af0475962dbcef40a8751371537c1cbb8e1b4811
  */
 const __rank32Modules = Object.freeze({
 "./agent43-regidrago-apex-choice.cjs": function(require, module, exports) {
@@ -1220,6 +1220,25 @@ function gustTargetPriority(pokemon,observation,attacker) {
   const prizes=prizeValue(pokemon,observation), ownPrizes=observation?.ownPublic?.prizeCount;
   return (Number.isSafeInteger(ownPrizes)&&prizes>=ownPrizes?400:260)+prizes*12;
 }
+function readyMimikyuCounterAls(pokemon,observation) {
+  // Mimikyu's Copycat can answer an exposed Apex with Timeless-GX only
+  // when the opposing Dialga donor is public in their discard, its GX
+  // allowance remains unused, and Mimikyu is already attack-funded.
+  const opponent=observation?.opponentPublic??{};
+  const energies=list(pokemon?.energies);
+  return /^Mimikyu GRI 58\b/i.test(print(pokemon)) &&
+    list(opponent.discard).some(c=>/^Dialga-GX UPR 100\b/i.test(print(c))) &&
+    opponent.publicTurnRestrictions?.gxUsed===false &&
+    energies.length>=2 &&
+    energies.some(e=>/^Psychic Energy\b/i.test(print(e)));
+}
+function strategicGustPriority(pokemon,observation,attacker) {
+  const ordinary=gustTargetPriority(pokemon,observation,attacker);
+  // Do not treat a fragile one-Prize Mimikyu as equivalent to a generic
+  // one-Prizer when it threatens the specific Copycat->Apex->Timeless ALS.
+  return ordinary>0 && readyMimikyuCounterAls(pokemon,observation)
+    ? Math.max(350,ordinary) : ordinary;
+}
 function zeroRetreatGuzmaPivot(observation) {
   const own=observation?.ownPublic??{}, resources=observation?.ownTurnResources??{};
   if(!canAttackNow(own.active,observation) ||
@@ -1249,9 +1268,14 @@ function tacticalGustScore(action,observation) {
   if(isGuzma && canAttackNow(actorActive,observation)&&!attacker)return 0;
   if(!attacker)return isCounter?0:null;
   const bestBench=list(opp.bench).reduce((best,p)=>
-    Math.max(best,gustTargetPriority(p,observation,attacker)),0);
+    Math.max(best,strategicGustPriority(p,observation,attacker)),0);
+  const urgentMimikyu=list(opp.bench).some(p=>
+    readyMimikyuCounterAls(p,observation) &&
+    gustTargetPriority(p,observation,attacker)>0);
   if(bestBench<=0)return isCounter?0:20;
-  if(pivot&&bestBench<400)return 0; // Pivot only for same-turn Prize win.
+  if(pivot&&bestBench<400&&!urgentMimikyu)return 0;
+  // Otherwise spend the single forced switch on a final KO or to remove
+  // an already-funded opponent Copycat -> Timeless counter-ALS threat.
   const currentCanKO=gustTargetPriority(opponentActive,observation,attacker)>0;
   if(currentCanKO&&bestBench<400)return isCounter?0:20;
   return isCounter?Math.min(410,bestBench+30):
@@ -1900,7 +1924,7 @@ function promptDecision(request) {
       if(c?.publicMetadata?.ownerSeat==='actor') {
         return isGuzma&&(canAttackNow(target,obs)||pivot===target)?300:0;
       }
-      return gustTargetPriority(target,obs,attacker);
+      return strategicGustPriority(target,obs,attacker);
     },min,Math.min(max,1),'RANK32_GUST_NO_LETHAL_TARGET');
   }
   if (/crispin/.test(source)) {
@@ -2061,7 +2085,8 @@ module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
   strongestCopiedDamage,canAttackNow,tacticalGustScore,gustTargetPriority,targetFromGustChoice,
   aceSpecBlowerPriority,muscleBandPriority,evolveRegidragoPriority,retreatToAttackerPriority,
   prizeValue,crispinAccelerationPriority,crispinDeckEnergyChoice,
-  chooseTrifrostTargets,protectedDdeInHand,seekerSupporterPriority};
+  chooseTrifrostTargets,protectedDdeInHand,seekerSupporterPriority,
+  readyMimikyuCounterAls};
 
 }
 });
