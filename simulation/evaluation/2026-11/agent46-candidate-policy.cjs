@@ -1036,6 +1036,47 @@ const WONDER_TAG_SUPPORTERS=Object.freeze([
   'Teammates PRC 141','Acerola BUS 112'
 ]);
 
+function sourceBattleCompressor(prompt){
+  return prompt?.source?.sourceKind==='card-effect' &&
+    prompt.source.sourcePrinting==='Battle Compressor PHF 92' &&
+    prompt.source.effectName==='Battle Compressor';
+}
+
+function chooseBattleCompressorDragonPayload(view,prompt){
+  setPolicyAuditRule('BATTLE_COMPRESSOR_REGIDRAGO_COUNTER_PAYLOAD',
+    'SOURCE_CERTIFIED_DISCARD_ONLY');
+  const meta=prompt.publicMetadata??{};
+  if(!sourceBattleCompressor(prompt) ||
+     prompt.description!=='CHOOSE_CARD_TO_DISCARD' ||
+     meta.selectionType!=='card-combination' ||
+     meta.ownerSeat!=='actor'||meta.sourceZone!=='deck'||
+     meta.isOwnerVisible!==true||
+     meta.minimumCount!==0||meta.maximumCount!==3)
+    return abstain('UNTRUSTED_BATTLE_COMPRESSOR_DISCARD_PROMPT');
+  const needsDialga=opponentHasRegidrago(view)&&
+    !discardHas(view,'Dialga-GX') &&
+    (boardHas(view,'Mimikyu')||handHas(view,'Mimikyu'));
+  const dragon=needsDialga?prompt.choices.filter(choice=>
+    choice.kind==='card' &&
+    choice.printing==='Dialga-GX UPR 82' &&
+    choice.publicMetadata?.ownerSeat==='actor' &&
+    choice.publicMetadata?.sourceZone==='deck' &&
+    choice.publicMetadata?.isOwnerVisible===true)
+    .sort((a,b)=>
+      (a.publicMetadata.selectionIndex??9999)-
+      (b.publicMetadata.selectionIndex??9999)||
+      String(a.token).localeCompare(String(b.token)))[0]:null;
+  if(dragon){
+    recordPolicyAuditRule(dragon.token,'DIALGA_TIMELESS_GX_TO_DISCARD');
+    return {kind:'select-choices',tokens:[dragon.token]};
+  }
+  // Sending arbitrary non-Dragon resources to the discard is a real
+  // opportunity cost, not a reward for merely opening the connector.
+  const empty=prompt.choices.find(x=>x.kind==='empty-selection');
+  if(empty)return {kind:'select-choice',token:empty.token};
+  return abstain('NO_RELEVANT_DRAGON_PAYLOAD');
+}
+
 function sourceVsSeeker(prompt){
   return prompt?.source?.sourceKind==='card-effect' &&
     prompt.source.sourcePrinting==='VS Seeker PHF 109' &&
@@ -1263,6 +1304,9 @@ function choosePrompt(view, prompt, receipt) {
     case 'AttachEnergyPrompt':
       return chooseUnderworldDoorAttachment(view, prompt);
     case 'ChooseCardsPrompt':
+      if(prompt.source?.sourcePrinting==='Battle Compressor PHF 92'||
+         prompt.source?.effectName==='Battle Compressor')
+        return chooseBattleCompressorDragonPayload(view,prompt);
       if(prompt.source?.sourcePrinting==='VS Seeker PHF 109'||
          prompt.source?.effectName==='VS Seeker')
         return chooseVsSeekerSupporter(view,prompt,receipt);
