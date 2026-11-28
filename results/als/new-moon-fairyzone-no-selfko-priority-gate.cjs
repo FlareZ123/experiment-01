@@ -37,6 +37,14 @@ function fairyZoneNoSelfKoPriority(view){
       isInt(x.preWeaknessBaseDamage)&&bool(x.nativeLegalNow)&&
       bool(x.energyPaidNow)&&bool(x.gxNativeAllowed)))
    return invalid('MISSING_OR_CONFLICTING_ACTOR_FACTS');
+ const ownPrize=p.ownPrizesRemaining, targetPrize=p.targetPrizeValue;
+ if((ownPrize!==undefined||targetPrize!==undefined)&&
+   (!isInt(ownPrize)||ownPrize<1||ownPrize>6||
+    !isInt(targetPrize)||targetPrize<1||targetPrize>3))
+   return invalid('UNCERTIFIED_ATTACK_PRIZE_TERMINAL');
+ if(p.opponentBenchCount!==undefined&&
+   (!isInt(p.opponentBenchCount)||p.opponentBenchCount>5))
+   return invalid('UNCERTIFIED_OPPONENT_BENCH_COUNT');
  if(!p.targetIsDragon||!p.psychicWeaknessX2Certified)
   return blocked('FAIRY_ZONE_NOT_ACTUALLY_APPLYING');
  if(!p.otherAttackEffectsCertified)
@@ -70,6 +78,13 @@ function fairyZoneNoSelfKoPriority(view){
   status:'priority-no-self-ko',reason:'PSYCHIC_X2_CERTIFIED_ONE_HIT',
   firstAction:{type:'attack',name:best.name,sourceToken:best.sourceToken},
   projected:best,alternates:candidates.slice(1),
+  terminalAfterAttack:(isInt(ownPrize)&&isInt(targetPrize)&&
+    targetPrize>=ownPrize)||p.opponentBenchCount===0,
+  terminalMode:(isInt(ownPrize)&&isInt(targetPrize)&&
+    targetPrize>=ownPrize)?'all-prizes':
+    p.opponentBenchCount===0?'no-opponent-pokemon':null,
+  projectedOwnPrizesAfterAttack:isInt(ownPrize)&&isInt(targetPrize)?
+    Math.max(0,ownPrize-targetPrize):null,
   preventDusknoirCursedBlastThisRoot:true,
   continuation:'Reobserve native state; never spend self-KO Prize if this attack is still legal',
   evidence:'conditional actor-visible no-self-KO decision; no games or win-rate claim'
