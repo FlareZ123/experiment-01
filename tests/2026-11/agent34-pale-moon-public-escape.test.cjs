@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {pendingPaleMoonGXKnockOut,choosePaleMoonEscapeRetreat,choosePaleMoonEscapeRanger,choosePaleMoonEscapeGuzmaRoot,choosePaleMoonEscapeGuzmaPrompt,rescuePaleMoonTerminalPass,choosePaleMoonFloatStonePreparation,knownNoPrizeAwardOnPaleMoonKO,terminalPaleMoonPrizeRisk,preferredPaleMoonDiscardSupporter,choosePaleMoonVSSeekerPreparation,choosePaleMoonVSSeekerPrompt}=require('../../simulation/twinleaf/2026-11/agent34-pale-moon-escape.cjs');
+const {pendingPaleMoonGXKnockOut,choosePaleMoonEscapeRetreat,choosePaleMoonEscapeRanger,choosePaleMoonEscapeGuzmaRoot,choosePaleMoonEscapeGuzmaPrompt,rescuePaleMoonTerminalPass,choosePaleMoonFloatStonePreparation,knownNoPrizeAwardOnPaleMoonKO,terminalPaleMoonPrizeRisk,preferredPaleMoonDiscardSupporter,choosePaleMoonVSSeekerPreparation,choosePaleMoonVSSeekerPrompt,choosePaleMoonArvenPreparation,choosePaleMoonArvenPrompt}=require('../../simulation/twinleaf/2026-11/agent34-pale-moon-escape.cjs');
 const {actorObservation}=require('../../simulation/twinleaf/actor-observation-contract.cjs');
 const {validateActorObservation}=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 
@@ -356,4 +356,59 @@ test('VS Seeker rejects wrong provenance, concealed prompt and unavailable Suppo
     bench:[{printing:'Mimikyu GRI 58'}]},
     opponentPublic:{...view.opponentPublic,bench:[{printing:'Regidrago V SIT'}]}};
   assert.equal(preferredPaleMoonDiscardSupporter(guzma),'Guzma BUS');
+});
+
+const arvenSearch=()=>({
+  promptType:'ChooseCardsPrompt',
+  source:{classification:'actor-choice',sourceKind:'card-effect',
+    sourcePrinting:'Arven SVI',effectName:'Arven'},
+  publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:2,
+    allowCancel:false,sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true},
+  choices:[{token:'float-from-deck',kind:'card',printing:'Float Stone BKT',
+    publicMetadata:{sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true}},
+    {token:'other-item',kind:'card',printing:'Mysterious Treasure FLI',
+      publicMetadata:{sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true}},
+    {token:'choose-nothing',kind:'empty-selection'}]
+});
+test('Arven source-only emergency chain obtains one Tool and next root uses Float Stone',()=>{
+  const view={...stoneView(),ownPublic:{...stoneView().ownPublic,deckCount:27,
+    publicTurnRestrictions:{...stoneView().ownPublic.publicTurnRestrictions,supporterPlayLocked:false}},
+    ownTurnResources:{...stoneView().ownTurnResources,supporterPlayedTurn:0,supporterPlayLocked:false},
+    ownHand:['Arven SVI']};
+  const root=[{token:'pass',kind:'pass'},
+    {token:'arven',kind:'play-card',actorPrinting:'Arven SVI'}];
+  assert.equal(choosePaleMoonArvenPreparation(view,root)?.token,'arven');
+  assert.equal(rescuePaleMoonTerminalPass(view,root,'pass')?.token,'arven');
+  const prompt={...view,decisionKind:'owner-prompt'};
+  assert.deepEqual(choosePaleMoonArvenPrompt(prompt,arvenSearch()),{
+    tokens:['float-from-deck'],reason:'PUBLIC_PALE_MOON_ARVEN_ONE_TOOL_CHOICE'});
+  const next={...view,ownHand:['Float Stone BKT'],ownTurnResources:{
+    ...view.ownTurnResources,supporterPlayedTurn:1,supporterPlayLocked:false}};
+  const item=[root[0],floatStoneItem()];
+  assert.equal(rescuePaleMoonTerminalPass(next,item,'pass')?.token,'stone');
+});
+test('Arven is a chance of access, not a promise: no Tool, bad source or Tool suppression abstains',()=>{
+  const view={...stoneView(),ownPublic:{...stoneView().ownPublic,deckCount:27,
+    publicTurnRestrictions:{...stoneView().ownPublic.publicTurnRestrictions,supporterPlayLocked:false}},
+    ownTurnResources:{...stoneView().ownTurnResources,supporterPlayedTurn:0,supporterPlayLocked:false},
+    ownHand:['Arven SVI']};
+  const roots=[{token:'pass',kind:'pass'},
+    {token:'arven',kind:'play-card',actorPrinting:'Arven SVI'}];
+  assert.equal(choosePaleMoonArvenPreparation({...view,ownPublic:{
+    ...view.ownPublic,deckCount:0}},roots),null);
+  assert.equal(choosePaleMoonArvenPreparation({...view,ownTurnResources:{
+    ...view.ownTurnResources,supporterPlayedTurn:1}},roots),null);
+  assert.equal(choosePaleMoonArvenPreparation({...view,ownHand:['Float Stone BKT','Arven SVI']},roots),null);
+  assert.equal(choosePaleMoonArvenPreparation({...view,opponentPublic:{
+    ...view.opponentPublic,stadium:['Jamming Tower TWM']}},roots),null);
+  const v={...view,decisionKind:'owner-prompt'};
+  const p=arvenSearch();
+  assert.equal(choosePaleMoonArvenPrompt(v,{...p,
+    source:{...p.source,sourcePrinting:'Lillie\'s Determination MEG'}}),null);
+  assert.equal(choosePaleMoonArvenPrompt(v,{...p,
+    publicMetadata:{...p.publicMetadata,sourceZone:'discard'}}),null);
+  assert.equal(choosePaleMoonArvenPrompt(v,{...p,
+    choices:p.choices.filter(item=>item.printing!=='Float Stone BKT')}),null);
+  assert.equal(choosePaleMoonArvenPrompt(v,{...p,
+    choices:[...p.choices,{...p.choices[0],token:'duplicate'}]}),null);
 });
