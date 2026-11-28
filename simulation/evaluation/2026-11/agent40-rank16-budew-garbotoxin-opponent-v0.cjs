@@ -183,13 +183,14 @@ function templeStrandsIronThorns(o){
  const otherBasic=energies.filter(e=>
   /^(?:Basic )?(?:Grass|Fire|Water|Psychic|Fighting|Darkness|Metal) Energy\b/i.test(name(e))).length;
  const dce=energies.filter(e=>/^Double Colorless Energy\b/i.test(name(e))).length;
- if(!dce)return false;
- const otherSpecial=energies.length-basicLightning-otherBasic-dce;
+ const speed=energies.filter(e=>/^Speed Lightning Energy\b/i.test(name(e))).length;
+ if(!dce&&!speed)return false;
+ const otherSpecial=energies.length-basicLightning-otherBasic-dce-speed;
  const stadium=[...list(o.ownPublic?.stadium),...list(o.opponentPublic?.stadium)];
  const mountain=stadium.some(x=>match(x,PRINT.thunderMountain));
- const beforeTotal=basicLightning+otherBasic+2*dce+otherSpecial;
+ const beforeTotal=basicLightning+otherBasic+2*dce+speed+otherSpecial;
  const beforeRequired=mountain?2:3;
- const beforeTypes=mountain||basicLightning>=1;
+ const beforeTypes=mountain||basicLightning+speed>=1;
  const afterTotal=energies.length; // all Special Energy provide one Colorless
  const afterTypes=basicLightning>=1;
  return beforeTypes&&beforeTotal>=beforeRequired&&
