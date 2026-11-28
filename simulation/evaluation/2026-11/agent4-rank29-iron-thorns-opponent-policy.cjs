@@ -59,9 +59,15 @@ function rank29FinishAudit(decision) {
     if(!row)throw new Error('RANK29_SELECTED_UNKNOWN_AUDIT_ITEM');
     if(row.status==='not-evaluated'){
       row.status='rule-selected';row.reasonCode='SELECTED_BY_UNSCORED_POLICY_RULE';
+    } else if(row.status==='scored'&&row.score<=0){
+      // A zero-ranked action or empty prompt was chosen by fallback, not
+      // because it won any positive scoring comparison.
+      row.status='rule-selected';row.score=null;
+      row.reasonCode='SELECTED_BY_ZERO_SCORE_FALLBACK';
     }
   }
-  const hasScores=ctx.evaluations.some(row=>row.status==='scored');
+  const hasScores=selectedTokens.some(token=>
+    ctx.byToken.get(token)?.status==='scored');
   return {
     schema:'agent6-policy-audit-v1',
     policyVersion:ctx.policyVersion,
