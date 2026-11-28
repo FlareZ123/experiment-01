@@ -1388,7 +1388,7 @@ function raihanPrompt(request) {
   if(p.promptType==='ChooseCardsPrompt')return raihanSearchPrompt(request);
   return no('R30_RAIHAN_ATTACH_UNSUPPORTED');
 }
-function hisuianHeavyBallOpportunity(o) {
+function hisuianHeavyBallOpportunity(o,request) {
   const own=o?.ownPublic;
   if(!own||!safeInt(own.prizeCount)||own.prizeCount<=0)return false;
   const hand=arr(o.ownHand),board=slots(own);
@@ -1398,8 +1398,7 @@ function hisuianHeavyBallOpportunity(o) {
     board.filter(c=>has(c,P.clefairy)).length;
   return clefairyCount<2||
     (!owned(P.latias)&&benchCount(own)<5)||
-    (!owned(P.fez)&&hasFreshPriorOpponentTurnKO({observation:o,
-      publicEventReceipt:o.publicEventReceipt})&&hand.length<=3)||
+    (!owned(P.fez)&&hasFreshPriorOpponentTurnKO(request)&&hand.length<=3)||
     (!owned(P.crobat)&&hand.length<=3)||
     (!owned(P.lele)&&hand.some(c=>has(c,P.guzma)||has(c,P.marnie)));
 }
@@ -1594,7 +1593,7 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   const forceBlower=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.blower));
   if(forceBlower&&fieldBlowerOpportunity(o))return act(forceBlower);
   const heavyBall=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.heavyBall));
-  if(heavyBall&&hisuianHeavyBallOpportunity(o))return act(heavyBall);
+  if(heavyBall&&hisuianHeavyBallOpportunity(o,request))return act(heavyBall);
   const raihan=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.raihan));
   if(raihan&&raihanOpportunity(request))return act(raihan);
   // If Field Blower removes Sky Field, the attack's damage may fall below KO.
