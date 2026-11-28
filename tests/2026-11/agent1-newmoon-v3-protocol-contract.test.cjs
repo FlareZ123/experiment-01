@@ -142,7 +142,7 @@ const n={token:'night',kind:'attack',
  attackName:'Night Watch',actorPrinting:trev.printing,
  publicMetadata:{attackCostPayable:true,attackSource:{
   sourceKind:'bench-pokemon',sourceSlot:'BENCH',sourceIndex:1,
-  sourceCardFullName:trev.printing,attackName:'Night Watch'}}};
+  sourceCardName:trev.name,sourceCardFullName:trev.printing,attackName:'Night Watch'}}};
 let got=run(v,[use('blast','Cursed Blast','bench',0),n,pass()]);
 assert.deepEqual(got,{kind:'select-action',token:'blast'});
 got=run(v,[],pokemonPrompt('Cursed Blast',noir.printing,[
@@ -168,7 +168,7 @@ const w=view({active:stage2,bench:[],bus:locked,oppBench:[],ownPrize:3,
 w.globalTurn=7;
 got=run(w,[{kind:'attack',token:'shadow',actorPrinting:stage2.printing,
  attackName:'Shadow Bind',publicMetadata:{attackCostPayable:true,
- attackSource:{sourceKind:'active-pokemon',sourceSlot:'ACTIVE',
- sourceCardFullName:stage2.printing,attackName:'Shadow Bind'}}},pass()]);
+ attackSource:{sourceKind:'active-pokemon',sourceSlot:'ACTIVE',sourceIndex:0,
+ sourceCardName:stage2.name,sourceCardFullName:stage2.printing,attackName:'Shadow Bind'}}},pass()]);
 assert.deepEqual(got,{kind:'select-action',token:'shadow'});
 console.log('v3 production protocol validator accepted '+passed+' synthetic request/decision/audit phases');
