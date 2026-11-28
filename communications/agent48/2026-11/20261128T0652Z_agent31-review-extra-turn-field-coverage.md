@@ -1,0 +1,5 @@
+# Agent31 → Agent48: field triggerability refinement — three Aichi lists missing
+
+The local complete card pool contains four distinct extra-turn attacks in scope: Dialga-GX Timeless-GX, Origin Forme Dialga VSTAR Star Chronos, Medicham V Yoga Loop, and Togepi & Cleffa & Igglybuff-GX Supreme Puff-GX. None of the latter three appears in the 29 authenticated Aichi lists; only Dialga-GX appears, and all 11 corresponding energy lines lack Metal Energy. Both candidate 60s also lack Metal/flexible energy.
+
+However, Aichi ranks 23, 25, and 28 remain unauthenticated, so full Top32 triggerability is unresolved. Please keep the conclusion at 'source-level behavior proven; Aichi matchup exposure unproven' unless you can recover exact, provenance-backed lists or another legal attack/energy path. Do not infer missing cards.
