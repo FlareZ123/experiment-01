@@ -364,6 +364,40 @@ function choosePaleMoonArvenPrompt(view,prompt) {
     reason:'PUBLIC_PALE_MOON_ARVEN_ONE_TOOL_CHOICE'};
 }
 
+/**
+ * When multiple emergency retreats are legal, avoid collapsing to Pass.
+ * All candidates are actual Store-enumerated RetreatAction tokens, and all
+ * physical Bench targets are authenticated against the public board.
+ * The ranking is deliberately narrow: known remaining HP, attached Energy,
+ * lower Prize liability and physical index; it does not claim general
+ * evaluation superiority across future turns.
+ */
+function offeredPaleMoonRetreatChoices(view,items) {
+  if(!terminalPaleMoonPrizeRisk(view)||!Array.isArray(items)||
+     !Array.isArray(view?.ownPublic?.bench))return [];
+  const benches=view.ownPublic.bench;
+  const rows=[];
+  for(const item of items){
+    const m=item?.publicMetadata,idx=m?.benchIndex;
+    if(item?.kind!=='retreat'||m?.targetSeat!=='actor'||
+       m.targetZone!=='bench' ||
+       !Number.isSafeInteger(idx) || idx<0 ||
+       m.targetIndex!==idx ||
+       !(typeof item.token==='string'||Number.isSafeInteger(item.token)))continue;
+    const target=benches[idx];
+    if(!target || (item.targetPrinting!==undefined &&
+       item.targetPrinting!==target.printing))continue;
+    const hp=typeof target.hp==='number'?target.hp-target.damage:-1;
+    const energies=Array.isArray(target.energies)?target.energies.length:0;
+    const cost=/\\bVMAX\\b/.test(target.printing)?3:
+      /\\b(?:VSTAR|GX|EX|ex|V)\\b/.test(target.printing)?2:1;
+    rows.push({token:item.token,index:idx,score:hp+energies*5-cost*10});
+  }
+  rows.sort((a,b)=>b.score-a.score||a.index-b.index||
+     String(a.token).localeCompare(String(b.token)));
+  return rows;
+}
+
 function rescuePaleMoonTerminalPass(view,items,originalToken) {
   if(!Array.isArray(items) ||
       view?.decisionKind!=='owner-root' ||
@@ -371,23 +405,27 @@ function rescuePaleMoonTerminalPass(view,items,originalToken) {
       !terminalPaleMoonPrizeRisk(view))return null;
   const passes=items.filter(item=>item?.kind==='pass');
   if(passes.length!==1 || passes[0].token!==originalToken)return null;
-  const saves=[];
-  for(const item of items){
-    if(item?.kind==='retreat') {
-      const choice=choosePaleMoonEscapeRetreat(view,[passes[0],item]);
-      if(choice)saves.push(choice);
-    }else if(item?.kind==='play-card') {
-      const choice=item.actorPrinting==='Pokemon Ranger STS'?
-        choosePaleMoonEscapeRanger(view,[passes[0],item]):
-        item.actorPrinting==='Guzma BUS'?
-          choosePaleMoonEscapeGuzmaRoot(view,[passes[0],item]):null;
-      if(choice)saves.push(choice);
-    }
-  }
-  if(saves.length>1)return null;
-  if(saves.length===1)return {token:saves[0].token,
+  const retreat=offeredPaleMoonRetreatChoices(view,items)[0]??null;
+  const ranger=items.flatMap(item=>
+    item?.kind==='play-card'&&item.actorPrinting==='Pokemon Ranger STS'?
+      [choosePaleMoonEscapeRanger(view,[passes[0],item])]:[]
+    ).filter(Boolean);
+  const guzma=items.flatMap(item=>
+    item?.kind==='play-card'&&item.actorPrinting==='Guzma BUS'?
+      [choosePaleMoonEscapeGuzmaRoot(view,[passes[0],item])]:[]
+    ).filter(Boolean);
+  // Zero-print retreat normally preserves both Energy and Supporter use.
+  // Otherwise printed Ranger retains the Active and avoids Energy payment,
+  // Guzma buys a gust plus switch, and paid retreat is a last resort.
+  const printedFree=view.ownPublic?.active?.printed?.retreatCost?.length===0;
+  const chosen=printedFree&&retreat?{
+      token:retreat.token,reason:'PUBLIC_PALE_MOON_FREE_RETREAT'}:
+    ranger.length===1?ranger[0]:
+    guzma.length===1?guzma[0]:
+    retreat?{token:retreat.token,reason:'PUBLIC_PALE_MOON_AUTHENTIC_RETREAT'}:null;
+  if(chosen)return {token:chosen.token,
     reason:'PUBLIC_PALE_MOON_TERMINAL_PASS_OVERRIDE',
-    selectedSourceReason:saves[0].reason};
+    selectedSourceReason:chosen.reason};
   const setup=choosePaleMoonFloatStonePreparation(view,items) ??
     choosePaleMoonVSSeekerPreparation(view,items) ??
     choosePaleMoonArvenPreparation(view,items);
@@ -411,5 +449,6 @@ module.exports = {
   choosePaleMoonVSSeekerPrompt,
   canPaleMoonFloatStoneEscape,
   choosePaleMoonArvenPreparation,
-  choosePaleMoonArvenPrompt
+  choosePaleMoonArvenPrompt,
+  offeredPaleMoonRetreatChoices
 };
