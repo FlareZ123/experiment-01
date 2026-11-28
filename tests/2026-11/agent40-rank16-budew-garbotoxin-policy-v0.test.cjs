@@ -2208,13 +2208,13 @@ for(const seat of [0,1]){
   const wob=mon('Wobbuffet PHF 36',{abilitySuppressions:null});
   const dede=prompt(seat,{promptType:'ConfirmPrompt',
    source:{sourceKind:'card-effect',sourcePrinting:'Dedenne-GX UNB 57',effectName:'Dedechange'},
-   publicMetadata:{selectionType:'confirm'},choices:[choice('yes','Yes','confirm'),choice('no','No','confirm')]},{
+   publicMetadata:{selectionType:'confirm'},choices:[{kind:'confirm',token:'yes',label:'Yes'},{kind:'confirm',token:'no',label:'No'}]},{
    ownPublic:own({active:mon('Budew ASC 16'),bench:[mon('Dedenne-GX UNB 57')]}),
    opponentPublic:opp({active:wob}),ownHand:['Darkness Energy MEE 15']});
   assert.deepEqual(decide(seat,dede),{kind:'select-choice',token:'no'});
   const tapu=prompt(seat,{promptType:'ConfirmPrompt',
    source:{sourceKind:'card-effect',sourcePrinting:'Tapu Lele-GX GRI 60',effectName:'Wonder Tag'},
-   publicMetadata:{selectionType:'confirm'},choices:[choice('yes','Yes','confirm'),choice('no','No','confirm')]},{
+   publicMetadata:{selectionType:'confirm'},choices:[{kind:'confirm',token:'yes',label:'Yes'},{kind:'confirm',token:'no',label:'No'}]},{
    ownPublic:own({active:mon('Budew ASC 16'),bench:[mon('Tapu Lele-GX GRI 60')]}),
    opponentPublic:opp({active:wob}),ownHand:['Darkness Energy MEE 15']});
   assert.deepEqual(decide(seat,tapu),{kind:'select-choice',token:'yes'});
