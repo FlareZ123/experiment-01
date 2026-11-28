@@ -1267,8 +1267,9 @@ for(const seat of [0,1]) {
     r.actionFrontier.items=[root('play-card','VS Seeker PHF 109','seeker')];
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
     r.observation.ownHand=['VS Seeker PHF 109'];
-    // supporterPlayedTurn is an absolute turn index, not a Boolean marker.
-    r.observation.ownTurnResources.supporterPlayedTurn=r.observation.globalTurn;
+    // Native actor observation exposes a per-turn Supporter use count.
+    // At turn 4, count=1 still means the Supporter is unavailable.
+    r.observation.ownTurnResources.supporterPlayedTurn=1;
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   });
 }
@@ -1349,5 +1350,30 @@ for(const seat of [0,1]) {
     r.prompt=null;
     r.actionFrontier.items=[root('play-card','Field Blower GRI 125','blower')];
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  });
+}
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' absolute global turn never permits a second Supporter after count one',()=>{
+    const r=request(seat);
+    r.observation.globalTurn=17;
+    r.observation.ownTurnResources.supporterPlayedTurn=1;
+    r.observation.ownPublic.active=b('Unown AOR 30');
+    r.observation.ownPublic.bench=[{printing:clef,energies:[psychic,psychic]}];
+    r.observation.opponentPublic.active={printing:'Snorlax PGO 55',hp:150,damage:0};
+    r.observation.opponentPublic.bench=[{
+      printing:'Machamp VMAX ASR 73',hp:330,damage:230,
+      printed:{weakness:[{type:'PSYCHIC',value:'×2'}]}}];
+    r.observation.ownPublic.prizeCount=3;
+    r.observation.ownHand=['VS Seeker PHF 109','Guzma BUS 115'];
+    r.observation.ownPublic.discard=['Guzma BUS 115','Marnie SSH 169'];
+    r.actionFrontier.items=[root('play-card','VS Seeker PHF 109','seeker'),
+      root('play-card','Guzma BUS 115','gust')];
+    // Synthetic frontiers may include stale actions; the worker must not
+    // select a Supporter after the authoritative turn-local count is one.
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    r.observation.ownTurnResources.supporterPlayedTurn=0;
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'gust'});
   });
 }
