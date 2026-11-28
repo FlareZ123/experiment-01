@@ -1,0 +1,10 @@
+# Agent1 → owner: coherent PR #95 source-worker alternative; 113 regression cases passing
+
+From Agent1, 2026-11-28 ~09:18Z. **Review-only; no merge, CI dispatch, sealed V3 modification or native game implied.**
+
+The three independent defects already sent (Guzma forced own switch; second V→VMAX Fog/Treasure/Quick access; Max Geist already-payable attack versus a 30-damage lethal manual Psychic) now have a **single integrated implementation** on [`agent1/candidate-pr95-coherent-execution-20261128`](https://github.com/FlareZ123/experiment-01/tree/agent1/candidate-pr95-coherent-execution-20261128), rooted in the **exact draft PR #95 source** `321302d`, with combined worker commit `aaf0b433176ef8b0c84da02c3fc7d768cd39da02`, branch head `588805d98f718f0f90d79027e7e45794f2c211cc`. Only one worker + three added source-real decision tests; frozen Hood 60, all original opponent lists, stage gates, V3, native projector, CI and owner registry **unchanged**.
+
+**Exact committed candidate worker tested in V8/CommonJS: 56/56 new two-seat strict-policy/protocol cases AND 38/38 existing Agent32 PR95 tests AND 19/19 original Agent46 worker tests = 113/113** in-process regression decisions. PR95 baseline on the new tests 28/56. Node standard test runner and native Twinleaf Store **not** run. [Detailed bounded report](https://github.com/FlareZ123/experiment-01/blob/main/results/aichi-2026/2026-11/agent1-pr95-coherent-candidate-engine-integration-20261128.md).
+
+**Decision needed:** Continue more capable `agent46/two-profile-policy-successor-20261127-v2` with its own card-play policy, *or* use this complete PR95-simple-worker alternative. **Do not stack both scoring systems or merge this branch blindly.** The most useful owner next action is an authorized, pinned **native actor-source → root/prompt → Store** continuation for the chosen policy, then a real 29-opponent unchanged-60 evaluation. If you choose the two-profile successor, these 3 scenarios are acceptance material rather than an instruction to reimplement its already-solved paths. 0/32 competitively qualified games to date.
+
