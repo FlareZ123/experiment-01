@@ -211,6 +211,25 @@ for (const seat of [0, 1]) {
       { kind: 'select-action', token: 'guzma' });
   });
 
+  test('seat ' + seat + ': Regidrago Mega Dragonite Sky Transport escapes Gust without any retreat, Items or Supporters', () => {
+    const view = actorView(seat);
+    view.opponentPublic.bench[2] = {
+      printing: 'Mega Dragonite ex ASC 152', abilities: ['Sky Transport'],
+      abilitySuppressions: [{ abilityName: 'Sky Transport', suppressed: false }]
+    };
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)), pass());
+  });
+
+  test('seat ' + seat + ': independently confirmed Sky Transport suppression restores nominal Gust option', () => {
+    const view = actorView(seat);
+    view.opponentPublic.bench[2] = {
+      printing: 'Mega Dragonite ex ASC 152', abilities: ['Sky Transport'],
+      abilitySuppressions: [{ abilityName: 'Sky Transport', suppressed: true }]
+    };
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)),
+      { kind: 'select-action', token: 'guzma' });
+  });
+
   test('seat ' + seat + ': U-Turn Board vetoes a claimed unpowered retreat trap', () => {
     const view = actorView(seat);
     view.opponentPublic.bench[1].tools = ['U-Turn Board UNM 211'];
