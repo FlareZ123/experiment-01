@@ -67,3 +67,62 @@ test('pinned Dialga UPR Shred actual Muscle Band XY +20 to 90HP Girafarig',
         'Native Muscle Band reducer should make Shred KO 90HP Girafarig');
     }
   });
+
+
+test('actual pinned sticky Apex Dragon copied Dialga Shred uses Regidrago Band',
+  {skip:built?false:'build pinned Twinleaf first'},()=>{
+    const {Store}=load('game/store/store');
+    const {State,GamePhase}=load('game/store/state/state');
+    const {Player}=load('game/store/state/player');
+    const {AttackEffect}=load('game/store/effects/game-effects');
+    const {DialgaGX}=load(dialgaPath);
+    const {RegidragoVSTAR}=load(
+      'sets/09-sword-and-shield/set-silver-tempest/regidrago-vstar');
+    const {MuscleBand}=load('sets/07-x-and-y/set-x-and-y/muscle-band');
+    const {Girafarig}=load('sets/08-sun-and-moon/set-lost-thunder/girafarig');
+    const {openCopyAttackSession,cloneAttacks,
+      clearCopyAttackSessionsForTests}=load(
+      'game/store/prefabs/copy-attack-delegation');
+
+    function one(seat,band,patched){
+      clearCopyAttackSessionsForTests();
+      const state=new State(),own=new Player(),opponent=new Player();
+      own.id=101;opponent.id=202;
+      state.players=seat===0?[own,opponent]:[opponent,own];
+      state.activePlayer=seat;state.phase=GamePhase.ATTACK;state.turn=4;
+      const attacker=new RegidragoVSTAR(),dragon=new DialgaGX();
+      const target=new Girafarig();
+      attacker.id=111;dragon.id=222;target.id=333;
+      own.active.cards.push(attacker);
+      own.discard.cards.push(dragon);
+      opponent.active.cards.push(target);
+      if(band) {
+        const tool=new MuscleBand();tool.id=444;
+        own.active.tools.push(tool);
+      }
+      const store=new Store({gameSettings:state.gameSettings,
+        onStateChange(){},onPrompt(){},onFinish(){}});
+      store.state=state;
+      const copied=cloneAttacks(dragon.attacks);
+      openCopyAttackSession(state,own,attacker,dragon,copied,copied[1]);
+      try {
+        const attack=new AttackEffect(own,opponent,copied[1]);
+        const exec=()=>store.reduceEffect(state,attack);
+        const after=patched?withPaperRegidragoDialgaShred(exec):exec();
+        assert.equal(after,state);
+        assert.equal(attack.damage,0);
+        return opponent.active.damage;
+      } finally {
+        clearCopyAttackSessionsForTests();
+      }
+    }
+
+    for(const seat of [0,1]){
+      assert.equal(one(seat,false,false),80);
+      assert.equal(one(seat,true,false),80,
+        'Stock copied Shred must lack attack-side Muscle Band');
+      assert.equal(one(seat,false,true),80);
+      assert.equal(one(seat,true,true),100,
+        'Patched copied Shred should KO 90 HP Active Girafarig');
+    }
+  });
