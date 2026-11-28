@@ -340,7 +340,10 @@ for(const seat of [0,1]){
   const q=root(seat,[c,play('Float Stone BKT 137','tool',{targetSeat:'actor',targetZone:'bench',targetIndex:0}),pass],{
    ownPublic:own({active:mega,bench:[mon('Garbodor LTR 68')]}),opponentPublic:opp({active:vmax})});
   assert.equal(policy.projectedClawDamage(c,q.observation),400);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'tool'});
+  q.actionFrontier.items=[c,pass];
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'claw'});
+  q.actionFrontier.items=[c,play('Float Stone BKT 137','tool',{targetSeat:'actor',targetZone:'bench',targetIndex:0}),pass];
   c.publicMetadata.hasUnmodeledModifier=true;
   assert.equal(policy.projectedClawDamage(c,q.observation),null);
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'tool'});
@@ -798,11 +801,11 @@ for(const seat of [0,1]){
    attack('Itchy Pollen','pollen'),pass],{
    ownPublic:board,opponentPublic:enemy,ownHand:['Battle Compressor PHF 92']});
   assert.equal(policy.battleCompressorKarenLineScore(q.observation),0);
-  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'compressor'});
   enemy.discard=[];
   q.observation.ownHand=['Battle Compressor PHF 92','VS Seeker PHF 109'];
   assert.equal(policy.battleCompressorKarenLineScore(q.observation),0);
-  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'compressor'});
  });
  test('seat '+seat+' Karen Prized: Compressor searches only genuinely offered Darkness',()=>{
   const enemy=opp({active:mon('Regidrago VSTAR SIT 136'),
@@ -812,5 +815,44 @@ for(const seat of [0,1]){
    choices:[choice('d1','Darkness Energy MEE 15'),choice('d2','Darkness Energy MEE 15')]},
     {opponentPublic:enemy,ownHand:['VS Seeker PHF 109']});
   assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['d1','d2']});
+ });
+}
+
+for(const seat of [0,1]){
+ test('seat '+seat+' nonterminal Budew attack waits for affordable Quick Ball search and Trainers Mail',()=>{
+  const board=own({active:mon('Budew ASC 16'),bench:[mon('Mega Absol ex MEG 86')]});
+  const q=root(seat,[play('Quick Ball FST 237','ball'),attack('Itchy Pollen','pollen'),pass],{
+   globalTurn:2,ownPublic:board,
+   ownHand:['Quick Ball FST 237','Darkness Energy MEE 15','Darkness Energy MEE 15']});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'ball'});
+  q.actionFrontier.items=[play("Trainers' Mail ROS 92",'mail'),attack('Itchy Pollen','pollen'),pass];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'mail'});
+  q.actionFrontier.items=[attack('Itchy Pollen','pollen'),pass];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+ });
+ test('seat '+seat+' terminal winning attack is allowed before optional setup',()=>{
+  const board=own({active:mon('Mega Absol ex MEG 86'),bench:[mon('Trubbish CRI 56')]});
+  const q=root(seat,[play('Quick Ball FST 237','ball'),
+    attack('Terminal Period','terminal'),pass],{
+   ownPublic:board,opponentPublic:opp({active:mon('Regidrago VSTAR SIT 136',{hp:280,damage:60})}),
+   ownHand:['Quick Ball FST 237','Darkness Energy MEE 15']});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'terminal'});
+ });
+ test('seat '+seat+' normal Claw attack waits for manual Dark Patch acceleration',()=>{
+  const mega=mon('Mega Absol ex MEG 86',{energies:[
+   'Darkness Energy MEE 15','Darkness Energy MEE 15','Darkness Energy MEE 15']});
+  const board=own({active:mega,bench:[mon('Mega Absol ex MEG 86',{energies:[]})],
+   discard:['Darkness Energy MEE 15']});
+  const q=root(seat,[play('Dark Patch ASR 139','patch'),attack('Claw of Darkness','claw'),pass],{
+   ownPublic:board,opponentPublic:opp({active:mon('Regidrago VSTAR SIT 136',{hp:280})})});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'patch'});
+  q.actionFrontier.items=[attack('Claw of Darkness','claw'),pass];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'claw'});
+ });
+ test('seat '+seat+' protected hand search does not block otherwise available Budew attack',()=>{
+  const q=root(seat,[play('Ultra Ball MEG 131','ball'),attack('Itchy Pollen','pollen'),pass],{
+   ownPublic:own({active:mon('Budew ASC 16')}),
+   ownHand:['Ultra Ball MEG 131','Secret Box TWM 163','Mega Absol ex MEG 86']});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
  });
 }
