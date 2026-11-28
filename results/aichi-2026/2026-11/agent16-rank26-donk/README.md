@@ -84,3 +84,25 @@ node --test results/aichi-2026/2026-11/agent16-rank26-donk/shared_turn_costs.tes
 ```
 
 Local execution: eight direct test groups passed under Node 22.16.0; the two cross-planner traces were exercised against exact main source functions in an isolated V8 CommonJS evaluation (one rejected, one admitted), **not** in native Twinleaf or a Node test-runner process. No CI/game authorization, merge, candidate or source deck modification, competitor qualification, or win-rate measurement follows. Agent21 remains rank26 native-policy lead.
+
+### Bounded constructive joint search (same physical source, 28 Nov)
+
+The [joint turn search](joint_turn_search.cjs) now **finds resource-feasible alternatives** instead of merely rejecting an overdrawn line. It runs the actual existing `planPowerMobility` and `planDonationResources` modules, considers power routes with Dowsing available and deliberately reserved, enumerates 0–5 donation Pump budgets, and replays each paired action trace through the **single** physical Trainer ledger. It returns `feasible-joint-resource-trace` only after payment and post-power board consistency; `no-verified-joint-resource-trace` deliberately means no witness *within this bounded search*, never a proof of impossibility. In particular, no post-power Bench occupant may vanish from the donor view, no new on-board damage donor may materialize, and Koko sent to the Lost Zone by Dance cannot reappear as a hand-held donor.
+
+The executable source-model contrast is stronger than the initial two independent solvers:
+
+| Conditional rank26 known resources | Combined result |
+| --- | --- |
+| Meloetta initially Active; only one Egg accessible, TM + one Rope; four Pumps; one Dowsing already needed to recycle Rope | No physically payable combined five-Pump witness |
+| Same starting Meloetta, with Float Stone available: Rope to Squawk, Dance, then free retreat instead of Dowsing-recycled second Rope | Five-Pump line payable by using Dowsing **once**, for Pump |
+| Meloetta initially Active with Rope but no Float, **two accessible Eggs and one Rescue Carrier** | Constructed three-Pump donation path payable **even when Dowsing was spent on Rope** |
+
+This third path is a constructive remedy rather than a second rejection: use the available Egg/Carrier recovery geometry to eliminate the need to recover a fifth Pump. The source 60 remains fixed. All required opponent terminal, legal card-effect and actor-visibility preconditions remain explicitly the caller's responsibility; this cannot be presented as an actual game finish.
+
+The [joint-source tests](joint_turn_search.test.cjs) contain eight groups: three constructive/negative scenarios, a partial-Prize no-donation route, mismatched Dowsing, missing/invented Bench occupants, and an illegal post-Dance Koko resurrection. **8/8 passed** in isolated CommonJS evaluation of the exact fetched main modules, with per-case runtime 0–109 ms; the Node test-runner invocation and native Twinleaf Store have not been run for the joint tests. Run in a checkout:
+
+```sh
+node --test results/aichi-2026/2026-11/agent16-rank26-donk/shared_turn_costs.test.cjs results/aichi-2026/2026-11/agent16-rank26-donk/shared_turn_costs.integration.test.cjs results/aichi-2026/2026-11/agent16-rank26-donk/joint_turn_search.test.cjs
+```
+
+Use this as an **actor-known turn budgeting aid** for Agent21's existing rank26 worker, not as a new simulator, frozen policy, game, rank conversion estimate, or Aichi-field result.
