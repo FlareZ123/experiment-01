@@ -678,9 +678,26 @@ function isItem(printing) {
   return hasAnyName(printing, ITEM_NAMES);
 }
 
+// Exact fixed-candidate BASIC 60-card print inventory: never invent a legal
+// target when a prize projection accidentally includes CRE75 VMAX or a foreign
+// printing. This is a closed-world owner policy, not a general deck parser.
+const HEAVY_BALL_CANDIDATE_BASICS = Object.freeze([
+  'Shadow Rider Calyrex V CRE 74',
+  "Lillie's Clefairy ex JTG 56",
+  'Tapu Lele-GX GRI 60',
+  'Trevenant & Dusknoir-GX SMP 217',
+  'Latias ex SSP 76',
+  'Dialga-GX UPR 100',
+  'Mimikyu GRI 58',
+  'Girafarig LOT 94',
+  'Marshadow UNB 81',
+  'Radiant Eternatus CRZ 105'
+]);
 function heavyBallPrizePriority(view, printing) {
-  // The native owner-choice prompt enumerates eligible BASIC Prize cards.
-  // Value is actor/matchup-relative; never inspect unrevealed Prize identities.
+  // Native owner-choice prompt enumerates eligible BASIC Prize cards.
+  // No projected/known source printing -> no guess.
+  if (!HEAVY_BALL_CANDIDATE_BASICS.includes(printing))
+    return -Infinity;
   if (printing === 'Mimikyu GRI 58' && opponentHasRegidrago(view) &&
       !boardHas(view, 'Mimikyu') && !handHas(view, 'Mimikyu')) return 1400;
   if (printing === 'Shadow Rider Calyrex V CRE 74' &&
