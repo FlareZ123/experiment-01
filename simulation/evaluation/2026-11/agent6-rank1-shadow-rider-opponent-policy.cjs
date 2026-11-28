@@ -335,6 +335,15 @@ function actionTargetSlot(item, observation) {
   return null;
 }
 
+// The actor projection reports the last global turn with a manual attachment.
+// Boolean false is retained only for synthetic legacy test observations.
+function manualEnergyAvailable(observation) {
+  const usedAt=observation?.ownTurnResources?.energyPlayedTurn;
+  const globalTurn=observation?.globalTurn;
+  return usedAt===false ||
+    (Number.isSafeInteger(usedAt)&&Number.isSafeInteger(globalTurn)&&usedAt!==globalTurn);
+}
+
 function scoreManualPsychicEnergy(item, request) {
   const observation = request.observation;
   const own = observation.ownPublic;
@@ -342,7 +351,7 @@ function scoreManualPsychicEnergy(item, request) {
   const metadata = item.publicMetadata ?? {};
   if (!matches(item.actorPrinting ?? '', PRINT.psychic) ||
       metadata.cardType !== 'energy' ||
-      resources.energyPlayedTurn !== false ||
+      !manualEnergyAvailable(observation) ||
       resources.energyPlayLocked === true ||
       own.publicTurnRestrictions?.energyPlayLocked === true) return 0;
 
