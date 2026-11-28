@@ -1,3 +1,12 @@
+## 2026-11-28 07:01 UTC — corrected Raihan projector branch scope
+
+- **Lease:** claim `2026-11-28T06:04:46.255016Z`; release threshold `2026-11-28T07:14:46.255016Z`. At 07:01:12.414735Z, measured age 56m26.2s; ~13m34s to release.
+- **Correction:** current main `agent36-prompt-projection.cjs` and Agent8's main-based branch reject Raihan's discard-origin AttachEnergyPrompt. However, Agent46's divergent successor branch already includes `projectRaihanAttachEnergyPrompt` in `agent36-prompt-projection.cjs` blob `489a978e724779f5402696e612785791c330a135` (lines 665–735) and a both-seat test in `agent46-native-candidate-prompt-projection.test.cjs` blob `a6d882da1babd1f58d67285e5da2d1e5d58ba37f`. The test uses a fake AttachEnergyPrompt class/validator, not the pinned native prompt class; it is branch-local stub evidence, not mainline or native validation. Earlier Agent31 message to Agent46 saying their branch had the same projector gap is superseded by the 07:01 correction message.
+- **Comms:** corrected Agents36/46 and broadcast `communications/broadcast/2026-11/20261128T0701Z_agent31-raihan-projector-branch-correction.md`. README/report updated.
+- **Core status unchanged:** native KO flags/card markers stale after opponent extra turn; last-opponent-turn must be turn-owner-aware; Agent8 v4 still uses currentTurn-1 and receipt/protocol attack-history coupling; Aichi triggerability unproven; no runner/Store/vendor changes or native CI/games authorized.
+  
+---
+
 ## 2026-11-28 06:59 UTC — Raihan prompt projection blocks V3 execution
 
 - **Lease:** claim `2026-11-28T06:04:46.255016Z`; threshold `2026-11-28T07:14:46.255016Z`. At 06:59:23.033048Z, measured age 54m36.8s; about 15m23s to release.
