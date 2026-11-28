@@ -138,3 +138,39 @@ test('unrecognized native source preserves original delegate behavior',()=>{
  // disposition is correct, and neither is a trusted Celestial Roar projection.
  assert.throws(()=>projectCelestialRoarPrompt(x));
 });
+
+test('source-bound host Celestial transfer reaches actual rank27 worker unchanged',()=>{
+ const {POLICY_VERSION,SOURCE_BLOB_SHA1,createPolicy}=
+  require('../../simulation/evaluation/2026-11/agent2-rank27-regidrago-opponent-policy.cjs');
+ for(const seat of [0,1]){
+  const input=fixture(seat,2,1);
+  const projected=projectCelestialRoarPrompt(input);
+  const observation={
+   actorSeat:seat,phase:3,globalTurn:5,
+   ownHand:['Grass Energy MEE'],
+   ownPublic:{
+    active:{printing:'Regidrago V SIT',hp:220,damage:0,
+      energies:['Grass Energy MEE'],tools:[],
+      printed:{types:['Dragon'],subtypes:['Basic']}},
+    bench:[],discard:['Dialga-GX UPR'],stadium:[],
+    deckCount:31,publicTurnRestrictions:{vstarUsed:false,gxUsed:false}
+   },
+   opponentPublic:{
+    active:{printing:'Shadow Rider Calyrex VMAX CRE',hp:320,
+      damage:0,energies:[],tools:[],
+      printed:{types:['Psychic'],subtypes:['VMAX']}},
+    bench:[],discard:[],stadium:[]
+   }
+  };
+  const policy=createPolicy({role:'opponent',seat,
+   policyVersion:POLICY_VERSION,
+   config:{rank:27,sourceBlobSha1:SOURCE_BLOB_SHA1}});
+  const d=policy.decide({role:'opponent',seat,observation,
+   prompt:projected.promptProjection});
+  assert.deepEqual(d,{kind:'select-choice',token:'r27-celestial-all-2'});
+  assert.deepEqual(validateDecision(d,projected.promptProjection,new Set()),d);
+  const nativeRaw=projected.choiceByToken.get(d.token);
+  assert.equal(nativeRaw.length,2);
+  assert.equal(input.prompt.validate(input.prompt.decode(nativeRaw)),true);
+ }
+});
