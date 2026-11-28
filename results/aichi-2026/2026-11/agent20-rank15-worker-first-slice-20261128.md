@@ -44,7 +44,7 @@ The actor-only `Pidgeot ex OBF164` Quick Search root is now paired with a one-ca
 
 Grand Tree SCR136 adds another distinct owner-root→own-Bench→Stage1→Stage2 continuation, conditioned on a Basic that existed before this turn. The staged search chooses Gloom and then Vileplume AOR; if AOR is already established and a Gloom remains, it chooses BUS. It explicitly refuses first-turn/fresh-Basic activation and opponent-owned Bench/deck targets. The source's own card stages and public timestamps are used; this does not assert unobserved access to a Stage2 when it might be Prized.
 
-The resulting **111/111 passing synthetic actor-visible tests** include positive and negative states for these two new prompt families. Neither a test fixture nor a synthetic returned token proves native Twinleaf prompt settlement. These paths remain a development-only source worker, not an admitted full-game opponent.
+The resulting **132/132 passing synthetic actor-visible tests** include positive and negative states for these two new prompt families. Neither a test fixture nor a synthetic returned token proves native Twinleaf prompt settlement. These paths remain a development-only source worker, not an admitted full-game opponent.
 
 
 ## New competitive defensive and tactical channels (62/62 developmental decisions)
@@ -68,7 +68,7 @@ Rototiller’s `ChooseCardsPrompt` is strictly limited to **physically visible c
 
 Omega Barrage’s actor-owned `ConfirmPrompt` now considers **all three source-available attacks**: after a first Burrow, a second Burrow can continue milling without Technical Machine; after Rototiller, the second attack can accelerate a resource-loop line. Therefore the worker says **Yes** if any meaningful second attack can be funded, not only when TM: Evolution is attached. It says No when no Energy, compatible evolution, opponent deck cards or recoverable own discard makes the second attack useful. If an exact K1 inventory proves both Vileplume Stage2 absent yet the opponent still has deck cards, Yes may still correctly enable **Burrow**; K1 forbids only a known-dead Evolution transition, not all other attacks.
 
-All these choices are constructed actor-only decision regressions. The 111/111 pass count does not certify a live engine attack, opponent response, completed match, correct policy under all lock interactions, or qualified win rate.
+All these choices are constructed actor-only decision regressions. The 132/132 pass count does not certify a live engine attack, opponent response, completed match, correct policy under all lock interactions, or qualified win rate.
 
 
 ## Physical damage evaluation and remaining source Supporter/recovery channels
@@ -79,7 +79,7 @@ All these choices are constructed actor-only decision regressions. The 111/111 p
 
 **Eldegoss V RCL19: Happy Match and Float Up.** Original rank15 carries exactly one Eldegoss V. It now Benches Eldegoss only when a Supporter in the own *public* discard is useful, the Bench can still reserve missing Vileplume lock slots, and public Path to the Peak/Iron Thorns ability suppression does not make Happy Match knowingly inert. Its owner-discard `ChooseCardsPrompt` chooses only a physically held source Supporter, for example Karen against Regidrago, not an opponent’s or imaginary discarded card. Eldegoss’s paid Float Up attack can return the vulnerable two-Prize Pokémon and its attachments into the deck; the subsequent *optional* self-shuffle confirmation is deliberately **No** if Eldegoss is the source’s only Pokémon in play, since returning its last Pokémon would immediately lose the game. With a Bench, the policy chooses Yes. This closes a critical recursion and win-condition safety hole.
 
-The developmental receipt now covers **111/111 local Node22 constructed actor requests**, including both physical seats, negative alternatives, confirmation choices, owner/public-zone isolation, and concrete setup or endgame continuations. This is still not a native pinned-Store full-game or quantified 32-opponent benchmark. Original rank15 source 60 and all fixed-candidate lists remain unchanged.
+The developmental receipt now covers **132/132 local Node22 constructed actor requests**, including both physical seats, negative alternatives, confirmation choices, owner/public-zone isolation, and concrete setup or endgame continuations. This is still not a native pinned-Store full-game or quantified 32-opponent benchmark. Original rank15 source 60 and all fixed-candidate lists remain unchanged.
 
 
 ## Full actor Energy payment, capability-preserving Tools, and print alias legality
@@ -94,11 +94,26 @@ The developmental receipt now covers **111/111 local Node22 constructed actor re
 
 **Better actual attack tradeoff:** the initial simple scoring chose Spiky Hopper's 160 over moved Gale Thrust's certified 230 even when neither attack KOs and no opposing Mimikyu threatened to copy Gale. It now chooses Gale for damage and knockout tempo in that state. With an opposing funded Copycat Mimikyu and a 120-damaged Mega, it takes the safer Spiky to avoid exposing itself to a copied 230 return KO; without verified movement, it declines to invent 230; defensive Tool effects can also reverse the damage choice in favor of Spiky. The 6 new decision tests specifically exercise these reversals.
 
-**Receipt:** `node --test` in the local Node22 development mirror on five test files reports **111/111 passing** (existing 85, eight Stadium, nine Energy/Hood, three print-alias, six attack-tradeoff). All new test files and actor worker source are committed on the isolated source branch, not on main. No pinned Twinleaf Store, full native opponent policy, qualified matchup or benchmark game was run. The next real evidence requirement is native settlement against held-out alternatives, not another synthetic passing count.
+**Receipt:** `node --test` in the local Node22 development mirror on five test files reports **132/132 passing** (existing 85, eight Stadium, nine Energy/Hood, three print-alias, six attack-tradeoff). All new test files and actor worker source are committed on the isolated source branch, not on main. No pinned Twinleaf Store, full native opponent policy, qualified matchup or benchmark game was run. The next real evidence requirement is native settlement against held-out alternatives, not another synthetic passing count.
+
+
+## Concrete native-playability follow-up: source deck fixture, mobility, no-discard search, Budew
+
+**Exact loadable 60:** `simulation/evaluation/2026-11/agent20-rank15-engine-opponent-deck.json` contains all 35 source printing/count pairs totaling exactly 60 and the only two necessary printing aliases from the supplied card database. The source inventory remains unmodified; no candidate deck was substituted.
+
+**Turn-one control:** `Budew ASC16` genuinely carries free **Itchy Pollen**, dealing 10 and preventing the opponent from playing Items during their next turn. The worker now attacks with it early after valuable setup, except when AOR Vileplume already provides a live Item lock or the opponent is otherwise already Item-locked. The choice abstains from auto-prioritizing a fragile Budew attack in late games.
+
+**Critical retreat/Active positioning:** earlier the policy sometimes assembled a funded Mega Lopunny or Bunnelby TM line on Bench while leaving a low-impact Fan Rotom/Budew Active. The worker now identifies legal actor-owned target Bench slots, chooses an offered normal Retreat, attaches an offered Float Stone to its own no-Energy Active if necessary, or deliberately attaches Jet Energy to promote a funded Bench Mega. With visible Basic opposition it instead prioritizes effective BUS Vileplume Active lock. It does not move an effective Active BUS merely to play a nonterminal attack. Nine local mobility tests include both seat orientations, the actual owner-Bench prompt tokens, and illegal/opponent-owned target negatives.
+
+**Guzma & Hala without the discard:** its Stadium search is not contingent on optional two-card discard. When the main Tool+Special Energy turbo line cannot afford two discardable cards, the worker now uses **Tag Call → Guzma & Hala → no-discard → Grand Tree** on a legally older evolution target, or **Artazon** when no target yet exists. The engine offered prompts and native root actions remain authoritative. Six tests cover both seats, exact K1 exhausted Stadiums, already-played or in-hand Stadiums and full Bench.
+
+**Developmental receipt:** seven existing tests files plus the Budew suite yield **132/132 passing local Node22 constructed actor decisions**. This is explicitly not validation of full V3 request schema/native prompt settlement, complete player turns, opponent competence, all 32 Aichi matchups, or a 99.5% win-rate.
+
+**Independent gate for next engineer:** execute the exact deck fixture with a pinned native Store, including true native owner prompts and a held-out choice conflict at Tag Call/Guzma & Hala, Omega Barrage post-first attack, two-Gloom Stage2 placement, Active BUS vs alternative attack, and the paid Mega retreat. Do not register this developmental worker as benchmark-qualified solely from unit tests.
 
 ## Local receipt and limits
 
-`node --test tests/2026-11/agent20-rank15-lopunny-vileplume-opponent-policy.test.cjs` equivalent local Node22 test: **111/111 passed**, encompassing both seats, source inventory, supported Poffin, Fan Call, Quick Search, Air Mail, Artazon, Grand Tree, Guzma, Guzma & Hala, TM Evolution, Omega Barrage and Karen decisions, movement/K1 evidence fail-closed, conditional tactical reversals and trap negatives. Tests use constructed actor-facing requests; no pinned Twinleaf Store, native prompt resolution, external protocol validator, held-out review, natural deal, full game, CI or opponent competence claim. Branch files have not been merged, admitted to the canonical panel, or used for a benchmark matchup.
+`node --test tests/2026-11/agent20-rank15-lopunny-vileplume-opponent-policy.test.cjs` equivalent local Node22 test: **132/132 passed**, encompassing both seats, source inventory, supported Poffin, Fan Call, Quick Search, Air Mail, Artazon, Grand Tree, Guzma, Guzma & Hala, TM Evolution, Omega Barrage and Karen decisions, movement/K1 evidence fail-closed, conditional tactical reversals and trap negatives. Tests use constructed actor-facing requests; no pinned Twinleaf Store, native prompt resolution, external protocol validator, held-out review, natural deal, full game, CI or opponent competence claim. Branch files have not been merged, admitted to the canonical panel, or used for a benchmark matchup.
 
 **Explicit unsupported paths:** generic Energy payment, Prize selection, generic retreat/switch targets beyond supported BUS promotion and Guzma gust, full lock activation order, and copied-attack prompt families. Root scoring is deliberately narrow and abstains outside supported continuations. For promotion, a separate reviewer should test a held-out legal alternative action and native full prompt settlement before any claim of executable game competence.
 
