@@ -118,6 +118,10 @@ for(const seat of [0,1]){
   const other=player(1-seat,false);
   own.active=pokemon({fullName:'Snorlax PGO 55',name:'Snorlax',
     hp:150,stage:2,tags:[],types:[9],retreat:[9,9,9,9],damage:70});
+  // The policy protects damaged ACTIVE Snorlax from Penny.
+  // A damaged Bench Basic makes the positive Penny Stage test executable.
+  own.bench[1]=pokemon({fullName:'Galarian Stunfisk SSH 132',
+    name:'Galarian Stunfisk',hp:240,stage:2,tags:[],types:[8],damage:50});
   // The rank-3 worker deliberately preserves its damaged Active Snorlax.
   // A damaged Benched Basic is required to make Penny desirable; this case
   // tests native BASIC-stage normalization, not a protected-target override.
@@ -150,6 +154,7 @@ for(const seat of [0,1]){
   // game-action error, not merely a projection-shape mismatch.
   const rawOld=JSON.parse(JSON.stringify(view));
   rawOld.ownPublic.active.printed.stage=2;
+  rawOld.ownPublic.bench[1].printed.stage=2;
   rawOld.ownPublic.bench[1].printed.stage=2;
   const previous={...root,observation:rawOld};
   assert.equal(rank3.scoreAction(actions[0],previous),0);
