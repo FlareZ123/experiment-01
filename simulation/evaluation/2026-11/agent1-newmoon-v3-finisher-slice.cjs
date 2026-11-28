@@ -377,18 +377,22 @@ function choosePaidPressure(view,items){
  const rem=opp.active.hp-opp.active.damage;
  if(rem>150){
   const night=sourceAttack(items,own,'Night Watch');
-  if(night)return select(night,'V3_PAID_NIGHT_WATCH_DAMAGE_AND_TWO_CARD_HAND_DENIAL');
+  if(night&&actualOwnedAttack(own,night)&&
+    typeof night.publicMetadata.attackSource.sourceCardName==='string')
+    return select(night,'V3_PAID_NIGHT_WATCH_DAMAGE_AND_TWO_CARD_HAND_DENIAL');
   const shadow=items.find(x=>x.attackName==='Shadow Bind'&&
    actualOwnedAttack(own,x)&&
    has(own.active.printing,'Dusknoir')&&
    !has(own.active.printing,'Trevenant & Dusknoir-GX')&&
-   verifiedAttackDamage(x,150));
+   verifiedAttackDamage(x,150)&&
+   typeof x.publicMetadata.attackSource.sourceCardName==='string');
   if(shadow)return select(shadow,'V3_PAID_SHADOW_BIND_TO_SET_UP_TWO_HIT_KO');
  }
  if(rem>50){
   const willow=items.find(x=>x.attackName==='Will-O-Wisp'&&
    actualOwnedAttack(own,x)&&has(own.active.printing,'Dusclops')&&
-   verifiedAttackDamage(x,50));
+   verifiedAttackDamage(x,50)&&
+   typeof x.publicMetadata.attackSource.sourceCardName==='string');
   if(willow)return select(willow,'V3_PAID_DUSCLOPS_CHIP_TO_SET_UP_KO');
  }
  return null;
