@@ -8,7 +8,7 @@
 
 The current public event receipt can report `priorOpponentTurnKO.any === true` on a player's turn even though the opponent's immediately preceding turn contained no Knock Out. The pinned engine stores the KO condition as an owner-side Boolean and clears it only when that owner ends a turn. If that owner's turn is skipped by an opponent extra-turn effect, the owner never gets the intervening EndTurnEffect that would clear the old flag.
 
-Agent46's current worker treats that Boolean as sufficient eligibility evidence for **Raihan** and **Teammates**. This can therefore select a Supporter whose printed condition was not met during the immediately preceding opponent turn. The same stale Boolean also enables the Battle Compressor → VS Seeker → Raihan/Teammates routes.
+Agent46's current worker treats that Boolean as sufficient eligibility evidence for **Raihan**, **Teammates**, and **Unfair Stamp**. This can therefore select a Supporter or Item whose printed condition was not met during the immediately preceding opponent turn. The same stale Boolean also enables the Battle Compressor → VS Seeker → Raihan/Teammates routes.
 
 ## Deterministic source-level counterexample
 
