@@ -466,6 +466,33 @@ function scoreAttack(item, observation) {
   return 20;
 }
 
+function counterGainRecipientScore(pokemon, zone, observation) {
+  // Counter Gain is a single Tool slot. Its printed effect reduces one
+  // Colorless attack cost ONLY while its owner is behind on Prize cards.
+  if (!pokemon || !ownBehindOnPrizes(observation) ||
+      list(pokemon.tools).length > 0 ||
+      list(pokemon.energies).length > 0) return 0;
+  if (matches(pokemon.printing, PRINT.bunnelby))
+    return zone === 'active' ? 210 : 95;
+  if (zone === 'active' && matches(pokemon.printing, PRINT.girafarig))
+    return 170;
+  // Budew's Itchy Pollen already costs zero Energy.
+  return 0;
+}
+
+function physicalCounterGainChoiceScore(choice, observation) {
+  const m = choice.publicMetadata ?? {};
+  if (choice.kind !== 'pokemon' || m.ownerSeat !== 'actor' ||
+      !['active', 'bench'].includes(m.targetZone) ||
+      m.isOwnerVisible !== true) return -100;
+  const own = observation.ownPublic;
+  const slot = m.targetZone === 'active' ? own.active :
+    Number.isSafeInteger(m.benchIndex) && m.benchIndex >= 0 ?
+      list(own.bench)[m.benchIndex] : null;
+  if (!slot || !samePrinting(slot.printing, choicePrinting(choice))) return -100;
+  return counterGainRecipientScore(slot, m.targetZone, observation);
+}
+
 function scoreAction(item, request) {
   const observation = request.observation;
   const own = observation.ownPublic;
@@ -557,8 +584,10 @@ function scoreAction(item, request) {
       missingLinePriority(observation) > 0 ? 102 : 18;
   }
   if (matches(card, PRINT.counterGain)) {
-    return ownBehindOnPrizes(observation) &&
-      samePrinting(target, own.active?.printing) ? 190 : 0;
+    // Native play-card action has no Pokémon target, so inspect the eligible
+    // actor board NOW, then select the physical recipient in its prompt.
+    return Math.max(0, ...boardSlots(own).map(row =>
+      counterGainRecipientScore(row.pokemon, row.zone, observation)));
   }
   if (matches(card, PRINT.memoryEnergy)) {
     return boardHas(own, PRINT.stoutland) && !boardSlots(own).some(row =>
@@ -968,8 +997,12 @@ function promptDecision(request) {
     }
     let ranked;
     if (selectionType === 'pokemon') {
-      ranked = rankedChoices(choices,
-        choice => scorePokemonChoice(choice, request.observation, context), max)
+      const counterGainSource = matches(prompt.source?.sourcePrinting,
+        PRINT.counterGain) && prompt.source?.sourceKind === 'card-effect';
+      ranked = rankedChoices(choices, choice =>
+        counterGainSource ?
+          physicalCounterGainChoiceScore(choice, request.observation) :
+          scorePokemonChoice(choice, request.observation, context), max)
         .filter(row => row.score > 0);
     } else if (selectionType === 'card-combination') {
       const discardPrompt = (context.includes('guzma & hala') ||
