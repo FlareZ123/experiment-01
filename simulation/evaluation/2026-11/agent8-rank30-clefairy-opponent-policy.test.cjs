@@ -1575,10 +1575,10 @@ for(const seat of [0,1]) {
       choices:[
         {kind:'energy',printing:'Telepathic Psychic Energy POR 88',token:'special-active',
           publicMetadata:{sourceZone:'discard',ownerSeat:'actor',
-            isOwnerVisible:true,energyType:'BASIC',zone:'active',slotIndex:0,targetSeat:'actor'}},
+            isOwnerVisible:true,energyType:'SPECIAL',zone:'active',slotIndex:0,targetSeat:'actor'}},
         {kind:'energy',printing:psychic,token:'active-energy',
           publicMetadata:{sourceZone:'discard',ownerSeat:'actor',
-            isOwnerVisible:true,targetZone:'active',targetSeat:'actor'}},
+            isOwnerVisible:true,energyType:'BASIC',zone:'active',slotIndex:0,targetSeat:'actor'}},
         {kind:'energy',printing:psychic,token:'bench-energy',
           publicMetadata:{sourceZone:'discard',ownerSeat:'actor',
             isOwnerVisible:true,energyType:'BASIC',zone:'bench',benchIndex:0,targetSeat:'actor'}}
