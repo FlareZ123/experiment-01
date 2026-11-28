@@ -1262,8 +1262,8 @@ for(const seat of [0,1]) {
     r.prompt=null;r.observation.ownHand=['Marnie SSH 169'];
     r.actionFrontier.items=[root('play-card','Marnie SSH 169','marnie')];
     assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'marnie'});
-    // A preserved critical Clefairy is not tradeable for generic draw.
-    r.observation.ownHand=['VS Seeker PHF 109',clef];
+    // A protected singleton ACE SPEC must not be reshuffled for generic draw.
+    r.observation.ownHand=['VS Seeker PHF 109',box];
     r.actionFrontier.items=[root('play-card','VS Seeker PHF 109','seeker')];
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
     r.observation.ownHand=['VS Seeker PHF 109'];
