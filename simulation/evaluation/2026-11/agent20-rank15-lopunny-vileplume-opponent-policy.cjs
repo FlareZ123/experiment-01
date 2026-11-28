@@ -50,6 +50,9 @@ const P = Object.freeze({
   xtransceiver:/^Xtransceiver NVI(?: 96)?\b/i,
   grandTree:/^Grand Tree SCR(?: 136)?\b/i,
   artazon:/^Artazon PAL(?: 171)?\b/i,
+  pathPeak:/^Path to the Peak CRE(?: 148)?\b/i,
+  silentLab:/^Silent Lab PRC(?: 140)?\b/i,
+  thorns:/^Iron Thorns ex TWM(?: 77)?\b/i,
   grass:/^Grass Energy MEE(?: 9)?\b/i,
   hood:/^Stealthy Hood UNB(?: 186)?\b/i,
   powerful:/^Powerful Colorless Energy DAA(?: 176)?\b/i,
@@ -459,6 +462,35 @@ function xtransceiverPrompt(request) {
   const empty=arr(p.choices).find(x=>x.kind==='empty-selection'&&typeof x.token==='string');
   return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
     abstain('NO_LEGAL_CARD_SET');
+}
+function peakLockOpportunity(o) {
+  const own=o?.ownPublic,op=o?.opponentPublic;
+  if(!own||!op)return false;
+  if(slots(own).some(x=>has(x,P.pidgeot)))return false;
+  if(arr(o.ownHand).some(x=>has(x,P.eldegoss))&&
+    arr(own.discard).some(c=>[P.karen,P.guzma,P.guzmaHala,P.n].
+      some(p=>has(c,p))))return false;
+  const vstarUnspent=op.publicTurnRestrictions?.vstarUsed===false;
+  if(vstarUnspent&&slots(op).some(x=>has(x,P.regidrago)))return true;
+  const shadows=slots(op).filter(x=>/^Shadow Rider Calyrex VMAX CRE(?: 75)?\b/i.
+    test(txt(x))).length;
+  return shadows>=2;
+}
+function silentLabOpportunity(o) {
+  const own=o?.ownPublic,op=o?.opponentPublic;
+  if(!own||!op||o.globalTurn<=2)return false;
+  const pidgeot=slots(own).some(x=>has(x,P.pidgeot));
+  const iron=slots(op).some(x=>has(x,P.thorns));
+  if(iron&&pidgeot)return true;
+  const ownPath=[...arr(own.stadium),...arr(op.stadium)].some(x=>has(x,P.pathPeak));
+  if(ownPath&&pidgeot&&
+    !(op.publicTurnRestrictions?.vstarUsed===false&&
+      slots(op).some(x=>has(x,P.regidrago))))return true;
+  const basicEngine=slots(op).filter(x=>
+    /^Comfey LOR(?: 79)?\b/i.test(txt(x))||
+    /^Radiant Greninja ASR(?: 46)?\b/i.test(txt(x))).length;
+  const fanUnspent=slots(own).some(x=>has(x,P.fan))&&o.globalTurn<=2;
+  return basicEngine>=2&&!fanUnspent;
 }
 function usefulArtazonBasic(o) {
   const owned=[...slots(o?.ownPublic),...arr(o?.ownHand)];
@@ -920,6 +952,10 @@ function rootDecision(request) {
   if(fanCall&&fanNeeds&&benchCount(o.ownPublic)<5&&o.globalTurn<=2)return take(fanCall);
   const grand=items.find(x=>x.kind==='use-stadium'&&has(ownPrinting(x),P.grandTree));
   if(grand&&grandTreeTarget(o))return take(grand);
+  const silent=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.silentLab));
+  if(silent&&silentLabOpportunity(o))return take(silent);
+  const peak=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.pathPeak));
+  if(peak&&peakLockOpportunity(o))return take(peak);
   const artazon=items.find(x=>x.kind==='use-stadium'&&has(ownPrinting(x),P.artazon));
   if(artazon&&benchCount(o.ownPublic)<5&&usefulArtazonBasic(o))return take(artazon);
   const artazonPlace=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.artazon));
@@ -1070,4 +1106,4 @@ function createPolicy({role,seat,policyVersion,config}) {
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,
   createPolicy,rootDecision,poffinPrompt,printedDamage,applyColorlessWeaknessResistance,movementEvidence,karenOpportunity,REGIDRAGO_DRAGON_PAYLOADS,
-  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,k1Available,k1EvoTarget,nOpportunity,eldCanBench,eldegossPrompt,floatUpPrompt,eldSupporterPriority,xtransceiverPrompt,usefulArtazonBasic,artazonPrompt,airMailPrompt,grandTreePrompt,grandTreeTarget,guzmaOpportunity,guzmaPrompt,rototillerPrompt,rototillerPriority,bunnelbyAttritionAction,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
+  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,k1Available,k1EvoTarget,nOpportunity,peakLockOpportunity,silentLabOpportunity,eldCanBench,eldegossPrompt,floatUpPrompt,eldSupporterPriority,xtransceiverPrompt,usefulArtazonBasic,artazonPrompt,airMailPrompt,grandTreePrompt,grandTreeTarget,guzmaOpportunity,guzmaPrompt,rototillerPrompt,rototillerPriority,bunnelbyAttritionAction,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
