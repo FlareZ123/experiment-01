@@ -585,7 +585,8 @@ function scoreAction(item, request) {
     const valuableBasic = list(opponent.discard).some(card =>
       /Shadow Rider Calyrex V CRE 74|Dialga-GX UPR 100|Tapu Lele-GX GRI 60|Latias ex SSP 76|Mimikyu GRI 58/i
         .test(printingValue(card)));
-    return valuableBasic && hasBenchSpace(own) ? 145 : 0;
+    // Echoing Horn revives an opponent Basic onto their Bench, not ours.
+    return valuableBasic && hasBenchSpace(opponent) ? 145 : 0;
   }
   if (matches(printing, PRINT.muscleBand)) {
     return (matches(active, PRINT.regidragoVstar) || matches(active, PRINT.regidragoV) ||
@@ -615,8 +616,13 @@ function scoreAction(item, request) {
     return list(own.prizeSlots).some(slot => typeof slot?.printing === 'string') ? 120 : 0;
   }
   if (matches(printing, PRINT.tapuLele)) return !supporterInHand(observation) && hasBenchSpace(own) ? 155 : 0;
-  if (matches(printing, PRINT.dedenne) || matches(printing, PRINT.squawk)) {
+  if (matches(printing, PRINT.dedenne)) {
     return hand <= 3 && hasBenchSpace(own) ? 165 : 0;
+  }
+  // Squawk and Seize can only fire on this player's first turn; late
+  // Squawkabilly ex is otherwise an unnecessary two-Prize Bench liability.
+  if (matches(printing, PRINT.squawk)) {
+    return observation.globalTurn <= 2 && hand <= 3 && hasBenchSpace(own) ? 165 : 0;
   }
   if (matches(printing, PRINT.latias)) return !boardHas(own, PRINT.latias) && hasBenchSpace(own) ? 140 : 0;
   if (matches(printing, PRINT.dialga)) return !boardHas(own, PRINT.dialga) && hasBenchSpace(own) ? 105 : 0;
