@@ -1176,22 +1176,22 @@ function hasStadiumRemovalTarget(view) {
     hasName(name, 'Wondrous Labyrinth'));
 }
 
-// Guzma forces the current Active to the Bench after gusting. A terminal
-// attack must be payable by a prospective *Benched* attacker, not by the
-// current Active which will leave the Active Spot when the card resolves.
+// Guzma requires our Active to switch only when we have a Bench to switch
+// into; with an empty Bench its opponent gust still resolves, and our Active
+// remains. When a Bench exists, evaluate the forced post-switch attacker
+// rather than wrongly counting the departing Active's damage.
 function canGuzmaForAttack(view, receipt) {
-  if (!view.ownPublic.bench.some(Boolean) ||
-      !view.opponentPublic.bench.some(Boolean)) return false;
-  return view.opponentPublic.bench.some(target => {
-    if (!target) return false;
-    return view.ownPublic.bench.some(attacker => {
-      if (!attacker) return false;
-      const attack = bestAttackForSlot(attacker, view, target,
-        { publicEventReceipt: receipt });
-      return attack && attack.damage !== null &&
-        attack.damage >= Math.max(0, target.hp - target.damage);
-    });
-  });
+  const opponents = view.opponentPublic.bench.filter(Boolean);
+  if (opponents.length === 0) return false;
+  const benchAttackers = view.ownPublic.bench.filter(Boolean);
+  const attackers = benchAttackers.length > 0
+    ? benchAttackers : [view.ownPublic.active].filter(Boolean);
+  return opponents.some(target => attackers.some(attacker => {
+    const attack = bestAttackForSlot(attacker, view, target,
+      { publicEventReceipt: receipt });
+    return attack && attack.damage !== null &&
+      attack.damage >= Math.max(0, target.hp - target.damage);
+  }));
 }
 
 function scoreTrainerPlay(item, view, receipt) {
