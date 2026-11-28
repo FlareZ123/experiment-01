@@ -365,6 +365,21 @@ function ghLineFeasible(o,excluded) {
   return missingEvolutionChannels(o)&&supporterUnused(o)&&
     disposableCards(o,excluded).length>=2;
 }
+function ghStadiumOnlyLine(o) {
+  if(!supporterUnused(o))return false;
+  const own=o.ownPublic;
+  const inHand=arr(o.ownHand);
+  const inPlay=[...arr(own.stadium),...arr(o.opponentPublic?.stadium)];
+  const tree=grandTreeTarget(o)&&
+    !inPlay.some(x=>has(x,P.grandTree))&&
+    !inHand.some(x=>has(x,P.grandTree))&&
+    k1Available(o,[P.grandTree])!==false;
+  const artazon=benchCount(own)<5&&usefulArtazonBasic(o)&&
+    !inPlay.some(x=>has(x,P.artazon))&&
+    !inHand.some(x=>has(x,P.artazon))&&
+    k1Available(o,[P.artazon])!==false;
+  return !!(tree||artazon);
+}
 function actorCardZone(p,zone) {
   const m=p.publicMetadata??{};
   const choices=arr(p.choices).filter(x=>x.kind==='card');
@@ -1092,11 +1107,11 @@ function rootDecision(request) {
      arr(x.tools).some(c=>has(c,P.tmEvolution)))&&missingEvolutionChannels(o))return take(attachJet);
   if(gust&&gustOpportunity&&!gustOpportunity.terminal)return take(gust);
   const gh=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.guzmaHala));
-  if(gh&&ghLineFeasible(o,P.guzmaHala))return take(gh);
+  if(gh&&(ghLineFeasible(o,P.guzmaHala)||ghStadiumOnlyLine(o)))return take(gh);
   const tag=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.tagCall));
   if(tag&&!arr(o.ownHand).some(c=>has(c,P.guzmaHala))&&
     k1Available(o,[P.guzmaHala])!==false&&
-    ghLineFeasible(o,P.tagCall))return take(tag);
+    (ghLineFeasible(o,P.tagCall)||ghStadiumOnlyLine(o)))return take(tag);
   const hood=items.map(x=>({item:x,score:hoodProtectionScore(x,o)}))
     .filter(x=>x.score>0)[0];
   if(hood)return take(hood.item);
@@ -1197,4 +1212,4 @@ function createPolicy({role,seat,policyVersion,config}) {
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,ENGINE_PRINTING_ALIASES,ENGINE_COUNTS,
   createPolicy,rootDecision,poffinPrompt,printedDamage,applyColorlessWeaknessResistance,movementEvidence,karenOpportunity,REGIDRAGO_DRAGON_PAYLOADS,
-  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,energyProvided,attachedEnergyUnits,energyActionScore,capturePrompt,hoodProtectionScore,k1Available,k1EvoTarget,nOpportunity,peakLockOpportunity,silentLabOpportunity,eldCanBench,eldegossPrompt,floatUpPrompt,eldSupporterPriority,xtransceiverPrompt,usefulArtazonBasic,artazonPrompt,airMailPrompt,grandTreePrompt,grandTreeTarget,guzmaOpportunity,guzmaPrompt,rototillerPrompt,rototillerPriority,bunnelbyAttritionAction,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
+  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,energyProvided,attachedEnergyUnits,energyActionScore,capturePrompt,hoodProtectionScore,k1Available,k1EvoTarget,ghStadiumOnlyLine,nOpportunity,peakLockOpportunity,silentLabOpportunity,eldCanBench,eldegossPrompt,floatUpPrompt,eldSupporterPriority,xtransceiverPrompt,usefulArtazonBasic,artazonPrompt,airMailPrompt,grandTreePrompt,grandTreeTarget,guzmaOpportunity,guzmaPrompt,rototillerPrompt,rototillerPriority,bunnelbyAttritionAction,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
