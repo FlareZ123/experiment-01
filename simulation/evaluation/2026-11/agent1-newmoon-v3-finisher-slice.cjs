@@ -112,6 +112,16 @@ function shadowBindBus(view,items) {
  return select(attack,'V3_PAID_STAGE2_SHADOW_BIND_KOS_HOODED_BUS_WITHOUT_SELF_KO');
 }
 
+
+function aceSafe(view){
+ const hand=view?.ownHand;
+ if(!Array.isArray(hand))return false; // unknown hand cannot price its own loss
+ if(hand.some(x=>has(x,'Secret Box')))return false;
+ if(view?.ownPublic?.publicTurnRestrictions?.vstarUsed===false &&
+    hand.some(x=>has(x,'Forest Seal Stone')))return false;
+ return true;
+}
+
 function createPolicy({role,seat,policyVersion,config}) {
  if(role!=='candidate'||![0,1].includes(seat)||
    policyVersion!==POLICY_VERSION||!config||typeof config!=='object'||
@@ -166,7 +176,7 @@ function createPolicy({role,seat,policyVersion,config}) {
      if(!attack){pending=null;return null;}
      const rem=target.hp-target.damage;
      if(rem>pending.attackDamage){pending=null;return null;}
-     if(pending.phase==='settle'&&
+     if(pending.phase==='settle'&&aceSafe(v)&&
          own.prizeCount>pending.targetPrizeValue&&
          own.prizeCount>opp.prizeCount&&
          opp.handCount>3&&
@@ -208,4 +218,4 @@ function createPolicy({role,seat,policyVersion,config}) {
  }
  return {decide:r=>decideWithAudit(r).decision,decideWithAudit};
 }
-module.exports={POLICY_VERSION,DECK_PATH,DECK_SHA,createPolicy,ready,validTarget,sourceAttack,shadowBindBus};
+module.exports={POLICY_VERSION,DECK_PATH,DECK_SHA,createPolicy,ready,validTarget,sourceAttack,shadowBindBus,aceSafe};
