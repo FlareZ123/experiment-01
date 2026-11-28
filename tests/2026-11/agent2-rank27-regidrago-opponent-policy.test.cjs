@@ -4,7 +4,8 @@ const assert=require('node:assert/strict');
 const {validateDecision,validatePrompt}=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const {POLICY_VERSION,SOURCE_RANK,SOURCE_BLOB_SHA1,SOURCE_PRINTINGS,
   createPolicy,scoreRoot,choosePrompt,donorScore,resolveSourcePrinting,
-  energyCoverage,rank27EnergyAttachScore,finalPrizePrimeTarget,publicPrizeValue}=
+  energyCoverage,templeIsActive,templeUnlocksApex,
+  rank27EnergyAttachScore,finalPrizePrimeTarget,publicPrizeValue}=
  require('../../simulation/evaluation/2026-11/agent2-rank27-regidrago-opponent-policy.cjs');
 
 const P={
@@ -920,5 +921,60 @@ test('exact-source final-Prize gust chooses V at two remaining and VMAX at three
   const wrongOwner=observation(seat,{ownPublic:{...donorOwn,
     bench:[]},opponentPublic:opp});
   assert.equal(finalPrizePrimeTarget(wrongOwner),null);
+ }
+});
+
+
+test('Temple ASR155 suppresses Double Dragon color funding; replacing it can unlock Apex',()=>{
+ for(const seat of [0,1]){
+  const starting=observation(seat);
+  const funded=[ 'Double Dragon Energy ROS 97','Grass Energy MEE 9' ];
+  const active=pokemon(P.star,{energies:funded,
+    printed:{types:['Dragon'],subtypes:['VSTAR']}});
+  const opp={...starting.opponentPublic,
+    bench:[pokemon('Crobat V DAA 104',{hp:180,damage:0,
+      printed:{subtypes:['V']}})]};
+  const own={...starting.ownPublic,active,bench:[pokemon(P.star,{
+    energies:funded,printed:{types:['Dragon'],subtypes:['VSTAR']}})],
+    discard:[P.dragapult],prizeCount:2,
+    stadium:['Temple of Sinnoh ASR 155']};
+  const locked=observation(seat,{ownPublic:own,opponentPublic:opp});
+  const without=observation(seat,{ownPublic:{...own,stadium:[]} ,
+    opponentPublic:opp});
+  assert.equal(energyCoverage(funded),3);
+  assert.equal(energyCoverage(funded,true),1);
+  assert.equal(energyCoverage(['Grass Energy MEE 9',
+    'Grass Energy MEE 9','Fire Energy MEE 10'],true),3);
+  assert.equal(templeIsActive(locked),true);
+  assert.equal(templeUnlocksApex(locked),true);
+  assert.equal(templeIsActive(without),false);
+  assert.equal(templeUnlocksApex(without),false);
+  assert.equal(finalPrizePrimeTarget(locked),null);
+  assert.equal(finalPrizePrimeTarget(without)?.index,0);
+  const offered=[
+    action('replace','play-card','Parallel City BKT 145'),
+    action('quick','play-card',P.quick),
+    action('pass','pass','Pass')];
+  assert.equal(tok(root(seat,locked,offered)),'replace');
+  assert.equal(tok(root(seat,without,offered)),'quick');
+  const addDde=action('add','play-card','Double Dragon Energy ROS 97',{
+    publicMetadata:{cardType:'energy',targetSeat:'actor',
+      targetZone:'active',targetIndex:0},targetPrinting:P.star});
+  assert.equal(rank27EnergyAttachScore(addDde,locked),55);
+  assert.equal(rank27EnergyAttachScore(addDde,without),-Infinity);
+  const noDonor=observation(seat,{ownPublic:{...own,discard:[]},
+    opponentPublic:opp});
+  assert.equal(templeUnlocksApex(noDonor),false);
+  const wrongSet=observation(seat,{ownPublic:{
+    ...own,stadium:['Temple of Sinnoh ASR 999']},opponentPublic:opp});
+  assert.equal(templeIsActive(wrongSet),false);
+  const nativeLabel=observation(seat,{ownPublic:{
+    ...own,stadium:['Temple of Sinnoh ASR']},opponentPublic:opp});
+  assert.equal(templeIsActive(nativeLabel),true);
+  // Path can replace Temple but risks suppressing unused Legacy Star;
+  // Parallel is preferred when both options actually exist.
+  const path=action('path','play-card',P.path);
+  assert.equal(tok(root(seat,locked,[path,offered[0],offered[2]])),
+    'replace');
  }
 });
