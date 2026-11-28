@@ -4,7 +4,7 @@
  * Generated from exact sources; do not edit this bundle directly.
  * agent43-regidrago-apex-choice.cjs 65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b
  * agent1-rank12-regidrago-opponent-policy-v2.cjs bfaee2205ea9d0c3b618948fe24ff81075d4ccda
- * agent3-rank32-regidrago-opponent-policy.cjs 0abf5cf162c54f9c1f748dcdc0c9c1f32d80525b
+ * agent3-rank32-regidrago-opponent-policy.cjs 8cb838c794015d8d8c25d82f739a2090a63d714d
  * agent3-rank14-regidrago-opponent-policy.cjs 3a9a5507f51bc001724558df7a90bd79b9480a98
  */
 const __rank14Modules = Object.freeze({
@@ -1407,6 +1407,45 @@ function protectedDdeInHand(observation) {
   // or a current attacker still lacks the requisite Grass/Fire types.
   return attackers.length<2 || attackers.some(p=>apexTypedDeficit(p,observation)>0);
 }
+function seekerSupporterPriority(card,request) {
+  const name=print(card),observation=request?.observation??{};
+  const own=observation.ownPublic??{},opponent=observation.opponentPublic??{};
+  const hand=list(observation.ownHand).length;
+  if(/^Guzma BUS 115\b/i.test(name)) {
+    const tactical=tacticalGustScore({kind:'play-card',actorPrinting:name},observation);
+    return tactical>=185?(tactical>=390?320:265):0;
+  }
+  if(/^Crispin SCR 133\b/i.test(name))
+    return crispinAccelerationPriority(observation)>0?285:0;
+  if(/^Raihan EVS 152\b/i.test(name)) {
+    const priorKO=request?.publicEventReceipt?.priorOpponentTurnKO?.any===true;
+    const basic=list(own.discard).some(e=>/^(?:Grass|Fire) Energy\b/i.test(print(e)));
+    return priorKO&&basic?285:0;
+  }
+  if(/^Pokémon Ranger STS 104\b/i.test(name)) {
+    const locked=own.publicTurnRestrictions?.attackLockTurnsRemaining>0 ||
+      own.active?.publicRestrictions?.cannotAttackNextTurn===true ||
+      own.publicTurnRestrictions?.itemPlayLocked===true;
+    return locked?305:0;
+  }
+  if(/^Lillie's Determination MEG 119\b/i.test(name))
+    return hand<=3?230:(hand<=5?155:30);
+  if(/^Professor Sycamore BKP 107\b/i.test(name) ||
+      /^Professor's Research JTG 155\b/i.test(name))
+    return protectedDdeInHand(observation)?0:(hand<=3?215:35);
+  if(/^Carmine TWM 145\b/i.test(name))
+    return protectedDdeInHand(observation)?0:(hand<=3?210:25);
+  if(/^N FCO 105\b/i.test(name)) {
+    const ownPrizes=Number(own.prizeCount),oppPrizes=Number(opponent.prizeCount);
+    return hand<=3?205:(Number.isFinite(ownPrizes)&&Number.isFinite(oppPrizes)&&
+      ownPrizes>oppPrizes?160:25);
+  }
+  if(/^Marnie SSH 169\b/i.test(name))
+    return hand<=3?190:35;
+  if(/^Cynthia & Caitlin CEC 189\b/i.test(name))
+    return hand<=3?165:45;
+  return 0;
+}
 function scoreAction(action, request) {
   const obs = request?.observation ?? {};
   const own = obs.ownPublic ?? {};
@@ -1415,6 +1454,10 @@ function scoreAction(action, request) {
   const hand = list(obs.ownHand).length;
   const active = own.active;
   const enabledVstar = slots(own).some(p => /^Regidrago VSTAR SIT 136\b/i.test(print(p)));
+  if(action.kind==='play-card'&&/^VS Seeker PHF 109\b/i.test(name)) {
+    const max=Math.max(0,...list(own.discard).map(c=>seekerSupporterPriority(c,request)));
+    return max>=150?Math.min(205,Math.floor(max*0.67)):0;
+  }
   if(protectedDdeInHand(obs) && (
       (action.kind==='play-card' &&
         (/^Dedenne-GX UNB 57\b/i.test(name) ||
@@ -1902,6 +1945,12 @@ function promptDecision(request) {
     }
     return {kind:'abstain',reasonCode:'RANK32_CYNTHIA_PROMPT_UNPROJECTED'};
   }
+  if (/vs seeker/.test(source) &&
+      p.promptType==='ChooseCardsPrompt' &&
+      meta.selectionType==='card-combination'&&meta.sourceZone==='discard') {
+    return chooseMany(choices,c=>seekerSupporterPriority(c,request),min,Math.min(max,1),
+      'RANK32_VS_SEEKER_NO_USEFUL_SUPPORTER');
+  }
   if (/super rod/.test(source)) {
     if (p.promptType==='ChooseCardsPrompt' &&
         meta.selectionType==='card-combination' && meta.sourceZone==='discard')
@@ -2012,7 +2061,7 @@ module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
   strongestCopiedDamage,canAttackNow,tacticalGustScore,gustTargetPriority,targetFromGustChoice,
   aceSpecBlowerPriority,muscleBandPriority,evolveRegidragoPriority,retreatToAttackerPriority,
   prizeValue,crispinAccelerationPriority,crispinDeckEnergyChoice,
-  chooseTrifrostTargets,protectedDdeInHand};
+  chooseTrifrostTargets,protectedDdeInHand,seekerSupporterPriority};
 
 },
 "./agent3-rank14-regidrago-opponent-policy.cjs": function(require, module, exports) {
