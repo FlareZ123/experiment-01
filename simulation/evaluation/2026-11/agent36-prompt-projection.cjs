@@ -351,6 +351,9 @@ function addCancelChoice(choices, choiceByToken, prompt, state) {
   }, prompt, state);
 }
 
+// The native projector runs BEFORE the certified source-print bridge.
+// Require exact known pre/post IDs with physical custody; downstream worker
+// demands the certified full paper printing after the bridge.
 // Pinned Hisuian Heavy Ball copies actor-owned Prizes into a temporary
 // CardList and temporarily sets isSecret=false before ChooseCardsPrompt.
 // Generic Prize visibility sees faceUpPrize=false and wrongly rejects this
@@ -358,7 +361,7 @@ function addCancelChoice(choices, choiceByToken, prompt, state) {
 function heavyBallPrizeVisibility(prompt, state, actorSeat, source, native, cards) {
   if (source?.sourceKind !== 'card-effect' ||
       source.effectName !== 'Hisuian Heavy Ball' ||
-      source.sourcePrinting !== 'Hisuian Heavy Ball ASR 146') return null;
+      !['Hisuian Heavy Ball ASR', 'Hisuian Heavy Ball ASR 146'].includes(source.sourcePrinting)) return null;
   const actor = state.players[actorSeat];
   const allPrizes = (actor?.prizes ?? []).filter(p =>
     Array.isArray(p?.cards) && p.cards.length > 0);
@@ -654,7 +657,7 @@ function projectRaihanDiscardAttachment({
   const actor=state.players[actorSeat];
   const expectedSource=source?.sourceKind==='card-effect'&&
     source.effectName==='Raihan'&&
-    source.sourcePrinting==='Raihan EVS 152';
+    ['Raihan EVS','Raihan EVS 152'].includes(source.sourcePrinting);
   const exact=expectedSource&&prompt.playerId===actor.id&&
     prompt.message==='ATTACH_ENERGY_CARDS'&&
     prompt.cardList===actor.discard&&
