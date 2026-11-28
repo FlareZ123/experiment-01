@@ -35,10 +35,13 @@ function req(seat,config={}){
  target.printed.subtypes=config.targetPrinting===DRAGO?['VSTAR']:
    config.targetPrinting===MEGA?['ex','MEGA']:['ex'];
  if(config.spiky)target.energies=['Spiky Energy JTG 159'];
+ if(config.legacy)target.energies.push('Legacy Energy TWM 167');
+ if(config.lifeDew)target.tools=['Life Dew PLF 107'];
  const oppBench=config.opponentBench===false?[]:[mon('Mimikyu GRI 58',70)];
  const ownBench=config.ownBench===false?[]:[mon(V,210)];
  const owner=side(active,ownBench,config.ownPrize??1,config.deckCount??20);
  const opponent=side(target,oppBench,config.opponentPrize??6);
+ if(config.jamming)opponent.stadium=['Jamming Tower TWM 153'];
  const offers=[
    {kind:'play-card',token:'basic',actorPrinting:V,
     publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:1}},
@@ -76,7 +79,25 @@ const cases=[
  ['Eon Blade with only Psychic x2 not payable for direct terminal',
   {activePrinting:'Latias ex SSP 76',ownEnergy:2},'basic'],
  ['Zero deck cards: execute winning attack before reshuffle/draw',
-  {deckCount:0},'attack']
+  {deckCount:0},'attack'],
+ ['Legacy Energy subtracts final Prize from VSTAR-style two-prizer',
+  {ownPrize:2,legacy:true,ownBench:false},'basic'],
+ ['Legacy Energy still allows win when one Prize remains',
+  {ownPrize:1,legacy:true},'attack'],
+ ['Life Dew subtracts one Prize when its Tool effect is live',
+  {ownPrize:2,lifeDew:true,ownBench:false},'basic'],
+ ['Jamming Tower suppresses Life Dew Prize reduction',
+  {ownPrize:2,lifeDew:true,jamming:true},'attack'],
+ ['Both Legacy Energy and Life Dew can defeat one-Prize forecast',
+  {ownPrize:1,legacy:true,lifeDew:true,ownBench:false},'basic'],
+ ['Modern Mega ex 3 Prizes with Legacy is only two actual Prizes',
+  {ownPrize:3,legacy:true,targetPrinting:MEGA,targetHP:280,
+   targetRemaining:140,ownBench:false},'basic'],
+ ['Modern Mega ex 3 Prizes with Legacy still clears two remaining',
+  {ownPrize:2,legacy:true,targetPrinting:MEGA,targetHP:280,
+   targetRemaining:140},'attack'],
+ ['Last-board KO still wins even if Legacy Energy reduces Prize count',
+  {ownPrize:6,legacy:true,opponentBench:false},'attack']
 ];
 for(const seat of [0,1])for(const [label,config,token]of cases)
  test(label+' seat '+seat,()=>{
