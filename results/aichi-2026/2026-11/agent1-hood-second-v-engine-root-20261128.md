@@ -53,3 +53,21 @@ A further connected obstruction existed after finding/benching a second Basic V:
 [Added VMAX evolution-chain regression `5125db4`](https://github.com/FlareZ123/experiment-01/commit/5125db4f0df4181f360da87b5d9e2ab45b595871) (with protocol-correct optional search empty choice [`3a6d492`](https://github.com/FlareZ123/experiment-01/commit/3a6d492a3f2c4dccac778e5d2407edce7b55f03f)) tests, in both physical seats, a **Treasure root → post-discard source-printed ChooseCardsPrompt → source VMAX selection → next legal evolution root**, assuming an already evolution-eligible second V. Search discarded-card payment and turn progression are **constructed actor views**, not native Store settlements.
 
 **Expanded total: 28/28 strict-protocol candidate-policy decisions on the bounded patch branch, versus 12/28 on unmodified PR #95.** This now addresses three independent physical requirements for the *second* repeatable Underworld Door: a second Basic V action, actual card-access connectors, and its second VMAX search/evolution. The existing mature two-profile successor may provide a better general planner and should be preferred if owner-integrated. No change to 0/32 qualified matchups.
+
+## Archived **actual native Store action** witness (distinct from policy unit tests)
+
+To assess whether the *second VMAX + repeated Underworld Door* target is a real native-executed engine rather than a synthetic scoring preference, I **reused** previously collected GitHub Actions native run **42578010606, artifact 13656062292** (`agent3-hood-vs-shadow-all29-native.zip`, 116 registered attempts, two 58-attempt arms). No new game or CI was launched. The archive's pinned engine was `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, under an **earlier owner policy**, not PR #95 or our review branch. Included [standalone census script](../../../scripts/2026-11/agent1-source-hood-multi-door-ledger-census.py) selects events by actual `candidateSeat` and by physical `rootActionLedger[].action`, `card`, `ability`, `turnBefore` (rather than guessing from public board text).
+
+| Archive arm | Registered attempts | Complete root ledgers | At least 2 VMAX played as candidate roots | At least 2 candidate Underworld Door uses **on the same turn** | Total candidate Underworld Door roots |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Champion reference | 58 | 56 | 11 | 8 games (12 turns) | 132 |
+| Hood Shield | 58 | 55 | **18** | **11 games (18 turns)** | **156** |
+
+These are observed **native root dispatches**, not proof of successful activation effects in every case; the separate previously recorded Underworld Door accepted-prompt audit found all 304 matching prompts accepted. No arbitrary skill/win-rate projection follows from this archive.
+
+Two concrete, physically seat-bound Hood witnesses:
+
+- `1:7002:A:hood-shield-v1`, candidate seat **0**, native candidate win: at root ordinal **46**, turn 5, another source Shadow Rider V is played; at ordinal **124**, turn 25, another VMAX evolves; ordinals **125 and 128** on that same turn are two separately dispatched Underworld Door activations, followed by source Full Moon Rondo attack at ordinal **131**. Earlier first VMAX/Underworld root at ordinals **21–22**, turn 3. The same archive's champion-reference arm lost this matched native trial, but a candidate-arm change and many decisions differ; **no causal win attribution**.
+- `5:7002:B:hood-shield-v1`, candidate seat **1**, native candidate win: VMAX plays at ordinals **18**, **62** and **115**; two Underworld Door roots at ordinals **109 and 112**, both turn **26**. This independently establishes physical-seat symmetry for a multi-engine native interaction.
+
+**Implication for implementation:** preserve the second V→second VMAX→separate Underworld Door connectivity when choosing a final owner policy. PR #95's simple worker made that repeated source route unreachable via normal second-V hand/Item choices; the bounded branch now admits it in **constructed decision tests**. The old archive only demonstrates that the intended mechanic has occurred in a real pinned Store under *another* policy; it does not verify the new code in native execution or establish competitive dominance. Archive itself labels `competitivePaperQualifiedGames:0`. Missing ranks 23/25/28 and other Aichi coverage issues persist.
