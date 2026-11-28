@@ -2156,6 +2156,29 @@ test('manual Psychic Energy is not attached after the turn attachment was used',
   });
 });
 
+test('rank1 manual Psychic respects numeric last-used Energy turn across both seats', () => {
+  const psychic='Psychic Energy MEE 13';
+  for(const seat of [0,1]){
+    for(const [stamp,expected] of [[-1,'energy'],[0,'energy'],[3,'energy'],[4,'pass'],[false,'energy'],[true,'pass']]){
+      const request=rootRequest({
+        seat,globalTurn:4,ownHand:[psychic],
+        ownPublic:player({active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{stage:'VMAX'})}),
+        ownTurnResources:{...turnResources(),energyPlayedTurn:stamp},
+        items:[{token:'energy',kind:'play-card',actorPrinting:psychic,
+          targetPrinting:'Shadow Rider Calyrex VMAX CRE 75',
+          publicMetadata:{cardType:'energy',handIndex:0,targetSeat:'actor',
+            targetZone:'active',isOwnerVisible:true}},
+          {token:'pass',kind:'pass'}]
+      });
+      assert.deepEqual(checkedDecision(request,seat),{kind:'select-action',token:expected});
+      if(stamp===3){
+        request.observation.ownTurnResources.energyPlayLocked=true;
+        assert.deepEqual(checkedDecision(request,seat),{kind:'select-action',token:'pass'});
+      }
+    }
+  }
+});
+
 test('Latias, Girafarig and Trevenant have conditional positive Bench-play branches', () => {
   const latias = rootRequest({
     ownHand: ['Latias ex SSP 76'],
