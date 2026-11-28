@@ -424,7 +424,9 @@ function discardPriority(card, observation) {
   if (matches(card, PRINT.ironThorns) &&
       slots(observation.ownPublic).filter(row=>matches(row.pokemon.printing,PRINT.ironThorns)).length < 2) return -90;
   if (matches(card, PRINT.fieldBlower))
-    return opponentHasTool(observation) ? -85 : 70;
+    // The singleton Item is needed to remove Chaotic before Thunder.
+    return hasStadium(observation,/^Chaotic Swell\b/i) ? -95 :
+      opponentHasTool(observation) ? -85 : 70;
   if (matches(card, PRINT.targetWhistle))
     return hasBasicBenchSpace(observation.opponentPublic) &&
       list(observation.opponentPublic?.discard).some(isRegisteredCandidateBasic) ? -80 : 85;

@@ -3724,3 +3724,38 @@ test('rank7 Wobbuffet final-one-Prize consecutive clear → Thunder → Volt roo
     assert.equal(140>=110,true);
   }
 });
+test('Chaotic makes singleton Field Blower UDP in Guzma-Hala discard payment',()=>{
+  for(const seat of [0,1])for(const chaotic of [false,true]){
+    const hand=[
+      'Guzma & Hala CEC 193','Guzma & Hala CEC 193',
+      'Field Blower GRI 125',"Trainers' Mail ROS 92",
+      'Faba LOT 173','Thunder Mountain ◇ LOT 191',
+      'Double Colorless Energy SUM 136'
+    ];
+    const req=promptRequest({
+      seat,promptType:'ChooseCardsPrompt',
+      source:actorChoiceSource('Guzma & Hala CEC 193','Guzma & Hala'),
+      publicMetadata:multiMetadata(2,2),
+      observation:{
+        ownHand:hand,
+        ownPublic:player({
+          active:pokemon('Iron Thorns ex TWM 77'),
+          stadium:chaotic?['Chaotic Swell CEC 187']:[],prizeCount:5
+        }),
+        opponentPublic:player({
+          active:pokemon('Wobbuffet PHF 36',{hp:110}),
+          bench:[pokemon('Snorlax PGO 55',{hp:150})],prizeCount:5
+        })
+      },
+      choices:[
+        cardChoice('mail',"Trainers' Mail ROS 92",'hand','actor'),
+        cardChoice('blower','Field Blower GRI 125','hand','actor'),
+        cardChoice('spare-gh','Guzma & Hala CEC 193','hand','actor'),
+        cardChoice('faba','Faba LOT 173','hand','actor')
+      ]
+    });
+    assert.deepEqual(checkedDecision(req,seat),
+      {kind:'select-choices',tokens:chaotic?
+        ['mail','spare-gh']:['mail','blower']});
+  }
+});
