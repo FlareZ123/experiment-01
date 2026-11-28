@@ -1030,6 +1030,82 @@ function chooseUnderworldDoorAttachment(view, prompt) {
   return abstain('NO_VALID_UNDERWORLD_ATTACHMENT');
 }
 
+function sourceRadiantGate(prompt){
+  return prompt?.source?.sourceKind==='card-effect' &&
+    prompt.source.sourcePrinting==='Radiant Eternatus CRZ 105' &&
+    prompt.source.effectName==='Radiant Eternatus';
+}
+
+// A native PlayPokemonEffect triggers Radiant Eternatus's Climactic Gate.
+// The attached ConfirmPrompt is genuinely yes/no; 'yes' must be chosen
+// only if two free Bench slots remain after Eternatus was benched and
+// the VMAX deck-search can still meaningfully establish attackers.
+function chooseRadiantGateConfirm(view,prompt){
+  setPolicyAuditRule('RADIANT_GATE_CONFIRM','SOURCE_CERTIFIED_YES_OR_NO');
+  if(!sourceRadiantGate(prompt) ||
+     prompt.description!=='WANT_TO_USE_ABILITY' ||
+     prompt.publicMetadata?.selectionType!=='confirm')
+    return abstain('UNTRUSTED_RADIANT_GATE_CONFIRM');
+  const yes=prompt.choices.find(choice=>
+    choice.kind==='confirm'&&choice.label==='Yes');
+  const no=prompt.choices.find(choice=>
+    choice.kind==='confirm'&&choice.label==='No');
+  if(!yes||!no)return abstain('BAD_RADIANT_GATE_CONFIRM_CHOICES');
+  const realRadiant=view.ownPublic.bench.some(slot=>
+    slot?.printing==='Radiant Eternatus CRZ 105');
+  const canUse=realRadiant &&
+    Number.isSafeInteger(view.ownPublic.deckCount) &&
+    view.ownPublic.deckCount>=2 &&
+    countBench(view.ownPublic)<=3 &&
+    ownBoard(view).filter(slot=>
+      slot.printed?.subtypes?.includes('VMAX')).length<2;
+  const picked=canUse?yes:no;
+  recordPolicyAuditRule(picked.token,canUse?
+    'RADIANT_GATE_FETCH_VM_AFFORDABLE':'RADIANT_GATE_DECLINE_NO_VALUE');
+  return {kind:'select-choice',token:picked.token};
+}
+
+// Climactic Gate can place VMAX directly onto Bench without a V Basic.
+// Its host projector exposes actor-owned, visible deck cards, but the
+// source-bound policy must deliberately choose the specified VMAXs.
+// Generic searchNeedScore would reject VMAX if no Basic V is in play.
+function chooseRadiantGateVmax(view,prompt){
+  setPolicyAuditRule('RADIANT_GATE_VMAX_DIRECT_BENCH','SOURCE_VMAX_INDEX_ASC');
+  const meta=prompt.publicMetadata??{};
+  if(!sourceRadiantGate(prompt) ||
+     prompt.description!=='CHOOSE_CARD_TO_PUT_ONTO_BENCH' ||
+     meta.selectionType!=='card-combination' ||
+     meta.ownerSeat!=='actor'||meta.isOwnerVisible!==true||
+     meta.sourceZone!=='deck'||
+     meta.minimumCount!==0||
+     !Number.isSafeInteger(meta.maximumCount)||
+     meta.maximumCount<1||meta.maximumCount>2) {
+    return abstain('UNTRUSTED_RADIANT_GATE_VMAX_PROMPT');
+  }
+  const affordable=Math.min(meta.maximumCount,
+    Math.max(0,5-countBench(view.ownPublic)));
+  const options=prompt.choices.filter(choice=>
+    choice.kind==='card' &&
+    choice.printing==='Shadow Rider Calyrex VMAX CRE 75' &&
+    choice.publicMetadata?.ownerSeat==='actor' &&
+    choice.publicMetadata?.isOwnerVisible===true &&
+    choice.publicMetadata?.sourceZone==='deck')
+    .sort((a,b)=>
+      (a.publicMetadata.selectionIndex??9999)-
+      (b.publicMetadata.selectionIndex??9999)||
+      String(a.token).localeCompare(String(b.token)));
+  const chosen=options.slice(0,affordable);
+  if(chosen.length>0) {
+    for(const choice of chosen){
+      recordPolicyAuditRule(choice.token,'RADIANT_GATE_DIRECT_VM_INSERT');
+    }
+    return {kind:'select-choices',tokens:chosen.map(choice=>choice.token)};
+  }
+  const empty=prompt.choices.find(choice=>choice.kind==='empty-selection');
+  if(empty)return {kind:'select-choice',token:empty.token};
+  return abstain('NO_AUTHENTICATED_RADIANT_VMAX_TARGETS');
+}
+
 function choosePrompt(view, prompt, receipt) {
   if (!prompt || prompt.actingSeat !== view.actorSeat ||
       prompt.source?.classification !== 'actor-choice') {
@@ -1045,7 +1121,9 @@ function choosePrompt(view, prompt, receipt) {
     case 'AttachEnergyPrompt':
       return chooseUnderworldDoorAttachment(view, prompt);
     case 'ChooseCardsPrompt':
-      return chooseCardCombination(view, prompt);
+      return sourceRadiantGate(prompt)
+        ? chooseRadiantGateVmax(view,prompt)
+        : chooseCardCombination(view,prompt);
     case 'ChoosePokemonPrompt':
       return choosePokemonRecipient(view, prompt);
     case 'ChooseEnergyPrompt':
@@ -1057,6 +1135,13 @@ function choosePrompt(view, prompt, receipt) {
     case 'OrderCardsPrompt':
       return chooseCardOrder(view, prompt);
     case 'ConfirmPrompt':
+      if(sourceRadiantGate(prompt)) return chooseRadiantGateConfirm(view,prompt);
+      // Otherwise retain the intentionally narrow single-choice contract.
+      if(prompt.choices.length===1){
+        setPolicyAuditRule('SINGLE_UNAMBIGUOUS_CHOICE','ONLY_CHOICE');
+        return {kind:'select-choice',token:prompt.choices[0].token};
+      }
+      return abstain('AMBIGUOUS_SIMPLE_PROMPT');
     case 'SelectPrompt':
     case 'SelectOptionPrompt': {
       setPolicyAuditRule('SINGLE_UNAMBIGUOUS_CHOICE', 'ONLY_CHOICE');
@@ -1081,6 +1166,25 @@ function scoreBasicPlay(item, view) {
       !boardHas(view, 'Mimikyu')) return 950;
   if (hasName(printing, "Lillie's Clefairy ex") && opponentHasDragon(view) &&
       !boardHas(view, "Lillie's Clefairy ex")) return 900;
+  // Climactic Gate is a turn-ending, high-ceiling direct-Vmax setup line.
+  // Delay it behind non-terminal setup and forbid it if a profitable attack
+  // could already be made. At least three open Bench slots are required
+  // BEFORE playing Radiant (it occupies one, VMAXs need two more).
+  if(printing==='Radiant Eternatus CRZ 105' &&
+     Number.isSafeInteger(view.globalTurn) &&
+     view.globalTurn<=4 &&
+     countBench(view.ownPublic)<=2 &&
+     Number.isSafeInteger(view.ownPublic.deckCount) &&
+     view.ownPublic.deckCount>=4 &&
+     ownBoard(view).filter(slot=>
+       slot.printed?.subtypes?.includes('VMAX')).length<2 &&
+     !allBoard(view).some(slot=>hasAnyName(slot.printing,
+       ['Iron Thorns ex','Garbodor','Galarian Weezing'])) &&
+     ![...view.ownPublic.stadium,...view.opponentPublic.stadium]
+       .some(stadium=>hasName(stadium,'Path to the Peak')) &&
+     !bestAttackForSlot(view.ownPublic.active,view,view.opponentPublic.active)){
+    return 520;
+  }
   if (hasName(printing, 'Latias ex') && !boardHas(view, 'Latias ex')) return 650;
   if (hasName(printing, 'Girafarig') && opponentHasRegidrago(view) &&
       !boardHas(view, 'Girafarig')) return 450;
