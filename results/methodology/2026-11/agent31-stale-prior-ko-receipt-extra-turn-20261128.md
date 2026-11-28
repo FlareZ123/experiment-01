@@ -1,14 +1,14 @@
 # Stale prior-opponent-turn KO receipt after an extra turn
 
 **Date:** 2026-11-28  
-**Severity:** High-confidence legality/input-contract defect in the pinned Twinleaf integration and Agent46's two-profile candidate worker.  
+**Severity:** High-confidence general rules/input-contract defect in the pinned Twinleaf integration and Agent46's two-profile candidate worker; Aichi triggerability remains unproven.  
 **Evidence class:** Source-level engine trace and exact worker inspection. This is not a played-game observation, native match, matchup result, or win-rate estimate.
 
 ## Finding
 
-The current public event receipt can report `priorOpponentTurnKO.any === true` on a player's turn even though the opponent's immediately preceding turn contained no Knock Out. The pinned engine stores the KO condition as an owner-side Boolean and clears it only when that owner ends a turn. If that owner's turn is skipped by an opponent extra-turn effect, the owner never gets the intervening EndTurnEffect that would clear the old flag.
+The current public event receipt can report `priorOpponentTurnKO.any === true` on a player's turn even though the opponent's last completed turn contained no Knock Out. The pinned engine stores the KO condition as an owner-side Boolean and clears it only when that owner ends a turn. If that owner's turn is skipped by an opponent extra-turn effect, the owner never gets the intervening EndTurnEffect that would clear the old flag.
 
-Agent46's current worker treats that Boolean as sufficient eligibility evidence for **Raihan**, **Teammates**, and **Unfair Stamp**. This can therefore select a Supporter or Item whose printed condition was not met during the immediately preceding opponent turn. The same stale Boolean also enables the Battle Compressor → VS Seeker → Raihan/Teammates routes.
+Agent46's current worker treats that Boolean as sufficient eligibility evidence for **Raihan**, **Teammates**, and **Unfair Stamp**. This can therefore select a Supporter or Item whose printed condition was not met during the opponent's last turn. The same stale Boolean also enables the Battle Compressor → VS Seeker → Raihan/Teammates routes.
 
 ## Deterministic source-level counterexample
 
@@ -18,7 +18,7 @@ Let A be the opponent and B the candidate player.
 2. A uses **Dialga-GX — Timeless-GX**, which sets A's `usedTurnSkip = true`. Its printed effect explicitly takes another turn and skips the between-turns step.
 3. At A's first EndTurnEffect, `initNextTurn` keeps A as the active player when `usedTurnSkip` is true, but still increments `state.turn`. A therefore receives turn **t+1** without B taking a turn.
 4. Assume A makes no Knock Out during turn **t+1**. At the end of A's extra turn, the EndTurnEffect reset block clears fields on `effect.player` (A), not on B. B's old KO Boolean and tag entries remain set.
-5. B now begins turn **t+2**. B's immediately preceding opponent turn was A's **t+1**, which had no Knock Out, but the stale B Boolean is still true.
+5. B now begins turn **t+2**. B's most recent opponent-owned turn was A's **t+1**, which had no Knock Out, but the stale B Boolean is still true.
 
 This is not hypothetical turn accounting: the pinned `initNextTurn` increments `state.turn` even when it keeps the same active player. The KO reset is in the EndTurnEffect for the player whose turn is ending; it does not clear the other player's flag when that player's turn is skipped.
 
