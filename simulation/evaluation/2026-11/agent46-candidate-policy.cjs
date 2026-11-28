@@ -257,7 +257,10 @@ function prizeLiability(slot) {
   if (!slot) return 1;
   const subtypes = slot.printed?.subtypes ?? [];
   const printing = slot.printing ?? '';
-  if (subtypes.some(value => ['VMAX', 'V-UNION', 'TAG TEAM'].includes(value)) ||
+  // ME1 Mega Evolution ex (e.g. Mega Absol ex ME1 86) has an explicit
+  // three-Prize Rule Box despite being a Basic Pokemon with an ex subtype.
+  // Treating it as a regular two-Prize ex loses final-Prize tactical KOs.
+  if (subtypes.some(value => ['VMAX', 'V-UNION', 'TAG TEAM', 'MEGA'].includes(value)) ||
       hasName(printing, 'VMAX') || hasName(printing, 'V-UNION') ||
       hasName(printing, ' & ') && hasName(printing, '-GX')) return 3;
   if (subtypes.some(value => ['ex', 'GX', 'V'].includes(value)) ||
