@@ -292,3 +292,36 @@ for(const seat of [0,1]) {
     assert.deepEqual(decide(request),{kind:'select-action',token:'pass'});
   });
 }
+
+for(const seat of [0,1]) {
+  test('Wobbuffet Bide Barricade prevents false source Crobat Dark Asset seat '+seat,()=>{
+    const request=state(seat,{ownHand:['Crobat V DAA 104','Float Stone BKT 137'],
+      ownPublic:{active:poke(P.absol),bench:[poke(P.garbLTR)]},
+      opponentPublic:{active:poke('Wobbuffet PHF 36'),bench:[]},
+      items:[action('play-card','crobat',{actorPrinting:P.crobat}),
+        action('play-card','tool',{actorPrinting:P.float,targetPrinting:P.garbLTR}),
+        action('pass','pass')]
+    });
+    assert.deepEqual(decide(request),{kind:'select-action',token:'tool'});
+  });
+  test('Wobbuffet Psychic exception preserves Tapu Lele-GX Wonder Tag seat '+seat,()=>{
+    const request=state(seat,{ownHand:['Tapu Lele-GX GRI 60','Float Stone BKT 137'],
+      ownPublic:{active:poke(P.absol),bench:[poke(P.garbLTR)]},
+      opponentPublic:{active:poke('Wobbuffet PHF 36'),bench:[]},
+      items:[action('play-card','lele',{actorPrinting:'Tapu Lele-GX GRI 60'}),
+        action('play-card','tool',{actorPrinting:P.float,targetPrinting:P.garbLTR}),
+        action('pass','pass')]
+    });
+    assert.deepEqual(decide(request),{kind:'select-action',token:'lele'});
+  });
+  test('Iron Thorns ex Initialization denies source Rule Box setup Abilities seat '+seat,()=>{
+    const request=state(seat,{ownHand:['Crobat V DAA 104','Float Stone BKT 137'],
+      ownPublic:{active:poke(P.absol),bench:[poke(P.garbLTR)]},
+      opponentPublic:{active:poke('Iron Thorns ex TWM 77'),bench:[]},
+      items:[action('play-card','crobat',{actorPrinting:P.crobat}),
+        action('play-card','tool',{actorPrinting:P.float,targetPrinting:P.garbLTR}),
+        action('pass','pass')]
+    });
+    assert.deepEqual(decide(request),{kind:'select-action',token:'tool'});
+  });
+}
