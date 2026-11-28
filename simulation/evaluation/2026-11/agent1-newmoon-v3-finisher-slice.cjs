@@ -352,6 +352,48 @@ function chooseCertifiedLethal(view,items){
  return select(legal[0],'V3_CERTIFIED_PAID_LETHAL_ATTACK_NO_SELF_KO');
 }
 
+
+function chooseMidgameRefill(view,items){
+ if(!view||!Array.isArray(view.ownHand)||!Array.isArray(items)||
+  !Number.isSafeInteger(view.globalTurn)||view.globalTurn<3||
+  view.ownHand.length>3||
+  view.ownTurnResources?.supporterPlayedTurn!==0)return null;
+ const protectedCard=view.ownHand.some(x=>
+  has(x,'Secret Box')||has(x,'Dusknoir')||
+  (has(x,'Forest Seal Stone')&&
+    view.ownPublic?.publicTurnRestrictions?.vstarUsed===false));
+ if(protectedCard)return null;
+ const lillie=items.find(x=>x.kind==='play-card'&&
+  has(x.actorPrinting,"Lillie's Determination")&&
+  x.publicMetadata?.cardType==='trainer');
+ return lillie?select(lillie,'V3_REFILL_THIN_HAND_WITH_LILLIE_BEFORE_ATTACK'):null;
+}
+function choosePaidPressure(view,items){
+ const own=view?.ownPublic,opp=view?.opponentPublic;
+ if(view?.decisionKind!=='owner-root'||!own||!opp||!own.active||
+  !opp.active||!attackSafe(own.active)||!Array.isArray(items)||
+  !isInt(opp.active.hp)||!isInt(opp.active.damage)||
+  opp.active.hp<=opp.active.damage)return null;
+ const rem=opp.active.hp-opp.active.damage;
+ if(rem>150){
+  const night=sourceAttack(items,own,'Night Watch');
+  if(night)return select(night,'V3_PAID_NIGHT_WATCH_DAMAGE_AND_TWO_CARD_HAND_DENIAL');
+  const shadow=items.find(x=>x.attackName==='Shadow Bind'&&
+   actualOwnedAttack(own,x)&&
+   has(own.active.printing,'Dusknoir')&&
+   !has(own.active.printing,'Trevenant & Dusknoir-GX')&&
+   verifiedAttackDamage(x,150));
+  if(shadow)return select(shadow,'V3_PAID_SHADOW_BIND_TO_SET_UP_TWO_HIT_KO');
+ }
+ if(rem>50){
+  const willow=items.find(x=>x.attackName==='Will-O-Wisp'&&
+   actualOwnedAttack(own,x)&&has(own.active.printing,'Dusclops')&&
+   verifiedAttackDamage(x,50));
+  if(willow)return select(willow,'V3_PAID_DUSCLOPS_CHIP_TO_SET_UP_KO');
+ }
+ return null;
+}
+
 function treasureNeed(view){
  const own=view?.ownPublic,hand=view?.ownHand;
  if(!own||!Array.isArray(hand)||!Array.isArray(own.bench))return null;
@@ -525,7 +567,10 @@ function createPolicy({role,seat,policyVersion,config}) {
    return select(p.ability,'V3_BEGIN_PAID_SAME_TURN_DUSKNOIR_FINISH');
  }
  function decideWithAudit(request) {
-   const x=decideOne(request)??preservedCommonSetup(request,baseSetup);
+   const x=decideOne(request)??preservedCommonSetup(request,baseSetup)??
+     (request?.observation?.decisionKind==='owner-root'&&request.prompt===null?
+      (chooseMidgameRefill(request.observation,request.actionFrontier?.items)??
+       choosePaidPressure(request.observation,request.actionFrontier?.items)):null);
    const decision=x?.decision??{kind:'abstain',reasonCode:'NO_SUPPORTED_V3_FINISH'};
    const source=request?.prompt?.choices??request?.actionFrontier?.items??[];
    const selected=decision.token?[decision.token]:decision.tokens??[];
@@ -541,4 +586,4 @@ function createPolicy({role,seat,policyVersion,config}) {
  }
  return {decide:r=>decideWithAudit(r).decision,decideWithAudit};
 }
-module.exports={POLICY_VERSION,DECK_PATH,DECK_SHA,createPolicy,ready,validTarget,sourceAttack,shadowBindBus,aceSafe,verifiedAttackDamage,preservedCommonSetup,COMMON_SETUP_REASONS,chooseStage2BusEscape,treasureNeed,chooseTreasureRoot,chooseTreasurePrompt,stage2MissingUnderBus,chooseStage2StarRoot,chooseStage2StarPrompt,actualOwnedAttack,chooseCertifiedLethal};
+module.exports={POLICY_VERSION,DECK_PATH,DECK_SHA,createPolicy,ready,validTarget,sourceAttack,shadowBindBus,aceSafe,verifiedAttackDamage,preservedCommonSetup,COMMON_SETUP_REASONS,chooseStage2BusEscape,treasureNeed,chooseTreasureRoot,chooseTreasurePrompt,stage2MissingUnderBus,chooseStage2StarRoot,chooseStage2StarPrompt,actualOwnedAttack,chooseCertifiedLethal,chooseMidgameRefill,choosePaidPressure};
