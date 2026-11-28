@@ -43,9 +43,9 @@ frozen fixture or main without owner approval.
 
 Source/strict-protocol test:
 `tests/2026-11/agent3-bench-forest-seal-stone-tool-jammer-20261128.test.cjs`.
-Both physical seats × seven source-grounded conditions = **14 cases**.
+Both physical seats × nine source-grounded conditions = **18 cases**.
 Exact original PR #95 branch worker: **10/14** passing; changed branch:
-**14/14** passing in an isolated V8 CommonJS evaluator of the actual
+**18/18** passing in an isolated V8 CommonJS evaluator of the actual
 candidate worker and strict policy protocol. Four corrected failures are
 the two Bench-Stone actions in both seats. Other controls confirm Active
 Stone suppression, no useful Active Stone attachment, no-Jammer Bench
@@ -56,3 +56,7 @@ match, qualified Aichi matchup, or competitive win-rate evidence was
 produced. Before any integration, verify that a physical Bench-equipped
 Forest Seal Stone can emit and execute the native Star Alchemy root
 through the source-print bridge with opposing Tool Jammer Active.
+
+## Active Float Stone follow-up (same 28 November branch)
+
+The same global Tool state was silently repeated in `freeRetreatKnown`: a Float Stone on our Active was treated as free retreat regardless of an opponent Active Tool Jammer or Jamming Tower. This caused a native-offered retreat to be scored as free even when its actual normal retreat might consume Energy. Reuse `toolsKnownLive(view, active)` for this mobility gate. Four additional both-seat tests distinguish Tool Jammer equipped/un-equipped with a funded Bench attacker: **18/18** total V8 source-policy tests pass. The original first 14-case parent baseline remains 10/14; the new Float controls were introduced only afterward. This is a source-policy mobility forecast correction, not a native energy-payment assertion.
