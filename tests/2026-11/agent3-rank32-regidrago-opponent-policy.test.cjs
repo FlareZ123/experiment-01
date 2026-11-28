@@ -745,14 +745,14 @@ test('Raihan attached-energy prompt spends actual actor discarded Fire on fundin
     ownerSeat:'actor',minimumCount:1,maximumCount:1};
   for(const seat of [0,1]){
     const q=request({seat,ownPublic,prompt:p});
-    assert.deepEqual(promptDecision(q),{kind:'select-choices',tokens:['active-fire']});
+    assert.deepEqual(promptDecision(q),{kind:'select-choice',token:'active-fire'});
     // Typed Fire no longer missing: the next Basic should fund Bench V.
     ownPublic.active.energies.push('Fire Energy MEE 10');
-    assert.deepEqual(promptDecision(q),{kind:'select-choices',tokens:['bench-grass']});
+    assert.deepEqual(promptDecision(q),{kind:'select-choice',token:'bench-grass'});
     ownPublic.active.energies.pop();
     const forged={...p,publicMetadata:{...p.publicMetadata,sourceZone:'hand'}};
     assert.notDeepEqual(promptDecision(request({seat,ownPublic,prompt:forged})),
-      {kind:'select-choices',tokens:['active-fire']});
+      {kind:'select-choice',token:'active-fire'});
   }
 });
 
