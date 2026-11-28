@@ -89,6 +89,24 @@ for(const seat of [0,1]){
     };
     assert.deepEqual(policy.decide(request),{kind:'select-choice',token:'timeless'});
   });
+  test('previous Regidrago Apex remains copyable after a non-Dragon promotion, seat='+seat,()=>{
+    // Previous Regidrago could leave the Active Spot through its copied
+    // attack or Knock Out during Checkup. Copycat cares about the last
+    // attack recorded, not the opponent's CURRENT Active typing.
+    const {policy,request,view}=fixture(seat);
+    view.opponentPublic.active=mon('Mew ex MEW 151',{
+      hp:180,type:'Psychic',subtypes:['Basic','ex']});
+    assert.deepEqual(policy.decide(request),{kind:'select-action',token:'retreat'});
+    const promoted=view.ownPublic.bench[0];
+    view.ownPublic.bench=[{...view.ownPublic.active,energies:[]}];
+    view.ownPublic.active=promoted;
+    request.publicEventReceipt.mimikyuCopycatCompatible=true;
+    request.actionFrontier.items=[
+      {token:'copycat',kind:'attack',actorPrinting:M,attackName:'Copycat'},
+      {token:'pass',kind:'pass'}
+    ];
+    assert.deepEqual(policy.decide(request),{kind:'select-action',token:'copycat'});
+  });
   test('no Dialga discard, GX spent, missing Apex, unfunded Mimikyu veto, seat='+seat,()=>{
     for(const opts of [
       {donor:false},{usedGX:true},{priorApex:false},{mimikyuEnergy:1}
