@@ -175,6 +175,14 @@ function forestSealLinePending(o){
   list(x.pokemon.tools).length===0);
  return Boolean(crobat)&&list(o.ownHand).some(c=>match(c,PRINT.forest));
 }
+function emergencyGarbotoxinToolEligible(o,printing){
+ if(!toolEnabled(o)||garbotoxinStatus(o)!=='inactive')return false;
+ const hand=list(o.ownHand),hasFloat=hand.some(x=>match(x,PRINT.float));
+ if(match(printing,PRINT.muscle))return !hasFloat;
+ if(match(printing,PRINT.forest))return Boolean(o.ownTurnResources?.vstarUsed)&&
+  !hasFloat&&!hand.some(x=>match(x,PRINT.muscle));
+ return false;
+}
 function benchSupportOnceThisTurnAlreadyUsed(printing,o){
  if(!match(printing,PRINT.crobat)&&!match(printing,PRINT.dedenne)&&!match(printing,PRINT.squawk))return false;
  return slots(o.ownPublic).some(r=>name(r.pokemon.printing)===name(printing)&&
@@ -628,9 +636,8 @@ function score(action,req){
  if(match(p,PRINT.mega))return benchCount(own)>=benchCapacity(o)?0:!onBoard(own,PRINT.mega)?300:15;
  if(match(p,PRINT.float)||match(p,PRINT.muscle)||match(p,PRINT.forest)){
   if(!t||list(t.pokemon.tools).length!==0)return 0;
-  if(match(p,PRINT.forest)){
-   return canTool&&match(t.pokemon.printing,PRINT.crobat)&&!o.ownTurnResources?.vstarUsed&&benchSupportAbilityUsable(p,o)?570:0;
-  }
+  if(match(p,PRINT.forest)&&canTool&&match(t.pokemon.printing,PRINT.crobat)&&
+     !o.ownTurnResources?.vstarUsed&&benchSupportAbilityUsable(p,o))return 570;
   if(match(p,PRINT.float)&&t.zone==='active'&&!opponentSnorlaxBlock(o)&&!match(t.pokemon.printing,PRINT.budew)&&
      o.globalTurn<=4&&canTool&&onBoard(own,PRINT.budew)&&
      o.ownTurnResources?.retreatedTurn!==o.globalTurn&&
@@ -641,9 +648,16 @@ function score(action,req){
    if(!paid||missingPayment)return 740;
   }
   if(match(t.pokemon.printing,PRINT.garbodor)&&canTool&&!liveGarbotoxin(o)){
-   return setupAbilityPending(items,o)?130:600;
+   if(match(p,PRINT.float))return setupAbilityPending(items,o)?130:600;
+   if(emergencyGarbotoxinToolEligible(o,p))
+    return setupAbilityPending(items,o)?125:
+      match(p,PRINT.muscle)?585:570;
+   return 0;
   }
-  if(match(t.pokemon.printing,PRINT.trubbish)&&canTool&&match(p,PRINT.float))return 240;
+  if(match(t.pokemon.printing,PRINT.trubbish)&&canTool){
+   if(match(p,PRINT.float))return 240;
+   if(emergencyGarbotoxinToolEligible(o,p))return match(p,PRINT.muscle)?235:220;
+  }
   if(match(t.pokemon.printing,PRINT.mega)&&match(p,PRINT.muscle)&&canTool)return 200;
   return 0;
  }
@@ -904,7 +918,15 @@ function promptDecision(req){
     const q=slots(o.ownPublic).find(x=>x.zone===zone(c)&&x.pokemon.printing===name(c)&&
       (zone(c)!=='bench'||x.index===(c.publicMetadata?.benchIndex??c.publicMetadata?.targetIndex)));
     if(!q||list(q.pokemon.tools).length!==0)return 0;
-    if(/forest seal/.test(src))return toolEnabled(o)&&match(q.pokemon.printing,PRINT.crobat)?200:0;
+    if(/forest seal/.test(src)){
+     if(match(q.pokemon.printing,PRINT.crobat)&&toolEnabled(o)&&
+        !o.ownTurnResources?.vstarUsed&&benchSupportAbilityUsable('Crobat V DAA 104',o))return 200;
+     if(emergencyGarbotoxinToolEligible(o,PRINT.forest)){
+      if(match(q.pokemon.printing,PRINT.garbodor))return 270;
+      if(match(q.pokemon.printing,PRINT.trubbish))return 190;
+     }
+     return 0;
+    }
     if(/float stone/.test(src)){
      if(!toolEnabled(o))return 0;
      // This native target prompt follows playing Float Stone: the Tool is
@@ -924,6 +946,10 @@ function promptDecision(req){
      // An unevolved Trubbish may become a Garbotoxin user next turn.
      if(match(q.pokemon.printing,PRINT.trubbish))return 165;
      return 0;
+    }
+    if(/muscle band/.test(src)&&emergencyGarbotoxinToolEligible(o,PRINT.muscle)){
+     if(match(q.pokemon.printing,PRINT.garbodor))return 260;
+     if(match(q.pokemon.printing,PRINT.trubbish))return 185;
     }
     if(match(q.pokemon.printing,PRINT.mega)&&/muscle band/.test(src)&&toolEnabled(o))return 80;
     return 0;
