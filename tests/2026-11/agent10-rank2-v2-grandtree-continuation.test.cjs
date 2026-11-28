@@ -602,3 +602,34 @@ test('Guzma & Hala does not consume a Supporter solely to find redundant Jet',()
       {token:'pass',kind:'pass',label:'Pass turn'}]});
   assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'artazon'});
 });
+
+test('TM Evolution physical Tool root rejects Oddish and equips Active Bunnelby',()=>{
+  const mk=(token,targetPrinting,targetZone,targetIndex)=>({
+    token,kind:'play-card',actorPrinting:'Technical Machine: Evolution PAR 178',
+    targetPrinting,publicMetadata:{cardType:'trainer',handIndex:0,
+      targetSeat:'actor',targetZone,targetIndex,isOwnerVisible:true}});
+  const req=rootRequest({ownHand:['Technical Machine: Evolution PAR 178'],
+    ownPublic:player({active:pokemon('Bunnelby PRC 121'),bench:[
+      pokemon('Oddish UNB 5')]}),items:[
+      mk('wrong','Oddish UNB 5','bench',0),
+      mk('correct','Bunnelby PRC 121','active',0),
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-action',token:'correct'});
+});
+test('TM Evolution physical duplicate rejects equipped Active and chooses free Bench Bunnelby',()=>{
+  const mk=(token,targetZone,targetIndex)=>({
+    token,kind:'play-card',actorPrinting:'Technical Machine: Evolution PAR 178',
+    targetPrinting:'Bunnelby PRC 121',publicMetadata:{
+      cardType:'trainer',handIndex:0,targetSeat:'actor',
+      targetZone,targetIndex,isOwnerVisible:true}});
+  const req=rootRequest({ownHand:['Technical Machine: Evolution PAR 178',
+    'Jet Energy PAL 190'],
+    ownPublic:player({active:pokemon('Bunnelby PRC 121',{
+      tools:['Stealthy Hood UNB 186']}),
+      bench:[pokemon('Bunnelby PRC 121'),pokemon('Oddish UNB 5')]}),
+    items:[mk('occupied','active',0),mk('free','bench',0),
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-action',token:'free'});
+});
