@@ -5,7 +5,7 @@ const {validateDecision,validatePrompt}=require('../../simulation/evaluation/202
 const {
  POLICY_VERSION,SOURCE_RANK,SOURCE_BLOB_SHA1,SOURCE_PRINTINGS,
  createPolicy,scoreRoot,searchValue,sourceDiscardValue,benchOpen,
- resolveSourcePrinting
+ resolveSourcePrinting,templeUnlocksApex
 }=require('../../simulation/evaluation/2026-11/agent2-rank18-regidrago-opponent-policy.cjs');
 const P={
  v:'Regidrago V SIT 135',star:'Regidrago VSTAR SIT 136',
@@ -261,5 +261,34 @@ test('actor-owned source deck excludes exact foreign card from source search',()
   assert.equal(searchValue(P.treasure,P.kang,ob),-Infinity);
   assert.equal(searchValue(P.vip,P.star,ob),-Infinity);
   assert.equal(searchValue(P.ultra,P.star,ob)>0,true);
+ }
+});
+
+
+test('Goodra-only Apex donor unlocks Temple with Sky or Megaton; no donor does not',()=>{
+ for(const seat of [0,1]){
+  const original=obs(seat);
+  const funded=pokemon(P.star,{energies:[
+    'Double Dragon Energy ROS 97','Grass Energy MEE 9'],
+    printed:{types:['Dragon'],subtypes:['VSTAR']}});
+  const locked=obs(seat,{ownPublic:{...original.ownPublic,
+    active:funded,stadium:['Temple of Sinnoh ASR 155'],
+    discard:[P.goodra]}});
+  assert.equal(templeUnlocksApex(locked),true);
+  assert.deepEqual(root(seat,locked,[
+    action('sky',P.sky),action('quick',P.quick),
+    action('pass','Pass','pass')]),
+    {kind:'select-action',token:'sky'});
+  const megaton=action('megaton','Megaton Blower SSP 182');
+  assert.deepEqual(root(seat,locked,[
+    megaton,action('quick',P.quick),action('pass','Pass','pass')]),
+    {kind:'select-action',token:'megaton'});
+  const empty=obs(seat,{ownPublic:{...locked.ownPublic,discard:[]}});
+  assert.equal(templeUnlocksApex(empty),false);
+  assert.equal(token(root(seat,empty,[
+    action('sky',P.sky),action('quick',P.quick)])),'quick');
+  const noEnergy=obs(seat,{ownPublic:{...locked.ownPublic,
+    active:pokemon(P.star,{energies:['Grass Energy MEE 9']})}});
+  assert.equal(templeUnlocksApex(noEnergy),false);
  }
 });
