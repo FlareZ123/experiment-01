@@ -15,7 +15,7 @@ Source: [printing-aware candidate inventory](../candidate-hood-shadow-rider.json
 - 18 Pokémon / 31 Trainers / 11 Basic Psychic Energy.
 - 4 Shadow Rider Calyrex V and 4 Shadow Rider Calyrex VMAX.
 - 2 Stealthy Hood, 1 Field Blower, 1 Arven, 2 VS Seeker.
-- Forest Seal Stone ×1 is a dual-subtype Item / Pokémon Tool, **not** an ACE SPEC; Unfair Stamp ×1 is the ACE SPEC. Forest Seal Stone's Item subtype matters under an Item-only lock.
+- Forest Seal Stone ×1 is a **Pokémon Tool** (with historical printed `Item` labeling), **not** an ACE SPEC; Unfair Stamp ×1 is the ACE SPEC. **Rulebook §B-02 expressly says Sword & Shield-era Tools that display `Item` are not treated as Items:** AOR Vileplume's Item lock by itself does **not** prevent attaching Forest Seal Stone. Star Alchemy remains subject to applicable Ability suppression and the once-per-game VSTAR limit. This corrects the earlier inference that the printed subtype made FSS an Item for Item-lock purposes.
 - The list's main energy acceleration is the Shadow Rider Underworld Door Ability; the two Hoods are the explicit Tool-protection package.
 
 **Direct two-Hood removal:** Field Blower appears in 9/29 lists and Megaton Blower in 10/29; their union is 17/29 (58.6%), a confirmed lower bound of 17/32 in the full Top 32, ranks 1/5/6/7/8/12/13/14/19/20/21/22/24/29/30/31/32. Field Blower can discard up to two Tools/Stadiums; Megaton Blower removes all candidate Tools and a Stadium. Faba appears in another 7/29 lists and can Lost Zone one eligible Tool. These are registered list counts, not draw/access probabilities.
