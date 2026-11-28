@@ -136,4 +136,72 @@ for(const seat of [0,1]){
     ok(d.token!=='attach',what+' must not consume setup, seat '+seat);
   }
 }
+
+/* Synthetic post-settlement challenge of the original rank-9 four-copy
+ * Rescue Carrier engine: once searched Unown cycle into discard, physically
+ * replaying recovered copies can unlock two more Farewell Letter draws
+ * before the same funded Claw. We stage each public state explicitly; this
+ * does NOT claim native Store transition, shuffled deck or won games. */
+const Carrier='Rescue Carrier EVS 154';
+for(const seat of [0,1]){
+  const pol=P.createPolicy({role:'opponent',seat,policyVersion:P.POLICY_VERSION,config:{}});
+  const build=()=>{
+    const o=obs(seat);o.ownPublic.bench=[mon(Un,{hp:60,energies:[T]})];
+    o.ownTurnResources.energyPlayedTurn=true;
+    return o;
+  };
+  let o=build();o.ownHand=[Carrier];o.ownPublic.discard=[Un,Un];
+  const attack=frontier().items[1],pass={kind:'pass',token:'pass'};
+  const act=(token,printing)=>({kind:'play-card',token,actorPrinting:printing,
+    publicMetadata:{targetSeat:'actor',targetZone:'bench',
+      targetIndex:o.ownPublic.bench.length,isOwnerVisible:true}});
+  let f={schema:protocol.FRONTIER_SCHEMA,items:[
+    {kind:'play-card',token:'recover',actorPrinting:Carrier},attack,pass
+  ]};
+  let d=decide(pol,o,1,f);
+  ok(d.token==='recover','Carrier precedes nonfinal Claw after Farewell, seat '+seat);
+  const carrierPrompt={
+    schema:protocol.PROMPT_SCHEMA,actingSeat:seat,
+    promptType:'ChooseCardsPrompt',description:'Rescue Carrier',
+    source:{classification:'actor-choice',sourceKind:'card-effect',
+      sourcePrinting:Carrier,effectName:'Rescue Carrier'},
+    choices:[
+      {kind:'card',token:'recover-1',printing:Un,label:Un,
+        publicMetadata:{ownerSeat:'actor',sourceZone:'discard',isOwnerVisible:true}},
+      {kind:'card',token:'recover-2',printing:Un,label:Un,
+        publicMetadata:{ownerSeat:'actor',sourceZone:'discard',isOwnerVisible:true}},
+      {kind:'empty-selection',token:'empty',label:'Choose no Pokemon'}
+    ],
+    publicMetadata:{selectionType:'card-combination',sourceZone:'discard',
+      ownerSeat:'actor',isOwnerVisible:true,allowCancel:false,isSecret:false,
+      minimumCount:0,maximumCount:2}
+  };
+  d=decide(pol,o,2,null,carrierPrompt);
+  ok(JSON.stringify(d.tokens)==='["recover-1","recover-2"]',
+    'Carrier retrieves two printed Unown from actor discard, seat '+seat);
+  for(let i=0;i<2;i++){
+    o=build();o.ownHand=Array(2-i).fill(Un);
+    o.ownPublic.bench=[mon(Un,{hp:60,energies:[T]}),
+      ...Array(i).fill(0).map(()=>mon(Un,{hp:60}))];
+    f={schema:protocol.FRONTIER_SCHEMA,items:[act('bench-new',Un),attack,pass]};
+    d=decide(pol,o,3+i,f);
+    ok(d.token==='bench-new','recovered Unown rebenches before Claw, i '+i+' seat '+seat);
+  }
+  for(let i=0;i<2;i++){
+    o=build();o.ownHand=[];
+    o.ownPublic.bench=[mon(Un,{hp:60,energies:[T]}),
+      ...Array(2-i).fill(0).map(()=>mon(Un,{hp:60}))];
+    const ability={kind:'use-ability',token:'farewell-new',actorPrinting:Un,
+      publicMetadata:{sourceSeat:'actor',sourceZone:'bench',
+        sourceIndex:1,abilityName:'Farewell Letter'}};
+    f={schema:protocol.FRONTIER_SCHEMA,items:[ability,attack,pass]};
+    d=decide(pol,o,5+i,f);
+    ok(d.token==='farewell-new',
+      'recycled Unown reactivates Farewell before Claw, i '+i+' seat '+seat);
+  }
+  o=build();o.ownHand=[];f={schema:protocol.FRONTIER_SCHEMA,items:[attack,pass]};
+  d=decide(pol,o,7,f);
+  ok(d.token==='attack','eventual Claw after Carrier cycle, seat '+seat);
+}
+
 console.log('passed '+count+' rank9 Telepathic-to-Unown root/search/Farewell decisions');
