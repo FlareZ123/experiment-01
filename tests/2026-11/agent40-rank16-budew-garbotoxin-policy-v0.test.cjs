@@ -60,7 +60,10 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'dede'});
  });
  test('seat '+seat+' Star Alchemy before own Ability lock',()=>{
-  assert.deepEqual(decide(seat,root(seat,[ability('Star Alchemy','star'),tool,pass])),{kind:'select-action',token:'star'});
+  const board=own({active:mon('Budew ASC 16'),bench:[
+   mon('Garbodor LTR 68'),mon('Crobat V DAA 104',{tools:['Forest Seal Stone SIT 156']})]});
+  assert.deepEqual(decide(seat,root(seat,[ability('Star Alchemy','star'),tool,pass],
+   {ownPublic:board})),{kind:'select-action',token:'star'});
  });
  test('seat '+seat+' suppress Garbotoxin tool under Jamming Tower',()=>{
   const q=root(seat,[tool,attack('Itchy Pollen','budew'),pass]);
@@ -1376,5 +1379,37 @@ for(const seat of [0,1]){
   theirs.bench=[mon('Mimikyu PAL 97')];
   assert.equal(policy.guzmaRootScore(q.observation),550);
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'guzma'});
+ });
+}
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Star Alchemy requires actual enabled Crobat Forest Seal Stone',()=>{
+  const crobat=mon('Crobat V DAA 104',{tools:['Forest Seal Stone SIT 156']});
+  const board=own({active:mon('Budew ASC 16'),bench:[crobat]});
+  const their=opp({active:mon('Regidrago VSTAR SIT 136')});
+  const q=root(seat,[ability('Star Alchemy','star'),pass],{
+   ownPublic:board,opponentPublic:their});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
+  crobat.tools=[];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  crobat.tools=['Forest Seal Stone SIT 156'];
+  their.stadium=['Jamming Tower TWM 153'];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  their.stadium=[];
+  q.observation.ownTurnResources.vstarUsed=true;
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+ });
+ test('seat '+seat+' Iron Thorns and Wobbuffet Active suppress Crobat-granted Star Alchemy',()=>{
+  const crobat=mon('Crobat V DAA 104',{tools:['Forest Seal Stone SIT 156']});
+  const q=root(seat,[ability('Star Alchemy','star'),pass],{
+   ownPublic:own({active:mon('Budew ASC 16'),bench:[crobat]}),
+   opponentPublic:opp({active:mon('Iron Thorns ex TWM 77',{
+    abilitySuppressions:[{abilityName:'Initialization',suppressed:false}]})})});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  q.observation.opponentPublic.active=mon('Wobbuffet PHF 36',{
+   abilitySuppressions:[{abilityName:'Bide Barricade',suppressed:false}]});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  q.observation.opponentPublic.active=mon('Regidrago VSTAR SIT 136');
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
  });
 }
