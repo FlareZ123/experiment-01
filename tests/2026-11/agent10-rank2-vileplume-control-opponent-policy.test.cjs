@@ -2086,6 +2086,76 @@ test('Guzma does not trust Hood-protected Stoutland through Jamming Tower',()=>{
    kind:'select-choices',tokens:['bunnelby']});
 });
 
+
+function attachmentRoot(token,printing){
+ return {token,kind:'play-card',actorPrinting:printing,
+  publicMetadata:{cardType:/Energy/i.test(printing)?'energy':'trainer',handIndex:0}};
+}
+function attachmentPrompt(printing,effect,choices,own,opp=player()){
+ return promptRequest({promptType:'ChoosePokemonPrompt',
+  source:actorChoiceSource(printing,effect),choices,
+  observation:{ownPublic:own,opponentPublic:opp}});
+}
+test('Targetless TM root completes active Bunnelby Tool attach',()=>{
+ const own=player({active:pokemon('Bunnelby PRC 121'),bench:[pokemon('Oddish UNB 5')]});
+ const root=rootRequest({ownHand:['Technical Machine: Evolution PAR 178'],
+  ownPublic:own,items:[attachmentRoot('tm','Technical Machine: Evolution PAR 178'),
+  {token:'pass',kind:'pass',label:'Pass turn'}]});
+ assert.deepEqual(checkedDecision(root),{kind:'select-action',token:'tm'});
+ const next=attachmentPrompt('Technical Machine: Evolution PAR 178','Attach Tool',[
+  pokemonChoice('oddish','Oddish UNB 5','actor','bench',0),
+  pokemonChoice('bunnelby','Bunnelby PRC 121','actor','active',0)],own);
+ assert.deepEqual(checkedDecision(next),{kind:'select-choices',tokens:['bunnelby']});
+});
+test('TM Evolution attack recipient prompt remains separate from Tool attachment',()=>{
+ const next=promptRequest({promptType:'ChoosePokemonPrompt',
+  source:actorChoiceSource('Technical Machine: Evolution PAR 178','Evolution'),
+  choices:[pokemonChoice('oddish','Oddish UNB 5','actor','bench',0)],
+  observation:{ownPublic:player({active:pokemon('Bunnelby PRC 121'),
+    bench:[pokemon('Oddish UNB 5',{lastPlayedOrEvolvedTurn:1})]})}});
+ assert.deepEqual(checkedDecision(next),{kind:'select-choices',tokens:['oddish']});
+});
+test('Targetless Jet Energy selects same physical Benched Bunnelby carrying TM',()=>{
+ const own=player({active:pokemon('Fan Rotom SCR 118'),bench:[
+  pokemon('Bunnelby PRC 121',{tools:['Technical Machine: Evolution PAR 178']}),
+  pokemon('Bunnelby PRC 121'),pokemon('Oddish UNB 5')]});
+ const root=rootRequest({ownHand:['Jet Energy PAL 190'],ownPublic:own,
+  items:[attachmentRoot('jet','Jet Energy PAL 190'),
+  {token:'pass',kind:'pass',label:'Pass turn'}]});
+ assert.deepEqual(checkedDecision(root),{kind:'select-action',token:'jet'});
+ const next=attachmentPrompt('Jet Energy PAL 190','Attach Energy',[
+  pokemonChoice('plain','Bunnelby PRC 121','actor','bench',1),
+  pokemonChoice('equipped','Bunnelby PRC 121','actor','bench',0)],own);
+ assert.deepEqual(checkedDecision(next),{kind:'select-choices',tokens:['equipped']});
+});
+test('Targetless Memory Energy prepares Stoutland with Lillipup past Stage',()=>{
+ const own=player({active:pokemon('Bunnelby PRC 121'),bench:[
+  pokemon('Stoutland BCR 122',{evolutionPrintings:[
+   'Lillipup CEC 174','Herdier SUM 104','Stoutland BCR 122']})]});
+ const root=rootRequest({ownHand:['Memory Energy LOT 194'],ownPublic:own,
+  items:[attachmentRoot('memory','Memory Energy LOT 194'),
+  {token:'pass',kind:'pass',label:'Pass turn'}]});
+ assert.deepEqual(checkedDecision(root),{kind:'select-action',token:'memory'});
+ const next=attachmentPrompt('Memory Energy LOT 194','Attach Energy',[
+  pokemonChoice('bunnelby','Bunnelby PRC 121','actor','active',0),
+  pokemonChoice('stoutland','Stoutland BCR 122','actor','bench',0)],own);
+ assert.deepEqual(checkedDecision(next),{kind:'select-choices',tokens:['stoutland']});
+});
+test('Targetless Stealthy Hood protects Gloom from Bide Barricade',()=>{
+ const own=player({active:pokemon('Bunnelby PRC 121'),bench:[
+  pokemon('Gloom UNB 7',{stage:'STAGE1',subtypes:['Stage 1']})]});
+ const opp=player({active:pokemon('Wobbuffet PHF 36',{abilities:['Bide Barricade']})});
+ const root=rootRequest({ownHand:['Stealthy Hood UNB 186'],
+  ownPublic:own,opponentPublic:opp,items:[
+  attachmentRoot('hood','Stealthy Hood UNB 186'),
+  {token:'pass',kind:'pass',label:'Pass turn'}]});
+ assert.deepEqual(checkedDecision(root),{kind:'select-action',token:'hood'});
+ const next=attachmentPrompt('Stealthy Hood UNB 186','Attach Tool',[
+  pokemonChoice('bunnelby','Bunnelby PRC 121','actor','active',0),
+  pokemonChoice('gloom','Gloom UNB 7','actor','bench',0)],own,opp);
+ assert.deepEqual(checkedDecision(next),{kind:'select-choices',tokens:['gloom']});
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
