@@ -131,3 +131,60 @@ test('do not use grouped mathematics to override Radiant one-copy rule',()=>{
   close(hypothetical.unrecoverablePrizeOnly,get([2,1,1],1).unrecoverablePrizeOnly);
   assert.equal(hypothetical.basicCount,15);
 });
+
+test('opening-hand-only Heavy Ball sensitivity reproduces exact marginals',()=>{
+  const original=get([1,1,1],1);
+  const twoBalls=get([1,1,1],2);
+  const duplicateBasic=get([2,1,1],1);
+  close(original.handOnlyUnrecoverable,0.24223919802605456);
+  close(twoBalls.handOnlyUnrecoverable,0.2169698117080109);
+  close(duplicateBasic.handOnlyUnrecoverable,0.17439322259886567);
+  close(original.corePrizedWithoutHandBall,0.23960150850601075);
+  assert.ok(original.handOnlyUnrecoverable>
+    original.unrecoverablePrizeOnly);
+  assert.ok(twoBalls.handOnlyUnrecoverable>
+    twoBalls.unrecoverablePrizeOnly);
+});
+
+test('isolated priority reverses when only opening-hand Heavy Balls are playable',()=>{
+  const base=get([1,1,1],1);
+  const secondBall=get([1,1,1],2);
+  const secondMimikyu=get([2,1,1],1);
+  const secondDialga=get([1,2,1],1);
+  const prizeGainBall=base.unrecoverablePrizeOnly-
+    secondBall.unrecoverablePrizeOnly;
+  const prizeGainBasic=base.unrecoverablePrizeOnly-
+    secondMimikyu.unrecoverablePrizeOnly;
+  assert.ok(prizeGainBall>prizeGainBasic);
+  const handGainBall=base.handOnlyUnrecoverable-
+    secondBall.handOnlyUnrecoverable;
+  const handGainBasic=base.handOnlyUnrecoverable-
+    secondMimikyu.handOnlyUnrecoverable;
+  assert.ok(handGainBasic>handGainBall);
+  close(handGainBall,0.02526938631804366);
+  close(handGainBasic,0.06784597542718889);
+  close(secondMimikyu.handOnlyUnrecoverable,
+    secondDialga.handOnlyUnrecoverable);
+});
+
+test('hand-only and all-unprized rates bracket two access extremes',()=>{
+  for(const groups of [[1,1,1],[2,1,1],[1,2,1]]){
+    for(const balls of [0,1,2,3]){
+      const x=get(groups,balls);
+      assert.ok(x.handOnlyUnrecoverable+1e-15>=
+        x.unrecoverablePrizeOnly);
+      assert.ok(x.corePrizedWithoutHandBall+1e-15<=
+        x.handOnlyUnrecoverable);
+      close(x.handOnlyPotentiallyRecoverable+
+        x.handOnlyUnrecoverable,1);
+    }
+  }
+});
+
+test('with zero Heavy Balls opening-hand-only equals unprized-all',()=>{
+  for(const groups of [[1,1,1],[2,1,1],[2,2,1]]){
+    const x=get(groups,0);
+    close(x.handOnlyUnrecoverable,x.unrecoverablePrizeOnly);
+    close(x.handOnlyUnrecoverable,x.anyCoreGroupFullyPrized);
+  }
+});
