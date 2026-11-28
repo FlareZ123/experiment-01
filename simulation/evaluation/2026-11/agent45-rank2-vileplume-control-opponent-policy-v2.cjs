@@ -295,6 +295,34 @@ function stoutlandSentinelEffective(observation, targetPokemon) {
   return true;
 }
 
+// A key counterline in the fixed Hood Shield 60: Latias ex SSP 76's
+// Skyliner gives Basic Pokémon no Retreat Cost while its Ability is live.
+// Unknown suppression is conservatively treated as potentially live.
+function opponentSkylinerMayBeLive(player) {
+  return boardSlots(player).some(({ pokemon }) => {
+    if (!/^Latias ex SSP(?: 76)?\b/i.test(pokemon.printing ?? '')) return false;
+    const status = list(pokemon.abilitySuppressions).find(row =>
+      row.abilityName === 'Skyliner');
+    return status?.suppressed !== true;
+  });
+}
+
+function nominalGuzmaRetreatTrap(target, opponent) {
+  if (!target || list(target.energies).length > 0 ||
+      list(target.printed?.retreatCost).length === 0) return false;
+  if (list(target.tools).some(tool =>
+    /Float Stone|Air Balloon|Escape Board|U-Turn Board/i.test(printingValue(tool)))) {
+    return false;
+  }
+  if (opponentSkylinerMayBeLive(opponent)) {
+    const stage = target.printed?.stage;
+    const hasBasicSubtype = list(target.printed?.subtypes).some(subtype =>
+      /^basic$/i.test(subtype));
+    if (!stage || /^basic$/i.test(stage) || hasBasicSubtype) return false;
+  }
+  return true;
+}
+
 function opponentHasAnyEnergy(player) {
   return boardSlots(player).some(({ pokemon }) => list(pokemon.energies).length > 0);
 }
@@ -595,10 +623,7 @@ function scoreAction(item, request) {
     const benchStoutland = list(own.bench).some(pokemon =>
       stoutlandSentinelEffective(observation, pokemon));
     const targetStranded = list(opponent.bench).some(pokemon =>
-      pokemon && list(pokemon.energies).length === 0 &&
-      list(pokemon.printed?.retreatCost).length > 0 &&
-      !list(pokemon.tools).some(tool =>
-        /Float Stone|Air Balloon|Escape Board/i.test(printingValue(tool))));
+      nominalGuzmaRetreatTrap(pokemon, opponent));
     return benchStoutland && opponent.publicTurnRestrictions?.itemPlayLocked === true &&
       list(opponent.active?.energies).length > 0 && targetStranded ? 185 : 0;
   }
@@ -875,10 +900,8 @@ function scorePokemonChoice(choice, observation, context) {
     const lockPivot = list(observation.ownPublic?.bench).some(pokemon =>
       stoutlandSentinelEffective(observation, pokemon)) &&
       observation.opponentPublic?.publicTurnRestrictions?.itemPlayLocked === true;
-    const stranded = lockPivot && list(target.energies).length === 0 &&
-      list(target.printed?.retreatCost).length > 0 &&
-      !list(target.tools).some(tool =>
-        /Float Stone|Air Balloon|Escape Board/i.test(printingValue(tool)));
+    const stranded = lockPivot && nominalGuzmaRetreatTrap(target,
+      observation.opponentPublic);
     return 100 + (hp > 0 && hp <= 90 ? 50 : 0) + multiPrize * 8 +
       (stranded ? 85 : 0);
   }
