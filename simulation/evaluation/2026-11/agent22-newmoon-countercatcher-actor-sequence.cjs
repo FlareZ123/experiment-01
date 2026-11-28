@@ -41,12 +41,16 @@ const TOPS=Object.freeze([
    prizes===2&&name!=='Regidrago VSTAR').map(([name,hp,prizes])=>
    ({name,hp,prizes,attackName:'Miraculous Duo-GX',attackDamage:200}))
 ]);
+// For voluntary Abilities, the *actual offered native USE_ABILITY_ACTION*
+// establishes that the engine presently considers the Ability legal.
+// An observation-v4 suppressed:null is uncertainty, not a prohibition.
+// An explicit suppressed:true still disqualifies the line.
 function abilitySource(own,items){
  if(!Array.isArray(own?.bench)||!Array.isArray(items))return null;
  for(const [index,p] of own.bench.entries()){
   if(!p||!has(p.printing,'Dusknoir')||has(p.printing,'Trevenant & Dusknoir-GX')||
      !Array.isArray(p.abilities)||!p.abilities.includes('Cursed Blast')||
-     p.abilitySuppressions?.find(x=>x.abilityName==='Cursed Blast')?.suppressed!==false)
+     p.abilitySuppressions?.find(x=>x.abilityName==='Cursed Blast')?.suppressed===true)
    continue;
   const a=items.find(x=>x.kind==='use-ability'&&
    x.publicMetadata?.abilityName==='Cursed Blast'&&
@@ -78,6 +82,8 @@ function psychicCostPhysicallyReady(own,opponent){
    has(e,'Temple of Sinnoh'));
  return basic+(temple?0:telepathic)>=3;
 }
+// Perfection follows the same native-action-witness rule: passive Ability
+// calculations (such as Fairy Zone) remain strictly false-certified.
 function offeredMewtwoAttack(own,items,name='Miraculous Duo-GX',opponent=null){
  if(!has(own?.active?.printing,'Mewtwo & Mew-GX')||
     !Array.isArray(items)||!Array.isArray(own.bench)||
@@ -86,7 +92,7 @@ function offeredMewtwoAttack(own,items,name='Miraculous Duo-GX',opponent=null){
  if(name==='Night Watch'){
   if(!Array.isArray(active.abilities)||
      !active.abilities.includes('Perfection')||
-     active.abilitySuppressions?.find(y=>y.abilityName==='Perfection')?.suppressed!==false||
+     active.abilitySuppressions?.find(y=>y.abilityName==='Perfection')?.suppressed===true||
      !nightWatchDonor(own)||!psychicCostPhysicallyReady(own,opponent))
    return null;
   return items.find(x=>x.kind==='use-ability'&&
