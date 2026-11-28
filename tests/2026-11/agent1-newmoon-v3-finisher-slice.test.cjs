@@ -372,4 +372,74 @@ test('Powerglass and manual Energy support partially funded Active Stage2',()=>{
  assert(f.root().token,'attach');
 });
 
+
+function treasureFixture(){
+ const f=make();
+ f.own.bench=[{printing:'Dusclops SFA 019',abilities:['Cursed Blast'],
+  tools:[],energies:[],abilitySuppressions:[{abilityName:'Cursed Blast',suppressed:false}]}];
+ f.obs.globalTurn=3;f.obs.ownHand=['Mysterious Treasure FLI 113','Battle VIP Pass FST 225'];
+ f.items.splice(0,f.items.length,{kind:'play-card',token:'treasure',
+ actorPrinting:'Mysterious Treasure FLI 113',
+ publicMetadata:{cardType:'trainer',handIndex:0}});
+ const prompt=(zone,choices)=>{
+  f.obs.decisionKind='owner-prompt';
+  const pp={actingSeat:0,promptType:'ChooseCardsPrompt',
+   source:{classification:'actor-choice',sourceKind:'card-effect',
+    effectName:'Mysterious Treasure',sourcePrinting:'Mysterious Treasure FLI 113'},
+   publicMetadata:{selectionType:'card-combination',ownerSeat:'actor',
+    sourceZone:zone,isOwnerVisible:true,minimumCount:1,maximumCount:1},
+   choices:choices.map(([token,printing])=>({token,printing,kind:'card',
+    publicMetadata:{sourceZone:zone,ownerSeat:'actor',isOwnerVisible:true}}))};
+  return f.p.decide({role:'candidate',seat:0,observation:f.obs,prompt:pp,
+   actionFrontier:null});
+ };
+ return {...f,prompt};
+}
+test('Mysterious Treasure paid root converts dead VIP to Dusknoir',()=>{
+ const f=treasureFixture();assert(f.root().token,'treasure');
+});
+test('Mysterious Treasure payment prompt chooses only dead VIP',()=>{
+ const f=treasureFixture();assert(f.prompt('hand',[
+  ['vip','Battle VIP Pass FST 225'],['dusknoir','Dusknoir SFA 020']
+ ]).tokens[0],'vip');
+});
+test('Mysterious Treasure owner deck prompt chooses required Stage2',()=>{
+ const f=treasureFixture();assert(f.prompt('deck',[
+  ['trev','Trevenant & Dusknoir-GX SM217'],
+  ['du','Dusclops SFA 019'],
+  ['noir','Dusknoir SFA 020']
+ ]).tokens[0],'noir');
+});
+test('Treasure refuses discard of singleton instead of dead VIP',()=>{
+ const f=treasureFixture();assert(f.prompt('hand',[
+  ['trev','Trevenant & Dusknoir-GX SM217'],
+  ['seals','Forest Seal Stone SIT 156']
+ ]).kind,'abstain');
+});
+test('Treasure refuses unverified opposing deck-choice provenance',()=>{
+ const f=treasureFixture();
+ f.obs.decisionKind='owner-prompt';
+ const wrong=f.p.decide({role:'candidate',seat:0,observation:f.obs,
+  actionFrontier:null,prompt:{actingSeat:0,promptType:'ChooseCardsPrompt',
+   source:{classification:'actor-choice',sourceKind:'card-effect',
+    effectName:'Mysterious Treasure',sourcePrinting:'Mysterious Treasure FLI 113'},
+   publicMetadata:{selectionType:'card-combination',sourceZone:'deck',
+    ownerSeat:'actor',isOwnerVisible:true,minimumCount:1,maximumCount:1},
+   choices:[{kind:'card',token:'fake',printing:'Dusknoir SFA 020',
+    publicMetadata:{sourceZone:'deck',ownerSeat:'opponent',isOwnerVisible:true}}]}});
+ assert(wrong.kind,'abstain');
+});
+test('Treasure first turn preserves VIP from being sacrificed',()=>{
+ const f=treasureFixture();f.obs.globalTurn=1;
+ assert(f.root().kind,'abstain');
+});
+test('Treasure falls back to missing Stage1 if Duskull is established',()=>{
+ const f=treasureFixture();f.own.bench[0].printing='Duskull VIV 069';
+ assert(f.prompt('deck',[['s1','Dusclops SFA 019'],['s2','Dusknoir SFA 020']]).tokens[0],'s1');
+});
+test('Treasure no target if Dusknoir already held',()=>{
+ const f=treasureFixture();f.obs.ownHand.push('Dusknoir SFA 020');
+ assert(f.root().kind,'abstain');
+});
+
 console.log('Agent1 v3 research actor tests: '+checks+' assertions passed');
