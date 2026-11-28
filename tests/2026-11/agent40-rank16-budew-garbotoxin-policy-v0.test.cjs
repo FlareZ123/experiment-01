@@ -2115,4 +2115,16 @@ for(const seat of [0,1]){
   assert.equal(policy.urgentShadowRiderGarbotoxin(q.observation),false);
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
  });
+}\n
+for(const seat of [0,1]){
+ test('seat '+seat+' Silent Lab suppresses supported Basic Klefki and Flutter Mane locks without typed receipts',()=>{
+  const enemy=opp({active:mon('Klefki SVI 96'),stadium:['Silent Lab PRC 140']});
+  const q=root(seat,[pass],{opponentPublic:enemy});
+  assert.equal(policy.activeKlefkiLock(q.observation),false);
+  enemy.active=mon('Flutter Mane TEF 78');
+  assert.equal(policy.activeFlutterManeLock(q.observation),false);
+  enemy.stadium=[];
+  assert.equal(policy.activeKlefkiLock(q.observation),true);
+  assert.equal(policy.activeFlutterManeLock(q.observation),true);
+ });
 }
