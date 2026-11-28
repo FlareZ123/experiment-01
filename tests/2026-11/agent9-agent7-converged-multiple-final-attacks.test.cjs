@@ -38,7 +38,7 @@ function player(active,bench,prizes,deck=15){
 function request(seat,cfg,opts={}){
  const {prizes=2,opponentBench=2,energy=cfg.energy,
    damage=cfg.oppDamage,printing=cfg.printing,offerAttack=true,
-   modifier=false,attackName=cfg.type}=opts;
+   modifier=false,attackName=cfg.type,nativeProtection=null}=opts;
  const active=pokemon(printing,{hp:320,subtypes:cfg.stage,
    energies:Array(energy).fill(E),attacks:[{name:cfg.type,
      cost:cfg.cost,damage:cfg.damage}]});
@@ -52,7 +52,8 @@ function request(seat,cfg,opts={}){
    {kind:'play-card',token:'draw',actorPrinting:LILLIE,
      publicMetadata:{cardType:'supporter'}},
    ...(offerAttack?[{kind:'attack',token:'finisher',
-     attackName,publicMetadata:{hasUnmodeledModifier:modifier}}]:[]),
+     attackName,publicMetadata:{hasUnmodeledModifier:modifier,
+       ...(nativeProtection??{})}}]:[]),
    {kind:'pass',token:'pass'}
  ];
  return {role:'candidate',seat,prompt:null,publicEventReceipt:null,
@@ -94,6 +95,22 @@ for(const seat of [0,1]){
    test('unmodeled native attack modifier vetoes '+cfg.type+' gate seat '+seat,()=>{
      const out=decide(request(seat,cfg,{modifier:true}));
      assert.deepEqual(out.decision,{kind:'select-action',token:'draw'});
+   });
+   for(const [reason,nativeProtection] of [
+     ['explicit damage prevention',{damagePrevented:100}],
+     ['known damage reduction',{damageReduced:30}],
+     ['native hasPrevention flag',{hasPrevention:true}]
+   ]){
+     test(reason+' vetoes nominal final '+cfg.type+' seat '+seat,()=>{
+       const out=decide(request(seat,cfg,{nativeProtection}));
+       assert.deepEqual(out.decision,{kind:'select-action',token:'draw'});
+     });
+   }
+   test('native explicit no-protection numeric zero permits '+cfg.type+
+       ' final seat '+seat,()=>{
+     const out=decide(request(seat,cfg,{nativeProtection:{
+       hasPrevention:false,damagePrevented:0,damageReduced:0}}));
+     assert.deepEqual(out.decision,{kind:'select-action',token:'finisher'});
    });
  }
  for(const cfg of DIRECT.slice(1)){
