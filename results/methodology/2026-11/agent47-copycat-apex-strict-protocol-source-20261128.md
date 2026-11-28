@@ -1,0 +1,29 @@
+# Agent47 — unlock non-GX Apex Dragon in strict Mimikyu Copycat history; block misflagged GX
+
+**2026-11-28**. Branch-only change and tests on `agent47/copycat-gx-source-classification-20261128`, from main `ff923f072069d325f96efd4ce61ea83b3f797d09`. Research source/contract correction, **not** a played native match, CI result, permission to merge, policy release, or Aichi win-rate claim.
+
+## Primary objective impact
+
+Nine authenticated Aichi Regidrago sixties (ranks 10/12/13/14/18/20/21/27/32) have a paid Apex Dragon line; the unchanged current candidate two 60s include Mimikyu GRI58 and Dragon Dialga-GX UPR100 as conditional counter-attack payload. Official Mimikyu ruling permits non-GX copied attacks such as Zoroark Foul Play; ordinary **Apex Dragon** is non-GX even though its pinned native attack has `copycatAttack:true`, so Mimikyu may choose Apex after an opposing Apex. Its nested copied Apex may choose Dragon Dialga's Timeless-GX from the candidate's own discard when GX unused and payment/turn conditions hold. This is a legal conditional line, **not a proven available state or result**.
+
+Current `simulation/evaluation/2026-11/agent49-policy-protocol.cjs` on main previously rejected **every** row with `copycatAttack:true` as `INELIGIBLE_COPYCAT_ATTACK`. Thus a genuine `opponentCopycatChoices:[{attackName:'Apex Dragon',copycatAttack:true,gxAttack:false}]` from the native attack-history observer would be rejected by the strict actor protocol before Agent46's worker could choose it, even though the worker has explicit Copycat → Apex → Timeless scoring. This is a **concrete candidate decision-path blockade**.
+
+Separately, four printed GX attacks in field-relevant native card classes lacked `attack.gxAttack:true`: `Pale Moon-GX` (Trevenant & Dusknoir-GX SMP217), `Tingly Return-GX` (Dedenne-GX UNB57), `Strafe-GX` (Oricorio-GX CEC95) and `Altered Creation-GX` (Arceus & Dialga & Palkia-GX CEC156). Pinned card source has printed GX name and 1-per-game restriction; naive `attack.gxAttack===true` classified them as ordinary false. A non-GX Copycat cannot choose those GX attacks.
+
+## Concrete repair in actual source
+
+- `simulation/twinleaf/copycat-multiattack-history.cjs`: new `classifyPrintedGXAttack` recognizes native true flag, **printed -GX attack-name suffix**, or printed once-per-game GX clause; missing identity becomes unknown and is rejected rather than false. Both outer declared AttackAction and Barrage follow-up records use it. Independent final `isMimikyuCopycatEligibleAttack` checks printed identity and excludes **Mimikyu's own Copycat only**; a non-GX `Apex Dragon` or `Foul Play` remains eligible despite `copycatAttack:true`. Last Barrage pair is considered only if the **last** actual attack itself belongs to that pair; an older pair cannot outrank a later ordinary attack.
+- `simulation/evaluation/2026-11/agent49-policy-protocol.cjs`: new **source-aware** `sourceCopycatEligible` / `expectedSourceCopycatChoices`, used by `validatePublicEventReceipt`. It rejects rows labeled non-GX with a printed -GX suffix, bans self-Copycat by exact source name, **permits non-GX Apex with the metadata's `copycatAttack:true`**, and proves choices are exactly the last observed attack or its complete last Barrage pair. It admits one eligible member of a two-attack Barrage pair when the other is a GX attack. It rejects a stale earlier pair, unoffered ordinary attack, mismatched source signature, duplicate, or fabricated GX false. All exposed data are actor-visible rows; no hidden deck/Prize inspection, model invented tokens, or vendor mutation.
+
+**Execution evidence:** 24/24 in-process V8 CommonJS callback groups for the tracker/classifier, including actual `AttackAction` wrapper paths for 4 missing-flag GX attacks and ordinary Apex in both physical seats, plus 17/17 actual strict protocol group callbacks covering legality positives/negatives, Barrage variants, stale history, false flags, self Copycat, and missing history. **41/41** source-executed shim groups total. The test harness substitutes fake native classes/Store dispatch and a synchronous Node test/assert substitute. **No compiled pinned native Store, Node CLI, hosted CI, games, field success frequency, or matchup win data.**
+
+## Necessary continued integration work
+
+1. The current live main runner does not supply a fully trusted `opponentCopycatChoices` receipt in all states. The history observer, source-aware protocol, and worker must be installed together under owner-authorized V3/strict protocol update. This branch alone is not a production fix.
+2. Printed GX attacks may require a versioned source manifest for nonstandard names and localized text; the generic -GX clause is grounded in the named attack conventions but not proof of complete pre-2026 support.
+3. Candidate worker `agent46-candidate-policy.cjs` currently scores a Copycat root astronomically when Apex/Dialga/GX unused, but its **nested Apex prompt** scores Timeless-GX at 50000 only when Fairy Zone is live and the active target Dragon; without that, it may choose Power Beam (200) rather than Timeless (150) after committing to Copycat. This is **cross-prompt line-planning contention**, not resolved by this protocol repair. Agent26's two-turn Prize planner is existing evidence to reuse rather than another redundant static swap.
+4. No unseen rank23/25/28 sixties inferred. Primary benchmark remains 29/32 authenticated, 0 qualified games, two unselected fixed profiles, and no claimed 99.5%.
+
+**Reproduce when full Node checkout is available:** `node --test simulation/twinleaf/agent47-copycat-gx-source-classification.test.cjs simulation/evaluation/2026-11/agent47-copycat-source-protocol.test.cjs`. With pinned Twinleaf `ptcg-server/output` built, the first suite can load native classes directly; fake tests do not themselves invoke a legal game.
+
+— Agent47
