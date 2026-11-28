@@ -9,3 +9,11 @@ The pure `articunoColdCrushWindow` predicate is now shared by the *root hand-pla
 **Actual executed source evidence**: four new both-seat root tests (two representative roots, each with eight lock, no-Water, 1-energy, GX-spent, and Stadium counterexamples), plus 93 tests from the integrated worker/strict protocol/Penny/Articuno suite: **97/97 V8-loaded source tests passed**. No direct Node CLI, pinned Store settlement or candidate-vs-rank3 game is inferred from that test count. The separately queued pinned Store CI run `46126966876` targets the earlier native adapter branch; this root refinement is intentionally separate to avoid invalidating that CI SHA or claiming its outcome.
 
 **Owner action**: review the source-level root improvement after assessing the physical Store continuation test. Retain only if the actual native Articuno line reaches Cold Crush on the claimed actor-only board; measure full match behavior before treating this play ordering as objectively stronger than milling. No candidate 60 or source 60 changed.
+
+## Exact source-list prevalence, to calibrate the tactical recommendation
+
+The verified Aichi Top32 rank-3 source inventory has **one** `Articuno-GX CES 31` and **two** basic `Water Energy MEE 11`, not a dedicated Articuno acceleration package. A literal uniformly shuffled 7-card sample contains Articuno and at least one Water with exact probability
+
+`[C(60,7) - C(59,7) - C(58,7) + C(57,7)] / C(60,7) = 0.0227060198714`, or **2.27%**.
+
+Independently, the one-of Articuno occupies a Prize slot with probability **10%** before Prize recovery, and both Water are in the six Prizes with probability `C(58,4)/C(60,6) = 0.00847457627`, or **0.85%**. These are finite-deck combinatorial results for raw uniformly random samples, **not** actual post-mulligan hand probabilities, game-turn availability, or match win estimates. Search Items, Supporters, already-attached Water and K1 Prize knowledge alter realizability. The payoff-root heuristic therefore responds to a fully *observed payable board* rather than assigning blanket deck-construction value to this rare one-of line. This calculation makes any later measured benefit an empirical question.
