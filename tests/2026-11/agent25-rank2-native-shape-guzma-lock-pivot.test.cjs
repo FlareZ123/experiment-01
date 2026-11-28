@@ -156,7 +156,7 @@ for (const seat of [0, 1]) {
     assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)), pass());
   });
 
-  test('seat ' + seat + ': Hood restores Sentinel through known Garbotoxin', () => {
+  test('seat ' + seat + ': Hood on Stoutland alone cannot restore Item lock under live Garbotoxin', () => {
     const view = actorView(seat);
     view.opponentPublic.bench[2] = {
       printing: 'Garbodor BKP 57', hp: 120, damage: 0,
@@ -165,6 +165,21 @@ for (const seat of [0, 1]) {
     };
     view.ownPublic.bench[0] = { ...clone(stoutland),
       tools: ['Stealthy Hood UNB 186'] };
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)), pass());
+  });
+
+  test('seat ' + seat + ': two Hoods restore both Vileplume Item and Stoutland Supporter locks', () => {
+    const view = actorView(seat);
+    view.opponentPublic.bench[2] = {
+      printing: 'Garbodor BKP 57', hp: 120, damage: 0,
+      abilities: ['Garbotoxin'], tools: ['Float Stone BKT 101'],
+      abilitySuppressions: [{ abilityName: 'Garbotoxin', suppressed: false }]
+    };
+    view.ownPublic.bench[0] = { ...clone(stoutland),
+      tools: ['Stealthy Hood UNB 186'] };
+    view.ownPublic.bench[2] = {
+      ...clone(view.ownPublic.bench[2]), tools: ['Stealthy Hood UNB 186']
+    };
     assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)),
       { kind: 'select-action', token: 'guzma' });
     assert.deepEqual(policy(seat).decide(promptRequest(seat, view, 'actor')), pick(0));
