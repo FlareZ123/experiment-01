@@ -189,3 +189,46 @@ for(const seat of [0,1]){
     });
   });
 }
+
+
+ // Strict V3 actor root and conditional engine Retreat continuation must
+ // target the same paid physical Mega even if a BUS Bench is also offered.
+for(const seat of [0,1]){
+  test('seat '+seat+': strict physical terminal Retreat root and engine prompt agree',()=>{
+    const active=pokemon('Bunnelby PRC 121','Bunnelby',{hp:60});
+    const mega=pokemon('Mega Lopunny ex PFL 84','Mega Lopunny ex',{
+      hp:290,stage:'STAGE_1',energy:['Grass Energy BLW 105']});
+    const bus=pokemon('Vileplume BUS 6','Vileplume',{hp:140,stage:'STAGE_2'});
+    const opp=pokemon('Iron Thorns ex TEF 77','Iron Thorns ex',{hp:230});
+    const r=envelope(seat,active,[mega,bus],opp,[],'owner-root');
+    r.actionFrontier.items=[
+      {kind:'retreat',token:'retreat-mega',
+        targetPrinting:mega.printing,
+        publicMetadata:{targetSeat:'actor',targetZone:'bench',
+          targetIndex:0,benchIndex:0,isOwnerVisible:true}},
+      {kind:'use-ability',token:'air-mail',actorPrinting:'Pidgeotto TEU 123',
+        publicMetadata:{abilityName:'Air Mail'}}
+    ];
+    assert.deepEqual(checkedDecision(r,seat),{
+      kind:'select-action',token:'retreat-mega'
+    });
+    const continuation=envelope(seat,active,[mega,bus],opp,[],'owner-prompt');
+    continuation.prompt={
+      schema:protocol.PROMPT_SCHEMA,actingSeat:seat,
+      promptType:'ChoosePokemonPrompt',description:null,
+      source:{classification:'actor-choice',sourceKind:'engine',
+        sourcePrinting:null,effectName:'Retreat'},
+      choices:[
+        {kind:'pokemon',token:'mega-0',printing:mega.printing,
+          publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0}},
+        {kind:'pokemon',token:'bus-1',printing:bus.printing,
+          publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:1}}
+      ],
+      publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+        allowCancel:false,ownerSeat:'actor',targetZone:'bench'}
+    };
+    assert.deepEqual(checkedDecision(continuation,seat),{
+      kind:'select-choices',tokens:['mega-0']
+    });
+  });
+}
