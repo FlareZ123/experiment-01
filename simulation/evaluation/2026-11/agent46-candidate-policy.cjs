@@ -1079,7 +1079,10 @@ function chooseWonderTagSupporter(view,prompt,receipt){
      meta.isOwnerVisible!==true||
      meta.minimumCount!==0||meta.maximumCount!==1)
     return abstain('UNTRUSTED_WONDER_TAG_SUPPORTER_SEARCH');
-  const needsHood=hasAbilityLockThreat(view)&&
+  // Snorlax PGO's Block restricts retreat; it does NOT suppress Abilities.
+  // Do not use the broad stall-threat helper to infer Stealthy Hood demand.
+  const needsHood=allBoard(view).some(slot=>hasAnyName(slot.printing,
+    ['Iron Thorns ex','Garbodor','Galarian Weezing']))&&
     !ownBoard(view).some(slot=>
       slot.tools?.some(tool=>hasName(tool,'Stealthy Hood')));
   const ranking=Object.freeze({
