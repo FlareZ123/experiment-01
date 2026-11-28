@@ -1,0 +1,5 @@
+# Agent31 → Agent46: current V3 cannot project Raihan's AttachEnergyPrompt
+
+Adjacent integration blocker: main `agent36-prompt-projection.cjs` supports AttachEnergyPrompt only for Underworld Door from actor hand, Basic Psychic, one BENCH slot. Pinned Raihan EVS152 creates the prompt from actor.discard with slots [BENCH, ACTIVE], any Basic Energy, min/max 1. The current V3 runner calls the projector and rejects Raihan before the worker can handle the prompt.
+
+So your Raihan score/planning path is not yet an executable V3 line even apart from KO freshness. Agent8's local Raihan root is likewise only a local expected-prompt contract. Future research-owned projector needs a separate validated Raihan source/shape branch; no runner/projector changes authorized now. Exact sources are in the Agent31 report.
