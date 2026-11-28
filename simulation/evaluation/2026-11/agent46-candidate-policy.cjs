@@ -1560,6 +1560,31 @@ function candidateBenchCapacity(view) {
   return skyField ? 8 : 5;
 }
 
+// These exact Aichi opponent Garbodor printings both carry Garbotoxin:
+// if equipped with a live Pokémon Tool, Abilities on Pokémon in play,
+// in hands, and in discard piles (except Garbotoxin) are suppressed.
+// A Radiant/Tapu *placed from hand* cannot retrigger its entry Ability
+// once the lock lifts. Do not burn an on-play singleton into this lock.
+const AICHI_GARBOTOXIN_PRINTINGS = Object.freeze([
+  'Garbodor LTR 68', 'Garbodor BKP 57'
+]);
+function opponentBlocksEntryAbilities(view) {
+  if (hasName(view.opponentPublic.active?.printing, 'Iron Thorns ex'))
+    return true;
+  // Neutralizing Gas is Active-only. Only the exact historical source
+  // printing is recognized; no vague "Weezing" substring inference.
+  if (view.opponentPublic.active?.printing === 'Galarian Weezing RCL 113')
+    return true;
+  return opponentBoard(view).some(slot => {
+    if (!AICHI_GARBOTOXIN_PRINTINGS.includes(slot.printing) ||
+        !slot.tools?.length || !toolsKnownLive(view, slot))
+      return false;
+    const flag = (slot.abilitySuppressions ?? [])
+      .find(row => row.abilityName === 'Garbotoxin');
+    return flag?.suppressed !== true;
+  });
+}
+
 function scoreBasicPlay(item, view, receipt) {
   const metadata = item.publicMetadata ?? {};
   if (metadata.targetSeat !== 'actor' || metadata.targetZone !== 'bench') return -Infinity;
@@ -1571,7 +1596,7 @@ function scoreBasicPlay(item, view, receipt) {
     if (view.ownTurnResources.supporterPlayedTurn > 0 ||
         countBench(view.ownPublic) >= candidateBenchCapacity(view) - 1 ||
         boardHas(view, 'Tapu Lele-GX') ||
-        hasName(view.opponentPublic.active?.printing, 'Iron Thorns ex') ||
+        opponentBlocksEntryAbilities(view) ||
         handHas(view, "Lillie's Determination") ||
         handHas(view, 'Arven')) return -Infinity;
     return 660;
@@ -1580,7 +1605,7 @@ function scoreBasicPlay(item, view, receipt) {
     // Active Iron Thorns ex's Initialization removes non-Future Pokémon
     // Abilities, including this Radiant's on-Bench entry. Do not spend a
     // precious Bench slot expecting a disabled Climactic Gate trigger.
-    if (hasName(view.opponentPublic.active?.printing, 'Iron Thorns ex')) {
+    if (opponentBlocksEntryAbilities(view)) {
       return -Infinity;
     }
     // Climactic Gate is a turn-ending line. Radiant needs one Bench slot
@@ -1614,8 +1639,10 @@ function scoreBasicPlay(item, view, receipt) {
   if (hasName(printing, 'Latias ex') && !boardHas(view, 'Latias ex')) return 650;
   if (hasName(printing, 'Girafarig') && opponentHasRegidrago(view) &&
       !boardHas(view, 'Girafarig')) return 450;
-  if (hasName(printing, 'Marshadow') &&
-      view.opponentPublic.stadium.length > 0 && !boardHas(view, 'Marshadow')) return 400;
+  if (printing === 'Marshadow UNB 81' &&
+      !opponentBlocksEntryAbilities(view) &&
+      view.opponentPublic.stadium.length > 0 &&
+      !boardHas(view, 'Marshadow')) return 400;
   return -Infinity;
 }
 
