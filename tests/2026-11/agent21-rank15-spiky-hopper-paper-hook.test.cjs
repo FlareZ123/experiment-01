@@ -32,6 +32,7 @@ class AfterDamageEffect {
 }
 class MegaLopunnyex {
   constructor() {
+    this.types=['Colorless'];
     this.attacks=[{name:'Gale Thrust',damage:60},
       {name:'Spiky Hopper',damage:160}];
   }
@@ -79,7 +80,8 @@ function fixture({
       fullName:'Powerful Colorless Energy DAA',
       reduceEffect(st,s,e){
         if(!energyBlocked&&e instanceof DealDamageEffect &&
-           e.source.cards.includes(this))e.damage+=20;
+           e.source.cards.includes(this) &&
+           e.source.getPokemonCard()?.types?.includes('Colorless'))e.damage+=20;
         return s;
       }
     };
@@ -183,22 +185,23 @@ test('unrelated Gale Thrust and nonmatching effects delegate unchanged',()=>{
   assert.equal(f.state.originalAttackCount,2);
 });
 
-test('delegated copied Spiky Hopper uses the actual copying attacker attachments',()=>{
-  for(const seat of [0,1]){
+test('delegated copied Spiky Hopper uses source type for native modifier checks',()=>{
+  for(const seat of [0,1]) for(const type of ['Psychic','Colorless']){
     const f=fixture({seat,powerful:true,belt:true,defenderV:true});
     const copyingPokemon={
-      id:404,name:'Copycat attacker',
+      id:404,name:'Copycat attacker',types:[type],
       attacks:f.card.attacks.map(attack=>({...attack}))
     };
-    // Twinleaf copy-attack-delegation calls source reduceEffect with
-    // the actual copycat as "this" and temporary cloned attack objects.
+    // Twinleaf copy-attack-delegation calls source.reduceEffect with
+    // this == the copycat and a cloned attack. Psychic Mimikyu cannot
+    // benefit from Powerful COLORLESS Energy's +20, although Belt still +30.
     f.source.getPokemonCard=()=>copyingPokemon;
     f.effect.attack=copyingPokemon.attacks[1];
     const original=MegaLopunnyex.prototype.reduceEffect;
     const state=inHook(()=>MegaLopunnyex.prototype.reduceEffect.call(
       copyingPokemon,f.store,f.state,f.effect));
     assert.equal(state,f.state);
-    assert.equal(f.defender.damage,210);
+    assert.equal(f.defender.damage,type==='Psychic'?190:210);
     assert.equal(f.effect.damage,0);
     assert.equal(MegaLopunnyex.prototype.reduceEffect,original);
   }
