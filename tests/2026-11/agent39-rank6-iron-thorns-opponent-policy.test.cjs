@@ -402,6 +402,32 @@ test('rank6 Speed Lightning obeys numeric last-used global turn markers in both 
   }
 });
 
+test('Temple-of-Sinnoh one-Colorless Specials complete Volt Cyclone, even as duplicate cards', () => {
+  const temple=player({stadium:['Temple of Sinnoh ASR 155']});
+  const energyCase=(seat,attached,card)=>rootRequest({
+    seat,globalTurn:4,ownHand:[card],
+    ownTurnResources:turnResources({energyPlayedTurn:3}),
+    ownPublic:player({active:pokemon('Iron Thorns ex TWM 77',{energies:attached})}),
+    opponentPublic:temple,
+    items:[action('attach','play-card',card,{cardType:'energy',handIndex:0},
+      {targetPrinting:'Iron Thorns ex TWM 77'}),{token:'pass',kind:'pass'}]
+  });
+  for(const seat of [0,1]){
+    const light='Lightning Energy MEE 12';
+    const dce='Double Colorless Energy SUM 136';
+    const speed='Speed Lightning Energy RCL 173';
+    for(const [attached,card] of [
+      [[light,dce],speed],[[light,dce],dce],[[light,speed],speed]
+    ]){
+      assert.deepEqual(checkedDecision(energyCase(seat,attached,card),seat),
+        {kind:'select-action',token:'attach'});
+    }
+    // More Colorless without a Lightning source does not pay Volt Cyclone.
+    assert.deepEqual(checkedDecision(energyCase(seat,[dce,speed],speed),seat),
+      {kind:'select-action',token:'pass'});
+  }
+});
+
 test('Plumeria denial outranks deckout when opponent Bench has Energy and payment is available', () => {
   const request = rootRequest({
     ownHand: ['Plumeria BUS 120', "Trainers' Mail ROS 92", 'Captivating Poké Puff STS 99',
