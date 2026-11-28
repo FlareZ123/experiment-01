@@ -367,3 +367,29 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'tool'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Claw of Darkness selects a revealed opponent ACE SPEC, not stale Battle VIP Pass',()=>{
+  const q=prompt(seat,{source:{sourceKind:'card-effect',sourcePrinting:'Mega Absol ex MEG 86',effectName:'Claw of Darkness'},
+   publicMetadata:{minimumCount:1,maximumCount:1},
+   choices:[
+    {kind:'card',token:'vip',printing:'Battle VIP Pass FST 225',publicMetadata:{ownerSeat:'opponent',sourceZone:'hand',isOwnerVisible:true}},
+    {kind:'card',token:'ace',printing:'Secret Box TWM 163',publicMetadata:{ownerSeat:'opponent',sourceZone:'hand',isOwnerVisible:true}},
+    {kind:'card',token:'dark',printing:'Darkness Energy MEE 15',publicMetadata:{ownerSeat:'opponent',sourceZone:'hand',isOwnerVisible:true}}
+   ]},{globalTurn:5});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['ace']});
+  q.prompt.choices[1].publicMetadata.isOwnerVisible=false;
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['dark']});
+ });
+ test('seat '+seat+' Claw targets opponent Dedenne when live and ignores when Garbotoxin active',()=>{
+  const q=prompt(seat,{source:{sourceKind:'card-effect',sourcePrinting:'Mega Absol ex MEG 86',effectName:'Claw of Darkness'},
+   choices:[
+    {kind:'card',token:'dede',printing:'Dedenne-GX UNB 57',publicMetadata:{ownerSeat:'opponent',sourceZone:'hand',isOwnerVisible:true}},
+    {kind:'card',token:'guzma',printing:'Guzma BUS 115',publicMetadata:{ownerSeat:'opponent',sourceZone:'hand',isOwnerVisible:true}}
+   ]});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['dede']});
+  q.observation.ownPublic.bench[0].tools=['Float Stone BKT 137'];
+  q.observation.ownPublic.bench[0].abilitySuppressions=[{abilityName:'Garbotoxin',suppressed:false}];
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['guzma']});
+ });
+}
