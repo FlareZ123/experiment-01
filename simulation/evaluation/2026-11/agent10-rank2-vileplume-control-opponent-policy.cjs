@@ -868,7 +868,73 @@ function emptyOrAbstain(prompt, choices, reasonCode) {
   return { kind: 'abstain', reasonCode };
 }
 
+
+function engineSetupDecision(request) {
+  const prompt=request.prompt, meta=prompt?.publicMetadata??{}, source=prompt?.source??{};
+  const abstain=reasonCode=>({kind:'abstain',reasonCode});
+  if(request.observation?.phase!==1) return abstain('UNSUPPORTED_ENGINE_SETUP_PHASE');
+  if(source.classification!=='actor-choice'||source.sourceKind!=='engine'||
+     source.sourcePrinting!==null||source.effectName!==prompt.description)
+    return abstain('UNTRUSTED_ENGINE_SETUP_PROMPT');
+  const choices=list(prompt.choices);
+  if(prompt.description==='CHOOSE_STARTING_POKEMONS'&&prompt.promptType==='ChooseCardsPrompt') {
+    if(meta.selectionType!=='card-combination'||meta.sourceZone!=='hand'||
+       meta.ownerSeat!=='actor'||meta.isOwnerVisible!==true||meta.isSecret!==false||
+       meta.allowCancel!==false||![0,1].includes(meta.minimumCount)||
+       !Number.isSafeInteger(meta.maximumCount)||
+       meta.maximumCount<meta.minimumCount||meta.maximumCount>6)
+      return abstain('BAD_STARTING_POKEMON_SETUP_PROMPT');
+    const selected=[]; let empty=null,last=-1;
+    for(const choice of choices) {
+      if(choice.kind==='empty-selection') {
+        if(empty) return abstain('BAD_STARTING_POKEMON_EMPTY_CHOICE');
+        empty=choice;continue;
+      }
+      const m=choice.publicMetadata??{};
+      if(choice.kind!=='card'||typeof choice.printing!=='string'||
+         choice.label!==choice.printing||!Number.isSafeInteger(m.selectionIndex)||
+         m.selectionIndex<=last||m.selectedCount!==1||
+         m.sourceZone!=='hand'||m.ownerSeat!=='actor'||m.isOwnerVisible!==true)
+        return abstain('UNTRUSTED_STARTING_POKEMON_CHOICE');
+      last=m.selectionIndex;selected.push(choice.token);
+    }
+    if(meta.minimumCount===0&&selected.length===0)
+      return empty&&empty.label==='Choose no items'?
+        {kind:'select-choice',token:empty.token}:abstain('NO_STARTING_POKEMON_CHOICE');
+    const tokens=selected.slice(0,meta.maximumCount);
+    return tokens.length>=meta.minimumCount&&tokens.length>0?
+      {kind:'select-choices',tokens}:abstain('INSUFFICIENT_STARTING_POKEMON_CHOICES');
+  }
+  if(prompt.description==='GO_FIRST'&&prompt.promptType==='ConfirmPrompt'){
+    if(meta.selectionType!=='confirm'||choices.length!==2||
+       choices.filter(c=>c.kind==='confirm'&&c.label==='Yes').length!==1||
+       choices.filter(c=>c.kind==='confirm'&&c.label==='No').length!==1)
+      return abstain('BAD_GO_FIRST_SETUP_PROMPT');
+    // Rank-2 Bunnelby's T1 TM Evolution attack becomes available going second.
+    return {kind:'select-choice',token:choices.find(c=>c.label==='No').token};
+  }
+  if(prompt.description==='WANT_TO_DRAW_CARDS'&&prompt.promptType==='SelectPrompt'){
+    if(meta.selectionType!=='option'||meta.allowCancel!==false||
+       !Number.isSafeInteger(meta.count)||meta.count<1)
+      return abstain('BAD_MULLIGAN_DRAW_SETUP_PROMPT');
+    const seen=new Set();let best=null;
+    for(const choice of choices){
+      const i=choice.publicMetadata?.choiceIndex;
+      if(choice.kind!=='option'||!Number.isSafeInteger(i)||i<0||
+         i>=meta.count||seen.has(i)||
+         choice.label!=='Draw '+(meta.count-1-i)+' card(s)')
+        return abstain('BAD_MULLIGAN_DRAW_CHOICE_INDEX');
+      seen.add(i);if(!best||i<best.publicMetadata.choiceIndex)best=choice;
+    }
+    return best?{kind:'select-choice',token:best.token}:abstain('NO_MULLIGAN_DRAW_OPTION');
+  }
+  return abstain('UNSUPPORTED_ENGINE_SETUP_PROMPT');
+}
+
 function promptDecision(request) {
+  if (['CHOOSE_STARTING_POKEMONS','GO_FIRST','WANT_TO_DRAW_CARDS'].includes(request.prompt?.description)) {
+    return engineSetupDecision(request);
+  }
   const prompt = request.prompt;
   const choices = list(prompt?.choices);
   const metadata = prompt?.publicMetadata ?? {};
