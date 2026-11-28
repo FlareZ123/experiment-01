@@ -778,6 +778,22 @@ function bombPlanner(o,sourceBenchIndex){
         if(!L(newUnits).some(x=>x==='darkness'||x==='any')&&priorDark<2)return 0;
         return mega(p)?315:200;
       }
+      // When the main attack is already funded, Telepathic can bank two
+      // source-bound Psychic Basics on an empty-Bench Unown before attacking.
+      // Count only actor-visible cards and certified owner-K1 Prize membership;
+      // unknown Prizes never become an assumed available card.
+      if(isUn(p)&&m.targetZone==='bench'&&/^Telepathic Psychic Energy POR 88\b/i.test(name(x))&&
+         cap(o)>0&&Number(o.ownPublic?.deckCount)>8&&
+         !L(p.energies).length&&!L(p.tools).length&&
+         mega(o.ownPublic?.active)&&usable(o.ownPublic.active,'Claw of Darkness',o)){
+        const known=[...slots(o.ownPublic).map(row=>row.p),...L(o.ownHand),...L(o.ownPublic?.discard)];
+        const k=o.ownerK1;
+        const prized=k?.exactMembershipKnown===true?L(k.knownPrintings):[];
+        const counted=f=>prized.reduce((n,row)=>n+(f(row)&&Number.isSafeInteger(row.copies)?row.copies:0),0);
+        const possible=4-known.filter(isUn).length-counted(isUn)+
+                       1-known.filter(isGengar).length-counted(isGengar);
+        if(possible>0)return 345;
+      }
       if(isGengar(p)&&first(o)&&o.ownPublic?.publicTurnRestrictions?.gxUsed!==true&&payable(p,['psychic'],-1,o)!==true&&payable(next,['psychic'],-1,o)===true)return 300;
       return 0;
     }
