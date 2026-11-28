@@ -260,7 +260,7 @@ function benchSupportAbilityUsable(printing,o){
  return true;
 }
 function forestSealLinePending(o){
- if(o.ownTurnResources?.vstarUsed||!toolEnabled(o))return false;
+ if(o.ownTurnResources?.vstarUsed||!toolAttachAllowed(o)||!toolEnabled(o))return false;
  const crobat=slots(o.ownPublic).find(x=>match(x.pokemon.printing,PRINT.crobat)&&
   list(x.pokemon.tools).length===0);
  return Boolean(crobat)&&forestSealToolEnabledForZone(o,crobat.zone)&&
