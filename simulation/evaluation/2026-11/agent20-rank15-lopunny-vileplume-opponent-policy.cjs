@@ -67,6 +67,7 @@ const P = Object.freeze({
   floatStone:/^Float Stone BKT(?: 137)?\b/i,
   powerful:/^Powerful Colorless Energy DAA(?: 176)?\b/i,
   choiceBelt:/^Choice Belt PAL(?: 176)?\b/i,
+  legacy:/^Legacy Energy TWM(?: 167)?\b/i,
   mimikyu:/^Mimikyu GRI(?: 58)?\b/i,
   girafarig:/^Girafarig LOT(?: 94)?\b/i,
   valley:/^Dimension Valley PHF(?: 93)?\b/i
@@ -101,11 +102,17 @@ function toolEffectsSuppressed(o) {
   return stadiumAndToolEffectsMuted(o)||
     stadium.some(x=>/^Jamming Tower\b/i.test(txt(x)));
 }
-function sourcePrizeValue(pokemon) {
+function sourcePrizeValue(pokemon,o) {
   const p=txt(pokemon);
-  if (/^Mega .* ex\b/i.test(p)||/\bVMAX\b/i.test(p)) return 3;
-  if (/\b(?:ex| VSTAR| V|GX|EX)\b/i.test(p)||/-GX\b/i.test(p)) return 2;
-  return 1;
+  const normal=/^Mega .* ex\b/i.test(p)||/\bVMAX\b/i.test(p)?3:
+    /\b(?:ex| VSTAR| V|GX|EX)\b/i.test(p)||/-GX\b/i.test(p)?2:1;
+  // Legacy Energy reduces Prize cards taken from this attack KO once per
+  // game. Its prior use is not certified by the public actor projection, so
+  // a live attached copy must be assumed *unspent* to avoid a false win.
+  // Temple of Sinnoh removes this Special Energy's Prize-reduction effect.
+  const activeLegacy=arr(pokemon?.energies).some(x=>has(x,P.legacy))&&
+    !templeSuppressesSpecialEnergy(o);
+  return activeLegacy?Math.max(0,normal-1):normal;
 }
 function movementEvidence(request) {
   const o=request.observation, r=request.publicEventReceipt;
@@ -219,7 +226,7 @@ function terminal(item,request) {
   if(item.attackName==='Float Up'&&has(o.ownPublic?.active,P.eldegoss)&&
     benchCount(o.ownPublic)===0)return false;
   return Number.isSafeInteger(o.ownPublic?.prizeCount)&&o.ownPublic.prizeCount>0&&
-    (o.ownPublic.prizeCount<=sourcePrizeValue(o.opponentPublic.active)||
+    (o.ownPublic.prizeCount<=sourcePrizeValue(o.opponentPublic.active,o)||
      benchCount(o.opponentPublic)===0);
 }
 function candidateCopycatThreat(request) {
@@ -464,7 +471,7 @@ function terminalGalePromotionTarget(request) {
   const gale=applyColorlessWeaknessResistance(230,op);
   if(remaining===null||remaining<=0||gale===null||gale<remaining||
     !Number.isSafeInteger(own.prizeCount)||own.prizeCount<1||
-    own.prizeCount>sourcePrizeValue(op))return null;
+    own.prizeCount>sourcePrizeValue(op,o))return null;
   const bench=arr(own.bench);
   const index=bench.findIndex(x=>x&&readyGuzmaMega(x,o));
   return index<0?null:{index,printing:bench[index].printing};
@@ -915,7 +922,7 @@ function guzmaOpportunity(o,{resolvingGuzma=false}={}) {
       arr(x.abilitySuppressions).some(z=>z.suppressed===false))return null;
     const galeDamage=applyColorlessWeaknessResistance(230,x);
     if(galeDamage===null||x.hp-x.damage>galeDamage)return null;
-    const prizeValue=sourcePrizeValue(x);
+    const prizeValue=sourcePrizeValue(x,o);
     const terminal=prizes!==null&&prizes>0&&prizes<=prizeValue;
     if(activeBusLock&&!terminal)return null;
     // Don't expend the Supporter on a merely one-Prize intermediate gust.
