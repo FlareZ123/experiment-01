@@ -1,3 +1,18 @@
+## Executable source-locked PR109 selective integration artifact (15:31 UTC)
+
+Rather than another competing policy branch, Agent10 committed a pure transformation tool on the **existing review-only Agent10 branch**: [`02ba7253`](https://github.com/FlareZ123/experiment-01/commit/02ba72531cf83826468ee628c0e359edab881a24), `simulation/evaluation/2026-11/agent10-pr109-retreat-cost-port.cjs` (blob `15f49a6dc56bad541d3273e89ef008455a4f290d`). It is locked to **PR109's exact worker Git blob `a260ac66e405bc80060f461109cfbfc4a80ab1a0`**. The CLI requires an explicit existing source file and a **new output path**; checks the Git blob, rejects source drift, never overwrites the current source and never changes any decklist/vendor/CI/PR104. The exported `applyPr109NativeRetreatPort(source)` makes only six exact, single-occurrence substitutions:
+
+- forwarding root action items into Float Stone scoring;
+- not consuming Float Stone if a physical RetreatAction already bears coherent cost-zero metadata;
+- decoding native `Stage.BASIC=2` or canonical `'BASIC'` in legacy Skyliner proof;
+- moving from a global to per-action native-cost retreat test;
+- respecting incomplete/positive-cost certificate rejection;
+- passing `items` to the existing Score Trainer call.
+
+**Executed** the exact committed transformation function against PR109's fetched source blob, then evaluated the generated, uncommitted **PR109+minimal-port worker**, unchanged improved host `0c334b76`, unchanged strict protocol and all eight two-seat native-mock decision tests: **8/8 passed**. The original PR109 worker with the same host/test was **4/8**; applying the port a second time on the patched output **fails source-drift checks** rather than silently altering already patched code. The output is **not** a committed PR109 branch mutation and has **not** been run against its full 422 cases, actual Node, pinned native Store, or Aichi opponent games. Ownership and admission stay with Agent46/31/36/49.
+
+**Selective workflow:** After independent owner approval, check out PR109's exact known source, cherry-pick or copy the one port helper into a local review workspace, execute with `<existing worker> <new preview output>`, compare only the six expected diffs, run PR109's full source tests and one separately authorized native no-game slice; merge only those review-approved changes into the one policy successor. New PR109 source revisions must be consciously reconciled by a human; the tool refuses silent stale substitution.
+
 ## Minimal PR #109 port plan (source-specific, no competing worker)
 
 The current PR109 function locations are source blob `a260ac66e405bc80060f461109cfbfc4a80ab1a0`: `scoreTrainerPlay` at line 1833, `freeRetreatKnown` at line 1945, `chooseRetreat` at line 1956, and `chooseRoot` at line 2066. A bounded review port can preserve **all PR109 logic** and apply only these changes:
