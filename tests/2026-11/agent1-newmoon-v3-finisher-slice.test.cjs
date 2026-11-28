@@ -340,4 +340,36 @@ test('no TPE when Bench full',()=>{
  assert(f.root().kind,'abstain');
 });
 
+
+test('Powerglass requires basic Psychic discard and no Tool blank',()=>{
+ const f=busDevelopment();f.obs.ownHand=['Powerglass SFA 63'];
+ f.obs.ownTurnResources.energyPlayedTurn=1;f.own.discard=['Basic Psychic Energy'];
+ f.own.active.tools=[];f.items.splice(0,f.items.length,{
+ kind:'play-card',token:'glass',actorPrinting:'Powerglass SFA 63',
+ targetPrinting:f.own.active.printing,publicMetadata:{cardType:'trainer',
+ targetSeat:'actor',targetZone:'active'}});
+ assert(f.root().token,'glass');
+ f.opp.stadium=['Jamming Tower TWM 153'];
+ assert(f.root().kind,'abstain');
+ f.opp.stadium=[];f.own.discard=['Telepathic Psychic Energy'];
+ assert(f.root().kind,'abstain');
+ f.own.discard=['Basic Psychic Energy'];f.own.active.tools=['Forest Seal Stone'];
+ assert(f.root().kind,'abstain');
+});
+test('Powerglass and manual Energy support partially funded Active Stage2',()=>{
+ const f=busDevelopment();f.own.active.printing='Dusknoir SFA 20';
+ f.own.active.tools=[];f.own.discard=['Basic Psychic Energy'];
+ f.obs.ownHand=['Powerglass SFA 63'];
+ f.obs.ownTurnResources.energyPlayedTurn=1;
+ f.items.splice(0,f.items.length,{kind:'play-card',token:'glass',
+ actorPrinting:'Powerglass SFA 63',publicMetadata:{cardType:'trainer',
+ targetSeat:'actor',targetZone:'active'}});
+ assert(f.root().token,'glass');
+ f.obs.ownTurnResources.energyPlayedTurn=0;
+ f.items.splice(0,f.items.length,{kind:'play-card',token:'attach',
+ actorPrinting:'Basic Psychic Energy',targetPrinting:f.own.active.printing,
+ publicMetadata:{cardType:'energy',targetSeat:'actor',targetZone:'active'}});
+ assert(f.root().token,'attach');
+});
+
 console.log('Agent1 v3 research actor tests: '+checks+' assertions passed');
