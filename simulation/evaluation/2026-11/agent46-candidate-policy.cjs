@@ -1483,7 +1483,23 @@ function scoreTrainerPlay(item, view, receipt) {
          slot.tools.some(tool => hasName(tool, 'Stealthy Hood')))))) return 760;
   if (hasName(name, 'Guzma') && !supporterUsed && canGuzmaForAttack(view, receipt)) return 750;
   if (hasName(name, "Lillie's Determination") && !supporterUsed &&
-      (view.ownPublic.handCount <= 3 || view.ownPublic.deckCount <= 10)) return 700;
+      (view.ownPublic.handCount <= 5 ||
+       (!boardHas(view, 'Shadow Rider Calyrex V') &&
+        view.ownPublic.handCount <= 8) ||
+       view.ownPublic.deckCount <= 10)) return 700;
+  if (hasName(name, 'Iono PAL') && !supporterUsed) {
+    const mine = view.ownPublic.prizeCount;
+    const theirs = view.opponentPublic.prizeCount;
+    if (Number.isSafeInteger(mine) && Number.isSafeInteger(theirs)) {
+      // Late opposing low-Prize hand reset is discrete tactical value.
+      if (theirs <= 2 && mine >= 2 &&
+          view.opponentPublic.handCount >= 4) return 925;
+      // At 4-6 remaining Prizes this is also a legitimate replenishment.
+      if (mine >= 4 && view.ownPublic.handCount <= 3) return 690;
+      if (mine >= 4 && view.ownPublic.handCount <= 5 &&
+          !boardHas(view, 'Shadow Rider Calyrex VMAX')) return 550;
+    }
+  }
   if (hasName(name, 'Sky Field') && !view.ownPublic.stadium.some(s => hasName(s, 'Sky Field')) &&
       countBench(view.ownPublic) + countBench(view.opponentPublic) < 6 &&
       boardHas(view, "Lillie's Clefairy ex")) return 620;
