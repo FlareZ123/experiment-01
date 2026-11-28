@@ -174,3 +174,60 @@ card-search continuation. All 13 source-worker/protocol test
 modules now pass **206/206** V8 groups. This is a logical candidate
 execution improvement, **not** proof that the actual Store exposes
 Raihan in this prompt shape or that it can complete a native turn.
+
+## Initial setup: preserving on-play Abilities as a first-class resource
+
+The initial candidate policy treated the native
+`CHOOSE_STARTING_POKEMONS` engine prompt as a request to select every
+eligible Basic in the hand, in native order. This directly stranded
+two singletons from the exact frozen 60:
+
+- **Radiant Eternatus CRZ105**: *Climactic Gate* activates when
+  played **from hand onto the Bench during your turn**, searches
+  up to two VMAX directly onto the Bench, then ends the turn.
+- **Tapu Lele-GX GRI60**: *Wonder Tag* activates when
+  played **from hand onto the Bench during your turn**, searches a
+  Supporter from the deck into hand.
+
+Neither Ability is triggered by initial setup placements before the
+game begins; using them as unnecessary setup Benched Pokémon removes
+their one-use access roles, exposes Prize liability and occupies
+Bench slots. Picking the first listed Basic as the starting Active
+could similarly strand Radiant even when a Shadow Rider V was
+available.
+
+Replaced the generic all-Basics selection with a fixed-60,
+source-print priority: choose a **Shadow Rider Calyrex V CRE74** as
+starting Active if available, at most two total CRE74 among
+initial placement(s), and **retain** Radiant, Tapu and tactical
+singletons in hand for action during the actual turn. When Radiant
+or Tapu is the only Basic, mandatory Active setup still selects it;
+a policy cannot prevent a real mulligan or fabricate another Basic.
+If all optional Bench choices are on-play/singleton cards, select
+the native `empty-selection` token rather than consume them.
+Engine setup descriptions are now strictly reserved for engine
+source certification to prevent a forged card-effect from triggering
+the special setup handler.
+
+**Opening-hand opportunity magnitude:** the exact 60 has fourteen
+Basic Pokémon: one Radiant, one Tapu, and twelve other Basics.
+For an unconditional uniformly random seven-card opening draw,
+`P(at least one Radiant/Tapu and at least one other Basic)` (including
+both Radiant+Tapu as two Basics) is **17.2962%**, computed by
+hypergeometric enumeration over group sizes [1,1,12,46].
+This is the proportion of raw opening hands for which there is
+a *choice to preserve at least one on-play singleton*; it is not the
+probability the old policy lost a game, the probability the ability
+could be used later, or a mulligan-adjusted setup rate.
+The native prompts' Active/Bench sequencing still requires a pinned
+Store replay.
+
+`tests/2026-11/agent3-starting-basics-preserve-onplay-20261128.test.cjs`
+covers sixteen direct actor-policy prompt forks across both physical
+seats (**32/32 passing**), including mandatory sole-Basic, optional
+Bench-only, four Basic V competition, Tapu/Radiant preservation,
+native maximum-one, forged engine-source and invisible identity.
+All **14 source-policy/strict-protocol V8 test modules pass
+238/238**. These are direct source worker+protocol executions under
+a minimal V8 CommonJS test harness, not Node, native Twinleaf
+Store, CI or game-based field evidence.
