@@ -323,3 +323,55 @@ test('pinned Grand Tree empty optional Stage2 search uses native cancellation', 
   assert.deepEqual(checkedDecision(request),{
     kind:'select-choice',token:'cancel'});
 });
+
+test('Counter Gain root is accepted without pretarget on behind-Prize Bunnelby', () => {
+  const own=player({active:pokemon('Bunnelby PRC 121',{energies:[]}),
+    bench:[pokemon('Bunnelby PRC 121',{energies:[]})],prizeCount:6});
+  const req=rootRequest({ownHand:['Counter Gain SSP 169'],ownPublic:own,
+    opponentPublic:player({prizeCount:4}),items:[
+      {token:'counter',kind:'play-card',actorPrinting:'Counter Gain SSP 169',
+        publicMetadata:{cardType:'trainer',handIndex:0}},
+      {token:'pass',kind:'pass',label:'Pass turn'}
+    ]});
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'counter'});
+});
+test('Counter Gain targets physical eligible Active over same-printing Bench', () => {
+  const own=player({active:pokemon('Bunnelby PRC 121',{energies:[]}),
+    bench:[pokemon('Bunnelby PRC 121',{energies:[],tools:['Stealthy Hood UNB 186']})],
+    prizeCount:6});
+  const req=promptRequest({promptType:'ChoosePokemonPrompt',
+    source:actorChoiceSource('Counter Gain SSP 169','Counter Gain'),
+    choices:[pokemonChoice('bad','Bunnelby PRC 121','actor','bench',0),
+      pokemonChoice('good','Bunnelby PRC 121','actor','active',0)],
+    observation:{ownPublic:own,opponentPublic:player({prizeCount:4})},
+    publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+      allowCancel:false,isSecret:false}});
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-choices',tokens:['good']});
+});
+test('Counter Gain declines when ahead on Prizes and Budew attack costs zero', () => {
+  const counter=(active,ownPrize,oppPrize)=>rootRequest({
+    ownHand:['Counter Gain SSP 169'],
+    ownPublic:player({active:pokemon(active),prizeCount:ownPrize}),
+    opponentPublic:player({prizeCount:oppPrize}),
+    items:[{token:'gain',kind:'play-card',actorPrinting:'Counter Gain SSP 169',
+      publicMetadata:{cardType:'trainer',handIndex:0}},
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(counter('Bunnelby PRC 121',2,5)),
+    {kind:'select-action',token:'pass'});
+  assert.deepEqual(checkedDecision(counter('Budew ASC 16',6,4)),
+    {kind:'select-action',token:'pass'});
+});
+test('Counter Gain does not attach onto equipped Active if only Bench Bunnelby is free', () => {
+  const own=player({active:pokemon('Bunnelby PRC 121',{
+    tools:['Technical Machine: Evolution PAR 178']}),
+    bench:[pokemon('Bunnelby PRC 121')],prizeCount:6});
+  const req=promptRequest({promptType:'ChoosePokemonPrompt',
+    source:actorChoiceSource('Counter Gain SSP 169','Counter Gain'),
+    choices:[pokemonChoice('bad','Bunnelby PRC 121','actor','active',0),
+      pokemonChoice('free','Bunnelby PRC 121','actor','bench',0)],
+    observation:{ownPublic:own,opponentPublic:player({prizeCount:4})},
+    publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+      allowCancel:false,isSecret:false}});
+  assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:['free']});
+});
