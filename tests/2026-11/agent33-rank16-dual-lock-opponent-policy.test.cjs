@@ -325,3 +325,32 @@ for(const seat of [0,1]) {
     assert.deepEqual(decide(request),{kind:'select-action',token:'tool'});
   });
 }
+
+for(const seat of [0,1]) {
+  const locked={active:poke(P.budew),bench:[
+    {...poke(P.garbBKP),tools:[tool()]},poke(P.absol)]};
+  test('item lock is not attacked before a useful offered Quick Ball seat '+seat,()=>{
+    const r=state(seat,{globalTurn:4,ownHand:['Quick Ball FST 237','Battle VIP Pass FST 225'],
+      ownPublic:locked,items:[
+      action('attack','pollen',{attackName:'Itchy Pollen',publicMetadata:{attackCostPayable:true}}),
+      action('play-card','ball',{actorPrinting:'Quick Ball FST 237'}),
+      action('pass','pass')]});
+    assert.deepEqual(decide(r),{kind:'select-action',token:'ball'});
+  });
+  test('Itchy Pollen precedes turn-ending Boost Shake when both offered seat '+seat,()=>{
+    const r=state(seat,{globalTurn:4,ownHand:['Boost Shake EVS 142'],
+      ownPublic:{...locked,bench:[...locked.bench,poke(P.trubbish)]},items:[
+      action('attack','pollen',{attackName:'Itchy Pollen',publicMetadata:{attackCostPayable:true}}),
+      action('play-card','boost',{actorPrinting:'Boost Shake EVS 142'}),
+      action('pass','pass')]});
+    assert.deepEqual(decide(r),{kind:'select-action',token:'pollen'});
+  });
+  test('Itchy Pollen is correct over discard-insolvent Ball seat '+seat,()=>{
+    const r=state(seat,{globalTurn:4,ownHand:['Quick Ball FST 237','Garbodor BKP 57'],
+      ownPublic:locked,items:[
+      action('attack','pollen',{attackName:'Itchy Pollen',publicMetadata:{attackCostPayable:true}}),
+      action('play-card','ball',{actorPrinting:'Quick Ball FST 237'}),
+      action('pass','pass')]});
+    assert.deepEqual(decide(r),{kind:'select-action',token:'pollen'});
+  });
+}
