@@ -20,7 +20,9 @@ function supportedDirectTerminal(v,items){
  const prize=target.printing?.includes('Regidrago VSTAR')?2:
    target.printing?.includes('Mega Lopunny ex')||
    target.printing?.includes('Mega Kangaskhan ex')?3:null;
- return prize!==null&&prize>=need&&
+ const lastOpponentPokemon=Array.isArray(v.opponentPublic.bench)&&
+   v.opponentPublic.bench.filter(Boolean).length===0;
+ return (prize!==null&&prize>=need||lastOpponentPokemon)&&
    !!parent.chooseCertifiedLethal(v,items);
 }
 function createPolicy({role,seat,policyVersion,config}){
@@ -51,8 +53,9 @@ function createPolicy({role,seat,policyVersion,config}){
   const hadSequence=seq.peek()!==null;
   if(!hadSequence&&v?.decisionKind==='owner-root'&&
      supportedDirectTerminal(v,items)){
-    const out=base.decideWithAudit(request);
-    return {...out,policyAudit:{...out.policyAudit,policyVersion:POLICY_VERSION}};
+    const direct=parent.chooseCertifiedLethal(v,items);
+    if(direct)return withAudit(request,{
+      ...direct,reason:'A22_DIRECT_NO_SELFKO_TERMINAL_PRIORITY'});
   }
   const action=seq.decide(request);
   if(action)return withAudit(request,action);
