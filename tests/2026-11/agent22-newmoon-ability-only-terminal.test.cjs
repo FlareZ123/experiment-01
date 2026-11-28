@@ -115,6 +115,15 @@ assert.equal(qualifyingTarget({printing:'Pikachu',hp:60,damage:0,tools:[]},
  1,false,false).mode,'all-prizes');checks++;
 assert.equal(qualifyingTarget({printing:'Pikachu',hp:60,damage:0,tools:[]},
  5,true,true).mode,'no-opponent-pokemon');checks++;
-assert.equal(checks,68);
+// The native USE_ABILITY_ACTION token certifies availability even when the
+// public observation's suppression flag remains unknown (null).
+{
+ const q=base();q.observation.ownPublic.bench[0].
+  abilitySuppressions[0].suppressed=null;
+ const s=createAbilityTerminalSlice({seat:0});
+ assert.equal(s.decide(q).decision.token,'dusk');checks++;
+ assert.equal(s.decide(prompt(q)).decision.tokens[0],'opp-target');checks++;
+}
+assert.equal(checks,70);
 console.log('Agent22 Cursed Blast ability-only game finish: '+
  checks+' actor contracts passed');
