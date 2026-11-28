@@ -644,9 +644,78 @@ function projectSimplePrompt(prompt, state, choices, choiceByToken) {
   return null;
 }
 
+// Raihan EVS: the pinned reducer's follow-up AttachEnergyPrompt comes from
+// the actor's discard pile and permits Basic Energy onto EITHER an Active or
+// Benched Pokémon. This is a distinct native contract from Underworld Door's
+// hand-only Psychic-to-Bench assignment. All options pass the native validator.
+function projectRaihanDiscardAttachment({
+  prompt,state,actorSeat,native,source,choices,choiceByToken
+}={}) {
+  const actor=state.players[actorSeat];
+  const expectedSource=source?.sourceKind==='card-effect'&&
+    source.effectName==='Raihan'&&
+    source.sourcePrinting==='Raihan EVS 152';
+  const exact=expectedSource&&prompt.playerId===actor.id&&
+    prompt.message==='ATTACH_ENERGY_CARDS'&&
+    prompt.cardList===actor.discard&&
+    prompt.playerType===native?.PlayerType?.BOTTOM_PLAYER&&
+    Array.isArray(prompt.slots)&&prompt.slots.length===2&&
+    prompt.slots.includes(native?.SlotType?.BENCH)&&
+    prompt.slots.includes(native?.SlotType?.ACTIVE)&&
+    prompt.filter?.superType===native?.SuperType?.ENERGY&&
+    prompt.filter?.energyType===native?.EnergyType?.BASIC&&
+    prompt.options?.min===1&&prompt.options?.max===1&&
+    prompt.options?.allowCancel===false&&
+    typeof native?.EnergyCard==='function';
+  if (!exact) throw Object.assign(new Error('Raihan has an untrusted native discard-to-board attachment prompt'), {
+    code:'UNSUPPORTED_RAIHAN_ATTACHMENT_SHAPE'
+  });
+  const cards=cardListCards(prompt.cardList);
+  const energies=cards.map((card,index)=>({card,index})).filter(row=>
+    row.card instanceof native.EnergyCard &&
+    row.card.superType===native.SuperType.ENERGY&&
+    row.card.energyType===native.EnergyType.BASIC);
+  const targets=[];
+  if (actor.active?.getPokemonCard?.()) {
+    targets.push({slot:native.SlotType.ACTIVE,index:0,zone:'active',
+      pokemon:actor.active.getPokemonCard()});
+  }
+  for (let i=0;i<(actor.bench??[]).length;i++) {
+    const pokemon=actor.bench[i]?.getPokemonCard?.();
+    if (pokemon) targets.push({slot:native.SlotType.BENCH,index:i,
+      zone:'bench',pokemon});
+  }
+  for (const target of targets) for (const row of energies) {
+    const energyName=printing(row.card)??row.card.name;
+    const pokemonName=printing(target.pokemon)??target.pokemon.name;
+    const rawResult=[{to:{player:native.PlayerType.BOTTOM_PLAYER,
+      slot:target.slot,index:target.index},index:row.index}];
+    addChoice(choices,choiceByToken,rawResult,{
+      kind:'energy',printing:energyName,
+      label:'Attach '+energyName+' to '+
+        (target.zone==='active'?'Active':'Bench '+(target.index+1))+': '+pokemonName,
+      publicMetadata:{sourceZone:'discard',ownerSeat:'actor',
+        isOwnerVisible:true,energyType:'BASIC',zone:target.zone,
+        ...(target.zone==='bench'?{benchIndex:target.index}:{}),
+        choiceIndex:choices.length,selectedCount:1}
+    },prompt,state);
+  }
+  if (!choices.length) throw Object.assign(new Error('Raihan has no native-legal actor-owned Basic Energy assignment'), {
+    code:'NO_VALID_RAIHAN_ATTACHMENT_CHOICES'
+  });
+  return {selectionType:'energy-attachment',count:choices.length,
+    minimumCount:1,maximumCount:1,allowCancel:false,
+    sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true,
+    energyType:'BASIC'};
+}
+
 function projectAttachEnergyPrompt({
   prompt,state,actorSeat,native,store,source,choices,choiceByToken
 }={}){
+  if(source?.effectName==='Raihan') {
+    return projectRaihanDiscardAttachment({prompt,state,actorSeat,native,
+      source,choices,choiceByToken});
+  }
   const actor=state.players[actorSeat];
   const supportedSource=source?.sourceKind==='card-effect'&&
     source.effectName==='Underworld Door'&&
