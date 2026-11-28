@@ -462,12 +462,13 @@ function slotForPokemonChoice(view, choice) {
   const metadata = choice?.publicMetadata;
   if (!metadata || metadata.isOwnerVisible !== true ||
       !['actor', 'opponent'].includes(metadata.ownerSeat) ||
-      metadata.targetZone !== 'bench') return null;
-  const index = choiceBenchIndex(choice);
-  if (!Number.isSafeInteger(index)) return null;
+      !['active', 'bench'].includes(metadata.targetZone)) return null;
   const player = metadata.ownerSeat === 'actor'
     ? view.ownPublic : view.opponentPublic;
-  const slot = player.bench[index] ?? null;
+  const index = metadata.targetZone === 'active'
+    ? -1 : choiceBenchIndex(choice);
+  if (!Number.isSafeInteger(index)) return null;
+  const slot = index === -1 ? player.active : player.bench[index] ?? null;
   if (!slot || (choice.printing && slot.printing !== choice.printing)) return null;
   return { slot, index, ownerSeat: metadata.ownerSeat };
 }
