@@ -22,6 +22,9 @@ const protocol =
 const { createPolicy, POLICY_VERSION } =
   require('../../simulation/evaluation/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.cjs');
 
+const { opaquePaperCard, getOpaque, assertOpaqueQuarantined } =
+  require('../../simulation/twinleaf/agent25-opaque-paper-card-staging.cjs');
+
 const { buildNativeActionFrontier, selectedNativeAction } =
   require('../../simulation/evaluation/2026-11/agent36-native-action-frontier.cjs');
 const { createKnownCapFreeActionEnumerator, EXPECTED_ENGINE_PIN } =
@@ -60,27 +63,40 @@ const native = {
 function stage(seat, withLatias = false, { manualItemLock = true, heldFogCrystal = false, heldFloatStone = false } = {}) {
   const manager = initializeCards();
   let serial = 625000 + seat * 2000 + Number(withLatias) * 1000;
-  const card = name => {
-    const instance = manager.getCardByName(name);
-    assert.ok(instance, 'Pinned Twinleaf lacks source/candidate card printing: ' + name);
+  const unsupportedPrintings=new Set();
+  const card = row => {
+    const name = row.name + ' ' + row.printing.set;
+    const supported=manager.getCardByName(name);
+    const instance=supported??opaquePaperCard(row,native);
+    if(!supported)unsupportedPrintings.add(name);
     instance.id = serial++;
     return instance;
   };
-  // Materialize each original printed 60 exactly once. Never turn a sampled
-  // source opponent into a made-up 12-Psychic-Energy control deck.
+  // Materialize each original printed 60 exactly once. Unimplemented cards
+  // are sealed as non-playable paper-print placeholders and are only allowed
+  // in hidden deck/Prize zones; a full-game result is ALWAYS disqualified.
   function materialize(deck, label) {
     assert.ok(deck && Array.isArray(deck.cards), label + ' requires original card rows');
-    const cards = deck.cards.flatMap(row => Array.from({ length: row.count }, () =>
-      card(row.name + ' ' + row.printing.set)));
+    const cards = deck.cards.flatMap(row =>
+      Array.from({length:row.count},()=>card(row)));
     assert.equal(cards.length, 60, label + ' must contain exactly 60 physical cards');
     return cards;
   }
   const sourceRemaining = materialize(source60, 'Aichi rank2');
   const candidateRemaining = materialize(hood60, 'Hood fixed 60');
+  if(unsupportedPrintings.size){
+    console.log('AGENT25_RANK2_PINNED_OPAQUE_PAPER_PRINTINGS',JSON.stringify({
+      seat, printingNames:[...unsupportedPrintings].sort(),
+      containment:'deck/prizes only',qualifiedGame:false
+    }));
+  }
   function take(pool, printing) {
     const index = pool.findIndex(item => item.fullName === printing);
     assert.notEqual(index, -1, 'Physical original deck has no remaining ' + printing);
-    return pool.splice(index, 1)[0];
+    const selected=pool.splice(index, 1)[0];
+    assert.equal(getOpaque(selected),null,
+      'Unsupported paper printing may not enter a visible board or hand: '+printing);
+    return selected;
   }
   const src = name => take(sourceRemaining, name);
   const hood = name => take(candidateRemaining, name);
@@ -144,7 +160,8 @@ function stage(seat, withLatias = false, { manualItemLock = true, heldFogCrystal
   state.gameSettings.format = Format.EXPANDED;
   const store = new Store({ onStateChange() {} });
   store.state = state;
-  return { store, state, source, candidate, sentinelId, strandedId };
+  const opaqueCount=assertOpaqueQuarantined(state);
+  return { store, state, source, candidate, sentinelId, strandedId, opaqueCount };
 }
 
 function policy(seat) {
@@ -185,6 +202,7 @@ function chooseAndSettle(x, seat, agent, hook, expectedPhysicalId, expectedRole)
   assert.equal(validation.valid, true,
     'Selected physical target must pass native prompt decode and validation');
   x.store.dispatch(new ResolvePromptAction(prompt.id, validation.decoded));
+  assertOpaqueQuarantined(x.state);
   const occupant = expectedRole === 'actor' ? x.source.active : x.candidate.active;
   assert.equal(occupant.getPokemonCard().id, expectedPhysicalId);
   return {
