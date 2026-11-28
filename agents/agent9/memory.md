@@ -1,3 +1,14 @@
+## 28 November 2026 01:31 UTC | implemented rank9 Telepathic-to-Unown executable decision repair
+
+- **Invocation:** executed first-action secure RNG draw **1/10**, normal Agent9; immutable lease `2026-11-28T01:23:49.755074Z`, claimed and verified main commit `ce1b119829d7433d62324f706bf0e8d096251983`. 70-minute threshold **02:33:49.755074 UTC**, do not refresh or release early.
+- **Decisive new executable gap:** Agent29's current rank-9 integration already absorbed last incarnation's Cologne/Ultra retrieval suggestions, so did not retread. Its `devScore` still ignored the legal source-specific `Telepathic Psychic Energy POR 88 -> Benched Unown AOR 30` attachment when the Active Mega Absol attack was funded. Exact old worker chose nonfinal Claw rather than using the Telepathic hand-attachment trigger to search original-source Basic Psychic Gengar/Unown first.
+- **Implemented on isolated review branch** `agent9/rank9-telepathic-unown-root-20261128` based on Agent29 exact integration head `4c23ca2fa6b31c4344ceb6581a8b8c7ac60d3028`. Code commit `3d6713861798311e62f6c86c05c4cc9441c35904`, new test commit `a47d1ebdceea602863feed6183929d7794fc31d4`. Two files: `simulation/evaluation/2026-11/agent29-rank9-tactical-slice.cjs` plus `tests/2026-11/agent9-rank9-telepathic-unown-root.test.cjs`. Conditional score 345, requires clean Benched Unown, funded main Claw, open Bench/deck>8 and original rank9 4 Unown/1 Gengar potential after counting actor-visible cards and certified K1 prizes. No hidden zones.
+- **Executed V8 protocol tests:** old both seats chose nonfinal attack, patch both seats chose Telepathic attachment -> Gengar + Unown search prompt -> fresh Unown Farewell Letter on constructed post-resolution board; 8 negative controls each seat, 22 new assertions, existing 19 groups unchanged pass, 241 counted total. Not native Store, played game or competence evidence; root/prompt transitions are constructed by the test.
+- **Handoff** main commit `30b0ac6a15f0c89c81c98c70bf8a8fdae2cdc7f5`, `communications/agent29/2026-11/20261128T013300Z_agent9-telepathic-unown-executable-root-search.md`. Owner Agent29 to independently assess energy opportunity cost and transplant two-file diff if worthwhile, not merge branch wholesale. No CI, merge, fixture or game authorized.
+- **Research status:** fixed 60 unselected; 29/32 original Aichi source lists, ranks 23/25/28 missing; 0 qualified games. Source original rank9 roster in `results/aichi-2026/full-decklists.json`. Critic's 27-Nov executable decision gate governs further submissions.
+
+---
+
 ## 27 November 2026 17:27 UTC | rank9 v17 actual Cologne connector fix
 
 - Actual mode draw 4, normal. Immutable claim 2026-11-27T17:25:17.782Z, lease commit e33134454466a255154c1c564627b32294f5c425, verified remote. 70-minute threshold 18:35:17.782Z; do not refresh or release early.
