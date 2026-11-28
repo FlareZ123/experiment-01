@@ -89,3 +89,68 @@ test('Benched zero-Prize Doll cannot complete an otherwise one-Prize Phantom Div
   assert.equal(trifrostEval.immediateWin, true);
   assert.deepEqual(chooseApexAttack(choices, obs), { kind: 'select-choice', token: 'trifrost' });
 });
+
+
+const echo = { token: 'echo', publicMetadata: { sourceAttack: 'Dominating Echo', attackCostPayable: true } };
+const ryuno = { token: 'ryuno', publicMetadata: { sourceAttack: 'Ryuno Glide', attackCostPayable: true } };
+
+function megaView(seat = 0) {
+  const obs = view('Mega Absol ex MEG 86', {
+    seat,
+    prizeCount: 3,
+    bench: [{
+      hp: 280,
+      damage: 230,
+      printing: 'Mega Absol ex MEG 86',
+      printed: { subtypes: ['Basic', 'MEGA', 'ex'] }
+    }]
+  });
+  obs.opponentPublic.active.hp = 280;
+  obs.opponentPublic.active.printed.subtypes = ['Basic', 'MEGA', 'ex'];
+  obs.ownPublic.stadium = ['Sky Field ROS 89'];
+  return obs;
+}
+
+test('modern three-Prize Mega ex Bench KO switches Apex from Echo to final Phantom Dive', () => {
+  for (const seat of [0, 1]) {
+    const obs = megaView(seat);
+    const e = evaluateApexAttackChoice(phantom, obs);
+    assert.equal(e.activeKnockout, false);
+    assert.equal(e.benchPrizeValue, 3);
+    assert.equal(e.immediateWin, true);
+    assert.equal(e.score, 300);
+    assert.equal(evaluateApexAttackChoice(echo, obs).score, 260);
+    assert.deepEqual(chooseApexAttack([echo, phantom], obs), { kind: 'select-choice', token: 'phantom' });
+  }
+});
+
+test('Mega Evolution ex Rule text is sufficient even without the MEGA subtype', () => {
+  const obs = megaView();
+  obs.opponentPublic.bench[0].printed = {
+    subtypes: ['Basic'],
+    rules: ['Mega Evolution ex Rule: When your Mega Evolution Pokémon ex is Knocked Out, your opponent takes 3 Prize cards.']
+  };
+  assert.equal(evaluateApexAttackChoice(phantom, obs).benchPrizeValue, 3);
+  assert.equal(evaluateApexAttackChoice(phantom, obs).immediateWin, true);
+});
+
+test('older uppercase-EX Mega and ordinary lower-case ex remain two-Prize targets', () => {
+  const obs = megaView();
+  obs.opponentPublic.bench[0] = {
+    hp: 230, damage: 180, printing: 'M Charizard-EX FLF 13',
+    printed: { subtypes: ['MEGA', 'EX'], rules: ['Pokémon-EX rule: When a Pokémon-EX is Knocked Out, your opponent takes 2 Prize cards.'] }
+  };
+  assert.equal(evaluateApexAttackChoice(phantom, obs).benchPrizeValue, 2);
+  assert.equal(evaluateApexAttackChoice(phantom, obs).immediateWin, false);
+  obs.opponentPublic.bench[0] = {
+    hp: 320, damage: 270, printing: 'Dragapult ex TWM 130',
+    printed: { subtypes: ['Stage 2', 'ex'] }
+  };
+  assert.equal(evaluateApexAttackChoice(phantom, obs).benchPrizeValue, 2);
+  assert.equal(evaluateApexAttackChoice(phantom, obs).immediateWin, false);
+
+  const activeObs = megaView();
+  activeObs.opponentPublic.active.damage = 0;
+  activeObs.opponentPublic.bench = [];
+  assert.equal(evaluateApexAttackChoice(ryuno, activeObs).immediateWin, true);
+});
