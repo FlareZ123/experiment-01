@@ -79,3 +79,44 @@ for (const seat of [0, 1]) {
     }
   });
 }
+
+
+// Nest Ball SVI 181 and Capture Energy RCL 171 put a Basic directly onto the
+// Bench; Quick Ball FST 237 puts it into hand. Articuno-GX CES 31's Ability
+// explicitly requires being played from hand (native card text / source pool).
+for (const seat of [0, 1]) {
+  test('rank3 direct-Bench search does not imply Legendary Ascent, seat ' + seat, () => {
+    for (const promptType of ['ChooseCardsPrompt', 'ChoosePokemonPrompt']) {
+      const kind = promptType === 'ChooseCardsPrompt' ? 'card' : 'pokemon';
+      const choices = [
+        { token: 'articuno', kind, printing: 'Articuno-GX CES',
+          publicMetadata: { ownerSeat: 'actor', sourceZone: 'deck', targetZone: 'deck' } },
+        { token: 'snorlax', kind, printing: 'Snorlax PGO 55',
+          publicMetadata: { ownerSeat: 'actor', sourceZone: 'deck', targetZone: 'deck' } }
+      ];
+      for (const [printing, effectName, token] of [
+        ['Nest Ball SVI', 'Nest Ball', 'snorlax'],
+        ['Capture Energy RCL', 'Capture Energy', 'snorlax'],
+        ['Quick Ball FST', 'Quick Ball', 'articuno']
+      ]) {
+        const req = state(seat);
+        req.observation.ownHand = [printing];
+        const prompt = {
+          promptType, description: 'Search the deck for Basic Pokémon',
+          source: {
+            classification: 'actor-choice', sourceKind: 'card-effect',
+            sourcePrinting: printing, effectName
+          },
+          publicMetadata: { selectionType: 'cards', minimumCount: 1, maximumCount: 1 },
+          choices
+        };
+        const actual = worker.createPolicy({
+          role: 'opponent', seat, policyVersion: worker.POLICY_VERSION, config: {}
+        }).decide({ role: 'opponent', seat, observation: req.observation,
+          prompt, actionFrontier: { items: [] } });
+        assert.deepEqual(actual, { kind: 'select-choice', token },
+          promptType + ': ' + printing);
+      }
+    }
+  });
+}

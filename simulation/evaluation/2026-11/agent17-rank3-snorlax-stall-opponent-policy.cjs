@@ -939,6 +939,18 @@ function choiceOwner(choice) {
   return choice?.publicMetadata?.ownerSeat ?? null;
 }
 
+// Legendary Ascent requires playing Articuno from HAND to Bench. Nest Ball
+// SVI and Capture Energy RCL search directly into play, whereas Quick Ball FST
+// searches to HAND. Only the Quick Ball route can enable entry Ability now.
+function basicSearchChoiceScore(choice, observation, prompt) {
+  const base = cardChoiceScore(choice, observation, 'basic-search');
+  const source = prompt?.source ?? {};
+  const fetchesToHand = source.sourceKind === 'card-effect' &&
+    /^Quick Ball FST(?: 237)?$/i.test(source.sourcePrinting ?? '');
+  return !fetchesToHand && matches(choice, PRINT.articuno) ?
+    Math.min(base, 85) : base;
+}
+
 function cardChoiceScore(choice, observation, context) {
   const printing = valueText(choice);
   if (context === 'faba') {
@@ -1211,7 +1223,7 @@ function promptDecision(request) {
         'NO_USEFUL_CARD_CHOICE');
     }
     if (/nest ball|quick ball|capture energy/i.test(source)) {
-      return singleChoice(prompt, choices, choice => cardChoiceScore(choice, observation, 'basic-search'),
+      return singleChoice(prompt, choices, choice => basicSearchChoiceScore(choice, observation, prompt),
         'NO_USEFUL_CARD_CHOICE');
     }
     if (source.includes('vs seeker')) {
@@ -1257,7 +1269,7 @@ function promptDecision(request) {
     }
     if (/nest ball|quick ball|capture energy/i.test(source)) {
       return singleChoice(prompt, choices,
-        choice => cardChoiceScore(choice, observation, 'basic-search'), 'NO_USEFUL_CARD_CHOICE');
+        choice => basicSearchChoiceScore(choice, observation, prompt), 'NO_USEFUL_CARD_CHOICE');
     }
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_POKEMON_PROMPT' };
   }
