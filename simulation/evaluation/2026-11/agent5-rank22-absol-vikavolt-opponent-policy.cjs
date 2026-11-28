@@ -255,6 +255,22 @@ function basicScore(choice, observation) {
   if (matches(printing, PRINT.budew)) return count(own, PRINT.budew) === 0 && observation.globalTurn <= 3 ? 75 : 10;
   return 0;
 }
+function ultraBallSearchScore(choice, observation) {
+  if (owner(choice) !== 'actor' || zone(choice) !== 'deck') return 0;
+  if (matches(choice, PRINT.garbodor)) {
+    return hasTrubbish(observation) && !hasGarbodor(observation) ? 390 : 0;
+  }
+  return basicScore(choice, observation);
+}
+function ultraBallUsablePayment(observation) {
+  const hand = list(observation.ownHand);
+  const spentIndex = hand.findIndex(card => matches(card, PRINT.ultra));
+  if (spentIndex < 0) return false;
+  const remaining = hand.filter((_, index) => index !== spentIndex);
+  return remaining.filter(card => discardScore(card, {
+    ...observation, ownHand: remaining
+  }) > 0).length >= 2;
+}
 function cardSearchScore(choice, observation) {
   if (owner(choice) !== 'actor' || zone(choice) !== 'deck') return 0;
   const printing = textOf(choice);
@@ -270,8 +286,10 @@ function cardSearchScore(choice, observation) {
       count(observation.ownPublic, PRINT.dedenne) === 0 ? 190 : 35;
   }
   if (matches(printing, PRINT.ultra)) {
-    return handCount(observation) >= 2 &&
-      (count(observation.ownPublic, PRINT.trubbish) < 2 || count(observation.ownPublic, PRINT.mega) < 2) ? 170 : 0;
+    return ultraBallUsablePayment(observation) &&
+      (hasTrubbish(observation) && !hasGarbodor(observation) ||
+       count(observation.ownPublic, PRINT.vikavolt) < 1 ||
+       count(observation.ownPublic, PRINT.mega) < 2) ? 190 : 0;
   }
   if (matches(printing, PRINT.darkPatch)) {
     return discardHas(observation.ownPublic, PRINT.dark) &&
@@ -493,7 +511,11 @@ function scoreAction(item, request) {
       count(own, PRINT.vikavolt) < 1 || count(own, PRINT.dedenne) === 0 ? 185 : 35;
   }
   if (matches(printing, PRINT.ultra)) {
-    return hand.length >= 2 && (count(own, PRINT.trubbish) < 2 || count(own, PRINT.mega) < 2) ? 165 : 0;
+    return ultraBallUsablePayment(observation) &&
+      (hasTrubbish(observation) && !hasGarbodor(observation) ||
+       count(own, PRINT.trubbish) < 2 ||
+       count(own, PRINT.vikavolt) < 1 ||
+       count(own, PRINT.mega) < 2) ? 185 : 0;
   }
   if (matches(printing, PRINT.enhancedHammer)) return hammerLive(observation);
   if (matches(printing, PRINT.battleCompressor)) {
@@ -790,7 +812,8 @@ function promptDecision(request) {
       return singleChoice(prompt, deck, choice => basicScore(choice, observation), 'NO_QUICK_BALL_BASIC');
     }
     if (/ultra ball/.test(source)) {
-      return singleChoice(prompt, deck, choice => basicScore(choice, observation), 'NO_ULTRA_BALL_POKEMON');
+      return singleChoice(prompt, deck, choice => ultraBallSearchScore(choice, observation),
+        'NO_ULTRA_BALL_POKEMON');
     }
     if (/vs seeker/.test(source)) {
       return singleChoice(prompt, discard, choice => supporterScore(choice, observation), 'NO_VS_SEEKER_SUPPORTER');
