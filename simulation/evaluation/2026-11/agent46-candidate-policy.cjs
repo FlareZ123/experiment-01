@@ -303,7 +303,15 @@ function effectiveAttackCost(slot, attack, view) {
 }
 
 function canPayAttack(slot, attack, view) {
-  return slotEnergyCount(slot) >= effectiveAttackCost(slot, attack, view);
+  // This exact Hood Shield 60 contains eleven Basic Psychic Energy and no
+  // other Energy providers. Count-only matching falsely enables the printed
+  // Metal-cost Dialga-GX UPR 100; native legal roots remain authoritative.
+  if (!Array.isArray(attack?.cost)) return false;
+  const attached = Array.isArray(slot?.energies) ? slot.energies : [];
+  if (attached.length < effectiveAttackCost(slot, attack, view)) return false;
+  const typed = attack.cost.filter(type => type !== 'Colorless');
+  return typed.every(type => type === 'Psychic') &&
+    attached.filter(id => hasName(id, 'Psychic Energy')).length >= typed.length;
 }
 
 function weaknessMultiplier(attacker, target, view) {
