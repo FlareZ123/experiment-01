@@ -563,10 +563,22 @@ function scoreAction(item, request) {
       list(row.pokemon.energies).some(energy => matches(energy, PRINT.memoryEnergy))) ? 116 : 50;
   }
   if (matches(card, PRINT.stealthyHood)) {
-    const targetSlot = boardSlots(own).find(row =>
-      target ? row.pokemon.printing === target : matches(row.pokemon.printing, PRINT.vileplume));
+    const row = metadata.targetSeat === 'actor' &&
+      (metadata.targetZone === 'active' || metadata.targetZone === 'bench') &&
+      Number.isSafeInteger(metadata.targetIndex) ?
+      (metadata.targetZone === 'active' && metadata.targetIndex === 0 ?
+        own.active : metadata.targetZone === 'bench' ?
+        list(own.bench)[metadata.targetIndex] : null) : null;
+    if (!row || !samePrinting(row.printing, target)) return 0;
+    const lockCarrier = matches(row.printing, PRINT.vileplume) ||
+      matches(row.printing, PRINT.gloom);
+    const pidgeotEngine = matches(row.printing, PRINT.pidgeot);
+    if (!lockCarrier && !pidgeotEngine) return 0;
     const threatened = opponentHasGarbotoxin(opponent);
-    return targetSlot && threatened && !ownItemLocked(observation) ? 205 : 65;
+    if (threatened && !ownItemLocked(observation)) {
+      return lockCarrier ? 205 : 110;
+    }
+    return lockCarrier ? 65 : 0;
   }
   if (matches(card, PRINT.grandTree)) {
     return hasUnevolvedBasicFromPriorTurn(own, observation.globalTurn) &&
