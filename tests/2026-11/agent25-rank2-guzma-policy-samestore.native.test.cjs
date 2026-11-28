@@ -147,10 +147,18 @@ function stage(seat, withLatias = false, { manualItemLock = true, heldFogCrystal
 
   candidate.active.cards.push(hood('Shadow Rider Calyrex V CRE'),
     hood('Shadow Rider Calyrex VMAX CRE'));
-  candidate.active.energies.cards.push(hood('Psychic Energy MEE'));
+  // Match native AttachEnergyEffect: one physical card in the main slot and
+  // the SAME object in the non-owning energies overlay. An overlay-only
+  // staging shortcut makes native card scans see a different game state.
+  const attachStagedPsychic = slot => {
+    const energy = hood('Psychic Energy MEE');
+    slot.cards.push(energy);
+    slot.energies.cards.push(energy);
+  };
+  attachStagedPsychic(candidate.active);
   candidate.bench = Array.from({ length: 5 }, () => new PokemonCardList());
   candidate.bench[0].cards.push(hood('Shadow Rider Calyrex V CRE'));
-  candidate.bench[0].energies.cards.push(hood('Psychic Energy MEE'));
+  attachStagedPsychic(candidate.bench[0]);
   candidate.bench[1].cards.push(hood('Shadow Rider Calyrex V CRE'));
   if (withLatias) candidate.bench[2].cards.push(hood('Latias ex SSP'));
   const strandedId = candidate.bench[1].getPokemonCard().id;
@@ -178,8 +186,13 @@ function stage(seat, withLatias = false, { manualItemLock = true, heldFogCrystal
       player.prizes.push(prize);
     }
     player.deck.cards.push(...remaining);
-    const slotCount = slot => slot.cards.length + slot.energies.cards.length +
-      slot.tools.length;
+    const slotCount = slot => {
+      assert.ok(slot.energies.cards.every(card => slot.cards.includes(card)),
+        'native attached Energy must also exist in its main Pokémon slot');
+      assert.ok(slot.tools.every(card => slot.cards.includes(card)),
+        'native attached Tool must also exist in its main Pokémon slot');
+      return slot.cards.length;
+    };
     const physicalCount = slotCount(player.active) +
       player.bench.reduce((sum, slot) => sum + slotCount(slot), 0) +
       player.hand.cards.length + player.deck.cards.length +
