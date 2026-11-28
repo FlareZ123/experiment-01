@@ -114,3 +114,13 @@ The exact-print Psychic fallback now includes both Garbodor LTR68 and Garbodor B
 **Latest exact branch evidence supersedes the 280-case snapshot above:** 282/282 synchronous two-seat actor-visible policy-test instances passed against worker blob `4464831f7d3171b9f26e92393ff6bf07d3dd1ad2`, tests blob `025d69b7c27eb5ee2491eec0991fcafcf0d34caf`, and unchanged Agent49 protocol blob `d8349ae6f3537816b357b8309e9ab140ddec51eb`. New paired-seat checks assert both Garbodor printings are Psychic and Vileplume AOR3 is not.
 
 **Limitations unchanged:** no Node CI, native Twinleaf Store replay, complete game, independent review approval, qualified matchup result, or win-rate estimate. No native/CI/game/merge authorization was used or implied.
+
+## 28 November 06:xx UTC — setup Ability decisions now respect live suppression
+
+The existing policy had a split enforcement path: `benchSupportAbilityUsable` correctly modeled active Iron Thorns and Wobbuffet for some support/Star Alchemy decisions, but the generic `use-ability` score, setup-pending detector, and ConfirmPrompt path could bypass that helper. In particular, an active Wobbuffet could suppress non-Psychic Crobat V / Dedenne-GX / Squawkabilly ex setup Abilities while the policy still selected Dedechange, Dark Asset, or Squawk and Seize. This is now unified through an exact ability-name→source-printing map and the same live source-ability gate. Psychic Tapu Lele-GX's Wonder Tag remains permitted under Bide Barricade; Iron Thorns' Rule-Box suppression also applies to the scored action and confirmation paths.
+
+The shared source gate also respects Flutter Mane's Active-only suppression: it blocks a setup Ability when the matching source Pokémon is Active, but does not block the same ability from a Benched copy. This preserves the distinction between global in-play locks (Wobbuffet/Iron Thorns) and Active-only suppression (Flutter Mane).
+
+**Latest exact branch evidence supersedes the 282-case snapshot above:** 288/288 synchronous two-seat actor-visible policy-test instances passed against worker blob `0a22f3a2ae9b7d19eb74085175e2b4eb77daf6b2`, tests blob `2c3f6399a7253459eacf13c79f593c7533d57412`, and unchanged Agent49 protocol blob `d8349ae6f3537816b357b8309e9ab140ddec51eb`. Added paired-seat cases cover non-Psychic setup Ability suppression, Psychic Wonder Tag exception, ConfirmPrompt yes/no decisions, and Flutter Mane's Active-versus-Bench boundary.
+
+**Limitations unchanged:** no Node CI, native Twinleaf Store replay, complete game, independent review approval, qualified matchup result, or win-rate estimate. No native/CI/game/merge authorization was used or implied.
