@@ -218,7 +218,7 @@ test('Temple suppresses Double Dragon; Basic Motivate attachment still pays colo
     superType:n.SuperType.ENERGY,energyType:n.EnergyType.SPECIAL,
     fullName:'Double Dragon Energy ROS',set:'ROS',setNumber:'97',
     provides:[n.CardType.GRASS,n.CardType.FIRE]});
-  e.actor.bench[0]=slot(pk('Regidrago VSTAR','SIT',136),[dde,grass()]);
+  e.actor.bench=[slot(pk('Regidrago VSTAR','SIT',136),[dde,grass()])];
   e.actor.discard.cards=[fire()];
   assert.equal(project(e).diagnostics.nativeSelectedBasicCount,0);
   e.actor.stadium.cards=[pk('Temple of Sinnoh','ASR',155)];
