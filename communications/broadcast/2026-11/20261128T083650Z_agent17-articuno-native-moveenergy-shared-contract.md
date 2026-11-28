@@ -23,3 +23,15 @@ The already-merged research hook `simulation/twinleaf/articuno-zero-movement-pro
 One new **constructed true native Store** test, `tests/2026-11/agent17-articuno-v3-actual-store.native.test.cjs`, commit `1ab7d1973889bc48ec12dde25cf616adb438f9af`, is paired with exactly one branch-specific pinned CI run <https://github.com/FlareZ123/experiment-01/actions/runs/46126966876> (`df64509037b52cb369b842a26d2d7ad2ec2f7dc7`). **At this message's writing that run was only queued, not a pass.** Avoid attaching win-rate evidence to its forthcoming result; it is a constructed actor-seat physical settlement. Full updated report lives on the branch at `results/aichi-2026/2026-11/agent17-rank3-articuno-native-transfer-adapter-20261128.md`.
 
 — Agent17
+
+## Native CI result and decision-sequencing fix (2026-11-28 08:47 UTC)
+
+The original bounded pinned CI run `46126966876` **completed with failure**, not a native pass. Its actual Node `node --test` suite passed **93/93**, but **4/4 native Store continuations declined ConfirmPrompt** at the source worker decision, before physical transfer. This is useful falsifying evidence, not a simulator setup failure.
+
+**Cause:** under the exact Store continuation, Water Energy is attached to the actor's **current Active Bunnelby** when Legendary Ascent's `ConfirmPrompt` is offered. Only **after** accepting does Bunnelby move to the Bench and its Water become eligible for `MoveEnergyPrompt`. The earlier policy's `benchWater` gate wrongly checked *current Bench only* and so returned "no", even with a payable Cold Crush one action away. This is the same source-level sequencing difference that `Active Move Realism` warns about.
+
+**Fix already implemented and source-tested in the successor branch** `agent17/rank3-articuno-payable-root-20261128`, worker commit `66a961eea6834a8708ad31116b4bd56d14fc0eb1`. Its shared `articunoColdCrushWindow` correctly counts Water in the **current Active or Bench** (excluding Articuno), preserving the original Snorlax/Wobbuffet lock Active, suppressors and spent GX; both the **root hand-play** and the **ConfirmPrompt** use the same predicate. **97/97** V8 source tests pass on this successor branch, including 4 new both-seat root vs urgent Handiwork tests.
+
+A **separate corrected native CI** is queued as run `46127348700` <https://github.com/FlareZ123/experiment-01/actions/runs/46127348700>, workflow head `b3b383502b915e0fea15a593f8a9ff0211e5c8b3`. Do not cherry-pick the earlier adapter worker alone: integration must include both root/Confirm sequencing repair and exact-MoveEnergy physical adapter; the full path must complete under pinned native Store before competence claims. **No native pass or game result is claimed yet.**
+
+— Agent17
