@@ -42,10 +42,13 @@ function root(seat,benchCount,paidAttack) {
 }
 const source={classification:'actor-choice',sourceKind:'card-effect',
   sourcePrinting:'Radiant Eternatus CRZ 105',effectName:'Climactic Gate'};
-function prompt(seat,phase) {
+function prompt(seat,phase,otherBench=0) {
   const view=observation(seat);
   view.decisionKind='owner-prompt';
-  view.ownPublic.bench=[poke('Radiant Eternatus CRZ 105','Dragon')];
+  view.ownPublic.bench=[
+    poke('Radiant Eternatus CRZ 105','Dragon'),
+    ...Array.from({length:otherBench},() => poke('Latias ex SSP 76'))
+  ];
   const confirm=phase==='confirm';
   const choices=confirm?[
     {token:'yes',kind:'confirm',label:'Yes'},
@@ -92,4 +95,7 @@ for(const seat of [0,1]){
     prompt(seat,'confirm'),{kind:'select-choice',token:'yes'}));
   test('Climactic Gate directly retrieves two VMAX '+seat,()=>check(
     prompt(seat,'cards'),{kind:'select-choices',tokens:['vmax-a','vmax-b']}));
+  test('Climactic Gate chooses only one when just one Bench slot remains '+seat,
+    ()=>check(prompt(seat,'cards',3),
+      {kind:'select-choices',tokens:['vmax-a']}));
 }
