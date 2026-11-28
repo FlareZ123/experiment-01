@@ -81,7 +81,9 @@ const cases=[
  ['No Basic among Prizes: valid empty selection completes Item',
    prizes,{entries:[],empty:true},{kind:'select-choice',token:'none'}],
  ['Foreign-owner Prize card may not be chosen',
-   prizes,{foreign:true,entries:[M]},{kind:'abstain',reasonCode:'HIDDEN_PRIZE_IDENTITY'}]
+   prizes,{foreign:true,entries:[M]},{kind:'abstain',reasonCode:'HIDDEN_PRIZE_IDENTITY'}],
+ ['VMAX Evolution erroneously projected as a Prize choice must be rejected',
+   prizes,{entries:[VMAX]},{kind:'select-choice',token:'none'}]
 ];
 for(const seat of [0,1])for(const [label,fn,opts,expected]of cases)
  test(label+' seat '+seat,()=>{
