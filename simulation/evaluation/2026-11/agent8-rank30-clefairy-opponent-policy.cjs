@@ -822,7 +822,8 @@ function selectBasicBenchRoot(items,o) {
     if(kind==='latias')return ownBoard.some(x=>/^Latias ex SSP(?: 76)?\b/i.test(text(x)))?0:
       own.active&&arr(own.active.energies).length>=2?88:68;
     if(kind==='crobat')return smallHand&&!ownBoard.some(x=>/^Crobat V DAA(?: 104)?\b/i.test(text(x)))?80:0;
-    if(kind==='dedenne')return smallHand&&arr(o.ownHand).length<=2?55:0;
+    if(kind==='dedenne')return smallHand&&arr(o.ownHand).length<=2&&
+      leleAbilityAccessIsSafe(o)&&handIsSafeToReset(o,P.dedenne)?55:0;
     if(kind==='squawk')return !isLaterTurn(o)&&smallHand?65:0;
     if(kind==='fez')return ownBoard.some(x=>/^Fezandipiti ex ASC(?: 142)?\b/i.test(text(x)))?0:50;
     return 0;
