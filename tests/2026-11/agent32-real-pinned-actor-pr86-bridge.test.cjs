@@ -13,7 +13,7 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const fs=require('node:fs');
 const {planAichi}=require('../../simulation/evaluation/aichi-pilot.cjs');
-const {buildSourcePrintingMap,projectSourcePrintings}=
+const {buildSourcePrintingMap,projectAdmittedWorkerParts}=
   require('../../simulation/evaluation/2026-11/agent32-source-printing-bridge.cjs');
 const {stage}=require('../../simulation/twinleaf/agent5-attack-special-arbitration-native.cjs');
 const {initializeCards}=require('../../simulation/twinleaf/headless.cjs');
@@ -183,9 +183,10 @@ for(const seat of [0,1]){
     assert.ok(nativePenny,'Native Store must offer actually legal Penny');
     assert.ok(nativeHandi,'Native Store must offer actually legal Handiwork');
     const nativeReceipt=publicEventReceipt(x.state,seat);
-    const mapped=projectSourcePrintings(view,realFrontier.actionFrontier,maps,{
-      publicEventReceipt:nativeReceipt
-    });
+    const mapped=projectAdmittedWorkerParts({
+      observation:view,actionFrontier:realFrontier.actionFrontier,
+      prompt:null,publicEventReceipt:nativeReceipt
+    },maps,protocol);
     const bridgedRoot={...root,observation:mapped.observation,
       actionFrontier:mapped.actionFrontier};
     assert.equal(mapped.observation.ownHand.includes('Penny SVI 183'),true);
