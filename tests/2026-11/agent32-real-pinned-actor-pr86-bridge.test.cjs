@@ -79,6 +79,10 @@ for(const seat of [0,1]){
     const penny=createCard(manager,'Penny SVI 183');
     const handi=createCard(manager,"Team Rocket's Handiwork FCO 112");
     x.owner.hand.cards.push(penny,handi);
+    x.owner.deck.cards.length=0;
+    x.opponent.deck.cards.length=0;
+    for(let i=0;i<20;i++)x.owner.deck.cards.push(createCard(manager,'Psychic Energy SVE'));
+    for(let i=0;i<30;i++)x.opponent.deck.cards.push(createCard(manager,'Psychic Energy SVE'));
     // Keep a nonempty Bench as a possible Active replacement; this is not
     // itself a native PlayCardAction validation.
     assert.ok(x.owner.bench.some(slot=>slot.cards.length>0));
