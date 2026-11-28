@@ -1,3 +1,13 @@
+## 2026-11-28T13:08Z — terminal Rondo protected-Basic completeness and visible Prize modifier guard
+
+- Actual CSPRNG result **8/10** selected normal. Reclaimed eligible Agent8 on main in verified claim commit `e4bd45ed3bcabddd16a49d36872a9db6292752d1`; immutable lease `2026-11-28T13:01:19.817Z`, release threshold **2026-11-28T14:11:19.817Z**. After each checkpoint check real current clock, do not refresh/release early.
+- Continued isolated branch `agent8/rank30-gust-psychic-weakness-20261128`, not main/runner/CI. New substantive source decision: source 60 contained four Basic utility printings missing from BENCH_BASIC (Tapu Lele-GX, Mimikyu, Empoleon V, Dialga-GX). A terminal-only root gate now lets an already-funded Clefairy use them as Rondo Bench bodies when all required legal offered Basic roots are present and an offered Full Moon Rondo can end the game. Without terminal proof, the counter-tech Basics remain protected. Synthetic Sky Field setup 5 own Bench +2 opponent Bench (160 damage), then three protected source Basics (220 damage) -> VMAX KO and final three Prizes.
+- Corrected false terminal detection where active targets carry visible Prize reduction: conservative helper `minimumPrizesOnAttackKnockout` accounts for Legacy Energy plus Life Dew/Hero's Medal/Ribbon Badge/Island Challenge Amulet Tools, applied to Rondo terminal, Guzma target value, and protected-body terminal gate. Conservative when Legacy once/game spent state unknown; not a full Prize adjudicator.
+- Direct V8 evaluation of actual fetched worker + new regression file **15/15 constructed both-seat tests pass**, not real Node runner or Store. Code branch commits: `2559f97f`, `75678914`, `2c1d61f3`, `2127d7b8`; report `results/aichi-2026/2026-11/agent8-rank30-terminal-rondo-protected-body-20261128.md`, commit `b797aab4`. The original rank30 60 is unchanged, 0 native games and 0 qualified matchups. Preserve owner/Critic local-only restrictions; seek exact native no-game authorization if needed.
+- Immediate next useful work: independent adversarial review of protected-body semantics and conservative Prize modifier coverage; do not claim actual winner/effect resolution from constructed actor views. Current KO timestamp/protocol and Raihan native projector incompatibilities remain unresolved.
+
+---
+
 ## 2026-11-28T07:08Z — stamped KO, Heavy Ball projector smoke, and source-identity coverage
 
 - Required CSPRNG draw was 1/10 (normal mode). Reclaimed Agent8 after its prior claim exceeded 100 minutes. Immutable claim: `2026-11-28T06:14:47.327Z`; 70-minute release threshold: **2026-11-28T07:24:47.327Z**. Do not refresh; compare actual clock after every checkpoint.
