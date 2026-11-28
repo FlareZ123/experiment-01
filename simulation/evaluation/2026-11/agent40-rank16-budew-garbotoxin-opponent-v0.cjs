@@ -117,6 +117,22 @@ function opponentLockAbilityLive(o,pokemon,abilityName){
  const opponentOwnGarb=opponentGarbotoxinStatus(o)==='live';
  return !(opponentOwnGarb||(liveGarbotoxin(o)&&!hood));
 }
+function replacingJammingRestoresHoodedLock(o){
+ const stadium=[...list(o?.ownPublic?.stadium),...list(o?.opponentPublic?.stadium)];
+ if(!stadium.some(c=>match(c,PRINT.jamming))||!liveGarbotoxin(o)||
+    opponentGarbotoxinStatus(o)==='live')return false;
+ // A new Stadium re-enables Hood. That lets the opponent's Hooded lock
+ // evade OUR Garbotoxin, and can instantly remove access to Items,
+ // Supporters, retreat or the exact KO line. The current suppression
+ // flags reflect Jamming's old state; evaluate the hypothetical state
+ // from physical ownership/attachment instead of those stale flags.
+ return slots(o.opponentPublic).some(({zone,pokemon:p})=>{
+  if(!list(p.tools).some(x=>/^Stealthy Hood UNB 186\b/i.test(name(x))))return false;
+  if(/^Vileplume AOR 3\b/i.test(name(p.printing)))return true;
+  if(zone!=='active')return false;
+  return /^(?:Stoutland BCR 122|Snorlax PGO 55|Iron Thorns ex TWM 77|Wobbuffet PHF 36|Mimikyu PAL 97)\b/i.test(name(p.printing));
+ });
+}
 function opponentVileplumeItemLock(o){
  const explicit=o.ownPublic?.publicTurnRestrictions?.itemPlayLocked===true;
  if(explicit)return true;
@@ -722,6 +738,10 @@ function score(action,req){
   return drawSupporterScore(p,o);
  if(match(p,PRINT.guzma))return guzmaRootScore(o);
  if(match(p,PRINT.temple)){
+  // Replacing active Jamming can revive an opponent's Hooded Ability lock
+  // by making Hood work again; no marginal Special-Energy tax justifies
+  // sacrificing live access to Items or Supporters in this policy.
+  if(replacingJammingRestoresHoodedLock(o))return 0;
   const opposingStadium=[...list(opp.stadium),...list(own.stadium)];
   // Jamming Tower does not switch off Garbotoxin: Tool attachments remain.
   if(templeStrandsApexDragon(o))return 670;
@@ -1155,4 +1175,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,prizeYield,activeMimikyuSafeguard,regidragoPayloadCount,karenOwnRecoveryScore,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,drawSupporterScore,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,opponentGarbotoxinStatus,liveGarbotoxin,benchCapacity};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,prizeYield,activeMimikyuSafeguard,regidragoPayloadCount,karenOwnRecoveryScore,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,drawSupporterScore,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,opponentGarbotoxinStatus,liveGarbotoxin,benchCapacity,replacingJammingRestoresHoodedLock};
