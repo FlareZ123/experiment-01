@@ -45,6 +45,7 @@ const { Stage, TrainerType, SpecialCondition, EnergyType, CardType, SuperType } 
   native('game/store/card/card-types');
 const originalRank3 = require('../../results/aichi-2026/full-decklists.json').decks
   .find(entry => entry.rank === 3);
+const { resolvePrintedDeck } = require('../../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 
 
 const bindings = { Store, PlayerType, SlotType, ResolvePromptAction };
@@ -303,6 +304,194 @@ for (const seat of [0, 1]) {
       });
       assert.ok(scene.actor.active.energies.cards.includes(scene.water));
       scene.store.dispatch(new AttackAction(scene.actor.id, 'Cold Crush-GX'));
+      assert.equal(scene.actor.usedGX, true);
+      assert.equal(scene.actor.active.energies.cards.length, 0);
+      assert.equal(scene.opponent.active.energies.cards.length, 0);
+      assert.ok(scene.actor.discard.cards.includes(scene.water));
+    } finally {
+      scene.provenanceHook.restore();
+    }
+  });
+}
+
+
+// A second constructed root test starts from a complete exact 60-card actor
+// inventory reconstructed from the *immutable* published rank-3 rows. Unlike
+// the early four-card tactical fixture, all 60 owner cards are physical,
+// unique instances; their locations (midgame Active/hand/deck/prizes) are
+// constructed, not the result of an original-source shuffled deal.
+// The opponent remains a constructed Regidrago board; this is NOT a game.
+function exactRank3PhysicalScene(seat) {
+  const scene = fixture(seat);
+  const manager = initializeCards();
+  const resolved = resolvePrintedDeck(originalRank3, manager.getAllCards(), {
+    label: 'exact Aichi original rank-3 actor 60'
+  });
+  assert.equal(resolved.total, 60);
+  assert.deepEqual(resolved.categoryCounts, { Pokémon: 11, Trainer: 44, Energy: 5 });
+  const pool = new Map();
+  const allPhysical = [];
+  let uniqueId = 10000 + 100 * seat;
+  for (const row of resolved.resolvedRows) {
+    const copies = [];
+    for (let i = 0; i < row.count; i += 1) {
+      const card = manager.getCardByName(row.engineFullName);
+      assert.ok(card, 'source resolver failed physical materialization: ' + row.name);
+      card.id = uniqueId++;
+      copies.push(card);
+      allPhysical.push(card);
+    }
+    assert.equal(pool.has(row.name), false, 'rank-3 original source duplicate row');
+    pool.set(row.name, copies);
+  }
+  const take = name => {
+    const card = pool.get(name)?.shift();
+    assert.ok(card, 'rank-3 original physical card not available: ' + name);
+    return card;
+  };
+  const before = take('Bunnelby');
+  const water = take('Water Energy');
+  const articuno = take('Articuno-GX');
+  const hand = [
+    articuno, take("Team Rocket's Handiwork"), take('Arven'),
+    take('Plumeria'), take('Nest Ball'), take('Capture Energy'),
+    take('Water Energy')
+  ];
+  const remaining = Array.from(pool.values()).flat();
+  assert.equal(remaining.length, 45);
+  const prizes = remaining.splice(0, 6).map(prize => {
+    const slot = new CardList();
+    slot.cards.push(prize);
+    return slot;
+  });
+  assert.equal(remaining.length, 39);
+  scene.actor.active.cards = [before, water];
+  scene.actor.active.energies.cards = [water];
+  scene.actor.hand.cards = hand;
+  scene.actor.prizes = prizes;
+  scene.actor.deck.cards = remaining;
+  scene.before = before;
+  scene.water = water;
+  scene.articuno = articuno;
+  scene.originalResolved = resolved;
+  scene.originalPhysicalCards = allPhysical;
+  return scene;
+}
+function ownerPhysicalCards(actor) {
+  return [
+    ...actor.active.cards,
+    ...actor.bench.flatMap(slot => slot.cards),
+    ...actor.hand.cards,
+    ...actor.deck.cards,
+    ...actor.discard.cards,
+    ...actor.lostzone.cards,
+    ...actor.stadium.cards,
+    ...actor.supporter.cards,
+    ...actor.prizes.flatMap(slot => slot.cards)
+  ];
+}
+function assertExactRank3PhysicalConservation(scene) {
+  const physical = ownerPhysicalCards(scene.actor);
+  assert.equal(physical.length, 60, 'original actor inventory missing/duplicated card');
+  assert.equal(new Set(physical).size, 60, 'original actor inventory duplicated object identity');
+  assert.deepEqual(
+    physical.map(card => card.fullName).sort(),
+    scene.originalResolved.fullNames.slice().sort(),
+    'original actor 60-card exact source/proxy multiset changed'
+  );
+  assert.deepEqual(new Set(physical), new Set(scene.originalPhysicalCards),
+    'original actor physical cards replaced rather than moved');
+}
+for (const seat of [0, 1]) {
+  test('original rank3 60 physical owner cards, full root to native GX, seat ' + seat, () => {
+    const scene = exactRank3PhysicalScene(seat);
+    try {
+      assertExactRank3PhysicalConservation(scene);
+      assert.equal(scene.actor.hand.cards.length, 7);
+      assert.equal(scene.actor.deck.cards.length, 39);
+      assert.equal(scene.actor.prizes.length, 6);
+      const enginePin = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
+      const nativeBindings = {
+        ActionEnumerator, Simulator, cardActions, gameActions,
+        PokemonCard, TrainerCard, EnergyCard, PlayerType, SlotType,
+        Stage, TrainerType, SpecialCondition, EnergyType, CardType,
+        SuperType, GameError, CheckPokemonTypeEffect, StateUtils
+      };
+      const enumerator = createKnownCapFreeActionEnumerator({
+        native: nativeBindings, enginePin
+      });
+      const admitted = buildNativeActionFrontier({
+        state: scene.store.state, actorSeat: seat,
+        native: nativeBindings, enumerator
+      });
+      assertKnownCapFreeAdapterAdmissionClear({
+        enumerator, enginePin, frontierDiagnostics: admitted.diagnostics
+      });
+      assert.equal(admitted.diagnostics.truncated, false);
+      const frontier = admitted.actionFrontier;
+      assert.ok(frontier.items.some(item =>
+        item.actorPrinting === 'Articuno-GX CES' && item.kind === 'play-card'));
+      for (const source of ["Team Rocket's Handiwork FCO", 'Arven OBF',
+        'Plumeria BUS', 'Nest Ball SVI', 'Capture Energy RCL']) {
+        assert.ok(frontier.items.some(item => item.actorPrinting === source),
+          'original hand competitor not enumerated: ' + source);
+      }
+      const observation = {
+        actorSeat: seat, globalTurn: 4, decisionKind: 'owner-root',
+        ownHand: scene.actor.hand.cards.map(card => card.fullName),
+        ownTurnResources: { supporterPlayedTurn: 0, gxUsed: false },
+        ownPublic: {
+          active: {
+            printing: scene.before.fullName,
+            energies: [scene.water.fullName]
+          }, bench: [], discard: [], stadium: [],
+          deckCount: scene.actor.deck.cards.length,
+          prizeCount: scene.actor.prizes.length,
+          publicTurnRestrictions: { gxUsed: false }
+        },
+        opponentPublic: {
+          active: {
+            printing: scene.opponent.active.getPokemonCard().fullName,
+            energies: scene.opponent.active.energies.cards.map(card => card.fullName)
+          },
+          bench: [], deckCount: scene.opponent.deck.cards.length,
+          prizeCount: scene.opponent.prizes.length
+        }
+      };
+      const decision = worker.createPolicy({
+        role: 'opponent', seat, policyVersion: worker.POLICY_VERSION, config: {}
+      }).decide({
+        role: 'opponent', seat, observation, prompt: null, actionFrontier: frontier
+      });
+      protocol.validateDecision(decision, null, protocol.validateFrontier(frontier));
+      const selected = frontier.items.find(item => item.token === decision.token);
+      assert.equal(selected?.actorPrinting, 'Articuno-GX CES',
+        'full original-60 root deviated from immediate payable native GX');
+      scene.store.dispatch(selectedNativeAction(admitted, decision.token));
+      assertExactRank3PhysicalConservation(scene);
+      const confirm = projectAndDecide(scene);
+      assert.equal(confirm.projection.choiceByToken.get(confirm.decision.token), true);
+      dispatchPromptChoice({
+        store: scene.store, prompt: confirm.prompt,
+        state: scene.store.state, actorSeat: seat,
+        projection: confirm.projection, decision: confirm.decision,
+        native: bindings
+      });
+      assertExactRank3PhysicalConservation(scene);
+      const move = projectAndDecide(scene);
+      assert.equal(move.prompt.constructor.name, 'MoveEnergyPrompt');
+      assert.equal(move.decision.kind, 'select-choices');
+      assert.equal(move.decision.tokens.length, 1);
+      assert.equal(move.projection.choiceByToken.get(move.decision.tokens[0]).index, 1);
+      dispatchPromptChoice({
+        store: scene.store, prompt: move.prompt, state: scene.store.state,
+        actorSeat: seat, projection: move.projection, decision: move.decision,
+        native: bindings
+      });
+      assertExactRank3PhysicalConservation(scene);
+      assert.ok(scene.actor.active.energies.cards.includes(scene.water));
+      scene.store.dispatch(new AttackAction(scene.actor.id, 'Cold Crush-GX'));
+      assertExactRank3PhysicalConservation(scene);
       assert.equal(scene.actor.usedGX, true);
       assert.equal(scene.actor.active.energies.cards.length, 0);
       assert.equal(scene.opponent.active.energies.cards.length, 0);
