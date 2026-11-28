@@ -1123,7 +1123,7 @@ function promptDecision(request) {
           choiceOwner(choice)==='actor' &&
           (choiceZone(choice)==='deck' ||
             choice?.publicMetadata?.sourceZone==='deck') &&
-          choice?.publicMetadata?.isOwnerVisible===true);
+          (!camping || choice?.publicMetadata?.isOwnerVisible===true));
         // Camping Gear's native reducer declares min=0/max=1, but the
         // printed unrestricted search for *a card* must fetch exactly one
         // if deck nonempty. Paper source guard in agent12's hook enforces
@@ -1136,7 +1136,7 @@ function promptDecision(request) {
               metadata.isOwnerVisible!==true||
               metadata.allowCancel!==false||
               candidateChoices.length<1)
-            return {kind:'abstain',reasonCode:'UNTRUSTED_CAMPING_GEAR_SEARCH'};
+            return {kind:'abstain',reasonCode:'UNTRUSTED_CARD_SELECTION'};
           const ranked=rankedChoices(candidateChoices,choice=>
             Math.max(1,cardChoiceScore(choice,observation,context)),1);
           return {kind:'select-choices',tokens:[ranked[0].choice.token]};
