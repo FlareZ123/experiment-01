@@ -66,3 +66,14 @@ All printed effects were checked against the bundled English card corpus and the
 The exact latest worker was evaluated in an isolated V8 execution of the actual current root test source at development head `cfa9aaef6bed5388d884b87048490186fbdd2ffd`: **81/84 root groups passed with 1,915 assertions**; three host/native prompt-projection and prize-projection groups could not be loaded by the minimal shim. The original eight self-contained setup groups passed earlier with 177 assertions; their host-config test remained skipped. **No complete Node runner, genuine native Twinleaf match, candidate policy admission, source player competence, or 99.5%/full-field performance** has been demonstrated.
 
 A human should review these whitelist admissions on the exact pinned game rules and worker contracts before promoting them. In particular, refuse to extrapolate a safe holder's own-turn Ability to reactive attack prevention or to use any of these exceptions for an effect-based Astral Barrage attack.
+
+
+## Ability-suppressing Path / Silent Lab as current direct-terminal contexts
+
+**Commit:** `e7a1d67a29af9c5f2f8cd017a14d61f4903fe691`, with updated negative Stadium test `193acec4bc392bf92c98297069853ac679063f47`.
+
+A further direct-KO missed priority was a board containing **Path to the Peak** (Rule Box Abilities off) or **Silent Lab** (Basic Abilities off). Both are Ability suppression rather than direct attack damage prevention. In the current direct-only branch they can be admitted *only because* `fairyZoneHolderStatus`, `effectiveAbilityStatus`, `damageProtection` and the native/frontier + payment gate independently account for live or suppressed Abilities. Source original ranks with Path: 5,9,12,15,20,21,27; Silent Lab: 9,13,15,32 (overlap). The scope is not a blanket declaration that these Stadiums are harmless across all lines.
+
+New both-profile/both-seat source tests cover: a paid 9-Psychic VMAX Max Geist direct Prize KO through either Stadium; a **5-Psychic** VMAX whose Max Geist base 160 only reaches 280-HP Dragon Regidrago VSTAR if its **Basic Lillie's Clefairy ex Fairy Zone** remains active — under either Path or Silent Lab this Weakness double must be *removed* and terminal admission must be withheld; Silent Lab suppresses Basic non-Rule-Box Mimikyu PAL Safeguard, while Path must **not**, preventing a phantom Max Geist into live Safeguard. The two Stadiums remain separate from Wondrous attack-cost control and active Vileplume BUS attack prohibition.
+
+At latest head `193acec4bc392bf92c98297069853ac679063f47`, actual worker/protocol/root-suite source was executed under a V8 assertion/test shim: **82/85 root groups passed with 1,939 assertions**, three other root groups could not load transitive host modules. No full native Node or gameplay result. The conservative win certificate still does not admit unverified effects, and the 99.5% target remains entirely unestablished.
