@@ -137,3 +137,29 @@ for(const seat of [0,1]){
     });
   });
 }
+
+
+for(const seat of [0,1]){
+  test('seat '+seat+': strict V3 TM Evolution selects two physical Oddish targets',()=>{
+    const a=pokemon(ODDISH,'Oddish',{played:6,hp:50});
+    const b=pokemon(ODDISH,'Oddish',{played:6,hp:50});
+    const active=pokemon('Bunnelby PRC 121','Bunnelby',{played:5,hp:60});
+    const opp=pokemon(SHADOW,'Shadow Rider Calyrex V',{hp:210});
+    const r=envelope(seat,active,[a,b],opp);
+    r.prompt={schema:protocol.PROMPT_SCHEMA,actingSeat:seat,
+      promptType:'ChoosePokemonPrompt',description:null,
+      source:{classification:'actor-choice',sourceKind:'attack',
+        sourcePrinting:'Technical Machine: Evolution PAR 178',
+        effectName:'Evolution'},
+      choices:[0,1].map(i=>({kind:'pokemon',token:'oddish-'+i,
+        printing:ODDISH,publicMetadata:{
+          ownerSeat:'actor',targetZone:'bench',benchIndex:i
+        }})),
+      publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:2,
+        allowCancel:false,ownerSeat:'actor',targetZone:'bench'}
+    };
+    assert.deepEqual(checkedDecision(r,seat),{
+      kind:'select-choices',tokens:['oddish-0','oddish-1']
+    });
+  });
+}
