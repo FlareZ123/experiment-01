@@ -771,3 +771,58 @@ test('native targeted Counter Gain action does not select an opponent Bench targ
   assert.deepEqual(checkedDecision(req),{
     kind:'select-action',token:'pass'});
 });
+
+
+test('Guzma physical duplicate chooses the damaged Bench copy, not first same-print copy',()=>{
+  const duplicate='Shadow Rider Calyrex VMAX CRE 75';
+  const opp=player({active:pokemon('Budew ASC 16'),bench:[
+    pokemon(duplicate,{hp:320,damage:0}),
+    pokemon(duplicate,{hp:320,damage:270})]});
+  const req=promptRequest({promptType:'ChoosePokemonPrompt',
+    source:actorChoiceSource('Guzma BUS 115','Guzma'),
+    choices:[pokemonChoice('healthy',duplicate,'opponent','bench',0),
+      pokemonChoice('lethal',duplicate,'opponent','bench',1)],
+    observation:{opponentPublic:opp},
+    publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+      allowCancel:false,isSecret:false}});
+  assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:['lethal']});
+});
+test('Cassius physical duplicate chooses damaged own Bench copy',()=>{
+  const duplicate='Bunnelby PRC 121';
+  const own=player({active:pokemon('Budew ASC 16'),bench:[
+    pokemon(duplicate,{hp:150,damage:0}),
+    pokemon(duplicate,{hp:150,damage:120})]});
+  const req=promptRequest({promptType:'ChoosePokemonPrompt',
+    source:actorChoiceSource('Cassius XY 115','Cassius'),
+    choices:[pokemonChoice('healthy',duplicate,'actor','bench',0),
+      pokemonChoice('injured',duplicate,'actor','bench',1)],
+    observation:{ownPublic:own},
+    publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+      allowCancel:false,isSecret:false}});
+  assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:['injured']});
+});
+test('Grand Tree physical stage target refuses a newly placed duplicate',()=>{
+  const own=player({active:pokemon('Bunnelby PRC 121'),bench:[
+    pokemon('Oddish UNB 5',{lastPlayedOrEvolvedTurn:3}),
+    pokemon('Oddish UNB 5',{lastPlayedOrEvolvedTurn:1})]});
+  const req=promptRequest({promptType:'ChoosePokemonPrompt',
+    source:actorChoiceSource('Grand Tree SCR 136','Grand Tree'),
+    choices:[pokemonChoice('young','Oddish UNB 5','actor','bench',0),
+      pokemonChoice('older','Oddish UNB 5','actor','bench',1)],
+    observation:{globalTurn:3,ownPublic:own},
+    publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+      allowCancel:false,isSecret:false}});
+  assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:['older']});
+});
+test('TM Evolution physical target rejects a printing/slot mismatch even if high priority',()=>{
+  const own=player({active:pokemon('Bunnelby PRC 121'),
+    bench:[pokemon('Oddish UNB 5')]});
+  const req=promptRequest({promptType:'ChoosePokemonPrompt',
+    source:actorChoiceSource('Technical Machine: Evolution PAR 178','Evolution'),
+    choices:[pokemonChoice('mismatched','Gloom UNB 7','actor','bench',0),
+      pokemonChoice('physical','Oddish UNB 5','actor','bench',0)],
+    observation:{ownPublic:own},
+    publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+      allowCancel:false,isSecret:false}});
+  assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:['physical']});
+});
