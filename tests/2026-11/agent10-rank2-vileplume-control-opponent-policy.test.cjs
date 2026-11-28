@@ -1748,6 +1748,22 @@ test('Get Lost can remove one Regidrago Dragon payload and one other legal targe
    kind:'select-choices',tokens:['dialga','vs']});
 });
 
+
+test('Get Lost demotes spent Timeless-GX after opponent publicly used GX attack',()=>{
+ const request=promptRequest({
+   promptType:'ChooseCardsPrompt',
+   source:actorChoiceSource('Girafarig LOT 94','Get Lost'),
+   choices:[cardChoice('dialga','Dialga-GX UPR 100','discard','opponent'),
+     cardChoice('dragapult','Dragapult ex TWM 130','discard','opponent'),
+     cardChoice('vs','VS Seeker PHF 109','discard','opponent')],
+   observation:{opponentPublic:player({active:pokemon('Regidrago VSTAR SIT 136'),
+     publicTurnRestrictions:{gxUsed:true}})},
+   publicMetadata:{selectionType:'card-combination',minimumCount:2,
+     maximumCount:2,allowCancel:false,isSecret:false}});
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-choices',tokens:['dragapult','vs']});
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
