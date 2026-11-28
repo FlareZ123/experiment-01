@@ -274,6 +274,48 @@ function clawProjectedKnockoutScore(action,o){
  if(liability>=o.ownPublic?.prizeCount)return 965;
  return liability===3?905:(liability===2?845:770);
 }
+function attackingBenchedMega(o){
+ return slots(o.ownPublic).filter(r=>r.zone==='bench'&&match(r.pokemon.printing,PRINT.mega)&&
+  list(r.pokemon.energies).length>=3);
+}
+function guzmaTargetScore(target,mega,o){
+ const rem=Number.isFinite(target?.hp)&&Number.isFinite(target?.damage)?
+  target.hp-target.damage:null;
+ if(rem===null||rem<=0||!mega)return 0;
+ const liab=prizeYield(target);
+ const fauxObservation={...o,ownPublic:{...o.ownPublic,active:mega},
+  opponentPublic:{...o.opponentPublic,active:target}};
+ if(target.damage===60){
+  return liab>=o.ownPublic.prizeCount?985:940;
+ }
+ const claw=clawProjectedKnockoutScore({
+  publicMetadata:{attackCostPayable:true},attackName:'Claw of Darkness'
+ },fauxObservation);
+ if(claw>=770)return liab>=o.ownPublic.prizeCount?980:claw;
+ // A gust does not count as a knockout. Only accept it as tactical repositioning
+ // when the main attacker is ready and the target is meaningfully vulnerable.
+ if(rem<=200)return 310+liab*38;
+ const energy=list(target.energies).length;
+ return energy>0?175+Math.min(energy,3)*20:85;
+}
+function canGuzmaLeadToFundedAttack(o){
+ if(attackingBenchedMega(o).length>0)return true;
+ // If current Mega is active, Guzma switches it to Bench. Re-entry requires
+ // a legal retreat from an *already equipped* pivot and an unused retreat.
+ const active=o.ownPublic?.active;
+ if(!match(active?.printing,PRINT.mega)||list(active.energies).length<3||
+    o.ownTurnResources?.retreatedTurn===o.globalTurn||!toolEnabled(o))return false;
+ return slots(o.ownPublic).some(r=>r.zone==='bench'&&
+  list(r.pokemon.tools).some(x=>match(x,PRINT.float)));
+}
+function guzmaRootScore(o){
+ if(o.ownTurnResources?.supporterPlayedTurn!==0||o.ownPublic?.publicTurnRestrictions?.supporterPlayLocked===true||
+    o.ownTurnResources?.supporterPlayLocked===true||!canGuzmaLeadToFundedAttack(o))return 0;
+ const bestMega=attackingBenchedMega(o)[0]?.pokemon??o.ownPublic?.active;
+ if(!bestMega||!match(bestMega.printing,PRINT.mega))return 0;
+ return slots(o.opponentPublic).filter(r=>r.zone==='bench').reduce((score,r)=>
+  Math.max(score,guzmaTargetScore(r.pokemon,bestMega,o)),0);
+}
 function score(action,req){
  const o=req.observation,own=o.ownPublic,opp=o.opponentPublic||{},p=name(action.actorPrinting),t=ownTarget(action,o),meta=action.publicMetadata||{};
  const items=req.actionFrontier?.items;
@@ -373,7 +415,7 @@ function score(action,req){
   if(match(p,PRINT.carmine)&&hasProtectedHand(o))return 0;
   return 225;
  }
- if(match(p,PRINT.guzma))return o.ownTurnResources?.supporterPlayedTurn===0&&benchCount(opp)>0?185:0;
+ if(match(p,PRINT.guzma))return guzmaRootScore(o);
  if(match(p,PRINT.temple)){
   const opposingStadium=[...list(opp.stadium),...list(own.stadium)];
   const suppressedGarbodor=opposingStadium.some(x=>match(x,PRINT.jamming))&&
@@ -584,8 +626,23 @@ function promptDecision(req){
     return Math.max(0,3-list(target.pokemon.energies).length)*85;
    };
   }else if(/guzma/.test(src)){
-   if(cs.some(c=>c.kind==='pokemon'&&owner(c)==='opponent'))return pickRows(p,cs.filter(c=>owner(c)==='opponent'),bd.min,bd.max,c=>200-(c.publicMetadata?.remainingHp??100));
-   rank=c=>match(c,PRINT.budew)?170:match(c,PRINT.mega)?130:0;
+   if(cs.some(c=>c.kind==='pokemon'&&owner(c)==='opponent')){
+    const bestMega=attackingBenchedMega(o)[0]?.pokemon??o.ownPublic?.active;
+    return pickRows(p,cs.filter(c=>c.kind==='pokemon'&&owner(c)==='opponent'),bd.min,bd.max,c=>{
+     const target=slots(o.opponentPublic).find(r=>r.zone===zone(c)&&
+      (r.zone==='active'||r.index===c.publicMetadata?.benchIndex)&&r.pokemon.printing===name(c));
+     return target?guzmaTargetScore(target.pokemon,bestMega,o):0;
+    });
+   }
+   rank=c=>{
+    const self=slots(o.ownPublic).find(r=>r.zone===zone(c)&&
+     (r.zone==='active'||r.index===c.publicMetadata?.benchIndex)&&r.pokemon.printing===name(c));
+    if(!self)return 0;
+    if(match(self.pokemon.printing,PRINT.mega)&&list(self.pokemon.energies).length>=3)return 480;
+    if(match(self.pokemon.printing,PRINT.budew))return 220;
+    if(list(self.pokemon.tools).some(x=>match(x,PRINT.float))&&toolEnabled(o))return 185;
+    return 15;
+   };
   }
   return pickRows(p,rows,bd.min,bd.max,rank);
  }
@@ -668,4 +725,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,regidragoPayloadCount,karenDenialScore,plumeriaDenialScore,templeStrandsApexDragon,toolEnabled,garbotoxinStatus,liveGarbotoxin};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,regidragoPayloadCount,karenDenialScore,plumeriaDenialScore,templeStrandsApexDragon,guzmaRootScore,guzmaTargetScore,toolEnabled,garbotoxinStatus,liveGarbotoxin};
