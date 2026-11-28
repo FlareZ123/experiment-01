@@ -793,9 +793,10 @@ function bombPlanner(o,sourceBenchIndex){
         const k=o.ownerK1;
         const prized=k?.exactMembershipKnown===true?L(k.knownPrintings):[];
         const counted=f=>prized.reduce((n,row)=>n+(f(row)&&Number.isSafeInteger(row.copies)?row.copies:0),0);
-        const possible=4-known.filter(isUn).length-counted(isUn)+
-                       1-known.filter(isGengar).length-counted(isGengar);
-        if(possible>0)return 345;
+        const possibleUnown=4-known.filter(isUn).length-counted(isUn);
+        // Do not spend a singleton Energy merely to expose a three-Prize
+        // Gengar while an already-funded Mega can take the normal attack.
+        if(possibleUnown>0)return 345;
       }
       if(isGengar(p)&&first(o)&&o.ownPublic?.publicTurnRestrictions?.gxUsed!==true&&payable(p,['psychic'],-1,o)!==true&&payable(next,['psychic'],-1,o)===true)return 300;
       return 0;
@@ -890,6 +891,17 @@ function bombPlanner(o,sourceBenchIndex){
       if(/^Telepathic Psychic Energy POR 88\b/i.test(x)){
         // Direct Bench (not hand-play Abilities); choose distinct useful Basics.
         const candidates=deck.filter(c=>isUn(c)||isGengar(c));
+        // A funded Mega can already attack. First use eligible disposable
+        // Unown for immediate Farewell Letter access instead of gratuitously
+        // exposing the three-Prize Gengar; retain original Gengar preference
+        // when the turn's genuine Horror House axis is active.
+        if(mega(o.ownPublic?.active)&&usable(o.ownPublic.active,'Claw of Darkness',o)&&
+           !horrorDesired(o)){
+          const capacity=Math.min(m.maximumCount,cap(o));
+          const unown=candidates.filter(isUn).slice(0,capacity);
+          if(unown.length>=m.minimumCount&&unown.length)
+            return select(p,unown,unown.length,'NO_SUPPORTED_CARD_SELECTION');
+        }
         const out=[];
         if(!ownHas(o,isGengar)&&cap(o)>0&&m.maximumCount>0){
           const g=candidates.find(isGengar);if(g)out.push(g);
