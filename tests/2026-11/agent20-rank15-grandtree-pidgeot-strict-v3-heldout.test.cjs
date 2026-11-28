@@ -111,3 +111,29 @@ for(const seat of [0,1]){
     });
   }
 }
+
+
+for(const seat of [0,1]){
+  test('seat '+seat+': strict V3 Grand Tree mixed-chain Gloom must not hide Pidgeot',()=>{
+    const gloom=pokemon('Gloom UNB 7','Gloom',{hp:90,stage:'STAGE_1',played:4});
+    const pidgeotto=pokemon('Pidgeotto TEU 123','Pidgeotto',{
+      hp:80,stage:'STAGE_1',played:6
+    });
+    const fan=pokemon(FAN,'Fan Rotom',{played:5});
+    const opp=pokemon(SHADOW,'Shadow Rider Calyrex V',{hp:210});
+    const r=envelope(seat,fan,[gloom,pidgeotto],opp);
+    r.observation.pendingPromptType='ChooseCardsPrompt';
+    r.prompt={schema:protocol.PROMPT_SCHEMA,actingSeat:seat,
+      promptType:'ChooseCardsPrompt',description:null,
+      source:{classification:'actor-choice',sourceKind:'card-effect',
+        sourcePrinting:TREE,effectName:'Grand Tree'},
+      choices:[{kind:'card',token:'pidgeot-stage2',printing:PIGEOT,
+        publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}}],
+      publicMetadata:{selectionType:'card-combination',sourceZone:'deck',
+        ownerSeat:'actor',minimumCount:1,maximumCount:1,allowCancel:false}
+    };
+    assert.deepEqual(checkedDecision(r,seat),{
+      kind:'select-choices',tokens:['pidgeot-stage2']
+    });
+  });
+}
