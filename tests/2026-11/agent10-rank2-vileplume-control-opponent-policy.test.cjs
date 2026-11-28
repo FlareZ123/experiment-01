@@ -1308,6 +1308,48 @@ test('rank2 can select a native ordered starting board',()=>{
       minimumCount:1,maximumCount:6});
   assert.deepEqual(checkedDecision(request),{kind:'select-choices',tokens:['a','b']});
 });
+test('rank2 opponent mulligan bonus uses min0 Bench-only placement, no new Active',()=>{
+  const request=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[
+    setupCard('newB','Bunnelby PRC 121',0),
+    setupCard('newOdd','Oddish UNB 5',1),
+    {token:'empty',kind:'empty-selection',label:'Choose no items'}],
+    {selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+      isOwnerVisible:true,isSecret:false,allowCancel:false,
+      minimumCount:0,maximumCount:2},{
+      ownPublic:player({active:pokemon('Bunnelby PRC 121'),bench:[]})});
+  assert.deepEqual(checkedDecision(request),{
+    kind:'select-choices',tokens:['newOdd']});
+});
+test('rank2 mulligan extra setup puts only one new line in last Bench slot',()=>{
+  const request=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[
+    setupCard('b','Bunnelby PRC 121',0),
+    setupCard('odd','Oddish UNB 5',1),
+    setupCard('pidgey','Pidgey MEW 16',2),
+    {token:'empty',kind:'empty-selection',label:'Choose no items'}],
+    {selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+      isOwnerVisible:true,isSecret:false,allowCancel:false,
+      minimumCount:0,maximumCount:3},{
+      ownPublic:player({active:pokemon('Budew ASC 16'),bench:[
+        pokemon('Fan Rotom SCR 118'),pokemon('Lillipup CEC 174'),
+        pokemon('Girafarig LOT 94'),pokemon('Relicanth TEF 84')]})});
+  assert.deepEqual(checkedDecision(request),{
+    kind:'select-choices',tokens:['odd']});
+});
+test('rank2 mulligan extra setup declines when all five Bench slots occupied',()=>{
+  const request=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[
+    setupCard('pidgey','Pidgey MEW 16',0),
+    {token:'empty',kind:'empty-selection',label:'Choose no items'}],
+    {selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+      isOwnerVisible:true,isSecret:false,allowCancel:false,
+      minimumCount:0,maximumCount:1},{
+      ownPublic:player({active:pokemon('Bunnelby PRC 121'),bench:[
+        pokemon('Oddish UNB 5'),pokemon('Lillipup CEC 174'),
+        pokemon('Fan Rotom SCR 118'),pokemon('Budew ASC 16'),
+        pokemon('Girafarig LOT 94')]})});
+  assert.deepEqual(checkedDecision(request),{
+    kind:'select-choice',token:'empty'});
+});
+
 test('rank2 reorders starting Basic to lead Bunnelby and reserves a Bench slot',()=>{
   const request=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[
     setupCard('fan','Fan Rotom SCR 118',0),
