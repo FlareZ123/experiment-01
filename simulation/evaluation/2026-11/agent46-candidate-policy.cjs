@@ -579,7 +579,15 @@ function searchCandidates(view, prompt, choices) {
   const effectName = prompt.source?.effectName ?? '';
   const sourceZone = prompt.publicMetadata?.sourceZone;
   let rows;
-  if (sourceZone === 'deck' && effectName === 'Battle Compressor') {
+  if (sourceZone === 'deck' &&
+      effectName === 'Climactic Gate' &&
+      prompt.source?.sourcePrinting === 'Radiant Eternatus CRZ 105') {
+    // Direct-to-Bench VMAX needs no Shadow Rider V pre-evolution.
+    rows = choices.map(choice => ({
+      choice,
+      score: hasName(choice.printing, 'Shadow Rider Calyrex VMAX CRE') ? 1000 : -Infinity
+    }));
+  } else if (sourceZone === 'deck' && effectName === 'Battle Compressor') {
     rows = choices.map(choice => ({
       choice,
       score: hasName(choice.printing, 'Dialga-GX') &&
@@ -1060,6 +1068,20 @@ function chooseUnderworldEnergyAssignment(view, prompt) {
     abstain('NO_VISIBLE_ENERGY_CHOICE');
 }
 
+function chooseClimacticGateConfirm(view, prompt) {
+  setPolicyAuditRule('RADIANT_CLIMACTIC_GATE_CONFIRM', 'ONE_YES_CHOICE');
+  if (prompt.source?.sourcePrinting !== 'Radiant Eternatus CRZ 105' ||
+      prompt.source?.effectName !== 'Climactic Gate' ||
+      prompt.publicMetadata?.selectionType !== 'confirm') {
+    return abstain('UNTRUSTED_PROMPT_SOURCE');
+  }
+  const yes = prompt.choices.filter(choice =>
+    choice.kind === 'confirm' && choice.label === 'Yes');
+  if (yes.length !== 1) return abstain('AMBIGUOUS_SIMPLE_PROMPT');
+  recordPolicyAuditRule(yes[0].token, 'CLIMACTIC_GATE_USE');
+  return { kind: 'select-choice', token: yes[0].token };
+}
+
 function choosePrompt(view, prompt, receipt) {
   if (!prompt || prompt.actingSeat !== view.actorSeat ||
       prompt.source?.classification !== 'actor-choice') {
@@ -1087,6 +1109,13 @@ function choosePrompt(view, prompt, receipt) {
     case 'OrderCardsPrompt':
       return chooseCardOrder(view, prompt);
     case 'ConfirmPrompt':
+      if (prompt.source?.effectName === 'Climactic Gate') {
+        return chooseClimacticGateConfirm(view, prompt);
+      }
+      // Other optional Abilities remain unsupported absent source policy.
+      if (prompt.choices.length !== 1) return abstain('AMBIGUOUS_SIMPLE_PROMPT');
+      setPolicyAuditRule('SINGLE_UNAMBIGUOUS_CHOICE', 'ONLY_CHOICE');
+      return { kind: 'select-choice', token: prompt.choices[0].token };
     case 'SelectPrompt':
     case 'SelectOptionPrompt': {
       setPolicyAuditRule('SINGLE_UNAMBIGUOUS_CHOICE', 'ONLY_CHOICE');
@@ -1100,10 +1129,26 @@ function choosePrompt(view, prompt, receipt) {
   }
 }
 
-function scoreBasicPlay(item, view) {
+function scoreBasicPlay(item, view, receipt) {
   const metadata = item.publicMetadata ?? {};
   if (metadata.targetSeat !== 'actor' || metadata.targetZone !== 'bench') return -Infinity;
   const printing = item.actorPrinting ?? '';
+  if (hasName(printing, 'Radiant Eternatus CRZ')) {
+    // Climactic Gate is a turn-ending line; finish search, evolution, and
+    // normal energy first. Radiant takes one Bench slot and needs at least
+    // one more for a VMAX searched directly onto the Bench.
+    if (countBench(view.ownPublic) > 3 ||
+        ownBoard(view).filter(slot =>
+          hasName(slot.printing, 'Shadow Rider Calyrex VMAX')).length >= 2) {
+      return -Infinity;
+    }
+    const currentAttack = view.opponentPublic.active
+      ? bestAttackForSlot(view.ownPublic.active, view, view.opponentPublic.active,
+        { publicEventReceipt: receipt })
+      : null;
+    if (currentAttack && currentAttack.score > 350) return -Infinity;
+    return 320;
+  }
   if (hasName(printing, 'Shadow Rider Calyrex V') &&
       !hasName(printing, 'VMAX') &&
       !boardHas(view, 'Shadow Rider Calyrex V')) return 1000;
@@ -1296,7 +1341,7 @@ function chooseRoot(view, request) {
 
   const plays = items.filter(item => item.kind === 'play-card');
   const scoredPlays = plays.map(item => {
-    const basic = scoreBasicPlay(item, view);
+    const basic = scoreBasicPlay(item, view, request.publicEventReceipt);
     const evolution = scoreEvolutionPlay(item);
     const energy = scoreEnergyPlay(item, view, request.publicEventReceipt);
     const trainer = scoreTrainerPlay(item, view, request.publicEventReceipt);
