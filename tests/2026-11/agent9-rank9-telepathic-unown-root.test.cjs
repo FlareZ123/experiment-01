@@ -185,6 +185,66 @@ for(const seat of [0,1]){
     'same Gengar cannot receive duplicate search priority, seat '+seat);
 }
 
+
+/* Source-realistic Shadow Rider VMAX KOs are non-final if other opponents
+ * remain. Its Darkness Weakness makes Mega Absol's 200-damage Claw a
+ * three-Prize KO. Fetch Unown before that same attack, but never defer an
+ * actual game-ending three-Prize KO or the opponent's final Active Pokemon. */
+for(const seat of [0,1]){
+  const shadow=(prizes=6,bench=true)=>{
+    const o=obs(seat);o.ownPublic.prizeCount=prizes;
+    o.opponentPublic.active=mon('Shadow Rider Calyrex VMAX CRE 75',{hp:320,
+      printed:{stage:'VMAX',subtypes:['VMAX'],types:['Psychic'],
+        weakness:[{type:'Darkness',value:'×2'}],resistance:[]}});
+    o.opponentPublic.bench=bench?
+      [mon("Lillie's Clefairy ex JTG 56",{hp:190})]:[];
+    return o;
+  };
+  const check=(o,token,policy)=>{
+    const opts={schema:protocol.FRONTIER_SCHEMA,items:[
+      {kind:'play-card',token:'telepath-pre-ko',actorPrinting:T,
+        publicMetadata:{targetSeat:'actor',targetZone:'bench',
+          targetIndex:0,isOwnerVisible:true}},
+      {kind:'attack',token:'knockout',actorPrinting:Meg,
+        attackName:'Claw of Darkness',
+        publicMetadata:{attackCostPayable:true}},
+      {kind:'pass',token:'pass'}
+    ]};
+    const d=decide(policy,o,1,opts);
+    ok(d.token===token,'Shadow VMAX '+token+' priority, seat '+seat);
+    return opts;
+  };
+  const p=()=>P.createPolicy({role:'opponent',seat,
+    policyVersion:P.POLICY_VERSION,config:{}});
+  const ready=shadow();
+  const pol=p();
+  check(ready,'telepath-pre-ko',pol);
+  const chosen=decide(pol,ready,2,null,search(seat));
+  ok(JSON.stringify(chosen.tokens)==='["u1","u2"]',
+    'weak Shadow VMAX pre-KO search does not expose Gengar, seat '+seat);
+  const after=shadow();
+  after.ownHand=[];
+  after.ownTurnResources.energyPlayedTurn=true;
+  after.ownPublic.bench=[mon(Un,{hp:60,energies:[T]}),
+    mon(Un,{hp:60}),mon(Un,{hp:60})];
+  const ability={kind:'use-ability',token:'unown-draw-before-ko',
+    actorPrinting:Un,publicMetadata:{
+      sourceSeat:'actor',sourceZone:'bench',sourceIndex:1,
+      abilityName:'Farewell Letter'
+    }};
+  let f={schema:protocol.FRONTIER_SCHEMA,items:[
+    ability,{kind:'attack',token:'knockout',actorPrinting:Meg,
+      attackName:'Claw of Darkness',
+      publicMetadata:{attackCostPayable:true}},
+    {kind:'pass',token:'pass'}
+  ]};
+  const dr=decide(pol,after,3,f);
+  ok(dr.token==='unown-draw-before-ko',
+    'after physical-search-shaped stage draw before same KO, seat '+seat);
+  check(shadow(3,true),'knockout',p());
+  check(shadow(6,false),'knockout',p());
+}
+
 /* Synthetic post-settlement challenge of the original rank-9 four-copy
  * Rescue Carrier engine: once searched Unown cycle into discard, physically
  * replaying recovered copies can unlock two more Farewell Letter draws
