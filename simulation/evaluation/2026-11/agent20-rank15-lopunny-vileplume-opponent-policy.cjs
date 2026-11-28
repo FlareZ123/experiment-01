@@ -83,6 +83,18 @@ const playable = item => ['attack','play-card','retreat','use-ability','use-stad
 const take = item => ({kind:'select-action',token:item.token});
 const abstain = reasonCode => ({kind:'abstain',reasonCode});
 
+function templeSuppressesSpecialEnergy(o) {
+  const stadium=[...arr(o?.ownPublic?.stadium),...arr(o?.opponentPublic?.stadium)];
+  const temple=stadium.some(x=>/^Temple of Sinnoh ASR(?: 155)?\b/i.test(txt(x)));
+  if(!temple)return false;
+  // The host's own restriction projection reports cases where Stadium and
+  // Tool effects are temporarily suppressed. Do not enforce a muted Temple.
+  const muted=[o?.ownPublic,o?.opponentPublic].some(p=>{
+    const turns=p?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
+    return Number.isSafeInteger(turns)&&turns>0;
+  });
+  return !muted;
+}
 function sourcePrizeValue(pokemon) {
   const p=txt(pokemon);
   if (/^Mega .* ex\b/i.test(p)||/\bVMAX\b/i.test(p)) return 3;
@@ -141,7 +153,11 @@ function printedDamage(item,request) {
     }
     if(item.attackName==='Spiky Hopper')value=160;
     if(value!==null){
-      if(arr(own.energies).some(e=>has(e,P.powerful)))value+=20;
+      // Temple of Sinnoh makes Special Energy provide only Colorless;
+      // its other effects (including Powerful Colorless' +20) are disabled.
+      // With no certified Stadium-suppression fact, do not invent an
+      // exception to the visible Temple effect.
+      if(!templeSuppressesSpecialEnergy(o)&&arr(own.energies).some(e=>has(e,P.powerful)))value+=20;
       if(arr(own.tools).some(e=>has(e,P.choiceBelt))&&/\bV(?:MAX|STAR)?\b/i.test(txt(op)))value+=30;
     }
   }
@@ -266,45 +282,74 @@ function k1EvoTarget(o) {
     return pats.length>0&&k1Available(o,pats)!==false;
   });
 }
-function energyProvided(card) {
-  return has(card,P.doubleColorless)?2:1;
+function energyProvided(card,o) {
+  // Temple strips Double Colorless's second Energy unit as well as the
+  // additional effects of Jet, Capture and Powerful Colorless.
+  return has(card,P.doubleColorless)&&!templeSuppressesSpecialEnergy(o)?2:1;
 }
-function attachedEnergyUnits(slot) {
-  return arr(slot?.energies).reduce((sum,card)=>sum+energyProvided(card),0);
+function attachedEnergyUnits(slot,o) {
+  return arr(slot?.energies).reduce((sum,card)=>sum+energyProvided(card,o),0);
 }
+// Two copies of Mega Lopunny (or Bunnelby) can share a printing but
+// occupy different physical slots. Native projected actions carry the exact
+// actor-relative target zone/index; use them before any name-only fallback.
+function ownActionTarget(item,own) {
+  const meta=item?.publicMetadata??{};
+  if(meta.targetSeat!==undefined&&meta.targetSeat!=='actor')return null;
+  const printing=item?.targetPrinting;
+  if(typeof printing!=='string'||!printing)return null;
+  let target=null;
+  if(meta.targetZone==='active') {
+    target=own?.active;
+  } else if(meta.targetZone==='bench') {
+    if(!Number.isSafeInteger(meta.targetIndex)||meta.targetIndex<0)return null;
+    target=arr(own?.bench)[meta.targetIndex];
+  } else if(meta.targetZone!==undefined) {
+    return null;
+  } else {
+    // Historical constructed frontiers may omit coordinates. Fall back only
+    // if the printing identifies exactly one visible Pokémon on the board.
+    const matches=slots(own).filter(x=>txt(x)===printing);
+    if(matches.length!==1)return null;
+    target=matches[0];
+  }
+  return target&&txt(target)===printing?target:null;
+}
+
 function energyActionScore(item,o) {
   if(item?.kind!=='play-card'||
     ![P.jet,P.capture,P.doubleColorless,P.powerful,P.grass].some(p=>has(ownPrinting(item),p)))return 0;
   const own=o?.ownPublic,energy=ownPrinting(item);
-  const target=slots(own).find(x=>txt(x)===item.targetPrinting);
+  const target=ownActionTarget(item,own);
   if(!target||!item.targetPrinting)return 0;
-  const used=attachedEnergyUnits(target),available=5-benchCount(own);
-  if(has(target,P.bus)&&has(energy,P.jet)&&has(own.active,P.bunnelby)&&
+  const used=attachedEnergyUnits(target,o),available=5-benchCount(own);
+  const temple=templeSuppressesSpecialEnergy(o);
+  if(has(target,P.bus)&&has(energy,P.jet)&&!temple&&has(own.active,P.bunnelby)&&
     o.opponentPublic?.active?.printed?.stage==='BASIC'&&
     !arr(target.abilitySuppressions).some(x=>
       x.abilityName==='Disgusting Pollen'&&x.suppressed===true))return 169;
   if(has(target,P.bunnelby)){
     const tm=arr(target.tools).some(t=>has(t,P.tmEvolution));
-    if(tm&&used===0)return 165;
+    if(tm&&used===0)return has(energy,P.jet)&&temple?160:165;
     if(used===0)return 100;
     return 0;
   }
   if(has(target,P.mega)){
-    if(has(energy,P.jet)&&!has(own.active,P.mega)&&
+    if(has(energy,P.jet)&&!temple&&!has(own.active,P.mega)&&
       arr(own.bench).some(x=>x===target)&&used>=1&&
       !(has(own.active,P.bus)&&
         o.opponentPublic?.active?.printed?.stage==='BASIC'))return 180;
     if(used>=2)return 0;
-    if(has(energy,P.doubleColorless))return 158;
+    if(has(energy,P.doubleColorless))return temple?129:158;
     if(has(energy,P.powerful))return used===0?137:140;
-    if(has(energy,P.capture))return available>0?132:113;
+    if(has(energy,P.capture))return !temple&&available>0?132:113;
     if(has(energy,P.jet))return used===0?130:135;
     return used===0?128:132;
   }
   if(has(target,P.buneary))return used===0?75:0;
   if(has(target,P.eldegoss))return used===0?70:used===1?65:0;
   if(has(target,P.fan)||has(target,P.budew)||has(target,P.pidgey))
-    return used===0&&has(energy,P.capture)&&available>0?65:0;
+    return used===0&&has(energy,P.capture)&&!temple&&available>0?65:0;
   return 0;
 }
 function positionTarget(o) {
@@ -314,17 +359,17 @@ function positionTarget(o) {
   if(has(active,P.bus)&&opp.active.printed?.stage==='BASIC'&&
     !arr(active.abilitySuppressions).some(x=>
       x.abilityName==='Disgusting Pollen'&&x.suppressed===true))return null;
-  if(has(active,P.mega)&&attachedEnergyUnits(active)>=1)return null;
+  if(has(active,P.mega)&&attachedEnergyUnits(active,o)>=1)return null;
   if(has(active,P.bunnelby)&&arr(active.tools).some(x=>has(x,P.tmEvolution))&&
-    attachedEnergyUnits(active)>=1&&k1EvoTarget(o))return null;
+    attachedEnergyUnits(active,o)>=1&&k1EvoTarget(o))return null;
   let index=-1;
   if(opp.active.printed?.stage==='BASIC')index=bench.findIndex(x=>
     x&&has(x,P.bus)&&!arr(x.abilitySuppressions).some(a=>
       a.abilityName==='Disgusting Pollen'&&a.suppressed===true));
   if(index<0&&k1EvoTarget(o))index=bench.findIndex(x=>
-    x&&has(x,P.bunnelby)&&attachedEnergyUnits(x)>=1&&
+    x&&has(x,P.bunnelby)&&attachedEnergyUnits(x,o)>=1&&
     arr(x.tools).some(t=>has(t,P.tmEvolution)));
-  if(index<0)index=bench.findIndex(x=>x&&has(x,P.mega)&&attachedEnergyUnits(x)>=1);
+  if(index<0)index=bench.findIndex(x=>x&&has(x,P.mega)&&attachedEnergyUnits(x,o)>=1);
   if(index<0)return null;
   return {index,printing:bench[index].printing};
 }
@@ -339,15 +384,34 @@ function retreatPrompt(request) {
   return found?{kind:'select-choices',tokens:[found.token]}:
     abstain('NO_SUPPORTED_POKEMON_CHOICE');
 }
+// RetreatAction is already bound to an actual Bench slot. A repeated
+// printing is not an interchangeable destination; check the native index.
+function retreatActionTargets(item,target,own) {
+  if(item?.kind!=='retreat')return false;
+  if(item.targetPrinting&&item.targetPrinting!==target.printing)return false;
+  const meta=item.publicMetadata??{};
+  if(meta.targetZone!==undefined||meta.targetIndex!==undefined||
+      meta.benchIndex!==undefined) {
+    return meta.targetSeat==='actor'&&meta.targetZone==='bench'&&
+      meta.targetIndex===target.index&&
+      (meta.benchIndex===undefined||meta.benchIndex===target.index);
+  }
+  // Metadata-free constructed legacy inputs are safe only when a single
+  // Bench slot corresponds to the requested destination.
+  const bench=arr(own?.bench);
+  if(item.targetPrinting)return bench.filter(x=>x&&txt(x)===target.printing).length===1;
+  return bench.filter(Boolean).length===1&&bench[target.index]!==null;
+}
+
 function mobilityActions(items,o) {
+  const own=o?.ownPublic;
   const target=positionTarget(o);
   if(!target)return null;
-  const retreat=items.find(x=>x.kind==='retreat'&&
-    (!x.targetPrinting||x.targetPrinting===target.printing));
+  const retreat=items.find(x=>retreatActionTargets(x,target,own));
   if(retreat)return retreat;
   const float=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.floatStone)&&
-    x.targetPrinting===o.ownPublic.active.printing&&
-    arr(o.ownPublic.active.tools).length===0);
+    ownActionTarget(x,own)===own.active&&
+    arr(own.active.tools).length===0);
   return float??null;
 }
 function capturePrompt(request) {
@@ -1140,7 +1204,7 @@ function rootDecision(request) {
   if(busWindow){
     const jetBus=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.jet)&&
       has(x.targetPrinting,P.bus));
-    if(jetBus)return take(jetBus);
+    if(jetBus&&!templeSuppressesSpecialEnergy(o))return take(jetBus);
     const retreatBus=items.find(x=>x.kind==='retreat'&&
       (!x.targetPrinting||has(x.targetPrinting,P.bus)));
     if(retreatBus)return take(retreatBus);
@@ -1154,7 +1218,7 @@ function rootDecision(request) {
      arr(x.tools).length===0)&&missingEvolutionChannels(o))return take(attachTm);
   const attachJet=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.jet)&&
     has(x.targetPrinting,P.bunnelby));
-  if(attachJet&&slots(o.ownPublic).some(x=>has(x,P.bunnelby)&&
+  if(attachJet&&!templeSuppressesSpecialEnergy(o)&&slots(o.ownPublic).some(x=>has(x,P.bunnelby)&&
      arr(x.tools).some(c=>has(c,P.tmEvolution)))&&missingEvolutionChannels(o))return take(attachJet);
   if(gust&&gustOpportunity&&!gustOpportunity.terminal)return take(gust);
   const gh=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.guzmaHala));
