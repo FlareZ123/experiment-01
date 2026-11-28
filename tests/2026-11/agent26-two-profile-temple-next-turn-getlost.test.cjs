@@ -256,3 +256,30 @@ for(const seat of [0,1]){
   assert.equal(result.direct,0);
  });
 }
+
+for(const seat of [0,1]){
+ test('Dragon Koraidon ex TEF Kaiser Tackle 280 threatens wounded VMAX, seat '+seat,()=>{
+  const v=view(seat);
+  v.ownPublic.stadium=[];
+  const own=slot('Shadow Rider Calyrex VMAX CRE', ['Psychic Energy SVE'],
+   [['Max Geist',['Colorless','Colorless','Colorless'],10]],['Psychic'],['VMAX','V']);
+  own.hp=320;own.damage=70; // 250 remaining, 280 Kaiser Tackle KO.
+  v.ownPublic.active=own;
+  v.opponentPublic.active.energies=[
+   'Grass Energy SVE','Grass Energy SVE','Fire Energy SVE'];
+  v.opponentPublic.discard=['Koraidon ex TEF'];
+  assert.equal(policy.__test.apexHazard(v).direct,3);
+ });
+ test('Fighting Koraidon SSP is not an Apex Dragon donor, seat '+seat,()=>{
+  const v=view(seat);
+  v.ownPublic.stadium=[];
+  const own=slot('Shadow Rider Calyrex VMAX CRE', ['Psychic Energy SVE'],
+   [['Max Geist',['Colorless','Colorless','Colorless'],10]],['Psychic'],['VMAX','V']);
+  own.hp=320;own.damage=70;
+  v.ownPublic.active=own;
+  v.opponentPublic.active.energies=[
+   'Grass Energy SVE','Grass Energy SVE','Fire Energy SVE'];
+  v.opponentPublic.discard=['Koraidon SSP'];
+  assert.equal(policy.__test.apexHazard(v).direct,0);
+ });
+}
