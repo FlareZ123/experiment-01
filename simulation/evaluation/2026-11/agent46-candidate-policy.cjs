@@ -1871,6 +1871,17 @@ function activeAttachmentUnlocksMaxGeistKnockout(item, view) {
     remaining>0 && damage>=remaining;
 }
 
+// The strict action frontier may certify known damage prevention or numeric
+// reduction, even when our simplified slot damage estimate lacks that effect.
+// Such explicitly exposed uncertainty must veto a claimed immediate win.
+function nativeAttackMayBeProtected(item) {
+  const meta=item?.publicMetadata??{};
+  return meta.hasUnmodeledModifier===true ||
+    meta.hasPrevention===true ||
+    (Number.isFinite(meta.damagePrevented) && meta.damagePrevented>0) ||
+    (Number.isFinite(meta.damageReduced) && meta.damageReduced>0);
+}
+
 // A source-specific endgame exception, not a general claim that modeled
 // damage proves all protection absent. We only use an ALREADY OFFERED native
 // Max Geist action with its paid active VMAX, observable target HP/Prize value,
@@ -1884,7 +1895,7 @@ function finalMaxGeistAssessment(view,items) {
       !items.some(item=>item.kind==='attack' &&
         item.attackName==='Max Geist' &&
         item.publicMetadata?.attackCostPayable!==false &&
-        item.publicMetadata?.hasUnmodeledModifier!==true) ||
+        !nativeAttackMayBeProtected(item)) ||
       !Number.isFinite(target.hp) || !Number.isFinite(target.damage) ||
       !Array.isArray(target.printed?.weakness) ||
       !Array.isArray(target.printed?.resistance)) return null;
@@ -1941,7 +1952,7 @@ function immediatelyWinningKnownAttack(view,items){
   const offered=items.find(item=>item.kind==='attack' &&
     item.attackName===accepted[1] &&
     item.publicMetadata?.attackCostPayable!==false &&
-    item.publicMetadata?.hasUnmodeledModifier!==true);
+    !nativeAttackMayBeProtected(item));
   if(!offered)return null;
   const damage=estimatedDamage(active,attack,view,target);
   return Number.isFinite(damage)&&damage>=remaining?offered:null;
