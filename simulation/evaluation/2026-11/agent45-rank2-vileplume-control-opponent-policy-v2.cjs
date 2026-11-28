@@ -352,6 +352,21 @@ function opponentSkyTransportMayBeLive(player) {
   });
 }
 
+// Minior PAR 99's Far-Flying Meteor can promote the Benched Minior when the
+// opponent manually attaches Energy to it. Neither Item lock nor Supporter
+// lock prevents that normal Energy attachment. Hidden Energy availability is
+// not treated as known; this vetoes only a claim of a secure retreat trap.
+function opponentFarFlyingMeteorMayBeLive(player) {
+  return boardSlots(player).some(({ zone, pokemon }) => {
+    if (zone !== 'bench' || !/^Minior PAR(?: 99)?\\b/i.test(pokemon.printing ?? '')) {
+      return false;
+    }
+    const status = list(pokemon.abilitySuppressions).find(row =>
+      row.abilityName === 'Far-Flying Meteor');
+    return status?.suppressed !== true;
+  });
+}
+
 // The proposed lock must survive both switches, not just the state before
 // Guzma. These exact printings gain Active-only Ability denial on promotion.
 // Conservatively avoid targeting them even if a current suppression might
@@ -375,6 +390,7 @@ function nominalGuzmaRetreatTrap(target, opponent) {
     return false;
   }
   if (opponentSkyTransportMayBeLive(opponent)) return false;
+  if (opponentFarFlyingMeteorMayBeLive(opponent)) return false;
   if (opponentSkylinerMayBeLive(opponent)) {
     // Native actorObservation can expose the engine's numeric Stage enum,
     // whereas isolated actor-view fixtures may use symbolic strings. Never
