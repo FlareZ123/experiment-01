@@ -2187,6 +2187,49 @@ test('TM Evolution attack refuses Stage2 skip from Basic-only Bench',()=>{
    kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'});
 });
 
+
+test('Capture Energy completes targetless root, physical Energy attachment and Basic search',()=>{
+ const own=player({active:pokemon('Bunnelby PRC 121',{energies:[]}),
+   bench:[pokemon('Fan Rotom SCR 118')]});
+ const root=rootRequest({ownHand:['Capture Energy RCL 171'],ownPublic:own,
+   items:[attachmentRoot('capture','Capture Energy RCL 171'),
+     {token:'pass',kind:'pass',label:'Pass turn'}]});
+ assert.deepEqual(checkedDecision(root),{kind:'select-action',token:'capture'});
+ const attach=attachmentPrompt('Capture Energy RCL 171','Attach Energy',[
+   pokemonChoice('rotom','Fan Rotom SCR 118','actor','bench',0),
+   pokemonChoice('bunnelby','Bunnelby PRC 121','actor','active',0)],own);
+ assert.deepEqual(checkedDecision(attach),{
+   kind:'select-choices',tokens:['bunnelby']});
+ const search=promptRequest({promptType:'ChooseCardsPrompt',
+   source:actorChoiceSource('Capture Energy RCL 171','Capture Energy'),
+   choices:[cardChoice('bunnelby','Bunnelby PRC 121','deck'),
+     cardChoice('oddish','Oddish UNB 5','deck'),
+     cardChoice('lillipup','Lillipup CEC 174','deck')],
+   publicMetadata:{selectionType:'card-combination',minimumCount:1,
+     maximumCount:1,allowCancel:false,isSecret:false},
+   observation:{ownPublic:own}});
+ assert.deepEqual(checkedDecision(search),{
+   kind:'select-choices',tokens:['oddish']});
+});
+test('Capture Energy Basic search chooses absent Lillipup over established Oddish',()=>{
+ const own=player({active:pokemon('Bunnelby PRC 121'),
+   bench:[pokemon('Oddish UNB 5'),pokemon('Fan Rotom SCR 118')]});
+ const search=promptRequest({promptType:'ChooseCardsPrompt',
+   source:actorChoiceSource('Capture Energy RCL 171','Capture Energy'),
+   choices:[cardChoice('oddish','Oddish UNB 5','deck'),
+     cardChoice('lillipup','Lillipup CEC 174','deck')],
+   publicMetadata:{selectionType:'card-combination',minimumCount:1,
+     maximumCount:1,allowCancel:false,isSecret:false},
+   observation:{ownPublic:own}});
+ assert.deepEqual(checkedDecision(search),{
+   kind:'select-choices',tokens:['lillipup']});
+});
+test('Artazon recognizes missing initial Basic even without partial evolution line',()=>{
+ const request=artazonRoot(player({active:pokemon('Fan Rotom SCR 118')}));
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-action',token:'artazon'});
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
