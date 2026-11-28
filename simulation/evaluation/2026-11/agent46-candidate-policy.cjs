@@ -1378,6 +1378,45 @@ function canGuzmaForAttack(view, receipt) {
   }));
 }
 
+function stoneSearchNeed(view) {
+  const hasVMAX = ownBoard(view).some(slot =>
+    hasName(slot.printing, 'Shadow Rider Calyrex VMAX'));
+  const needsCounter = opponentHasRegidrago(view) &&
+    !boardHas(view, 'Mimikyu') && !handHas(view, 'Mimikyu');
+  const needsEnergy = psychicEnergyCount(view) < 3 &&
+    !handHas(view, 'Psychic Energy');
+  return (!hasVMAX && !handHas(view, 'Shadow Rider Calyrex VMAX')) ||
+    needsCounter || needsEnergy;
+}
+
+function opponentToolJammerActive(view) {
+  return (view.opponentPublic.active?.tools ?? [])
+    .some(tool => hasName(tool, 'Tool Jammer'));
+}
+
+function currentActiveCanRetreat(view) {
+  const active = view.ownPublic.active;
+  if (!active) return false;
+  const restrictions = active.publicRestrictions ?? {};
+  if (restrictions.cannotRetreat === true ||
+      restrictions.cannotRetreatNextTurn === true ||
+      restrictions.cannotRetreatWhileActive === true) return false;
+  const conditions = active.specialConditions ?? [];
+  return !conditions.some(condition =>
+    /ASLEEP|PARALYZED/i.test(String(condition)));
+}
+
+function toolsKnownLive(view) {
+  const own = view.ownPublic.publicTurnRestrictions
+    .stadiumAndToolHaveNoEffectTurnsRemaining;
+  const opp = view.opponentPublic.publicTurnRestrictions
+    .stadiumAndToolHaveNoEffectTurnsRemaining;
+  return own === 0 && opp === 0 &&
+    ![...view.ownPublic.stadium, ...view.opponentPublic.stadium]
+      .some(stadium => hasName(stadium, 'Jamming Tower')) &&
+    !opponentToolJammerActive(view);
+}
+
 function ownedToolRecipient(item, view) {
   const m = item.publicMetadata ?? {};
   if (m.targetSeat !== 'actor' ||
@@ -1395,19 +1434,21 @@ function scoreTrainerPlay(item, view, receipt) {
   if (hasName(name, 'Forest Seal Stone SIT')) {
     const target = ownedToolRecipient(item, view);
     const vstarUsed = view.ownPublic.publicTurnRestrictions.vstarUsed;
-    const suppressed = view.ownPublic.publicTurnRestrictions
-      .stadiumAndToolHaveNoEffectTurnsRemaining;
     if (target && hasName(target.printing, 'Shadow Rider Calyrex V') &&
-        vstarUsed === false && suppressed === 0 &&
-        view.ownPublic.deckCount > 0) return 680;
+        vstarUsed === false && toolsKnownLive(view) &&
+        view.ownPublic.deckCount > 0 && stoneSearchNeed(view) &&
+        !hasName(view.opponentPublic.active?.printing, 'Iron Thorns ex')) {
+      return 680;
+    }
     return -Infinity;
   }
   if (hasName(name, 'Float Stone BKT')) {
     const target = ownedToolRecipient(item, view);
-    if (target && target === view.ownPublic.active &&
-        view.ownPublic.bench.some(Boolean) &&
-        view.ownPublic.publicTurnRestrictions
-          .stadiumAndToolHaveNoEffectTurnsRemaining === 0 &&
+    const fundedSuccessor = view.opponentPublic.active &&
+      view.ownPublic.bench.some(slot => slot &&
+        bestAttackForSlot(slot, view, view.opponentPublic.active));
+    if (target && target === view.ownPublic.active && fundedSuccessor &&
+        toolsKnownLive(view) && currentActiveCanRetreat(view) &&
         !freeRetreatKnown(view)) return 650;
     return -Infinity;
   }
@@ -1580,9 +1621,9 @@ function chooseRoot(view, request) {
   const starAlchemy = abilities.find(item => {
     if (item.publicMetadata?.abilityName !== 'Star Alchemy' ||
         view.ownPublic.publicTurnRestrictions.vstarUsed !== false ||
+        !stoneSearchNeed(view) ||
         view.ownPublic.deckCount <= 0 ||
-        view.ownPublic.publicTurnRestrictions
-          .stadiumAndToolHaveNoEffectTurnsRemaining !== 0 ||
+        !toolsKnownLive(view) ||
         hasName(view.opponentPublic.active?.printing, 'Iron Thorns ex')) return false;
     return ownBoard(view).some(slot =>
       hasName(slot.printing, 'Shadow Rider Calyrex V') &&
