@@ -24,7 +24,7 @@ function state(seat) {
         { printing: BUNNELBY, hp: 70, damage: 0, tools: [], energies: [] },
         { printing: 'Oddish UNB 5', hp: 50, damage: 0, tools: [],
           printed: { stage: 'BASIC' }, lastPlayedOrEvolvedTurn: 2 },
-        { printing: 'Lillipup BLW 80', hp: 60, damage: 0, tools: [],
+        { printing: 'Lillipup CEC 174', hp: 60, damage: 0, tools: [],
           printed: { stage: 'BASIC' }, lastPlayedOrEvolvedTurn: 2 },
         null, null
       ],
@@ -153,7 +153,20 @@ for (const seat of [0, 1]) {
     const attack = { token: 'evolution', kind: 'attack', attackName: 'Evolution' };
     assert.deepEqual(choose(p, seat, v, [pass, attack, tree]), pick('evolution'));
 
-    // 10. Barrage's second attack-choice prompt prefers TM Evolution.
+    // After the first TM attack, evolve the two freshly played Basics into
+    // Stage 1s. Attack-effect evolution is allowed despite same-turn age.
+    // The SECOND Barrage attack should now climb Stage 1 -> Stage 2, not
+    // waste the second attack due to no Basic target remaining.
+    v.ownPublic.bench[1] = {
+      ...v.ownPublic.bench[1], printing: 'Gloom UNB 7',
+      printed: { stage: 'STAGE1' }, lastPlayedOrEvolvedTurn: 2
+    };
+    v.ownPublic.bench[2] = {
+      ...v.ownPublic.bench[2], printing: 'Herdier SUM 104',
+      printed: { stage: 'STAGE1' }, lastPlayedOrEvolvedTurn: 2
+    };
+
+    // 10. Barrage's second attack-choice prompt still prefers Evolution.
     assert.deepEqual(choose(p, seat, v, [], {
       promptType: 'ChooseAttackPrompt',
       source: { sourcePrinting: BUNNELBY, effectName: 'Barrage' },
