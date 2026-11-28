@@ -199,3 +199,20 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'dede'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Float Stone early Active pivot to paid Budew Item lock over bench Garbodor',()=>{
+  const activeFloat=play('Float Stone BKT 137','activeFloat',{targetSeat:'actor',targetZone:'active',targetIndex:0});
+  const benchFloat=play('Float Stone BKT 137','benchFloat',{targetSeat:'actor',targetZone:'bench',targetIndex:1});
+  const my=own({active:mon('Mega Absol ex MEG 86',{energies:[],printed:{retreatCost:['Colorless','Colorless']}}),
+   bench:[mon('Budew ASC 16'),mon('Garbodor LTR 68')]});
+  const q=root(seat,[activeFloat,benchFloat,pass],{ownPublic:my,globalTurn:2});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'activeFloat'});
+  q.actionFrontier.items=[{kind:'retreat',token:'retreatBudew',targetPrinting:'Budew ASC 16'},benchFloat,pass];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'retreatBudew'});
+  q.actionFrontier.items=[activeFloat,benchFloat,pass];q.observation.globalTurn=8;
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'benchFloat'});
+  q.observation.globalTurn=2;my.active.publicRestrictions={cannotRetreat:true};
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'benchFloat'});
+ });
+}
