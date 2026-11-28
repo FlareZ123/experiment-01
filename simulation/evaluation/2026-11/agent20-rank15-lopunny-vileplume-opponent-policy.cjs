@@ -233,7 +233,7 @@ function ghPrompt(request) {
     const options=arr(p.choices).filter(c=>c.kind==='option'&&typeof c.token==='string');
     const yes=options.find(c=>c.publicMetadata?.choiceIndex===1&&/discard 2/i.test(c.label??''));
     const no=options.find(c=>c.publicMetadata?.choiceIndex===0);
-    if(yes&&ghLineFeasible(o,P.guzmaHala))return {kind:'select-choice',token:yes.token};
+    if(yes&&missingEvolutionChannels(o)&&disposableCards(o,P.guzmaHala).length>=2)return {kind:'select-choice',token:yes.token};
     return no?{kind:'select-choice',token:no.token}:
       abstain('UNRECOGNIZED_SIMPLE_PROMPT');
   }
@@ -320,19 +320,19 @@ function rootDecision(request) {
   const attacks=items.filter(x=>x.kind==='attack');
   const immediate=attacks.find(x=>terminal(x,request));
   if(immediate)return take(immediate);
-  const gale=attacks.find(x=>x.attackName==='Gale Thrust'&&has(ownPrinting(x),P.mega));
-  const spiky=attacks.find(x=>x.attackName==='Spiky Hopper'&&has(ownPrinting(x),P.mega));
+  const gale=attacks.find(x=>x.attackName==='Gale Thrust'&&has(o.ownPublic?.active,P.mega));
+  const spiky=attacks.find(x=>x.attackName==='Spiky Hopper'&&has(o.ownPublic?.active,P.mega));
   if(spiky&&gale) {
     const sk=knockOut(spiky,request),gk=knockOut(gale,request);
     if(sk && !gk)return take(spiky);
     if(sk && gk && movementEvidence(request)===true&&candidateCopycatThreat(request))
       return take(spiky);
   }
-  const peck=attacks.find(x=>x.attackName==='Peck Off'&&has(ownPrinting(x),P.pidgey));
+  const peck=attacks.find(x=>x.attackName==='Peck Off'&&has(o.ownPublic?.active,P.pidgey));
   if(peck && arr(o.opponentPublic?.active?.tools).some(x=>has(x,P.hood))&&
       !doubleBaseCutExposed(request))return take(peck);
   const tmAttack=attacks.find(x=>x.attackName==='Evolution'&&
-    has(ownPrinting(x),P.bunnelby)&&
+    has(o.ownPublic?.active,P.bunnelby)&&
     arr(o.ownPublic?.active?.tools).some(c=>has(c,P.tmEvolution)));
   if(tmAttack&&arr(o.ownPublic?.bench).some(x=>x&&
      [P.oddish,P.buneary,P.pidgey].some(p=>has(x,p))))return take(tmAttack);
