@@ -242,12 +242,29 @@ test('engine KO promotion and Prize choices use only exact public tokens',()=>{
          targetZone:'bench',benchIndex:1}}
      ],{selectionType:'pokemon',minimumCount:1,maximumCount:1},{engine:true});
    assert.deepEqual(decide(seat,promotion),{kind:'select-choices',tokens:['vstar']});
+   const prizeChoice=(token,index)=>({kind:'prize',token,
+     label:'Your Prize slot '+(index+1),
+     publicMetadata:{selectionIndex:index,selectedCount:1,
+       sourceZone:'prizes',ownerSeat:'actor',isOwnerVisible:false,
+       requiredCount:2}});
    const prize=promptRequest(seat,obs,'CHOOSE_PRIZE_CARD',null,
      'ChoosePrizePrompt',[
-       {kind:'prize',token:'p1'}, {kind:'prize',token:'p2'},
-       {kind:'prize',token:'p3'}
-     ],{selectionType:'prize-slots',minimumCount:2,maximumCount:2},{engine:true});
+       prizeChoice('p1',0),prizeChoice('p2',1),prizeChoice('p3',2)
+     ],{selectionType:'prize-slots',sourceZone:'prizes',
+       ownerSeat:'actor',isOwnerVisible:false,
+       requiredCount:2,count:3,allowCancel:false},{engine:true});
    assert.deepEqual(decide(seat,prize),{kind:'select-choices',tokens:['p1','p2']});
+   assert.deepEqual(validateDecision(decide(seat,prize),
+     validatePrompt(prize.prompt,seat),new Set()),decide(seat,prize));
+   const toDiscard={...prize,prompt:{...prize.prompt,
+     source:{...prize.prompt.source,effectName:'CHOOSE_PRIZE_CARD_TO_DISCARD'},
+     description:'CHOOSE_PRIZE_CARD_TO_DISCARD'}};
+   assert.deepEqual(decide(seat,toDiscard),
+     {kind:'select-choices',tokens:['p1','p2']});
+   const opponentPrize={...prize,prompt:{...prize.prompt,
+     publicMetadata:{...prize.prompt.publicMetadata,ownerSeat:'opponent'}}};
+   assert.equal(decide(seat,opponentPrize).reasonCode,
+     'UNSUPPORTED_ENGINE_SETUP_PROMPT');
  }
 });
 test('unsupported engine prompt and role mismatch fail closed',()=>{
