@@ -60,7 +60,8 @@ function groupedOpeningPrizeAccess({
   const validHands=totalAll-choose(deckSize-basicCount,openingHand);
   if(validHands===0n)throw Error('NO_VALID_OPENING');
   const denominator=validHands*choose(remaining,prizeCount);
-  let partition=0n,blocked=0n, anyCoreFullyPrized=0n;
+  let partition=0n,blocked=0n,handOnlyBlocked=0n;
+  let corePrizedWithoutHandBall=0n,anyCoreFullyPrized=0n;
   const unreachableGroups=Array.from(
     {length:coreCopies.length+1},()=>0n);
 
@@ -94,6 +95,13 @@ function groupedOpeningPrizeAccess({
             unreachableGroups[missingGroups]+=weight;
             if(missingGroups>0)anyCoreFullyPrized+=weight;
             if(missingGroups>heavyBalls-pHeavy)blocked+=weight;
+            // Extreme early-line sensitivity: only Heavy Balls already in
+            // the legal opening hand are assumed usable, with no later
+            // draw, search, or Item lock. Unlike unprized-all, this gives
+            // opening hand visibility a real opportunity cost.
+            if(missingGroups>hHeavy)handOnlyBlocked+=weight;
+            if(missingGroups>0&&hHeavy===0)
+              corePrizedWithoutHandBall+=weight;
           }
         });
       }
@@ -107,6 +115,9 @@ function groupedOpeningPrizeAccess({
     validOpeningRate:Number(validHands)/Number(totalAll),
     unrecoverablePrizeOnly:ratio(blocked),
     potentiallyRecoverablePrizeOnly:1-ratio(blocked),
+    handOnlyUnrecoverable:ratio(handOnlyBlocked),
+    handOnlyPotentiallyRecoverable:1-ratio(handOnlyBlocked),
+    corePrizedWithoutHandBall:ratio(corePrizedWithoutHandBall),
     anyCoreGroupFullyPrized:ratio(anyCoreFullyPrized),
     exactMissingGroupCounts:Object.freeze(unreachableGroups.map(ratio)),
     numerator:blocked.toString(),denominator:denominator.toString()
