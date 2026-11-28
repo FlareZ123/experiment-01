@@ -884,10 +884,13 @@ test('printed Crush and Burn-GX: 5 physical attached Energy -> exact terminal VS
   const T='Regidrago VSTAR SIT';
   for(const seat of [0,1]){
     const f=setup(seat,4);
-    const energies=Array.from({length:5},()=>new EnergyCard());
+    // Own two Prizes vs opponent four: Reversal provides Colorless only.
+    // Unit LPM actually funds the GX attack's Lightning symbol.
+    const unit=Object.assign(new EnergyCard(),{fullName:'Unit Energy LPM UPR',name:'Unit Energy LPM'});
+    const energies=[unit,...Array.from({length:4},()=>new EnergyCard())];
     f.owner.active=slot(E,energies.slice(0,2));
     f.owner.bench[0]=slot(R,energies.slice(2));
-    f.view.ownPublic.active=viewSlot(E,[P,P]);
+    f.view.ownPublic.active=viewSlot(E,['Unit Energy LPM UPR',P]);
     f.view.ownPublic.bench=[viewSlot(R,[P,P,P]),null,null,null,null];
     f.view.ownPublic.publicTurnRestrictions.gxUsed=false;
     f.view.ownPublic.prizeCount=2;
@@ -935,9 +938,10 @@ test('printed Crush and Burn-GX uses four cards, not four special Energy units',
     const f=setup(seat,4);
     const one=()=>Object.assign(new EnergyCard(),
       {fullName:C,name:'Counter Energy'});
-    f.owner.active=slot(E,[one(),one()]);
+    const unit=Object.assign(new EnergyCard(),{fullName:'Unit Energy LPM UPR',name:'Unit Energy LPM'});
+    f.owner.active=slot(E,[unit,one()]);
     f.owner.bench[0]=slot(R,[one(),one()]);
-    f.view.ownPublic.active=viewSlot(E,[C,C]);
+    f.view.ownPublic.active=viewSlot(E,['Unit Energy LPM UPR',C]);
     f.view.ownPublic.bench=[viewSlot(R,[C,C]),null,null,null,null];
     f.view.ownPublic.publicTurnRestrictions.gxUsed=false;
     f.view.ownPublic.prizeCount=2;
