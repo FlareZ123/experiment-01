@@ -536,7 +536,13 @@ function scoreAttack(item, observation) {
         matches(row.pokemon.printing, PRINT.mega) && energyCount(row.pokemon) < 3) ? 230 : 0;
   }
   if (/^Itchy Pollen$/i.test(attack)) return rank16LockLive(observation)?355:135;
-  if (/^Suffocating Gas$/i.test(attack) || /^Venomous Hit$/i.test(attack)) return 25;
+  // Source Trubbish CRI 56 (xy9-56) has Acid Spray: 10 damage plus a
+  // heads-only discard of one Energy from opponent's Active Pokémon.
+  // It is a useful fallback when physically offered, not a guaranteed lock.
+  if (/^Acid Spray$/i.test(attack)) {
+    const energies=energyCount(observation?.opponentPublic?.active);
+    return energies>=2?160:energies===1?120:45;
+  }
   return 0;
 }
 function rank16SourceSupporterScore(card,o) {
