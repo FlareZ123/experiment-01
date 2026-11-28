@@ -108,6 +108,13 @@ function hasBenchedPsychic(own) {
     /^Mimikyu GRI(?: 58)?\b/i.test(text(c))));
 }
 function availableCards(request) {return arr(request?.actionFrontier?.items).filter(a=>typeof a?.token==='string'&&a.token.length>0);}
+// Twinleaf's manual Energy field is the global turn last used, not a count.
+function manualEnergyAvailable(o) {
+  const stamp=o?.ownTurnResources?.energyPlayedTurn;
+  const turn=o?.globalTurn;
+  return stamp===false ||
+    (Number.isSafeInteger(stamp)&&Number.isSafeInteger(turn)&&stamp!==turn);
+}
 function isLaterTurn(observation) {
   const ownTurn = observation?.ownTurnResources?.ownTurnNumber ?? observation?.ownPublic?.turnNumber;
   if(safeInt(ownTurn))return ownTurn>=2;
@@ -122,7 +129,7 @@ function discardScore(value,o) {
     const own=o.ownPublic,hand=arr(o.ownHand);
     const basicCopies=copyCount(hand,P.basicPsychic);
     const telepathCopies=copyCount(hand,P.telepathic);
-    const manualAvailable=o.ownTurnResources?.energyPlayedTurn===0;
+    const manualAvailable=manualEnergyAvailable(o);
     const needsClef=has(own.active,P.clefairy)&&
       arr(own.active.energies).length<2;
     const miniorCounter=miniorStallOpportunity(o)?.knockout&&
@@ -150,7 +157,7 @@ function safeDiscardPayment(o,choices,count) {
     .map((choice,i)=>({choice,score:discardScore(choice,o),i}))
     .filter(row=>row.score>0)
     .sort((a,b)=>b.score-a.score||a.i-b.i);
-  const manualAvailable=o.ownTurnResources?.energyPlayedTurn===0;
+  const manualAvailable=manualEnergyAvailable(o);
   const needClef=has(o.ownPublic?.active,P.clefairy)&&
     arr(o.ownPublic?.active?.energies).length<2;
   const needMinior=miniorStallOpportunity(o)?.knockout&&
@@ -286,9 +293,10 @@ function guzmaPrompt(request) {
 }
 
 function supporterAvailable(o) {
-  const used=o?.ownTurnResources?.supporterPlayedTurn;
-  const turn=o?.globalTurn;
-  return used===0 || (safeInt(used)&&safeInt(turn)&&used<turn);
+  // Unlike manual Energy, this resource is a count of Supporters this turn.
+  return o?.ownTurnResources?.supporterPlayedTurn===0 &&
+    o?.ownTurnResources?.supporterPlayLocked!==true &&
+    o?.ownPublic?.publicTurnRestrictions?.supporterPlayLocked!==true;
 }
 function compressorOpportunity(o,{enablePatchProjection=false}={}) {
   const hand=arr(o?.ownHand),discard=arr(o?.ownPublic?.discard);
@@ -475,7 +483,7 @@ function starNeedsResource(o,{enablePatchProjection=false}={}) {
   if(enablePatchProjection&&basicDiscard(o.ownPublic)&&hasBenchedPsychic(o.ownPublic)&&
     !hand.some(x=>has(x,P.patch)))return true;
   const active=o.ownPublic?.active;
-  const nextEnergy=o.ownTurnResources?.energyPlayedTurn===0;
+  const nextEnergy=manualEnergyAvailable(o);
   if(has(active,P.clefairy)&&arr(active.energies).length<2&&nextEnergy&&
      !hand.some(x=>has(x,P.basicPsychic)||has(x,P.telepathic)))return true;
   const ro=projectedRondo(o);
