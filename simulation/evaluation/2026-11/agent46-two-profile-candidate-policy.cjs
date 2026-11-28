@@ -2432,6 +2432,21 @@ function stealthyHoodTargetScore(view,slot,receipt=null) {
   if(hasEffectiveStealthyHood(equipped,projected,'actor')!==true)return -Infinity;
   let score=-Infinity;
   if(slot===view.ownPublic.active&&hasActiveStealthyHoodThreat(view))score=1250;
+  // Hood on a Benched Latias can be the first action of a *payable* ALS:
+  // shield Skyliner from Garbotoxin, use a held Guzma, retreat freely
+  // to the already-funded VMAX, KO the sole lock source, take a Prize.
+  // Compare against alternative Hood uses; do not promote when an
+  // immediate Psychic Energy acceleration line is in hand.
+  if(hasName(slot.printing,'Latias ex')&&slot!==view.ownPublic.active&&
+     isShadowRiderVmax(view.ownPublic.active)&&handHas(view,'Guzma')&&
+     !handHas(view,'Psychic Energy')&&
+     view.ownTurnResources?.supporterPlayedTurn===0&&!resolved.unknown){
+    const payoff=guzmaPlans(projected,receipt).some(row=>
+      row.multiPrizePivot===true&&row.prizes===1&&
+      (hasName(view.opponentPublic.bench[row.targetIndex]?.printing,'Garbodor BKP')||
+       hasName(view.opponentPublic.bench[row.targetIndex]?.printing,'Garbodor LTR')));
+    if(payoff)score=Math.max(score,2450);
+  }
   if(isDragon(slot)&&opponentFairyZoneStatus(view)===true)score=Math.max(score,750);
   if(!sources.length||resolved.unknown)return score;
   const restored=ability=>effectiveAbilityStatus(slot,ability,'actor',view)===false&&
