@@ -985,6 +985,10 @@ for(const seat of [0,1]) {
     r.actionFrontier.items=[
       root('use-ability','Squawkabilly ex PAL 169','squawk',
         {abilityName:'Squawk and Seize'})];
+    // First-turn VIP is protected until it has been played; consuming it
+    // through Squawk's hand reset would destroy a useful opening line.
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    r.observation.ownHand=[];
     assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'squawk'});
     r.observation.globalTurn=4;
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
