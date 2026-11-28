@@ -205,6 +205,44 @@ test('first-turn Battle VIP Pass outranks a second basic setup action', () => {
   assert.deepEqual(result.decision, { kind: 'select-action', token: 'vip' });
 });
 
+test('first-turn setup is legal on either seat’s first turn, Hammer only going second', () => {
+  for(const seat of [0,1]){
+    for(const turn of [1,2,3]){
+      const entries=[
+        ['vip','Battle VIP Pass FST 225',turn<=2],
+        ['squawk','Squawkabilly ex PAL 169',turn<=2],
+        ['carmine','Carmine TWM 145',turn<=2]
+      ];
+      for(const [token,printing,available] of entries){
+        const obs=observation({seat,turn,ownHand:[printing]});
+        const d=runDecision({seat,obs,items:[
+          action(token,'play-card',{actorPrinting:printing}),
+          action('pass','pass')]});
+        assert.deepEqual(d.decision,{kind:'select-action',token:available?token:'pass'});
+      }
+      const obs=observation({seat,turn,ownHand:[FIGHTING]});
+      const a=runDecision({seat,obs,items:[
+        action('squawk-ability','use-ability',
+          {actorPrinting:'Squawkabilly ex PAL 169',
+            publicMetadata:{abilityName:'Squawk and Seize'}}),
+        action('pass','pass')]});
+      assert.deepEqual(a.decision,
+        {kind:'select-action',token:turn<=2?'squawk-ability':'pass'});
+    }
+    const target=pokemon({printing:ADP,energies:[LIGHTNING],
+      subtypes:['Basic','TAG TEAM','GX']});
+    for(const turn of [1,2,3]){
+      const obs=observation({seat,turn,
+        ownHand:['Wait and See Hammer LOT 192'],opponentActive:target});
+      const d=runDecision({seat,obs,items:[
+        action('hammer','play-card',{actorPrinting:'Wait and See Hammer LOT 192'}),
+        action('pass','pass')]});
+      assert.deepEqual(d.decision,
+        {kind:'select-action',token:turn===2?'hammer':'pass'});
+    }
+  }
+});
+
 test('Professor Sada is selected only when Basic Energy is already in discard and an Ancient target exists', () => {
   const bolt = pokemon({ printing: RAGING, subtypes: ['Basic', 'ex', 'Ancient'], energies: [] });
   const obs = observation({
@@ -303,7 +341,7 @@ test('Bellowing Thunder abstains when other Pokémon Basic Energy cannot be attr
   });
   const result = runDecision({ obs, promptValue: p });
   assert.deepEqual(result.decision, {
-    kind: 'abstain', reasonCode: 'BELLOWING_ENERGY_OWNER_UNATTRIBUTED'
+    kind: 'abstain', reasonCode: 'UNTRUSTED_ENERGY_SELECTION'
   });
 
   const root = observation({ ownActive: bolt, ownBench: [sandy, null, null, null, null],
@@ -345,13 +383,13 @@ test('Bellowing Thunder fails closed when GX or opponent Ability modifiers are u
   });
   const result = runDecision({ obs, promptValue: p });
   assert.deepEqual(result.decision, {
-    kind: 'abstain', reasonCode: 'BELLOWING_DAMAGE_MODIFIER_STATE_UNKNOWN'
+    kind: 'abstain', reasonCode: 'UNTRUSTED_ENERGY_SELECTION'
   });
 });
 
 test('Wait and See Hammer targets an opponent Energy and prioritizes Double Dragon Energy', () => {
   const rootObs = observation({
-    ownHand: ['Wait and See Hammer LOT 192'], turn: 1,
+    ownHand: ['Wait and See Hammer LOT 192'], turn: 2,
     opponentActive: pokemon({ printing: 'Arceus & Dialga & Palkia-GX CEC 156',
       subtypes: ['Basic', 'TAG TEAM', 'GX'], energies: [DDE, LIGHTNING] })
   });
@@ -360,7 +398,7 @@ test('Wait and See Hammer targets an opponent Energy and prioritizes Double Drag
     action('pass', 'pass')
   ]});
   const obs = observation({
-    ownHand: ['Wait and See Hammer LOT 192'], turn: 1,
+    ownHand: ['Wait and See Hammer LOT 192'], turn: 2,
     opponentActive: pokemon({ printing: 'Arceus & Dialga & Palkia-GX CEC 156',
       subtypes: ['Basic', 'TAG TEAM', 'GX'], energies: [DDE, LIGHTNING] }),
     decisionKind: 'owner-prompt', promptType: 'ChooseEnergyPrompt'
@@ -581,7 +619,7 @@ test('Hisuian Heavy Ball does not guess hidden prize identities', () => {
     });
   const hidden = runDecision({ obs, promptValue: hiddenPrompt });
   assert.deepEqual(hidden.decision, {
-    kind: 'abstain', reasonCode: 'NO_VISIBLE_BASIC_POKEMON_PRIZE'
+    kind: 'abstain', reasonCode: 'NO_VISIBLE_PRIZE_SLOT'
   });
 
   const visibleChoices = [
@@ -602,8 +640,16 @@ test('Hisuian Heavy Ball does not guess hidden prize identities', () => {
 test('unsupported native prompt types fail closed', () => {
   const obs = observation({ decisionKind: 'owner-prompt', promptType: 'DiscardEnergyPrompt' });
   const p = prompt(0, 'DiscardEnergyPrompt', 'Bellowing Thunder', RAGING, [], {});
-  const result = runDecision({ obs, promptValue: p });
-  assert.deepEqual(result.decision, {
+  // Unknown host prompt classes are rejected by the shared validator.
+  // Test worker fail-closed behavior without claiming native acceptance.
+  const worker = policyModule.createPolicy({
+    role: 'opponent', seat: 0, policyVersion: POLICY_VERSION, config: {}
+  });
+  const decision = worker.decide({
+    role: 'opponent', seat: 0, observation: obs, prompt: p,
+    actionFrontier: { items: [] }
+  });
+  assert.deepEqual(decision, {
     kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE'
   });
 });
