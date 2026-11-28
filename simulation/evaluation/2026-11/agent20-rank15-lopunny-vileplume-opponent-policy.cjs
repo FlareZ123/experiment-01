@@ -1242,8 +1242,11 @@ function poffinPrompt(request) {
 }
 function createPolicy({role,seat,policyVersion,config}) {
   if(role!=='opponent'||(seat!==0&&seat!==1)||policyVersion!==POLICY_VERSION||
-     !config||typeof config!=='object'||Array.isArray(config)||Object.keys(config).length)
+     !config||typeof config!=='object'||Array.isArray(config)||
+     !(Object.keys(config).length===0||
+       (Object.keys(config).length===1&&config.allowPassFallback===true)))
     throw new Error('AGENT20_RANK15_INIT_MISMATCH');
+  const allowPassFallback=config.allowPassFallback===true;
   return Object.freeze({decide(request){
     if(request?.role!=='opponent'||request.seat!==seat||request.observation?.actorSeat!==seat)
       return abstain('ROLE_SEAT_BINDING_MISMATCH');
@@ -1281,7 +1284,16 @@ function createPolicy({role,seat,policyVersion,config}) {
          has(request.prompt?.source?.sourcePrinting,P.bunnelby)))return busRetreatPrompt(request);
       return abstain('UNSUPPORTED_PROMPT_TYPE');
     }
-    return rootDecision(request);
+    const root=rootDecision(request);
+    // Opt-in best-effort full-game mode: pass only on an otherwise
+    // unsupported root, never on an unresolved/foreign prompt. The native
+    // action frontier must expose the actual Pass token.
+    if(allowPassFallback&&root.kind==='abstain'&&
+      root.reasonCode==='NO_SUPPORTED_ROOT_ACTION'){
+      const pass=arr(request.actionFrontier?.items).find(x=>playable(x)&&x.kind==='pass');
+      if(pass)return take(pass);
+    }
+    return root;
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,ENGINE_PRINTING_ALIASES,ENGINE_COUNTS,
