@@ -153,6 +153,7 @@ for (const seat of [0, 1]) {
 function confirmRequest(seat, {
   activePrinting = 'Bunnelby PRC 121',
   benchWater = true,
+  activeWater = false,
   opponentEnergy = 2,
   gxUsed = false,
   effectName = 'Articuno-GX'
@@ -164,7 +165,7 @@ function confirmRequest(seat, {
       ownHand: [],
       ownTurnResources: { gxUsed },
       ownPublic: {
-        active: { printing: activePrinting, energies: [] },
+        active: { printing: activePrinting, energies: activeWater ? ['Water Energy MEE 12'] : [] },
         bench: [
           { printing: 'Articuno-GX CES', energies: [] },
           {
@@ -201,6 +202,16 @@ function confirmRequest(seat, {
 for (const seat of [0, 1]) {
   test('Articuno confirms a payable immediate Cold Crush-GX setup, seat ' + seat, () => {
     const request = confirmRequest(seat);
+    const prompt = protocol.validatePrompt(request.prompt, seat);
+    const actual = rank3.createPolicy({
+      role: 'opponent', seat, policyVersion: rank3.POLICY_VERSION, config: {}
+    }).decide(request);
+    assert.deepEqual(actual, { kind: 'select-choice', token: 'yes' });
+    protocol.validateDecision(actual, prompt, new Set());
+  });
+
+  test('Legendary Ascent counts pre-switch Active Water as post-switch Bench source, seat ' + seat, () => {
+    const request = confirmRequest(seat, { benchWater: false, activeWater: true });
     const prompt = protocol.validatePrompt(request.prompt, seat);
     const actual = rank3.createPolicy({
       role: 'opponent', seat, policyVersion: rank3.POLICY_VERSION, config: {}

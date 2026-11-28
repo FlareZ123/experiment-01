@@ -1350,7 +1350,15 @@ function promptDecision(request) {
     const benchWater = slots(observation.ownPublic).some(row =>
       row.zone === 'bench' && !matches(row.pokemon.printing, PRINT.articuno) &&
       list(row.pokemon.energies).some(energy => /^Water Energy\b/i.test(valueText(energy))));
-    const acceptAscent = ascentSource && benchWater && !gxUsed(observation) &&
+    // Legendary Ascent asks before switching Articuno into Active. The old
+    // Active becomes Benched *with its attached Water Energy* before the
+    // native MoveEnergyPrompt is offered. Bench-only inspection incorrectly
+    // declines this physical, payable continuation.
+    const preSwitchActive = observation.ownPublic?.active ?? null;
+    const futureBenchWater = !matches(preSwitchActive?.printing ?? '', PRINT.articuno) &&
+      list(preSwitchActive?.energies).some(energy =>
+        /^Water Energy\\b/i.test(valueText(energy)));
+    const acceptAscent = ascentSource && (benchWater || futureBenchWater) && !gxUsed(observation) &&
       !matches(observation.ownPublic?.active?.printing ?? '', PRINT.snorlax) &&
       opponentActiveEnergy(observation) >= 2;
     const shouldAccept = acceptAscent ||
