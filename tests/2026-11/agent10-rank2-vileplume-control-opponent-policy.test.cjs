@@ -257,6 +257,7 @@ function pokemonChoice(token, printing, owner = 'actor', zone = 'bench', index =
       selectionType: 'pokemon',
       ownerSeat: owner,
       targetZone: zone,
+      ...(zone === 'bench' ? { benchIndex: index } : { slotIndex: index }),
       isOwnerVisible: true
     }
   };
@@ -1069,6 +1070,80 @@ test('Grand Tree can target an eligible Active Basic as well as a Bench Basic', 
 });
 
 
+
+
+test('Guzma chooses damaged physical duplicate instead of first matching printing', () => {
+  const printed = 'Pidgeot ex OBF 164';
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Guzma BUS 115', 'Guzma'),
+    choices: [
+      pokemonChoice('healthy-first', printed, 'opponent', 'bench', 0),
+      pokemonChoice('damaged-second', printed, 'opponent', 'bench', 1)
+    ],
+    observation: { opponentPublic: player({ bench: [
+      pokemon(printed, { hp: 280, damage: 0 }),
+      pokemon(printed, { hp: 280, damage: 270 })
+    ] }) }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['damaged-second']
+  });
+});
+
+test('Cassius targets damaged physical duplicate, not matching healthy bench slot', () => {
+  const printed = 'Bunnelby PRC 121';
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Cassius XY 115', 'Cassius'),
+    choices: [
+      pokemonChoice('healthy', printed, 'actor', 'bench', 0),
+      pokemonChoice('injured', printed, 'actor', 'bench', 1)
+    ],
+    observation: { ownPublic: player({ bench: [
+      pokemon(printed, { hp: 70, damage: 0 }),
+      pokemon(printed, { hp: 70, damage: 60 })
+    ] }) }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['injured']
+  });
+});
+
+test('Grand Tree chooses eligible older physical duplicate, not new Basic', () => {
+  const printed = 'Oddish UNB 5';
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Grand Tree SCR 136', 'Grand Tree'),
+    choices: [
+      pokemonChoice('new', printed, 'actor', 'bench', 0),
+      pokemonChoice('old', printed, 'actor', 'bench', 1)
+    ],
+    observation: { globalTurn: 3, ownPublic: player({ bench: [
+      pokemon(printed, { lastPlayedOrEvolvedTurn: 3 }),
+      pokemon(printed, { lastPlayedOrEvolvedTurn: 1 })
+    ] }) }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['old']
+  });
+});
+
+test('mismatched or absent physical slot is not guessed by printing', () => {
+  const printed = 'Pidgeot ex OBF 164';
+  const invalid = pokemonChoice('nonexistent', printed, 'opponent', 'bench', 4);
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Guzma BUS 115', 'Guzma'),
+    choices: [invalid],
+    observation: { opponentPublic: player({ bench: [
+      pokemon(printed, { hp: 280, damage: 270 })
+    ] }) }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'abstain', reasonCode: 'NO_SUPPORTED_CARD_SELECTION'
+  });
+});
 
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
