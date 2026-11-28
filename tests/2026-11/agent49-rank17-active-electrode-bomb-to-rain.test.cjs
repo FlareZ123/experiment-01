@@ -910,7 +910,7 @@ test('printed Crush and Burn-GX: 5 physical attached Energy -> exact terminal VS
     assert.equal(projection.source.effectName,'Crush and Burn-GX');
     assert.equal(projection.publicMetadata.selectionType,'energy-payment');
     assert.equal(projection.publicMetadata.energyCount,5);
-    assert.equal(projection.choices.length,5);
+    assert.equal(projection.choices.length,6,'five physical energies plus the legal empty selection');
     assert.equal(projection.choices.filter(c=>
       c.publicMetadata.zone==='active').length,2);
     assert.equal(projection.choices.filter(c=>
@@ -1049,14 +1049,16 @@ test('printed zero-discard GX chooses no attached Energy yet still takes termina
     const p=crushBurnPrompt(f),projection=p.projection.promptProjection;
     assert.equal(projection.publicMetadata.minimumCount,0);
     assert.equal(projection.publicMetadata.maximumCount,2);
-    assert.equal(projection.choices.length,2);
+    assert.equal(projection.choices.length,3,'two physical energies plus empty selection');
     const selection=f.decide(2,projection);
-    assert.deepEqual(selection,{kind:'select-choices',tokens:[]},
-      'a printed attack with any amount can discard no physical Energy');
+    const empty=projection.choices.find(c=>c.kind==='empty-selection');
+    assert.ok(empty);
+    assert.deepEqual(selection,{kind:'select-choice',token:empty.token},
+      'a printed any-amount attack uses the existing typed empty-selection action');
     protocol.validateDecision(selection,projection,new Set());
     const out=f.settle(p.prompt,p.projection,selection);
     assert.deepEqual(out.rawResult,[]);
-    assert.equal(30+50*selection.tokens.length,30);
+    assert.equal(30+50*out.rawResult.length,30);
     assert.ok(30>=f.view.opponentPublic.active.hp-f.view.opponentPublic.active.damage);
     assert.equal(f.owner.active.energies.cards.length,2,
       'zero-discard GX must retain both Energy cards paying the attack cost');
