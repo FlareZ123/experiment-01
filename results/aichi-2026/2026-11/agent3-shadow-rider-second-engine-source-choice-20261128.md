@@ -505,3 +505,37 @@ forecast into a physical-game win assertion.
 21 modules and 408/408 executed cases**, subject
 to the full suite's recheck after this last change.
 Neither a native Store nor a real Aichi game has run.
+
+## Source PAL97 Safeguard: false last-Prize and last-board forecast
+
+Original Aichi **ranks 3 and 7** carry source-exact
+`Mimikyu PAL 97`, whose printed **Safeguard** Ability
+prevents all attack damage from the opponent's **modern
+Pokémon ex and Pokémon V** (including VMAX). The
+previous terminal fast path treated a nominal payable
+`Shadow Rider Calyrex VMAX CRE75` Max Geist or
+`Latias ex SSP76` Eon Blade against Mimikyu as a
+lethal last-Prize or last-board win. The hit would
+be prevented while Safeguard is operational.
+
+The shortcut now conservatively refuses to certify a
+terminal attack against exact PAL97 Mimikyu with a
+modern ex or V attacker. It deliberately does **not**
+conflate old Pokémon-EX or Pokémon-GX with modern
+Pokémon ex: PAL97's prevention does not name the old
+forms. The fast path currently makes no claim that
+Safeguard is disabled by another Ability-lock effect;
+such fully conditional damage evidence belongs to
+native Store validation, not a hand-made terminal score.
+Ordinary root policies remain free to select a native
+attack for other tactical purposes; only the **predicted
+immediate-win exemption** is removed.
+
+Three two-seat negative cases were added to
+`tests/2026-11/agent3-terminal-attack-before-draw-source-policy-20261128.test.cjs`:
+VMAX final-Prize, VMAX last-board, and Latias ex
+final-Prize. Terminal module now **44/44** direct
+source-policy/protocol V8 cases; consolidated suite
+expected **414** after final full batches. This
+is a source-card-text defensive correction, not
+native simulated evidence of an Aichi matchup win.
