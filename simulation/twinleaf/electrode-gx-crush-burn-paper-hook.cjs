@@ -114,8 +114,17 @@ function installElectrodeGXCrushBurnWithDependencies({
     beforeReducer,AttackEffect,DiscardEnergyPrompt,GameMessage
   );
   const manager=CardManager.getInstance();
-  for(const card of manager.getAllCards())
-    normalizeElectrodeGXPrintedAttack(card,replacements);
+  // Installation is transactional. An unexpected pinned printing/template
+  // shape must not leave already-normalized cards mutated on failure.
+  try{
+    for(const card of manager.getAllCards())
+      normalizeElectrodeGXPrintedAttack(card,replacements);
+  }catch(error){
+    for(const [card,name] of replacements)
+      if(card?.attacks?.[1]?.name===PAPER_ATTACK)card.attacks[1].name=name;
+    replacements.clear();
+    throw error;
+  }
   CardManager.prototype.getCardByName=repairedGetCard;
   ElectrodeGX.prototype.reduceEffect=repairedReducer;
   activeRestore=()=>{
