@@ -26,6 +26,15 @@ const SOURCE_COUNTS = Object.freeze([
   ['Capture Energy RCL 171',1],['Powerful Colorless Energy DAA 176',1],
   ['Double Colorless Energy SUM 136',1]
 ]);
+// Two archive print identifiers are not valid direct card-database keys.
+// Preserve original opponent-source provenance in SOURCE_COUNTS while emitting
+// a legally equivalent, resolvable printing for the executable fixture.
+const ENGINE_PRINTING_ALIASES = Object.freeze({
+  'Karen XYP 177': 'Karen PR-XY XY177',
+  'Grass Energy MEE 9': 'Grass Energy BLW 105'
+});
+const ENGINE_COUNTS=Object.freeze(SOURCE_COUNTS.map(([printing,count])=>
+  Object.freeze([ENGINE_PRINTING_ALIASES[printing]??printing,count])));
 const P = Object.freeze({
   oddish:/^Oddish UNB(?: 5)?\b/i, gloom:/^Gloom UNB(?: 7)?\b/i,
   aor:/^Vileplume AOR(?: 3)?\b/i,bus:/^Vileplume BUS(?: 6)?\b/i,
@@ -39,7 +48,7 @@ const P = Object.freeze({
   tagCall:/^Tag Call CEC(?: 206)?\b/i,
   guzmaHala:/^Guzma & Hala CEC(?: 193)?\b/i,
   guzma:/^Guzma BUS(?: 115)?\b/i,
-  karen:/^Karen XYP(?: 177)?\b/i,
+  karen:/^Karen (?:(?:XYP(?: (?:XY)?177a?)?)|(?:PR-XY(?: XY177a?)?))\b/i,
   n:/^N FCO(?: 105)?\b/i,
   regidrago:/^Regidrago VSTAR SIT(?: 136)?\b/i,
   eldegoss:/^Eldegoss V RCL(?: 19)?\b/i,
@@ -53,7 +62,7 @@ const P = Object.freeze({
   pathPeak:/^Path to the Peak CRE(?: 148)?\b/i,
   silentLab:/^Silent Lab PRC(?: 140)?\b/i,
   thorns:/^Iron Thorns ex TWM(?: 77)?\b/i,
-  grass:/^Grass Energy MEE(?: 9)?\b/i,
+  grass:/^Grass Energy (?:(?:MEE(?: 9)?)|(?:BLW(?: 105)?)|(?:BW(?: 105)?))\b/i,
   hood:/^Stealthy Hood UNB(?: 186)?\b/i,
   powerful:/^Powerful Colorless Energy DAA(?: 176)?\b/i,
   choiceBelt:/^Choice Belt PAL(?: 176)?\b/i,
@@ -1179,6 +1188,6 @@ function createPolicy({role,seat,policyVersion,config}) {
     return rootDecision(request);
   }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,ENGINE_PRINTING_ALIASES,ENGINE_COUNTS,
   createPolicy,rootDecision,poffinPrompt,printedDamage,applyColorlessWeaknessResistance,movementEvidence,karenOpportunity,REGIDRAGO_DRAGON_PAYLOADS,
   candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,energyProvided,attachedEnergyUnits,energyActionScore,capturePrompt,hoodProtectionScore,k1Available,k1EvoTarget,nOpportunity,peakLockOpportunity,silentLabOpportunity,eldCanBench,eldegossPrompt,floatUpPrompt,eldSupporterPriority,xtransceiverPrompt,usefulArtazonBasic,artazonPrompt,airMailPrompt,grandTreePrompt,grandTreeTarget,guzmaOpportunity,guzmaPrompt,rototillerPrompt,rototillerPriority,bunnelbyAttritionAction,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
