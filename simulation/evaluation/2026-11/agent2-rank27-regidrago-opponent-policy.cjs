@@ -231,6 +231,57 @@ function rank27EnergyAttachScore(item,obs){
   if(ready&&!hasDonor)score-=20;
   return score;
 }
+function finalPrizePrimeTarget(obs){
+  const own=obs?.ownPublic??{},opp=obs?.opponentPublic??{};
+  if(own.prizeCount!==1||
+    !visibleDonors(obs).some(x=>is(x,PREFIX.dragapult))||
+    !arr(own.bench).some(p=>is(p,PREFIX.regidragoVstar)&&
+      energyCoverage(p.energies)===3))return null;
+  const victims=arr(opp.bench).map((p,index)=>({p,index}))
+    .filter(({p})=>p&&typeof p.printing==='string'&&
+      Number.isFinite(p.hp)&&Number.isFinite(p.damage)&&
+      p.hp-p.damage>0&&p.hp-p.damage<=200&&
+      !/^Mimikyu GRI(?: 58)?$/.test(name(p.printing)));
+  victims.sort((a,b)=>
+    (a.p.hp-a.p.damage)-(b.p.hp-b.p.damage)||a.index-b.index);
+  return victims[0]??null;
+}
+function primeCatcherTargetChoice(prompt,obs){
+  const meta=prompt?.publicMetadata??{},choices=arr(prompt?.choices);
+  if(meta.selectionType!=='pokemon'||meta.minimumCount!==1||
+    meta.maximumCount!==1||meta.allowCancel!==false)
+    return reason('UNSUPPORTED_PROMPT_TYPE');
+  const own=obs.ownPublic??{},opp=obs.opponentPublic??{};
+  const targetRows=choices.map((choice,index)=>{
+    const m=choice?.publicMetadata??{};
+    if(choice?.kind!=='pokemon'||typeof choice.token!=='string'||
+      m.targetZone!=='bench'||!Number.isSafeInteger(m.benchIndex)||
+      m.benchIndex<0||!['actor','opponent'].includes(m.ownerSeat))
+      return {choice,index,score:-Infinity};
+    const mon=arr(m.ownerSeat==='actor'?own.bench:opp.bench)[m.benchIndex];
+    if(!mon||typeof mon.printing!=='string')return {choice,index,score:-Infinity};
+    let score=0;
+    if(m.ownerSeat==='actor'){
+      // Prime Catcher has already gusted an opposing Bench target.
+      // It now *must* switch our Active. Prefer an actually fueled VSTAR.
+      if(is(mon,PREFIX.regidragoVstar))score=energyCoverage(mon.energies)===3?480:210;
+      else if(is(mon,PREFIX.regidragoV))score=energyCoverage(mon.energies)>=1?190:100;
+      else if(is(mon,PREFIX.budew))score=70;
+      else score=10;
+    }else{
+      const remaining=Number.isFinite(mon.hp)&&Number.isFinite(mon.damage)?
+        mon.hp-mon.damage:null;
+      if(remaining===null||remaining<=0)score=15;
+      else if(/^Mimikyu GRI(?: 58)?$/.test(name(mon.printing)))score=5;
+      else if(remaining<=200&&finalPrizePrimeTarget(obs)?.index===m.benchIndex)score=490;
+      else score=240-Math.min(remaining,400)/4;
+    }
+    return {choice,index,score};
+  }).filter(x=>Number.isFinite(x.score));
+  targetRows.sort((a,b)=>b.score-a.score||a.index-b.index);
+  if(!targetRows.length)return reason('NO_SUPPORTED_POKEMON_CHOICE');
+  return {kind:'select-choices',tokens:[targetRows[0].choice.token]};
+}
 function ownTurnKOEligible(obs,receipt){
   // Current main v3 receipt copies a potentially stale Twinleaf Boolean.
   // Do NOT enable Raihan until an authenticated owner-turn tracker and the
@@ -292,9 +343,10 @@ function scoreRoot(item,request){
     if(p===PREFIX.crispin)return !bestRegidragoEnergy(own).length?80:
       bestRegidragoEnergy(own).some(x=>x<3)?235:40;
     if(p===PREFIX.sycamore||p===PREFIX.marnie||p===PREFIX.n)return state.hand<=3?210:60;
-    if(p===PREFIX.prime)return board(opp).some(x=>
-      /^Mimikyu GRI 58/.test(name(x))||/^Lillie's Clefairy ex JTG 56/.test(name(x)))?
-      255:60;
+    if(p===PREFIX.prime)return finalPrizePrimeTarget(obs)?480:
+      board(opp).some(x=>
+        /^Mimikyu GRI(?: 58)?$/.test(name(x))||
+        /^Lillie's Clefairy ex JTG(?: 56)?$/.test(name(x)))?255:60;
     if(p===PREFIX.marshadow)return arr(own.stadium).some(x=>/Path to the Peak|Silent Lab/.test(name(x)))||
       arr(opp.stadium).some(x=>/Path to the Peak|Silent Lab/.test(name(x)))?145:25;
   }
@@ -540,6 +592,11 @@ function choosePrompt(request){
     }
     return {kind:'select-choice',token:single.token};
   }
+  if(kind==='ChoosePokemonPrompt'&&
+     src.sourcePrinting===PREFIX.prime&&
+     src.effectName==='Prime Catcher'){
+    return primeCatcherTargetChoice(prompt,obs);
+  }
   if(kind==='ChooseAttackPrompt'){
     if(src.sourcePrinting!==PREFIX.regidragoVstar||src.effectName!=='Apex Dragon')return reason('UNSUPPORTED_ATTACK_CHOICE_SOURCE');
     return pick(choices,c=>donorScore(c,obs),1,1,true);
@@ -619,4 +676,4 @@ function createPolicy({role,seat,policyVersion,config}){
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_BLOB_SHA1,SOURCE_PRINTINGS,
   createPolicy,scoreRoot,choosePrompt,donorScore,resolveSourcePrinting,
-  energyCoverage,rank27EnergyAttachScore};
+  energyCoverage,rank27EnergyAttachScore,finalPrizePrimeTarget};
