@@ -62,6 +62,32 @@ function winNow(prizeValueTaken, ownPublic) {
   return Number.isSafeInteger(remaining) && remaining > 0 && prizeValueTaken >= remaining;
 }
 
+function boardClearVictory(opponent, activeKnockout, allBenchKnockedOut = false) {
+  // An opponent with no Pokemon in play loses even before six Prizes are taken.
+  // Never infer an empty Bench from a missing/malformed observation.
+  if (!activeKnockout || !Array.isArray(opponent?.bench)) return false;
+  return occupiedBench(opponent).length === 0 || allBenchKnockedOut;
+}
+
+function phantomClearsBench(bench) {
+  // Six freely allocated damage counters can remove all Benched Pokemon only
+  // if their combined positive remaining HP fits that budget.
+  const targets = occupiedBench({ bench });
+  return targets.length > 0 && targets.every(p => remainingHp(p) > 0) &&
+    targets.reduce((sum, p) => sum + Math.ceil(remainingHp(p) / 10), 0) <= 6;
+}
+
+function trifrostClearsBench(bench) {
+  // Three targets total, including the Active Pokemon, each hit for 110.
+  const targets = occupiedBench({ bench });
+  return targets.length > 0 && targets.length <= 2 &&
+    targets.every(p => remainingHp(p) > 0 && remainingHp(p) <= 110);
+}
+
+function singleBenchHitClearsBench(opponent, benchHit) {
+  return occupiedBench(opponent).length === 1 && benchHit?.knockout === true;
+}
+
 function weaknessMultiplier(target, attackerType = 'Dragon') {
   const rows = list(target?.printed?.weakness);
   const row = rows.find(value => value?.type === attackerType);
@@ -189,7 +215,8 @@ function evaluateApexAttackChoice(choice, observation) {
   if (name === 'Jet Headbutt') {
     const damage = activeDamage(70, observation);
     const knockout = targetHp > 0 && damage >= targetHp;
-    const immediateWin = knockout && winNow(prizeValue(target), own);
+    const immediateWin = knockout && (winNow(prizeValue(target), own) ||
+      boardClearVictory(opponent, knockout));
     return {
       attackName: name,
       score: immediateWin ? 300 : (85 + (knockout ? 38 : 0)),
@@ -204,7 +231,8 @@ function evaluateApexAttackChoice(choice, observation) {
     const damage = activeDamage(70, observation);
     const knockout = targetHp > 0 && damage >= targetHp;
     const protectedAgainstBasic = list(target?.printed?.subtypes).includes('Basic');
-    const immediateWin = knockout && winNow(prizeValue(target), own);
+    const immediateWin = knockout && (winNow(prizeValue(target), own) ||
+      boardClearVictory(opponent, knockout));
     return {
       attackName: name,
       score: immediateWin ? 300 : ((protectedAgainstBasic ? 130 : 60) + (knockout ? 38 : 0)),
@@ -224,7 +252,8 @@ function evaluateApexAttackChoice(choice, observation) {
     // Any in-play Stadium is stored on its owner's Player. Visible Stadium or
     // Special Energy use is a proxy for lock value, not hidden-hand knowledge.
     const lockRelevant = stadiumInPlay || opponentHasSpecialEnergy;
-    const immediateWin = knockout && winNow(prizeValue(target), own);
+    const immediateWin = knockout && (winNow(prizeValue(target), own) ||
+      boardClearVictory(opponent, knockout));
     return {
       attackName: name,
       score: immediateWin ? 300 : ((lockRelevant ? 260 : 185) + (knockout ? 35 : 0)),
@@ -241,7 +270,8 @@ function evaluateApexAttackChoice(choice, observation) {
   if (name === 'Ryuno Glide') {
     const damage = activeDamage(330, observation);
     const knockout = targetHp > 0 && damage >= targetHp;
-    const immediateWin = knockout && winNow(prizeValue(target), own);
+    const immediateWin = knockout && (winNow(prizeValue(target), own) ||
+      boardClearVictory(opponent, knockout));
     // The printed effect discards two Energy. Keep a fixed, explicit future-resource
     // penalty rather than assuming how a particular Special Energy card is counted.
     const energyDiscardPenalty = immediateWin ? 0 : 30;
@@ -262,7 +292,8 @@ function evaluateApexAttackChoice(choice, observation) {
     if (gxUsed !== false) return { attackName: name, score: -1, reason: 'GX_STATUS_NOT_KNOWN_UNUSED' };
     const damage = activeDamage(150, observation);
     const knockout = targetHp > 0 && damage >= targetHp;
-    const immediateWin = knockout && winNow(prizeValue(target), own);
+    const immediateWin = knockout && (winNow(prizeValue(target), own) ||
+      boardClearVictory(opponent, knockout));
     return {
       attackName: name,
       score: immediateWin ? 300 : (knockout ? 255 : 230),
@@ -277,7 +308,8 @@ function evaluateApexAttackChoice(choice, observation) {
     const damage = activeDamage(280, observation);
     const knockout = targetHp > 0 && damage >= targetHp;
     const selfKnockout = ownHp > 0 && ownHp <= 60;
-    const immediateWin = knockout && winNow(prizeValue(target), own);
+    const immediateWin = knockout && (!selfKnockout || occupiedBench(own).length > 0) &&
+      (winNow(prizeValue(target), own) || boardClearVictory(opponent, knockout));
     return {
       attackName: name,
       score: immediateWin ? 300 : ((knockout ? 210 : 115) - (selfKnockout ? 100 : 0)),
@@ -294,7 +326,8 @@ function evaluateApexAttackChoice(choice, observation) {
     const knockout = targetHp > 0 && damage >= targetHp;
     const bench = maxBenchPrizeValueWithCounters(opponent.bench, 6);
     const prizesTaken = bench.prizes + (knockout ? prizeValue(target) : 0);
-    const immediateWin = winNow(prizesTaken, own);
+    const immediateWin = winNow(prizesTaken, own) ||
+      boardClearVictory(opponent, knockout, phantomClearsBench(opponent.bench));
     return {
       attackName: name,
       score: immediateWin ? 300 : (135 + (knockout ? 35 : 0) + bench.prizes * 38 + bench.kos * 8),
@@ -311,7 +344,9 @@ function evaluateApexAttackChoice(choice, observation) {
     const damage = activeDamage(110, observation);
     const targets = maxPrizeValueForThreeTargets(observation, damage, 110);
     const hasEnergyInHand = list(observation?.ownHand).some(card => /Energy/i.test(printingValue(card)));
-    const immediateWin = winNow(targets.prizes, own);
+    const immediateWin = winNow(targets.prizes, own) ||
+      boardClearVictory(opponent, targetHp > 0 && damage >= targetHp,
+        trifrostClearsBench(opponent.bench));
     return {
       attackName: name,
       score: immediateWin ? 300 : (92 + targets.prizes * 48 + targets.kos * 12 - (hasEnergyInHand ? 0 : 18)),
@@ -327,7 +362,8 @@ function evaluateApexAttackChoice(choice, observation) {
     const damage = activeDamage(200, observation);
     const knockout = targetHp > 0 && damage >= targetHp;
     const defensiveBonus = ownHp > 0 && ownHp <= 280 ? 20 : 0;
-    const immediateWin = knockout && winNow(prizeValue(target), own);
+    const immediateWin = knockout && (winNow(prizeValue(target), own) ||
+      boardClearVictory(opponent, knockout));
     return {
       attackName: name,
       score: immediateWin ? 300 : (142 + (knockout ? 38 : 0) + defensiveBonus),
@@ -343,7 +379,8 @@ function evaluateApexAttackChoice(choice, observation) {
     const knockout = targetHp > 0 && damage >= targetHp;
     const bench = maxPrizeValueForSingleBenchHit(opponent.bench, 30);
     const prizesTaken = (knockout ? prizeValue(target) : 0) + bench.prizes;
-    const immediateWin = winNow(prizesTaken, own);
+    const immediateWin = winNow(prizesTaken, own) ||
+      boardClearVictory(opponent, knockout, singleBenchHitClearsBench(opponent, bench));
     return {
       attackName: name,
       score: immediateWin ? 300 : (88 + (knockout ? 38 : 0) +
@@ -362,7 +399,8 @@ function evaluateApexAttackChoice(choice, observation) {
     const knockout = targetHp > 0 && damage >= targetHp;
     const bench = maxPrizeValueForSingleBenchHit(opponent.bench, 20);
     const prizesTaken = (knockout ? prizeValue(target) : 0) + bench.prizes;
-    const immediateWin = winNow(prizesTaken, own);
+    const immediateWin = winNow(prizesTaken, own) ||
+      boardClearVictory(opponent, knockout, singleBenchHitClearsBench(opponent, bench));
     return {
       attackName: name,
       score: immediateWin ? 300 : (82 + (knockout ? 38 : 0) +
@@ -380,7 +418,8 @@ function evaluateApexAttackChoice(choice, observation) {
     const damageCounters = Math.max(0, Math.floor(Number(attacker?.damage ?? 0) / 10));
     const damage = activeDamage(20 + damageCounters * 10, observation);
     const knockout = targetHp > 0 && damage >= targetHp;
-    const immediateWin = knockout && winNow(prizeValue(target), own);
+    const immediateWin = knockout && (winNow(prizeValue(target), own) ||
+      boardClearVictory(opponent, knockout));
     return {
       attackName: name,
       score: immediateWin ? 300 : (78 + Math.min(70, damage * 0.35) + (knockout ? 35 : 0)),
@@ -394,7 +433,8 @@ function evaluateApexAttackChoice(choice, observation) {
   if (name === 'Shred') {
     const damage = activeDamage(80, observation);
     const knockout = targetHp > 0 && damage >= targetHp;
-    const immediateWin = knockout && winNow(prizeValue(target), own);
+    const immediateWin = knockout && (winNow(prizeValue(target), own) ||
+      boardClearVictory(opponent, knockout));
     return {
       attackName: name,
       score: immediateWin ? 300 : (76 + (knockout ? 38 : 0)),
