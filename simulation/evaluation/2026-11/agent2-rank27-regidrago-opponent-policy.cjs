@@ -160,6 +160,61 @@ function sourceDiscardValue(printing,obs){
   if(printing===PREFIX.eldegoss&&sourceAbilityRecoveryOpen(obs))return 20;
   return 75;
 }
+const RANK27_ENERGY=Object.freeze({
+  dragon:'Double Dragon Energy ROS 97',
+  grass:'Grass Energy MEE 9',
+  fire:'Fire Energy MEE 10'
+});
+function energyCoverage(energyPrintings){
+  const attached=arr(energyPrintings).map(name);
+  const grass=attached.filter(x=>x===RANK27_ENERGY.grass).length,
+    fire=attached.filter(x=>x===RANK27_ENERGY.fire).length,
+    wildcard=2*attached.filter(x=>x===RANK27_ENERGY.dragon).length;
+  // Exact upper bound on the resources assignable to GG+F while respecting
+  // the two flexible energy units of Double Dragon on a Dragon target.
+  let fulfilled=0;
+  for(let g=0;g<=Math.min(grass,2);g++){
+    for(let f=0;f<=Math.min(fire,1);f++){
+      const flexibleNeeded=2-g+1-f;
+      fulfilled=Math.max(fulfilled,g+f+Math.min(wildcard,flexibleNeeded));
+    }
+  }
+  return Math.min(3,fulfilled);
+}
+function bestRegidragoEnergy(own){
+  return board(own).filter(p=>is(p,PREFIX.regidragoV)||
+    is(p,PREFIX.regidragoVstar)).map(p=>energyCoverage(p.energies));
+}
+function rank27EnergyAttachScore(item,obs){
+  const p=name(item.actorPrinting),meta=item.publicMetadata??{};
+  if(!Object.values(RANK27_ENERGY).includes(p))return null;
+  if(meta.cardType!=='energy'||meta.targetSeat!=='actor'||
+    !['active','bench'].includes(meta.targetZone)||
+    !Number.isSafeInteger(meta.targetIndex)||meta.targetIndex<0)
+    return -Infinity;
+  const own=obs.ownPublic??{};
+  const target=meta.targetZone==='active'?
+    (meta.targetIndex===0?own.active:null):
+    arr(own.bench)[meta.targetIndex]??null;
+  if(!target||typeof target.printing!=='string'||
+    (item.targetPrinting&&name(item.targetPrinting)!==name(target.printing)))
+    return -Infinity;
+  const targetName=name(target.printing),
+    isV=targetName===PREFIX.regidragoV,
+    isStar=targetName===PREFIX.regidragoVstar;
+  if(!isV&&!isStar)return -Infinity;
+  const before=energyCoverage(target.energies),
+    after=energyCoverage([...arr(target.energies),p]);
+  if(after<=before)return -Infinity;
+  const improvement=after-before,ready=after===3;
+  const hasDonor=visibleDonors(obs).length>0;
+  let score=(ready?345:180)+improvement*48+
+    (isStar?14:0)+(meta.targetZone==='active'?8:0);
+  if(ready&&hasDonor)score+=36;
+  if(p===RANK27_ENERGY.dragon)score+=9;
+  if(ready&&!hasDonor)score-=20;
+  return score;
+}
 function ownTurnKOEligible(obs,receipt){
   const turn=receipt?.opponentLastTurnTurn,ko=receipt?.priorOpponentTurnKO;
   return Number.isSafeInteger(turn)&&turn>=0&&turn<obs.globalTurn&&
@@ -181,6 +236,8 @@ function scoreRoot(item,request){
     return -Infinity;
   }
   if(item.kind==='play-card'){
+    const energyAttach=rank27EnergyAttachScore(item,obs);
+    if(energyAttach!==null)return energyAttach;
     if(p===PREFIX.regidragoV)return benchOpen(own)&&state.v+state.vstar<2?320:-Infinity;
     if(p===PREFIX.regidragoVstar)return state.v>0&&state.vstar<2?330:-Infinity;
     if(p===PREFIX.quickBall)return state.v+state.vstar<2?290:90;
@@ -208,7 +265,8 @@ function scoreRoot(item,request){
     }
     if(p===PREFIX.raihan)return ownTurnKOEligible(obs,request.publicEventReceipt)?
       175:-Infinity;
-    if(p===PREFIX.crispin)return state.energy<3?230:55;
+    if(p===PREFIX.crispin)return !bestRegidragoEnergy(own).length?80:
+      bestRegidragoEnergy(own).some(x=>x<3)?235:40;
     if(p===PREFIX.sycamore||p===PREFIX.marnie||p===PREFIX.n)return state.hand<=3?210:60;
     if(p===PREFIX.prime)return board(opp).some(x=>
       /^Mimikyu GRI 58/.test(name(x))||/^Lillie's Clefairy ex JTG 56/.test(name(x)))?
@@ -492,4 +550,5 @@ function createPolicy({role,seat,policyVersion,config}){
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_BLOB_SHA1,SOURCE_PRINTINGS,
-  createPolicy,scoreRoot,choosePrompt,donorScore,resolveSourcePrinting};
+  createPolicy,scoreRoot,choosePrompt,donorScore,resolveSourcePrinting,
+  energyCoverage,rank27EnergyAttachScore};
