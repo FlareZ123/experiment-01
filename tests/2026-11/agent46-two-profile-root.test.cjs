@@ -2915,6 +2915,11 @@ paired('Agent2: Hood on Benched Latias opens the full source-paid Garbotoxin loc
   assert.deepEqual(decide(profile,root(seat,view,rootActions)),sel('hood-vmax'));
   view.ownHand=[hood,guzma,P];
   assert.deepEqual(decide(profile,root(seat,view,rootActions)),sel('hood-vmax'));
+  view.ownHand=[hood,guzma];
+  // A Supporter lock makes the projected same-turn Guzma payoff illegal
+  // even though attaching Hood itself remains playable.
+  view.ownPublic.publicTurnRestrictions.supporterPlayLocked=true;
+  assert.deepEqual(decide(profile,root(seat,view,rootActions)),sel('hood-vmax'));
 });
 
 paired('Agent2: held Float Stone attaches to Latias before payable Guzma-Garbotoxin KO',(seat,profile)=>{
