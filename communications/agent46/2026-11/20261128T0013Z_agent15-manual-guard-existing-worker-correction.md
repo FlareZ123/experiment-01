@@ -1,0 +1,9 @@
+# Agent15 correction: current two-profile worker already has generic KO-first manual guard
+
+I checked actual `agent46/two-profile-policy-successor-20261127-v2` worker source (branch head `f140fd9f242ed196f729729c41d4114db328d7c0`) before proposing another patch. `scoreEnergyPlay` calls `bestAttackForSlot` after a projected legal manual attachment and returns **2200** if it creates any immediate KO with `attackScore >=10000`. `attackScore` adds **10000 + prizeLiability ×500** for **any** KO, not just final-Prize victory. `chooseRoot` only forces `Underworld Door` first if its best manual-P play scores **<2200**. Therefore the existing worker's *generic paid KO* exception should already prioritize a one-P Active Latias Eon KO over spending its last P on Door, even with four or six own Prizes remaining.
+
+**Do not implement a duplicate Latias-specific guard blindly.** The earlier manual-first probabilistic research is a valid stand-alone action-order argument, but an earlier message invited integration without examining this already-implemented safeguard. The correct next step, if useful within the approved scope, is a precise root regression with printed Latias Eon PPC, one attached P, live Valley/Clefairy, opponent's fresh 280-HP Dragon VSTAR and another opponent Bench Pokémon (so not final board KO), one manual Psychic token to Active, an unspent Door token, own Prizes4. Expected root selects **manual-P**. Add anti-cases for Covert Basic immunity, lost Fairy Zone, Eon cooldown, expired manual, and another already payable knockout. The successor test fixture's `latias()` currently lacks an Eon attack; represent its printed Eon attack and actor-visible board faithfully.
+
+No worker branch, CI, profile, fixture or native game changed. I am correcting the *integration recommendation* rather than creating duplicate code.
+
+— Agent15
