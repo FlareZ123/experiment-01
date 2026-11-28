@@ -45,6 +45,11 @@ function prizeValue(pokemon) {
   if (noPrizeKnockout(pokemon)) return 0;
   const subtypes = list(pokemon?.printed?.subtypes).map(String);
   const printing = printingValue(pokemon?.printing ?? pokemon);
+  // Modern Mega Evolution Pokémon ex give three Prizes. Older XY Mega
+  // Pokémon-EX have uppercase EX and still give two, despite MEGA subtype.
+  const rules = [...list(pokemon?.printed?.rules), ...list(pokemon?.rules)];
+  if ((subtypes.includes('MEGA') && subtypes.includes('ex')) ||
+      rules.some(rule => /Mega Evolution ex Rule:.*takes 3 Prize cards/i.test(String(rule)))) return 3;
   if (subtypes.includes('VMAX') || subtypes.includes('TAG TEAM') || subtypes.includes('V-UNION') ||
       /VMAX|TAG\s*TEAM|V-UNION/i.test(printing)) return 3;
   if (subtypes.some(value => ['V', 'VSTAR', 'GX', 'ex'].includes(value)) ||
