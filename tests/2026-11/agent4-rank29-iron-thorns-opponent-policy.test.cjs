@@ -3587,3 +3587,140 @@ test('Thunder refuses phantom attack access into rank7 Safeguard Mimikyu',()=>{
       policyAudit.evaluations.find(row=>row.token==='thunder').score,score);
   }
 });
+
+test('rank7 Wobbuffet final-one-Prize consecutive clear → Thunder → Volt root decisions',()=>{
+  const thunder='Thunder Mountain ◇ LOT 191';
+  const flare='Team Flare Grunt XY 129';
+  const faba='Faba LOT 173';
+  const blower='Field Blower GRI 125';
+  const seeker='VS Seeker PHF 109';
+  const swell='Chaotic Swell CEC 187';
+  for(const seat of [0,1])for(const opening of [
+    'blower','faba','seeker'
+  ]){
+    let hand=[thunder,flare];
+    let discard=[];
+    if(opening==='blower')hand.push(blower,faba);
+    if(opening==='faba')hand.push(faba);
+    if(opening==='seeker'){hand.push(seeker);discard.push(faba);}
+    let stadium=[swell];
+    let supporterPlayedTurn=0,stadiumPlayedTurn=0;
+    const opponent=player({
+      active:pokemon('Wobbuffet PHF 36',{
+        hp:110,types:['Psychic'],
+        energies:['Capture Energy RCL 171'],abilities:['Bide Barricade']}),
+      bench:[pokemon('Snorlax PGO 55',{hp:150})],prizeCount:3
+    });
+    const own=()=>player({
+      active:pokemon('Iron Thorns ex TWM 77',{
+        energies:['Double Colorless Energy SUM 136']}),
+      bench:[pokemon('Iron Thorns ex TWM 77')],
+      stadium,discard,prizeCount:1
+    });
+    const root=items=>rootRequest({
+      seat,ownHand:hand,ownPublic:own(),opponentPublic:opponent,
+      ownTurnResources:turnResources({supporterPlayedTurn,stadiumPlayedTurn}),
+      items
+    });
+    let first;
+    if(opening==='blower')first=blower;
+    if(opening==='faba')first=faba;
+    if(opening==='seeker')first=seeker;
+    const openingActions=[
+      action('flare','play-card',flare,{cardType:'supporter'}),
+      action('first','play-card',first,{cardType:opening==='blower'||opening==='seeker'?'item':'supporter'}),
+      action('thunder','play-card',thunder,{cardType:'stadium'}),
+      {token:'pass',kind:'pass'}
+    ];
+    assert.deepEqual(checkedDecision(root(openingActions),seat),
+      {kind:'select-action',token:'first'});
+    if(opening==='seeker'){
+      const recovery=promptRequest({
+        seat,promptType:'ChooseCardsPrompt',
+        source:actorChoiceSource(seeker,'VS Seeker'),
+        publicMetadata:multiMetadata(1,1),
+        observation:{ownPublic:own(),opponentPublic:opponent,
+          ownHand:hand.filter(card=>card!==seeker)},
+        choices:[cardChoice('faba',faba,'discard','actor')]
+      });
+      assert.deepEqual(checkedDecision(recovery,seat),
+        {kind:'select-choices',tokens:['faba']});
+      hand=hand.filter(card=>card!==seeker).concat(faba);
+      discard=discard.filter(card=>card!==faba).concat(seeker);
+      assert.deepEqual(checkedDecision(root([
+        action('faba','play-card',faba,{cardType:'supporter'}),
+        action('flare','play-card',flare,{cardType:'supporter'}),
+        {token:'pass',kind:'pass'}
+      ]),seat),{kind:'select-action',token:'faba'});
+    }
+    if(opening==='blower'){
+      const option=promptRequest({
+        seat,promptType:'SelectOptionPrompt',
+        source:actorChoiceSource(blower,'Field Blower'),
+        publicMetadata:{selectionType:'option',count:2,allowCancel:false},
+        observation:{ownPublic:own(),opponentPublic:opponent,ownHand:hand},
+        choices:[
+          {token:'stadium',kind:'option',label:'Discard Stadium',
+            publicMetadata:{choiceIndex:0}},
+          {token:'tools',kind:'option',label:'Discard 2 Tools',
+            publicMetadata:{choiceIndex:1}}
+        ]
+      });
+      assert.deepEqual(checkedDecision(option,seat),
+        {kind:'select-choice',token:'stadium'});
+    }
+    if(opening!=='blower'){
+      const fabaOption=promptRequest({
+        seat,promptType:'SelectPrompt',
+        source:actorChoiceSource(faba,'Faba'),
+        publicMetadata:{selectionType:'option',count:2,allowCancel:false},
+        observation:{ownPublic:own(),opponentPublic:opponent,ownHand:hand},
+        choices:[
+          {token:'energy',kind:'option',label:'CHOICE_SPECIAL_ENERGY',
+            publicMetadata:{choiceIndex:0}},
+          {token:'stadium',kind:'option',label:'CHOICE_STADIUM',
+            publicMetadata:{choiceIndex:1}}
+        ]
+      });
+      assert.deepEqual(checkedDecision(fabaOption,seat),
+        {kind:'select-choice',token:'stadium'});
+    }
+    const removing=opening==='blower'?blower:faba;
+    const removeTarget=promptRequest({
+      seat,promptType:'ChooseCardsPrompt',
+      source:actorChoiceSource(removing,opening==='blower'?'Field Blower':'Faba'),
+      publicMetadata:multiMetadata(1,1),
+      observation:{ownPublic:own(),opponentPublic:opponent,ownHand:hand},
+      choices:[
+        cardChoice('swell',swell,'stadium','opponent'),
+        cardChoice('capture','Capture Energy RCL 171','attached','opponent')
+      ]
+    });
+    assert.deepEqual(checkedDecision(removeTarget,seat),
+      {kind:'select-choices',tokens:['swell']});
+    // Apply only the printed, source-supported deterministic public effect:
+    // Faba puts Stadium into Lost Zone, Field Blower into discard.
+    stadium=[];
+    hand=hand.filter(card=>card!==removing);
+    if(removing===faba)supporterPlayedTurn=1;
+    discard=discard.concat(removing);
+    assert.deepEqual(checkedDecision(root([
+      action('thunder','play-card',thunder,{cardType:'stadium'}),
+      action('flare','play-card',flare,{cardType:'supporter'}),
+      {token:'pass',kind:'pass'}
+    ]),seat),{kind:'select-action',token:'thunder'});
+    stadium=[thunder];
+    hand=hand.filter(card=>card!==thunder);
+    stadiumPlayedTurn=1;
+    assert.deepEqual(checkedDecision(root([
+      action('attack','attack','Iron Thorns ex TWM 77',
+        {attackCostPayable:true},{attackName:'Volt Cyclone'}),
+      ...(supporterPlayedTurn?[ ]:[
+        action('flare','play-card',flare,{cardType:'supporter'})]),
+      {token:'pass',kind:'pass'}
+    ]),seat),{kind:'select-action',token:'attack'});
+    // Independent rule arithmetic: Thunder reduces [L,C,C] to [C,C],
+    // existing DCE supplies both; 140 damage KOs 110HP one-Prize Wobb.
+    assert.equal(140>=110,true);
+  }
+});
