@@ -93,6 +93,7 @@ function chooseRank13VsSeekerFundingLine(request) {
   const turn = view?.globalTurn;
   if (!isPrint(active, REGIDRAGO) || !isPrint(defending, MIMIKYU) ||
       own?.prizeCount !== 1 ||
+      !Number.isSafeInteger(own?.deckCount) || own.deckCount < 2 ||
       !Number.isSafeInteger(turn) || turn < 2 ||
       !Number.isSafeInteger(view?.ownTurnResources?.supporterPlayedTurn) ||
       // In native Twinleaf this is the per-turn NUMBER of Supporters played,
