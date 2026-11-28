@@ -30,6 +30,8 @@ jobs:
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Audit original Aichi printed hand-randomness source scope
         run: node --test tests/agent43-aichi-random-hand-printed-scope.test.cjs
+      - name: Agent25 rank2 actor-view decisions and paper-printing quarantine (pure unit)
+        run: node --test tests/2026-11/agent25-rank2-native-shape-guzma-lock-pivot.test.cjs tests/2026-11/agent25-opaque-paper-card-staging.test.cjs
       - name: Install exact pinned dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
