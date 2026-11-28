@@ -1311,28 +1311,34 @@ function raihanOpportunity(request) {
 }
 function raihanAttachPrompt(request) {
   const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  const promptZones=String(m.zone??m.targetZone??'').split(',');
   if(p.promptType!=='AttachEnergyPrompt'||
      m.selectionType!=='energy-attachment'||m.ownerSeat!=='actor'||
      m.isOwnerVisible!==true||m.sourceZone!=='discard'||
+     m.energyType!=='BASIC'||!promptZones.includes('bench')||
+     !promptZones.includes('active')||
      m.minimumCount!==1||m.maximumCount!==1||
      !hasFreshPriorOpponentTurnKO(request))
     return no('R30_RAIHAN_ATTACH_UNSUPPORTED');
   const options=arr(p.choices).filter(c=>{
-    const cm=c.publicMetadata??{};
+    const cm=c.publicMetadata??{},zone=cm.zone??cm.targetZone;
     return c.kind==='energy'&&typeof c.token==='string'&&
       has(c,P.basicPsychic)&&cm.sourceZone==='discard'&&
       cm.ownerSeat==='actor'&&cm.isOwnerVisible===true&&
+      cm.energyType==='BASIC'&&
       (cm.targetSeat===undefined||cm.targetSeat==='actor')&&
-      (cm.targetZone==='active'||cm.targetZone==='bench');
+      (zone==='active'||zone==='bench');
   });
+  // This source slice only attaches to a Clefairy that can still gain its
+  // second Psychic Energy; other legal target families deliberately abstain.
   const ranked=options.map(c=>{
-    const cm=c.publicMetadata??{};
-    const index=safeInt(cm.benchIndex)?cm.benchIndex:cm.targetIndex;
-    const target=cm.targetZone==='active'?o.ownPublic?.active:
+    const cm=c.publicMetadata??{},zone=cm.zone??cm.targetZone;
+    const index=safeInt(cm.benchIndex)?cm.benchIndex:
+      safeInt(cm.targetIndex)?cm.targetIndex:cm.slotIndex;
+    const target=zone==='active'?o.ownPublic?.active:
       safeInt(index)?arr(o.ownPublic?.bench)[index]:null;
     const useful=has(target,P.clefairy)&&arr(target?.energies).length<2;
-    return {choice:c,score:!useful?-1:
-      cm.targetZone==='active'?150:125};
+    return {choice:c,score:!useful?-1:zone==='active'?150:125};
   }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
   return ranked.length?{kind:'select-choice',token:ranked[0].choice.token}:
     no('R30_RAIHAN_ATTACH_NO_TARGET');
