@@ -803,8 +803,17 @@ function minimumPrizesOnAttackKnockout(target) {
   const count=sourcePrizeTarget(target);
   const energyReduction=arr(target?.energies).some(x=>
     /^Legacy Energy\b/i.test(text(x)))?1:0;
-  const toolReduction=arr(target?.tools).some(x=>
-    /^(?:Life Dew|Hero's Medal|Ribbon Badge|Island Challenge Amulet)\b/i.test(text(x)))?1:0;
+  const targetPrinting=text(target);
+  const toolReduction=arr(target?.tools).some(x=>{
+    const name=text(x);
+    if(/^Life Dew\b/i.test(name))return true;
+    if(/^Hero's Medal\b/i.test(name))return /\bVMAX\b/i.test(targetPrinting);
+    if(/^Ribbon Badge\b/i.test(name))
+      return /^Sylveon V(?:MAX|STAR)?\b/i.test(targetPrinting);
+    if(/^Island Challenge Amulet\b/i.test(name))
+      return /(?:-GX\b|-EX\b| GX\b| EX\b)/.test(targetPrinting);
+    return false;
+  })?1:0;
   return Math.max(0,count-energyReduction-toolReduction);
 }
 function terminalRondo(o) {
