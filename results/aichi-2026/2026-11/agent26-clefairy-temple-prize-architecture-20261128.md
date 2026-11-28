@@ -11,7 +11,7 @@
 
 These are **multiple jointly coupled slots**, so the raw performance difference cannot be assigned to Temple, Wobbuffet or Clefairy from two decklists alone. A clean, legal, fixed-60 *research control* is instead **Hood–Temple**: take the complete Hood Shield source 60 **unchanged except** replace its singleton Pokémon Ranger Supporter with one Temple of Sinnoh Stadium. Hood–Temple and Lockbridge then share the same Temple/no-Ranger structure, and differ only by **second Lillie's Clefairy ex versus Wobbuffet PHF**. This is a proposed *controlled paired experiment*, **not a new nominated best deck or a tested win rate**.
 
-## Exact starting-six-Prize combinatorics (not estimated from a game simulator)
+## Unconditioned six-Prize combinatorics (not a post-mulligan game probability)
 
 For a specified set of `k` distinct physical cards in a 60-card deck, the probability **all k** are in the initially selected six Prize cards is
 
@@ -21,7 +21,19 @@ P(k\text{ specified cards all Prized}) =
 = \prod_{i=0}^{k-1}\frac{6-i}{60-i}.
 \]
 
-This treats the deck as uniformly shuffled when setting initial Prizes. It is exact for the **Prize-placement event** and does not imply a game loss, that the card cannot be drawn from later Prizes, or that an Item-search chain is always available.
+This is an exact **unconditional random six-card Prize sample** calculation. **Important setup conditioning:** Under the Advanced Player's Rulebook, a player first draws a seven-card opening hand and must draw a replacement hand (mulligan) if it contains no Basic Pokémon. Therefore the accepted hand is conditional on containing a Basic, and the subsequent six Prize positions are **not quite a uniform six-card sample of the original 60 conditional on a successful opening hand**. The figures in the table are precise **unconditioned combinatorial baselines**, not exact probabilities for a post-mulligan live game. They do not imply a game loss, a card cannot be drawn from later Prizes, or that a connected Item-search chain is available.
+
+For exact conditioning, let \(B\) be the number of Basic Pokémon in the 60 and let the designated set of \(k\) cards contain \(b\) Basics. Then:
+
+\[
+P(T\\subseteq\\text{Prizes}\\mid\\text{valid initial hand}) =
+\\frac{\\binom{60-k}{6-k}}{\\binom{60}{6}}
+\\cdot
+\\frac{1-\\binom{60-k-(B-b)}{7}/\\binom{60-k}{7}}
+{1-\\binom{60-B}{7}/\\binom{60}{7}}.
+\]
+
+This accounts for conditioning on **at least one Basic in the opening seven**; it still is not a success-probability model for turn sequencing, Item locks, deck searches or Prize recovery.
 
 | Exact initial Prize event | Probability |
 | --- | ---: |
@@ -32,9 +44,9 @@ This treats the deck as uniformly shuffled when setting initial Prizes. It is ex
 | Singleton Temple of Sinnoh Prized | **10.0000%** |
 | Both Temple and single Clefairy ex **unprized** (Lockbridge two named singletons) | **80.84746%** |
 
-The second Clefairy reduces *all-Clefairy-in-Prizes* odds by exactly **11.8×** (10% versus 0.84746%). Since Hisuian Heavy Ball can exchange a Prized Basic Pokémon for itself, when that Item is actually accessible and playable it can sometimes rescue a Prized Clefairy; the more stringent *all-Clefairy-plus-Ball Prized* event is **0.84746%** for one Clefairy versus **0.05845%** for two. This is *not* the probability Clefairy is unavailable in a game: Item lock, Supporter contention, searching for Heavy Ball, board slots, opponent gust/KO, K0/K1 Prize awareness and later Prize draws all matter.
+On the **unconditioned six-Prize baseline**, the second Clefairy reduces *all-Clefairy-in-Prizes* odds by **11.8×** (10% versus 0.84746%). Since Hisuian Heavy Ball can exchange a Prized Basic Pokémon for itself, when that Item is actually accessible and playable it can sometimes rescue a Prized Clefairy; the more stringent *all-Clefairy-plus-Ball Prized* event is **0.84746%** for one Clefairy versus **0.05845%** for two. This is *not* the probability Clefairy is unavailable in a game: Item lock, Supporter contention, searching for Heavy Ball, board slots, opponent gust/KO, K0/K1 Prize awareness and later Prize draws all matter.
 
-Crucially, Heavy Ball **does not recover the Temple Stadium**. The one-Temple Lockbridge or Hood–Temple branch begins **10%** of games with its Temple in Prizes, absent other early Prize-recovery effects. Two Temples would reduce both-Prized probability to 0.84746%, but replacing a productive card with a second Stadium has a real opportunity cost and **cannot be recommended from Prize odds alone**.
+Crucially, Heavy Ball **does not recover the Temple Stadium**. On the unconditioned baseline, the one-Temple Lockbridge or Hood–Temple branch has **10%** Temple-in-Prizes exposure, absent other early Prize-recovery effects. Two Temples would reduce both-Prized probability to 0.84746%, but replacing a productive card with a second Stadium has a real opportunity cost and **cannot be recommended from Prize odds alone**.
 
 ## Why this is strategically worth an actual paired study
 
