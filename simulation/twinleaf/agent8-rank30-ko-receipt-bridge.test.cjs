@@ -3,7 +3,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const protocol=require('../evaluation/2026-11/agent49-policy-protocol.cjs');
 const {createKnockoutTurnTracker}=require('./agent8-ko-turn-tracker.cjs');
-const {bindHostVerifiedLastOpponentKO,CERT_VERSION}=require('./agent8-rank30-ko-receipt-bridge.cjs');
+const {bindHostVerifiedLastOpponentKO,createHostBoundRank30Decider,CERT_VERSION}=require('./agent8-rank30-ko-receipt-bridge.cjs');
 const {createPolicy,POLICY_VERSION}=require('../evaluation/2026-11/agent8-rank30-clefairy-opponent-policy.cjs');
 const PSY='Psychic Energy MEE 13',CLEF="Lillie's Clefairy ex JTG 56";
 const LIVE=[{abilityName:'Fairy Zone',suppressed:false,
@@ -163,5 +163,27 @@ for(const seat of [0,1]){
     assert.deepEqual(decision(enriched),{kind:'select-action',token:'raihan'});
     enriched.observation.ownTurnResources.supporterPlayedTurn=3;
     assert.notDeepEqual(decision(enriched),{kind:'select-action',token:'raihan'});
+  });
+}
+
+for(const seat of [0,1]){
+  test('seat '+seat+' decision-only host wrapper does not expose enriched request to caller',()=>{
+    const owner=seat===0?'Alice':'Bob',opponent=seat===0?'Bob':'Alice';
+    const tracker=createKnockoutTurnTracker(0);
+    tracker.record({turn:2,victimPlayerId:owner,
+      attackerPlayerId:opponent,byAttack:true});
+    tracker.completeTurn(2,opponent);
+    const req=request(seat,3);
+    const policy=createPolicy({role:'opponent',seat,policyVersion:POLICY_VERSION,
+      config:{}});
+    const decide=createHostBoundRank30Decider({policy,tracker,
+      ownerPlayerId:owner,opponentPlayerId:opponent});
+    const result=decide(req);
+    assert.deepEqual(result,{kind:'select-action',token:'raihan'});
+    protocol.validatePublicEventReceipt(req.publicEventReceipt,req.observation);
+    assert.equal(Object.hasOwn(req.publicEventReceipt,
+      'hostAuthenticatedPriorOpponentTurnKO'),false);
+    const next=request(seat,4);
+    assert.notDeepEqual(decide(next),{kind:'select-action',token:'raihan'});
   });
 }
