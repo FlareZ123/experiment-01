@@ -1924,8 +1924,8 @@ function supporterNeedScore(view, printing, receipt) {
   if (hasName(printing, 'Iono')) {
     return handResetNeed(view,printing);
   }
-  if (hasName(printing, 'Pokémon Ranger')) return
-    usefulRanger(view,receipt) ? rangerUnlocksFinalPrize(view)?300:110 : -5;
+  if (hasName(printing, 'Pokémon Ranger'))
+    return usefulRanger(view,receipt) ? (rangerUnlocksFinalPrize(view)?300:110) : -5;
   return -5;
 }
 

@@ -2297,9 +2297,9 @@ test('Agent46: Compressor fuels held Raihan with precisely one searchable Psychi
 test('Agent46: attack-effect Ranger opens a guaranteed final and defeats competing Raihan',()=>{
   for(const seat of [0,1]){
     const ranger='Pokémon Ranger STS',raihan='Raihan EVS';
-    const dragon=defender({hp:280,damage:210});
-    const view=observation(seat,{active:vmax([P,P]),opponentActive:dragon,
-      ownHand:[ranger,raihan],ownDiscard:[P]});
+    const dragon=defender({hp:280,damage:180});
+    const view=observation(seat,{active:vmax([P,P,P]),bench:[vmax([P,P])],
+      opponentActive:dragon,ownHand:[ranger,raihan],ownDiscard:[P]});
     view.globalTurn=8;view.ownPublic.prizeCount=2;
     view.ownPublic.publicTurnRestrictions.attackLockTurnsRemaining=1;
     const koReceipt={priorOpponentTurnKO:{any:true}};
