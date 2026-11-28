@@ -1768,7 +1768,7 @@ for(const seat of [0,1]){
   garb.abilitySuppressions=[];
   assert.deepEqual(decide(seat,rootReq),{kind:'select-action',token:'pass'});
  });
- test('seat '+seat+' under Jamming attached Garbotoxin stops our Crobat Star Alchemy',()=>{
+ test('seat '+seat+' Jamming Tower disables Forest Seal but Garbotoxin does not',()=>{
   const enemyGarb=mon('Garbodor BKP 57',{
    tools:['Float Stone BKT 137'],
    abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]});
