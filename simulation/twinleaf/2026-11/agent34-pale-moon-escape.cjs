@@ -387,7 +387,8 @@ function offeredPaleMoonRetreatChoices(view,items) {
     const target=benches[idx];
     if(!target || (item.targetPrinting!==undefined &&
        item.targetPrinting!==target.printing))continue;
-    const hp=typeof target.hp==='number'?target.hp-target.damage:-1;
+    const hp=Number.isFinite(target.hp)&&Number.isFinite(target.damage)?
+      target.hp-target.damage:0;
     const energies=Array.isArray(target.energies)?target.energies.length:0;
     const cost=/\bVMAX\b/.test(target.printing)?3:
       /\b(?:VSTAR|GX|EX|ex|V)\b/.test(target.printing)?2:1;
@@ -419,9 +420,9 @@ function rescuePaleMoonTerminalPass(view,items,originalToken) {
   // Guzma buys a gust plus switch, and paid retreat is a last resort.
   const printedFree=view.ownPublic?.active?.printed?.retreatCost?.length===0;
   const chosen=printedFree&&retreat?{
-      token:retreat.token,reason:'PUBLIC_PALE_MOON_FREE_RETREAT'}:
-    ranger.length===1?ranger[0]:
-    guzma.length===1?guzma[0]:
+      token:retreat.token,reason:'PUBLIC_PALE_MOON_PRINTED_ZERO_RETREAT'}:
+    ranger.length>0?ranger.sort((a,b)=>String(a.token).localeCompare(String(b.token)))[0]:
+    guzma.length>0?guzma.sort((a,b)=>String(a.token).localeCompare(String(b.token)))[0]:
     retreat?{token:retreat.token,reason:'PUBLIC_PALE_MOON_AUTHENTIC_RETREAT'}:null;
   if(chosen)return {token:chosen.token,
     reason:'PUBLIC_PALE_MOON_TERMINAL_PASS_OVERRIDE',
