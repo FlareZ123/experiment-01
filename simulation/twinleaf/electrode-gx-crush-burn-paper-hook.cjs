@@ -66,15 +66,25 @@ function wrapElectrodeGXCrushBurnReducer(
              prompt.options.min!==1||prompt.options.allowCancel!==false||
              prompt.options.max<1||typeof callback!=='function')
             throw new TypeError('Unexpected CES48 mandatory GX discard prompt');
+          // English "discard any amount" permits zero for an ATTACK.
+          // Pinned min:1 is incorrect; constrain to this printed GX only.
+          prompt.options.min=0;
           return target.prompt(nextState,prompt,transfers=>{
             const n=transfers?.length;
             if(!Array.isArray(transfers)||!Number.isSafeInteger(n)||
-               n<1||n>prompt.options.max)
+               n<0||n>prompt.options.max)
               throw new TypeError('Malformed CES48 physical Energy transfer count');
             const before=effect.damage;
             const result=callback(transfers);
             if(effect.damage-before!==STEP_DAMAGE*n*n)
               throw new TypeError('Pinned CES48 native damage equation changed');
+            if(n===0){
+              // Pinned native sets usedGX INSIDE its transfer loop, so zero
+              // physical discards must still consume the one-GX-per-game.
+              if(typeof effect.player?.usedGX!=='boolean')
+                throw new TypeError('Pinned CES48 GX player-state shape changed');
+              effect.player.usedGX=true;
+            }
             effect.damage=before+STEP_DAMAGE*n;
             return result;
           });
