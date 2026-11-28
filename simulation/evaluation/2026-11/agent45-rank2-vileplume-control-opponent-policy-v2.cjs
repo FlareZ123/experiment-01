@@ -580,12 +580,27 @@ function scoreAction(item, request) {
       missingLinePriority(observation) > 0 ? 128 : 70;
   }
   if (matches(card, PRINT.guzma)) {
+    if (!supporterAvailable(observation) ||
+        !list(own.bench).some(Boolean) || !list(opponent.bench).some(Boolean)) return 0;
     const targetIndex = metadata.targetIndex;
     const targetPokemon = metadata.targetSeat === 'opponent' &&
       metadata.targetZone === 'bench' && Number.isSafeInteger(targetIndex) ?
       opponent.bench?.[targetIndex] : null;
-    return targetPokemon ?
-      (remainingHp(targetPokemon) > 0 && remainingHp(targetPokemon) <= 90 ? 88 : 42) : 0;
+    if (targetPokemon) {
+      return remainingHp(targetPokemon) > 0 && remainingHp(targetPokemon) <= 90 ? 88 : 42;
+    }
+    // Native PLAY_CARD_ACTION for Guzma has no preselected target: it starts
+    // two sequential native Pokémon prompts (opponent, then actor). Detect a
+    // real lock pivot without pretending the root action already named a slot.
+    const benchStoutland = list(own.bench).some(pokemon =>
+      stoutlandSentinelEffective(observation, pokemon));
+    const targetStranded = list(opponent.bench).some(pokemon =>
+      pokemon && list(pokemon.energies).length === 0 &&
+      list(pokemon.printed?.retreatCost).length > 0 &&
+      !list(pokemon.tools).some(tool =>
+        /Float Stone|Air Balloon|Escape Board/i.test(printingValue(tool))));
+    return benchStoutland && opponent.publicTurnRestrictions?.itemPlayLocked === true &&
+      list(opponent.active?.energies).length > 0 && targetStranded ? 185 : 0;
   }
   if (matches(card, PRINT.faba)) return opponentHasFabaTarget(opponent) ? 94 : 0;
   if (matches(card, PRINT.plumeria)) return opponentHasAnyEnergy(opponent) ? 78 : 0;
@@ -825,26 +840,47 @@ function scorePokemonChoice(choice, observation, context) {
   const printing = choicePrinting(choice);
   const owner = choiceOwner(choice);
   const zone = choiceZone(choice);
-  const opponentChoice = context.includes('guzma') || context.includes('irresistible aroma');
+  const isGuzma = context.includes('guzma');
+  const opponentChoice = context.includes('irresistible aroma') ||
+    (isGuzma && owner === 'opponent');
+  if (isGuzma && owner !== 'actor' && owner !== 'opponent') return -100;
   if (owner && owner !== (opponentChoice ? 'opponent' : 'actor')) return -100;
   if (zone && zone !== 'bench' && !context.includes('irresistible aroma') &&
       !context.includes('cassius') && !context.includes('grand tree')) return -100;
-  if (context.includes('guzma')) {
-    const bench = list(observation.opponentPublic?.bench);
+  if (isGuzma) {
+    // Each half of Guzma prompts a different player. The same public
+    // physical-slot identity rule applies to both halves.
+    const bench = list(owner === 'actor' ?
+      observation.ownPublic?.bench : observation.opponentPublic?.bench);
     const meta = choice?.publicMetadata ?? {};
     const hasBenchIndex = Number.isSafeInteger(meta.benchIndex);
     const hasSlotIndex = Number.isSafeInteger(meta.slotIndex);
     // selectionIndex is a choice ordinal, not a certified physical Bench slot.
-    // Conflicting physical indices or ambiguous duplicate printings fail closed.
     if (hasBenchIndex && hasSlotIndex && meta.benchIndex !== meta.slotIndex) return -100;
     const index = hasBenchIndex ? meta.benchIndex : hasSlotIndex ? meta.slotIndex : null;
     if (index !== null && (index < 0 || index >= bench.length)) return -100;
     const copies = bench.filter(slot => slot && samePrinting(slot.printing, printing));
     const target = index !== null ? bench[index] : copies.length === 1 ? copies[0] : null;
     if (!target || !samePrinting(target.printing, printing)) return -100;
+    if (owner === 'actor') {
+      if (stoutlandSentinelEffective(observation, target)) return 220;
+      if (matches(printing, PRINT.bunnelby)) {
+        return list(target.tools).some(tool => matches(tool, PRINT.tmEvolution)) ? 120 : 70;
+      }
+      if (matches(printing, PRINT.fanRotom)) return 40;
+      return 10;
+    }
     const hp = remainingHp(target);
     const multiPrize = /(?:-GX|\b(?:V|VMAX|VSTAR|ex)\b)/i.test(printing) ? 2 : 1;
-    return 100 + (hp > 0 && hp <= 90 ? 50 : 0) + multiPrize * 8;
+    const lockPivot = list(observation.ownPublic?.bench).some(pokemon =>
+      stoutlandSentinelEffective(observation, pokemon)) &&
+      observation.opponentPublic?.publicTurnRestrictions?.itemPlayLocked === true;
+    const stranded = lockPivot && list(target.energies).length === 0 &&
+      list(target.printed?.retreatCost).length > 0 &&
+      !list(target.tools).some(tool =>
+        /Float Stone|Air Balloon|Escape Board/i.test(printingValue(tool)));
+    return 100 + (hp > 0 && hp <= 90 ? 50 : 0) + multiPrize * 8 +
+      (stranded ? 85 : 0);
   }
   if (context.includes('cassius')) {
     const target = boardSlots(observation.ownPublic).find(row =>
