@@ -4,6 +4,8 @@ const assert=require('node:assert/strict');
 const projection=require('../../simulation/evaluation/2026-11/agent3-raihan-owner-attach-projection.cjs');
 const protocol=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const base=require('../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
+const rank32=require('../../simulation/evaluation/2026-11/agent3-rank32-regidrago-opponent-policy.cjs');
+const rank14=require('../../simulation/evaluation/2026-11/agent3-rank14-regidrago-opponent-policy.cjs');
 
 class EnergyCard {
   constructor(fullName,energyType='BASIC'){
@@ -128,6 +130,45 @@ for(const seat of [0,1]){
     assert.equal(x.enemy.discard.cards.length,0);
   });
 }
+test('both Regidrago source policies pick a protocol-safe physical Raihan Fire attachment',()=>{
+  for(const seat of [0,1]){
+    const x=setup(seat),projected=project(x);
+    const observation={
+      actorSeat:seat,globalTurn:7,phase:2,
+      ownHand:['Raihan EVS 152'],
+      ownPublic:{
+        active:{printing:'Regidrago VSTAR SIT 136',hp:280,damage:0,
+          energies:['Grass Energy MEE 9','Grass Energy MEE 9'],
+          printed:{subtypes:['VSTAR']}},
+        bench:[{printing:'Regidrago V SIT 135',hp:220,damage:0,
+          energies:[],printed:{subtypes:['V']}}],
+        discard:['Fire Energy MEE 10','Grass Energy MEE 9'],
+        prizeCount:6,publicTurnRestrictions:{vstarUsed:false,gxUsed:false}
+      },
+      opponentPublic:{
+        active:{printing:'Shadow Rider Calyrex VMAX CRE 75',hp:320,damage:0},
+        bench:[],prizeCount:6
+      }
+    };
+    for(const policy of [rank32,rank14]){
+      const worker=policy.createPolicy({role:'opponent',seat,
+        policyVersion:policy.POLICY_VERSION,config:{},rng:()=>0.5});
+      const request={role:'opponent',seat,observation,
+        prompt:projected.promptProjection,actionFrontier:{items:[]}};
+      const chosen=worker.decide(request);
+      assert.equal(chosen.kind,'select-choice');
+      protocol.validateDecision(chosen,projected.promptProjection,new Set());
+      const choice=projected.promptProjection.choices.find(c=>c.token===chosen.token);
+      assert.equal(choice.printing,'Fire Energy MEE 10');
+      assert.equal(choice.publicMetadata.zone,'active');
+      const [transfer]=projected.choiceByToken.get(chosen.token);
+      assert.equal(transfer.card,x.fire);
+      assert.equal(transfer.to.player,native.PlayerType.BOTTOM_PLAYER);
+      assert.equal(transfer.to.slot,native.SlotType.ACTIVE);
+    }
+  }
+});
+
 test('Raihan refuses impostor source, cross-seat prompt, stale prompt and alien discard',()=>{
   const x=setup(0);
   x.raihan.set='FST';assert.throws(()=>project(x),/Untrusted Raihan/);
