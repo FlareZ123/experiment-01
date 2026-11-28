@@ -2096,6 +2096,9 @@ const COMPRESSOR_SEEKER_SUPPORTERS=Object.freeze([
 ]);
 function compressorSeekerSupporterNeed(view,printing,receipt) {
   if(!COMPRESSOR_SEEKER_SUPPORTERS.some(name=>hasName(printing,name)) ||
+     // Native Raihan/Teammates require a nonempty deck when played. The
+     // Compressor prompt discards one deck card before VS Seeker recovers it.
+     (view.ownPublic.deckCount<2 && !hasName(printing,'Pokémon Ranger')) ||
      !supporterAvailable(view) || !handHas(view,'VS Seeker') ||
      handHas(view,printing) || discardHas(view,printing) ||
      knownFullyPrized(view,printing) ||
@@ -2112,7 +2115,7 @@ function compressorSeekerSupporterNeed(view,printing,receipt) {
 function compressorRaihanFuelNeed(view,receipt) {
   if(receipt?.priorOpponentTurnKO?.any!==true ||
      !supporterAvailable(view) || !handHas(view,'Raihan') ||
-     discardHas(view,'Psychic Energy') || view.ownPublic.deckCount<=0)
+     discardHas(view,'Psychic Energy') || view.ownPublic.deckCount<2)
     return -Infinity;
   const projected={...view,ownPublic:{...view.ownPublic,
     discard:[...view.ownPublic.discard,'Psychic Energy SVE']}};

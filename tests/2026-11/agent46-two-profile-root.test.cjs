@@ -2351,3 +2351,33 @@ test('Agent46: native unaccented Pokemon Ranger name still reaches legal source 
     assert.deepEqual(decide(profiles[0],seeker),mult('card-0'));
   }
 });
+
+test('Agent46: Compressor leaves a searchable deck for Raihan or Teammates',()=>{
+  const bc='Battle Compressor PHF',ranger='Pokémon Ranger STS',
+    raihan='Raihan EVS';
+  const ko={priorOpponentTurnKO:{any:true}};
+  for(const seat of [0,1])for(const profile of profiles){
+    const view=observation(seat,{active:vmax([P,P]),opponentActive:defender(),
+      ownHand:[bc,raihan]});
+    view.ownPublic.deckCount=1;view.globalTurn=8;
+    const offer=[play('compress',bc)];
+    assert.deepEqual(decide(profile,root(seat,view,offer,ko)),sel('pass'));
+    view.ownPublic.deckCount=2;
+    assert.deepEqual(decide(profile,root(seat,view,offer,ko)),sel('compress'));
+    view.ownHand=[bc,VS];
+    view.ownPublic.deckCount=1;
+    assert.deepEqual(decide(profile,root(seat,view,offer,ko)),sel('pass'));
+    view.ownPublic.deckCount=2;
+    assert.deepEqual(decide(profile,root(seat,view,offer,ko)),sel('compress'));
+  }
+  // Ranger does not need to search deck, so one card is sufficient when it
+  // can actually be discarded into VS Seeker and the lock is attack-sourced.
+  for(const seat of [0,1]){
+    const view=observation(seat,{active:v([P]),opponentActive:defender(),
+      ownHand:[bc,VS]});
+    view.ownPublic.deckCount=1;
+    view.ownPublic.publicTurnRestrictions.attackLockTurnsRemaining=1;
+    assert.deepEqual(decide(profiles[0],root(seat,view,
+      [play('compress',bc)])),sel('compress'));
+  }
+});
