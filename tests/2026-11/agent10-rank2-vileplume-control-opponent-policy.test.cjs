@@ -1145,6 +1145,47 @@ test('mismatched or absent physical slot is not guessed by printing', () => {
   });
 });
 
+
+test('Guzma completes the mandatory own-Bench switch into Stoutland lock', () => {
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Guzma BUS 115', 'Guzma'),
+    choices: [
+      pokemonChoice('bunnelby', 'Bunnelby PRC 121', 'actor', 'bench', 0),
+      pokemonChoice('stoutland', 'Stoutland BCR 122', 'actor', 'bench', 1)
+    ],
+    observation: { ownPublic: player({
+      active: pokemon('Fan Rotom SCR 118'),
+      bench: [pokemon('Bunnelby PRC 121'), pokemon('Stoutland BCR 122')]
+    }) }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['stoutland']
+  });
+});
+
+test('Guzma own-Bench switch selects Bunnelby under visible Garbotoxin', () => {
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Guzma BUS 115', 'Guzma'),
+    choices: [
+      pokemonChoice('stoutland', 'Stoutland BCR 122', 'actor', 'bench', 0),
+      pokemonChoice('bunnelby', 'Bunnelby PRC 121', 'actor', 'bench', 1)
+    ],
+    observation: {
+      ownPublic: player({ active: pokemon('Fan Rotom SCR 118'), bench: [
+        pokemon('Stoutland BCR 122'), pokemon('Bunnelby PRC 121')
+      ] }),
+      opponentPublic: player({ active: pokemon('Garbodor DRX 54', {
+        abilities: ['Garbotoxin']
+      }), deckCount: 6 })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['bunnelby']
+  });
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
