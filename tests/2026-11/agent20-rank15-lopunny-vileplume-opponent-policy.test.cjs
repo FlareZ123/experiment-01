@@ -836,6 +836,7 @@ test('unknown matching modifier is not silently assumed standard 2×',()=>{
 
 test('Guzma considers irrelevant printed weakness rather than treating every VMAX as unattackable',()=>{
   const r=gustRoot();
+  r.observation.opponentPublic.bench[0].damage=100;
   r.observation.opponentPublic.bench[0].printed.weakness=[{type:'Psychic',value:'×2'}];
   r.observation.opponentPublic.bench[0].printed.resistance=[{type:'Fighting',value:'-30'}];
   assert.deepEqual(decision(r),{kind:'select-action',token:'gust'});
