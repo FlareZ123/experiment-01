@@ -586,6 +586,9 @@ function cardChoiceScore(choice, observation, context) {
     return 120;
   }
   if (context === 'faba') {
+    if(choiceZone(choice)==='stadium'&&
+        matches(printing,/^Chaotic Swell\b/i)&&
+        fabaClearsChaoticForTerminal(observation))return 600;
     if (/Stealthy Hood/i.test(printing)) return 280;
     if (/Float Stone/i.test(printing)) return 260;
     if (/Forest Seal Stone/i.test(printing)) return 245;
@@ -1677,7 +1680,7 @@ function turboDceAttackWindow(request) {
 // the one-off ACE SPEC. Return only an owner-visible conditional window,
 // never claim that a future native attack was actually executed.
 function prospectiveStadiumThornsAttackUnlock(observation,replacingWithThunder=false,
-    replacingByStadium=false) {
+    replacingByStadium=false,clearingChaoticFirst=false) {
   // Thunder's Lightning reduction can enable Volt Cyclone with DCE
   // even without a cost-raising Stadium. A neutral Stadium is not a veto.
   // Chaotic Swell consumes the incoming Stadium and prevents its effect.
@@ -1686,7 +1689,7 @@ function prospectiveStadiumThornsAttackUnlock(observation,replacingWithThunder=f
   const wondrous=hasStadium(observation,PRINT.wondrousLabyrinth);
   const chaotic=hasStadium(observation,/^Chaotic Swell\b/i);
   if(!ownActiveIsThorns(observation) ||
-      (replacingByStadium && chaotic) ||
+      (replacingByStadium && chaotic && !clearingChaoticFirst) ||
       (!temple && !(replacingByStadium &&
         (wondrous || replacingWithThunder))))return null;
   const active=observation.ownPublic?.active;
@@ -1749,6 +1752,16 @@ function prospectiveStadiumThornsAttackUnlock(observation,replacingWithThunder=f
   if(recoilKOs&&(!ownerBench ||
       (observation.opponentPublic?.prizeCount??6)<=2))return null;
   return {potentialTerminal:prizeEnd||boardEnd};
+}
+
+// Faba removes Chaotic Swell, allowing held Thunder to be played later
+// in the SAME turn for a newly payable, final-Prize Volt Cyclone.
+function fabaClearsChaoticForTerminal(observation) {
+  if(!hasStadium(observation,/^Chaotic Swell\b/i) ||
+      !ownHand(observation).some(card=>matches(card,PRINT.thunderMountain)) ||
+      stadiumLocked(observation))return false;
+  const window=prospectiveStadiumThornsAttackUnlock(observation,true,true,true);
+  return window?.potentialTerminal===true;
 }
 
 function scorePlayCard(item, request) {
@@ -1995,6 +2008,7 @@ function scorePlayCard(item, request) {
     return opponentActiveEnergy(observation) > 0 ? 185 : 0;
   }
   if (matches(card, PRINT.faba)) {
+    if(fabaClearsChaoticForTerminal(observation))return 950;
     return opponentHasTool(observation) || opponentSpecialEnergyCount(observation) > 0 ||
       stadiumsInPlay(observation).length > 0 ? 175 : 0;
   }

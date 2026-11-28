@@ -3208,3 +3208,61 @@ test('turn-ending draw/search refuses self-deckout: Palace Book and Tropical Bea
       {kind:'select-action',token:'draw'});
   }
 });
+
+test('Faba clears Chaotic Swell before held Thunder: final-Prize line and three negatives',()=>{
+  for(const seat of [0,1])for(const scenario of [
+    'funded','underfunded','no-thunder','spiky-final-tie'
+  ]){
+    const hasDce=scenario!=='underfunded';
+    const hasThunder=scenario!=='no-thunder';
+    const recoilTie=scenario==='spiky-final-tie';
+    const owner=player({
+      active:pokemon('Iron Thorns ex TWM 77',{
+        energies:[hasDce?'Double Colorless Energy SUM 136':
+          'Capture Energy RCL 171'],
+        damage:recoilTie?220:0
+      }),
+      bench:[pokemon('Iron Thorns ex TWM 77')],
+      stadium:['Chaotic Swell CEC 187'],prizeCount:2
+    });
+    const opponent=player({
+      active:pokemon('Tapu Lele-GX GRI 60',{
+        hp:170,damage:60,subtypes:['GX'],
+        energies:['Double Colorless Energy SUM 136',
+          'Spiky Energy JTG 159']
+      }),
+      bench:[pokemon('Shadow Rider Calyrex V CRE 74')],
+      prizeCount:recoilTie?2:3
+    });
+    const hand=['Faba LOT 173','Team Flare Grunt XY 129',
+      ...(hasThunder?['Thunder Mountain ◇ LOT 191']:[])];
+    const root=rootRequest({
+      seat,ownPublic:owner,opponentPublic:opponent,ownHand:hand,
+      items:[
+        action('flare','play-card','Team Flare Grunt XY 129',{cardType:'supporter'}),
+        action('faba','play-card','Faba LOT 173',{cardType:'supporter'}),
+        {token:'pass',kind:'pass'}
+      ]
+    });
+    const terminal=scenario==='funded';
+    assert.deepEqual(checkedDecision(root,seat),
+      {kind:'select-action',token:terminal?'faba':'flare'});
+    assert.equal(makePolicy(seat).decideWithAudit(root).
+      policyAudit.evaluations.find(row=>row.token==='faba').score,
+      terminal?950:175);
+
+    const resolve=promptRequest({
+      seat,promptType:'ChooseCardsPrompt',
+      source:actorChoiceSource('Faba LOT 173','Faba'),
+      publicMetadata:multiMetadata(1,1),
+      observation:{ownPublic:owner,opponentPublic:opponent,
+        ownHand:hand.filter(card=>card!=='Faba LOT 173')},
+      choices:[
+        cardChoice('dce','Double Colorless Energy SUM 136','attached','opponent'),
+        cardChoice('swell','Chaotic Swell CEC 187','stadium','opponent')
+      ]
+    });
+    assert.deepEqual(checkedDecision(resolve,seat),
+      {kind:'select-choices',tokens:[terminal?'swell':'dce']});
+  }
+});
