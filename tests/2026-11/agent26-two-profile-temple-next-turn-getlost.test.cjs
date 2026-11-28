@@ -427,3 +427,34 @@ for(const seat of [0,1]){
   assert.equal(policy.__test.apexHazard(v).direct,0);
  });
 }
+
+for(const seat of [0,1]){
+ const withDonor=(name)=>{
+  const v=view(seat);
+  v.ownPublic.stadium=[];
+  v.opponentPublic.active.energies=[
+   'Grass Energy SVE','Grass Energy SVE','Fire Energy SVE'];
+  v.opponentPublic.discard=[
+   name,'Battle VIP Pass FST','Psychic Energy SVE'];
+  return v;
+ };
+ for(const donor of ['Dialga-GX UPR','Noivern ex PAL','Kyurem SFA']){
+  test('source-type strict same-name Dragon donor '+donor+', seat '+seat,()=>{
+   assert.deepEqual(decision(root(seat,withDonor(donor))),{
+    kind:'select-action',token:'attack-getlost'
+   });
+  });
+ }
+ for(const wrongType of [
+   'Dialga-GX FLI','Noivern ex PRE','Kyurem UNB',
+   'Haxorus NVI','Flygon ex SSP','Garchomp ex PAR'
+ ]){
+  test('non-Dragon same-name false positive '+wrongType+', seat '+seat,()=>{
+   const v=withDonor(wrongType);
+   assert.deepEqual(decision(root(seat,v)),{
+    kind:'select-action',token:'pass'
+   });
+   assert.equal(policy.__test.apexHazard(v).direct,0);
+  });
+ }
+}
