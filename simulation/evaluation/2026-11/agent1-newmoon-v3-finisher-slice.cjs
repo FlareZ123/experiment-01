@@ -136,8 +136,10 @@ function chooseStage2BusEscape(view,items) {
   has(x,'Dusknoir')&&!has(x,'Trevenant & Dusknoir-GX'));
  const all=[{s:active,zone:'active',index:0},...own.bench.map((s,index)=>
   ({s,zone:'bench',index}))].filter(({s})=>s);
+ const nPsi=x=>Array.isArray(x.s?.energies)?x.s.energies.filter(e=>
+   has(e,'Basic Psychic Energy')||has(e,'Telepathic Psychic Energy')).length:0;
  const shadow=all.find(x=>has(x.s.printing,'Dusknoir')&&
-  !has(x.s.printing,'Trevenant & Dusknoir-GX')&&x.zone==='bench');
+  !has(x.s.printing,'Trevenant & Dusknoir-GX')&&x.zone==='bench'&&nPsi(x)>=3);
  if(shadow){
   const retire=items.find(i=>i.kind==='retreat'&&
     i.publicMetadata?.targetSeat==='actor'&&
@@ -148,8 +150,6 @@ function chooseStage2BusEscape(view,items) {
  }
  const d=all.filter(x=>has(x.s.printing,'Dusclops')&&
   !has(x.s.printing,'Dusknoir'));
- const nPsi=x=>Array.isArray(x.s?.energies)?x.s.energies.filter(e=>
-   has(e,'Basic Psychic Energy')||has(e,'Telepathic Psychic Energy')).length:0;
  if(!d.length)return null;
  // Strongest currently funded Stage1 is developed first; the actual host
  // action frontier certifies whether today's evolution is legal.
