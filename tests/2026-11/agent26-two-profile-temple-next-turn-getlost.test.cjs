@@ -156,12 +156,13 @@ for(const seat of [0,1]){
   assert.deepEqual(decision(prompt(seat,v)),
    {kind:'select-choices',tokens:['card-0','card-1']});
  });
- test('without revealed donor, avoid speculative cutoff reward, seat '+seat,()=>{
+ test('no revealed Dragon donor but exposed unique funding remains actionable, seat '+seat,()=>{
   const v=view(seat);v.opponentPublic.discard=[
    'Megaton Blower SSP','Crispin SCR','Psychic Energy SVE'];
-  const result=decision(prompt(seat,v));
-  assert.equal(result.kind,'select-choices');
-  assert.equal(result.tokens.length,2);
+  assert.deepEqual(decision(root(seat,v)),
+   {kind:'select-action',token:'attack-getlost'});
+  assert.deepEqual(decision(prompt(seat,v)),
+   {kind:'select-choices',tokens:['card-0','card-1']});
  });
 }
 
@@ -185,11 +186,11 @@ for(const seat of [0,1]){
 }
 
 for(const seat of [0,1]){
- test('two exposed donors exhaust observed payload: donor cut beats funding cut, seat '+seat,()=>{
+ test('two observed donors can be replenished; keep unique funding cut, seat '+seat,()=>{
   const v=view(seat);
   v.opponentPublic.discard.pop(); // Remove the third observed Dragon payload.
   assert.deepEqual(decision(prompt(seat,v)),
-   {kind:'select-choices',tokens:['card-0','card-1']});
+   {kind:'select-choices',tokens:['card-2','card-3']});
  });
 }
 
