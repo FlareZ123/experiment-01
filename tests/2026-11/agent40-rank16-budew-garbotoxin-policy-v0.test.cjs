@@ -1133,3 +1133,33 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['trubbish']});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' live Garbotoxin suppresses Snorlax Block without typed suppression field',()=>{
+  const garb=mon('Garbodor LTR 68',{tools:['Float Stone BKT 137'],
+   abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]});
+  const board=own({active:mon('Mega Absol ex MEG 86',{printed:{
+   retreatCost:['Colorless','Colorless']}}),bench:[mon('Budew ASC 16'),garb]});
+  const theirs=opp({active:mon('Snorlax PGO 55'),bench:[mon('Mimikyu PAL 97')]});
+  const q=root(seat,[play('Float Stone BKT 137','float',
+   {targetSeat:'actor',targetZone:'active'}),pass],{
+   globalTurn:2,ownPublic:board,opponentPublic:theirs,ownHand:['Float Stone BKT 137']});
+  assert.equal(policy.garbotoxinStatus(q.observation),'live');
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'float'});
+  // Stealthy Hood protects the opposing Block Ability from Garbotoxin.
+  theirs.active.tools=['Stealthy Hood UNB 186'];
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  // Jamming Tower disables both our Garbotoxin Tool and our Float Stone.
+  theirs.active.tools=[];theirs.stadium=['Jamming Tower TWM 153'];
+  assert.equal(policy.garbotoxinStatus(q.observation),'inactive');
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  // An explicit suppressed=true engine observation also releases Block.
+  theirs.stadium=[];theirs.active.abilitySuppressions=[
+   {abilityName:'Block',suppressed:true}];
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'float'});
+ });
+}
