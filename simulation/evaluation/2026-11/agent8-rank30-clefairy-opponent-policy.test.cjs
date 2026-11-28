@@ -14,7 +14,7 @@ const root=(kind,name,token,meta={})=>({kind,actorPrinting:name,token,publicMeta
 const card=(name,token)=>({kind:'card',printing:name,token});
 function request(seat=0) {
   return {role:'opponent',seat,prompt:null,
-    publicEventReceipt:{actorSeat:seat,turn:4,priorOpponentTurnKO:{turn:3,any:true,byAttack:true}},
+    publicEventReceipt:{actorSeat:seat,turn:4,opponentLastTurnTurn:3,opponentLastTurnOwnerCertified:true,priorOpponentTurnKO:{turn:3,any:true,byAttack:true}},
     observation:{actorSeat:seat,globalTurn:4,decisionKind:'owner-root',ownHand:[],ownTurnResources:{vstarUsed:false,supporterPlayedTurn:0},
       ownPublic:{active:{printing:clef,hp:190,damage:0,energies:[psychic,psychic]},
         bench:[],discard:[],stadium:[],prizeCount:3,deckCount:23},
@@ -952,7 +952,7 @@ for(const seat of [0,1]) {
     const r=request(seat);
     r.observation.ownPublic.active=b('Unown AOR 30');
     r.observation.ownHand=[psychic];
-    r.publicEventReceipt={priorOpponentTurnKO:{turn:3,any:true,byAttack:true}};
+    r.publicEventReceipt={opponentLastTurnTurn:3,opponentLastTurnOwnerCertified:true,priorOpponentTurnKO:{turn:3,any:true,byAttack:true}};
     r.actionFrontier.items=[
       root('play-card',"Trainers' Mail ROS 92",'mail'),
       {...root('play-card','Fezandipiti ex ASC 142','fez',
@@ -1718,4 +1718,20 @@ test('Heavy Ball Basic inventory matches every source Basic printing and copy co
   assert.equal(coverage.every(row=>row.printing!==null&&
     row.sourceCopies===row.configuredCopies),true,JSON.stringify(coverage));
   assert.equal(coverage.reduce((sum,row)=>sum+row.configuredCopies,0),16);
+});
+
+
+for(const seat of [0,1])test('seat '+seat+' Raihan accepts last opponent KO across our own extra turn',()=>{
+  const r=request(seat);
+  r.observation.ownPublic.active={printing:clef,energies:[psychic]};
+  r.observation.ownPublic.discard=[psychic];
+  r.observation.ownHand=['Raihan EVS 152'];
+  r.actionFrontier.items=[root('play-card','Raihan EVS 152','raihan'),
+    root('pass',null,'pass')];
+  r.publicEventReceipt={actorSeat:seat,turn:4,
+    opponentLastTurnTurn:2,opponentLastTurnOwnerCertified:true,
+    priorOpponentTurnKO:{turn:2,any:true,byAttack:true}};
+  assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'raihan'});
+  r.publicEventReceipt.opponentLastTurnOwnerCertified=false;
+  assert.notDeepEqual(policy(seat).decide(r),{kind:'select-action',token:'raihan'});
 });
