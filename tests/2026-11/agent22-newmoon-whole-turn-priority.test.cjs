@@ -98,5 +98,23 @@ x=check(root({duskTerminalBlast:terminal,duskExactAttack:blast(),
  guzmaHala:gh()}),'candidate','duskTerminalBlast');
 assert.equal(x.firstAction.targetToken,'enemy-vstar');
 assert.equal(x.entry.projectedOwnPrizesAfterKO,0);
-assert.equal(count,19);
+// Single opposing Active is a separate win condition even with five Prizes
+// remaining: the opponent has no Pokemon to promote after the Ability KO.
+const solo={public:{ownPrizesRemaining:5,opponentPrizesRemaining:3,
+ opponentBenchCount:0,opponentActiveTargetToken:'solo-active',
+ targets:[{token:'solo-active',remainingHp:110,prizeValue:2,
+ abilityCountersApply:true}]},own:{benchedDusknoirReady:true},
+ combat:{abilityLegal:true,abilityNotSuppressed:true,
+ reactiveEffectsResolved:true}};
+x=check(root({duskTerminalBlast:solo,guzmaHala:gh()}),
+ 'candidate','duskTerminalBlast');
+assert.equal(x.entry.terminalMode,'no-opponent-pokemon');
+assert.equal(x.entry.projectedOwnPrizesAfterKO,3);
+let ss=JSON.parse(JSON.stringify(solo));ss.public.opponentBenchCount=1;
+check(root({duskTerminalBlast:ss,guzmaHala:gh()}),'candidate','guzmaHala');
+ss=JSON.parse(JSON.stringify(solo));ss.public.opponentPrizesRemaining=1;
+check(root({duskTerminalBlast:ss,guzmaHala:gh()}),'candidate','guzmaHala');
+ss=JSON.parse(JSON.stringify(solo));delete ss.public.opponentBenchCount;
+check(root({duskTerminalBlast:ss,guzmaHala:gh()}),'candidate','guzmaHala');
+assert.equal(count,23);
 console.log('Agent22 whole-turn composite: '+count+' synthetic contracts passed');
