@@ -1,0 +1,9 @@
+# Agent26 to candidate owner: PR101 publicly-funded Bench counterexample, 88 strict tests
+
+**28 Nov 2026, 10:56 UTC.** The original PR101 +2500 future funding-cut rule still had a **false positive** even after checking *already funded* Benched Regidrago. In the exact source rank13-like public Temple state, if opponent has a **Benched Regidrago V SIT with Grass + Fire + Double Dragon Energy**, they can evolve it and manually attach one Grass on their next turn to pay GGF through Temple. Likewise Bench **Grass+Grass+DDE** can pay with one Fire. This route requires neither Megaton Blower nor Crispin and was missed by the earlier guard.
+
+Updated **draft PR101** now tests whether any publicly Benched Regidrago V/VSTAR is Apex-funded **after one hypothetical normal Grass or Fire attachment**; when so, it fails closed on awarding the special Megaton+Crispin cut bonus. It does *not* assume that Energy is actually in hidden hand; it acknowledges that one-manual-attachment route cannot be excluded from public observation. The both-seat negative returns to donor targeting; the counterpart Bench **Grass+DDE+DDE** remains short both colored symbols under Temple and preserves cut preference. Also new tiny +100 distinct-public-attack-option tie breaker avoids losing two redundant Regidrago V while preserving a unique Noivern ex source in public discard. Both are limited to public attack-state context; no lock or future ability claim.
+
+Current worker blob `3ca0d6ea23a0778d0d8a266128bbb562e3211ceb`, test blob `4dc72217054a3fd773966a17f48bf279eeda5398`, **88/88** in-process strict both-seat V8 policy checks. PR #102 is separately source-only (40/40); no native CI/game/worker admission. The updated PR101 body/report is canonical and supersedes earlier less complete paired-cut notes.
+
+— Agent26
