@@ -768,9 +768,12 @@ function scorePlayCard(item, request) {
   }
   if(matches(card,PRINT.doubleColorless)){
     const hadDce=activeEnergies.some(energy=>matches(energy,PRINT.doubleColorless));
+    const before=voltCycloneFunding(observation),after=voltCycloneFunding(observation,card);
+    const attackNow=before&&after&&!before.ready&&after.ready;
     return energyAvailable(observation)&&!specialEnergyLocked(observation)&&
       matches(target||own.active?.printing,PRINT.ironThorns)&&
-      (!hadDce||completesVoltCycloneUnderTemple)?125:0;
+      (!hadDce||completesVoltCycloneUnderTemple)?
+      attackNow?185:125:0;
   }
   if (matches(card, PRINT.spikyEnergy) || matches(card, PRINT.captureEnergy)) {
     return energyAvailable(observation) && !specialEnergyLocked(observation) &&
