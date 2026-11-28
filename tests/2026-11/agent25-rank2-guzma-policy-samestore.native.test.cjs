@@ -472,9 +472,22 @@ for (const seat of [0, 1]) {
     const index = x.candidate.hand.cards.findIndex(c => c.fullName === 'Float Stone BKT');
     assert.ok(index >= 0);
     assert.equal(x.candidate.cannotPlayItemCards, true);
-    const target = { player: PlayerType.BOTTOM_PLAYER, slot: SlotType.ACTIVE, index: 0 };
-    assert.doesNotThrow(() => x.store.dispatch(new PlayCardAction(x.candidate.id, index, target)),
-      'Pokemon Tool should remain usable despite ordinary Item and Supporter lock');
+    const frontier=buildNativeActionFrontier({
+      state:x.state,actorSeat:1-seat,native,
+      enumerator:createKnownCapFreeActionEnumerator({
+        native,enginePin:EXPECTED_ENGINE_PIN
+      })
+    });
+    const offered=frontier.actionFrontier.items.find(item=>
+      item.kind==='play-card' &&
+      item.actorPrinting==='Float Stone BKT' &&
+      item.publicMetadata?.targetZone==='active' &&
+      item.publicMetadata?.targetSeat==='actor');
+    assert.ok(offered,
+      'Pinned native legal-action frontier must offer held Float Stone to Active despite Item and Supporter lock');
+    assert.doesNotThrow(() =>
+      x.store.dispatch(selectedNativeAction(frontier,offered.token)),
+      'Native Tool action must be executable despite ordinary Item and Supporter lock');
     assert.equal(x.candidate.active.tools.some(c => c.fullName === 'Float Stone BKT'), true);
     assert.doesNotThrow(() => x.store.dispatch(new gameActions.RetreatAction(x.candidate.id, 0)),
       'retreat must become payable with native Float Stone attached despite item lock');
