@@ -41,7 +41,17 @@ function installUnderworldDoorPsychicRecipientHook(){
       store.reduceEffect(state,check);
       return check.cardTypes.includes(CardType.PSYCHIC);
     };
-    if(!owner.bench.some(isPsychicSlot))
+    // Resolve dynamic Psychic type eligibility once in the real reducer frame.
+    // Cloned-Prompt validation must not call store.reduceEffect on the live
+    // state: pinned Store.reduceEffect invokes calculatePlayability, which
+    // rewrites both players' live playability arrays even for a type check.
+    // While the prompt is unresolved the board cannot change. The physical
+    // callback below independently rechecks live eligibility at settlement.
+    const eligibleBenchIndexes=new Set();
+    owner.bench.forEach((slot,index)=>{
+      if(isPsychicSlot(slot))eligibleBenchIndexes.add(index);
+    });
+    if(eligibleBenchIndexes.size===0)
       throw new GameError(GameMessage.CANNOT_USE_POWER);
     /** @param {Array<{to:object,card:object}>|null} transfers */
     function recipientsPsychic(transfers,validationState){
@@ -55,8 +65,10 @@ function installUnderworldDoorPsychicRecipientHook(){
       // retaining the live physical Bench as the authoritative paper target.
       // An ordinary native validator/callback without a State still uses
       // the original owner and remains reference-identity strict.
+      const hasValidationState=validationState!==undefined&&validationState!==null;
       const checkedOwner=Array.isArray(validationState?.players)?
         validationState.players.find(p=>p?.id===owner.id):null;
+      if(hasValidationState&&!checkedOwner)return false;
       const checkedHand=(checkedOwner??owner).hand?.cards;
       if(!Array.isArray(checkedHand))return false;
       return transfers.every(({to,card})=>{
@@ -67,6 +79,16 @@ function installUnderworldDoorPsychicRecipientHook(){
         if(to?.player!==PlayerType.BOTTOM_PLAYER||
             to.slot!==SlotType.BENCH||
             !Number.isInteger(to.index))return false;
+        if(hasValidationState){
+          // This is a detached host-validated State. Read the physical
+          // prompt-time type result without invoking the live Store's
+          // mutating reduceEffect, and reject any mismatched clone target.
+          const physical=owner.bench[to.index]?.getPokemonCard();
+          const validated=checkedOwner.bench[to.index]?.getPokemonCard();
+          return Boolean(physical&&validated&&
+            validated.fullName===physical.fullName&&
+            eligibleBenchIndexes.has(to.index));
+        }
         return isPsychicSlot(owner.bench[to.index]);
       });
     }
