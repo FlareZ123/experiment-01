@@ -2821,3 +2821,98 @@ paired('Agent2: payoff-aware Guzma breaks sole live AOR Item lock or LTR/BKP Gar
       sel(cfg.expect),cfg.name+' must select '+cfg.expect);
   }
 });
+
+paired('Agent2: Hood on Benched Latias opens the full source-paid Garbotoxin lockbreak ALS',(seat,profile)=>{
+  const hood='Stealthy Hood UNB 186',guzma='Guzma BUS';
+  const lat=latias(),active=vmax([P,P,P]);
+  lat.printed.retreatCost=['Colorless'];
+  active.printed.retreatCost=['Colorless','Colorless'];
+  const garb=pokemon({printing:'Garbodor BKP 57',name:'Garbodor',
+    hp:100,types:['Psychic'],subtypes:['Stage 1'],
+    abilities:['Garbotoxin'],suppression:false,tools:['Float Stone BKT 137']});
+  for(const slot of [lat,active]){
+    slot.abilitySuppressions[0]={...slot.abilitySuppressions[0],
+      suppressed:true,sourcePrinting:garb.printing};
+  }
+  const view=observation(seat,{active,bench:[lat],
+    opponentActive:defender(),opponentBench:[garb],
+    ownHand:[hood,guzma],globalTurn:4});
+  view.ownPublic.prizeCount=4;
+  view.opponentPublic.prizeCount=6;
+  const rootActions=[
+    play('hood-lat',hood,lat.printing,target('bench',0)),
+    play('hood-vmax',hood,active.printing,target('active',0)),
+    play('guzma',guzma)
+  ];
+  assert.deepEqual(decide(profile,root(seat,view,rootActions)),sel('hood-lat'));
+  const ownerPolicy=worker.createPolicy({role:'candidate',seat,
+    policyVersion:worker.POLICY_VERSION,config:profile});
+  const hoodPrompt={role:'candidate',seat,
+    observation:{...view,ownHand:[guzma],decisionKind:'owner-prompt',
+      pendingPromptType:'ChoosePokemonPrompt'},
+    publicEventReceipt:null,
+    prompt:{actingSeat:seat,promptType:'ChoosePokemonPrompt',description:null,
+      source:{classification:'actor-choice',sourceKind:'card-effect',
+        sourcePrinting:hood,effectName:'Stealthy Hood'},
+      choices:[
+        {kind:'pokemon',token:'active',printing:active.printing,label:'Active',
+          publicMetadata:{selectionIndex:0,selectedCount:1,
+          selectionType:'pokemon',ownerSeat:'actor',targetZone:'active',
+          isOwnerVisible:true}},
+        {kind:'pokemon',token:'latias',printing:lat.printing,label:'Bench',
+          publicMetadata:{selectionIndex:0,selectedCount:1,
+          selectionType:'pokemon',ownerSeat:'actor',targetZone:'bench',
+          benchIndex:0,isOwnerVisible:true}}
+      ],publicMetadata:{minimumCount:1,maximumCount:1,
+        allowCancel:false,isSecret:false,selectionType:'pokemon'}}};
+  assert.deepEqual(ownerPolicy.decide(hoodPrompt),mult('latias'));
+  // The Hood is now actually attached. Only the own Latias ability
+  // suppression changes; the VMAX still has its Underworld Door locked.
+  const equipped={...lat,tools:[hood],abilitySuppressions:[
+    {...lat.abilitySuppressions[0],suppressed:false,sourcePrinting:null}]};
+  const afterHood={...view,ownHand:[guzma],ownPublic:{
+    ...view.ownPublic,handCount:1,
+    bench:[equipped,null,null,null,null]}};
+  assert.deepEqual(decide(profile,root(seat,afterHood,[
+    play('guzma',guzma)])),sel('guzma'));
+  const chooseGuzma=(v,side)=>({role:'candidate',seat,observation:{
+      ...v,decisionKind:'owner-prompt',pendingPromptType:'ChoosePokemonPrompt'},
+    publicEventReceipt:null,prompt:{
+      actingSeat:seat,promptType:'ChoosePokemonPrompt',description:null,
+      source:{classification:'actor-choice',sourceKind:'card-effect',
+        sourcePrinting:guzma,effectName:'Guzma'},
+      choices:v[side==='actor'?'ownPublic':'opponentPublic'].bench
+        .flatMap((p,i)=>p?[{kind:'pokemon',token:side+'-'+i,
+          printing:p.printing,label:'Bench '+i,
+          publicMetadata:{selectionIndex:i,selectedCount:1,
+            selectionType:'pokemon',ownerSeat:side,targetZone:'bench',
+            benchIndex:i,isOwnerVisible:true}}]:[]),
+      publicMetadata:{minimumCount:1,maximumCount:1,allowCancel:false,
+        isSecret:false,selectionType:'pokemon',targetZone:'bench'}
+    }});
+  assert.deepEqual(decide(profile,chooseGuzma(afterHood,'opponent')),mult('opponent-0'));
+  const gusted={...afterHood,ownHand:[],
+    ownTurnResources:{...view.ownTurnResources,supporterPlayedTurn:4},
+    opponentPublic:{...view.opponentPublic,active:garb,
+      bench:[view.opponentPublic.active,null,null,null,null]}};
+  assert.deepEqual(decide(profile,chooseGuzma(gusted,'actor')),mult('actor-0'));
+  const pivoted={...gusted,
+    ownPublic:{...gusted.ownPublic,active:equipped,
+      bench:[active,null,null,null,null]}};
+  assert.deepEqual(decide(profile,root(seat,pivoted,[
+    {kind:'retreat',token:'back',targetPrinting:active.printing,
+      publicMetadata:{benchIndex:0}}])),sel('back'));
+  const returned={...pivoted,
+    ownTurnResources:{...pivoted.ownTurnResources,retreatedTurn:4},
+    ownPublic:{...pivoted.ownPublic,active,
+      bench:[equipped,null,null,null,null]}};
+  assert.deepEqual(decide(profile,root(seat,returned,[
+    {kind:'attack',token:'max',attackName:'Max Geist'}])),sel('max'));
+
+  // Same visible board but with no follow-up Guzma or hand Psychic
+  // has a better Hood use on VMAX, not an invented Latias KO line.
+  view.ownHand=[hood];
+  assert.deepEqual(decide(profile,root(seat,view,rootActions)),sel('hood-vmax'));
+  view.ownHand=[hood,guzma,P];
+  assert.deepEqual(decide(profile,root(seat,view,rootActions)),sel('hood-vmax'));
+});
