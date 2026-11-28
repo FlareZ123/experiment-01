@@ -392,3 +392,45 @@ for(const seat of [0,1]) {
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' gust prioritizes printed Psychic-weak 3-Prize VMAX over 2-Prize knockout',()=>{
+    const r=request(seat);
+    // Guzma requires promoting the Bench Clefairy, so the current Active
+    // being Unown must not suppress the future Psychic Weakness multiplier.
+    r.observation.ownPublic.active=b('Unown AOR 30');
+    r.observation.ownPublic.bench=[
+      {printing:clef,energies:[psychic,psychic]},
+      b('Unown AOR 30'),b('Latias ex SSP 76')];
+    r.observation.opponentPublic.active={printing:'Snorlax PGO 55',hp:150,damage:0};
+    r.observation.opponentPublic.bench=[
+      {printing:'Machamp VMAX ASR 73',hp:330,damage:110,
+       printed:{types:['FIGHTING'],weakness:[{type:'PSYCHIC',value:'×2'}]}},
+      {printing:'Crobat V DAA 104',hp:180,damage:80,
+       printed:{types:['DARKNESS'],weakness:[]}}];
+    r.observation.ownHand=['Guzma BUS 115'];
+    r.actionFrontier.items=[root('play-card','Guzma BUS 115','gust')];
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'gust'});
+    r.prompt={
+      promptType:'ChoosePokemonPrompt',
+      source:{sourcePrinting:'Guzma BUS 115',effectName:'Guzma'},
+      publicMetadata:{selectionType:'pokemon',targetZone:'bench',
+        minimumCount:1,maximumCount:1},
+      choices:[
+        {kind:'pokemon',token:'three-prize',publicMetadata:{
+          ownerSeat:'opponent',targetZone:'bench',benchIndex:0}},
+        {kind:'pokemon',token:'two-prize',publicMetadata:{
+          ownerSeat:'opponent',targetZone:'bench',benchIndex:1}}
+      ]
+    };
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choices',tokens:['three-prize']});
+    // Without the physically printed Psychic Weakness, 120 damage still
+    // KOs the two-Prizer but not the 220-HP-remaining VMAX.
+    r.observation.opponentPublic.bench[0].printed.weakness=[];
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choices',tokens:['two-prize']});
+  });
+}
