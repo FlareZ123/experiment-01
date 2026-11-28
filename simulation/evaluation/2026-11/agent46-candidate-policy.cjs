@@ -669,6 +669,16 @@ function searchCandidates(view, prompt, choices) {
 
 function chooseCardCombination(view, prompt) {
   setPolicyAuditRule('CARD_COMBINATION_SEARCH_SCORE', 'SCORE_DESC_PRINTING_ASC');
+  const ownerSourceBindings = {
+    'Wonder Tag': 'Tapu Lele-GX GRI 60',
+    'Climactic Gate': 'Radiant Eternatus CRZ 105',
+    'Get Lost': 'Girafarig LOT 94'
+  };
+  const effect = prompt.source?.effectName;
+  if (Object.hasOwn(ownerSourceBindings, effect) &&
+      prompt.source?.sourcePrinting !== ownerSourceBindings[effect]) {
+    return abstain('UNTRUSTED_PROMPT_SOURCE');
+  }
   const metadata = prompt.publicMetadata;
   const opponentGetLost =
     prompt.source?.sourceKind === 'card-effect' &&
