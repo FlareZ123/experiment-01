@@ -247,5 +247,39 @@ for(const seat of [0,1]){
     assert.deepEqual(checkedDecision(continuation,seat),{
       kind:'select-choices',tokens:['mega-0']
     });
+    // Actual host PLAY_CARD_ACTION projection for hand Jet onto an unpowered
+    // *second* identically printed Mega; not a manually authored action item.
+    const emptyMega=pokemon('Mega Lopunny ex PFL 84','Mega Lopunny ex',{
+      hp:330,stage:'STAGE_1',energy:[]});
+    const jetBench=[emptyMega,bus,pidgeotto,
+      pokemon('Mega Lopunny ex PFL 84','Mega Lopunny ex',{
+        hp:330,stage:'STAGE_1',energy:[]})];
+    const jetRoot=envelope(seat,active,jetBench,opp,[],'owner-root');
+    jetRoot.observation.ownHand=['Jet Energy PAL 190','Grass Energy BLW 105'];
+    class EnergyCard { constructor(){
+      this.fullName='Jet Energy PAL 190';this.name='Jet Energy';
+    }}
+    const jetState={players:[null,null],phase:2};
+    jetState.players[seat]={active:nativeSlot(active),
+      bench:jetBench.map(nativeSlot),
+      hand:{cards:[new EnergyCard()]}};
+    jetState.players[1-seat]={active:nativeSlot(opp),bench:[]};
+    const native={EnergyCard,PlayerType:{BOTTOM_PLAYER:0,TOP_PLAYER:1},
+      SlotType:{BENCH:0}};
+    const projectedJet=projectNativeAction({
+      type:'PLAY_CARD_ACTION',handIndex:0,
+      target:{player:0,slot:0,index:3}
+    },jetState,seat,native,'jet-to-second-mega');
+    assert.equal(projectedJet.kind,'play-card');
+    assert.equal(projectedJet.publicMetadata.cardType,'energy');
+    assert.equal(projectedJet.publicMetadata.targetIndex,3);
+    assert.equal(projectedJet.targetPrinting,emptyMega.printing);
+    jetRoot.actionFrontier.items=[projectedJet,{
+      kind:'use-ability',token:'air-mail',actorPrinting:'Pidgeotto TEU 123',
+      publicMetadata:{abilityName:'Air Mail'}
+    }];
+    assert.deepEqual(checkedDecision(jetRoot,seat),{
+      kind:'select-action',token:'jet-to-second-mega'
+    });
   });
 }
