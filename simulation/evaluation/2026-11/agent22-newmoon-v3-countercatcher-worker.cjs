@@ -8,22 +8,43 @@
  * action/prompt choices. Does not inspect any hidden zone.
  */
 const parent=require('./agent1-newmoon-v3-finisher-slice.cjs');
-const {createSlice}=require('./agent22-newmoon-countercatcher-actor-sequence.cjs');
+const {createSlice,visiblePrintedDuoDamage}=require('./agent22-newmoon-countercatcher-actor-sequence.cjs');
 const POLICY_VERSION='agent22-newmoon-v3-postselfko-countercatcher-research-v1';
 const DECK_PATH=parent.DECK_PATH,DECK_SHA=parent.DECK_SHA;
-function supportedDirectTerminal(v,items){
+function directTerminal(v,items){
  if(!v||!Array.isArray(items)||!v.opponentPublic?.active||
-    !Number.isSafeInteger(v.ownPublic?.prizeCount))return false;
+    !Number.isSafeInteger(v.ownPublic?.prizeCount))return null;
  const target=v.opponentPublic.active,need=v.ownPublic.prizeCount;
- // Only when the observable target's identity independently certifies its
- // exact Prize value; never infer unknown Rule Box values from HP alone.
+ // Exact visible printing carries its known Prize value: never infer an
+ // unknown Pokémon's Prize value from its HP, rule box or name substring.
  const prize=target.printing?.includes('Regidrago VSTAR')?2:
    ['Mega Lopunny ex','Mega Kangaskhan ex','Mega Absol ex',
     'Mega Dragonite ex'].some(s=>target.printing?.includes(s))?3:null;
  const lastOpponentPokemon=Array.isArray(v.opponentPublic.bench)&&
    v.opponentPublic.bench.filter(Boolean).length===0;
- return (prize!==null&&prize>=need||lastOpponentPokemon)&&
-   !!parent.chooseCertifiedLethal(v,items);
+ if(!(prize!==null&&prize>=need||lastOpponentPokemon))return null;
+ const nativeAnnotated=parent.chooseCertifiedLethal(v,items);
+ if(nativeAnnotated)return {
+   ...nativeAnnotated,reason:'A22_NATIVE_ANNOTATED_DIRECT_TERMINAL'};
+ const own=v.ownPublic,op=v.opponentPublic;
+ const nominal=visiblePrintedDuoDamage(own,op,target);
+ if(!Number.isFinite(nominal)||
+    !Number.isSafeInteger(target.hp)||!Number.isSafeInteger(target.damage)||
+    target.hp<=target.damage||nominal<target.hp-target.damage||
+    own.publicTurnRestrictions?.gxUsed!==false)return null;
+ const active=own.active;
+ const a=items.find(x=>x.kind==='attack'&&
+   x.attackName==='Miraculous Duo-GX'&&
+   x.actorPrinting===active.printing&&
+   x.publicMetadata?.attackCostPayable===true&&
+   x.publicMetadata.attackSource?.sourceKind==='active-pokemon'&&
+   x.publicMetadata.attackSource.sourceSlot==='ACTIVE'&&
+   x.publicMetadata.attackSource.sourceCardFullName===active.printing);
+ return a?{decision:{kind:'select-action',token:a.token},
+   reason:'A22_PRINTED_DIRECT_BASE_DAMAGE_TERMINAL_PROJECTION'}:null;
+}
+function supportedDirectTerminal(v,items){
+ return directTerminal(v,items)!==null;
 }
 function createPolicy({role,seat,policyVersion,config}){
  if(role!=='candidate'||![0,1].includes(seat)||
@@ -51,11 +72,9 @@ function createPolicy({role,seat,policyVersion,config}){
  function decideWithAudit(request){
   const v=request?.observation,items=request?.actionFrontier?.items;
   const hadSequence=seq.peek()!==null;
-  if(!hadSequence&&v?.decisionKind==='owner-root'&&
-     supportedDirectTerminal(v,items)){
-    const direct=parent.chooseCertifiedLethal(v,items);
-    if(direct)return withAudit(request,{
-      ...direct,reason:'A22_DIRECT_NO_SELFKO_TERMINAL_PRIORITY'});
+  if(!hadSequence&&v?.decisionKind==='owner-root'){
+    const direct=directTerminal(v,items);
+    if(direct)return withAudit(request,direct);
   }
   const action=seq.decide(request);
   if(action)return withAudit(request,action);
@@ -73,4 +92,4 @@ function createPolicy({role,seat,policyVersion,config}){
  return {decide:r=>decideWithAudit(r).decision,decideWithAudit};
 }
 module.exports={POLICY_VERSION,DECK_PATH,DECK_SHA,createPolicy,
- supportedDirectTerminal};
+ supportedDirectTerminal,directTerminal};
