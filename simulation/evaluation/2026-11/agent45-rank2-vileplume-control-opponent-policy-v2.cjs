@@ -573,6 +573,22 @@ function scoreAction(item, request) {
     const bunnelbyActive = matches(own.active?.printing ?? '', PRINT.bunnelby);
     const hasJet = handCount(hand, PRINT.jetEnergy) > 0;
     const targetReady = hasK0PossibleBenchEvolutionTarget(observation);
+    // Native PlayCardAction can carry the physical Pokémon Tool recipient.
+    // Its identity is NOT merely an arbitrary same-printing Pokémon elsewhere
+    // on the board. Reject an Oddish target or occupied Tool slot even if a
+    // ready Bunnelby exists elsewhere, then distinguish Active/Bench copies.
+    if (metadata.targetZone === 'active' || metadata.targetZone === 'bench') {
+      const row=boardSlots(own).find(row=>row.zone===metadata.targetZone &&
+        row.index===metadata.targetIndex);
+      if (metadata.targetSeat !== 'actor' || !row ||
+          !samePrinting(row.pokemon.printing,target) ||
+          !matches(row.pokemon.printing,PRINT.bunnelby) ||
+          list(row.pokemon.tools).length>0) return 0;
+      const payableSoon=row.zone==='active'||hasJet;
+      return targetReady && payableSoon ? (row.zone==='active'?235:188) : 35;
+    }
+    // Preserve older fallback only for legacy targetless envelope; that
+    // form requires a separate, reviewed recipient prompt continuation.
     return bunnelby && (hasJet || bunnelbyActive) && targetReady ? 178 : 88;
   }
   if (matches(card, PRINT.jetEnergy)) {
