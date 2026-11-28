@@ -3499,8 +3499,14 @@ function hasOpponentToolRemovalTarget(view) {
 function switchedPublic(view,side,index) {
   const player=view[side],incoming=player.bench[index];
   if(!incoming)return view;
+  // When an Active Pokémon is switched to the Bench it loses Special
+  // Conditions; do not carry stale paralysis/confusion into a same-turn
+  // Guzma -> normal-retreat -> attack continuation. Energy, Tools and
+  // damage remain attached as usual.
+  const departing=player.active;
+  const cleared=departing?{...departing,specialConditions:[]}:departing;
   return {...view,[side]:{...player,active:incoming,
-    bench:player.bench.map((slot,i)=>i===index?player.active:slot)}};
+    bench:player.bench.map((slot,i)=>i===index?cleared:slot)}};
 }
 // Active-only Ability locks cease when the holder leaves the Active Spot.
 // Project only the named departure; retain all other suppression evidence.
@@ -3582,9 +3588,12 @@ function guzmaFreePivotMultiPrize(before,after,index){
      prizeLiability(target)>=projected.ownPublic.prizeCount||
      projected.opponentPublic.prizeCount<=3||
      !cleanPublicTerminalView(projected,true))return null;
-  const attack=old.attacks?.find(a=>a.name==='Max Geist');
-  if(!attack||!canPayAttack(old,attack,projected))return null;
-  const damage=estimatedDamage(old,attack,projected,target);
+  // Use the post-switch projection, not the stale pre-switch Pokémon
+  // object, when certifying attack legality and damage.
+  const attacker=projected.ownPublic.active;
+  const attack=attacker?.attacks?.find(a=>a.name==='Max Geist');
+  if(!attack||!canPayAttack(attacker,attack,projected))return null;
+  const damage=estimatedDamage(attacker,attack,projected,target);
   if(!Number.isFinite(damage)||damage<target.hp-target.damage)return null;
   return {attack,projected,damage};
 }
