@@ -494,6 +494,10 @@ for(const seat of [0,1]){
         {kind:'pokemon',token:'v',printing:'Shadow Rider Calyrex V CRE 74',
         publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:1}}]};
     assert.deepEqual(decision(r),{kind:'select-choices',tokens:['vmax']});
+    // Native Guzma resolves the opposing switch before its second own-Bench prompt.
+    const oldActive=r.observation.opponentPublic.active;
+    r.observation.opponentPublic.active=r.observation.opponentPublic.bench[0];
+    r.observation.opponentPublic.bench[0]=oldActive;
     r.prompt.choices=[{kind:'pokemon',token:'pidgeot',printing:'Pidgeot ex OBF 164',
       publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:1}},
       {kind:'pokemon',token:'mega',printing:MEGA,
