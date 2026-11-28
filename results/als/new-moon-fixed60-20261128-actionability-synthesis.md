@@ -30,12 +30,13 @@ All variants derive from New Moon Lockbreak v1 with Mewtwo & Mew-GX Perfection, 
 
 ## One implementable whole-turn policy rather than more independent effects
 
-The research-only [composed action arbiter](new-moon-whole-turn-action-priority.cjs) with [18 passing synthetic precedence cases](../../tests/2026-11/agent22-newmoon-whole-turn-priority.test.cjs) now composes **five already separate actor-visible guards** under a **single actor-state fingerprint**:
+The research-only [composed action arbiter](new-moon-whole-turn-action-priority.cjs) with [19 passing synthetic precedence cases](../../tests/2026-11/agent22-newmoon-whole-turn-priority.test.cjs) now composes **six already separate actor-visible guards** under a **single actor-state fingerprint**:
 
 1. **Already payable no-selfKO FairyZone direct Psychic attack** (including Stage2 through CovertFlight): use it instead of sacrificing Dusknoir.
-2. **Already payable Dusk CursedBlast130 + exact funded attack** (NightWatch or printed Miraculous): decline if the source has only one Prize left or an attack alone already KOs.
-3. **CursedBlast + post-selfKO Bench-refill Rondo**, either Dragon280 with FairyZone ×2 at combined Bench≥3 or Thorns230 at combined Bench≥4. The *post-selfKO* Bench count and real native TPE search must be assessed.
-4. **Guzma & Hala triple-search** if no tactical finisher is already certified, Supporter can be played, two cards are truly disposable, and the intended Stadium/Tool/Energy roles are still relevant. If Valley is wanted, fail closed on own NewMoon and avoid TPE searches that complete Solrock+Lunatone.
+2. **Ability-only terminal Dusk CursedBlast130:** if opposing Active/Benched damaged target has ≤130 HP remaining, its Prize value closes our remaining Prize count, own Bench Dusk is live, and self-KO cannot award opponent its final Prize, finish without needing an attack. Requires actor-confirmed reactive and ability protection semantics; do not conflate with a wasted Blast before a payable direct KO.
+3. **Already payable Dusk CursedBlast130 + exact funded attack** (NightWatch or printed Miraculous): decline if the source has only one Prize left or an attack alone already KOs.
+4. **CursedBlast + post-selfKO Bench-refill Rondo**, either Dragon280 with FairyZone ×2 at combined Bench≥3 or Thorns230 at combined Bench≥4. The *post-selfKO* Bench count and real native TPE search must be assessed.
+5. **Guzma & Hala triple-search** if no tactical finisher is already certified, Supporter can be played, two cards are truly disposable, and the intended Stadium/Tool/Energy roles are still relevant. If Valley is wanted, fail closed on own NewMoon and avoid TPE searches that complete Solrock+Lunatone.
 
 Each branch is **only a first-action proposal**, not a performed native action. The composer fails closed rather than burying an uncertified higher-priority branch, and requires the native worker to **reobserve all state after each effect, KO, Bench placement, paid attack and search prompt**. It never reads hidden deck/Prize contents from the final 60 and never asserts source-player decisions.
 
