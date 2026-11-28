@@ -140,7 +140,7 @@ function pokemonIsPsychic(pokemon){
  const types=list(pokemon?.printed?.types).map(x=>String(x).toLowerCase());
  if(types.length)return types.includes('psychic');
  // Exact Psychic identities used by the supported lock/engine slice.
- return /^(?:Wobbuffet PHF 36|Mimikyu PAL 97|Klefki (?:SVI 96|PAF 159)|Flutter Mane (?:TEF 78|PAF 43|SVP 97)|Shadow Rider Calyrex VMAX CRE 75)\b/i.test(name(pokemon?.printing));
+ return /^(?:Garbodor (?:LTR 68|BKP 57)|Wobbuffet PHF 36|Mimikyu PAL 97|Klefki (?:SVI 96|PAF 159)|Flutter Mane (?:TEF 78|PAF 43|SVP 97)|Shadow Rider Calyrex VMAX CRE 75)\b/i.test(name(pokemon?.printing));
 }
 function activeOpponentAbilityWorking(o,printing,abilityName){
  const p=o.opponentPublic?.active;
@@ -1282,4 +1282,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,prizeYield,activeMimikyuSafeguard,regidragoPayloadCount,karenOwnRecoveryScore,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,drawSupporterScore,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,opponentGarbotoxinStatus,liveGarbotoxin,benchCapacity,replacingJammingRestoresHoodedLock,pathToThePeakInPlay,silentLabInPlay,activeKlefkiLock,activeFlutterManeLock,urgentShadowRiderGarbotoxin};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,prizeYield,activeMimikyuSafeguard,regidragoPayloadCount,karenOwnRecoveryScore,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,drawSupporterScore,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,opponentGarbotoxinStatus,liveGarbotoxin,benchCapacity,replacingJammingRestoresHoodedLock,pathToThePeakInPlay,silentLabInPlay,activeKlefkiLock,activeFlutterManeLock,urgentShadowRiderGarbotoxin,pokemonIsPsychic};
