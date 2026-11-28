@@ -768,7 +768,7 @@ paired('Agent31: public Moltres and Vileplume resource cuts',(seat,profile)=>{
 });
 
 // Append to the existing Agent46 root test.
-paired('Agent31: preserve funded solo Night Watch against observed Snorlax',(seat,profile)=>{
+paired('Agent31: last-Pokemon Snorlax is immediate terminal; observed Bench makes the funded line nonterminal',(seat,profile)=>{
 const td=pokemon({printing:'Trevenant & Dusknoir-GX SMP',name:'Trevenant & Dusknoir-GX',hp:270,subtypes:['Basic','TAG TEAM','GX'],energies:[P,P,P,P,P],attacks:[attack('Night Watch',['Psychic','Psychic','Colorless'],'150')]});
 const snor=pokemon({printing:'Snorlax PGO 55',name:'Snorlax',hp:150,types:['Colorless'],abilities:['Block']});
 const lat='Latias ex SSP';
@@ -777,11 +777,14 @@ view.ownPublic.prizeCount=3;
 view.opponentPublic.discard=['Target Whistle PHF','Captivating Poké Puff STS'];
 const bench=[play('v',V,null,target('bench',0)),play('latias',lat,null,target('bench',0)),play('lele',L,null,target('bench',0)),play('gate',R,null,target('bench',0))];
 const charge=play('charge',P,td.printing,target('active',0)),night={kind:'attack',token:'night',attackName:'Night Watch'};
-assert.deepEqual(decide(profile,root(seat,view,[...bench,charge,night])),sel('charge'));
+assert.deepEqual(decide(profile,root(seat,view,[...bench,charge,night])),sel('night')); // KO the only opposing Pokémon wins.
 view.ownTurnResources.energyPlayedTurn=true;view.ownPublic.publicTurnRestrictions.energyPlayedTurn=true;
 assert.deepEqual(decide(profile,root(seat,view,[...bench,night])),sel('night'));
 view.opponentPublic.discard=['Target Whistle PHF'];
-assert.deepEqual(decide(profile,root(seat,view,[...bench,night])),sel('v'));
+assert.deepEqual(decide(profile,root(seat,view,[...bench,night])),sel('night')); // Still a board-empty win.
+view.opponentPublic.bench[0]=pokemon({printing:'Regirock XYP XY49',name:'Regirock',hp:110,types:['Fighting']});
+assert.deepEqual(decide(profile,root(seat,view,[...bench,night])),sel('v')); // Now nonterminal.
+view.opponentPublic.bench[0]=null;
 view.opponentPublic.discard=['Target Whistle PHF','Captivating Poké Puff STS'];td.energies=[P,P];
 assert.deepEqual(decide(profile,root(seat,view,[...bench])),sel('v'));
 td.energies=[P,P,P,P,P];view.opponentPublic.active=defender();
@@ -873,9 +876,14 @@ paired('Direct terminal Max Geist precedes further setup despite nondefensive op
   clefairy.hp=190;view.ownPublic.prizeCount=3;
   assert.deepEqual(decide(profile,root(seat,view,items)),sel('attach'));
   view.ownPublic.prizeCount=2;
-  // A different, unadmitted Ability must not be relabelled harmless.
+  // Benched Safeguard protects only its own Pokémon; the opposing Active is still the game-winning target.
   view.opponentPublic.bench[0]=pokemon({printing:'Mimikyu PAL',name:'Mimikyu',hp:70,
     abilities:['Safeguard'],suppression:false});
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('win'));
+  // Unknown reactive defense remains fail-closed rather than assuming
+  // the last-Prize attack is guaranteed.
+  view.opponentPublic.bench[0]=pokemon({printing:'Crustle BLK 14',name:'Crustle',hp:130,
+    subtypes:['Stage 1'],abilities:['Sturdy'],suppression:false});
   assert.deepEqual(decide(profile,root(seat,view,items)),sel('attach'));
 });
 
@@ -1856,7 +1864,7 @@ paired('Agent7: an authenticated opponent Tropical Beach draws instead of passin
   assert.deepEqual(select([{...beach,publicMetadata:{stadiumEffectLive:false}}]),sel('pass'));
   assert.deepEqual(select([{...beach,actorPrinting:'Tropical Beach BWP'}]),sel('pass'));
   view.ownHand=[P,P,P,P,P,P];view.ownPublic.handCount=6;
-  assert.deepEqual(select([beach]),sel('pass')); // <=1 draw.
+  assert.deepEqual(select([beach]),sel('beach')); // One safe draw remains at hand six.
   view.ownHand=[];view.ownPublic.handCount=0;
   view.ownPublic.deckCount=8;
   assert.deepEqual(select([beach]),sel('pass')); // Leave >=2 after draw 7.
