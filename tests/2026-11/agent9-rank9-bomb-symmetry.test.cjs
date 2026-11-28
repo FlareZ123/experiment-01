@@ -123,7 +123,7 @@ for(const seat of [0,1]) {
     }),{
       kind:'select-choices',
       tokens:[
-        'e2-active0','e3-active0','e4-bench1','e5-bench1','e6-active0'
+        'e0-active0','e1-active0','e4-bench1','e5-bench1','e6-active0'
       ]
     });
   });
