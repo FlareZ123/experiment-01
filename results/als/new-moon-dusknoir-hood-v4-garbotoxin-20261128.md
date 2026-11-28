@@ -46,6 +46,12 @@ This is a *conditional tool-assignment preference*, not proof of dominance or a 
 
 **Action rule for a future worker:** if the relevant Hooded line is verified by the current actor-visible action frontier, assign the singleton Hood to the Pokémon whose **own** Ability or ability-induced attack restriction is the immediate bottleneck, while respecting Tool occupation and Prize risk. Do **not** attach it reflexively to the Active Pokémon or always to Dusknoir; both can be dominated.
 
+## Iron Thorns source's Spiky Energy invalidates an apparently survivable slower line
+
+Another concrete cross-rank response makes the **same-turn** plan more important than a greedy Dusknoir Stage2 attack. Dusknoir SFA20 has **160 HP**; an unmodified Iron Thorns ex's **Volt Cyclone 140** fails to one-shot a clean full-HP Dusknoir after its **Shadow Bind 150**, apparently allowing Dusknoir to use Cursed Blast130 on the damaged 230HP Iron Thorns next own turn (if no source interference). But exact **ranks6 and29 each run one Spiky Energy**, and rank24 runs none. If source attaches Spiky to its Active Thorns, Dusknoir's Shadow Bind *damages that Active*, triggering Spiky's **two damage counters (20) to the attacking Dusknoir**. Source's funded Volt Cyclone140 on the following turn then gives **20+140=160**, KOing Dusknoir before it can use Cursed Blast. This does not require a damage modifier on Volt Cyclone. All three source ranks also run Energy-disruption Supporters; rank6 and29 have Crushing Hammer, reinforcing the danger of needing [P][P][C] on the Stage2 in the first place.
+
+By contrast, a legal **Benched Dusknoir CursedBlast130 (Ability counters)** followed in the *same turn* by funded **printed Miraculous Duo-GX200** against Active Iron Thorns230 does **not trigger Spiky from the 130 counters**, because Spiky triggers on damage *from an attack*. The GX attack damage can still trigger Spiky on its Mewtwo attacker, putting 20 there if source Thorns is Active with Spiky; that is a different follow-up risk, but the source has no intervening turn to KO Dusknoir before the combined two-Prize attack. The hood-on-Mewtwo Night Watch150 alternative also triggers Spiky on Mewtwo when it damages Thorns. This timing difference should be present in any competent opponent policy / damage trigger model.
+
 ## Quantified pregame access versus opportunity cost
 
 Using exactly the v4 17 Basics/60 counts, seven drawn conditioned on having at least one Basic, then uniform six initial Prizes from the remaining deck:
