@@ -727,7 +727,20 @@ function scoreAction(item, request) {
     if (matches(card, PRINT.lillie)) return hand.length <= 3 ? 110 : 0;
     if (matches(card, PRINT.gladion)) return 75;
     if (matches(card, PRINT.penny)) {
-      return slots(own).some(row => row.pokemon.damage > 0 && row.pokemon.printed?.stage === 'BASIC') ? 90 : 0;
+      // A root Penny line is executable only if the subsequent Pokémon
+      // prompt would actually select a target. In particular, an Active
+      // Snorlax with damage is intentionally protected by ownPickupScore:
+      // if it is the sole damaged Basic, choosing Penny would dead-end at
+      // NO_VISIBLE_POKEMON_TARGET. Evaluate the same known public features
+      // as ownPickupScore, leaving strict native legality to the Store.
+      const usable = slots(own).some(row => {
+        const p = row.pokemon;
+        if (p.printed?.stage !== 'BASIC') return false;
+        if (row.zone === 'active' && matches(p.printing, PRINT.snorlax)) return false;
+        return (p.damage ?? 0) * 2 + energyCount(p) * 10 +
+          (matches(p.printing, PRINT.rotom) || matches(p.printing, PRINT.articuno) ? 20 : 0) > 0;
+      });
+      return usable ? 90 : 0;
     }
   }
 
