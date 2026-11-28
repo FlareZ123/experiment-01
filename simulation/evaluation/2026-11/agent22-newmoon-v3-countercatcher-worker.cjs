@@ -18,8 +18,8 @@ function supportedDirectTerminal(v,items){
  // Only when the observable target's identity independently certifies its
  // exact Prize value; never infer unknown Rule Box values from HP alone.
  const prize=target.printing?.includes('Regidrago VSTAR')?2:
-   target.printing?.includes('Mega Lopunny ex')||
-   target.printing?.includes('Mega Kangaskhan ex')?3:null;
+   ['Mega Lopunny ex','Mega Kangaskhan ex','Mega Absol ex',
+    'Mega Dragonite ex'].some(s=>target.printing?.includes(s))?3:null;
  const lastOpponentPokemon=Array.isArray(v.opponentPublic.bench)&&
    v.opponentPublic.bench.filter(Boolean).length===0;
  return (prize!==null&&prize>=need||lastOpponentPokemon)&&
