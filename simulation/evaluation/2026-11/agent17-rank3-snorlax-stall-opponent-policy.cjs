@@ -734,11 +734,15 @@ function scoreAction(item, request) {
       // NO_VISIBLE_POKEMON_TARGET. Evaluate the same known public features
       // as ownPickupScore, leaving strict native legality to the Store.
       const usable = slots(own).some(row => {
-        const p = row.pokemon;
-        if (p.printed?.stage !== 'BASIC') return false;
-        if (row.zone === 'active' && matches(p.printing, PRINT.snorlax)) return false;
-        return (p.damage ?? 0) * 2 + energyCount(p) * 10 +
-          (matches(p.printing, PRINT.rotom) || matches(p.printing, PRINT.articuno) ? 20 : 0) > 0;
+        // Use the exact same identity lookup and scoring as the real prompt
+        // worker, including collisions between an Active and Benched copy
+        // of the same printing. An independent approximate score may choose
+        // Penny here then fail at the forced ChoosePokemonPrompt.
+        if (row.pokemon.printed?.stage !== 'BASIC') return false;
+        return ownPickupScore({
+          printing: row.pokemon.printing,
+          publicMetadata: { ownerSeat: 'actor' }
+        }, observation) > 0;
       });
       return usable ? 90 : 0;
     }
