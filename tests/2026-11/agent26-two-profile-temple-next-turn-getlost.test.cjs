@@ -340,3 +340,28 @@ for(const seat of [0,1]){
   assert.equal(decision(prompt(seat,v)).tokens.includes('card-0'),true);
  });
 }
+
+for(const seat of [0,1]){
+ test('one Grass plus two DDE remains Temple-unpaid but Megaton recovery-pays, seat '+seat,()=>{
+  const v=view(seat);
+  v.opponentPublic.active.energies=[
+   'Grass Energy SVE','Double Dragon Energy ROS','Double Dragon Energy ROS'];
+  assert.deepEqual(decision(prompt(seat,v)),
+   {kind:'select-choices',tokens:['card-2','card-3']});
+ });
+ test('one Grass plus three DDE still needs colored rescue under Temple, seat '+seat,()=>{
+  const v=view(seat);
+  v.opponentPublic.active.energies=[
+   'Grass Energy SVE','Double Dragon Energy ROS',
+   'Double Dragon Energy ROS','Double Dragon Energy ROS'];
+  assert.deepEqual(decision(prompt(seat,v)),
+   {kind:'select-choices',tokens:['card-2','card-3']});
+ });
+ test('Grass plus Fire plus DDE has different future attachment cutoff, seat '+seat,()=>{
+  const v=view(seat);
+  v.opponentPublic.active.energies=[
+   'Grass Energy SVE','Fire Energy SVE','Double Dragon Energy ROS'];
+  assert.deepEqual(decision(prompt(seat,v)),
+   {kind:'select-choices',tokens:['card-0','card-1']});
+ });
+}
