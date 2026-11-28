@@ -13,16 +13,18 @@
  */
 const {fairyZoneNoSelfKoPriority}=require('./new-moon-fairyzone-no-selfko-priority-gate.cjs');
 const {analyzeDusknoirFinisher}=require('./new-moon-dusknoir-actor-finisher-gate.cjs');
+const {terminalCursedBlast}=require('./new-moon-dusknoir-terminal-ability-gate.cjs');
 const {assessRondoAfterBlast,assessDragonRondoAfterBlast}=
   require('./new-moon-thorns-postblast-rondo-actor-gate.cjs');
 const {eligibleRoot}=require('./new-moon-guzma-hala-actor-opportunity-gate.cjs');
 
 const branches=Object.freeze([
  {key:'fairyZoneDirect', rank:0, fn:fairyZoneNoSelfKoPriority, offers:['priority-no-self-ko']},
- {key:'duskExactAttack', rank:1, fn:analyzeDusknoirFinisher, offers:['candidate']},
- {key:'duskDragonRondo', rank:2, fn:assessDragonRondoAfterBlast, offers:['candidate']},
- {key:'duskThornsRondo', rank:3, fn:assessRondoAfterBlast, offers:['candidate']},
- {key:'guzmaHala', rank:4, fn:eligibleRoot, offers:['candidate']}
+ {key:'duskTerminalBlast', rank:1, fn:terminalCursedBlast, offers:['terminal-candidate']},
+ {key:'duskExactAttack', rank:2, fn:analyzeDusknoirFinisher, offers:['candidate']},
+ {key:'duskDragonRondo', rank:3, fn:assessDragonRondoAfterBlast, offers:['candidate']},
+ {key:'duskThornsRondo', rank:4, fn:assessRondoAfterBlast, offers:['candidate']},
+ {key:'guzmaHala', rank:5, fn:eligibleRoot, offers:['candidate']}
 ]);
 function compareNewMoonTurn(view){
  if(!view||typeof view!=='object'||typeof view.actorStateFingerprint!=='string'||
