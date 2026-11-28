@@ -1201,10 +1201,12 @@ function getLostValue(view,printing) {
   }
 
   const regidrago=opponentHasRegidrago(view);
-  if(regidrago&&hasAnyName(printing,['Dialga-GX','Dragapult ex','Giratina VSTAR','Goodra VSTAR',
-    'Hisuian Goodra VSTAR','Noivern ex','Haxorus','Flygon ex','Altaria-GX','Dragonite ex',
-    'Alolan Exeggutor ex','Duraludon VMAX','Kyurem','Salamence ex JTG',
-    'Koraidon ex TEF','Regidrago V SIT']))return 500;
+  // Only printings actually authenticated as Dragon Apex payloads by this
+  // source-specific threat catalogue receive the high Get Lost donor score.
+  // Name-only matching is UNSAFE: FLI Dialga-GX is Metal, PRE Noivern ex
+  // is Colorless, UNB Kyurem is Water, SSP Flygon ex is Fighting, etc.
+  if(regidrago&&APEX_PAYLOADS.some(([donor])=>hasName(printing,donor)))
+    return 500;
   if(regidrago&&hasName(printing,'Regidrago VSTAR'))return 300;
   if(hasAnyName(printing,['ACE SPEC','Computer Search','Dowsing Machine','Unfair Stamp','Secret Box',
     'Legacy Energy','Double Dragon Energy','Double Colorless Energy','Pokémon Ranger',
