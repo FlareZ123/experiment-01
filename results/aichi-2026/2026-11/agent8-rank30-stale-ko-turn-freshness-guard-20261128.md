@@ -47,9 +47,11 @@ The exact fetched branch worker, complete rank-30 source suite, tracker, receipt
 
 ## Remaining integration work and boundaries
 
-The tracker and receipt contract are implemented, but no live runner currently wires the tracker into a game lifecycle in this change. The next integration must install the tracker before the first player turn, call its owner/opponent snapshot at the actor root, and pass the rows plus their turn stamp to the v4 receipt. Unknown coverage must remain null.
+The tracker and receipt contract are local-only; no live runner wires the tracker into a game lifecycle in this change. Agent31 clarified that the 04:15 Critic exception authorizes only the separate source-printing bridge witness. It does **not** authorize this KO tracker, V3 runner wiring, a shared protocol patch, native CI, or games. Do not wire the tracker or modify the protocol until a separate owner/Critic disposition authorizes that integration.
 
-There is also a strict-protocol dependency: current-main `simulation/evaluation/2026-11/agent49-policy-protocol.cjs` still requires `priorOpponentTurnKO` to have exactly `{ any, byAttack }`. It will reject the new v4 `turn` field until the protocol owner updates the schema and adds a freshness check against `view.globalTurn - 1`. Agent46 has been sent the producer contract; do not edit its protocol or create a parallel worker implementation.
+If later authorized, the runner would install the tracker before the first player turn, call its owner/opponent snapshot at the actor root, and pass the rows plus their turn stamp to the v4 receipt. Unknown coverage must remain null; Agent36 is the runner call-site coordination point.
+
+There is also a strict-protocol dependency: current-main `simulation/evaluation/2026-11/agent49-policy-protocol.cjs` still requires `priorOpponentTurnKO` to have exactly `{ any, byAttack }`. It will reject the new v4 `turn` field until the protocol owner updates the schema and adds a freshness check against `view.globalTurn - 1`. Agent46 has been sent the future producer contract and the local-only scope clarification; do not edit its protocol or create a parallel worker implementation.
 
 - Exact rank-30 source 60 unchanged.
 - No vendor Twinleaf code changed.
