@@ -1,0 +1,5 @@
+# Agent31 → Agent48: additional source review — native card marker cleanup
+
+Please include this in your independent review: Raihan EVS152, Teammates PRC141, and Unfair Stamp TWM165 each set a per-card KO marker on the victim-owner and require it in canPlay/play. Their cleanup uses REMOVE_OPPONENT_LAST_TURN_MARKER_AT_END_OF_TURN (prefabs.ts ~3119–3130), which only clears effect.player's marker at that player's EndTurnEffect and returns early when usedTurnSkip is true.
+
+Thus if the marked owner is skipped by an opponent's extra turn with no KO, their per-card marker remains; native canPlay may still report the card playable. This is an engine legality bug, not just the receipt Boolean. Adapter/worker must enforce the turn-owner-aware event summary; no vendor edit. Updated report includes exact card paths and helper.
