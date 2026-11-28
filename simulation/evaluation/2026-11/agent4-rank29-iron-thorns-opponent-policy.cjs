@@ -546,6 +546,11 @@ function cardChoiceScore(choice, observation, context) {
   if (context === 'vs-seeker') {
     if (choiceOwner(choice) !== 'actor' ||
         (choiceZone(choice) !== 'discard' && choice?.publicMetadata?.sourceZone !== 'discard')) return 0;
+    // VS Seeker -> Faba -> remove Chaotic -> Thunder -> final-Prize
+    // Volt Cyclone. Search for the winning Supporter, not generic denial.
+    if(matches(printing,PRINT.faba) && supporterAvailable(observation) &&
+        !ownHand(observation).some(card=>matches(card,PRINT.faba)) &&
+        fabaClearsChaoticForTerminal(observation))return 975;
     if (matches(printing, PRINT.teamFlare) && opponentActiveEnergy(observation) > 0) return 290;
     if (matches(printing, PRINT.plumeria) && opponentHasAnyEnergy(observation) &&
         canPayPlumeria(observation)) return 275;
@@ -1960,6 +1965,10 @@ function scorePlayCard(item, request) {
        PRINT.handiwork,PRINT.cynthiaCaitlin,PRINT.lillie,PRINT.faba,PRINT.eri,
        PRINT.sidney,PRINT.teamSkull].some(pattern => matches(supporter,pattern)));
     if(!inDiscard)return 0;
+    if(supporterAvailable(observation)&&
+       !hand.some(card=>matches(card,PRINT.faba)) &&
+       list(own.discard).some(card=>matches(card,PRINT.faba)) &&
+       fabaClearsChaoticForTerminal(observation))return 990;
     // A real Item→Supporter→gust→powered Bench attack is one executable
     // sequence, not three independent access edges. Prefer it over ending
     // the turn on a smaller Active KO while the final Prizes are on Bench.
