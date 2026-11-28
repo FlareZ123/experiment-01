@@ -40,6 +40,7 @@ const {PlayCardAction,PlayerType,SlotType}=
 const {AttackAction}=native('game/store/actions/game-actions');
 const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
 const {Store}=native('game/store/store');
+const {GameError}=native('game/game-error');
 const {EnergyCard}=native('game/store/card/energy-card');
 const {PokemonCard}=native('game/store/card/pokemon-card');
 const {TrainerCard}=native('game/store/card/trainer-card');
@@ -124,7 +125,7 @@ function assertSelected(decision,promptProjection) {
   return decision;
 }
 function nativeContext() {
-  return {Store,ResolvePromptAction,PokemonCard,TrainerCard,
+  return {Store,GameError,ResolvePromptAction,PokemonCard,TrainerCard,
     EnergyCard,EnergyType,CardType,TrainerType,
     ActionEnumerator,Simulator,SuperType,PlayerType,SlotType};
 }
