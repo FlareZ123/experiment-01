@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {validateDecision,validatePrompt}=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const {
  POLICY_VERSION,SOURCE_RANK,SOURCE_BLOB_SHA1,SOURCE_PRINTINGS,
- createPolicy,scoreRoot,searchValue,sourceDiscardValue,benchOpen,
+ createPolicy,scoreRoot,searchValue,sourceDiscardValue,benchOpen,benchAvailable,
  resolveSourcePrinting,templeUnlocksApex,carmineScore,resettingHoleScore
 }=require('../../simulation/evaluation/2026-11/agent2-rank18-regidrago-opponent-policy.cjs');
 const P={
@@ -309,10 +309,10 @@ test('Carmine discard payoff is conditional on Apex donors and guarded UDP',()=>
   assert.equal(carmineScore(live)>scoreRoot(quick,{observation:live}),true);
   assert.deepEqual(root(seat,live,[carmine,quick,pass]),
     {kind:'select-action',token:'carmine'});
-  // With two attackers established, discarding donor Dragons outranks
-  // more VIP bench width; without any V, first secure one through VIP.
+  // A free first-turn VIP search can precede Carmine even when two attackers
+  // are established: burning it with Carmine would lose the setup option.
   assert.deepEqual(root(seat,live,[carmine,vip,quick,pass]),
-    {kind:'select-action',token:'carmine'});
+    {kind:'select-action',token:'vip'});
   const vAbsent=obs(seat,{...live,ownPublic:{
     ...live.ownPublic,active:pokemon(P.budew),bench:[]}});
   assert.deepEqual(root(seat,vAbsent,[carmine,vip,quick,pass]),
