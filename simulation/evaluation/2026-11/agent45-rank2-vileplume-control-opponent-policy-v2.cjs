@@ -830,9 +830,18 @@ function scorePokemonChoice(choice, observation, context) {
   if (zone && zone !== 'bench' && !context.includes('irresistible aroma') &&
       !context.includes('cassius') && !context.includes('grand tree')) return -100;
   if (context.includes('guzma')) {
-    const target = list(observation.opponentPublic?.bench).find(slot =>
-      slot && samePrinting(slot.printing, printing));
-    if (!target) return -100;
+    const bench = list(observation.opponentPublic?.bench);
+    const meta = choice?.publicMetadata ?? {};
+    const hasBenchIndex = Number.isSafeInteger(meta.benchIndex);
+    const hasSlotIndex = Number.isSafeInteger(meta.slotIndex);
+    // selectionIndex is a choice ordinal, not a certified physical Bench slot.
+    // Conflicting physical indices or ambiguous duplicate printings fail closed.
+    if (hasBenchIndex && hasSlotIndex && meta.benchIndex !== meta.slotIndex) return -100;
+    const index = hasBenchIndex ? meta.benchIndex : hasSlotIndex ? meta.slotIndex : null;
+    if (index !== null && (index < 0 || index >= bench.length)) return -100;
+    const copies = bench.filter(slot => slot && samePrinting(slot.printing, printing));
+    const target = index !== null ? bench[index] : copies.length === 1 ? copies[0] : null;
+    if (!target || !samePrinting(target.printing, printing)) return -100;
     const hp = remainingHp(target);
     const multiPrize = /(?:-GX|\b(?:V|VMAX|VSTAR|ex)\b)/i.test(printing) ? 2 : 1;
     return 100 + (hp > 0 && hp <= 90 ? 50 : 0) + multiPrize * 8;
