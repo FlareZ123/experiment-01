@@ -863,3 +863,54 @@ for(const seat of [0,1]) {
       {kind:'select-action',token:'rondo'});
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' Tapu Lele Wonder Tag finds a supported terminal Guzma',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active=b('Unown AOR 30');
+    r.observation.ownPublic.bench=[{printing:clef,energies:[psychic,psychic]}];
+    r.observation.opponentPublic.active={printing:'Snorlax PGO 55',hp:150,damage:0};
+    r.observation.opponentPublic.bench=[{printing:'Machamp VMAX ASR 73',
+      hp:330,damage:220,printed:{
+        weakness:[{type:'PSYCHIC',value:'×2'}],resistance:[]}}];
+    r.observation.ownPublic.prizeCount=3;
+    r.observation.ownTurnResources.supporterPlayedTurn=0;
+    r.observation.ownHand=['Tapu Lele-GX GRI 60',psychic];
+    r.actionFrontier.items=[root('play-card','Tapu Lele-GX GRI 60','play-lele')];
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'play-lele'});
+    r.observation.ownHand=[psychic];
+    r.observation.ownPublic.bench.push({
+      printing:'Tapu Lele-GX GRI 60',
+      abilities:['Wonder Tag'],abilitySuppressions:[]});
+    r.actionFrontier.items=[{...root('use-ability','Tapu Lele-GX GRI 60','wonder',
+      {abilityName:'Wonder Tag'}),publicMetadata:{abilityName:'Wonder Tag'}}];
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'wonder'});
+    r.prompt={promptType:'ChooseCardsPrompt',
+      source:{sourcePrinting:'Tapu Lele-GX GRI 60',effectName:'Wonder Tag'},
+      publicMetadata:{selectionType:'card-combination',sourceZone:'deck',
+        ownerSeat:'actor',isOwnerVisible:true,minimumCount:0,maximumCount:1},
+      choices:[card('Marnie SSH 169','marnie'),
+        card('Guzma BUS 115','gust'),card('Raihan EVS 152','raihan')]};
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choices',tokens:['gust']});
+    r.observation.opponentPublic.bench=[];
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choices',tokens:['marnie']});
+    r.prompt.choices=[card('Raihan EVS 152','raihan'),
+      {kind:'empty-selection',token:'empty'}];
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choice',token:'empty'});
+    r.prompt=null;r.observation.opponentPublic.active={
+      printing:'Iron Thorns ex TWM 77',hp:230,damage:0,
+      abilities:['Initialization'],abilitySuppressions:[{
+        abilityName:'Initialization',suppressed:false,
+        reasonCode:null,sourcePrinting:null}]};
+    r.observation.ownPublic.bench=[{printing:clef,energies:[psychic,psychic]}];
+    r.observation.ownHand=['Tapu Lele-GX GRI 60',psychic];
+    r.actionFrontier.items=[root('play-card','Tapu Lele-GX GRI 60','play-lele')];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  });
+}
