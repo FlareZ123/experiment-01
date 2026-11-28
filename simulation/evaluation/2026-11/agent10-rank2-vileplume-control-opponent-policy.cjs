@@ -570,9 +570,9 @@ function scoreAction(item, request) {
       missingLinePriority(observation) > 0 ? 128 : 70;
   }
   if (matches(card, PRINT.guzma)) {
-    // Native Supporter PlayCardAction can offer the root before target prompts.
-    // A missing root target index is not evidence that no Bench gust exists.
-    if (!list(own.bench).some(Boolean)) return 0;
+    // Guzma's opponent gust is still meaningful with no own Bench; its
+    // conditional second switch is skipped if no own replacement exists.
+    // Native Supporter PlayCardAction may not carry a target until the prompt.
     const targetIndex = metadata.targetIndex;
     const targetPokemon = metadata.targetSeat === 'opponent' &&
       metadata.targetZone === 'bench' && Number.isSafeInteger(targetIndex) ?
