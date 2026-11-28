@@ -103,10 +103,16 @@ function mapPrompt(prompt,mine,other){
   const origin=prompt.source??{};
   // Night Watch must be handled by the physical host. Relabeling its
   // source must never bypass the strict worker's literal host-only guard.
-  if(origin.effectName==='Night Watch'&&
-      [origin.sourcePrinting,origin.copiedSourcePrinting].some(value=>
-        typeof value==='string'&&
-        /^Trevenant & Dusknoir-GX SMP(?:\s|$)/i.test(value))){
+  // A copied Night Watch retains its host-only randomness even when the
+  // visible source is Copycat. Check both source and copied-source variants
+  // before any mapping can change the worker's exact-print comparison.
+  const trevenantSource=value=>typeof value==='string'&&
+    /^Trevenant & Dusknoir-GX SMP(?:\s|$)/i.test(value);
+  if((origin.effectName==='Night Watch'&&
+        trevenantSource(origin.sourcePrinting))||
+      (origin.effectName==='Copycat'&&
+        origin.copiedAttackName==='Night Watch'&&
+        trevenantSource(origin.copiedSourcePrinting))){
     throw new Error('HOST_ONLY_PHYSICAL_PROMPT');
   }
   const source={...origin,
