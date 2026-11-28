@@ -1052,6 +1052,20 @@ function fieldBlowerPrompt(request) {
   if(target.length!==1)return no('R30_BLOWER_NO_UNIQUE_TARGET');
   return picks(target);
 }
+function skyFieldHandExpansionKO(o) {
+  const own=o?.ownPublic,ro=projectedRondo(o);
+  if(!ro||stadium(o)||benchCount(own)!==5||
+     !safeInt(ro.remaining)||ro.remaining<=ro.damage)return null;
+  const increment=rondoIncrement(o);
+  if(!safeInt(increment)||increment<=0)return null;
+  const additionalNeeded=Math.ceil((ro.remaining-ro.damage)/increment);
+  const handBodies=arr(o?.ownHand).filter(c=>benchBasicRole(c)!==null);
+  if(additionalNeeded<1||additionalNeeded>3||
+     handBodies.length<additionalNeeded)return null;
+  return {additionalNeeded,handBodies:handBodies.length,
+    currentDamage:ro.damage,expectedDamage:ro.damage+additionalNeeded*increment,
+    targetRemaining:ro.remaining};
+}
 function rootDecision(request,{enablePatchProjection=false}={}) {
   const o=request.observation, items=availableCards(request);
   if(!items.length)return no('R30_NO_OFFERED_ROOT');
@@ -1080,9 +1094,9 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   // No Field Blower line is opened before a still-available Rondo attack.
   const sky=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.sky));
   const ro=projectedRondo(o);
-  if(sky && !stadium(o) && ro && benchCount(o.ownPublic)===5 &&
-    o.ownHand.some(c=>benchBasicRole(c)!==null) && ro.damage<ro.remaining &&
-    ro.damage+20>=ro.remaining)return act(sky);
+  // Sky Field opens THREE additional Bench positions; evaluate a funded
+  // three-body in-hand Rondo KO, not just the first +20-damage step.
+  if(sky && skyFieldHandExpansionKO(o))return act(sky);
   const mail=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.mail));
   if(mail&&Number.isSafeInteger(o.ownPublic?.deckCount)&&o.ownPublic.deckCount>0)return act(mail);
   const vip=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.vip));
@@ -1201,4 +1215,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
+  skyFieldHandExpansionKO,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
