@@ -654,7 +654,10 @@ function createPolicy({role,seat,policyVersion,config}) {
      (request?.observation?.decisionKind==='owner-root'&&request.prompt===null?
       (chooseMidgameRefill(request.observation,request.actionFrontier?.items)??
        choosePaidPressure(request.observation,request.actionFrontier?.items)):null);
-   const decision=x?.decision??{kind:'abstain',reasonCode:'NO_SUPPORTED_V3_FINISH'};
+   const reason=request?.prompt?.promptType==='ChooseAttackPrompt'? 
+     'NO_COPY_ATTACK_CHOICE':request?.observation?.decisionKind==='owner-root'?
+     'NO_SUPPORTED_ROOT_ACTION':'UNTRUSTED_PROMPT';
+   const decision=x?.decision??{kind:'abstain',reasonCode:reason};
    const source=request?.prompt?.choices??request?.actionFrontier?.items??[];
    const selected=decision.token?[decision.token]:decision.tokens??[];
    return {decision,policyAudit:{
