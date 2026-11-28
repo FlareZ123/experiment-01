@@ -1,0 +1,57 @@
+{
+  "kind": "original-rank15-opening-hand-policy-proxy",
+  "seed": 549519342,
+  "exactSourceCopies": 60,
+  "exactOpeningBunnelbyTmEnergyPercent": 2.1446223697907913,
+  "observed": {
+    "samples": 300000,
+    "mulliganInitial": 41731,
+    "playableInitial": 258269,
+    "activeChanged": 84565,
+    "bunnelbyTmEnergyOpen": 6474,
+    "bunnelbyTmEnergyActiveCorrected": 2319,
+    "eldegossInInitial": 35062,
+    "eldegossRetainedInsteadOfBaselineSetup": 14046,
+    "eldegossBenchedOnlySurvivalBackup": 13743,
+    "baselineFiveBench": 112,
+    "noSupporterAccessTatsugiriLeadImproved": 4429,
+    "baselineActiveNames": {
+      "Buneary": 36900,
+      "Pidgey": 36818,
+      "Bunnelby": 37063,
+      "Budew": 36917,
+      "Oddish": 36605,
+      "Eldegoss V": 18559,
+      "Tatsugiri": 18396,
+      "Fan Rotom": 37011
+    },
+    "proposedActiveNames": {
+      "Buneary": 46946,
+      "Bunnelby": 32594,
+      "Budew": 63883,
+      "Tatsugiri": 29586,
+      "Fan Rotom": 37291,
+      "Eldegoss V": 7273,
+      "Pidgey": 22999,
+      "Oddish": 17697
+    }
+  },
+  "percentages": {
+    "initialMulligan": 13.910333333333334,
+    "activeChoiceChangesInPlayableHands": 32.742992771103,
+    "bunnelbyTmEnergyOpeningInAllHands": 2.158,
+    "fixedBunnelbyTmEnergyLeadInAllHands": 0.773,
+    "eldegossInAllHands": 11.687333333333333,
+    "eldegossSavedForLaterHappyMatchInAllHands": 4.682,
+    "eldegossAsOnlySurvivalBackupInAllHands": 4.581,
+    "priorFiveBenchInAllHands": 0.037333333333333336,
+    "newTatsugiriSupporterSearchLeadInAllHands": 1.4763333333333333
+  },
+  "limits": "Uniform initial 7 only; no mulligan-redraw conditioning, opponent, prizes, subsequent draws or game wins. Heuristic source setup policy not native Store validated.",
+  "exactInitialMulliganPercent": 13.859068087128009,
+  "blobs": {
+    "sourcePolicy": "e05044c170bbfcb4701217afb84a04805df05620",
+    "nativeSetupHook": "1af37b7b632ac21ee294f71cad255bdca2f04289",
+    "simulation": "b8839544967815a6a303dfdf6b0b8448250d3981"
+  }
+}
