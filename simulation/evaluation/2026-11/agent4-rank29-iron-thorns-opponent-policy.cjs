@@ -296,16 +296,19 @@ function hiddenHandTargetProbability(observation, targetType) {
   if (!opponent || Array.isArray(opponent.publicHand)) return 0;
   const handCount = opponent.handCount;
   if (!Number.isSafeInteger(handCount) || handCount < 1) return 0;
-  // Only apply a nonzero prior to the two registered Shadow Rider fixed-60
-  // candidate profiles, recognized from public board printings. All actual
-  // hidden contents remain unknown to the policy.
-  const shadowBoard=slots(opponent).some(row =>
-    /Shadow Rider Calyrex V(?:MAX)?\b|Lillie'?s Clefairy ex\b/i.test(
-      row.pokemon.printing));
-  if (!shadowBoard) return 0;
-  // Conservative proxy count distributions, not a source-specific posterior
-  // over the opponent's actual unobserved remaining hand.
-  const proxy = {item:10,energy:8,toolOrStadium:4};
+  // Source-verified public-archetype priors, not knowledge of the hidden
+  // candidate's exact 60 or private hand. Aichi ranks 6/29 both run Iron
+  // Thorns with at least 18 Items, 8 Energy, and 7 Tools/Stadiums by public
+  // submitted category names. The registered Shadow Rider source prior is
+  // deliberately conservative. Every other public archetype remains unknown.
+  const visible=slots(opponent).map(row=>row.pokemon.printing);
+  const shadowBoard=visible.some(printing=>
+    /Shadow Rider Calyrex V(?:MAX)?\b|Lillie'?s Clefairy ex\b/i.test(printing));
+  const thornsBoard=visible.some(printing=>matches(printing,PRINT.ironThorns));
+  if (!shadowBoard && !thornsBoard) return 0;
+  const proxy = thornsBoard ?
+    {item:18,energy:8,toolOrStadium:7} :
+    {item:10,energy:8,toolOrStadium:4};
   const k=proxy[targetType];
   if (!k) return 0;
   let zero=1;
