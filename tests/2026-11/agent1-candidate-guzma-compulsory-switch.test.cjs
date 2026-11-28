@@ -100,3 +100,60 @@ for(const seat of [0,1]) {
     });
   }
 }
+
+for(const seat of [0,1])test(
+  'Guzma false positive must yield to a complete Underworld Door root and prompt seat '+seat,
+  ()=>{
+    const root=make(seat,'root-bad');
+    root.observation.ownHand=[E,'Guzma BUS 115'];
+    root.observation.ownPublic.deckCount=26;
+    root.actionFrontier.items.splice(1,0,{
+      token:'underworld-door',kind:'use-ability',
+      actorPrinting:'Shadow Rider Calyrex VMAX CRE 75',
+      publicMetadata:{abilityName:'Underworld Door'}
+    });
+    const worker=policy.createPolicy({role:'candidate',seat,
+      policyVersion:policy.POLICY_VERSION,config:{}});
+    const start=worker.decideWithAudit(root);
+    assert.deepEqual(start.decision,
+      {kind:'select-action',token:'underworld-door'});
+    protocol.validateDecision(start.decision,null,
+      new Set(root.actionFrontier.items.map(x=>x.token)));
+    protocol.validatePolicyAudit(start.policyAudit,root,start.decision,
+      policy.POLICY_VERSION);
+
+    // The next host frontier is the combined, source-exact native-shaped
+    // AttachEnergyPrompt, not fictitious separate card/Pokemon prompts.
+    const target=root.observation.ownPublic.bench[0];
+    const prompt={
+      schema:protocol.PROMPT_SCHEMA,actingSeat:seat,
+      promptType:'AttachEnergyPrompt',description:null,
+      source:{classification:'actor-choice',sourceKind:'card-effect',
+        sourcePrinting:'Shadow Rider Calyrex VMAX CRE 75',
+        effectName:'Underworld Door'},
+      choices:[{
+        token:'attach-psychic-to-mimikyu',kind:'energy',printing:E,
+        label:'Attach '+E+' to Bench 1: '+target.printing,
+        publicMetadata:{sourceZone:'hand',ownerSeat:'actor',
+          isOwnerVisible:true,energyType:'BASIC',zone:'bench',
+          benchIndex:0,choiceIndex:0,selectedCount:1}
+      }],
+      publicMetadata:{selectionType:'energy-attachment',
+        minimumCount:1,maximumCount:1,count:1,allowCancel:false,
+        sourceZone:'hand',ownerSeat:'actor',isOwnerVisible:true,
+        energyType:'BASIC',zone:'bench'}
+    };
+    const follow={
+      ...root,prompt,observation:{...root.observation,
+        decisionKind:'owner-prompt',pendingPromptType:'AttachEnergyPrompt'},
+      actionFrontier:{schema:protocol.FRONTIER_SCHEMA,items:[]}
+    };
+    protocol.validatePrompt(prompt,seat);
+    const next=worker.decideWithAudit(follow);
+    assert.deepEqual(next.decision,
+      {kind:'select-choice',token:'attach-psychic-to-mimikyu'});
+    protocol.validateDecision(next.decision,prompt,new Set());
+    protocol.validatePolicyAudit(next.policyAudit,follow,next.decision,
+      policy.POLICY_VERSION);
+  }
+);
