@@ -231,6 +231,9 @@ function telepathPrompt(request) {
     m.sourceZone!=='deck'||m.ownerSeat!=='actor'||m.isOwnerVisible!==true||
     !safeInt(m.minimumCount)||!safeInt(m.maximumCount)||m.maximumCount>2)
     return no('R30_TELEPATH_PROMPT_UNSUPPORTED');
+  const openBench=Math.max(0,(stadium(o)?8:5)-benchCount(o.ownPublic));
+  const maxSelect=Math.min(openBench,m.maximumCount);
+  if(m.minimumCount>maxSelect)return no('R30_TELEPATH_NO_TARGET');
   const cards=arr(p.choices).filter(c=>c.kind==='card'&&typeof c.token==='string');
   const result=[];
   const get=pattern=>cards.find(c=>has(c,pattern)&&!result.some(x=>x.token===c.token));
@@ -238,17 +241,17 @@ function telepathPrompt(request) {
   const ownHand=arr(o.ownHand);
   const clefs=own.filter(x=>has(x,P.clefairy)).length+
     ownHand.filter(x=>has(x,P.clefairy)).length;
-  if(clefs===0&&result.length<m.maximumCount){
+  if(clefs===0&&result.length<maxSelect){
     const x=get(P.clefairy);if(x)result.push(x);
   }
-  if(result.length<m.maximumCount&&!own.some(x=>/^Latias ex SSP(?: 76)?\b/i.test(text(x)))&&
+  if(result.length<maxSelect&&!own.some(x=>/^Latias ex SSP(?: 76)?\b/i.test(text(x)))&&
      !ownHand.some(x=>/^Latias ex SSP(?: 76)?\b/i.test(text(x)))){
     const x=get(/^Latias ex SSP(?: 76)?\b/i);if(x)result.push(x);
   }
-  if(clefs+result.filter(x=>has(x,P.clefairy)).length<2&&result.length<m.maximumCount){
+  if(clefs+result.filter(x=>has(x,P.clefairy)).length<2&&result.length<maxSelect){
     const x=get(P.clefairy);if(x)result.push(x);
   }
-  if(result.length<m.maximumCount&&result.length===0){
+  if(result.length<maxSelect&&result.length===0){
     const x=get(/^Unown AOR(?: 30)?\b/i)??get(/^Mimikyu GRI(?: 58)?\b/i)??
       get(/^Tapu Lele(?:-GX| GX) GRI(?: 60)?\b/i);
     if(x)result.push(x);
@@ -975,11 +978,24 @@ function freeRetreatToClefairy(items,o) {
   })??null;
 }
 
+function certifiedPsychicBenchTargets(o) {
+  const k1=o?.ownerK1;
+  if(k1?.exactMembershipKnown!==true||!Array.isArray(k1.knownPrintings))
+    return null;
+  // Telepathic Psychic Energy tutors Basic Psychic, not arbitrary Basics.
+  const psychic=/^(?:Lillie's Clefairy ex JTG(?: 56)?|Latias ex SSP(?: 76)?|Unown AOR(?: 30)?|Mimikyu GRI(?: 58)?|Tapu Lele(?:-GX| GX) GRI(?: 60)?|Fezandipiti ex ASC(?: 142)?)\b/i;
+  return k1.knownPrintings.reduce((n,row)=>
+    n+(safeInt(row?.copies)&&row.copies>0&&psychic.test(String(row.printing))?
+      row.copies:0),0);
+}
 function bestManualPsychicAttachment(items,o) {
   const own=o?.ownPublic;
   if(!own)return null;
-  const boardRoom=benchCount(own)<(stadium(o)?8:5)&&
-    safeInt(own.deckCount)&&own.deckCount>0;
+  const openBench=Math.max(0,(stadium(o)?8:5)-benchCount(own));
+  const certified=certifiedPsychicBenchTargets(o);
+  const availableBasics=certified===null?2:certified;
+  const possibleTutor=Math.min(2,openBench,availableBasics);
+  const boardRoom=possibleTutor>0&&safeInt(own.deckCount)&&own.deckCount>0;
   const rows=[];
   for(const item of items) {
     const energy=ownPrinting(item);
@@ -1003,7 +1019,9 @@ function bestManualPsychicAttachment(items,o) {
         // A search can increase Rondo by 20 per additional Bench occupant,
         // but do not consume a turn attachment solely to overfund a KO line.
         const ro=projectedRondo(o);
-        if(ro&&ro.damage<ro.remaining&&ro.damage+40>=ro.remaining)score=80;
+        const extra=possibleTutor*rondoIncrement(o);
+        if(ro&&ro.damage<ro.remaining&&ro.damage+extra>=ro.remaining)
+          score=80;
       }
     } else if(special&&boardRoom&&has(target,/^Latias ex SSP(?: 76)?\b/i)) {
       score=35;
@@ -1544,4 +1562,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
+  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,certifiedPsychicBenchTargets,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
