@@ -97,6 +97,10 @@ function forestSealStoneUsable(o){
   list(x.pokemon.tools).some(t=>match(t,PRINT.forest)));
  return Boolean(host)&&forestSealToolEnabledForZone(o,host.zone);
 }
+function forestSealHostSearchDemand(o){
+ return !onBoard(o?.ownPublic,PRINT.crobat)&&!o?.ownTurnResources?.vstarUsed&&
+  toolAttachAllowed(o)&&toolEnabled(o)&&list(o?.ownHand).some(c=>match(c,PRINT.forest));
+}
 function garbotoxinStatusForSide(o,player){
  // Jamming Tower disables a Tool's effect, not its attachment.
  // Garbotoxin only requires any attached Tool.
@@ -386,9 +390,7 @@ function sourceBasicChoices(rows,o,max){
   handCount(o)<=3&&deckCount(o)>0&&
   benchSupportAbilityUsable('Squawkabilly ex PAL 169',o);
  if(squawkUsable)optional.push(PRINT.squawk);
- const forestAnchor=!o.ownTurnResources?.vstarUsed&&
-  list(o.ownHand).some(x=>match(x,PRINT.forest))&&
-  benchSupportAbilityUsable('Crobat V DAA 104',o);
+ const forestAnchor=forestSealHostSearchDemand(o);
  if(forestAnchor)optional.push(PRINT.crobat);
  // VIP can place Budew directly when Float on the initial non-Budew
  // Active makes an immediate zero-Energy Item-lock attack reachable.
@@ -410,7 +412,7 @@ function basicSearchDemand(o){
  if(!onBoard(p,PRINT.mega)||!onBoard(p,PRINT.budew)||
     !onBoard(p,PRINT.trubbish)&&!onBoard(p,PRINT.garbodor))return true;
  if(benchSupportFits(o)&&handCount(o)<=3&&
-    benchSupportAbilityUsable('Crobat V DAA 104',o))return true;
+    (benchSupportAbilityUsable('Crobat V DAA 104',o)||forestSealHostSearchDemand(o)))return true;
  return false;
 }
 function ultraSearchDemand(o){
@@ -745,10 +747,15 @@ function score(action,req){
  if(opponentVileplumeItemLock(o)&&sourceItem(p))return 0;
  if(opponentStoutlandSupporterLock(o)&&sourceSupporter(p))return 0;
  if(match(p,PRINT.crobat)||match(p,PRINT.dedenne)||match(p,PRINT.tapu)||match(p,PRINT.squawk)){
-  if(!benchSupportFits(o)||!benchSupportAbilityUsable(p,o)||
+  const forestHost=match(p,PRINT.crobat)&&forestSealHostSearchDemand(o);
+  const abilityUsable=benchSupportAbilityUsable(p,o);
+  if(!benchSupportFits(o)||(!abilityUsable&&!forestHost)||
     benchSupportOnceThisTurnAlreadyUsed(p,o)||
     own.publicTurnRestrictions?.abilityPokemonPlayLocked===true)return 0;
-  if(match(p,PRINT.crobat))return handCount(o)<=4&&deckCount(o)>0?710:0;
+  if(match(p,PRINT.crobat)){
+   if(abilityUsable&&handCount(o)<=4&&deckCount(o)>0)return 710;
+   return forestHost&&deckCount(o)>0?550:0;
+  }
   if(match(p,PRINT.tapu))return o.ownTurnResources?.supporterPlayedTurn===0&&deckCount(o)>0?645:0;
   if(match(p,PRINT.dedenne))return canRiskFullHandDiscard(o)?705:0;
   if(match(p,PRINT.squawk))return o.globalTurn<=2&&canRiskFullHandDiscard(o)?655:0;
@@ -1101,8 +1108,8 @@ function promptDecision(req){
       (zone(c)!=='bench'||x.index===(c.publicMetadata?.benchIndex??c.publicMetadata?.targetIndex)));
     if(!toolAttachAllowed(o)||!q||list(q.pokemon.tools).length!==0)return 0;
     if(/forest seal/.test(src)){
-     if(match(q.pokemon.printing,PRINT.crobat)&&toolEnabled(o)&&
-        !o.ownTurnResources?.vstarUsed&&benchSupportAbilityUsable('Crobat V DAA 104',o))return 200;
+     if(match(q.pokemon.printing,PRINT.crobat)&&!o.ownTurnResources?.vstarUsed&&
+        forestSealToolEnabledForZone(o,zone(q)))return 200;
      if(emergencyGarbotoxinToolEligible(o,'Forest Seal Stone SIT 156')){
       if(match(q.pokemon.printing,PRINT.garbodor))return 270;
       if(match(q.pokemon.printing,PRINT.trubbish))return 190;
