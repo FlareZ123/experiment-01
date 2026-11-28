@@ -11,7 +11,7 @@ const src=JSON.parse(fs.readFileSync(path.resolve(__dirname,
 test('current provisional fixed 60 printing counts; 14 actual Basics',()=>{
   assert.deepEqual(printedStats(src),{
     total:60,basicCount:14,
-    mimikyuCopies:2,dialgaCopies:1,heavyBallCopies:1});
+    mimikyuCopies:2,dialgaCopies:1,heavyBallCopies:1,gladionCopies:0});
 });
 test('exact binomial coefficient arithmetic and edge cases',()=>{
   assert.equal(choose(60,6),50063860n);
@@ -32,6 +32,10 @@ test('current one versus hypothetical two Heavy Ball exact probabilities',()=>{
     0.0006734398825819665);
   near(result.doubled.validBasicOpener.probability,
     0.0006642948717788328);
+  near(result.split.noOpenerCondition.probability,
+    result.doubled.noOpenerCondition.probability);
+  near(result.split.validBasicOpener.probability,
+    result.doubled.validBasicOpener.probability);
   assert.ok(result.relativeValidOpenerRiskReduction>14);
   near(result.baseline.openingBasicValid.probability,
     result.doubled.openingBasicValid.probability);
@@ -60,6 +64,8 @@ function brute(opts){
     cards.push({id:'D'+i,group:'D',basic:true});
   for(let i=0;i<opts.heavyBallCopies;i++)
     cards.push({id:'H'+i,group:'H',basic:false});
+  for(let i=0;i<(opts.gladionCopies??0);i++)
+    cards.push({id:'G'+i,group:'G',basic:false});
   for(let i=cards.filter(c=>c.basic).length;i<opts.basicCount;i++)
     cards.push({id:'B'+i,group:'B',basic:true});
   while(cards.length<opts.total)
@@ -70,8 +76,10 @@ function brute(opts){
     const m=prizes.filter(c=>c.group==='M').length;
     const d=prizes.filter(c=>c.group==='D').length;
     const h=prizes.filter(c=>c.group==='H').length;
+    const g=prizes.filter(c=>c.group==='G').length;
     const fail=Number(m===opts.mimikyuCopies)+
-      Number(d===opts.dialgaCopies)>opts.heavyBallCopies-h;
+      Number(d===opts.dialgaCopies)>
+        opts.heavyBallCopies-h+(opts.gladionCopies??0)-g;
     if(fail)failPrize++;
     const remaining=cards.filter(c=>!prizes.includes(c));
     for(const hand of combinations(remaining,opts.hand)){
@@ -83,9 +91,9 @@ function brute(opts){
   return {simple:failPrize/totalPrize,conditional:failValid/valid};
 }
 test('independent exhaustive small-deck prize/hand enumeration matches model',()=>{
-  for(const h of [0,1,2]){
+  for(const h of [0,1,2])for(const g of [0,1]){
     const opts={total:11,prizes:3,hand:3,basicCount:5,
-      mimikyuCopies:2,dialgaCopies:1,heavyBallCopies:h};
+      mimikyuCopies:2,dialgaCopies:1,heavyBallCopies:h,gladionCopies:g};
     const actual=measure(opts),control=brute(opts);
     assert.ok(Math.abs(actual.noOpenerCondition.probability-
       control.simple)<1e-12);
@@ -97,4 +105,8 @@ test('changed source six/card count must fail rather than silently compare',()=>
   const altered=JSON.parse(JSON.stringify(src));
   altered.cards.find(c=>c.name==='Mimikyu').count=1;
   assert.throws(()=>printedStats(altered),/Mimikyu2/);
+});
+
+test('multiple same-turn Gladion uses excluded by rule',()=>{
+  assert.throws(()=>measure({gladionCopies:2}),/Two Supporters/);
 });
