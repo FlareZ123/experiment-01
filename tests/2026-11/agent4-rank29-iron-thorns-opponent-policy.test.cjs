@@ -3457,6 +3457,9 @@ test('original rank7 zero-Prize substitutes and 140-damage terminal targeting',(
     ['Wobbuffet PHF 36',110,[],true],
     ['Snorlax PGO 55',150,[],false],
     ['Mimikyu PAL 97',70,['Safeguard'],false],
+    // The native public Pokémon projection need not include Ability text:
+    // exact Safeguard printing still makes ex damage impossible.
+    ['Mimikyu PAL 97',70,[],false],
     ['Robo Substitute Team Flare Gear PHF 102',30,[],false],
     ["Lillie's Poké Doll CEC 197",30,[],false]
   ];

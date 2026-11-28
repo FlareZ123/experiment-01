@@ -830,6 +830,12 @@ function guzmaTargetPrizeValue(pokemon) {
 // apparent HP threshold for attached HP-granting Tools; never call a gust KO
 // merely because the target looks weak without checking such public blockers.
 function visibleGustDamageBarrier(target){
+  // Exact original rank7 Mimikyu PAL97 has non-rule-box Safeguard.
+  // Native actor projections can expose its public printing without
+  // exposing the printed Ability description; fail closed either way.
+  // Rank29's only attackers are Iron Thorns ex, so damage is prevented.
+  if(/^Mimikyu\s+PAL\s+97\b/i.test(valueText(target?.printing)))
+    return {unknownReduction:true,hpBonus:0};
   const toolText=list(target?.tools).map(valueText).join(' | ');
   const abilityText=list(target?.abilityDetails)
     .map(detail=>valueText(detail?.text)).join(' | ');
