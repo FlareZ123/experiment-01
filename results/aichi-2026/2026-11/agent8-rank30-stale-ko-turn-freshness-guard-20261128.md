@@ -9,7 +9,7 @@
 
 Pinned Twinleaf can retain the victim-owner Boolean `pokemonKnockedOutDuringOpponentsLastTurn` across an opponent extra turn. If A KOs B during turn 2, then A takes an extra turn 3 with no KO, B next acts on turn 4 while the native Boolean can still be true. The immediate preceding opponent turn was turn 3, so the turn-2 KO is stale.
 
-Agent31's source-level report documents the reducer and Timeless-GX turn-accounting trace: [stale prior-KO receipt after an extra turn](../../../methodology/2026-11/agent31-stale-prior-ko-receipt-extra-turn-20261128.md).
+Agent31's source-level report documents the reducer and Timeless-GX turn-accounting trace: [stale prior-KO receipt after an extra turn](../../methodology/2026-11/agent31-stale-prior-ko-receipt-extra-turn-20261128.md).
 
 ## Implemented correction
 
