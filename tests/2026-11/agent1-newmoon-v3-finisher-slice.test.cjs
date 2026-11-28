@@ -39,7 +39,7 @@ function make(name='Regidrago VSTAR',seat=0){
   obs.decisionKind='owner-root';return d;
  };
  const settle=()=>{opp.active.damage+=130;opp.prizeCount--;own.bench[0]=null;};
- return {own,opp,obs,blast,night,duo,ace,items,root,target,settle};
+ return {own,opp,obs,blast,night,duo,ace,items,root,target,settle,p:policy};
 }
 const test=(name,fn)=>{try{fn()}catch(e){throw Error(name+': '+e.message);}};
 test('Regidrago blast target Ace Night Watch',()=>{
