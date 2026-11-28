@@ -2082,3 +2082,37 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'terminal'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Silent Lab suppresses opponent Basic locks when typed suppression is absent',()=>{
+  const enemy=opp({active:mon('Snorlax PGO 55'),stadium:['Silent Lab PRC 140']});
+  const q=root(seat,[pass],{opponentPublic:enemy});
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),false);
+  enemy.active=mon('Mimikyu PAL 97');
+  assert.equal(policy.activeMimikyuSafeguard(q.observation),false);
+  enemy.stadium=[];
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),false);
+  assert.equal(policy.activeMimikyuSafeguard(q.observation),true);
+ });
+ test('seat '+seat+' Shadow Rider urgency requires live Underworld Door engines',()=>{
+  const v1=mon('Shadow Rider Calyrex VMAX CRE 75');
+  const v2=mon('Shadow Rider Calyrex VMAX CRE 75');
+  const enemy=opp({active:v1,bench:[v2],stadium:['Path to the Peak CRE 148']});
+  const board=own({active:mon('Budew ASC 16'),bench:[
+   mon('Trubbish CRI 56',{tools:['Float Stone BKT 137']})]});
+  const q=root(seat,[play('Boost Shake EVS 142','boost'),
+   attack('Itchy Pollen','pollen'),pass],{
+   globalTurn:4,ownPublic:board,opponentPublic:enemy,
+   ownHand:['Boost Shake EVS 142'],
+   ownTurnResources:{energyPlayedTurn:true}});
+  assert.equal(policy.urgentShadowRiderGarbotoxin(q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+  enemy.stadium=[];
+  enemy.bench=[v2,mon('Garbodor LTR 68',{
+   tools:['Float Stone BKT 137'],
+   abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]})];
+  assert.equal(policy.opponentGarbotoxinStatus(q.observation),'live');
+  assert.equal(policy.urgentShadowRiderGarbotoxin(q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+ });
+}
