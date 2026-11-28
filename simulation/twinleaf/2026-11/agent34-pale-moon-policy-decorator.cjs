@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict');
-const {rescuePaleMoonTerminalPass,choosePaleMoonEscapeGuzmaPrompt,choosePaleMoonVSSeekerPrompt}=
+const {rescuePaleMoonTerminalPass,choosePaleMoonEscapeGuzmaPrompt,choosePaleMoonVSSeekerPrompt,choosePaleMoonArvenPrompt}=
   require('./agent34-pale-moon-escape.cjs');
 const protocol=require('../../evaluation/2026-11/agent49-policy-protocol.cjs');
 
@@ -23,7 +23,8 @@ function improveDecision(request,decision){
   }
   if(view?.decisionKind==='owner-prompt'&&request.prompt){
     const rescue=choosePaleMoonEscapeGuzmaPrompt(view,request.prompt) ??
-      choosePaleMoonVSSeekerPrompt(view,request.prompt);
+      choosePaleMoonVSSeekerPrompt(view,request.prompt) ??
+      choosePaleMoonArvenPrompt(view,request.prompt);
     if(!rescue)return decision;
     if(Array.isArray(rescue.tokens)){
       if(decision.kind==='select-choices'&&decision.tokens.length===1&&
