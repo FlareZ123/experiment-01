@@ -1,0 +1,477 @@
+{
+  "schema": "agent41-apex-temple-conditional-hard-energy-bound-v1",
+  "status": "research-only necessary-condition counterfactual on unchanged Agent1 Apex setup traces; not a game, simulated opponent, matchup or win rate",
+  "exact60": "f04a8793b11b8a76e414e0f4d21ff77be38820a63801b142edb048b85dddf8d6",
+  "source_manifest_blob": "f219821dc95381dc8cb0b2f6fedbf3e50db657d1",
+  "source_proxy_blob": "e6de6a4f2960f053438c49410507ebbce7febe37",
+  "stress_script_blob": "8d92b82bfa3724547f32b0969e116e83d80f9a4a",
+  "field_source_blob": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "field": {
+    "originalDecksAvailable": 29,
+    "ranks": [
+      {
+        "rank": 3,
+        "archetype": "Snorlax Stall",
+        "templeCopies": 1
+      },
+      {
+        "rank": 8,
+        "archetype": "Absol Garbodor",
+        "templeCopies": 2
+      },
+      {
+        "rank": 11,
+        "archetype": "Absol Garbodor",
+        "templeCopies": 2
+      },
+      {
+        "rank": 16,
+        "archetype": "Absol Garbodor",
+        "templeCopies": 2
+      },
+      {
+        "rank": 22,
+        "archetype": "Absol Garbodor",
+        "templeCopies": 2
+      }
+    ]
+  },
+  "baseline_note": "The original proxy evaluates no Temple and makes its own clean/locked decisions. Here Temple is CONDITIONALLY assumed to survive through the attack; no assumption is made about how often it does so. Future Temple-aware policies may change the sequence.",
+  "logic": "Temple makes all Special Energy provide one Colorless only. Apex Dragon requires two Grass plus one Fire. If total Basic Grass/Fire attachments anywhere in the proxy trace, even including Energy already discarded and on other Pokemon, fall short of 2G+1F, a Temple-surviving attack is impossible. Passing this generous count does not establish actual payability.",
+  "seeds": "(27112028 + Math.imul(i+1,0x9e3779b9)) >>> 0, i=0..1999",
+  "trials_per_cell": 2000,
+  "cells": [
+    {
+      "policy": "greedy",
+      "scenario": "clean",
+      "goingSecond": false,
+      "trials": 2000,
+      "seed": 27112028,
+      "goal": "wipe-lock",
+      "ready": 961,
+      "nominalApex": 922,
+      "apexGrossRequired": 47,
+      "apexProvablyBlocked": 875,
+      "apexWithoutOwnStadium": 769,
+      "apexWithoutOwnStadiumGrossRequired": 47,
+      "samples": [
+        {
+          "physicalSeed": 2681547797,
+          "grassAttachedAnywhere": 0,
+          "fireAttachedAnywhere": 0
+        },
+        {
+          "physicalSeed": 2054920512,
+          "grassAttachedAnywhere": 1,
+          "fireAttachedAnywhere": 0
+        }
+      ],
+      "interpretation": "conditional Temple survives to attack; any failure of generous gross Basic Energy threshold proves recorded Apex cannot be paid; successes do not prove payable attack, correct action sequencing, or any game win"
+    },
+    {
+      "policy": "joint",
+      "scenario": "clean",
+      "goingSecond": false,
+      "trials": 2000,
+      "seed": 27112028,
+      "goal": "wipe-lock",
+      "ready": 1046,
+      "nominalApex": 994,
+      "apexGrossRequired": 43,
+      "apexProvablyBlocked": 951,
+      "apexWithoutOwnStadium": 826,
+      "apexWithoutOwnStadiumGrossRequired": 43,
+      "samples": [
+        {
+          "physicalSeed": 2681547797,
+          "grassAttachedAnywhere": 0,
+          "fireAttachedAnywhere": 0
+        },
+        {
+          "physicalSeed": 2054920512,
+          "grassAttachedAnywhere": 1,
+          "fireAttachedAnywhere": 0
+        }
+      ],
+      "interpretation": "conditional Temple survives to attack; any failure of generous gross Basic Energy threshold proves recorded Apex cannot be paid; successes do not prove payable attack, correct action sequencing, or any game win"
+    },
+    {
+      "policy": "greedy",
+      "scenario": "clean",
+      "goingSecond": true,
+      "trials": 2000,
+      "seed": 27112028,
+      "goal": "wipe-lock",
+      "ready": 1262,
+      "nominalApex": 1215,
+      "apexGrossRequired": 121,
+      "apexProvablyBlocked": 1094,
+      "apexWithoutOwnStadium": 842,
+      "apexWithoutOwnStadiumGrossRequired": 111,
+      "samples": [
+        {
+          "physicalSeed": 2681547797,
+          "grassAttachedAnywhere": 0,
+          "fireAttachedAnywhere": 0
+        },
+        {
+          "physicalSeed": 1041016270,
+          "grassAttachedAnywhere": 0,
+          "fireAttachedAnywhere": 0
+        }
+      ],
+      "interpretation": "conditional Temple survives to attack; any failure of generous gross Basic Energy threshold proves recorded Apex cannot be paid; successes do not prove payable attack, correct action sequencing, or any game win"
+    },
+    {
+      "policy": "joint",
+      "scenario": "clean",
+      "goingSecond": true,
+      "trials": 2000,
+      "seed": 27112028,
+      "goal": "wipe-lock",
+      "ready": 1295,
+      "nominalApex": 1243,
+      "apexGrossRequired": 100,
+      "apexProvablyBlocked": 1143,
+      "apexWithoutOwnStadium": 803,
+      "apexWithoutOwnStadiumGrossRequired": 88,
+      "samples": [
+        {
+          "physicalSeed": 2681547797,
+          "grassAttachedAnywhere": 0,
+          "fireAttachedAnywhere": 0
+        },
+        {
+          "physicalSeed": 1041016270,
+          "grassAttachedAnywhere": 0,
+          "fireAttachedAnywhere": 0
+        }
+      ],
+      "interpretation": "conditional Temple survives to attack; any failure of generous gross Basic Energy threshold proves recorded Apex cannot be paid; successes do not prove payable attack, correct action sequencing, or any game win"
+    },
+    {
+      "policy": "greedy",
+      "scenario": "rulebox",
+      "goingSecond": false,
+      "trials": 2000,
+      "seed": 27112028,
+      "goal": "wipe-lock",
+      "ready": 563,
+      "nominalApex": 457,
+      "apexGrossRequired": 25,
+      "apexProvablyBlocked": 432,
+      "apexWithoutOwnStadium": 401,
+      "apexWithoutOwnStadiumGrossRequired": 25,
+      "samples": [
+        {
+          "physicalSeed": 2681547797,
+          "grassAttachedAnywhere": 0,
+          "fireAttachedAnywhere": 0
+        },
+        {
+          "physicalSeed": 1188942899,
+          "grassAttachedAnywhere": 0,
+          "fireAttachedAnywhere": 0
+        }
+      ],
+      "interpretation": "conditional Temple survives to attack; any failure of generous gross Basic Energy threshold proves recorded Apex cannot be paid; successes do not prove payable attack, correct action sequencing, or any game win"
+    },
+    {
+      "policy": "joint",
+      "scenario": "rulebox",
+      "goingSecond": false,
+      "trials": 2000,
+      "seed": 27112028,
+      "goal": "wipe-lock",
+      "ready": 642,
+      "nominalApex": 518,
+      "apexGrossRequired": 24,
+      "apexProvablyBlocked": 494,
+      "apexWithoutOwnStadium": 444,
+      "apexWithoutOwnStadiumGrossRequired": 24,
+      "samples": [
+        {
+          "physicalSeed": 2681547797,
+          "grassAttachedAnywhere": 0,
+          "fireAttachedAnywhere": 0
+        },
+        {
+          "physicalSeed": 1188942899,
+          "grassAttachedAnywhere": 0,
+          "fireAttachedAnywhere": 0
+        }
+      ],
+      "interpretation": "conditional Temple survives to attack; any failure of generous gross Basic Energy threshold proves recorded Apex cannot be paid; successes do not prove payable attack, correct action sequencing, or any game win"
+    },
+    {
+      "policy": "greedy",
+      "scenario": "rulebox",
+      "goingSecond": true,
+      "trials": 2000,
+      "seed": 27112028,
+      "goal": "wipe-lock",
+      "ready": 890,
+      "nominalApex": 803,
+      "apexGrossRequired": 66,
+      "apexProvablyBlocked": 737,
+      "apexWithoutOwnStadium": 555,
+      "apexWithoutOwnStadiumGrossRequired": 64,
+      "samples": [
+        {
+          "physicalSeed": 2681547797,
+          "grassAttachedAnywhere": 0,
+          "fireAttachedAnywhere": 0
+        },
+        {
+          "physicalSeed": 414388985,
+          "grassAttachedAnywhere": 1,
+          "fireAttachedAnywhere": 0
+        }
+      ],
+      "interpretation": "conditional Temple survives to attack; any failure of generous gross Basic Energy threshold proves recorded Apex cannot be paid; successes do not prove payable attack, correct action sequencing, or any game win"
+    },
+    {
+      "policy": "joint",
+      "scenario": "rulebox",
+      "goingSecond": true,
+      "trials": 2000,
+      "seed": 27112028,
+      "goal": "wipe-lock",
+      "ready": 921,
+      "nominalApex": 830,
+      "apexGrossRequired": 53,
+      "apexProvablyBlocked": 777,
+      "apexWithoutOwnStadium": 538,
+      "apexWithoutOwnStadiumGrossRequired": 51,
+      "samples": [
+        {
+          "physicalSeed": 2681547797,
+          "grassAttachedAnywhere": 0,
+          "fireAttachedAnywhere": 0
+        },
+        {
+          "physicalSeed": 414388985,
+          "grassAttachedAnywhere": 1,
+          "fireAttachedAnywhere": 0
+        }
+      ],
+      "interpretation": "conditional Temple survives to attack; any failure of generous gross Basic Energy threshold proves recorded Apex cannot be paid; successes do not prove payable attack, correct action sequencing, or any game win"
+    },
+    {
+      "policy": "greedy",
+      "scenario": "garbotoxin",
+      "goingSecond": false,
+      "trials": 2000,
+      "seed": 27112028,
+      "goal": "wipe-lock",
+      "ready": 798,
+      "nominalApex": 724,
+      "apexGrossRequired": 30,
+      "apexProvablyBlocked": 694,
+      "apexWithoutOwnStadium": 594,
+      "apexWithoutOwnStadiumGrossRequired": 30,
+      "samples": [
+        {
+          "physicalSeed": 2681547797,
+          "grassAttachedAnywhere": 0,
+          "fireAttachedAnywhere": 0
+        },
+        {
+          "physicalSeed": 2054920512,
+          "grassAttachedAnywhere": 1,
+          "fireAttachedAnywhere": 0
+        }
+      ],
+      "interpretation": "conditional Temple survives to attack; any failure of generous gross Basic Energy threshold proves recorded Apex cannot be paid; successes do not prove payable attack, correct action sequencing, or any game win"
+    },
+    {
+      "policy": "joint",
+      "scenario": "garbotoxin",
+      "goingSecond": false,
+      "trials": 2000,
+      "seed": 27112028,
+      "goal": "wipe-lock",
+      "ready": 880,
+      "nominalApex": 790,
+      "apexGrossRequired": 26,
+      "apexProvablyBlocked": 764,
+      "apexWithoutOwnStadium": 646,
+      "apexWithoutOwnStadiumGrossRequired": 26,
+      "samples": [
+        {
+          "physicalSeed": 2681547797,
+          "grassAttachedAnywhere": 0,
+          "fireAttachedAnywhere": 0
+        },
+        {
+          "physicalSeed": 2054920512,
+          "grassAttachedAnywhere": 1,
+          "fireAttachedAnywhere": 0
+        }
+      ],
+      "interpretation": "conditional Temple survives to attack; any failure of generous gross Basic Energy threshold proves recorded Apex cannot be paid; successes do not prove payable attack, correct action sequencing, or any game win"
+    },
+    {
+      "policy": "greedy",
+      "scenario": "garbotoxin",
+      "goingSecond": true,
+      "trials": 2000,
+      "seed": 27112028,
+      "goal": "wipe-lock",
+      "ready": 1139,
+      "nominalApex": 1064,
+      "apexGrossRequired": 100,
+      "apexProvablyBlocked": 964,
+      "apexWithoutOwnStadium": 720,
+      "apexWithoutOwnStadiumGrossRequired": 91,
+      "samples": [
+        {
+          "physicalSeed": 2681547797,
+          "grassAttachedAnywhere": 0,
+          "fireAttachedAnywhere": 0
+        },
+        {
+          "physicalSeed": 1041016270,
+          "grassAttachedAnywhere": 0,
+          "fireAttachedAnywhere": 0
+        }
+      ],
+      "interpretation": "conditional Temple survives to attack; any failure of generous gross Basic Energy threshold proves recorded Apex cannot be paid; successes do not prove payable attack, correct action sequencing, or any game win"
+    },
+    {
+      "policy": "joint",
+      "scenario": "garbotoxin",
+      "goingSecond": true,
+      "trials": 2000,
+      "seed": 27112028,
+      "goal": "wipe-lock",
+      "ready": 1175,
+      "nominalApex": 1093,
+      "apexGrossRequired": 79,
+      "apexProvablyBlocked": 1014,
+      "apexWithoutOwnStadium": 681,
+      "apexWithoutOwnStadiumGrossRequired": 67,
+      "samples": [
+        {
+          "physicalSeed": 2681547797,
+          "grassAttachedAnywhere": 0,
+          "fireAttachedAnywhere": 0
+        },
+        {
+          "physicalSeed": 1041016270,
+          "grassAttachedAnywhere": 0,
+          "fireAttachedAnywhere": 0
+        }
+      ],
+      "interpretation": "conditional Temple survives to attack; any failure of generous gross Basic Energy threshold proves recorded Apex cannot be paid; successes do not prove payable attack, correct action sequencing, or any game win"
+    },
+    {
+      "policy": "greedy",
+      "scenario": "t2-both",
+      "goingSecond": false,
+      "trials": 2000,
+      "seed": 27112028,
+      "goal": "wipe-lock",
+      "ready": 644,
+      "nominalApex": 547,
+      "apexGrossRequired": 20,
+      "apexProvablyBlocked": 527,
+      "apexWithoutOwnStadium": 449,
+      "apexWithoutOwnStadiumGrossRequired": 20,
+      "samples": [
+        {
+          "physicalSeed": 2054920512,
+          "grassAttachedAnywhere": 1,
+          "fireAttachedAnywhere": 0
+        },
+        {
+          "physicalSeed": 3843378668,
+          "grassAttachedAnywhere": 1,
+          "fireAttachedAnywhere": 0
+        }
+      ],
+      "interpretation": "conditional Temple survives to attack; any failure of generous gross Basic Energy threshold proves recorded Apex cannot be paid; successes do not prove payable attack, correct action sequencing, or any game win"
+    },
+    {
+      "policy": "joint",
+      "scenario": "t2-both",
+      "goingSecond": false,
+      "trials": 2000,
+      "seed": 27112028,
+      "goal": "wipe-lock",
+      "ready": 726,
+      "nominalApex": 613,
+      "apexGrossRequired": 20,
+      "apexProvablyBlocked": 593,
+      "apexWithoutOwnStadium": 502,
+      "apexWithoutOwnStadiumGrossRequired": 20,
+      "samples": [
+        {
+          "physicalSeed": 2054920512,
+          "grassAttachedAnywhere": 1,
+          "fireAttachedAnywhere": 0
+        },
+        {
+          "physicalSeed": 801665942,
+          "grassAttachedAnywhere": 1,
+          "fireAttachedAnywhere": 0
+        }
+      ],
+      "interpretation": "conditional Temple survives to attack; any failure of generous gross Basic Energy threshold proves recorded Apex cannot be paid; successes do not prove payable attack, correct action sequencing, or any game win"
+    },
+    {
+      "policy": "greedy",
+      "scenario": "t2-both",
+      "goingSecond": true,
+      "trials": 2000,
+      "seed": 27112028,
+      "goal": "wipe-lock",
+      "ready": 961,
+      "nominalApex": 863,
+      "apexGrossRequired": 74,
+      "apexProvablyBlocked": 789,
+      "apexWithoutOwnStadium": 556,
+      "apexWithoutOwnStadiumGrossRequired": 66,
+      "samples": [
+        {
+          "physicalSeed": 1041016270,
+          "grassAttachedAnywhere": 0,
+          "fireAttachedAnywhere": 0
+        },
+        {
+          "physicalSeed": 414388985,
+          "grassAttachedAnywhere": 1,
+          "fireAttachedAnywhere": 0
+        }
+      ],
+      "interpretation": "conditional Temple survives to attack; any failure of generous gross Basic Energy threshold proves recorded Apex cannot be paid; successes do not prove payable attack, correct action sequencing, or any game win"
+    },
+    {
+      "policy": "joint",
+      "scenario": "t2-both",
+      "goingSecond": true,
+      "trials": 2000,
+      "seed": 27112028,
+      "goal": "wipe-lock",
+      "ready": 1008,
+      "nominalApex": 902,
+      "apexGrossRequired": 57,
+      "apexProvablyBlocked": 845,
+      "apexWithoutOwnStadium": 534,
+      "apexWithoutOwnStadiumGrossRequired": 47,
+      "samples": [
+        {
+          "physicalSeed": 1041016270,
+          "grassAttachedAnywhere": 0,
+          "fireAttachedAnywhere": 0
+        },
+        {
+          "physicalSeed": 414388985,
+          "grassAttachedAnywhere": 1,
+          "fireAttachedAnywhere": 0
+        }
+      ],
+      "interpretation": "conditional Temple survives to attack; any failure of generous gross Basic Energy threshold proves recorded Apex cannot be paid; successes do not prove payable attack, correct action sequencing, or any game win"
+    }
+  ]
+}
