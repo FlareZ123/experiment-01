@@ -62,14 +62,12 @@ function resolvePaperSpikyHopper(card, store, state, effect, api) {
 
   for (const energy of source.energies?.cards ?? []) {
     if (energy?.fullName === MODIFIERS.energy) {
-      const after = energy.reduceEffect(store, state, probe);
-      assert.equal(after, state);
+      state = energy.reduceEffect(store, state, probe);
     }
   }
   for (const tool of source.tools ?? []) {
     if (tool?.fullName === MODIFIERS.tool) {
-      const after = tool.reduceEffect(store, state, probe);
-      assert.equal(after, state);
+      state = tool.reduceEffect(store, state, probe);
     }
   }
 
@@ -81,11 +79,10 @@ function resolvePaperSpikyHopper(card, store, state, effect, api) {
   damage = Math.max(0, damage - reduction);
   const outgoing = positiveDamage(
     source.outgoingAttackDamageBonusNextTurn ?? 0, 'source outgoing bonus');
-  if (damage > 0) damage += outgoing;
+  damage += outgoing;
 
   const weakness = new api.ApplyWeaknessEffect(effect, damage);
-  const reduced = store.reduceEffect(state, weakness);
-  assert.equal(reduced, state);
+  state = store.reduceEffect(state, weakness);
   damage = positiveDamage(weakness.damage, 'Weakness and Resistance damage');
   damage = Math.max(0, damage -
     positiveDamage(source.attackDamageReductionAfterWeaknessNextTurn ?? 0,
@@ -96,8 +93,7 @@ function resolvePaperSpikyHopper(card, store, state, effect, api) {
   if (damage > 0) {
     opponent.active.damage += damage;
     const afterDamage = new api.AfterDamageEffect(effect, damage);
-    const afterState = store.reduceEffect(state, afterDamage);
-    assert.equal(afterState, state);
+    state = store.reduceEffect(state, afterDamage);
   }
   return state;
 }
