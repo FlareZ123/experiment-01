@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict');
 const protocol = require('./agent49-policy-protocol.cjs');
 const { enumName, cloneNativeValidationGraph } = require('./agent36-native-action-frontier.cjs');
+const {ENGINE_PIN, classifyNativeEngineContinuation}=require('./agent2-engine-ko-prize-prompt-source.cjs');
 
 const MAX_PROMPT_CHOICES = 512;
 
@@ -257,7 +258,7 @@ function targetChoice(target, state, actorSeat, native) {
   };
 }
 
-function makeSource(prompt, state, actorSeat, provenance) {
+function makeSource(prompt, state, actorSeat, provenance, options = {}) {
   if(provenance?.sourceKind==='card-effect') {
     const sourceCard=provenance.sourceCard??null;
     const effectName=provenance.effectName;
@@ -304,6 +305,15 @@ function makeSource(prompt, state, actorSeat, provenance) {
       sourcePrinting:null,
       effectName:message
     };
+  }
+  // Explicitly opt in to mandatory engine-only KO continuation after the
+  // pinned Store's check-effect reducer generated the exact native shapes.
+  // Without this host-only option, frozen V3 behavior stays unchanged.
+  if(options.allowPinnedKoPrizeEngineSource===true){
+    const pinnedSource=classifyNativeEngineContinuation({
+      prompt,state,actorSeat,provenance,enginePin:ENGINE_PIN
+    });
+    if(pinnedSource)return pinnedSource;
   }
   throw Object.assign(new Error('Prompt has no trusted card-effect or allowlisted engine source'), {
     code:'PROMPT_SOURCE_PROVENANCE_MISSING'
@@ -845,7 +855,8 @@ function resolveHostOnlyPrompt({
   };
 }
 
-function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook } = {}) {
+function projectPrompt({ prompt, state, actorSeat, native, store,
+  provenanceHook, allowPinnedKoPrizeEngineSource = false } = {}) {
   assert.ok(prompt && state && native);
   assert.ok(actorSeat === 0 || actorSeat === 1);
   const actor = state.players[actorSeat];
@@ -858,7 +869,8 @@ function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook
   const hostOnly = hostOnlyPrompt(prompt, provenance);
   if (hostOnly) return { ...hostOnly, choiceByToken: new Map() };
 
-  const source = makeSource(prompt, state, actorSeat, provenance);
+  const source = makeSource(prompt,state,actorSeat,provenance,
+    {allowPinnedKoPrizeEngineSource});
   const choices = [];
   const choiceByToken = new Map();
   let publicMetadata = null;
