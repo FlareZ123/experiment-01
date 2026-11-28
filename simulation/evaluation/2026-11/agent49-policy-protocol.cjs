@@ -93,12 +93,13 @@ const EXECUTABLE_ACTION_KINDS = new Set([
 ]);
 const ANALYSIS_ONLY_ACTION_KINDS = new Set(['projected-attack']);
 const MULTI_SELECT_PROMPT_TYPES = new Set([
-  'card-combination', 'pokemon', 'energy-payment', 'prize-slots', 'card-order'
+  'card-combination', 'pokemon', 'energy-payment', 'energy-transfer', 'prize-slots', 'card-order'
 ]);
 const MULTI_SELECT_ITEM_KINDS = Object.freeze({
   'card-combination': 'card',
   pokemon: 'pokemon',
   'energy-payment': 'energy',
+  'energy-transfer': 'energy',
   'prize-slots': 'prize',
   'card-order': 'card-order-item'
 });
@@ -264,6 +265,8 @@ const PROMPT_SELECTION_TYPE_TO_PROMPT_TYPES = Object.freeze({
   'card-combination': Object.freeze(['ChooseCardsPrompt', 'NightWatchPrompt']),
   pokemon: Object.freeze(['ChoosePokemonPrompt']),
   'energy-payment': Object.freeze(['ChooseEnergyPrompt']),
+  // The research-side projection only enables Articuno-GX CES Legendary Ascent.
+  'energy-transfer': Object.freeze(['MoveEnergyPrompt']),
   attack: Object.freeze(['ChooseAttackPrompt']),
   'prize-slots': Object.freeze(['ChoosePrizePrompt']),
   'card-order': Object.freeze(['OrderCardsPrompt']),
@@ -779,6 +782,7 @@ function multiSelectBounds(prompt) {
   switch (metadata.selectionType) {
     case 'card-combination':
     case 'pokemon':
+    case 'energy-transfer':
       minimumCount = metadata.minimumCount;
       maximumCount = metadata.maximumCount;
       break;
@@ -887,6 +891,31 @@ function validatePrompt(prompt, seat) {
     if (choice.printing !== undefined && !boundedString(choice.printing, null, 256)) fail('BAD_CHOICE_PRINTING');
     if (choice.label !== undefined && !boundedString(choice.label, null, 256)) fail('BAD_CHOICE_LABEL');
     if (choice.publicMetadata !== undefined) validatePromptMetadata(choice.publicMetadata);
+  }
+  if (prompt.promptType === 'MoveEnergyPrompt') {
+    // Native MoveEnergyPrompt has a richer CardTarget transfer domain than
+    // ChooseEnergyPrompt. Permit only the pinned Articuno-GX CES Ability and
+    // its actor-owned, public Bench-to-Active Water-Energy transfer slice.
+    const source = prompt.source;
+    const meta = prompt.publicMetadata;
+    if (source.sourceKind !== 'card-effect' ||
+        !/^Articuno-GX CES(?: 31)?$/.test(source.sourcePrinting ?? '') ||
+        source.effectName !== 'Legendary Ascent' ||
+        meta.selectionType !== 'energy-transfer' ||
+        meta.ownerSeat !== 'actor' || meta.sourceZone !== 'bench' ||
+        meta.targetZone !== 'active' || meta.allowCancel !== false ||
+        meta.minimumCount !== 1) fail('UNTRUSTED_ENERGY_SELECTION');
+    for (const choice of prompt.choices) {
+      if (choice.kind !== 'energy' ||
+          !/^Water Energy\b/i.test(choice.printing ?? '') ||
+          choice.publicMetadata?.ownerSeat !== 'actor' ||
+          choice.publicMetadata.sourceZone !== 'bench' ||
+          choice.publicMetadata.targetZone !== 'active' ||
+          choice.publicMetadata.isOwnerVisible !== true ||
+          !Number.isSafeInteger(choice.publicMetadata.benchIndex)) {
+        fail('UNTRUSTED_ENERGY_SELECTION');
+      }
+    }
   }
   multiSelectBounds(prompt);
   singleSelectContract(prompt);
