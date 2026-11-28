@@ -12,6 +12,11 @@ function visiblePrizeValue(slot) {
   // Modern 2025+ Mega Evolution Pokémon ex (three Prize cards). Do not
   // confuse with the old XY M <name>-EX line, which takes two Prize cards.
   if(/^Mega [A-Za-z][A-Za-z0-9' .:&-]* ex(?: |$)/.test(name))return 3;
+  // Pinned Twinleaf Stage enum: VMAX=5, VSTAR=6, VUNION=7.
+  // Its actor view exposes the stage even when synthetic subtypes is [].
+  const stage=slot.printed?.stage;
+  if(stage===5||stage===7)return 3;
+  if(stage===6)return 2;
   const subtypes=slot.printed?.subtypes??[];
   if(subtypes.some(x=>['VMAX','V-UNION','TAG TEAM'].includes(x))||
     / VMAX(?: |$)/.test(name)||/ V-UNION(?: |$)/.test(name)||
