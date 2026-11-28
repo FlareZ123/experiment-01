@@ -823,12 +823,12 @@ function multiSelectDecision(prompt, rankedChoices, minimum, maximum) {
   if (selected.length < minimum) {
     const empty = prompt.choices.find(choice => choice.kind === 'empty-selection');
     if (minimum === 0 && empty) return { kind: 'select-choice', token: empty.token };
-    return { kind: 'abstain', reasonCode: 'MULTI_SELECT_TARGETS_UNAVAILABLE' };
+    return { kind: 'abstain', reasonCode: 'NO_SUPPORTED_CARD_SELECTION' };
   }
   if (selected.length === 0) {
     const empty = prompt.choices.find(choice => choice.kind === 'empty-selection');
     return empty ? { kind: 'select-choice', token: empty.token } :
-      { kind: 'abstain', reasonCode: 'EMPTY_MULTI_SELECT_UNAVAILABLE' };
+      { kind: 'abstain', reasonCode: 'NO_SUPPORTED_CARD_SELECTION' };
   }
   return { kind: 'select-choices', tokens: selected.map(choice => choice.token) };
 }
@@ -890,7 +890,16 @@ function promptDecision(request) {
   const selectionType = metadata.selectionType ?? null;
 
   if (prompt.promptType === 'ChooseCardsPrompt') {
-    if (selectionType) {
+    // Quick Ball's hand-discard cost is distinct from its deck search.
+    if (/quick ball/i.test(source) &&
+        choices.length>0 && choices.every(choice=>choiceZone(choice)==='hand')) {
+      const min=Number.isSafeInteger(metadata.minimumCount)?metadata.minimumCount:1;
+      const max=Number.isSafeInteger(metadata.maximumCount)?metadata.maximumCount:min;
+      return multiSelectDecision(prompt,choices.map(choice=>({
+        choice,score:cardChoiceScore(choice,observation,'plumeria-cost')
+      })),min,max);
+    }
+    if (selectionType && !/faba|enhanced hammer|star alchemy|trainers|nest ball|quick ball|capture energy|vs seeker|night stretcher/i.test(source)) {
       const min = selectionType === 'energy-payment' ? 1 :
         (Number.isSafeInteger(metadata.minimumCount) ? metadata.minimumCount : 1);
       const max = selectionType === 'energy-payment' ?
@@ -970,49 +979,44 @@ function promptDecision(request) {
           choice, score: cardChoiceScore(choice, observation, 'teammates')
         })), min, max);
       }
-      if (selectionType === 'energy-payment' && /legendary ascent/i.test(source)) {
-        const water = choices.filter(choice => choiceOwner(choice) === 'actor' &&
-          matches(choice, PRINT.waterEnergy));
-        return multiSelectDecision(prompt, water.map(choice => ({ choice, score: 100 })), min, max);
-      }
-      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_MULTI_SELECT_SOURCE' };
+      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_COMBINATION_SOURCE' };
     }
 
     if (source.includes('faba')) {
       const targets = choices.filter(choice => choiceOwner(choice) === 'opponent' ||
         choiceZone(choice) === 'stadium' || choice.kind === 'stadium');
       return singleChoice(prompt, targets,
-        choice => cardChoiceScore(choice, observation, 'faba'), 'NO_FABA_TARGET');
+        choice => cardChoiceScore(choice, observation, 'faba'), 'NO_USEFUL_CARD_CHOICE');
     }
     if (source.includes('enhanced hammer')) {
       return singleChoice(prompt, choices.filter(choice => choiceOwner(choice) === 'opponent'),
         choice => /Special Energy|Double Dragon Energy|Jet Energy|Capture Energy/i.test(valueText(choice)) ? 100 : 0,
-        'NO_SPECIAL_ENERGY_TARGET');
+        'NO_USEFUL_CARD_CHOICE');
     }
     if (source.includes('star alchemy')) {
       return singleChoice(prompt, choices.filter(choice => choiceOwner(choice) === 'actor' &&
         choiceZone(choice) === 'deck'),
-        choice => cardChoiceScore(choice, observation, 'star-alchemy'), 'NO_STAR_ALCHEMY_TARGET');
+        choice => cardChoiceScore(choice, observation, 'star-alchemy'), 'NO_USEFUL_CARD_CHOICE');
     }
     if (source.includes('trainers')) {
       return singleChoice(prompt, choices, choice => cardChoiceScore(choice, observation, 'trainers-mail'),
-        'NO_TRAINER_MAIL_TARGET');
+        'NO_USEFUL_CARD_CHOICE');
     }
     if (/nest ball|quick ball|capture energy/i.test(source)) {
       return singleChoice(prompt, choices, choice => cardChoiceScore(choice, observation, 'basic-search'),
-        'NO_BASIC_SEARCH_TARGET');
+        'NO_USEFUL_CARD_CHOICE');
     }
     if (source.includes('vs seeker')) {
       return singleChoice(prompt, choices.filter(choice => choiceOwner(choice) === 'actor' &&
         choiceZone(choice) === 'discard'),
-        choice => cardChoiceScore(choice, observation, 'vs-seeker'), 'NO_SUPPORTER_RECOVERY_TARGET');
+        choice => cardChoiceScore(choice, observation, 'vs-seeker'), 'NO_USEFUL_CARD_CHOICE');
     }
     if (source.includes('night stretcher')) {
       return singleChoice(prompt, choices.filter(choice => choiceOwner(choice) === 'actor' &&
         choiceZone(choice) === 'discard'),
-        choice => cardChoiceScore(choice, observation, 'night-stretcher'), 'NO_NIGHT_STRETCHER_TARGET');
+        choice => cardChoiceScore(choice, observation, 'night-stretcher'), 'NO_USEFUL_CARD_CHOICE');
     }
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_SINGLE_CARD_PROMPT' };
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_COMBINATION_SOURCE' };
   }
 
   if (prompt.promptType === 'ChoosePokemonPrompt') {
@@ -1020,48 +1024,52 @@ function promptDecision(request) {
       const opponentChoices = choices.filter(choice => choiceOwner(choice) === 'opponent');
       if (opponentChoices.length) {
         return singleChoice(prompt, opponentChoices,
-          choice => opponentPokemonScore(choice, observation), 'NO_OPPONENT_BENCH_TARGET');
+          choice => opponentPokemonScore(choice, observation), 'NO_VISIBLE_POKEMON_TARGET');
       }
       return singleChoice(prompt, choices,
-        choice => ownSwitchScore(choice, observation), 'NO_OWN_SWITCH_TARGET');
+        choice => ownSwitchScore(choice, observation), 'NO_VISIBLE_POKEMON_TARGET');
     }
     if (/counter catcher/i.test(source)) {
       return singleChoice(prompt, choices,
-        choice => opponentPokemonScore(choice, observation), 'NO_OPPONENT_BENCH_TARGET');
+        choice => opponentPokemonScore(choice, observation), 'NO_VISIBLE_POKEMON_TARGET');
     }
     if (/team flare grunt/i.test(source)) {
       const activeTargets = choices.filter(choice => choiceOwner(choice) === 'opponent' &&
         choiceZone(choice) === 'active');
       return singleChoice(prompt, activeTargets,
-        choice => opponentPokemonScore(choice, observation), 'NO_OPPONENT_ACTIVE_TARGET');
+        choice => opponentPokemonScore(choice, observation), 'NO_VISIBLE_POKEMON_TARGET');
     }
     if (/plumeria/i.test(source)) {
       return singleChoice(prompt, choices.filter(choice => choiceOwner(choice) === 'opponent'),
-        choice => opponentPokemonScore(choice, observation), 'NO_OPPONENT_ENERGY_TARGET');
+        choice => opponentPokemonScore(choice, observation), 'NO_VISIBLE_ENERGY_CHOICE');
     }
     if (/penny|scoop up cyclone/i.test(source)) {
       return singleChoice(prompt, choices,
-        choice => ownPickupScore(choice, observation), 'NO_SAFE_PICKUP_TARGET');
+        choice => ownPickupScore(choice, observation), 'NO_VISIBLE_POKEMON_TARGET');
     }
     if (/nest ball|quick ball|capture energy/i.test(source)) {
       return singleChoice(prompt, choices,
-        choice => cardChoiceScore(choice, observation, 'basic-search'), 'NO_BASIC_SEARCH_TARGET');
+        choice => cardChoiceScore(choice, observation, 'basic-search'), 'NO_USEFUL_CARD_CHOICE');
     }
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_POKEMON_PROMPT' };
   }
 
   if (prompt.promptType === 'ChooseEnergyPrompt') {
     if (/legendary ascent/i.test(source)) {
-      return singleChoice(prompt, choices.filter(choice => choiceOwner(choice) === 'actor' &&
-        matches(choice, PRINT.waterEnergy)), () => 100, 'NO_WATER_ENERGY_FOR_ASCENT');
+      // Native actor prompt is multi-Energy payment, not a deck card search.
+      const count=Number.isSafeInteger(metadata.energyCount)?metadata.energyCount:1;
+      const water=choices.filter(choice=>choiceOwner(choice)==='actor' &&
+        matches(choice,PRINT.waterEnergy));
+      return multiSelectDecision(prompt,water.map(choice=>({choice,score:100})),
+        Math.min(count,water.length),count);
     }
     const owner = choices.filter(choice => choiceOwner(choice) === 'opponent');
     if (owner.length) {
       return singleChoice(prompt, owner, choice =>
         /Special Energy|Double Dragon Energy|Jet Energy|Capture Energy/i.test(valueText(choice)) ? 120 : 60,
-      'NO_OPPONENT_ENERGY_TARGET');
+      'NO_VISIBLE_ENERGY_CHOICE');
     }
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_ENERGY_PROMPT' };
+    return { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ENERGY_PAYMENT' };
   }
 
   if (prompt.promptType === 'ChoosePrizePrompt') {
@@ -1070,7 +1078,7 @@ function promptDecision(request) {
           matches(choice, PRINT.girafarig) || matches(choice, PRINT.toolJammer) ||
           matches(choice, PRINT.faba)) return 150;
       return choice.printing ? 20 : 0;
-    }, 'PRIZE_IDENTITY_UNAVAILABLE');
+    }, 'HIDDEN_PRIZE_IDENTITY');
   }
 
   if (prompt.promptType === 'ConfirmPrompt' ||
@@ -1087,7 +1095,7 @@ function promptDecision(request) {
         energyCount(ownActive(observation)) <= 1 && !gxUsed(observation));
     if (shouldAccept && yes) return { kind: 'select-choice', token: yes.token };
     if (no) return { kind: 'select-choice', token: no.token };
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_OPTIONAL_PROMPT' };
+    return { kind: 'abstain', reasonCode: 'UNRECOGNIZED_SIMPLE_PROMPT' };
   }
 
   return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
@@ -1122,6 +1130,16 @@ function bestAction(request) {
     { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ACTION' };
 }
 
+// Multi-select classes require select-choices even for one card or Pokémon.
+function currentPromptDecision(prompt,decision) {
+  if(!prompt||decision?.kind!=='select-choice')return decision;
+  const selected=prompt.choices.find(choice=>choice.token===decision.token);
+  if(!selected||selected.kind==='cancel'||selected.kind==='empty-selection')return decision;
+  if(['card-combination','pokemon','energy-payment','prize-slots','card-order'].includes(prompt.publicMetadata?.selectionType))
+    return {kind:'select-choices',tokens:[decision.token]};
+  return decision;
+}
+
 function createPolicy({ role, seat, policyVersion, config }) {
   // The shared worker accepts only a zero-key config. Exact rank/source/candidate
   // identity is immutable in this module and its dependency manifest.
@@ -1137,7 +1155,7 @@ function createPolicy({ role, seat, policyVersion, config }) {
           request.observation?.actorSeat !== seat) {
         return { kind: 'abstain', reasonCode: 'ROLE_SEAT_BINDING_MISMATCH' };
       }
-      if (request.prompt !== null) return promptDecision(request);
+      if (request.prompt !== null) return currentPromptDecision(request.prompt,promptDecision(request));
       return bestAction(request);
     }
   });
