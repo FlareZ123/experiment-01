@@ -232,18 +232,30 @@ function rank27EnergyAttachScore(item,obs){
   if(ready&&!hasDonor)score-=20;
   return score;
 }
+function publicPrizeValue(pokemon){
+  const subtypes=arr(pokemon?.printed?.subtypes).map(String);
+  const p=name(pokemon?.printing);
+  if(subtypes.some(x=>['VMAX','TAG TEAM','V-UNION','Mega Evolution'].includes(x))||
+     /(?:VMAX|TAG TEAM|V-UNION|Mega Evolution)/i.test(p))return 3;
+  if(subtypes.some(x=>['V','VSTAR','GX','ex'].includes(x))||
+     /(?:-GX|\bVSTAR\b|\bV\b|\bex\b)/i.test(p))return 2;
+  return 1;
+}
 function finalPrizePrimeTarget(obs){
   const own=obs?.ownPublic??{},opp=obs?.opponentPublic??{};
-  if(own.prizeCount!==1||
+  if(!Number.isSafeInteger(own.prizeCount)||own.prizeCount<1||
+    own.prizeCount>3||
     !visibleDonors(obs).some(x=>is(x,PREFIX.dragapult))||
     !arr(own.bench).some(p=>is(p,PREFIX.regidragoVstar)&&
       energyCoverage(p.energies)===3))return null;
-  const victims=arr(opp.bench).map((p,index)=>({p,index}))
-    .filter(({p})=>p&&typeof p.printing==='string'&&
+  const victims=arr(opp.bench).map((p,index)=>({p,index,
+    prizeValue:publicPrizeValue(p)}))
+    .filter(({p,prizeValue})=>p&&typeof p.printing==='string'&&
       Number.isFinite(p.hp)&&Number.isFinite(p.damage)&&
       p.hp-p.damage>0&&p.hp-p.damage<=200&&
+      prizeValue>=own.prizeCount&&
       !/^Mimikyu GRI(?: 58)?$/.test(name(p.printing)));
-  victims.sort((a,b)=>
+  victims.sort((a,b)=>b.prizeValue-a.prizeValue||
     (a.p.hp-a.p.damage)-(b.p.hp-b.p.damage)||a.index-b.index);
   return victims[0]??null;
 }
@@ -686,4 +698,4 @@ function createPolicy({role,seat,policyVersion,config}){
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_BLOB_SHA1,SOURCE_PRINTINGS,
   createPolicy,scoreRoot,choosePrompt,donorScore,resolveSourcePrinting,
-  energyCoverage,rank27EnergyAttachScore,finalPrizePrimeTarget};
+  energyCoverage,rank27EnergyAttachScore,finalPrizePrimeTarget,publicPrizeValue};
