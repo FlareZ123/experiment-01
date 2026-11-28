@@ -65,11 +65,11 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,root(seat,[ability('Star Alchemy','star'),tool,pass],
    {ownPublic:board})),{kind:'select-action',token:'star'});
  });
- test('seat '+seat+' suppress Garbotoxin tool under Jamming Tower',()=>{
+ test('seat '+seat+' Jamming disables Float mobility but Tool still activates Garbotoxin',()=>{
   const q=root(seat,[tool,attack('Itchy Pollen','budew'),pass]);
   q.observation.opponentPublic.stadium=['Jamming Tower TWM 153'];
   assert.equal(policy.toolEnabled(q.observation),false);
-  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'budew'});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'tool'});
  });
  test('seat '+seat+' Terminal Period only at six counters (60 damage), never 300',()=>{
   const q=root(seat,[attack('Terminal Period','terminal'),tool,pass],{opponentPublic:opp({active:mon('Mega Lopunny ex PFL 84',{hp:330,damage:60})})});
@@ -221,13 +221,13 @@ for(const seat of [0,1]){
 }
 
 for(const seat of [0,1]){
- test('seat '+seat+' replacing Jamming Tower restores Garbotoxin candidate turn without assuming it is live',()=>{
+ test('seat '+seat+' Jamming Tower alone does not justify replacing it for Garbotoxin',()=>{
   const q=root(seat,[play('Temple of Sinnoh ASR 155','temple'),attack('Itchy Pollen','budew'),pass],{
    ownPublic:own({active:mon('Budew ASC 16'),bench:[mon('Garbodor LTR 68',{tools:['Float Stone BKT 137'],
     abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:true}]})]}),
    opponentPublic:opp({stadium:['Jamming Tower TWM 153']})});
   assert.equal(policy.toolEnabled(q.observation),false);
-  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'budew'});
  });
  test('seat '+seat+' attack-cost stadium denial matters even without Special Energy',()=>{
   const q=root(seat,[play('Temple of Sinnoh ASR 155','temple'),pass],{
@@ -1099,7 +1099,7 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['garb']});
   q.observation.opponentPublic.active=mon('Regidrago VSTAR SIT 136');
   q.observation.opponentPublic.stadium=['Jamming Tower TWM 153'];
-  assert.deepEqual(decide(seat,q),{kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['garb']});
  });
  test('seat '+seat+' native Float Stone prompt avoids used Tool slot or phantom Budew pivot',()=>{
   const trubbish=mon('Trubbish CRI 56',{printed:{retreatCost:['Colorless']},
@@ -1154,10 +1154,11 @@ for(const seat of [0,1]){
   theirs.active.tools=['Stealthy Hood UNB 186'];
   assert.equal(policy.opponentSnorlaxBlock(q.observation),true);
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
-  // Jamming Tower disables both our Garbotoxin Tool and our Float Stone.
-  theirs.active.tools=[];theirs.stadium=['Jamming Tower TWM 153'];
-  assert.equal(policy.garbotoxinStatus(q.observation),'inactive');
-  assert.equal(policy.opponentSnorlaxBlock(q.observation),true);
+  // Jamming disables Float's retreat and Hood's protection, but leaves
+  // Garbotoxin active on a physically attached Tool.
+  theirs.active.tools=['Stealthy Hood UNB 186'];theirs.stadium=['Jamming Tower TWM 153'];
+  assert.equal(policy.garbotoxinStatus(q.observation),'live');
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),false);
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
   // An explicit suppressed=true engine observation also releases Block.
   theirs.stadium=[];theirs.active.abilitySuppressions=[
@@ -1251,7 +1252,7 @@ for(const seat of [0,1]){
   assert.equal(policy.benchSupportAbilityUsable('Crobat V DAA 104',q.observation),true);
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'crobat'});
  });
- test('seat '+seat+' opponent Garbotoxin disabled by Jamming or absent Tool, Hood still protects Snorlax',()=>{
+ test('seat '+seat+' opponent Garbotoxin survives Jamming and disables opposing Hood',()=>{
   const enemyGarb=mon('Garbodor LTR 68',{tools:['Float Stone BKT 137'],
    abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]});
   const us=own({active:mon('Budew ASC 16'),bench:[mon('Trubbish CRI 56'),mon('Mega Absol ex MEG 86')]});
@@ -1263,9 +1264,9 @@ for(const seat of [0,1]){
   assert.equal(policy.opponentSnorlaxBlock(q.observation),true);
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
   them.stadium=['Jamming Tower TWM 153'];
-  assert.equal(policy.opponentGarbotoxinStatus(q.observation),'inactive');
-  assert.equal(policy.opponentSnorlaxBlock(q.observation),true);
-  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'crobat'});
+  assert.equal(policy.opponentGarbotoxinStatus(q.observation),'live');
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
   them.stadium=[];enemyGarb.tools=[];
   assert.equal(policy.opponentGarbotoxinStatus(q.observation),'inactive');
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'crobat'});
@@ -1347,9 +1348,9 @@ for(const seat of [0,1]){
   theirs.active.tools=['Stealthy Hood UNB 186'];
   assert.equal(policy.activeMimikyuSafeguard(q.observation),true);
   assert.equal(policy.projectedClawDamage(claw,q.observation),0);
-  theirs.active.tools=[];theirs.stadium=['Jamming Tower TWM 153'];
-  assert.equal(policy.activeMimikyuSafeguard(q.observation),true);
-  assert.equal(policy.projectedClawDamage(claw,q.observation),0);
+  theirs.active.tools=['Stealthy Hood UNB 186'];theirs.stadium=['Jamming Tower TWM 153'];
+  assert.equal(policy.activeMimikyuSafeguard(q.observation),false);
+  assert.equal(policy.projectedClawDamage(claw,q.observation),200);
   theirs.stadium=[];
   ourGarb.tools=[];
   assert.equal(policy.activeMimikyuSafeguard(q.observation),true);
@@ -1362,7 +1363,7 @@ for(const seat of [0,1]){
   assert.equal(policy.opponentGarbotoxinStatus(q.observation),'live');
   assert.equal(policy.activeMimikyuSafeguard(q.observation),false);
   q.observation.opponentPublic.stadium=['Jamming Tower TWM 153'];
-  assert.equal(policy.activeMimikyuSafeguard(q.observation),true);
+  assert.equal(policy.activeMimikyuSafeguard(q.observation),false);
  });
 }
 
