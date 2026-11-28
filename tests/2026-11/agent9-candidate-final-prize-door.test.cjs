@@ -120,7 +120,7 @@ for(const seat of [0,1]){
       ownHand:[],
       ownPublic:{...root.observation.ownPublic,
         deckCount:0,
-        bench:[{...root.observation.ownPublic.bench[0],energies:[E]}]}}},
+        bench:[{...root.observation.ownPublic.bench[0],energies:[E]}]}},
       actionFrontier:{schema:protocol.FRONTIER_SCHEMA,items:[
         {token:'geist',kind:'attack',attackName:'Max Geist'},
         {token:'pass',kind:'pass'}
