@@ -1454,7 +1454,7 @@ function currentActiveCanRetreat(view) {
     /ASLEEP|PARALYZED/i.test(String(condition)));
 }
 
-function toolsKnownLive(view) {
+function toolsKnownLive(view,zone='active') {
   const own = view.ownPublic.publicTurnRestrictions
     .stadiumAndToolHaveNoEffectTurnsRemaining;
   const opp = view.opponentPublic.publicTurnRestrictions
@@ -1462,7 +1462,9 @@ function toolsKnownLive(view) {
   return own === 0 && opp === 0 &&
     ![...view.ownPublic.stadium, ...view.opponentPublic.stadium]
       .some(stadium => hasName(stadium, 'Jamming Tower')) &&
-    !opponentToolJammerActive(view);
+    // Tool Jammer on the opponent's Active disables *our Active* Tools,
+    // but never a Forest Seal Stone attached to our Bench Pokémon.
+    (zone!=='active'||!opponentToolJammerActive(view));
 }
 
 function ownedToolRecipient(item, view) {
@@ -1499,7 +1501,8 @@ function scoreTrainerPlay(item, view, receipt) {
     const target = ownedToolRecipient(item, view);
     const vstarUsed = view.ownPublic.publicTurnRestrictions.vstarUsed;
     if (target && hasName(target.printing, 'Shadow Rider Calyrex V') &&
-        vstarUsed === false && toolsKnownLive(view) &&
+        vstarUsed === false &&
+        toolsKnownLive(view,item.publicMetadata?.targetZone) &&
         view.ownPublic.deckCount > 0 && stoneSearchNeed(view) &&
         !hasName(view.opponentPublic.active?.printing, 'Iron Thorns ex')) {
       return 680;
@@ -1712,10 +1715,10 @@ function chooseRoot(view, request) {
         view.ownPublic.publicTurnRestrictions.vstarUsed !== false ||
         !stoneSearchNeed(view) ||
         view.ownPublic.deckCount <= 0 ||
-        !toolsKnownLive(view) ||
         hasName(view.opponentPublic.active?.printing, 'Iron Thorns ex')) return false;
     return ownBoard(view).some(slot =>
       hasName(slot.printing, 'Shadow Rider Calyrex V') &&
+      toolsKnownLive(view,slot===view.ownPublic.active?'active':'bench') &&
       slot.tools.some(tool => hasName(tool, 'Forest Seal Stone')));
   });
   if (starAlchemy) {

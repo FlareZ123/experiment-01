@@ -171,3 +171,59 @@ for(const seat of [0,1]) {
     assert.deepEqual(got,{kind:'select-action',token:'pass'});
   });
 }
+
+function forestSealDecision(seat,mode,lock='jammer') {
+  const state={players:[player(100,seat===0),player(200,seat===1)],
+    activePlayer:seat,turn:5,phase:5,prompts:[]};
+  const owner=state.players[seat];
+  owner.active=slot(c('Mimikyu GRI',{hp:70,attacks:[]}));
+  owner.bench[0]=slot(c('Shadow Rider Calyrex V CRE'));
+  if(lock==='jammer')state.players[1-seat].active.tools=[c('Tool Jammer BST')];
+  if(lock==='tower')state.players[1-seat].stadium.cards=[c('Jamming Tower TWM')];
+  const activeTool=(mode==='activePlay'||mode==='activeStar');
+  if(activeTool)owner.active=slot(c('Shadow Rider Calyrex V CRE'));
+  const sourceZone=activeTool?'ACTIVE':'BENCH';
+  const sourceSlot=activeTool?owner.active:owner.bench[0];
+  let action;
+  if(mode==='play'||mode==='activePlay') {
+    owner.hand.cards=[c('Forest Seal Stone SIT 156')];
+    action=projectNativeAction({type:'PLAY_CARD_ACTION',handIndex:0,
+      target:{player:'BOTTOM_PLAYER',slot:sourceZone,index:0}},
+      state,seat,minimalNative,'stone');
+  } else {
+    owner.hand.cards=[];
+    sourceSlot.tools=[c('Forest Seal Stone SIT 156')];
+    action=projectNativeAction({type:'USE_ABILITY_ACTION',
+      name:'Star Alchemy',target:{player:'BOTTOM_PLAYER',
+        slot:sourceZone,index:0}},
+      state,seat,minimalNative,'star');
+  }
+  assert.ok(action);
+  const view=actorObservation(state,seat);
+  const frontier={schema:protocol.FRONTIER_SCHEMA,
+    items:[action,{kind:'pass',token:'pass'}]};
+  const worker=createPolicy({role:'candidate',seat,
+    policyVersion:POLICY_VERSION,config:{}});
+  const result=worker.decide({role:'candidate',seat,
+    observation:view,prompt:null,publicEventReceipt:null,actionFrontier:frontier});
+  return {view,action,result};
+}
+for(const seat of [0,1]){
+  for(const [mode,actionToken] of [['play','stone'],['star','star']]){
+    test('opposing Tool Jammer does not suppress Benched Forest Seal '+mode+' seat '+seat,()=>{
+      const {action,result}=forestSealDecision(seat,mode,'jammer');
+      assert.deepEqual(action.publicMetadata[mode==='play'?'targetZone':'sourceZone'],'bench');
+      assert.deepEqual(result,{kind:'select-action',token:actionToken});
+    });
+    test('Jamming Tower does suppress Benched Forest Seal '+mode+' seat '+seat,()=>{
+      const {result}=forestSealDecision(seat,mode,'tower');
+      assert.deepEqual(result,{kind:'select-action',token:'pass'});
+    });
+  }
+  for(const mode of ['activePlay','activeStar']){
+    test('opposing Tool Jammer still suppresses Active Stone '+mode+' seat '+seat,()=>{
+      const {result}=forestSealDecision(seat,mode,'jammer');
+      assert.deepEqual(result,{kind:'select-action',token:'pass'});
+    });
+  }
+}
