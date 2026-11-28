@@ -308,3 +308,35 @@ for(const seat of [0,1]){
    {kind:'select-action',token:'pass'});
  });
 }
+
+for(const seat of [0,1]){
+ test('Regidrago V SIT Dragon Laser 130 Active plus one Bench 30, seat '+seat,()=>{
+  const v=view(seat);v.ownPublic.stadium=[];
+  const own=slot('Shadow Rider Calyrex VMAX CRE',
+   ['Psychic Energy SVE'],[['Max Geist',['Colorless','Colorless','Colorless'],10]],
+   ['Psychic'],['VMAX','V']);
+  own.hp=320;own.damage=200; // 120 remaining, KO by 130 Dragon Laser.
+  v.ownPublic.active=own;
+  const bench=slot('Mimikyu GRI',[],[['Copycat',['Psychic','Colorless'],0]]);
+  bench.hp=70;bench.damage=50; // 20 remaining, KO by 30 Bench.
+  v.ownPublic.bench[0]=bench;
+  v.opponentPublic.active.energies=[
+   'Grass Energy SVE','Grass Energy SVE','Fire Energy SVE'];
+  v.opponentPublic.discard=['Regidrago V SIT'];
+  assert.equal(policy.__test.apexHazard(v).direct,4);
+  v.ownPublic.bench[0].damage=0;
+  assert.equal(policy.__test.apexHazard(v).direct,3);
+  v.ownPublic.active.damage=0;
+  assert.equal(policy.__test.apexHazard(v).direct,0);
+ });
+ test('single Regidrago V Dragon Laser donor triggers actual root, seat '+seat,()=>{
+  const v=view(seat);v.ownPublic.stadium=[];
+  v.opponentPublic.active.energies=[
+   'Grass Energy SVE','Grass Energy SVE','Fire Energy SVE'];
+  v.opponentPublic.discard=[
+   'Regidrago V SIT','Battle VIP Pass FST','Psychic Energy SVE'];
+  assert.deepEqual(decision(root(seat,v)),
+   {kind:'select-action',token:'attack-getlost'});
+  assert.equal(decision(prompt(seat,v)).tokens.includes('card-0'),true);
+ });
+}
