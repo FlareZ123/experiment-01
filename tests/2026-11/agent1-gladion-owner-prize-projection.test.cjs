@@ -122,4 +122,23 @@ run('unknown or cancelled native source cannot authoritatively show faces',()=>{
  const f=fixture();f.prompt.options.allowCancel=true;
  same(projectPromptWithGladionOwnerPrize(f.args).delegated,true);
 });
+
+run('native omitted Prize options use proper 1-card owner defaults',()=>{
+ const f=fixture();
+ delete f.prompt.options.useOpponentPrizes;
+ delete f.prompt.options.count;
+ delete f.prompt.options.blocked;
+ delete f.prompt.options.allowCancel;
+ const out=projectPromptWithGladionOwnerPrize(f.args);
+ same(out.promptProjection.choices[0].printing,'Dusknoir SFA 020');
+ same(out.promptProjection.publicMetadata.requiredCount,1);
+});
+run('native omitted blocked options on ChooseCardsPrompt are safe',()=>{
+ const f=fixture('ChooseCardsPrompt');
+ delete f.prompt.options.blocked;
+ delete f.prompt.options.allowCancel;
+ const out=projectPromptWithGladionOwnerPrize(f.args);
+ same(out.promptProjection.choices[0].printing,'Dusknoir SFA 020');
+});
+
 console.log('Gladion owner Prize source-attestation projection: '+n+' assertions passed');
