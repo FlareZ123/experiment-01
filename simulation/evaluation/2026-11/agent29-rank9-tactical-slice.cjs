@@ -85,7 +85,7 @@ module.exports = (function build() {
     // A live New Moon keeps the route closed even through Silent Lab's own
     // Basic Ability lock (pinned StadiumEffect skipAbilityLockCheck order).
     const opponent=slots(o.opponentPublic);
-    const hasSolrock=opponent.some(row=>/^Solrock(?:\\s|$)/i.test(name(row.p)));
+    const hasSolrock=opponent.some(row=>/^Solrock(?:\s|$)/i.test(name(row.p)));
     if(hasSolrock&&opponent.some(row=>L(row.p.abilityDetails).some(a=>
        a.name==='New Moon'&&
        !L(row.p.abilitySuppressions).some(x=>
