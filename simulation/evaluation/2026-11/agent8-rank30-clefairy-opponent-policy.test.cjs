@@ -914,3 +914,79 @@ for(const seat of [0,1]) {
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' Crobat Dark Asset uses low-hand native support over generic Mail',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active=b('Unown AOR 30');
+    r.observation.ownHand=['Crobat V DAA 104',psychic];
+    r.actionFrontier.items=[
+      root('play-card',"Trainers' Mail ROS 92",'mail'),
+      {...root('play-card','Crobat V DAA 104','crobat',
+        {targetSeat:'actor',targetZone:'bench',isOwnerVisible:true}),
+       targetPrinting:'Crobat V DAA 104'}];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'crobat'});
+    r.observation.ownHand=[psychic];
+    r.prompt={promptType:'ConfirmPrompt',
+      source:{sourcePrinting:'Crobat V DAA 104',effectName:'Dark Asset'},
+      publicMetadata:{selectionType:'confirm'},
+      choices:[{kind:'confirm',token:'yes',label:'Yes'},
+        {kind:'confirm',token:'no',label:'No'}]};
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-choice',token:'yes'});
+    r.observation.ownHand=[psychic,vip,box,clef];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-choice',token:'no'});
+    r.prompt.source.effectName='Dedechange';
+    assert.equal(policy(seat).decide(r).reasonCode,'UNRECOGNIZED_SIMPLE_PROMPT');
+  });
+  test('seat '+seat+' Fezandipiti Flip the Script only after certified opponent last-turn KO',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active=b('Unown AOR 30');
+    r.observation.ownHand=[psychic];
+    r.publicEventReceipt={priorOpponentTurnKO:{any:true,byAttack:true}};
+    r.actionFrontier.items=[
+      root('play-card',"Trainers' Mail ROS 92",'mail'),
+      {...root('play-card','Fezandipiti ex ASC 142','fez',
+        {targetSeat:'actor',targetZone:'bench',isOwnerVisible:true}),
+        targetPrinting:'Fezandipiti ex ASC 142'}];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'fez'});
+    r.observation.ownPublic.bench=[{printing:'Fezandipiti ex ASC 142'}];
+    r.actionFrontier.items=[root('play-card',"Trainers' Mail ROS 92",'mail'),
+      root('use-ability','Fezandipiti ex ASC 142','flip',
+        {abilityName:'Flip the Script'})];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'flip'});
+    r.publicEventReceipt.priorOpponentTurnKO.any=null;
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'mail'});
+  });
+  test('seat '+seat+' Dedenne only discards safe thin hand and Squawk requires opening turn',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active=b('Unown AOR 30');
+    r.observation.ownHand=['Dedenne-GX UNB 57',vip];
+    r.observation.globalTurn=4;
+    r.actionFrontier.items=[
+      {...root('play-card','Dedenne-GX UNB 57','dedenne',
+        {targetSeat:'actor',targetZone:'bench',isOwnerVisible:true}),
+        targetPrinting:'Dedenne-GX UNB 57'}];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'dedenne'});
+    r.prompt={promptType:'ConfirmPrompt',
+      source:{sourcePrinting:'Dedenne-GX UNB 57',effectName:'Dedechange'},
+      publicMetadata:{selectionType:'confirm'},
+      choices:[{kind:'confirm',token:'yes',label:'Yes'},
+        {kind:'confirm',token:'no',label:'No'}]};
+    r.observation.ownHand=[vip];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-choice',token:'yes'});
+    r.observation.ownHand=[clef];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-choice',token:'no'});
+    r.prompt=null;
+    r.observation.ownHand=['Dedenne-GX UNB 57',clef];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    r.observation.globalTurn=1;
+    r.observation.ownHand=[vip];
+    r.actionFrontier.items=[
+      root('use-ability','Squawkabilly ex PAL 169','squawk',
+        {abilityName:'Squawk and Seize'})];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'squawk'});
+    r.observation.globalTurn=4;
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  });
+}
