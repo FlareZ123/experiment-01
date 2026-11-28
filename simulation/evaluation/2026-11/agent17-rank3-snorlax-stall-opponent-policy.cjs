@@ -621,7 +621,7 @@ function scoreAction(item, request) {
 
   if (item.kind === 'retreat') {
     if (matches(target, PRINT.snorlax)) {
-      const targetSlot = slots(own).find(row => row.pokemon.printing === target);
+      const targetSlot = publicRootTargetSlot(item,own);
       return hasTool(targetSlot?.pokemon, PRINT.toolJammer) ? 180 :
         opponentHasAnyTool(observation) ? 140 : 110;
     }
@@ -641,7 +641,7 @@ function scoreAction(item, request) {
   }
 
   if (matches(card, PRINT.waterEnergy)) {
-    const targetSlot = slots(own).find(row => row.pokemon.printing === target);
+    const targetSlot = publicRootTargetSlot(item,own);
     if (!targetSlot) return 0;
     if (matches(targetSlot.pokemon.printing, PRINT.articuno)) {
       return energyCount(targetSlot.pokemon) < 2 ?
@@ -657,7 +657,7 @@ function scoreAction(item, request) {
     return 25;
   }
   if (matches(card, PRINT.captureEnergy)) {
-    const targetSlot = slots(own).find(row => row.pokemon.printing === target);
+    const targetSlot = publicRootTargetSlot(item,own);
     if (!targetSlot) return 0;
     if (matches(targetSlot.pokemon.printing, PRINT.bunnelby) ||
         matches(targetSlot.pokemon.printing, PRINT.girafarig)) {
@@ -865,6 +865,22 @@ function singleChoice(prompt, choices, scoreFn, reasonCode) {
 // Pokémon by physical target zone/Bench index. Never replace that identity
 // with a first matching printing: the same card print can occupy multiple
 // spaces with different damage, Energy, Tools and tactical value.
+// Native root actions likewise expose actor-visible targetZone/targetIndex.
+// A printed card identity is not a physical slot; never select the first
+// same-print Pokémon to score a different physical Bench target.
+function publicRootTargetSlot(item,player) {
+  const rows = slots(player);
+  const printing = item?.targetPrinting ?? '';
+  const meta = item?.publicMetadata ?? {};
+  if (meta.targetSeat && meta.targetSeat !== 'actor') return null;
+  const row = meta.targetZone === 'active' ?
+    rows.find(entry => entry.zone === 'active') :
+    meta.targetZone === 'bench' && Number.isSafeInteger(meta.targetIndex) ?
+      rows.find(entry => entry.zone === 'bench' && entry.index === meta.targetIndex) :
+      rows.find(entry => entry.pokemon.printing === printing);
+  return row?.pokemon.printing === printing ? row : null;
+}
+
 function publicChoiceSlot(player,choice) {
   const rows = slots(player);
   const printing = valueText(choice);
