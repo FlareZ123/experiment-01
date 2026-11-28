@@ -442,4 +442,68 @@ test('Treasure no target if Dusknoir already held',()=>{
  assert(f.root().kind,'abstain');
 });
 
+
+function starFixture() {
+ const f=busDevelopment();
+ f.own.active.printing='Mewtwo & Mew-GX UNM071';
+ f.own.bench=[
+  {printing:'Dusclops SFA 019',tools:[],energies:[],
+   abilities:['Cursed Blast'],abilitySuppressions:[{abilityName:'Cursed Blast',suppressed:false}]},
+  {printing:'Galarian Articuno V CRE058',tools:['Forest Seal Stone SIT156'],
+   energies:[],abilities:[],abilitySuppressions:[]}
+ ];
+ f.obs.ownHand=['Basic Psychic Energy'];f.obs.ownTurnResources.energyPlayedTurn=1;
+ f.items.splice(0,f.items.length,{kind:'use-ability',token:'star',
+  publicMetadata:{abilityName:'Star Alchemy',sourceZone:'bench',sourceIndex:1}});
+ const prompt=(printedTarget)=>{
+  f.obs.decisionKind='owner-prompt';
+  return f.p.decide({role:'candidate',seat:0,observation:f.obs,
+   actionFrontier:null,prompt:{actingSeat:0,promptType:'ChooseCardsPrompt',
+   source:{classification:'actor-choice',sourceKind:'card-effect',
+    sourcePrinting:'Forest Seal Stone SIT156',effectName:'Star Alchemy'},
+   publicMetadata:{selectionType:'card-combination',sourceZone:'deck',
+    ownerSeat:'actor',isOwnerVisible:true,minimumCount:1,maximumCount:1},
+   choices:[{kind:'card',token:'selected',printing:printedTarget,
+    publicMetadata:{sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true}}]}})
+ };
+ return {...f,prompt};
+}
+test('BUS Forest Seal Stone searches missing Stage2',()=>{
+ const f=starFixture();assert(f.root().token,'star');
+});
+test('BUS Forest Seal Stone prompt picks Dusknoir among actual owner deck cards',()=>{
+ const f=starFixture();assert(f.prompt('Dusknoir SFA 020').tokens[0],'selected');
+});
+test('BUS Star search rejects other Stage2 source',()=>{
+ const f=starFixture();assert(f.prompt('Trevenant & Dusknoir-GX SM217').kind,'abstain');
+});
+test('BUS install Stone on free Articuno V Tool slot',()=>{
+ const f=starFixture();f.own.bench[1].tools=[];
+ f.obs.ownHand=['Forest Seal Stone SIT156'];
+ f.items.splice(0,f.items.length,{kind:'play-card',token:'stone',
+ actorPrinting:'Forest Seal Stone SIT156',targetPrinting:'Galarian Articuno V CRE058',
+ publicMetadata:{cardType:'trainer',targetSeat:'actor',targetZone:'bench',targetIndex:1}});
+ assert(f.root().token,'stone');
+});
+test('BUS refuses Stone attach to wrong Bench holder',()=>{
+ const f=starFixture();f.own.bench[1].tools=[];
+ f.obs.ownHand=['Forest Seal Stone SIT156'];
+ f.items.splice(0,f.items.length,{kind:'play-card',token:'wrong-index',
+ actorPrinting:'Forest Seal Stone SIT156',
+ publicMetadata:{cardType:'trainer',targetSeat:'actor',targetZone:'bench',targetIndex:3}});
+ assert(f.root().kind,'abstain');
+});
+test('BUS holds Stone when target Stage2 is already in hand',()=>{
+ const f=starFixture();f.obs.ownHand.push('Dusknoir SFA 020');
+ assert(f.root().kind,'abstain');
+});
+test('BUS Star target changes to Stage1 when only Duskull is established',()=>{
+ const f=starFixture();f.own.bench[0].printing='Duskull VIV069';
+ assert(f.prompt('Dusclops SFA 019').tokens[0],'selected');
+});
+test('BUS no Star if Disgusting Pollen suppressed',()=>{
+ const f=starFixture();f.opp.active.abilitySuppressions[0].suppressed=true;
+ assert(f.root().kind,'abstain');
+});
+
 console.log('Agent1 v3 research actor tests: '+checks+' assertions passed');
