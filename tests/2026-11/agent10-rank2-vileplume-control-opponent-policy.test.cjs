@@ -106,7 +106,7 @@ function player(options = {}) {
     discard: options.discard ?? [],
     lostZone: [],
     resolvingSupporter: [],
-    publicHand: null,
+    publicHand: options.publicHand ?? null,
     prizeSlots: [],
     publicTurnRestrictions: {
       ...publicRestrictions(),
