@@ -654,7 +654,7 @@ function chooseCardCombination(view, prompt) {
   return { kind: 'select-choices', tokens: selected.map(choice => choice.token) };
 }
 
-function choosePokemonRecipient(view, prompt) {
+function choosePokemonRecipient(view, prompt, receipt) {
   setPolicyAuditRule('POKEMON_TARGET_SCORE', 'SCORE_DESC_NATIVE_TARGET_INDEX');
   const metadata = prompt.publicMetadata;
   if (!metadata || metadata.selectionType !== 'pokemon') {
@@ -683,11 +683,13 @@ function choosePokemonRecipient(view, prompt) {
   if (effectName === 'Guzma' && actorChoices.length > 0) {
     const target = view.opponentPublic.active;
     ranked = actorChoices.map(row => {
-      const attack = bestAttackForSlot(row.target.slot, view, target);
+      const attack = bestAttackForSlot(row.target.slot, view, target,
+        {publicEventReceipt:receipt});
       if (!attack) return { ...row, score: -Infinity };
       const liability = prizeLiability(row.target.slot);
-      const lethal = attack.damage !== null &&
-        attack.damage >= Math.max(0, target.hp - target.damage);
+      const nominal = nominalGuzmaAttackDamage(row.target.slot,attack,view,target);
+      const lethal = nominal !== null &&
+        nominal >= Math.max(0, target.hp - target.damage);
       return {
         ...row,
         score: attack.score + (lethal ? 100000 : 0) - liability * 2000
@@ -698,7 +700,7 @@ function choosePokemonRecipient(view, prompt) {
     // Bench switch. Score the best funded own Bench attacker that can take
     // that target, not the Active which Guzma must switch out.
     ranked = opponentChoices.map(row => {
-      const pair = bestGuzmaBenchKnockout(view,row.target.slot);
+      const pair = bestGuzmaBenchKnockout(view,row.target.slot,receipt);
       return {...row,score:pair?.score ?? -Infinity};
     });
   } else {
@@ -1149,7 +1151,7 @@ function chooseVsSeekerSupporter(view,prompt,receipt){
     .map(c=>{
       let score=ranking[c.printing]??0;
       if(c.printing==='Arven SVI 166'&&needsHood)score+=100;
-      if(c.printing==='Guzma BUS 115'&&canGuzmaForAttack(view))score+=120;
+      if(c.printing==='Guzma BUS 115'&&canGuzmaForAttack(view,receipt))score+=120;
       if(c.printing==="Lillie's Determination MEG 119"&&view.ownHand.length<=3)score+=30;
       if(c.printing==='Iono PAL 185'&&view.ownHand.length<=2)score+=15;
       if(receipt?.priorOpponentTurnKO?.any===true &&
@@ -1229,7 +1231,7 @@ function chooseWonderTagSupporter(view,prompt,receipt){
     .map(c=>{
       let score=ranking[c.printing]??0;
       if(c.printing==='Arven SVI 166'&&needsHood)score+=100;
-      if(c.printing==='Guzma BUS 115'&&canGuzmaForAttack(view))score+=120;
+      if(c.printing==='Guzma BUS 115'&&canGuzmaForAttack(view,receipt))score+=120;
       if(c.printing==="Lillie's Determination MEG 119" &&
         view.ownHand.length<=3)score+=30;
       if(c.printing==='Iono PAL 185' &&
@@ -1358,7 +1360,7 @@ function choosePrompt(view, prompt, receipt) {
         ? chooseRadiantGateVmax(view,prompt)
         : chooseCardCombination(view,prompt);
     case 'ChoosePokemonPrompt':
-      return choosePokemonRecipient(view, prompt);
+      return choosePokemonRecipient(view, prompt, receipt);
     case 'ChooseEnergyPrompt':
       return chooseEnergyPayment(view, prompt);
     case 'ChooseAttackPrompt':
@@ -1491,15 +1493,29 @@ function hasStadiumRemovalTarget(view) {
 // eventual attacker, so evaluating its attack creates both false-positive
 // and false-negative projected KOs. Pair paid own-Bench attack options with
 // each potential opponent Bench target, then recompute after physical gust.
-function bestGuzmaBenchKnockout(view, target) {
+// Printed Copycat has zero base damage; after an authenticated last-turn
+// Apex it delegates our discarded Dialga Timeless-GX. Native prompt still
+// decides the actual copied payload; this is nominal 150 Psychic only.
+function nominalGuzmaAttackDamage(slot, attack, view, target) {
+  if (attack?.attack?.name==='Copycat' &&
+      slot?.printing==='Mimikyu GRI 58' && attack.score===50000 &&
+      view.ownPublic.discard?.includes('Dialga-GX UPR 100') &&
+      view.ownPublic.publicTurnRestrictions?.gxUsed===false) {
+    return estimatedDamage(slot,{name:'Timeless-GX'},view,target);
+  }
+  return attack?.damage??null;
+}
+function bestGuzmaBenchKnockout(view, target, receipt) {
   if (!target || !Number.isFinite(target.hp) || !Number.isFinite(target.damage)) return null;
   const remaining = target.hp-target.damage;
   if (remaining<=0) return null;
   let best = null;
   for (const [index, slot] of (view.ownPublic.bench ?? []).entries()) {
     if (!slot) continue;
-    const attack = bestAttackForSlot(slot, view, target);
-    if (!attack || !Number.isFinite(attack.damage) || attack.damage<remaining) continue;
+    const attack = bestAttackForSlot(slot, view, target,
+      {publicEventReceipt:receipt});
+    const damage=nominalGuzmaAttackDamage(slot,attack,view,target);
+    if (!attack || !Number.isFinite(damage) || damage<remaining) continue;
     const score = attack.score + prizeLiability(target)*1200 -
       prizeLiability(slot)*100;
     if (!best || score>best.score || (score===best.score&&index<best.index)) {
@@ -1508,10 +1524,10 @@ function bestGuzmaBenchKnockout(view, target) {
   }
   return best;
 }
-function canGuzmaForAttack(view) {
+function canGuzmaForAttack(view, receipt) {
   if (!view.opponentPublic?.active) return false;
   return (view.opponentPublic.bench ?? []).some(slot =>
-    slot && bestGuzmaBenchKnockout(view,slot)!==null);
+    slot && bestGuzmaBenchKnockout(view,slot,receipt)!==null);
 }
 
 // Tools are once-attached, non-replaceable Bench/Active allocations.
@@ -1598,7 +1614,7 @@ function scoreTrainerPlay(item, view, receipt) {
       (!boardHas(view, 'Shadow Rider Calyrex V') ||
        (hasAbilityLockThreat(view) && !ownBoard(view).some(slot =>
          slot.tools.some(tool => hasName(tool, 'Stealthy Hood')))))) return 760;
-  if (hasName(name, 'Guzma') && !supporterUsed && canGuzmaForAttack(view)) return 750;
+  if (hasName(name, 'Guzma') && !supporterUsed && canGuzmaForAttack(view,receipt)) return 750;
   if (hasName(name, "Lillie's Determination") && !supporterUsed &&
       (view.ownPublic.handCount <= 3 || view.ownPublic.deckCount <= 10)) return 700;
   if (hasName(name, 'Sky Field') && !view.ownPublic.stadium.some(s => hasName(s, 'Sky Field')) &&
