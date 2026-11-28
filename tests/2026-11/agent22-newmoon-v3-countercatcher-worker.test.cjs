@@ -152,5 +152,20 @@ const badReply=clone(directPrompt);badReply.prompt.source.effectName='Unknown';
 r=aborted.decideWithAudit(badReply);
 check(r.decision.kind,'abstain');
 check(r.policyAudit.selectionRuleCode,'A22_DIRECT_GUST_SEQUENCE_ABORTED');
-assert.equal(assertions,26);
+// If the same 3-2 Item is legal but no direct 200-damage KO exists,
+// require the Cursed Blast130 damage first, then post-selfKO Item gust.
+// In this state the Item is NOT newly enabled: its legitimate value is
+// its ability to gust the just-damaged 3-Prize Mega.
+const full=base();
+full.observation.opponentPublic.prizeCount=2;
+full.actionFrontier.items.unshift({kind:'play-card',token:'alreadyLegalItem',
+ actorPrinting:'Counter Catcher PAR',
+ publicMetadata:{cardType:'trainer',handIndex:0}});
+const bridge=createPolicy({role:'candidate',seat:0,
+ policyVersion:POLICY_VERSION,config:{}});
+r=bridge.decideWithAudit(full);
+check(r.decision.token,'blast');
+check(r.policyAudit.selectionRuleCode,
+ 'A22_BEGIN_BLAST_TO_DAMAGE_FOR_ALREADY_LEGAL_COUNTERCATCHER');
+assert.equal(assertions,28);
 console.log('Agent22 v3 Counter Catcher worker overlay: '+assertions+' checked decisions passed');
