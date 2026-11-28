@@ -14,12 +14,15 @@ const v2=read('agent1-newmoon-v2-jammer-decision.cjs');
 const v3=read('agent1-newmoon-v3-finisher-slice.cjs');
 const seq=read('agent22-newmoon-countercatcher-actor-sequence.cjs');
 const direct=read('agent22-newmoon-direct-countercatcher-gust.cjs');
+const ability=read('agent22-newmoon-ability-only-terminal.cjs');
 const own=read('agent22-newmoon-v3-countercatcher-worker.cjs');
 const outPath=path.join(here,'agent22-newmoon-v3-countercatcher-worker-standalone.cjs');
 const v2Need="const oldSetup=require('./agent1-newmoon-v2-jammer-decision.cjs');";
 const v3Need="const parent=require('./agent1-newmoon-v3-finisher-slice.cjs');";
 const seqNeed="const {createSlice,visiblePrintedDuoDamage}=require('./agent22-newmoon-countercatcher-actor-sequence.cjs');";
 const directNeed="const {createDirectGustSlice}=require('./agent22-newmoon-direct-countercatcher-gust.cjs');";
+const abilityNeed="const {createAbilityTerminalSlice}=require('./agent22-newmoon-ability-only-terminal.cjs');";
+const abilitySeqNeed="const {abilitySource,DIRECT_GUST_TARGETS}=require('./agent22-newmoon-countercatcher-actor-sequence.cjs');";
 const directSeqNeed="const {\n offeredMewtwoAttack,ownerBenchChoice,ownerPerfectionNightWatchPrompt,\n visiblePrintedDuoDamage,psychicCostPhysicallyReady,nightWatchDonor,\n certifiedDamage,DIRECT_GUST_TARGETS\n}=require('./agent22-newmoon-countercatcher-actor-sequence.cjs');";
 const replaceOnce=(txt,needle,value)=>{
  if(txt.split(needle).length!==2)throw Error('BUNDLE_SOURCE_CONTRACT_DRIFT: '+needle);
@@ -39,17 +42,22 @@ const directStandalone=replaceOnce(
  direct,directSeqNeed,
  'const {offeredMewtwoAttack,ownerBenchChoice,ownerPerfectionNightWatchPrompt,visiblePrintedDuoDamage,psychicCostPhysicallyReady,nightWatchDonor,certifiedDamage,DIRECT_GUST_TARGETS}='+
  scoped('countercatcher sequence for direct gust',seq)+';');
+const abilityStandalone=replaceOnce(ability,abilitySeqNeed,
+ 'const {abilitySource,DIRECT_GUST_TARGETS}='+
+ scoped('countercatcher sequence for ability-only',seq)+';');
 const ownStandalone=replaceOnce(
  replaceOnce(
-  replaceOnce(own,v3Need,'const parent='+scoped('v3 parent',v3Standalone)+';'),
+   replaceOnce(own,v3Need,'const parent='+scoped('v3 parent',v3Standalone)+';'),
   seqNeed,'const {createSlice,visiblePrintedDuoDamage}='+scoped('countercatcher sequence',seq)+';'),
  directNeed,'const {createDirectGustSlice}='+scoped('direct gust',directStandalone)+';');
-if(/require\s*\(/.test(ownStandalone))
+const completeStandalone=replaceOnce(ownStandalone,
+ abilityNeed,'const {createAbilityTerminalSlice}='+scoped('ability-only terminal',abilityStandalone)+';');
+if(/require\s*\(/.test(completeStandalone))
  throw Error('BUNDLE_UNEXPECTED_RUNTIME_REQUIRE');
-fs.writeFileSync(outPath,ownStandalone,'utf8');
+fs.writeFileSync(outPath,completeStandalone,'utf8');
 const sha=s=>crypto.createHash('sha256').update(s).digest('hex');
 console.log(JSON.stringify({profile:'agent22-newmoon-v3-countercatcher-terminal-research-v2',
- sourceHashes:{v2:sha(v2),v3:sha(v3),sequence:sha(seq),direct:sha(direct),overlay:sha(own)},
- standaloneSha256:sha(ownStandalone),
+ sourceHashes:{v2:sha(v2),v3:sha(v3),sequence:sha(seq),direct:sha(direct),ability:sha(ability),overlay:sha(own)},
+ standaloneSha256:sha(completeStandalone),
  output:path.relative(process.cwd(),outPath),
- bytes:Buffer.byteLength(ownStandalone)},null,2));
+ bytes:Buffer.byteLength(completeStandalone)},null,2));
