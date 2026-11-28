@@ -40,7 +40,7 @@ function prompt(x,source,zone,damage){
     publicMetadata:{isOwnerVisible:true,ownerSeat:'opponent',
      targetZone:'active',slotIndex:0}},
    {kind:'pokemon',token:'bench-pick',
-    printing:q.observation.opponentPublic.bench[0].printing,
+    printing:x.observation.opponentPublic.bench[0].printing,
     publicMetadata:{isOwnerVisible:true,ownerSeat:'opponent',
      targetZone:zone,benchIndex:0}}]
  };
