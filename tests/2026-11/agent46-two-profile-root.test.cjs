@@ -2755,7 +2755,10 @@ paired('Agent2: payoff-aware Guzma breaks sole live AOR Item lock or LTR/BKP Gar
     {name:'AOR second live holder',kind:'vile',duplicate:true,expect:'pass'},
     {name:'LTR live',kind:'garb',printing:'Garbodor LTR 68',expect:'guzma'},
     {name:'BKP live with own Float Stone',kind:'garb',printing:'Garbodor BKP 57',expect:'guzma'},
-    {name:'BKP no own Float Stone',kind:'garb',noPivotTool:true,expect:'pass'},
+    {name:'BKP live with own Stealthy Hood',kind:'garb',hoodPivot:true,expect:'guzma'},
+    {name:'BKP Stealthy Hood jammed',kind:'garb',hoodPivot:true,jammed:true,expect:'pass'},
+    {name:'BKP Hood but Skyliner suppressed',kind:'garb',hoodPivot:true,hoodSuppressed:true,expect:'pass'},
+    {name:'BKP no own Float Stone or Hood',kind:'garb',noPivotTool:true,expect:'pass'},
     {name:'BKP own Float Stone jammed',kind:'garb',jammed:true,expect:'pass'},
     {name:'BKP no Tool on lock source',kind:'garb',noTool:true,expect:'pass'},
     {name:'BKP suppressed',kind:'garb',suppressed:true,expect:'pass'},
@@ -2774,10 +2777,12 @@ paired('Agent2: payoff-aware Guzma breaks sole live AOR Item lock or LTR/BKP Gar
     // Under live Garbotoxin, Skyliner is suppressed. Float Stone remains
     // an independent retreat reducer, unless Jamming Tower disables Tools.
     if(!vile){
-      pivot.tools=cfg.noPivotTool?[]:['Float Stone BKT 137'];
+      pivot.tools=cfg.noPivotTool?[]:cfg.hoodPivot?
+        ['Stealthy Hood UNB 186']:['Float Stone BKT 137'];
       if(!cfg.noTool&&!cfg.suppressed) {
+        const blocked=!(cfg.hoodPivot&&!cfg.jammed&&!cfg.hoodSuppressed);
         pivot.abilitySuppressions[0]={...pivot.abilitySuppressions[0],
-          suppressed:true,sourcePrinting:'Garbodor BKP 57'};
+          suppressed:blocked,sourcePrinting:blocked?'Garbodor BKP 57':null};
       }
     }
     const printing=vile?'Vileplume AOR 3':cfg.printing??'Garbodor BKP 57';
