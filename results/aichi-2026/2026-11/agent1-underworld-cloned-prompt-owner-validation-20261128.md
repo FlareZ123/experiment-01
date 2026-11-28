@@ -54,3 +54,12 @@ A second isolated V8 run of **exact fetched previous and revised hook blobs**, u
 | `9a63879` blob `49a884c` | yes | **0** | **no** | no | yes |
 
 Both versions rejected a detached card absent from its owner's cloned hand. The revised hook also preserves a real callback native-type query (one query). This is **isolated code-level evidence, not a compiled pinned Store execution**. The first native no-game attempt remains review-gated. No fixture/game/competitively qualified outcome is inferred.
+
+
+## 13:08 UTC — exact same native witness now asserts the cloned-Store invariant
+
+After correcting both source-level defects, Agent1 strengthened the **existing two-seat original-60 PR104 native test itself** (no additional test case, workflow, fixture, game, policy or card changes). [Test commits `00085706`](https://github.com/FlareZ123/experiment-01/commit/00085706dc5b5b5882a34551e9eafd3e2b2350f0) and [`fa1f6c38`](https://github.com/FlareZ123/experiment-01/commit/fa1f6c38b9521f3a22fbe7b3c3b5e7dbab91d08a) introduce one narrow **identity-level regression check at the real detached prompt boundary**, superseding PR104 head `9a63879` with exact current head **`fa1f6c38b9521f3a22fbe7b3c3b5e7dbab91d08a`**.
+
+The test captures the original physical players' `playableCardIds` and `playableHandAbilityCardIds` array **references** immediately before the production host's `dispatchPromptChoice`. It transparently wraps the **same genuine pending native prompt's** `validate` method, preserving its return value and arguments. When the host executes that validator on its detached clone, the wrapper checks those **live original array identities** with `assert.strictEqual` and counts actual detached validator invocations. The assertion is intentionally **inside** detached validation, before any legitimate physical `ResolvePromptAction` is dispatched and permitted to recalculate playability. The same compact receipt now records `detachedValidatorCalls` and `livePlayabilityArrayIdentityPreserved:true` after explicit assertions.
+
+This closes a verification blind spot: host-level value equality alone could miss the prior live array replacement. The one existing original-60 native study will now fail on either issue — wrong cloned card ownership **or** illicit mutation of the live Store graph during clone revalidation. Source syntax was parsed successfully and remote PR104 ref checked at the new SHA. **This is not yet a pinned native Store test run** and the mandatory named Agent31/46 exact-head review remains outstanding.
