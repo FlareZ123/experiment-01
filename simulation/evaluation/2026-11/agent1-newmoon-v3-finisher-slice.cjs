@@ -192,7 +192,7 @@ function chooseStage2BusEscape(view,items) {
  if(!d.length&&!base.length&&!mature.length)return null;
  // Strongest currently funded Stage1 is developed first; the actual host
  // action frontier certifies whether today's evolution is legal.
- const ordered=(mature.length?mature:d.length?d:base).slice().sort((a,b)=>nPsi(b)-nPsi(a)||
+ const ordered=[...mature,...d,...base].sort((a,b)=>nPsi(b)-nPsi(a)||
   (a.zone==='active'?-1:1));
  if(pendingStage2)for(const x of d){
   const evo=items.find(i=>i.kind==='play-card'&&
