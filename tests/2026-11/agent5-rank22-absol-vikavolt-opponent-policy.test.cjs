@@ -387,3 +387,33 @@ test('real card-combination and Pokémon prompts yield multi-selection worker sh
   assert.deepEqual(worker.decide({...root([],observation({ownPublic:holder})),
     prompt:targetPrompt}),{kind:'select-choices',tokens:['holder']});
 });
+
+test('Wally converts first-turn source Trubbish directly into Garbodor with Tool', () => {
+  const o=observation({globalTurn:2,ownPublic:player({
+    active:poke(P.trubbishNvi,{tools:['Float Stone BKT 137']})
+  }),ownHand:['Wally ROS 94']});
+  const action={kind:'play-card',actorPrinting:'Wally ROS 94',token:'wally'};
+  assert.equal(policy.scoreAction(action,root([],o)),330);
+  assert.deepEqual(policy.bestAction(root([action,pass],o)),
+    {kind:'select-action',token:'wally'});
+  const cardPrompt={promptType:'ChooseCardsPrompt',
+    source:{sourcePrinting:'Wally ROS 94',effectName:'Wally'},
+    choices:[choice('garb',P.garbodor),choice('mega',P.mega)]};
+  assert.deepEqual(policy.promptDecision({observation:o,prompt:cardPrompt}),
+    {kind:'select-choice',token:'garb'});
+  const targetPrompt={promptType:'ChoosePokemonPrompt',
+    source:{sourcePrinting:'Wally ROS 94',effectName:'Wally'},
+    choices:[{token:'trubbish',kind:'pokemon',printing:P.trubbishNvi,
+      publicMetadata:{ownerSeat:'actor',targetZone:'active'}}]};
+  assert.deepEqual(policy.promptDecision({observation:o,prompt:targetPrompt}),
+    {kind:'select-choice',token:'trubbish'});
+});
+test('Wally is no longer used when no Trubbish exists or Garbodor already is live', () => {
+  const rootAction={kind:'play-card',actorPrinting:'Wally ROS 94'};
+  const absent=observation({ownPublic:player({active:poke(P.mega)}),
+    ownHand:['Wally ROS 94']});
+  const settled=observation({ownPublic:player({active:poke(P.garbodor)}),
+    ownHand:['Wally ROS 94']});
+  assert.equal(policy.scoreAction(rootAction,root([],absent)),0);
+  assert.equal(policy.scoreAction(rootAction,root([],settled)),0);
+});
