@@ -35,3 +35,12 @@ The same v1 worker previously lacked all three authenticated host engine setup p
 
 **Exact before/after:** same previous branch source and six new tests: **46/51** protocol-validated V8 decisions; updated branch source and unchanged 51-test suite: **51/51**. The prepatch branch fails five cases, passing the going-second choice accidentally by generic fallback. This is a synthetic actor-protocol test, not physical game setup, native Store settlement, or an authorized game. Current branch policy blob `6861ff6730f15b8f58dfcf8567721bf7f2ffc8bd`, test blob `80b6d8c3b065afd05141e6b27b8cbec31623213b`, both readback verified. No deck or source change.
 
+
+
+## Garbotoxin is conditional, not a printed-Ability-only lock
+
+The rank-2 worker's `opponentHasGarbotoxin()` previously treated a visible Garbodor with printed Garbotoxin as locking Abilities even with **no Tool attached**. The supplied source card text (DRX 54 / BW6 54) states its Tool-attached condition explicitly. The revised predicate requires at least one attached Tool and respects an explicitly actor-visible `abilitySuppressions[].suppressed===true` fact, while treating unknown suppression conservatively. This changes the Stoutland active-promotion and Guzma self-pivot decisions when the opponent's Garbodor has no Tool or is known suppressed.
+
+**Exact executable before/after** on the final 54-case branch test suite: previous branch policy **51/54** (three failing cases), revised policy **54/54** (all pass). Controls preserve Bunnelby preference when Garbotoxin bears a Tool and is not reported suppressed. The three failures cover Tool-less Garbotoxin blocking a legal Stoutland self-switch, blocking a Stoutland root Retreat, and falsely blocking a certified-suppressed Tool-bearing Garbotoxin. These are synthetic game-state/actor-protocol tests, not evidence that a particular suppressed real-native state has been demonstrated.
+
+Updated review-branch blobs: worker `f6e9ed0d7af6907637fed3b44afbb3b9c21a99d5`, test suite `b7d7e17ec38e9a475a89c90d6e6205f3cbe3ff31`. No native Store, CI, game, merge, candidate nomination or qualified matchup was run.
