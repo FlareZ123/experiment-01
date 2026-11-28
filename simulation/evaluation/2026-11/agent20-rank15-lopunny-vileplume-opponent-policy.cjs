@@ -455,9 +455,8 @@ function retreatActionTargets(item,target,own) {
 // an explicit current-stationary movement receipt, and a native offered move.
 function terminalGalePromotionTarget(request) {
   const o=request?.observation,own=o?.ownPublic,op=o?.opponentPublic?.active;
-  if(!own||!has(own.active,P.mega)||
-    !has(op,/^Shadow Rider Calyrex V CRE(?: 74)?\b/i)||
-    movementEvidence(request)!==false)return null;
+  if(!own||!has(op,/^Shadow Rider Calyrex V CRE(?: 74)?\b/i)||
+    (has(own.active,P.mega)&&movementEvidence(request)!==false))return null;
   if(arr(op.tools).length||arr(op.abilitySuppressions).some(x=>x.suppressed===false))
     return null;
   const remaining=Number.isSafeInteger(op.hp)&&Number.isSafeInteger(op.damage)?
@@ -467,8 +466,21 @@ function terminalGalePromotionTarget(request) {
     !Number.isSafeInteger(own.prizeCount)||own.prizeCount<1||
     own.prizeCount>sourcePrizeValue(op))return null;
   const bench=arr(own.bench);
-  const index=bench.findIndex(x=>x&&has(x,P.mega)&&attachedEnergyUnits(x,o)>=1);
+  const index=bench.findIndex(x=>x&&readyGuzmaMega(x,o));
   return index<0?null:{index,printing:bench[index].printing};
+}
+function terminalGalePromotionAction(items,request) {
+  const target=terminalGalePromotionTarget(request);
+  if(!target)return null;
+  const own=request.observation.ownPublic,bench=arr(own.bench);
+  const retreat=items.find(x=>retreatActionTargets(x,target,own));
+  if(retreat)return retreat;
+  // Jet attached from hand to the exact powered Benched Mega produces
+  // Bench->Active movement, including where normal Retreat is unavailable.
+  // Temple of Sinnoh disables that switching effect, not Energy provision.
+  if(templeSuppressesSpecialEnergy(request.observation))return null;
+  return items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.jet)&&
+    ownActionTarget(x,own)===bench[target.index])??null;
 }
 function mobilityActions(items,o,request) {
   const own=o?.ownPublic;
@@ -1247,6 +1259,9 @@ function rootDecision(request) {
   const gustOpportunity=guzmaOpportunity(o);
   const gust=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.guzma));
   if(gust&&gustOpportunity?.terminal)return take(gust);
+  // A demonstrated last-Prize movement action must beat mere setup actions.
+  const winningPromotion=terminalGalePromotionAction(items,request);
+  if(winningPromotion)return take(winningPromotion);
   const karen=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.karen));
   if(karen&&karenOpportunity(o))return take(karen);
   // First-turn Fan Call is a free actor-owned search for the source's
