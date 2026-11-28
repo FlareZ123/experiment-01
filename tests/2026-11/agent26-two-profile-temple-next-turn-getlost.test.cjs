@@ -405,3 +405,25 @@ for(const seat of [0,1]){
   assert.equal(policy.__test.apexHazard(v).direct,0);
  });
 }
+
+for(const seat of [0,1]){
+ test('Retribution Strike 20 plus owner attacker counters crosses 285HP only at 270 damage, seat '+seat,()=>{
+  const v=view(seat);v.ownPublic.stadium=[];
+  const own=slot('Shadow Rider Calyrex VMAX CRE',
+    ['Psychic Energy SVE'],[['Max Geist',['Colorless','Colorless','Colorless'],10]],
+    ['Psychic'],['VMAX','V']);
+  own.hp=320;own.damage=35; // 285 HP left; Kaiser Tackle 280 is insufficient.
+  v.ownPublic.active=own;
+  v.opponentPublic.active.energies=[
+    'Grass Energy SVE','Grass Energy SVE','Fire Energy SVE'];
+  v.opponentPublic.discard=['Koraidon ex TEF'];
+  v.opponentPublic.active.damage=0;
+  assert.equal(policy.__test.apexHazard(v).direct,0);
+  v.opponentPublic.active.damage=260; // 20+260 = 280, still not 285.
+  assert.equal(policy.__test.apexHazard(v).direct,0);
+  v.opponentPublic.active.damage=270; // 20+270 = 290, a 3-Prize KO.
+  assert.equal(policy.__test.apexHazard(v).direct,3);
+  v.opponentPublic.discard=['Koraidon SSP'];
+  assert.equal(policy.__test.apexHazard(v).direct,0);
+ });
+}
