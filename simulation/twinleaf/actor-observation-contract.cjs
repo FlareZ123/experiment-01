@@ -15,7 +15,7 @@ const printing=card=>{
  * @param {object} slot Pinned engine Pokémon card list.
  * @returns {object|null}
  */
-function visiblePokemon(slot, owner=null){
+function visiblePokemon(slot, owner=null, currentTurn=null){
   const pokemon=slot.getPokemonCard();
   if(!pokemon)return null;
   const powers=pokemon.powers;
@@ -54,7 +54,7 @@ function visiblePokemon(slot, owner=null){
     publicRestrictions:{
       // Already-announced Pale Moon-GX has a public, player-level delayed KO;
       // this exact CardList target is otherwise absent from actor observations.
-      ...(owner===null?{}:{pendingPaleMoonGXKnockOut:pendingPaleMoonGXKnockOut(owner,slot)}),
+      ...(owner===null?{}:{pendingPaleMoonGXKnockOut:pendingPaleMoonGXKnockOut(owner,slot,currentTurn)}),
       cannotAttackNextTurn:slot.cannotAttackNextTurn===true,
       cannotUseAttacksNextTurn:[...(slot.cannotUseAttacksNextTurn??[])],
       blockedAttackNameNextTurn:slot.blockedAttackNameNextTurn??null,
@@ -95,9 +95,9 @@ function visiblePokemon(slot, owner=null){
 }
 
 /** @param {object} player @param {boolean} [hidePokemon] @returns {object} */
-function publicPlayer(player,hidePokemon=false){
+function publicPlayer(player,hidePokemon=false,currentTurn=null){
   const pokemonView=slot=>hidePokemon ?
-    (slot.cards.length>0?{concealed:true}:null):visiblePokemon(slot,player);
+    (slot.cards.length>0?{concealed:true}:null):visiblePokemon(slot,player,currentTurn);
   // Missing or malformed public countdowns remain explicitly unknown.
   const stadiumToolSuppression=player.stadiumAndToolHaveNoEffectTurnsRemaining;
   return {
@@ -226,10 +226,10 @@ function actorObservation(state,seat,options={}){
       pending.constructor?.name==='ChooseCardsPrompt'&&
       pending.cards===owner.deck),
     ownHand:owner.hand.cards.map(printing),
-    ownPublic:publicPlayer(owner),
+    ownPublic:publicPlayer(owner,false,state.turn),
     // In SETUP/WAITING_FOR_PLAYERS the other side's chosen Pokémon are
     // physically face-down. Reveal only occupied slot geometry until start.
-    opponentPublic:publicPlayer(state.players[1-seat],state.phase===0||state.phase===1),
+    opponentPublic:publicPlayer(state.players[1-seat],state.phase===0||state.phase===1,state.turn),
     ownTurnResources:{
       // Unlike Energy/Stadium last-used global indices, supporterTurn is
       // Twinleaf's count of Supporters used in this owner's current turn.
