@@ -1163,3 +1163,21 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'float'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Karen counts actual Dragon Koraidon TEF and Salamence JTG payloads',()=>{
+  const their=opp({active:mon('Regidrago VSTAR SIT 136'),discard:[
+   'Koraidon ex TEF 120','Salamence ex JTG 114']});
+  const q=root(seat,[play('Karen XYP 177','karen'),
+   attack('Itchy Pollen','pollen'),pass],{
+   globalTurn:3,opponentPublic:their,ownHand:['Karen XYP 177']});
+  assert.equal(policy.regidragoPayloadCount(q.observation),2);
+  assert.equal(policy.karenDenialScore(q.observation,q.actionFrontier.items),710);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'karen'});
+  // Identically named Koraidon/Salamence from other printings are not
+  // automatically treated as Dragon copies of the benchmark source cards.
+  their.discard=['Koraidon ex SVI 125','Salamence ex EX 96'];
+  assert.equal(policy.regidragoPayloadCount(q.observation),0);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+ });
+}
