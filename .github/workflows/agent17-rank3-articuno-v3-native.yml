@@ -1,9 +1,9 @@
-name: Agent17 exact rank3 Articuno actor-only native transfer
+name: Agent17 payable rank3 Articuno native Store continuation
 
 on:
   push:
     branches:
-      - agent17/rank3-articuno-move-energy-v3-20261128
+      - agent17/rank3-articuno-payable-root-20261128
     paths:
       - '.github/workflows/agent17-rank3-articuno-v3-native.yml'
       - 'simulation/evaluation/2026-11/agent36-prompt-projection.cjs'
@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: agent17-articuno-v3-actor-only
+  group: agent17-articuno-payable-root-native
   cancel-in-progress: false
 
 jobs:
@@ -40,6 +40,7 @@ jobs:
       - name: Check source-level strict V3 transfer and existing rank3 tactical regressions
         run: |
           node --test \
+            tests/2026-11/agent17-rank3-articuno-payable-root.test.cjs \
             tests/2026-11/agent17-rank3-articuno-move-energy-v3.test.cjs \
             tests/2026-11/agent17-rank3-lockbridge-trap-development.test.cjs \
             tests/2026-11/agent17-rank3-eri-arven-tool-contract.test.cjs \
