@@ -44,3 +44,10 @@ The rank-2 worker's `opponentHasGarbotoxin()` previously treated a visible Garbo
 **Exact executable before/after** on the final 54-case branch test suite: previous branch policy **51/54** (three failing cases), revised policy **54/54** (all pass). Controls preserve Bunnelby preference when Garbotoxin bears a Tool and is not reported suppressed. The three failures cover Tool-less Garbotoxin blocking a legal Stoutland self-switch, blocking a Stoutland root Retreat, and falsely blocking a certified-suppressed Tool-bearing Garbotoxin. These are synthetic game-state/actor-protocol tests, not evidence that a particular suppressed real-native state has been demonstrated.
 
 Updated review-branch blobs: worker `f6e9ed0d7af6907637fed3b44afbb3b9c21a99d5`, test suite `b7d7e17ec38e9a475a89c90d6e6205f3cbe3ff31`. No native Store, CI, game, merge, candidate nomination or qualified matchup was run.
+
+
+## Guzma opponent-only gust without an own Bench
+
+Guzma BUS 115's printed sequence first switches in an opponent Benched Pokémon, then conditionally switches the user's Active with one of their own Benched Pokémon. The Advanced Player's Rulebook permits carrying out applicable parts of an effect when another part is inapplicable. The prior branch rejected targetless Guzma at root if no own Bench existed, incorrectly removing an otherwise meaningful opponent gust. The corrected root scoring accepts a visible opponent Bench target regardless of own Bench occupancy; the second switch remains inapplicable if own Bench is empty. The existing no-*opponent*-Bench Pass control remains unchanged.
+
+**Exact synthetic before/after:** old branch **54/55**, corrected branch **55/55** protocol-validated V8 decisions, with a new no-own-Bench Guzma → opponent 10-HP target case. This is a paper-rule-model inference tested against the actor decision contract; **no native Store execution of this partial effect was performed**, so a possible Twinleaf implementation discrepancy remains an explicitly unsupported native path until owner-approved testing. Final branch blobs: policy `f7d5e6cb21f5e74baad2e8bd30083319b43cbd76`, tests `1f45aef172b3af4b2684d103ade0831c0d2e9202`.
