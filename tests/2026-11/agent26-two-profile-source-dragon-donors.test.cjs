@@ -194,3 +194,30 @@ for(const seat of [0,1]){
   });
  }
 }
+
+for(const seat of [0,1]){
+ for(const real of ['Dialga-GX UPR','Noivern ex PAL','Kyurem SFA']){
+  test('exact type-qualified printed donor '+real+' selects Get Lost, seat '+seat,()=>{
+   const v=paidRegidrago(seat,real);
+   assert.deepEqual(decision(root(seat,v)),{
+    kind:'select-action',token:'attack-getlost'
+   });
+  });
+ }
+ for(const fake of [
+  'Dialga-GX FLI', // same name: Metal, not Dragon.
+  'Noivern ex PRE', // same name: Colorless, not Dragon.
+  'Kyurem UNB', // same name: Water, not Dragon.
+  'Haxorus NVI', // same name: Colorless, not Dragon.
+  'Flygon ex SSP', // Fighting-type ex.
+  'Garchomp ex PAR' // Water-type ex.
+ ]){
+  test('same-name non-Dragon '+fake+' must not trigger Get Lost, seat '+seat,()=>{
+   const v=paidRegidrago(seat,fake);
+   assert.deepEqual(decision(root(seat,v)),{
+    kind:'select-action',token:'pass'
+   });
+   assert.equal(policy.__test.apexHazard(v).direct,0);
+  });
+ }
+}
