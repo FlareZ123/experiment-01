@@ -151,6 +151,8 @@ function chooseStage2BusEscape(view,items) {
  const d=all.filter(x=>has(x.s.printing,'Dusclops')&&
   !has(x.s.printing,'Dusknoir'));
  const base=all.filter(x=>has(x.s.printing,'Duskull'));
+ const mature=all.filter(x=>has(x.s.printing,'Dusknoir')&&
+   !has(x.s.printing,'Trevenant & Dusknoir-GX'));
  if(!d.length && base.length && Array.isArray(view.ownHand) &&
    view.ownHand.some(x=>has(x,'Dusclops'))) {
    for(const x of base) {
@@ -187,10 +189,10 @@ function chooseStage2BusEscape(view,items) {
    if(tpe)return select(tpe,'V3_TPE_RECRUIT_DUSKULL_UNDER_ITEM_AND_BASIC_LOCK');
  }
 
- if(!d.length&&!base.length)return null;
+ if(!d.length&&!base.length&&!mature.length)return null;
  // Strongest currently funded Stage1 is developed first; the actual host
  // action frontier certifies whether today's evolution is legal.
- const ordered=(d.length?d:base).slice().sort((a,b)=>nPsi(b)-nPsi(a)||
+ const ordered=(mature.length?mature:d.length?d:base).slice().sort((a,b)=>nPsi(b)-nPsi(a)||
   (a.zone==='active'?-1:1));
  if(pendingStage2)for(const x of d){
   const evo=items.find(i=>i.kind==='play-card'&&
@@ -202,7 +204,7 @@ function chooseStage2BusEscape(view,items) {
    (!i.targetPrinting||i.targetPrinting===x.s.printing));
   if(evo)return select(evo,'V3_EVOLVE_DUSCLOPS_TO_HOODED_BUS_SHADOW_BIND_ATTACKER');
  }
- if(view.ownTurnResources?.energyPlayedTurn!==0)return null;
+ if(view.ownTurnResources?.energyPlayedTurn===0){
  const energy=items.find(i=>i.kind==='play-card'&&
   i.publicMetadata?.cardType==='energy'&&
   i.publicMetadata?.targetSeat==='actor'&&
@@ -212,7 +214,28 @@ function chooseStage2BusEscape(view,items) {
    (!i.targetPrinting||i.targetPrinting===x.s.printing))&&
   (has(i.actorPrinting,'Basic Psychic Energy')||
     has(i.actorPrinting,'Telepathic Psychic Energy')));
- return energy?select(energy,'V3_FUND_STAGE2_SHADOW_BIND_THROUGH_BUS_LOCK'):null;
+ if(energy)return select(energy,'V3_FUND_STAGE2_SHADOW_BIND_THROUGH_BUS_LOCK');
+ }
+ // Powerglass attaches one *Basic* Psychic from the public discard at end of
+ // turn only if this carrier is Active. This is future-turn acceleration, not
+ // an immediately payable Shadow Bind. Jamming Tower disables its effect.
+ const activeStage=all.some(x=>x.zone==='active'&&
+  (d.includes(x)||mature.includes(x)));
+ const hasDiscardFuel=Array.isArray(own.discard)&&own.discard.some(x=>
+  has(x,'Basic Psychic Energy'));
+ const tower=[...(own.stadium??[]),...(opp.stadium??[])].some(x=>has(x,'Jamming Tower'));
+ if(activeStage&&hasDiscardFuel&&!tower&&
+  Array.isArray(active.tools)&&active.tools.length===0&&
+  nPsi({s:active})>=1&&nPsi({s:active})<3){
+  const glass=items.find(i=>i.kind==='play-card'&&
+   has(i.actorPrinting,'Powerglass')&&
+   i.publicMetadata?.cardType==='trainer'&&
+   i.publicMetadata?.targetSeat==='actor'&&
+   i.publicMetadata.targetZone==='active'&&
+   (!i.targetPrinting||i.targetPrinting===active.printing));
+  if(glass)return select(glass,'V3_POWERGLASS_END_TURN_BASIC_PSYCHIC_ACCELERATION');
+ }
+ return null;
 }
 
 function aceSafe(view){
