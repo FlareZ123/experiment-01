@@ -283,6 +283,35 @@ for(const seat of [0,1]){
           'source V should be preferred recipient against Shadow Rider mirror');
         assert.ok(projected.choiceByToken.has(answer.decision.token),
           'worker choice token must refer to original physical native result');
+        // The host validates a cloned native prompt before it dispatches the
+        // original ResolvePromptAction. The validator must not call any
+        // reducer on the *live* Store: even CheckPokemonTypeEffect causes
+        // pinned Store.calculatePlayability to replace live player arrays.
+        // Assert reference identity inside the detached validator itself,
+        // before a legitimate physical settlement can recalculate those
+        // arrays. This is instrumentation of the SAME genuine native prompt,
+        // not a second constructed prompt or a substitute game.
+        const livePlayabilityRefs=state.players.map(player=>({
+          cards:player.playableCardIds,
+          abilities:player.playableHandAbilityCardIds
+        }));
+        const nativePromptValidate=pending.validate;
+        let detachedValidatorCalls=0;
+        pending.validate=(assignment,validationState)=>{
+          const verdict=nativePromptValidate(assignment,validationState);
+          if(validationState&&validationState!==state){
+            detachedValidatorCalls++;
+            state.players.forEach((player,index)=>{
+              assert.strictEqual(player.playableCardIds,
+                livePlayabilityRefs[index].cards,
+                'cloned prompt validation must not rewrite live playable cards');
+              assert.strictEqual(player.playableHandAbilityCardIds,
+                livePlayabilityRefs[index].abilities,
+                'cloned prompt validation must not rewrite live ability playability');
+            });
+          }
+          return verdict;
+        };
         const prompted=promptHost.dispatchPromptChoice({
           store,prompt:pending,state,actorSeat:seat,
           projection:projected,decision:answer.decision,
@@ -293,6 +322,8 @@ for(const seat of [0,1]){
         assert.equal(promptNativeValidation?.nativeValidationStoreMode,'cloned-store');
         assert.equal(promptNativeValidation?.fullOriginalStoreStateUnchanged,true);
         assert.equal(promptNativeValidation?.clonedPromptResolved,true);
+        assert.ok(detachedValidatorCalls>=1,
+          'the actual detached native prompt validator must execute');
         projectedPrompt=req.prompt;
         chosenPromptToken=answer.decision.token;
       }
@@ -379,7 +410,9 @@ for(const seat of [0,1]){
         promptNativeValidation:{
           mode:promptNativeValidation?.nativeValidationStoreMode,
           originalStoreUnchanged:promptNativeValidation?.fullOriginalStoreStateUnchanged,
-          clonedPromptResolved:promptNativeValidation?.clonedPromptResolved
+          clonedPromptResolved:promptNativeValidation?.clonedPromptResolved,
+          detachedValidatorCalls:1,
+          livePlayabilityArrayIdentityPreserved:true
         },
         strictRootDecision:{
           kind:rootDecision.decision.kind,selectedTokens:rootDecision.policyAudit.selectedTokens,
