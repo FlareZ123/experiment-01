@@ -373,9 +373,26 @@ function attackBaseDamage(attacker, attack, view, target) {
   return parseDamage(attack.damage);
 }
 
+// Original Aichi ranks 3 and 7 both field Mimikyu PAL 97. Its Safeguard
+// prevents damage by Pokemon ex/V (including VMAX). This is a defending
+// Pokemon Ability, not an attack modifier: the native attack may still be
+// offered and payable, but its damage is zero while Safeguard operates.
+// Unknown suppression is conservatively treated as possibly effective.
+function effectiveSafeguardBlocks(attacker, target) {
+  if (target?.printing !== 'Mimikyu PAL 97' ||
+      !target?.abilities?.includes('Safeguard') ||
+      abilityStatus(target, 'Safeguard') === false) return false;
+  const subtypes=attacker?.printed?.subtypes ?? [];
+  return subtypes.some(s=>['V','VMAX','VSTAR','V-UNION','ex'].includes(s)) ||
+    ['Shadow Rider Calyrex VMAX CRE 75',
+      'Latias ex SSP 76',"Lillie's Clefairy ex JTG 56"
+    ].includes(attacker?.printing);
+}
+
 function estimatedDamage(attacker, attack, view, target) {
   const base = attackBaseDamage(attacker, attack, view, target);
   if (base === null) return null;
+  if (effectiveSafeguardBlocks(attacker, target)) return 0;
   const multiplier = weaknessMultiplier(attacker, target, view);
   const damage = Math.max(0, base * multiplier -
     resistancePenalty(attacker, target));
