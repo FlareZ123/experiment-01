@@ -55,7 +55,7 @@ function prompt(seat, observation, opts = {}) {
 function selected(index) {
   return { kind: 'select-choices', tokens: ['target-' + index] };
 }
-const abstain = { kind: 'abstain', reasonCode: 'INSUFFICIENT_SUPPORTED_PROMPT_CHOICES' };
+const abstain = { kind: 'abstain', reasonCode: 'NO_SUPPORTED_POKEMON_CHOICE' };
 
 for (const seat of [0, 1]) {
   test('seat ' + seat + ': Gust prompt selects the damaged second duplicate', () => {
