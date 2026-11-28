@@ -133,4 +133,14 @@ function projectRaihanOwnerAttachPrompt(options={}){
     })
   };
 }
-module.exports={sourceIsExact,projectRaihanOwnerAttachPrompt};
+// createV3WorkerDecisionResolver already accepts an injectable promptProjection.
+// This preserves the shared projector's host-only and raw-result functions;
+// never mutate it or enable this override implicitly in production.
+function createOptInRaihanPromptProjection() {
+  return Object.freeze({
+    ...baseProjection,
+    projectPrompt:projectRaihanOwnerAttachPrompt
+  });
+}
+module.exports={sourceIsExact,projectRaihanOwnerAttachPrompt,
+  createOptInRaihanPromptProjection};
