@@ -58,12 +58,20 @@ module.exports = (function build() {
     return 1;
   }
   function activeStadium(o) { return [...L(o.ownPublic?.stadium),...L(o.opponentPublic?.stadium)].map(name); }
-  function abilityTexts(player) {
-    return slots(player).flatMap(({p})=>L(p.abilityDetails).filter(a=>!L(p.abilitySuppressions).some(s=>s.abilityName===a.name&&s.suppressed===true)).map(a=>String(a.text??'')));
+  function abilityTexts(player,target) {
+    const board=slots(player);
+    // PAL97 Safeguard protects only its own holder. A Benched Safeguard
+    // cannot make the opponent's different Active Pokémon immune to damage.
+    // If target-to-board identity is unknown, retain the conservative veto.
+    const targetKnown=board.some(row=>row.p===target);
+    return board.flatMap(({p})=>L(p.abilityDetails).filter(a=>
+      !L(p.abilitySuppressions).some(s=>s.abilityName===a.name&&s.suppressed===true)&&
+      !(targetKnown&&p!==target&&/^Mimikyu PAL 97\\b/i.test(name(p))&&a.name==='Safeguard')
+    ).map(a=>String(a.text??'')));
   }
   function uncertainDefense(o,p,kind) {
     // These are deliberate vetoes, not a complete paper modifier engine.
-    const texts=abilityTexts(o.opponentPublic);
+    const texts=abilityTexts(o.opponentPublic,p);
     const attachments=slots(o.opponentPublic).flatMap(({p})=>[...L(p.tools),...L(p.energies)]).map(name);
     if (attachments.some(x=>/Life Dew|Legacy Energy|Survival Brace|Hero's Cape|Luxurious Cape/i.test(x))) return true;
     if (kind==='effect') {
