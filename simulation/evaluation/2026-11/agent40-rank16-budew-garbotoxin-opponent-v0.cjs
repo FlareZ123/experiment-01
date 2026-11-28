@@ -287,15 +287,27 @@ function hasProtectedHand(o){
 function canRiskFullHandDiscard(o){
  return handCount(o)<=3&&!hasProtectedHand(o)&&deckCount(o)>0;
 }
+function setupAbilitySourcePrinting(abilityName){
+ if(/^Dedechange$/i.test(abilityName))return 'Dedenne-GX UNB 57';
+ if(/^Dark Asset$/i.test(abilityName))return 'Crobat V DAA 104';
+ if(/^Wonder Tag$/i.test(abilityName))return 'Tapu Lele-GX GRI 60';
+ if(/^Squawk and Seize$/i.test(abilityName))return 'Squawkabilly ex PAL 169';
+ if(/^Star Alchemy$/i.test(abilityName))return 'Crobat V DAA 104';
+ return null;
+}
 function setupAbilityPending(items,o){
  if(!usableOwnAbilities(o))return false;
  const h=handCount(o),turn=o.globalTurn;
- return list(items).some(i=>i.kind==='use-ability'&&(
-  (/^Dedechange$/i.test(i.publicMetadata?.abilityName||'')&&canRiskFullHandDiscard(o))||
-  (/^Dark Asset$/i.test(i.publicMetadata?.abilityName||'')&&h<=4)||
-  (/^Wonder Tag$/i.test(i.publicMetadata?.abilityName||'')&&o.ownTurnResources?.supporterPlayedTurn===0)||
-  (/^Squawk and Seize$/i.test(i.publicMetadata?.abilityName||'')&&turn<=2&&canRiskFullHandDiscard(o))
- ));
+ return list(items).some(i=>{
+  if(i.kind!=='use-ability')return false;
+  const a=i.publicMetadata?.abilityName||'';
+  const source=setupAbilitySourcePrinting(a);
+  if(!source||!benchSupportAbilityUsable(source,o))return false;
+  return (/^Dedechange$/i.test(a)&&canRiskFullHandDiscard(o))||
+   (/^Dark Asset$/i.test(a)&&h<=4)||
+   (/^Wonder Tag$/i.test(a)&&o.ownTurnResources?.supporterPlayedTurn===0)||
+   (/^Squawk and Seize$/i.test(a)&&turn<=2&&canRiskFullHandDiscard(o));
+ });
 }
 function urgentShadowRiderGarbotoxin(o){
  // Count only engines that are live now AND vulnerable to our prospective
@@ -670,6 +682,8 @@ function score(action,req){
  if(action.kind==='use-ability'){
   if(!usableOwnAbilities(o))return 0;
   const a=meta.abilityName||'';
+  const abilitySource=setupAbilitySourcePrinting(a);
+  if(abilitySource&&!benchSupportAbilityUsable(abilitySource,o))return 0;
   if(/^Dedechange$/i.test(a)&&canRiskFullHandDiscard(o))return 675;
   if(/^Dark Asset$/i.test(a)&&handCount(o)<=4&&deckCount(o)>0)return 660;
   if(/^Wonder Tag$/i.test(a)&&o.ownTurnResources?.supporterPlayedTurn===0&&deckCount(o)>0)return 610;
@@ -1267,7 +1281,13 @@ function promptDecision(req){
   const yes=cs.find(c=>/^yes|confirm|true$/i.test(c.label||''));
   const no=cs.find(c=>/^no|decline|false$/i.test(c.label||''));
   if(/wonder tag|dark asset|dedechange|squawk and seize|star alchemy/.test(src)){
-   const choice=usableOwnAbilities(o)&&deckCount(o)>0&&(!/dedechange|squawk and seize/.test(src)||canRiskFullHandDiscard(o))?yes:no;
+   const abilityName=/wonder tag/.test(src)?'Wonder Tag':
+    /dark asset/.test(src)?'Dark Asset':
+    /dedechange/.test(src)?'Dedechange':
+    /squawk and seize/.test(src)?'Squawk and Seize':'Star Alchemy';
+   const source=setupAbilitySourcePrinting(abilityName);
+   const abilityUsable=source?benchSupportAbilityUsable(source,o):usableOwnAbilities(o);
+   const choice=abilityUsable&&deckCount(o)>0&&(!/dedechange|squawk and seize/.test(src)||canRiskFullHandDiscard(o))?yes:no;
    return choice?{kind:'select-choice',token:choice.token}:{kind:'abstain',reasonCode:'UNSUPPORTED_CONFIRMATION_SOURCE'};
   }
  }
