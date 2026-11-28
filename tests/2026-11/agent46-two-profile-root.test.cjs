@@ -2597,3 +2597,79 @@ paired('Agent2: paid last-Prize Compressor jointly selects Raihan plus Psychic u
       energyPlayedTurn:0}}};
   assert.deepEqual(decide(profile,withManual),mult('card-2'));
 });
+
+paired('Agent2: Guzma Latias free pivot takes nonterminal multi-Prize KOs and survives guarded alternatives',(seat,profile)=>{
+  const guzma='Guzma BUS';
+  const lat=latias(),active=vmax([P,P,P]);
+  lat.printed.retreatCost=['Colorless']; // Skyliner makes this zero if live.
+  active.printed.retreatCost=['Colorless','Colorless'];
+  const dedenne=pokemon({printing:'Dedenne-GX UNB',name:'Dedenne-GX',
+    hp:160,damage:80,types:['Lightning'],subtypes:['Basic','GX'],
+    abilities:['Dedechange']});
+  const view=observation(seat,{active,bench:[lat],opponentActive:defender(),
+    opponentBench:[dedenne],ownHand:[guzma],globalTurn:4});
+  view.ownPublic.prizeCount=3;
+  view.opponentPublic.prizeCount=6;
+  const policy=worker.createPolicy({role:'candidate',seat,
+    policyVersion:worker.POLICY_VERSION,config:profile});
+  const choices=[play('guzma',guzma),{kind:'attack',token:'max',attackName:'Max Geist'}];
+  assert.deepEqual(decide(profile,root(seat,view,choices)),sel('guzma'));
+  const choose=(v,side)=>({role:'candidate',seat,
+    observation:{...v,decisionKind:'owner-prompt',pendingPromptType:'ChoosePokemonPrompt'},
+    publicEventReceipt:null,
+    prompt:{actingSeat:seat,promptType:'ChoosePokemonPrompt',description:null,
+      source:{classification:'actor-choice',sourceKind:'card-effect',
+        sourcePrinting:guzma,effectName:'Guzma'},
+      choices:v[side==='actor'?'ownPublic':'opponentPublic'].bench.flatMap((p,i)=>
+        p?[{kind:'pokemon',token:side+'-'+i,printing:p.printing,
+          label:'Bench '+(i+1),publicMetadata:{selectionIndex:i,selectedCount:1,
+          selectionType:'pokemon',ownerSeat:side,targetZone:'bench',
+          benchIndex:i,isOwnerVisible:true}}]:[]),
+      publicMetadata:{minimumCount:1,maximumCount:1,allowCancel:false,
+        isSecret:false,selectionType:'pokemon',targetZone:'bench'}}});
+  assert.deepEqual(decide(profile,choose(view,'opponent')),mult('opponent-0'));
+  const afterGust={...view,ownHand:[],
+    ownTurnResources:{...view.ownTurnResources,supporterPlayedTurn:4},
+    opponentPublic:{...view.opponentPublic,active:dedenne,
+      bench:[view.opponentPublic.active,null,null,null,null]}};
+  assert.deepEqual(decide(profile,choose(afterGust,'actor')),mult('actor-0'));
+  const afterPivot={...afterGust,
+    ownPublic:{...view.ownPublic,active:lat,bench:[active,null,null,null,null]}};
+  assert.deepEqual(decide(profile,root(seat,afterPivot,[
+    {kind:'retreat',token:'back',targetPrinting:active.printing,
+      publicMetadata:{benchIndex:0}}])),sel('back'));
+  const afterRetreat={...afterPivot,
+    ownTurnResources:{...afterPivot.ownTurnResources,retreatedTurn:4},
+    ownPublic:{...afterPivot.ownPublic,active,
+      bench:[lat,null,null,null,null]}};
+  assert.deepEqual(decide(profile,root(seat,afterRetreat,[
+    {kind:'attack',token:'max',attackName:'Max Geist'}])),sel('max'));
+
+  // The exact same otherwise-winning two-Prize line is NOT certified
+  // when the VMAX is at immediate three-Prize counter-KO risk.
+  view.opponentPublic.prizeCount=3;
+  assert.deepEqual(decide(profile,root(seat,view,choices)),sel('max'));
+  view.opponentPublic.prizeCount=6;
+  // Without a *live* Skyliner (and without Float Stone), the mandatory
+  // Guzma switch traps our Active, so direct attack is preferable.
+  lat.abilitySuppressions[0]={...lat.abilitySuppressions[0],
+    suppressed:true,sourcePrinting:'Silent Lab PRC'};
+  assert.deepEqual(decide(profile,root(seat,view,choices)),sel('max'));
+  lat.abilitySuppressions[0].suppressed=false;
+  lat.abilitySuppressions[0].sourcePrinting=null;
+  // Target cannot be knocked out by three Psychic when undamaged.
+  dedenne.damage=0;
+  assert.deepEqual(decide(profile,root(seat,view,choices)),sel('max'));
+  dedenne.damage=80;
+  view.ownTurnResources.retreatedTurn=4;
+  assert.deepEqual(decide(profile,root(seat,view,choices)),sel('max'));
+  view.ownTurnResources.retreatedTurn=0;
+
+  // A visible three-Prize VMAX at 80 remaining HP is the same sound
+  // multi-Prize tactic when four Prizes remain; no hidden information.
+  const mew=pokemon({printing:'Mew VMAX FST',name:'Mew VMAX',hp:310,
+    damage:230,types:['Psychic'],subtypes:['VMAX','V']});
+  view.ownPublic.prizeCount=4;
+  view.opponentPublic.bench[0]=mew;
+  assert.deepEqual(decide(profile,root(seat,view,choices)),sel('guzma'));
+});
