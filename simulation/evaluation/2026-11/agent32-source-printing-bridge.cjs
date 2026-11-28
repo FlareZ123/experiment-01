@@ -65,7 +65,63 @@ function mapPlayer(p,map){
  * Concealed deck/hand/Prize cards remain concealed. Certified owner K1
  * retains separate custody and epoch rules.
  */
-function projectSourcePrintings(observation,frontier,sourceMapsBySeat){
+
+/** Different source decks may bind the same engine ID to different printings. */
+function uniqueVisibleLabel(value,mine,other){
+  if(typeof value!=='string')return value;
+  const a=mine.get(value),b=other.get(value);
+  return a&&b&&a!==b?value:a??b??value;
+}
+function mapAttackReceipt(row,map){
+  return row?{...row,sourcePrinting:label(row.sourcePrinting,map)}:row;
+}
+function mapPublicEventReceipt(receipt,mine,other){
+  if(!receipt)return receipt;
+  const eventPokemon=p=>p?{...p,printing:label(p.printing,mine)}:p;
+  const attackRows=rows=>Array.isArray(rows)?rows.map(x=>mapAttackReceipt(x,other)):rows;
+  return {...receipt,
+    ownerActive:eventPokemon(receipt.ownerActive),
+    ownerBench:Array.isArray(receipt.ownerBench)?
+      receipt.ownerBench.map(eventPokemon):receipt.ownerBench,
+    opponentLastTurnAttacks:attackRows(receipt.opponentLastTurnAttacks),
+    opponentCopycatChoices:attackRows(receipt.opponentCopycatChoices)};
+}
+function mapPrompt(prompt,mine,other){
+  if(!prompt)return prompt;
+  const origin=prompt.source??{};
+  // Night Watch must be handled by the physical host. Relabeling its
+  // source must never bypass the strict worker's literal host-only guard.
+  if(origin.effectName==='Night Watch'&&
+      [origin.sourcePrinting,origin.copiedSourcePrinting].some(value=>
+        typeof value==='string'&&
+        /^Trevenant & Dusknoir-GX SMP(?:\s|$)/i.test(value))){
+    throw new Error('HOST_ONLY_PHYSICAL_PROMPT');
+  }
+  const source={...origin,
+    sourcePrinting:uniqueVisibleLabel(origin.sourcePrinting,mine,other),
+    copiedSourcePrinting:uniqueVisibleLabel(origin.copiedSourcePrinting,mine,other)};
+  const choices=Array.isArray(prompt.choices)?prompt.choices.map(choice=>{
+    const seat=choice.publicMetadata?.ownerSeat??prompt.publicMetadata?.ownerSeat;
+    const m=seat==='actor'?mine:seat==='opponent'?other:null;
+    const meta=choice.publicMetadata;
+    return {...choice,
+      printing:label(choice.printing,m),
+      publicMetadata:meta?{...meta,
+        sourcePrinting:uniqueVisibleLabel(meta.sourcePrinting,mine,other)}:meta};
+  }):prompt.choices;
+  return {...prompt,source,choices,
+    publicMetadata:prompt.publicMetadata?{...prompt.publicMetadata,
+      sourcePrinting:uniqueVisibleLabel(
+        prompt.publicMetadata.sourcePrinting,mine,other)}:prompt.publicMetadata};
+}
+function mapOwnerK1(snapshot,map){
+  if(!snapshot)return snapshot;
+  return {...snapshot,knownPrintings:Array.isArray(snapshot.knownPrintings)?
+    snapshot.knownPrintings.map(row=>({
+      ...row,printing:label(row.printing,map)})):snapshot.knownPrintings};
+}
+
+function projectSourcePrintings(observation,frontier,sourceMapsBySeat,options={}){
   assert.ok(observation?.actorSeat===0||observation?.actorSeat===1);
   assert.ok(Array.isArray(sourceMapsBySeat)&&sourceMapsBySeat.length===2);
   assert.ok(sourceMapsBySeat.every(m=>m instanceof Map &&
@@ -76,7 +132,8 @@ function projectSourcePrintings(observation,frontier,sourceMapsBySeat){
   const view={...observation,
     ownHand:mapped(observation.ownHand,mine),
     ownPublic:mapPlayer(observation.ownPublic,mine),
-    opponentPublic:mapPlayer(observation.opponentPublic,other)};
+    opponentPublic:mapPlayer(observation.opponentPublic,other),
+    ownerK1:mapOwnerK1(observation.ownerK1,mine)};
   let mappedFrontier=frontier;
   if(frontier){
     assert.ok(Array.isArray(frontier.items));
@@ -94,7 +151,10 @@ function projectSourcePrintings(observation,frontier,sourceMapsBySeat){
         }:item.publicMetadata};
     })};
   }
-  return {observation:view,actionFrontier:mappedFrontier};
+  return {observation:view,actionFrontier:mappedFrontier,
+    prompt:mapPrompt(options.prompt??null,mine,other),
+    publicEventReceipt:mapPublicEventReceipt(
+      options.publicEventReceipt??null,mine,other)};
 }
 
 module.exports={buildSourcePrintingMap,projectSourcePrintings};
