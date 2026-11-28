@@ -1862,15 +1862,20 @@ test('Memory Energy can fuel Bunnelby Rototiller before self deck-out',()=>{
 });
 
 
-test('Get Lost root selects Dragon payload denial when opponent discard has no generic Trainers',()=>{
+test('Get Lost root chooses Dragon denial over legal retreat to Stoutland',()=>{
   const opponent=player({active:pokemon('Regidrago VSTAR SIT 136'),
     discard:['Dialga-GX UPR 100','Dragapult ex TWM 130'],deckCount:28});
-  const request=rootRequest({ownPublic:player({active:pokemon('Girafarig LOT 94')}),
+  const request=rootRequest({
+    ownPublic:player({active:pokemon('Girafarig LOT 94',{
+      energies:['Memory Energy LOT 194']}),
+      bench:[pokemon('Stoutland BCR 122')]}),
     opponentPublic:opponent,items:[
       {token:'get-lost',kind:'attack',actorPrinting:'Girafarig LOT 94',
        attackName:'Get Lost',label:'Get Lost'},
-      {token:'burrow',kind:'attack',actorPrinting:'Bunnelby PRC 121',
-       attackName:'Burrow',label:'Burrow'},
+      {token:'retreat-stoutland',kind:'retreat',
+       actorPrinting:'Girafarig LOT 94',targetPrinting:'Stoutland BCR 122',
+       publicMetadata:{benchIndex:0,targetSeat:'actor',
+         targetZone:'bench',targetIndex:0,isOwnerVisible:true}},
       {token:'pass',kind:'pass',label:'Pass turn'}
     ]});
   assert.deepEqual(checkedDecision(request),{
@@ -1886,9 +1891,7 @@ test('Get Lost never overrides terminal Burrow that removes last opponent deck c
      {token:'rototiller',kind:'attack',actorPrinting:'Bunnelby PRC 121',
        attackName:'Rototiller',label:'Rototiller'},
      {token:'burrow',kind:'attack',actorPrinting:'Bunnelby PRC 121',
-       attackName:'Burrow',label:'Burrow'},
-     {token:'get-lost',kind:'attack',actorPrinting:'Girafarig LOT 94',
-       attackName:'Get Lost',label:'Get Lost'}]
+       attackName:'Burrow',label:'Burrow'}]
  });
  assert.deepEqual(checkedDecision(request),{
    kind:'select-action',token:'burrow'});
