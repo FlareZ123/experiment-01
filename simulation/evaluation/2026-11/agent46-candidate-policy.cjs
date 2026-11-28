@@ -245,16 +245,33 @@ function slotByPrinting(player, printing) {
   return player.bench.find(slot => slot?.printing === printing) ?? null;
 }
 
+/**
+ * Public printed Rule Box prize value, not a smooth card-name score.
+ * Pinned Twinleaf's KnockOutEffect uses CardTag.POKEMON_VSTAR (2 Prizes),
+ * POKEMON_VMAX/VUNION (3), TAG_TEAM (3) and SV_MEGA + ex (3).
+ * The detached actor view deliberately exposes no hidden native CardTag,
+ * so use only face-up stage/subtype and exact public printing conventions.
+ * The result is still an estimated base Prize count, not a replacement for
+ * dynamic Legacy Energy, ADP, or other card effects.
+ */
 function prizeLiability(slot) {
   if (!slot) return 1;
   const subtypes = slot.printed?.subtypes ?? [];
+  const stage = slot.printed?.stage ?? null;
   const printing = slot.printing ?? '';
-  if (subtypes.some(value => ['VMAX', 'V-UNION', 'TAG TEAM'].includes(value)) ||
-      hasName(printing, 'VMAX') || hasName(printing, 'V-UNION') ||
-      hasName(printing, ' & ') && hasName(printing, '-GX')) return 3;
-  if (subtypes.some(value => ['ex', 'GX', 'V'].includes(value)) ||
-      hasName(printing, '-GX') || / ex(?: |$)/.test(printing) ||
-      / V(?: |$)/.test(printing)) return 2;
+  const printedMegaEx = /^Mega\s+.+\sex(?:\s|$)/i.test(printing);
+  if (subtypes.some(value =>
+        ['VMAX', 'V-UNION', 'TAG TEAM', 'Mega Evolution ex', 'Mega ex'].includes(value)) ||
+      stage === 'VMAX' || stage === 'V-UNION' ||
+      printedMegaEx ||
+      /\sVMAX(?:\s|$)/i.test(printing) ||
+      /\sV-UNION(?:\s|$)/i.test(printing) ||
+      (printing.includes(' & ') && /-GX(?:\s|$)/i.test(printing))) return 3;
+  if (subtypes.some(value => ['ex', 'EX', 'GX', 'V', 'VSTAR'].includes(value)) ||
+      stage === 'VSTAR' ||
+      /-(?:EX|GX)(?:\s|$)/i.test(printing) ||
+      /\sex(?:\s|$)/.test(printing) ||
+      /\sV(?:STAR)?(?:\s|$)/i.test(printing)) return 2;
   return 1;
 }
 
