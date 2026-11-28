@@ -113,6 +113,7 @@ function choosePaleMoonEscapeGuzmaPrompt(view, prompt) {
      view?.ownPublic?.active?.publicRestrictions?.pendingPaleMoonGXKnockOut!==true ||
      view?.opponentPublic?.prizeCount!==1 ||
      prompt?.promptType!=='ChoosePokemonPrompt' ||
+     prompt?.source?.classification!=='actor-choice' ||
      prompt?.source?.sourceKind!=='card-effect' ||
      prompt.source.effectName!=='Guzma' ||
      prompt.source.sourcePrinting!=='Guzma BUS' ||
