@@ -249,6 +249,15 @@ function prizeLiability(slot) {
   if (!slot) return 1;
   const subtypes = slot.printed?.subtypes ?? [];
   const printing = slot.printing ?? '';
+  const rules = [...(Array.isArray(slot.printed?.rules) ? slot.printed.rules : []),
+    ...(Array.isArray(slot.rules) ? slot.rules : [])];
+  const noPrizeVirtual = /^(?:Robo Substitute(?: Team Flare Gear)?(?: PHF(?: 102)?)?|Lillie['’]s Pok[eé] Doll(?: CEC(?: (?:197|267))?)?|Snorlax Doll(?: PAR(?: 175)?)?)$/i.test(printing);
+  if (noPrizeVirtual ||
+      rules.some(rule => /(?:can't|cannot) take any prize cards for it/i.test(String(rule)))) return 0;
+  // MEGA + lower-case ex has the modern three-Prize Mega Evolution ex Rule.
+  // Legacy XY MEGA + upper-case EX remains the ordinary two-Prize Pokémon-EX.
+  if ((subtypes.includes('MEGA') && subtypes.includes('ex')) ||
+      rules.some(rule => /Mega Evolution ex Rule:.*takes 3 Prize cards/i.test(String(rule)))) return 3;
   if (subtypes.some(value => ['VMAX', 'V-UNION', 'TAG TEAM'].includes(value)) ||
       hasName(printing, 'VMAX') || hasName(printing, 'V-UNION') ||
       hasName(printing, ' & ') && hasName(printing, '-GX')) return 3;
