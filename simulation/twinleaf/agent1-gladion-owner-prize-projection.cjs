@@ -27,7 +27,7 @@ function attest({prompt,state,actorSeat,provenanceHook}={}){
  if(provenance?.sourceKind!=='card-effect'||provenance?.effectName!=='Gladion'||
   !sourceCard||!fullName(sourceCard)?.startsWith('Gladion ')||
   !cards(owner.supporter).includes(sourceCard))return null;
- if(prompt.options?.allowCancel!==false)return null;
+ if(prompt.options?.allowCancel===true)return null;
  // isSecret means concealed from the opponent, not from the player whom
  // Gladion explicitly allows to look at their own six Prize cards.
  if(!Array.isArray(owner.prizes)||owner.prizes.length!==6||
@@ -45,9 +45,10 @@ function projected({prompt,state,actorSeat,attested}={}){
  const choices=[],choiceByToken=new Map();
  let kind,selectionType,items;
  if(prompt.constructor?.name==='ChoosePrizePrompt'){
-  if(prompt.options?.useOpponentPrizes!==false||
-    prompt.options?.count!==1||
-    !Array.isArray(prompt.options?.blocked)||prompt.options.blocked.length!==0)
+  if(prompt.options?.useOpponentPrizes===true||
+    (prompt.options?.count??1)!==1||
+    !Array.isArray(prompt.options?.blocked??[])||
+    (prompt.options?.blocked??[]).length!==0)
     return null;
   kind='prize';selectionType='prize-slots';
   items=owner.prizes.map((slot,slotIndex)=>({slot,slotIndex}))
@@ -57,7 +58,8 @@ function projected({prompt,state,actorSeat,attested}={}){
  } else if(prompt.constructor?.name==='ChooseCardsPrompt'){
   const requested=cards(prompt.cards);
   if(prompt.options?.min!==1||prompt.options?.max!==1||
-    !Array.isArray(prompt.options?.blocked)||prompt.options.blocked.length!==0||
+    !Array.isArray(prompt.options?.blocked??[])||
+    (prompt.options?.blocked??[]).length!==0||
     !requested.length||requested.length>6)return null;
   // No opponent's cards or cards outside the actor's own physical Prizes.
   if(requested.some(c=>!owner.prizes.some(slot=>slot.cards.includes(c))))
