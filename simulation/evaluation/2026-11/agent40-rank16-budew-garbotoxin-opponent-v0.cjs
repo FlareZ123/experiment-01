@@ -494,7 +494,7 @@ function terminalPeriodBenchTargetAvailable(o){
 function guzmaTargetScore(target,mega,o){
  const rem=Number.isFinite(target?.hp)&&Number.isFinite(target?.damage)?
   target.hp-target.damage:null;
- if(rem===null||rem<=0||!mega)return 0;
+ if(rem===null||rem<=0||!mega||!match(mega.printing,PRINT.mega))return 0;
  const liab=prizeYield(target);
  const fauxObservation={...o,ownPublic:{...o.ownPublic,active:mega},
   opponentPublic:{...o.opponentPublic,active:target}};
@@ -923,7 +923,7 @@ function promptDecision(req){
    };
   }else if(/guzma/.test(src)){
    if(cs.some(c=>c.kind==='pokemon'&&owner(c)==='opponent')){
-    const bestMega=attackingBenchedMega(o)[0]?.pokemon??o.ownPublic?.active;
+    const bestMega=attackingBenchedMega(o,terminalPeriodBenchTargetAvailable(o)?2:3)[0]?.pokemon??o.ownPublic?.active;
     return pickRows(p,cs.filter(c=>c.kind==='pokemon'&&owner(c)==='opponent'),bd.min,bd.max,c=>{
      const target=slots(o.opponentPublic).find(r=>r.zone===zone(c)&&
       (r.zone==='active'||r.index===c.publicMetadata?.benchIndex)&&r.pokemon.printing===name(c));
