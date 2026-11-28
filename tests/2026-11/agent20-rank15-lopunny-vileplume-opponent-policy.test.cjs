@@ -362,3 +362,56 @@ test('Fan Call prioritizes missing lines and rejects full Bench or nonactor deck
   r.observation.ownPublic.bench=Array.from({length:5},()=>pokemon('Budew ASC 16',{hp:30}));
   assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
 });
+
+function quickRoot(){
+  const r=ghRoot(0);r.observation.globalTurn=5;
+  r.observation.ownPublic=p(pokemon('Bunnelby PRC 121',{hp:60}),[
+    pokemon('Pidgeot ex OBF 164',{hp:280}),pokemon('Gloom UNB 7',{hp:80})]);
+  r.observation.opponentPublic=p(pokemon(MIMIKYU,{hp:70,
+    printed:{stage:'BASIC',weakness:[],resistance:[]}}));
+  r.observation.ownHand=[];
+  r.actionFrontier.items=[{kind:'use-ability',token:'quick',actorPrinting:'Pidgeot ex OBF 164',
+    publicMetadata:{abilityName:'Quick Search'}},
+    {kind:'pass',token:'pass'}];return r;
+}
+test('Pidgeot Quick Search is used and takes AOR Item lock over BUS bench-only value',()=>{
+  const r=quickRoot();
+  assert.deepEqual(decision(r),{kind:'select-action',token:'quick'});
+  r.prompt={promptType:'ChooseCardsPrompt',source:{sourcePrinting:'Pidgeot ex OBF 164',effectName:'Quick Search'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:1,maximumCount:1},
+    choices:[{...card('Vileplume BUS 6','bus'),publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}},
+      {...card('Vileplume AOR 3','aor'),publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}}]};
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['aor']});
+  r.observation.ownPublic.bench[2]=pokemon('Vileplume AOR 3',{hp:130});
+  r.observation.ownPublic.bench.push(pokemon('Gloom UNB 7',{hp:80}));
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['bus']});
+});
+test('Quick Search prefers TM on Bunnelby+Oddish while no tool is attached',()=>{
+  const r=quickRoot();r.observation.ownPublic.bench[1]=pokemon(oddish,{hp:50});
+  r.prompt={promptType:'ChooseCardsPrompt',source:{sourcePrinting:'Pidgeot ex OBF 164',effectName:'Quick Search'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:1,maximumCount:1},
+    choices:[{...card(tm,'tm'),publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}},
+      {...card(jet,'jet'),publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}},
+      {...card('Buddy-Buddy Poffin TEF 144','poffin'),publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}}]};
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['tm']});
+  r.observation.ownPublic.active.tools=[tm];
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['jet']});
+});
+test('Quick Search avoids Item under live Item lock and cannot choose opponent deck',()=>{
+  const r=quickRoot();r.observation.ownPublic.publicTurnRestrictions={itemPlayLocked:true};
+  r.observation.ownPublic.bench=[pokemon('Pidgeot ex OBF 164',{hp:280})];
+  r.prompt={promptType:'ChooseCardsPrompt',source:{sourcePrinting:'Pidgeot ex OBF 164',effectName:'Quick Search'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:1,maximumCount:1},
+    choices:[{...card('Buddy-Buddy Poffin TEF 144','poffin'),publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}},
+      {...card(jet,'jet'),publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}}]};
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['jet']});
+  r.prompt.choices[1].publicMetadata.ownerSeat='opponent';
+  assert.equal(decision(r).reasonCode,'UNSUPPORTED_CARD_COMBINATION_SOURCE');
+});
+test('Quick Search unrestricted owner-deck search returns a legal physical card even when low priority',()=>{
+  const r=quickRoot();r.prompt={promptType:'ChooseCardsPrompt',
+    source:{sourcePrinting:'Pidgeot ex OBF 164',effectName:'Quick Search'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:1,maximumCount:1},
+    choices:[{...card('Karen XYP 177','karen'),publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}}]};
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['karen']});
+});
