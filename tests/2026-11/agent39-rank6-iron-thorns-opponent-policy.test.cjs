@@ -373,6 +373,25 @@ test('Speed Lightning attachment is preferred for Active Iron Thorns when legal'
   assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'speed' });
 });
 
+test('rank6 Speed Lightning obeys numeric last-used global turn markers in both seats', () => {
+  for(const seat of [0,1]){
+    for(const [stamp,expected] of [[-1,'speed'],[0,'speed'],[3,'speed'],[4,'pass'],[false,'speed'],[true,'pass']]){
+      const request=rootRequest({
+        seat,globalTurn:4,ownHand:['Speed Lightning Energy RCL 173'],
+        ownTurnResources:turnResources({energyPlayedTurn:stamp}),
+        items:[action('speed','play-card','Speed Lightning Energy RCL 173',
+          {cardType:'energy',handIndex:0},{targetPrinting:'Iron Thorns ex TWM 77'}),
+          {token:'pass',kind:'pass'}]
+      });
+      assert.deepEqual(checkedDecision(request,seat),{kind:'select-action',token:expected});
+      if(stamp===3){
+        request.observation.ownTurnResources.energyPlayLocked=true;
+        assert.deepEqual(checkedDecision(request,seat),{kind:'select-action',token:'pass'});
+      }
+    }
+  }
+});
+
 test('Plumeria denial outranks deckout when opponent Bench has Energy and payment is available', () => {
   const request = rootRequest({
     ownHand: ['Plumeria BUS 120', "Trainers' Mail ROS 92", 'Captivating Poké Puff STS 99',
