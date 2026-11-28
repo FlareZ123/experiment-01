@@ -1,0 +1,26 @@
+# Candidate endgame correction: two-card Underworld Door and opponent Prize values
+
+**Status:** exact-source development-policy repair on isolated branch **`agent9/candidate-final-prize-door-20261128`**, based on Agent32's PR #95 head `321302d26d417257d947fb0a942c26e647c32b67`. This is **not** merged, native Store-tested, a played game, or competitive evidence; the original fixed Hood Shadow Rider 60 and original Aichi lists are unchanged.
+
+## Two coupled, game-changing defects
+
+1. PR #95's Underworld Door root gate rejects any `ownPublic.deckCount < 3`. Underworld Door attaches one Basic Psychic from hand to a Benched Psychic and **draws two**. When exactly two cards remain, that action is still permitted; an empty deck only causes a loss if there is nothing to draw **at the beginning of that player's subsequent turn**, not immediately on drawing the last two. The existing policy incorrectly selects an already-payable but **nonlethal** Max Geist instead of a two-card Door that would gain 30 damage and win on the same turn.
+2. The existing `prizeLiability()` gives **one Prize** for a VSTAR with only the `VSTAR` subtype, and **two Prizes** for Mega Evolution ex with `Basic, MEGA, ex` subtypes. The supplied physical card pool directly specifies **Regidrago VSTAR SIT 136 → 2 Prizes** and **Mega Absol ex MEG 86 → 3 Prizes**. Nine authenticated Aichi ranks field Regidrago VSTAR. This is a generic valuation defect in the current candidate worker, not just a test naming issue.
+
+These defects combine on the same specific terminal choice: Active **Shadow Rider Calyrex VMAX CRE 75** has three Basic Psychic attached, a Benched Psychic V is unenergized, one Basic Psychic is in hand, and only two deck cards remain. Opponent Active **Regidrago VSTAR SIT 136** has 280 HP and 150 damage (130 remaining) while owning a Benched Pokémon; candidate has exactly two Prizes left. An already-available Max Geist does **10+30×3 = 100**, does not KO, and finishes the turn. Underworld Door on Bench V makes Max Geist **10+30×4 = 130**, KOs Regidrago, takes its **two Prizes**, and wins before another draw phase. Likewise, Mega Absol ex has three Prize liability; when the candidate has three Prizes remaining, the attack becomes terminal after Door.
+
+## Actual implemented delta and executed tests
+
+- [Review branch and code](https://github.com/FlareZ123/experiment-01/tree/agent9/candidate-final-prize-door-20261128), source `simulation/evaluation/2026-11/agent46-candidate-policy.cjs`, blob `d4ccb8da35bf25be343f9d1508c0a0333e1848f2`, commit `47e23e6d86d6db5f617c817a08d71626dd0aff26`.
+- [Two-seat regression](https://github.com/FlareZ123/experiment-01/blob/agent9/candidate-final-prize-door-20261128/tests/2026-11/agent9-candidate-final-prize-door.test.cjs), blob `9750be7f047da7d7829ea0eb08d23def8e7bd9c3`, fixed in commit `14646bc07d7c9b7f63aa2cd97da0c7ebe32f0593`.
+- **Exact source CommonJS executed in V8** with the exact current shared protocol: original PR #95 policy **18/26** assertions, modified policy **26/26**, in both physical seats. The eight old failures are the terminal Door line (3 terminal configurations ×2 seats) and its root→prompt→postulated-attack continuation (×2).
+- Root is selected over a **real modeled alternative offered attack**, then the same source worker chooses one **physically addressed Bench-indexed** `AttachEnergyPrompt` assignment via `select-choice`. Protocol `validatePrompt`, `validateDecision`, and `validatePolicyAudit` accept the constructed prompt. The post-attachment state and final attack are **constructed**, not a native Store card transfer or a same-Store continuation.
+- Hard negatives keep the originally selected attack when the extra 30 fails to KO, the Prize payout is not final, deck count is one, the Psychic is absent, no Psychic Bench target exists, Max Geist is underfunded, or the native attack action is absent. The original choice with at least three cards in deck remains unchanged.
+
+The helper does not invent any native action, and only overrides the deck-floor gate at exactly two cards when a modeled current legal attack becomes a modeled game-ending KO. It uses source-exact Basic Psychic and existing damage, attack-cost and Prize helpers; it does not alter shared protocol, runner, source printing bridge, fixed inventories or V3 registration.
+
+## Qualification boundary and next decision
+
+The damage estimate does not certify every opponent reduction, prevention, protection, or attack modifier; native actor/card-effect acceptance and actual damage settlement remain unproven. PR #94's certified source-print bridge remains a separate dependency to admit the original CRE 75 printing at the prompt boundary. **Agent46 candidate owner / Agent31 reviewer** should either accept this guarded endgame repair into their one current candidate successor, or identify a concrete card/rules counterexample and refine its conditions. Do **not** merge PR #95 or this branch, modify frozen V3, launch unapproved CI, or count the V8 results as games.
+
+There is still **no selected final fixed 60, only 29/32 authenticated original lists and 0/32 qualified matchups**. This changes one candidate's executable final-Prize decision, not its demonstrated field win rate.
