@@ -1800,6 +1800,9 @@ function r17FreeRetreat(item,view) {
 // every transient native damage modifier. Only exact known visible
 // printings receive a price/hit estimate; other targets fail closed.
 const R17_TARGET_ROWS=Object.freeze([
+  [/^Regidrago VSTAR SIT(?: 136)?$/i,2,false],
+  [/^Regidrago V SIT(?: 135)?$/i,2,false],
+  [/^Iron Thorns ex TWM(?: 77|196)?$/i,2,false],
   [/^Shadow Rider Calyrex VMAX CRE(?: 75)?$/i,3,true],
   [/^Shadow Rider Calyrex V CRE(?: 74)?$/i,2,true],
   // Exact New Moon Lockbreaker English mechanics-proxy printings.
@@ -2496,14 +2499,566 @@ function r17Prompt(request) {
   }
   return r17Abstain('R17_UNSUPPORTED_PROMPT');
 }
+// Narrow *executable* direct Rain window. Do not infer any unseen Energy,
+// opponent hidden Bench card or favorable reduction effect. The actor must
+// already have a paid, legal Electro Rain attack and a fully printed public
+// target board with no attached opponent Tools or live Stadium. A one-turn
+// board-out/Prize-terminal plan is favored over a zero-benefit fallback.
+function r17DirectRainWindow(request,{minimumNonterminalPrizes=null}={}){
+  const v=request?.observation,p=active(own(v));
+  if(!v||!p||r17Key(p)!=='raichu'||!r17RainWindow(v,p)||
+     r17NeedTempleRemoval(v)||list(own(v).stadium).length||
+     list(opponent(v).stadium).length||
+     !Number.isSafeInteger(own(v).prizeCount)||
+     !Number.isSafeInteger(opponent(v).prizeCount))return null;
+  const items=list(request.actionFrontier?.items);
+  if(items.some(x=>x.kind==='attack'&&
+     r17DirectPressure(v,x)?.terminalProjection===true))return null;
+  const attack=items.find(x=>x.kind==='attack'&&
+    x.attackName==='Electro Rain'&&r17Key(x)==='raichu'&&
+    metadata(x).attackCostPayable===true);
+  if(!attack)return null;
+  const targets=r17VisibleRainTargets(v,p);
+  if(!targets||targets.length>9||targets.some(t=>{
+    const q=t.zone==='active'?active(opponent(v)):opponent(v).bench?.[t.index];
+    return !q||list(q.tools).length!==0||!Number.isSafeInteger(q.hp)||
+      !Number.isSafeInteger(q.damage)||q.damage<0||q.damage>=q.hp||
+      (q.publicDamageEffects!==undefined&&(
+        q.publicDamageEffects.prevention!=='none'||
+        q.publicDamageEffects.effectsPrevention!=='none'||
+        q.publicDamageEffects.reduction!==0));
+  }))return null;
+  const energies=list(p.energies);
+  if(energies.length===0||energies.length>12||
+     energies.some(c=>!R17_ENERGY.has(r17Key(c))))return null;
+  const attached=energies.map((c,i)=>({
+    printing:printingValue(c),token:'attached-'+i
+  }));
+  const input={
+    attackWindowKnown:true,modifiersComplete:true,temple:false,
+    ownPrizes:own(v).prizeCount,opponentPrizes:opponent(v).prizeCount,
+    availableBombs:0,attached,discard:[],
+    targets:targets.map(t=>({
+      id:t.zone+':'+t.index,remainingHp:t.hits*30,
+      prizes:t.prizes,threat:0,damageAllowed:true,
+      flatDamageModifier:0,requiresNoSpecialAttached:false,
+      minRemainingEnergy:0
+    }))
+  };
+  const plan=r17PlanRainTurn(input);
+  const nonterminalPressure=[2,3].includes(minimumNonterminalPrizes)&&
+    plan?.win!==true&&plan?.prizesTaken>=minimumNonterminalPrizes&&
+    plan?.netPrizeSwing>=minimumNonterminalPrizes;
+  if(plan?.status!=='immediate-ko-plan'||(!plan.win&&!nonterminalPressure)||
+     plan.bombsUsed!==0||plan.discardTokens.length===0||
+     plan.lightningUnits<=0||plan.lightningUnits>512)return null;
+  return {action:attack,plan,targets,
+    printedEnergyByToken:new Map(attached.map(c=>[c.token,c.printing]))};
+}
+// One bounded *Active Electrode -> Benched Raichu* route. This resolves the
+// actual self-KO and re-plans the Rain attack after real promotion; projected
+// energy/protection are not treated as a future game-state oracle.
+function r17OneBombRainWindow(request,{allowThreePrizePressure=false}={}){
+  const v=request?.observation,a=active(own(v));
+  if(!v||r17NeedTempleRemoval(v)||list(own(v).stadium).length||
+     list(opponent(v).stadium).length||
+     !Number.isSafeInteger(own(v).prizeCount)||
+     !Number.isSafeInteger(opponent(v).prizeCount)||
+     opponent(v).prizeCount<=2)return null;
+  const live=r17LiveBombs(v),bench=list(own(v).bench);
+  const activeElectrode=r17Key(a)==='electrode';
+  const activeRaichu=r17Key(a)==='raichu';
+  if(!activeElectrode&&!activeRaichu)return null;
+  const eligible=activeElectrode?
+    [{source:a,sourceZone:'active',sourceIndex:0,targetZone:'bench',
+      targetCandidates:bench.map((q,index)=>({q,index}))}]:
+    bench.map((source,index)=>({
+      source,sourceZone:'bench',sourceIndex:index,targetZone:'active',
+      targetCandidates:[{q:a,index:0}]
+    })).filter(x=>r17Key(x.source)==='electrode');
+  const actionList=list(request.actionFrontier?.items);
+  const pairs=[];
+  for(const row of eligible){
+    if(!live.includes(row.source))continue;
+    const action=actionList.find(i=>i.kind==='use-ability'&&
+      r17Key(i)==='electrode'&&metadata(i).abilityName==='Extra Energy Bomb'&&
+      metadata(i).sourceZone===row.sourceZone&&
+      (row.sourceZone==='active'||metadata(i).sourceIndex===row.sourceIndex)&&
+      metadata(i).abilityLive!==false&&metadata(i).abilitySuppressed!==true);
+    const targets=row.targetCandidates.filter(x=>r17Key(x.q)==='raichu'&&
+      r17RainWindow(v,x.q));
+    if(action&&targets.length===1){
+      const t=targets[0];
+      pairs.push({action,q:t.q,index:t.index,
+        targetZone:row.targetZone,requiresPromotion:activeElectrode});
+    }
+  }
+  if(pairs.length!==1)return null;
+  const {action:src,q,index,targetZone,requiresPromotion}=pairs[0];
+  const disc=list(own(v).discard),discard=disc.map((c,i)=>({
+    printing:printingValue(c),token:'discard-'+i
+  })).filter(c=>R17_ENERGY.has(r17Key(c.printing)));
+  const attached=list(q.energies).map((c,i)=>({
+    printing:printingValue(c),token:'attached-'+i
+  }));
+  if(discard.length<1||discard.length>12||attached.length+discard.length>12||
+     attached.some(c=>!R17_ENERGY.has(r17Key(c.printing))))return null;
+  const targets=r17VisibleRainTargets(v,q);
+  if(!targets||targets.some(t=>{
+    const opp=t.zone==='active'?active(opponent(v)):opponent(v).bench?.[t.index];
+    return !opp||list(opp.tools).length||opp.publicDamageEffects!==undefined&&(
+      opp.publicDamageEffects.prevention!=='none'||
+      opp.publicDamageEffects.effectsPrevention!=='none'||
+      opp.publicDamageEffects.reduction!==0);
+  }))return null;
+  const plan=r17PlanRainTurn({
+    attackWindowKnown:true,modifiersComplete:true,temple:false,
+    ownPrizes:own(v).prizeCount,opponentPrizes:opponent(v).prizeCount,
+    availableBombs:1,attached,discard,
+    targets:targets.map(t=>({
+      id:t.zone+':'+t.index,remainingHp:t.hits*30,
+      prizes:t.prizes,threat:0,damageAllowed:true,
+      flatDamageModifier:0,requiresNoSpecialAttached:false,
+      minRemainingEnergy:0
+    }))
+  });
+  // A narrowly profitable nonterminal option: Active Electrode must self-KO
+  // to promote an already evolved Raichu; its funded attack must remove at
+  // least one three-Prize threat. Never treat this as a terminal projection.
+  const threePrizePressure=allowThreePrizePressure&&requiresPromotion&&
+    // A nonterminal self-KO must not silently sacrifice valuable attached
+    // Energy or Tools on the departing Active Electrode.
+    list(a.energies).length===0&&list(a.tools).length===0&&
+    plan?.win!==true&&plan?.prizesTaken>=3&&plan?.netPrizeSwing>=1&&
+    own(v).prizeCount>=4&&opponent(v).prizeCount>=5;
+  if(plan?.status!=='immediate-ko-plan'||(!plan.win&&!threePrizePressure)||
+     plan.bombsUsed!==1||
+     plan.attachTokens.length!==Math.min(5,discard.length)||plan.lightningUnits<1||
+     plan.opponentPrizesAfterBomb!==opponent(v).prizeCount-2)return null;
+  return {
+    action:src,benchIndex:index,benchPrinting:printingValue(q),
+    targetZone,requiresPromotion,plan,
+    allowThreePrizePressure:threePrizePressure,
+    discardPrintings:new Map(discard.map(d=>[d.token,d.printing]))
+  };
+}
+
+// Strict two-Bomb extension. Either Raichu is already Active and both
+// Electrode-GX sources are Benched, or an Active Electrode first self-KOs and
+// promotes a known Benched Raichu before the second Benched Electrode acts.
+// Spend the first five physical discards, then independently replan the
+// second self-KO against the real post-first-KO actor-visible root.
+function r17TwoBombRainWindow(request){
+  const v=request?.observation,a=active(own(v));
+  if(!v||r17NeedTempleRemoval(v)||list(own(v).stadium).length||
+     list(opponent(v).stadium).length||
+     !Number.isSafeInteger(own(v).prizeCount)||
+     !Number.isSafeInteger(opponent(v).prizeCount)||
+     opponent(v).prizeCount<=4)return null;
+  const bench=list(own(v).bench),live=r17LiveBombs(v);
+  const activeRaichu=r17Key(a)==='raichu';
+  const activeElectrode=r17Key(a)==='electrode';
+  if(!activeRaichu&&!activeElectrode)return null;
+  const benchRows=bench.map((source,index)=>({source,index,zone:'bench'}));
+  const benchedElectrodes=benchRows.filter(row=>r17Key(row.source)==='electrode');
+  const raichuTargets=activeRaichu?[{q:a,index:0,zone:'active'}]:
+    benchRows.filter(row=>r17Key(row.source)==='raichu')
+      .map(row=>({q:row.source,index:row.index,zone:'bench'}));
+  if(raichuTargets.length!==1)return null;
+  const {q,index:targetIndex,zone:targetZone}=raichuTargets[0];
+  if(!r17RainWindow(v,q))return null;
+  const sources=activeRaichu?benchedElectrodes:
+    [{source:a,index:0,zone:'active'},...benchedElectrodes];
+  if(live.length!==2||sources.length!==2||
+     sources.some(row=>!live.includes(row.source)))return null;
+  const items=list(request.actionFrontier?.items);
+  if(items.some(x=>x.kind==='attack'&&
+     r17DirectPressure(v,x)?.terminalProjection===true))return null;
+  const actions=sources.map(row=>items.find(x=>x.kind==='use-ability'&&
+    r17Key(x)==='electrode'&&metadata(x).abilityName==='Extra Energy Bomb'&&
+    metadata(x).sourceZone===row.zone&&
+    (row.zone==='active'||metadata(x).sourceIndex===row.index)&&
+    metadata(x).abilityLive!==false&&metadata(x).abilitySuppressed!==true));
+  if(actions.some(x=>!x)||new Set(actions.map(x=>x.token)).size!==2)return null;
+  const discard=list(own(v).discard).map((c,i)=>({
+    printing:printingValue(c),token:'discard-'+i
+  })).filter(c=>R17_ENERGY.has(r17Key(c.printing)));
+  const attached=list(q.energies).map((c,i)=>({
+    printing:printingValue(c),token:'attached-'+i
+  }));
+  if(discard.length<=5||discard.length>12||
+     discard.length+attached.length>12||
+     attached.some(c=>!R17_ENERGY.has(r17Key(c.printing))))return null;
+  const targets=r17VisibleRainTargets(v,q);
+  if(!targets||targets.length>9||targets.some(t=>{
+    const p=t.zone==='active'?active(opponent(v)):opponent(v).bench?.[t.index];
+    return !p||list(p.tools).length||
+      p.publicDamageEffects!==undefined&&(
+        p.publicDamageEffects.prevention!=='none'||
+        p.publicDamageEffects.effectsPrevention!=='none'||
+        p.publicDamageEffects.reduction!==0);
+  }))return null;
+  const plan=r17PlanRainTurn({
+    attackWindowKnown:true,modifiersComplete:true,temple:false,
+    ownPrizes:own(v).prizeCount,opponentPrizes:opponent(v).prizeCount,
+    availableBombs:2,attached,discard,
+    targets:targets.map(t=>({
+      id:t.zone+':'+t.index,remainingHp:t.hits*30,
+      prizes:t.prizes,threat:0,damageAllowed:true,
+      flatDamageModifier:0,requiresNoSpecialAttached:false,
+      minRemainingEnergy:0
+    }))
+  });
+  if(plan?.status!=='immediate-ko-plan'||plan.win!==true||
+     plan.bombsUsed!==2||
+     plan.attachTokens.length!==Math.min(10,discard.length)||
+     plan.opponentPrizesAfterBomb!==opponent(v).prizeCount-4||
+     plan.lightningUnits<1||plan.lightningUnits>512)return null;
+  const firstTokens=plan.attachTokens.slice(0,5);
+  if(firstTokens.length!==5)return null;
+  return {
+    action:actions[0],benchIndex:targetIndex,benchPrinting:printingValue(q),
+    targetZone,requiresPromotion:activeElectrode,
+    twoBombPending:true,
+    expectedOpponentPrizesAfterFirst:opponent(v).prizeCount-2,
+    // The first native prompt may attach only five. The remaining mandatory
+    // attachment set is determined by a fresh one-Bomb replan.
+    plan:{...plan,attachTokens:firstTokens},
+    discardPrintings:new Map(discard.map(c=>[c.token,c.printing]))
+  };
+}
+
+function r17BombAttachDecision(req,chain){
+  const p=req.prompt,s=p?.source,m=metadata(p);
+  if(req.sequence!==chain.sequence+1||
+     p?.promptType!=='AttachEnergyPrompt'||
+     s?.sourceKind!=='card-effect'||
+     s.sourcePrinting!=='Electrode-GX CES'||
+     s.effectName!=='Extra Energy Bomb'||
+     m.selectionType!=='energy-transfers'||
+     m.minimumCount!==chain.plan.attachTokens.length||
+     m.maximumCount!==chain.plan.attachTokens.length||
+     m.ownerSeat!=='actor'||m.sourceZone!=='discard')return null;
+  const tokens=[],used=new Set();
+  for(const id of chain.plan.attachTokens){
+    const index=Number(id.replace(/^discard-/,''));
+    if(!Number.isSafeInteger(index)||index<0||
+       !chain.discardPrintings.has(id))return null;
+    const found=list(p.choices).filter(c=>c.kind==='energy'&&
+      metadata(c).sourceZone==='discard'&&
+      metadata(c).ownerSeat==='actor'&&metadata(c).isOwnerVisible===true&&
+      metadata(c).selectionIndex===index&&
+      metadata(c).zone===chain.targetZone&&
+      metadata(c).slotIndex===chain.benchIndex&&
+      r17Key(c)===r17Key(chain.discardPrintings.get(id))&&
+      !used.has(c.token));
+    if(found.length!==1)return null;
+    tokens.push(found[0].token);used.add(found[0].token);
+  }
+  return {kind:'select-choices',tokens};
+}
+function r17BombPromoteDecision(req,chain){
+  const p=req.prompt,m=metadata(p),s=p?.source;
+  if(req.sequence!==chain.sequence+1||
+     p?.promptType!=='ChoosePokemonPrompt'||
+     s?.sourceKind!=='engine'||
+     s.effectName!=='CHOOSE_NEW_ACTIVE_POKEMON'||
+     m.selectionType!=='pokemon'||m.minimumCount!==1||
+     m.maximumCount!==1||m.allowCancel!==false||
+     active(own(req.observation))!==null)return null;
+  const candidates=list(p.choices).filter(c=>c.kind==='pokemon'&&
+    metadata(c).ownerSeat==='actor'&&metadata(c).isOwnerVisible===true&&
+    metadata(c).targetZone==='bench'&&
+    metadata(c).benchIndex===chain.benchIndex&&
+    printingValue(c)===chain.benchPrinting&&
+    printingValue(own(req.observation).bench?.[chain.benchIndex])===chain.benchPrinting);
+  return candidates.length===1?
+    {kind:'select-choices',tokens:[candidates[0].token]}:null;
+}
+function r17RainEnergyDecision(req,chain){
+  const p=req.prompt,src=p?.source,m=metadata(p);
+  if(req.sequence!==chain.sequence+1||
+     p?.promptType!=='ChooseCardsPrompt'||
+     src?.sourceKind!=='card-effect'||
+     src.sourcePrinting!=='Alolan Raichu UNM'||
+     src.effectName!=='Electro Rain'||
+     m.selectionType!=='card-combination'||
+     m.ownerSeat!=='actor'||m.isOwnerVisible!==true||
+     !['board','energy'].includes(m.sourceZone)||
+     !Number.isSafeInteger(m.minimumCount)||
+     !Number.isSafeInteger(m.maximumCount)||
+     m.minimumCount>chain.plan.discardTokens.length||
+     m.maximumCount<chain.plan.discardTokens.length)
+    return null;
+  const used=new Set(),tokens=[];
+  for(const id of chain.plan.discardTokens){
+    const name=chain.printedEnergyByToken.get(id);
+    if(!name)return null;
+    const rows=list(p.choices).filter(c=>c.kind==='card'&&
+      metadata(c).ownerSeat==='actor'&&metadata(c).isOwnerVisible===true&&
+      !used.has(c.token)&&r17Key(c)===r17Key(name));
+    if(rows.length<1)return null;
+    tokens.push(rows[0].token);used.add(rows[0].token);
+  }
+  return {kind:'select-choices',tokens};
+}
+function r17RainPacketsDecision(req,chain){
+  const p=req.prompt,src=p?.source,m=metadata(p),items=list(p?.choices);
+  if(req.sequence!==chain.sequence+1||
+     p?.promptType!=='PutDamagePrompt'||
+     src?.sourceKind!=='card-effect'||
+     src.sourcePrinting!=='Alolan Raichu UNM'||
+     src.effectName!=='Electro Rain'||
+     m.selectionType!=='damage-packets'||
+     m.minimumCount!==chain.plan.lightningUnits||
+     m.maximumCount!==chain.plan.lightningUnits||
+     m.amount!==30*chain.plan.lightningUnits||
+     m.ownerSeat!=='opponent')return null;
+  const tokens=[];let ordinal=0;
+  for(const allocation of chain.plan.allocation){
+    const [zone,idx]=String(allocation.targetId).split(':');
+    const index=Number(idx);
+    const row=chain.targets.find(x=>x.zone===zone&&x.index===index);
+    const actual=zone==='active'?active(opponent(req.observation)):
+      opponent(req.observation).bench?.[index];
+    if(!row||!actual||printingValue(actual)!==row.printing||
+       !Number.isSafeInteger(allocation.hits)||allocation.hits<=0)return null;
+    for(let j=0;j<allocation.hits;j++){
+      const found=items.filter(c=>c.kind==='pokemon'&&
+        metadata(c).ownerSeat==='opponent'&&
+        metadata(c).isOwnerVisible===true&&
+        metadata(c).selectionIndex===ordinal&&
+        metadata(c).amount===30&&
+        metadata(c).targetZone===zone&&
+        (zone==='active'?metadata(c).slotIndex===0:
+          metadata(c).benchIndex===index)&&
+        printingValue(c)===row.printing);
+      if(found.length!==1)return null;
+      tokens.push(found[0].token);
+      ordinal++;
+    }
+  }
+  if(tokens.length!==chain.plan.lightningUnits||
+     new Set(tokens).size!==tokens.length)return null;
+  return {kind:'select-choices',tokens};
+}
+
+/**
+ * A strictly game-terminal GX option only. The corrected paper GX attack
+ * discards n PHYSICAL attached Energy cards from any of our Pokémon and
+ * deals 30+50*n damage to the opponent's Active. The actor must see its
+ * exact paid source attack in the native action frontier. Unlike Rain,
+ * Special Energy with several provided units still counts as ONE card.
+ */
+function r17CrushBurnTerminalWindow(request){
+  const v=request?.observation,a=active(own(v)),q=active(opponent(v));
+  if(!v||r17Key(a)!=='electrode'||!q||v.globalTurn<2||
+     own(v).publicTurnRestrictions?.gxUsed!==false||
+     gxUsed(v)||r17NeedTempleRemoval(v)||
+     list(own(v).stadium).length||list(opponent(v).stadium).length||
+     own(v).publicTurnRestrictions?.attackLockTurnsRemaining>0||
+     list(a.specialConditions).length||
+     a.publicRestrictions?.cannotAttackNextTurn||
+     a.publicRestrictions?.attackCostIncreaseNextTurn>0||
+     a.publicRestrictions?.attackCostIncreaseWhileActive>0||
+     list(a.publicRestrictions?.cannotUseAttacksNextTurn).includes('Crush and Burn-GX')||
+     a.publicRestrictions?.blockedAttackNameNextTurn==='Crush and Burn-GX'||
+     a.publicRestrictions?.blockedAttackNameUntilLeavesActive==='Crush and Burn-GX'||
+     a.publicRestrictions?.onlyAllowedAttackNameNextTurn&&
+      a.publicRestrictions.onlyAllowedAttackNameNextTurn!=='Crush and Burn-GX'||
+     !Number.isSafeInteger(own(v).prizeCount)||own(v).prizeCount<1)return null;
+  const items=list(request.actionFrontier?.items);
+  const action=items.find(i=>i.kind==='attack'&&
+    r17Key(i)==='electrode'&&
+    i.attackName==='Crush and Burn-GX'&&
+    metadata(i).gxAttack===true&&
+    metadata(i).attackCostPayable===true);
+  if(!action)return null;
+  const targets=r17VisibleRainTargets(v,a);
+  if(!targets||targets.length>9||targets.some(t=>{
+    const p=t.zone==='active'?q:opponent(v).bench?.[t.index];
+    return !p||list(p.tools).length>0||
+      p.publicDamageEffects!==undefined&&(
+        p.publicDamageEffects.prevention!=='none'||
+        p.publicDamageEffects.effectsPrevention!=='none'||
+        p.publicDamageEffects.reduction!==0);
+  }))return null;
+  const target=targets.find(t=>t.zone==='active');
+  if(!target)return null;
+  const terminal=target.prizes>=own(v).prizeCount||
+    !list(opponent(v).bench).some(Boolean);
+  if(!terminal)return null;
+  // One active Lunatone may have +40 HP from a live Solrock's Sunbeam;
+  // elsewhere the exact target whitelist has no Lightning Resistance.
+  const maxHp=/^Lunatone OBF(?: 92)?$/i.test(printingValue(q))&&
+    r17NewMoonSunbeamLive(v)?Math.max(q.hp,130):q.hp;
+  const remaining=maxHp-q.damage;
+  if(!Number.isSafeInteger(remaining)||remaining<=0)return null;
+  const needed=Math.max(0,Math.ceil((remaining-30)/50));
+  const inventory=new Map(),all=[];
+  const append=(p,zone,slotIndex)=>{
+    // Empty Bench slots have no Energy; they are not an unknown resource.
+    if(!p)return true;
+    for(const energy of list(p.energies)){
+      const name=printingValue(energy);
+      if(!name)return false;
+      all.push({zone,slotIndex,printing:name});
+      const key=zone+':'+slotIndex+':'+name;
+      inventory.set(key,(inventory.get(key)||0)+1);
+    }
+    return true;
+  };
+  if(!append(a,'active',0))return null;
+  const bench=list(own(v).bench);
+  for(let i=0;i<bench.length;i++)if(!append(bench[i],'bench',i))return null;
+  if(all.length<needed||all.length>32)return null;
+  return {action,requiredDiscard:needed,inventory,
+    targetPrinting:target.printing,sourcePrinting:printingValue(a),
+    opponentPrizes:opponent(v).prizeCount,ownPrizes:own(v).prizeCount};
+}
+
+function r17CrushBurnEnergyDecision(request,chain){
+  const p=request.prompt,s=p?.source,m=metadata(p),v=request.observation;
+  if(request.sequence!==chain.sequence+1||
+     request.observation.globalTurn!==chain.turn||
+     p?.promptType!=='DiscardEnergyPrompt'||
+     s?.sourceKind!=='card-effect'||
+     s.sourcePrinting!=='Electrode-GX CES'||
+     s.effectName!=='Crush and Burn-GX'||
+     m.selectionType!=='energy-payment'||
+     m.ownerSeat!=='actor'||m.isOwnerVisible!==true||
+     m.sourceZone!=='energy'||m.allowCancel!==false||
+     m.minimumCount!==0||m.maximumCount!==m.energyCount||
+     !Number.isSafeInteger(m.energyCount)||
+     m.energyCount<chain.requiredDiscard||
+     printingValue(active(own(v)))!==chain.sourcePrinting||
+     printingValue(active(opponent(v)))!==chain.targetPrinting||
+     own(v).prizeCount!==chain.ownPrizes||
+     opponent(v).prizeCount!==chain.opponentPrizes)return null;
+  if(chain.requiredDiscard===0){
+    const empty=list(p.choices).filter(choice=>choice.kind==='empty-selection');
+    return empty.length===1&&empty[0].token?
+      {kind:'select-choice',token:empty[0].token}:null;
+  }
+  const remaining=new Map(chain.inventory),tokens=[];
+  for(const choice of list(p.choices)){
+    if(tokens.length===chain.requiredDiscard)break;
+    const cm=metadata(choice),name=printingValue(choice);
+    if(choice.kind!=='energy'||!name||
+       cm.ownerSeat!=='actor'||cm.isOwnerVisible!==true||
+       cm.sourceZone!=='energy'||
+       !['active','bench'].includes(cm.zone)||
+       !Number.isSafeInteger(cm.slotIndex)||cm.slotIndex<0||
+       !Number.isSafeInteger(cm.selectionIndex)||
+       cm.selectionIndex<0||!choice.token)continue;
+    const key=cm.zone+':'+cm.slotIndex+':'+name;
+    if((remaining.get(key)||0)<=0)continue;
+    remaining.set(key,remaining.get(key)-1);
+    tokens.push(choice.token);
+  }
+  return tokens.length===chain.requiredDiscard&&
+    new Set(tokens).size===tokens.length?
+    {kind:'select-choices',tokens}:null;
+}
+
 function r17CreatePolicy({role,seat,policyVersion,config}) {
   if(role!=='opponent'||![0,1].includes(seat)||policyVersion!==R17_VERSION||
      !config||typeof config!=='object'||Array.isArray(config)||Object.keys(config).length)
     throw Error('AGENT50_RANK17_POLICY_INIT_MISMATCH');
+  let rain=null,gx=null;
   return Object.freeze({decide(request){
     if(!request||request.role!==role||request.seat!==seat||request.observation?.actorSeat!==seat)
       return r17Abstain('ROLE_SEAT_BINDING_MISMATCH');
-    return request.prompt!==null?r17Prompt(request):r17Best(request);
+    if(gx){
+      const decision=request.prompt&&
+        r17CrushBurnEnergyDecision(request,gx);
+      gx=null;
+      return decision||r17Abstain('R17_UNTRUSTED_PROMPT');
+    }
+    if(rain){
+      const bad=rain.turn!==request.observation.globalTurn||
+        !Number.isSafeInteger(request.sequence)||request.sequence!==rain.sequence+1||
+        ((rain.stage==='bomb-rain-root'||rain.stage==='bomb-second-root')?
+          request.prompt!==null:!request.prompt);
+      if(bad){rain=null;return r17Abstain('R17_UNTRUSTED_PROMPT');}
+      if(rain.stage==='bomb-second-root'){
+        const actual=r17OneBombRainWindow(request);
+        if(!actual||actual.targetZone!=='active'||actual.requiresPromotion||
+           r17LiveBombs(request.observation).length!==1||
+           opponent(request.observation).prizeCount!==rain.expectedOpponentPrizesAfterFirst||
+           printingValue(active(own(request.observation)))!==rain.benchPrinting){
+          rain=null;return r17Abstain('R17_UNTRUSTED_PROMPT');
+        }
+        rain={stage:'bomb-transfer',turn:rain.turn,
+          sequence:request.sequence,...actual};
+        return {kind:'select-action',token:actual.action.token};
+      }
+      if(rain.stage==='bomb-rain-root'){
+        const actual=r17DirectRainWindow(request,{
+          minimumNonterminalPrizes:rain.allowThreePrizePressure===true?3:null
+        });
+        if(!actual){rain=null;return r17Abstain('R17_UNTRUSTED_PROMPT');}
+        rain={stage:'discard',turn:rain.turn,sequence:request.sequence,...actual};
+        return {kind:'select-action',token:actual.action.token};
+      }
+      const decision=rain.stage==='bomb-transfer'?
+        r17BombAttachDecision(request,rain):rain.stage==='bomb-promotion'?
+        r17BombPromoteDecision(request,rain):rain.stage==='discard'?
+        r17RainEnergyDecision(request,rain):r17RainPacketsDecision(request,rain);
+      if(!decision){rain=null;return r17Abstain('R17_UNTRUSTED_PROMPT');}
+      if(rain.stage==='bomb-transfer')
+        rain={...rain,stage:rain.requiresPromotion?'bomb-promotion':
+          rain.twoBombPending?'bomb-second-root':'bomb-rain-root',
+          sequence:request.sequence};
+      else if(rain.stage==='bomb-promotion')
+        rain={...rain,stage:rain.twoBombPending?'bomb-second-root':'bomb-rain-root',
+          sequence:request.sequence};
+      else if(rain.stage==='discard')
+        rain={...rain,stage:'damage',sequence:request.sequence};
+      else rain=null;
+      return decision;
+    }
+    if(request.prompt!==null)return r17Prompt(request);
+    const candidate=r17DirectRainWindow(request);
+    if(candidate){
+      rain={stage:'discard',turn:request.observation.globalTurn,
+        sequence:request.sequence,...candidate};
+      return {kind:'select-action',token:candidate.action.token};
+    }
+    const gxCandidate=r17CrushBurnTerminalWindow(request);
+    if(gxCandidate){
+      gx={...gxCandidate,turn:request.observation.globalTurn,
+        sequence:request.sequence};
+      return {kind:'select-action',token:gxCandidate.action.token};
+    }
+    const bomb=r17OneBombRainWindow(request);
+    if(bomb){
+      rain={stage:'bomb-transfer',turn:request.observation.globalTurn,
+        sequence:request.sequence,...bomb};
+      return {kind:'select-action',token:bomb.action.token};
+    }
+    const two=r17TwoBombRainWindow(request);
+    if(two){
+      rain={stage:'bomb-transfer',turn:request.observation.globalTurn,
+        sequence:request.sequence,...two};
+      return {kind:'select-action',token:two.action.token};
+    }
+    // A paid nonterminal three-Prize Rain saves both Bombs: this dominates
+    // paying a two-Prize self-KO for the same attack-level knockout.
+    const directPressure=r17DirectRainWindow(request,{minimumNonterminalPrizes:2});
+    if(directPressure?.plan?.win===false){
+      rain={stage:'discard',turn:request.observation.globalTurn,
+        sequence:request.sequence,...directPressure};
+      return {kind:'select-action',token:directPressure.action.token};
+    }
+    // Lower priority than any terminal one-/two-Bomb or paid direct window.
+    const pressure=r17OneBombRainWindow(request,{allowThreePrizePressure:true});
+    if(pressure?.allowThreePrizePressure===true){
+      rain={stage:'bomb-transfer',turn:request.observation.globalTurn,
+        sequence:request.sequence,...pressure};
+      return {kind:'select-action',token:pressure.action.token};
+    }
+    return r17Best(request);
   }});
 }
 

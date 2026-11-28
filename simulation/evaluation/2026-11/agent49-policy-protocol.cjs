@@ -93,12 +93,14 @@ const EXECUTABLE_ACTION_KINDS = new Set([
 ]);
 const ANALYSIS_ONLY_ACTION_KINDS = new Set(['projected-attack']);
 const MULTI_SELECT_PROMPT_TYPES = new Set([
-  'card-combination', 'pokemon', 'energy-payment', 'prize-slots', 'card-order'
+  'card-combination', 'pokemon', 'energy-payment', 'energy-transfers', 'damage-packets', 'prize-slots', 'card-order'
 ]);
 const MULTI_SELECT_ITEM_KINDS = Object.freeze({
   'card-combination': 'card',
   pokemon: 'pokemon',
   'energy-payment': 'energy',
+  'energy-transfers': 'energy',
+  'damage-packets': 'pokemon',
   'prize-slots': 'prize',
   'card-order': 'card-order-item'
 });
@@ -219,7 +221,9 @@ const PLAYER_RESTRICTION_KEYS = [
   'energyPlayLocked', 'specialEnergyPlayLocked',
   'stadiumAndToolHaveNoEffectTurnsRemaining'
 ];
-const PLAYER_RESTRICTION_OPTIONAL_KEYS = [];
+const PLAYER_RESTRICTION_OPTIONAL_KEYS = [
+  'alteredCreationDamage', 'usedAlteredCreation'
+];
 const TURN_RESOURCE_KEYS = [
   'supporterPlayedTurn', 'retreatedTurn', 'extraTurnActive', 'energyPlayedTurn',
   'stadiumPlayedTurn', 'stadiumUsedTurn', 'vstarUsed', 'pokemonPlayLocked',
@@ -261,13 +265,15 @@ const PROMPT_META_KEYS = [
 const PROMPT_SELECTION_TYPE_TO_PROMPT_TYPES = Object.freeze({
   'card-combination': Object.freeze(['ChooseCardsPrompt', 'NightWatchPrompt']),
   pokemon: Object.freeze(['ChoosePokemonPrompt']),
-  'energy-payment': Object.freeze(['ChooseEnergyPrompt']),
+  'energy-payment': Object.freeze(['ChooseEnergyPrompt','DiscardEnergyPrompt']),
   attack: Object.freeze(['ChooseAttackPrompt']),
   'prize-slots': Object.freeze(['ChoosePrizePrompt']),
   'card-order': Object.freeze(['OrderCardsPrompt']),
   confirm: Object.freeze(['ConfirmPrompt']),
   option: Object.freeze(['SelectPrompt', 'SelectOptionPrompt']),
-  'energy-attachment': Object.freeze(['AttachEnergyPrompt'])
+  'energy-attachment': Object.freeze(['AttachEnergyPrompt']),
+  'energy-transfers': Object.freeze(['AttachEnergyPrompt']),
+  'damage-packets': Object.freeze(['PutDamagePrompt'])
 });
 const PROMPT_SELECTION_TYPES = new Set(Object.keys(PROMPT_SELECTION_TYPE_TO_PROMPT_TYPES));
 const SINGLE_SELECT_ITEM_KINDS = Object.freeze({
@@ -551,6 +557,11 @@ function validatePublicPlayer(player, allowConcealed) {
     'stadiumPlayLocked', 'toolPlayLocked', 'energyPlayLocked', 'specialEnergyPlayLocked']) {
     if (typeof player.publicTurnRestrictions[key] !== 'boolean') fail('BAD_PLAYER_RESTRICTION');
   }
+  for (const key of PLAYER_RESTRICTION_OPTIONAL_KEYS) {
+    if (player.publicTurnRestrictions[key] !== undefined &&
+        typeof player.publicTurnRestrictions[key] !== 'boolean')
+      fail('BAD_PLAYER_RESTRICTION');
+  }
   for (const key of ['attackLockTurnsRemaining', 'attackMaxEnergyTurnsRemaining', 'ignoreAttackCostTurnsRemaining']) {
     if (!Number.isSafeInteger(player.publicTurnRestrictions[key]) || player.publicTurnRestrictions[key] < 0) fail('BAD_PLAYER_RESTRICTION');
   }
@@ -775,8 +786,22 @@ function multiSelectBounds(prompt) {
       minimumCount = metadata.minimumCount;
       maximumCount = metadata.maximumCount;
       break;
+    case 'damage-packets':
+      minimumCount = metadata.minimumCount;
+      maximumCount = metadata.maximumCount;
+      break;
+    case 'energy-transfers':
+      minimumCount = metadata.minimumCount;
+      maximumCount = metadata.maximumCount;
+      break;
     case 'energy-payment':
-      minimumCount = 1;
+      // Only the exact paper-corrected CES48 any-amount GX attack has a
+      // zero-payment option. Existing ChooseEnergyPrompt costs stay min1.
+      minimumCount = prompt.promptType==='DiscardEnergyPrompt'&&
+        prompt.source?.sourceKind==='card-effect'&&
+        prompt.source?.sourcePrinting==='Electrode-GX CES'&&
+        prompt.source?.effectName==='Crush and Burn-GX'&&
+        metadata.minimumCount===0 ? 0 : 1;
       maximumCount = metadata.energyCount ?? metadata.count;
       break;
     case 'prize-slots':

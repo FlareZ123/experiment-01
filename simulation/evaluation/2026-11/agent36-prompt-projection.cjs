@@ -257,7 +257,29 @@ function targetChoice(target, state, actorSeat, native) {
   };
 }
 
-function makeSource(prompt, state, actorSeat, provenance) {
+function makeSource(prompt, state, actorSeat, provenance, native) {
+  // After a genuine KO the pinned check-effect reducer (not the attacking
+  // card's reducer) creates CHOOSE_NEW_ACTIVE_POKEMON. This exact shape is
+  // an engine decision, not an untrusted missing card-effect provenance.
+  const owner=state.players?.[actorSeat];
+  const koPromotion=prompt?.constructor?.name==='ChoosePokemonPrompt'&&
+    prompt.message==='CHOOSE_NEW_ACTIVE_POKEMON'&&
+    state.phase!==0&&state.phase!==1&&
+    owner?.id===prompt.playerId&&
+    prompt.getPerspectivePlayerId?.()===owner.id&&
+    Array.isArray(owner.active?.cards)&&owner.active.cards.length===0&&
+    Array.isArray(owner.bench)&&owner.bench.some(slot=>
+      Array.isArray(slot?.cards)&&slot.cards.length>0)&&
+    prompt.playerType===native?.PlayerType?.BOTTOM_PLAYER&&
+    Array.isArray(prompt.slots)&&prompt.slots.length===1&&
+    prompt.slots[0]===native?.SlotType?.BENCH&&
+    prompt.options?.min===1&&prompt.options?.max===1&&
+    prompt.options?.allowCancel===false&&
+    Array.isArray(prompt.options.blocked)&&prompt.options.blocked.length===0;
+  if(koPromotion)return {
+    classification:'actor-choice',sourceKind:'engine',
+    sourcePrinting:null,effectName:'CHOOSE_NEW_ACTIVE_POKEMON'
+  };
   if(provenance?.sourceKind==='card-effect') {
     const sourceCard=provenance.sourceCard??null;
     const effectName=provenance.effectName;
@@ -607,10 +629,241 @@ function projectSimplePrompt(prompt, state, choices, choiceByToken) {
   return null;
 }
 
+function projectRaichuElectroRainDamagePackets({
+  prompt,state,actorSeat,native,source,choices,choiceByToken
+}) {
+  // Pinned UNM57 Electro Rain offers one 30-damage choice for *each
+  // Lightning Energy unit*, and permits repeatedly targeting one Pokémon.
+  // Each packet/target pair gets a unique opaque token; the worker must
+  // return exactly one token from each packet ordinal.
+  if(source?.sourceKind!=='card-effect'||
+     source.sourcePrinting!=='Alolan Raichu UNM'||
+     source.effectName!=='Electro Rain'||
+     prompt?.constructor?.name!=='PutDamagePrompt'||
+     prompt.message!=='CHOOSE_POKEMON_TO_DAMAGE'||
+     prompt.playerType!==native?.PlayerType?.TOP_PLAYER||
+     !Array.isArray(prompt.slots)||prompt.slots.length!==2||
+     prompt.slots[0]!==native.SlotType.ACTIVE||
+     prompt.slots[1]!==native.SlotType.BENCH||
+     prompt.options?.allowCancel!==false||
+     prompt.options?.damageMultiple!==30||
+     prompt.options?.allowPlacePartialDamage!==false||
+     !Array.isArray(prompt.options?.blocked)||prompt.options.blocked.length!==0||
+     !Number.isSafeInteger(prompt.damage)||prompt.damage<30||
+     prompt.damage%30!==0||
+     !Array.isArray(prompt.maxAllowedDamage))
+    throw Object.assign(new Error('Unsupported pinned Alolan Raichu Electro Rain packet prompt'),
+      {code:'UNSUPPORTED_ELECTRO_RAIN_DAMAGE_PROMPT_SHAPE'});
+  const count=prompt.damage/30, opponent=state.players[1-actorSeat];
+  const targets=[];
+  const record=(slot,zone,index,slotType)=>{
+    const card=slot?.getPokemonCard?.();
+    if(!card)return;
+    const to={player:native.PlayerType.TOP_PLAYER,slot:slotType,index};
+    if(!prompt.maxAllowedDamage.some(row=>row?.target?.player===to.player&&
+      row.target.slot===to.slot&&row.target.index===to.index&&
+      Number.isFinite(row.damage)&&row.damage>=30))
+      throw Object.assign(new Error('Electro Rain native target declaration is inconsistent'),
+        {code:'BAD_ELECTRO_RAIN_DAMAGE_TARGET'});
+    targets.push({to,zone,index,printing:printing(card)});
+  };
+  record(opponent.active,'active',0,native.SlotType.ACTIVE);
+  opponent.bench.forEach((slot,index)=>record(slot,'bench',index,native.SlotType.BENCH));
+  if(targets.length===0||count*targets.length>MAX_PROMPT_CHOICES)
+    throw Object.assign(new Error('Electro Rain packet target frontier is not bounded'),
+      {code:'PROMPT_FRONTIER_TOO_LARGE'});
+  for(let packet=0;packet<count;packet++){
+    for(const target of targets){
+      addSelectableItem(choices,choiceByToken,{
+        packetIndex:packet,target:{...target.to},damage:30
+      },{
+        kind:'pokemon',printing:target.printing,
+        label:'Electro Rain hit '+(packet+1)+' of '+count+' to '+target.zone+
+          (target.zone==='bench'?' '+(target.index+1):'')+': '+target.printing,
+        publicMetadata:{
+          selectionType:'damage-packets',selectionIndex:packet,
+          amount:30,ownerSeat:'opponent',targetZone:target.zone,
+          ...(target.zone==='bench'?{benchIndex:target.index}:{slotIndex:0}),
+          isOwnerVisible:true
+        }
+      });
+    }
+  }
+  return {
+    selectionType:'damage-packets',minimumCount:count,maximumCount:count,
+    amount:prompt.damage,count,ownerSeat:'opponent',isOwnerVisible:true,
+    allowCancel:false
+  };
+}
+
+function projectElectrodeBombTransfers({
+  prompt,state,actorSeat,native,source,choices,choiceByToken
+}) {
+  const actor=state.players[actorSeat];
+  // Pinned CES48 initially uses min:0, while the reversible paper rule
+  // correction in simulation/twinleaf/electrode-gx-energy-hook.cjs sets
+  // min:min(5,available). Both represent this exact same source prompt.
+  // The native validator does NOT enforce blockedTo. Our dispatch does.
+  assert.ok(typeof native.EnergyCard==='function'&&native.EnergyType&&
+    native.PlayerType&&native.SlotType&&native.SuperType,
+    'pinned Extra Energy Bomb native bindings missing');
+  const energies=cardListCards(actor.discard).map((card,index)=>({card,index}))
+    .filter(({card})=>card instanceof native.EnergyCard&&
+      card.superType===native.SuperType.ENERGY);
+  const mandatory=Math.min(5,energies.length);
+  const validSource=source?.sourceKind==='card-effect'&&
+    source.sourcePrinting==='Electrode-GX CES'&&
+    source.effectName==='Extra Energy Bomb';
+  const opt=prompt.options;
+  const validShape=validSource&&prompt.message==='ATTACH_ENERGY_CARDS'&&
+    prompt.cardList===actor.discard&&
+    prompt.playerType===native.PlayerType.BOTTOM_PLAYER&&
+    Array.isArray(prompt.slots)&&prompt.slots.length===2&&
+    prompt.slots[0]===native.SlotType.BENCH&&
+    prompt.slots[1]===native.SlotType.ACTIVE&&
+    prompt.filter?.superType===native.SuperType.ENERGY&&
+    Object.keys(prompt.filter).length===1&&
+    opt?.allowCancel===false&&
+    (opt?.min===0||opt?.min===mandatory)&&opt?.max===5&&
+    Array.isArray(opt.blockedTo)&&Array.isArray(opt.blocked)&&
+    opt.blocked.length===0&&!opt.differentTypes&&!opt.sameTarget&&!opt.differentTargets;
+  if(!validShape)throw Object.assign(
+    new Error('Unsupported pinned Electrode-GX Extra Energy Bomb prompt shape'),
+    {code:'UNSUPPORTED_ELECTRODE_BOMB_PROMPT_SHAPE'});
+  const blocked=new Set(opt.blockedTo.map(t=>[t.player,t.slot,t.index].join('|')));
+  const targets=[];
+  const pushTarget=(slot,slotType,index)=>{
+    const card=slot?.getPokemonCard?.();
+    if(!card)return;
+    const target={player:native.PlayerType.BOTTOM_PLAYER,slot:slotType,index};
+    if(blocked.has([target.player,target.slot,target.index].join('|')))return;
+    // Redundant printed-name veto, in addition to pinned blockedTo.
+    if(/-(?:GX|EX)(?:\s|$)/.test(card.fullName??''))return;
+    targets.push({target,card,zone:slotType===native.SlotType.ACTIVE?'active':'bench',index});
+  };
+  pushTarget(actor.active,native.SlotType.ACTIVE,0);
+  actor.bench.forEach((slot,index)=>pushTarget(slot,native.SlotType.BENCH,index));
+  if(energies.length===0||targets.length===0)throw Object.assign(
+    new Error('No playable public Energy and unblocked recipient for Extra Energy Bomb'),
+    {code:'NO_ELIGIBLE_ELECTRODE_BOMB_TRANSFER'});
+  if(energies.length*targets.length>MAX_PROMPT_CHOICES)throw Object.assign(
+    new Error('Extra Energy Bomb transfer frontier exceeds protocol limit'),
+    {code:'PROMPT_FRONTIER_TOO_LARGE'});
+  for(const {card,index} of energies){
+    const energyPrinting=printing(card);
+    if(!energyPrinting)throw Object.assign(
+      new Error('Extra Energy Bomb public discard Energy is missing identity'),
+      {code:'UNKNOWN_ELECTRODE_BOMB_ENERGY'});
+    for(const entry of targets){
+      addSelectableItem(choices,choiceByToken,{
+        index,to:{...entry.target}
+      },{
+        kind:'energy',printing:energyPrinting,
+        label:'Attach '+energyPrinting+' to '+entry.zone+
+          (entry.zone==='bench'?' '+(entry.index+1):'')+
+          ': '+(printing(entry.card)??entry.card.name),
+        publicMetadata:{
+          selectionIndex:index,sourceZone:'discard',ownerSeat:'actor',
+          isOwnerVisible:true,selectedCount:1,
+          energyType:card.energyType===native.EnergyType.BASIC?'BASIC':'SPECIAL',
+          zone:entry.zone,slotIndex:entry.index
+        }
+      });
+    }
+  }
+  const needed=Math.min(5,energies.length);
+  return {
+    selectionType:'energy-transfers',count:choices.length,
+    minimumCount:needed,maximumCount:needed,allowCancel:false,
+    sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true
+  };
+}
+
+
+/**
+ * Source-specific physical discard frontier for the paper-corrected CES48
+ * Crush and Burn-GX. The pinned native DiscardEnergyPrompt enumerates
+ * attached Energy cards by actual CardTarget + index within slot.cards;
+ * each token must identify one concrete physical occurrence, not a
+ * theoretical Lightning unit or a chosen Pokémon.
+ */
+function projectElectrodeCrushBurnDiscard({
+  prompt,state,actorSeat,native,source,choices,choiceByToken
+}={}){
+  const actor=state.players[actorSeat],opt=prompt.options;
+  if(source?.sourceKind!=='card-effect'||
+     source.sourcePrinting!=='Electrode-GX CES'||
+     source.effectName!=='Crush and Burn-GX')
+    throw Object.assign(
+      new Error('DiscardEnergyPrompt source is not printed CES48 Crush and Burn-GX'),
+      {code:'UNSUPPORTED_GX_DISCARD_PROMPT_SOURCE'});
+  const shape=prompt.message==='CHOOSE_ENERGIES_TO_DISCARD'&&
+    prompt.playerType===native.PlayerType.BOTTOM_PLAYER&&
+    Array.isArray(prompt.slots)&&prompt.slots.length===2&&
+    prompt.slots[0]===native.SlotType.ACTIVE&&
+    prompt.slots[1]===native.SlotType.BENCH&&
+    prompt.filter?.superType===native.SuperType.ENERGY&&
+    opt?.allowCancel===false&&opt?.min===0&&
+    Number.isSafeInteger(opt.max)&&opt.max>=1&&
+    Array.isArray(opt.blockedFrom)&&opt.blockedFrom.length===0&&
+    Array.isArray(opt.blockedMap)&&opt.blockedMap.length===0&&
+    typeof native.EnergyCard==='function'&&
+    Array.isArray(actor.bench);
+  if(!shape)throw Object.assign(
+    new Error('Pinned CES48 DiscardEnergyPrompt shape changed'),
+    {code:'UNSUPPORTED_GX_DISCARD_PROMPT_SHAPE'});
+  const list=[];
+  const append=(slot,zone,slotType,slotIndex)=>{
+    if(!slot?.getPokemonCard?.())return;
+    for(let index=0;index<cardListCards(slot).length;index++){
+      const card=slot.cards[index];
+      if(card instanceof native.EnergyCard&&
+         card.superType===native.SuperType.ENERGY)
+        list.push({card,index,zone,slotIndex,slotType});
+    }
+  };
+  append(actor.active,'active',native.SlotType.ACTIVE,0);
+  actor.bench.forEach((slot,i)=>append(slot,'bench',native.SlotType.BENCH,i));
+  if(list.length!==opt.max||list.length<1||list.length+1>MAX_PROMPT_CHOICES)
+    throw Object.assign(
+      new Error('CES48 board physical Energy differs from native discard maximum'),
+      {code:'GX_DISCARD_PHYSICAL_COUNT_MISMATCH'});
+  for(const row of list){
+    const name=printing(row.card);
+    if(!name)throw Object.assign(
+      new Error('CES48 attached Energy printing not public'),
+      {code:'GX_DISCARD_ENERGY_PRINTING_MISSING'});
+    addSelectableItem(choices,choiceByToken,{
+      from:{player:native.PlayerType.BOTTOM_PLAYER,slot:row.slotType,index:row.slotIndex},
+      index:row.index
+    },{
+      kind:'energy',printing:name,
+      label:'Discard '+name+' from '+row.zone+
+        (row.zone==='bench'?' '+(row.slotIndex+1):''),
+      publicMetadata:{
+        selectionIndex:row.index,selectedCount:1,
+        sourceZone:'energy',zone:row.zone,slotIndex:row.slotIndex,
+        ownerSeat:'actor',isOwnerVisible:true
+      }
+    });
+  }
+  addEmptySelectionChoice(choices,choiceByToken,prompt,state);
+  return {
+    selectionType:'energy-payment',
+    count:list.length,energyCount:list.length,
+    minimumCount:0,maximumCount:list.length,allowCancel:false,
+    ownerSeat:'actor',isOwnerVisible:true,sourceZone:'energy'
+  };
+}
+
 function projectAttachEnergyPrompt({
   prompt,state,actorSeat,native,store,source,choices,choiceByToken
 }={}){
   const actor=state.players[actorSeat];
+  if(source?.sourceKind==='card-effect'&&
+      source.sourcePrinting==='Electrode-GX CES'&&
+      source.effectName==='Extra Energy Bomb')
+    return projectElectrodeBombTransfers({prompt,state,actorSeat,native,source,choices,choiceByToken});
   const supportedSource=source?.sourceKind==='card-effect'&&
     source.effectName==='Underworld Door'&&
     typeof source.sourcePrinting==='string'&&
@@ -858,7 +1111,7 @@ function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook
   const hostOnly = hostOnlyPrompt(prompt, provenance);
   if (hostOnly) return { ...hostOnly, choiceByToken: new Map() };
 
-  const source = makeSource(prompt, state, actorSeat, provenance);
+  const source = makeSource(prompt, state, actorSeat, provenance, native);
   const choices = [];
   const choiceByToken = new Map();
   let publicMetadata = null;
@@ -881,9 +1134,19 @@ function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook
     case 'ChoosePrizePrompt':
       publicMetadata = projectChoosePrize(prompt, state, actorSeat, choices, choiceByToken);
       break;
+    case 'DiscardEnergyPrompt':
+      publicMetadata=projectElectrodeCrushBurnDiscard({
+        prompt,state,actorSeat,native,source,choices,choiceByToken
+      });
+      break;
     case 'AttachEnergyPrompt':
       publicMetadata=projectAttachEnergyPrompt({
         prompt,state,actorSeat,native,store,source,choices,choiceByToken
+      });
+      break;
+    case 'PutDamagePrompt':
+      publicMetadata=projectRaichuElectroRainDamagePackets({
+        prompt,state,actorSeat,native,source,choices,choiceByToken
       });
       break;
     default:
@@ -1022,7 +1285,7 @@ function dispatchPromptChoice({
     const unique = new Set(selected.tokens);
     assert.equal(unique.size, selected.tokens.length, 'multi-select decision contains duplicate tokens');
     const selectionType = projection.promptProjection?.publicMetadata?.selectionType;
-    assert.ok(['card-combination', 'pokemon', 'energy-payment', 'prize-slots', 'card-order'].includes(selectionType),
+    assert.ok(['card-combination', 'pokemon', 'energy-payment', 'energy-transfers', 'damage-packets', 'prize-slots', 'card-order'].includes(selectionType),
       'multi-select decision is unsupported for this prompt type');
     rawResult = selected.tokens.map(selectedToken => {
       assert.equal(typeof selectedToken, 'string');
@@ -1037,6 +1300,118 @@ function dispatchPromptChoice({
     throw Object.assign(new Error('Unsupported typed worker prompt decision'), {
       code: 'UNSUPPORTED_WORKER_PROMPT_DECISION'
     });
+  }
+
+  // Pinned DiscardEnergyPrompt.decode() checks duplicate card target/index
+  // but validate() only checks length. Reject malformed or re-used physical
+  // attached Energy references before live Store dispatch.
+  if(projection.promptProjection?.promptType==='DiscardEnergyPrompt'){
+    const src=projection.promptProjection.source;
+    const meta=projection.promptProjection.publicMetadata;
+    assert.equal(src.sourceKind,'card-effect');
+    assert.equal(src.sourcePrinting,'Electrode-GX CES');
+    assert.equal(src.effectName,'Crush and Burn-GX');
+    assert.equal(meta.selectionType,'energy-payment');
+    const actor=state.players[actorSeat];
+    assert.equal(prompt.message,'CHOOSE_ENERGIES_TO_DISCARD');
+    assert.equal(prompt.options.allowCancel,false);
+    assert.ok(Array.isArray(rawResult)&&rawResult.length>=0);
+    assert.ok(rawResult.length<=prompt.options.max);
+    const seen=new Set();
+    for(const selection of rawResult){
+      const from=selection?.from,index=selection?.index;
+      assert.equal(from?.player,native.PlayerType.BOTTOM_PLAYER);
+      assert.ok(from.slot===native.SlotType.ACTIVE||
+        from.slot===native.SlotType.BENCH);
+      assert.ok(Number.isSafeInteger(from.index)&&from.index>=0);
+      assert.ok(Number.isSafeInteger(index)&&index>=0);
+      const slot=from.slot===native.SlotType.ACTIVE?
+        actor.active:actor.bench[from.index];
+      assert.ok(slot?.getPokemonCard?.());
+      const card=slot?.cards?.[index];
+      assert.ok(card instanceof native.EnergyCard);
+      assert.equal(card.superType,native.SuperType.ENERGY);
+      const key=[from.player,from.slot,from.index,index].join('|');
+      assert.equal(seen.has(key),false,
+        'CES48 GX discard cannot spend one physical Energy twice');
+      seen.add(key);
+    }
+  }
+
+  // The pinned native AttachEnergyPrompt.validate() neither checks duplicate
+  // physical card indices nor blockedTo recipients. Reject either before
+  // cloned/live Store dispatch; one token represents one physical transfer.
+  if(projection.promptProjection?.publicMetadata?.selectionType==='energy-transfers'){
+    const source=projection.promptProjection.source;
+    assert.equal(source.sourceKind,'card-effect');
+    assert.equal(source.sourcePrinting,'Electrode-GX CES');
+    assert.equal(source.effectName,'Extra Energy Bomb');
+    const actor=state.players[actorSeat];
+    assert.equal(prompt.cardList,actor.discard);
+    assert.ok(Array.isArray(rawResult)&&rawResult.length>0&&rawResult.length<=5);
+    const knownEnergy=cardListCards(actor.discard).filter(card=>
+      card instanceof native.EnergyCard&&card.superType===native.SuperType.ENERGY).length;
+    assert.equal(rawResult.length,Math.min(5,knownEnergy),
+      'Extra Energy Bomb must use distinct physical Energy up to five');
+    const used=new Set();
+    const blocked=new Set((prompt.options?.blockedTo??[]).map(t=>
+      [t.player,t.slot,t.index].join('|')));
+    for(const transfer of rawResult){
+      const idx=transfer?.index,to=transfer?.to;
+      assert.ok(Number.isSafeInteger(idx)&&idx>=0&&idx<actor.discard.cards.length);
+      assert.equal(used.has(idx),false,'Extra Energy Bomb cannot reuse the same Energy');
+      used.add(idx);
+      assert.ok(actor.discard.cards[idx] instanceof native.EnergyCard);
+      assert.equal(actor.discard.cards[idx].superType,native.SuperType.ENERGY);
+      assert.equal(to?.player,native.PlayerType.BOTTOM_PLAYER);
+      assert.ok(to?.slot===native.SlotType.ACTIVE||to?.slot===native.SlotType.BENCH);
+      assert.ok(Number.isSafeInteger(to.index)&&to.index>=0);
+      assert.equal(blocked.has([to.player,to.slot,to.index].join('|')),false,
+        'Extra Energy Bomb target cannot be EX/GX');
+      const slot=to.slot===native.SlotType.ACTIVE?actor.active:actor.bench[to.index];
+      const target=slot?.getPokemonCard?.();
+      assert.ok(target,'Extra Energy Bomb target must remain occupied');
+      assert.equal(/-(?:GX|EX)(?:\s|$)/.test(target.fullName??''),false,
+        'Extra Energy Bomb cannot attach to printed EX/GX');
+    }
+  }
+
+  // A multi-choice token identifies one unique 30-damage *packet*, not a
+  // freely repeated source. Native PutDamagePrompt.validate() checks only
+  // total damage and card-zone validity; enforce exact packet conservation.
+  if(projection.promptProjection?.publicMetadata?.selectionType==='damage-packets'){
+    const src=projection.promptProjection.source;
+    assert.equal(src.sourceKind,'card-effect');
+    assert.equal(src.sourcePrinting,'Alolan Raichu UNM');
+    assert.equal(src.effectName,'Electro Rain');
+    assert.equal(prompt.message,'CHOOSE_POKEMON_TO_DAMAGE');
+    assert.ok(Array.isArray(rawResult));
+    const expected=prompt.damage/30,used=new Set();
+    assert.equal(rawResult.length,expected);
+    const foe=state.players[1-actorSeat];
+    for(const hit of rawResult){
+      assert.equal(hit.damage,30,'Electro Rain packets must each equal 30');
+      assert.ok(Number.isSafeInteger(hit.packetIndex)&&
+        hit.packetIndex>=0&&hit.packetIndex<expected);
+      assert.equal(used.has(hit.packetIndex),false,
+        'Electro Rain may not reuse a physical damage packet');
+      used.add(hit.packetIndex);
+      assert.equal(hit.target?.player,native.PlayerType.TOP_PLAYER);
+      assert.ok(hit.target.slot===native.SlotType.ACTIVE||
+        hit.target.slot===native.SlotType.BENCH);
+      assert.ok(Number.isSafeInteger(hit.target.index)&&hit.target.index>=0);
+      const target=hit.target.slot===native.SlotType.ACTIVE?
+        foe.active:foe.bench[hit.target.index];
+      assert.ok(target?.getPokemonCard?.(),
+        'Electro Rain packet target must remain occupied');
+      assert.ok(prompt.maxAllowedDamage.some(row=>
+        row.target?.player===hit.target.player&&
+        row.target.slot===hit.target.slot&&row.target.index===hit.target.index));
+    }
+    // Only the pinned native schema reaches the Store/decode callback.
+    rawResult=rawResult.map(hit=>({
+      target:{...hit.target},damage:hit.damage
+    }));
   }
 
   let validationReceipt = null;
