@@ -290,6 +290,21 @@ function opponentHasFabaTarget(player) {
     list(player?.stadium).length > 0;
 }
 
+
+function opposingAbilityLockAppliesTo(pokemon, observation) {
+  if (!opponentHasAbilityLock(observation.opponentPublic)) return false;
+  const own = observation.ownPublic ?? {};
+  const other = observation.opponentPublic ?? {};
+  const jammingTower = [...list(own.stadium), ...list(other.stadium)]
+    .some(printing => /Jamming Tower/i.test(printing));
+  const toolSuppressed = [own, other].some(player =>
+    (player.publicTurnRestrictions?.
+      stadiumAndToolHaveNoEffectTurnsRemaining ?? 0) > 0);
+  const liveHood = !jammingTower && !toolSuppressed &&
+    list(pokemon?.tools).some(tool => matches(tool, PRINT.stealthyHood));
+  return !liveHood;
+}
+
 function sourceText(prompt) {
   return [
     prompt?.source?.sourcePrinting ?? '',
@@ -451,8 +466,9 @@ function scoreAttack(item, observation) {
     return 22;
   }
   if (name === 'Itchy Pollen') {
-    const itemLockLive = boardHas(own, PRINT.vileplume) &&
-      !opponentHasAbilityLock(observation.opponentPublic);
+    const itemLockLive = boardSlots(own).some(({ pokemon }) =>
+      matches(pokemon.printing, PRINT.vileplume) &&
+      !opposingAbilityLockAppliesTo(pokemon, observation));
     const supporterLockLive = matches(own.active?.printing ?? '', PRINT.stoutland);
     return !itemLockLive && !supporterLockLive ? 128 : 15;
   }
@@ -536,8 +552,10 @@ function scoreAction(item, request) {
 
   if (item.kind === 'retreat') {
     if (matches(target, PRINT.stoutland)) {
+      const physicalTarget = boardSlots(own).find(row =>
+        samePrinting(row.pokemon.printing, target))?.pokemon ?? null;
       const supporterLocked = opponent.publicTurnRestrictions?.supporterPlayLocked === true ||
-        opponentHasAbilityLock(opponent);
+        opposingAbilityLockAppliesTo(physicalTarget, observation);
       return supporterLocked ? 0 : 185;
     }
     if (matches(own.active?.printing ?? '', PRINT.stoutland) &&
@@ -591,7 +609,7 @@ function scoreAction(item, request) {
     if (toBench && targetIsStoutland) {
       // Jet Energy's switch is a way to establish the same Active Sentinel
       // lock as retreat or Guzma; avoid promoting a visibly suppressed one.
-      return opponentHasAbilityLock(opponent) ? 0 : 198;
+      return opposingAbilityLockAppliesTo(recipient, observation) ? 0 : 198;
     }
     return 80;
   }
@@ -936,7 +954,7 @@ function scorePokemonChoice(choice, observation, context) {
       // On the mandatory self-switch, preserve the main lock when its
       // Ability is live. Otherwise prefer a Bunnelby attack/mill pivot.
       if (matches(printing, PRINT.stoutland)) {
-        return opponentHasAbilityLock(observation.opponentPublic) ? 20 : 190;
+        return opposingAbilityLockAppliesTo(target, observation) ? 20 : 190;
       }
       if (matches(printing, PRINT.bunnelby)) {
         return observation.opponentPublic?.deckCount <= 8 ? 180 : 160;
