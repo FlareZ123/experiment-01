@@ -598,14 +598,6 @@ function rondoSearchFillerOpportunity(o) {
   if(!o||!stadium(o)||!rondoBenchFillerDemand(o))return false;
   const hand=arr(o.ownHand);
   if(hand.some(c=>benchBasicRole(c)!==null))return false;
-  const known=o.ownerK1;
-  if(known?.exactMembershipKnown===true&&Array.isArray(known.knownPrintings)) {
-    // A certified K1 membership snapshot may prove all useful Basic targets
-    // absent. It must never be converted into a hidden deck/Prize position.
-    const useful=known.knownPrintings.some(row=>row.copies>0&&
-      benchBasicRole(row.printing)!==null);
-    if(!useful)return false;
-  }
   return true;
 }
 function canStartQuickBall(o) {
