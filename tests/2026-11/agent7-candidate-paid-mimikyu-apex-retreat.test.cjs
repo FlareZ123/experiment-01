@@ -60,7 +60,7 @@ for(const seat of [0,1]){
     const {policy,request}=fixture(seat);
     assert.deepEqual(policy.decide(request),{kind:'select-action',token:'retreat'});
   });
-  test('source continuation: paid Retreat -> Copycat -> Apex -> Timeless, seat='+seat,()=>{
+  test('source continuation: paid Retreat -> Copycat (Apex auto) -> Timeless, seat='+seat,()=>{
     const {policy,request,view}=fixture(seat);
     assert.deepEqual(policy.decide(request),{kind:'select-action',token:'retreat'});
     const previousActive=view.ownPublic.active;
@@ -73,20 +73,20 @@ for(const seat of [0,1]){
       {token:'pass',kind:'pass'}
     ];
     assert.deepEqual(policy.decide(request),{kind:'select-action',token:'copycat'});
+    // Pinned native Copycat automatically uses the last attack (Apex);
+    // there is NO intermediate ChooseAttackPrompt for Copycat itself.
+    // The delegated Regidrago reducer prompts only for our Dragon payload,
+    // with source card Mimikyu and source attack Apex Dragon.
     view.decisionKind='owner-prompt';
     request.prompt={schema:'aichi-owner-prompt-projection-v3',actingSeat:seat,
       promptType:'ChooseAttackPrompt',description:'CHOOSE_ATTACK',
       source:{classification:'actor-choice',sourceKind:'card-effect',
-        sourcePrinting:M,effectName:'Copycat'},
+        sourcePrinting:M,effectName:'Apex Dragon'},
       publicMetadata:{selectionType:'attack'},choices:[
-        {kind:'attack',token:'apex',publicMetadata:{sourceAttack:'Apex Dragon'}}]
+        {kind:'attack',token:'power',publicMetadata:{sourceAttack:'Power Beam'}},
+        {kind:'attack',token:'timeless',publicMetadata:{sourceAttack:'Timeless-GX'}}
+      ]
     };
-    assert.deepEqual(policy.decide(request),{kind:'select-choice',token:'apex'});
-    request.prompt.source.effectName='Apex Dragon';
-    request.prompt.choices=[
-      {kind:'attack',token:'power',publicMetadata:{sourceAttack:'Power Beam'}},
-      {kind:'attack',token:'timeless',publicMetadata:{sourceAttack:'Timeless-GX'}}
-    ];
     assert.deepEqual(policy.decide(request),{kind:'select-choice',token:'timeless'});
   });
   test('no Dialga discard, GX spent, missing Apex, unfunded Mimikyu veto, seat='+seat,()=>{
