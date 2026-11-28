@@ -86,7 +86,7 @@ const snorlax=(damage=60,mut={})=>pokemon('Snorlax PGO 55',{
  energies:mut.energies??[CAP,CAP,W,W],
  conditions:['Asleep'],tools:mut.tools??[],
  attacks:[{name:'Collapse',cost:['Colorless','Colorless','Colorless','Colorless'],damage:'150'}]});
-const regirock=()=>pokemon('Regirock DRI 94',{hp:130,types:['Fighting']});
+const regirock=()=>pokemon('Regirock XYP XY49',{hp:110,types:['Fighting']});
 function player(active,bench,prizes=6,deck=20){
  return {active,bench:[...bench,...Array(Math.max(0,5-bench.length)).fill(null)],
   prizeCount:prizes,handCount:1,deckCount:deck,
