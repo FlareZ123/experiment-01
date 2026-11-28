@@ -1705,3 +1705,69 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['trubbish','mega']});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Jamming Tower disables Hood but NOT attached Garbotoxin versus Snorlax and Vileplume',()=>{
+  const garb=mon('Garbodor LTR 68',{
+   tools:['Muscle Band XY 121'],
+   abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]});
+  const enemyBlock=mon('Snorlax PGO 55',{tools:['Stealthy Hood UNB 186']});
+  const enemyVile=mon('Vileplume AOR 3',{tools:['Stealthy Hood UNB 186']});
+  const board=own({active:mon('Budew ASC 16'),bench:[garb]});
+  const enemy=opp({active:enemyBlock,bench:[enemyVile],
+   stadium:['Jamming Tower TWM 153']});
+  const q=root(seat,[pass],{ownPublic:board,opponentPublic:enemy});
+  assert.equal(policy.toolEnabled(q.observation),false);
+  assert.equal(policy.garbotoxinStatus(q.observation),'live');
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),false);
+  assert.equal(policy.opponentVileplumeItemLock(q.observation),false);
+  enemy.stadium=[];
+  assert.equal(policy.garbotoxinStatus(q.observation),'live');
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),true);
+  assert.equal(policy.opponentVileplumeItemLock(q.observation),true);
+ });
+ test('seat '+seat+' Jamming still allows Float Tool attached to Garbodor for Garbotoxin',()=>{
+  const garb=mon('Garbodor LTR 68');
+  const board=own({active:mon('Budew ASC 16'),bench:[garb]});
+  const enemy=opp({stadium:['Jamming Tower TWM 153']});
+  const rootReq=root(seat,[play('Float Stone BKT 137','floatGarb',{
+   targetSeat:'actor',targetZone:'bench',targetIndex:0}),pass],{
+   ownPublic:board,opponentPublic:enemy,ownHand:['Float Stone BKT 137']});
+  assert.equal(policy.garbotoxinStatus(rootReq.observation),'inactive');
+  assert.deepEqual(decide(seat,rootReq),{kind:'select-action',token:'floatGarb'});
+  const target=prompt(seat,{promptType:'ChoosePokemonPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Float Stone BKT 137',
+    effectName:'Float Stone'},
+   publicMetadata:{minimumCount:1,maximumCount:1,selectionType:'pokemon'},
+   choices:[{kind:'pokemon',token:'garb',printing:'Garbodor LTR 68',
+    publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0}}]},
+   {ownPublic:board,opponentPublic:enemy,ownHand:[]});
+  assert.deepEqual(decide(seat,target),{kind:'select-choices',tokens:['garb']});
+  garb.tools=['Float Stone BKT 137'];
+  garb.abilitySuppressions=[{abilityName:'Garbotoxin',suppressed:false}];
+  assert.equal(policy.garbotoxinStatus(rootReq.observation),'live');
+  board.publicTurnRestrictions.toolPlayLocked=true;
+  garb.tools=[];
+  garb.abilitySuppressions=[];
+  assert.deepEqual(decide(seat,rootReq),{kind:'select-action',token:'pass'});
+ });
+ test('seat '+seat+' under Jamming attached Garbotoxin stops our Crobat Star Alchemy',()=>{
+  const enemyGarb=mon('Garbodor BKP 57',{
+   tools:['Float Stone BKT 137'],
+   abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]});
+  const ownCrobat=mon('Crobat V DAA 104',{tools:['Forest Seal Stone SIT 156']});
+  const board=own({active:mon('Budew ASC 16'),bench:[ownCrobat]});
+  const enemy=opp({active:mon('Regidrago VSTAR SIT 136'),bench:[enemyGarb],
+   stadium:['Jamming Tower TWM 153']});
+  const q=root(seat,[ability('Star Alchemy','star'),pass],{
+   ownPublic:board,opponentPublic:enemy,ownTurnResources:{vstarUsed:false}});
+  assert.equal(policy.opponentGarbotoxinStatus(q.observation),'live');
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  enemy.stadium=[];
+  assert.equal(policy.opponentGarbotoxinStatus(q.observation),'live');
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  enemyGarb.tools=[];
+  assert.equal(policy.opponentGarbotoxinStatus(q.observation),'inactive');
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
+ });
+}
