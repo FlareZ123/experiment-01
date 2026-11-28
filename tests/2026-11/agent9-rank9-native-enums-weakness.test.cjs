@@ -125,3 +125,77 @@ for(const seat of [0,1]) {
     assert.equal(rank9.denial(view,row),null);
   });
 }
+
+
+for(const seat of [0,1]){
+  test(`seat ${seat}: native five-Energy Bomb creates a three-Prize VMAX threat rather than Pass`,()=>{
+    const view=o(seat);
+    view.ownPublic.prizeCount=6;
+    view.opponentPublic.prizeCount=6;
+    view.ownPublic.bench=[
+      pokemon('Electrode-GX CES',190,STAGE1,[4]),
+      pokemon('Sableye V SSH',170,BASIC,[DARK]),
+      pokemon('Voltorb ROS',50,BASIC,[4]),
+      pokemon('Unown AOR',60,BASIC,[5]),
+      pokemon('Toedscool PAR',60,BASIC,[1])
+    ];
+    view.ownPublic.discard=[
+      energy.prism,energy.prism,energy.prism,energy.prism,
+      'Telepathic Psychic Energy POR'
+    ];
+    const activeBomb={
+      kind:'use-ability',printing:'Electrode-GX CES',
+      token:'bomb',publicMetadata:{
+        abilityName:'Extra Energy Bomb',sourceZone:'bench',sourceIndex:0
+      }
+    };
+    const worker=rank9.createPolicy({
+      role:'opponent',seat,policyVersion:rank9.POLICY_VERSION,config:{}
+    });
+    const plan=rank9.bombPlanner(view,0);
+    assert.ok(plan);
+    assert.equal(plan.required,5);
+    assert.equal(plan.score,635);
+    assert.deepEqual(worker.decide({
+      role:'opponent',seat,observation:view,sequence:2,prompt:null,
+      actionFrontier:{items:[activeBomb,pass]}
+    }),{kind:'select-action',token:'bomb'});
+    const recipients=[
+      {zone:'active',index:0},
+      {zone:'bench',index:1},{zone:'bench',index:2},
+      {zone:'bench',index:3},{zone:'bench',index:4}
+    ];
+    const prompt={
+      promptType:'AttachEnergyPrompt',
+      source:{
+        sourceKind:'card-effect',classification:'actor-choice',
+        sourcePrinting:'Electrode-GX CES',effectName:'Extra Energy Bomb'
+      },
+      publicMetadata:{
+        selectionType:'energy-transfers',
+        minimumCount:5,maximumCount:5
+      },
+      choices:view.ownPublic.discard.flatMap((printing,di)=>
+        recipients.map(position=>({
+          kind:'energy',printing,
+          token:`e${di}-${position.zone}${position.index}`,
+          publicMetadata:{
+            ownerSeat:'actor',isOwnerVisible:true,
+            sourceZone:'discard',selectionIndex:di,
+            zone:position.zone,slotIndex:position.index
+          }
+        }))
+      )
+    };
+    const decision=worker.decide({
+      role:'opponent',seat,observation:view,sequence:3,prompt
+    });
+    assert.deepEqual(decision,{
+      kind:'select-choices',
+      tokens:[
+        'e0-active0','e1-active0','e2-bench1',
+        'e3-bench1','e4-active0'
+      ]
+    });
+  });
+}
