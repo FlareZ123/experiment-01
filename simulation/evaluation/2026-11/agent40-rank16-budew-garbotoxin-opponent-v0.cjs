@@ -91,6 +91,9 @@ function activeOpponentAbilityWorking(o,printing,abilityName){
  // Pokémon's on-play Ability will function through a known Active lock.
  return state?.suppressed!==true;
 }
+function opponentSnorlaxBlock(o){
+ return activeOpponentAbilityWorking(o,/^Snorlax PGO 55\b/i,'Block');
+}
 function benchSupportAbilityUsable(printing,o){
  if(!usableOwnAbilities(o))return false;
  if(activeOpponentAbilityWorking(o,/^Iron Thorns ex TWM 77\b/i,'Initialization'))return false;
@@ -406,8 +409,12 @@ function canGuzmaLeadToFundedAttack(o){
 }
 function guzmaRootScore(o){
  if(o.ownTurnResources?.supporterPlayedTurn!==0||o.ownPublic?.publicTurnRestrictions?.supporterPlayLocked===true||
-    o.ownTurnResources?.supporterPlayLocked===true||!canGuzmaLeadToFundedAttack(o))return 0;
+    o.ownTurnResources?.supporterPlayLocked===true||!canGuzmaLeadToFundedAttack(o)&&!opponentSnorlaxBlock(o))return 0;
  const bestMega=attackingBenchedMega(o)[0]?.pokemon??o.ownPublic?.active;
+ if(opponentSnorlaxBlock(o)&&
+  !match(o.ownPublic?.active?.printing,PRINT.budew)&&
+  slots(o.ownPublic).some(x=>x.zone==='bench'&&match(x.pokemon.printing,PRINT.budew)))
+  return 550;
  if(!bestMega||!match(bestMega.printing,PRINT.mega))return 0;
  return slots(o.opponentPublic).filter(r=>r.zone==='bench').reduce((score,r)=>
   Math.max(score,guzmaTargetScore(r.pokemon,bestMega,o)),0);
@@ -488,7 +495,7 @@ function score(action,req){
   if(match(p,PRINT.forest)){
    return match(t.pokemon.printing,PRINT.crobat)&&!o.ownTurnResources?.vstarUsed&&benchSupportAbilityUsable(p,o)?570:0;
   }
-  if(match(p,PRINT.float)&&t.zone==='active'&&!match(t.pokemon.printing,PRINT.budew)&&
+  if(match(p,PRINT.float)&&t.zone==='active'&&!opponentSnorlaxBlock(o)&&!match(t.pokemon.printing,PRINT.budew)&&
      o.globalTurn<=4&&canTool&&onBoard(own,PRINT.budew)&&
      o.ownTurnResources?.retreatedTurn!==o.globalTurn&&
      t.pokemon.publicRestrictions?.cannotRetreat!==true){
@@ -588,6 +595,7 @@ function pickRows(prompt,rows,min,max,rank){
  return {kind:'select-choices',tokens:selected.map(c=>c.token)};
 }
 function readyToPivotIntoBudew(o){
+ if(opponentSnorlaxBlock(o))return false;
  const active=o.ownPublic?.active;
  if(!active||match(active.printing,PRINT.budew)||o.globalTurn>4||
     o.ownTurnResources?.retreatedTurn===o.globalTurn||
@@ -774,7 +782,11 @@ function promptDecision(req){
     return pickRows(p,cs.filter(c=>c.kind==='pokemon'&&owner(c)==='opponent'),bd.min,bd.max,c=>{
      const target=slots(o.opponentPublic).find(r=>r.zone===zone(c)&&
       (r.zone==='active'||r.index===c.publicMetadata?.benchIndex)&&r.pokemon.printing===name(c));
-     return target?guzmaTargetScore(target.pokemon,bestMega,o):0;
+     if(!target)return 0;
+     const tactical=guzmaTargetScore(target.pokemon,bestMega,o);
+     return Math.max(tactical,opponentSnorlaxBlock(o)&&
+      slots(o.ownPublic).some(x=>x.zone==='bench'&&match(x.pokemon.printing,PRINT.budew))?
+      150-Math.min(100,target.pokemon.damage||0)/10:0);
     });
    }
    rank=c=>{
@@ -869,4 +881,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,activeMimikyuSafeguard,regidragoPayloadCount,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,toolEnabled,garbotoxinStatus,liveGarbotoxin};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,activeMimikyuSafeguard,regidragoPayloadCount,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,opponentSnorlaxBlock,toolEnabled,garbotoxinStatus,liveGarbotoxin};
