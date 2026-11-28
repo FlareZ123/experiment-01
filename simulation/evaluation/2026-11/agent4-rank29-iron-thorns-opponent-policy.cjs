@@ -550,7 +550,7 @@ function cardChoiceScore(choice, observation, context) {
     // Volt Cyclone. Search for the winning Supporter, not generic denial.
     if(matches(printing,PRINT.faba) && supporterAvailable(observation) &&
         !ownHand(observation).some(card=>matches(card,PRINT.faba)) &&
-        fabaClearsChaoticForTerminal(observation))return 975;
+        clearChaoticForTerminal(observation))return 975;
     if (matches(printing, PRINT.teamFlare) && opponentActiveEnergy(observation) > 0) return 290;
     if (matches(printing, PRINT.plumeria) && opponentHasAnyEnergy(observation) &&
         canPayPlumeria(observation)) return 275;
@@ -573,6 +573,9 @@ function cardChoiceScore(choice, observation, context) {
   if (context === 'field-blower') {
     if (choiceOwner(choice) !== 'opponent' && choiceZone(choice) !== 'stadium' &&
         choice.kind !== 'stadium') return 0;
+    if(choiceZone(choice)==='stadium'&&
+        matches(printing,/^Chaotic Swell\b/i)&&
+        clearChaoticForTerminal(observation))return 600;
     if (/Stealthy Hood/i.test(printing)) return 300;
     if (/Tool Jammer|Forest Seal Stone/i.test(printing)) return 250;
     if (/Float Stone|Palace Belt|Handheld Fan/i.test(printing)) return 220;
@@ -593,7 +596,7 @@ function cardChoiceScore(choice, observation, context) {
   if (context === 'faba') {
     if(choiceZone(choice)==='stadium'&&
         matches(printing,/^Chaotic Swell\b/i)&&
-        fabaClearsChaoticForTerminal(observation))return 600;
+        clearChaoticForTerminal(observation))return 600;
     if (/Stealthy Hood/i.test(printing)) return 280;
     if (/Float Stone/i.test(printing)) return 260;
     if (/Forest Seal Stone/i.test(printing)) return 245;
@@ -1522,7 +1525,8 @@ function promptDecision(request) {
         .test(valueText(card)));
     const opponentTools=slots(observation?.opponentPublic)
       .reduce((n,row)=>n+list(row.pokemon.tools).length,0);
-    const useStadium=harmfulStadium || opponentTools<2;
+    const useStadium=clearChaoticForTerminal(observation) ||
+      harmfulStadium || opponentTools<2;
     const selected=choices.find(choice=>
       choice.publicMetadata.choiceIndex===(useStadium?0:1));
     return selected?{kind:'select-choice',token:selected.token}:
@@ -1540,7 +1544,8 @@ function promptDecision(request) {
       if(/tool/.test(label))
         return opponentHasTool(observation)?285:0;
       if(/stadium/.test(label))
-        return stadiumsInPlay(observation).some(card=>
+        return clearChaoticForTerminal(observation)?800:
+          stadiumsInPlay(observation).some(card=>
           /Temple of Sinnoh|Path to the Peak|Silent Lab|Wondrous Labyrinth/i
             .test(valueText(card)))?310:140;
       return 0;
@@ -1761,7 +1766,7 @@ function prospectiveStadiumThornsAttackUnlock(observation,replacingWithThunder=f
 
 // Faba removes Chaotic Swell, allowing held Thunder to be played later
 // in the SAME turn for a newly payable, final-Prize Volt Cyclone.
-function fabaClearsChaoticForTerminal(observation) {
+function clearChaoticForTerminal(observation) {
   if(!hasStadium(observation,/^Chaotic Swell\b/i) ||
       !ownHand(observation).some(card=>matches(card,PRINT.thunderMountain)) ||
       stadiumLocked(observation))return false;
@@ -1968,7 +1973,7 @@ function scorePlayCard(item, request) {
     if(supporterAvailable(observation)&&
        !hand.some(card=>matches(card,PRINT.faba)) &&
        list(own.discard).some(card=>matches(card,PRINT.faba)) &&
-       fabaClearsChaoticForTerminal(observation))return 990;
+       clearChaoticForTerminal(observation))return 990;
     // A real Item→Supporter→gust→powered Bench attack is one executable
     // sequence, not three independent access edges. Prefer it over ending
     // the turn on a smaller Active KO while the final Prizes are on Bench.
@@ -1983,6 +1988,7 @@ function scorePlayCard(item, request) {
     return 95;
   }
   if (matches(card, PRINT.fieldBlower)) {
+    if(clearChaoticForTerminal(observation))return 1010;
     const opponentHood = slots(opponent).some(row =>
       list(row.pokemon.tools).some(t => /Stealthy Hood/i.test(valueText(t))));
     return opponentHood ? 205 :
@@ -2017,7 +2023,7 @@ function scorePlayCard(item, request) {
     return opponentActiveEnergy(observation) > 0 ? 185 : 0;
   }
   if (matches(card, PRINT.faba)) {
-    if(fabaClearsChaoticForTerminal(observation))return 950;
+    if(clearChaoticForTerminal(observation))return 950;
     return opponentHasTool(observation) || opponentSpecialEnergyCount(observation) > 0 ||
       stadiumsInPlay(observation).length > 0 ? 175 : 0;
   }

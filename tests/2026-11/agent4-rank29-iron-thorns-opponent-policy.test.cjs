@@ -3325,3 +3325,86 @@ test('VS Seeker -> discarded Faba -> Chaotic Swell removal -> Thunder: terminal 
       {kind:'select-choices',tokens:[win?'faba':'flare']});
   }
 });
+test('native Field Blower and Faba option choices clear terminal Chaotic Swell despite two Tools',()=>{
+  const choices=[
+    {token:'stadium',kind:'option',label:'Discard the Stadium and up to 1 Tool',
+      publicMetadata:{choiceIndex:0}},
+    {token:'tools',kind:'option',label:'Discard up to 2 Tools',
+      publicMetadata:{choiceIndex:1}}
+  ];
+  for(const seat of [0,1])for(const condition of [
+    'funded','underfunded','no-thunder','spiky-final-tie'
+  ]){
+    const win=condition==='funded';
+    const hasDce=condition!=='underfunded';
+    const hasThunder=condition!=='no-thunder';
+    const tie=condition==='spiky-final-tie';
+    const owner=player({
+      active:pokemon('Iron Thorns ex TWM 77',{
+        energies:[hasDce?'Double Colorless Energy SUM 136':
+          'Capture Energy RCL 171'],damage:tie?220:0}),
+      bench:[pokemon('Iron Thorns ex TWM 77')],
+      stadium:['Chaotic Swell CEC 187'],prizeCount:2
+    });
+    const opponent=player({
+      active:pokemon('Tapu Lele-GX GRI 60',{
+        hp:170,damage:60,subtypes:['GX'],
+        energies:['Spiky Energy JTG 159','Double Colorless Energy SUM 136'],
+        tools:['Stealthy Hood UNB 186']}),
+      bench:[pokemon('Shadow Rider Calyrex V CRE 74',{
+        tools:['Forest Seal Stone SIT 156']})],
+      prizeCount:tie?2:3
+    });
+    const hand=['Field Blower GRI 125','Faba LOT 173',
+      'Team Flare Grunt XY 129',
+      ...(hasThunder?['Thunder Mountain ◇ LOT 191']:[])];
+    const root=rootRequest({
+      seat,ownPublic:owner,opponentPublic:opponent,ownHand:hand,
+      items:[
+        action('flare','play-card','Team Flare Grunt XY 129',{cardType:'supporter'}),
+        action('faba','play-card','Faba LOT 173',{cardType:'supporter'}),
+        action('blower','play-card','Field Blower GRI 125',{cardType:'item'}),
+        {token:'pass',kind:'pass'}
+      ]
+    });
+    assert.deepEqual(checkedDecision(root,seat),
+      {kind:'select-action',token:'blower'});
+    assert.equal(makePolicy(seat).decideWithAudit(root).
+      policyAudit.evaluations.find(x=>x.token==='blower').score,
+      win?1010:205);
+    const blowerOption=promptRequest({
+      seat,promptType:'SelectOptionPrompt',
+      source:actorChoiceSource('Field Blower GRI 125','Field Blower'),
+      publicMetadata:{selectionType:'option',count:2,allowCancel:false},
+      choices,observation:{ownPublic:owner,opponentPublic:opponent,ownHand:hand}
+    });
+    assert.deepEqual(checkedDecision(blowerOption,seat),
+      {kind:'select-choice',token:win?'stadium':'tools'});
+    const blowerTarget=promptRequest({
+      seat,promptType:'ChooseCardsPrompt',
+      source:actorChoiceSource('Field Blower GRI 125','Field Blower'),
+      publicMetadata:multiMetadata(1,1),
+      observation:{ownPublic:owner,opponentPublic:opponent,ownHand:hand},
+      choices:[
+        cardChoice('hood','Stealthy Hood UNB 186','attached','opponent'),
+        cardChoice('swell','Chaotic Swell CEC 187','stadium','opponent')
+      ]
+    });
+    assert.deepEqual(checkedDecision(blowerTarget,seat),
+      {kind:'select-choices',tokens:[win?'swell':'hood']});
+    const fabaOption=promptRequest({
+      seat,promptType:'SelectPrompt',
+      source:actorChoiceSource('Faba LOT 173','Faba'),
+      publicMetadata:{selectionType:'option',count:2,allowCancel:false},
+      observation:{ownPublic:owner,opponentPublic:opponent,ownHand:hand},
+      choices:[
+        {token:'energy',kind:'option',label:'CHOICE_SPECIAL_ENERGY',
+          publicMetadata:{choiceIndex:0}},
+        {token:'stadium',kind:'option',label:'CHOICE_STADIUM',
+          publicMetadata:{choiceIndex:1}}
+      ]
+    });
+    assert.deepEqual(checkedDecision(fabaOption,seat),
+      {kind:'select-choice',token:win?'stadium':'energy'});
+  }
+});
