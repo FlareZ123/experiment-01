@@ -578,7 +578,11 @@ function scoreAction(item, request) {
     const hasTm = list(recipient.tools).some(tool => matches(tool, PRINT.tmEvolution));
     if (toBench && targetIsBunnelby && hasTm &&
         hasK0PossibleBenchEvolutionTarget(observation)) return 225;
-    if (toBench && targetIsStoutland) return 198;
+    if (toBench && targetIsStoutland) {
+      // Jet Energy's switch is a way to establish the same Active Sentinel
+      // lock as retreat or Guzma; avoid promoting a visibly suppressed one.
+      return opponentHasGarbotoxin(opponent) ? 0 : 198;
+    }
     return 80;
   }
   if (matches(card, PRINT.captureEnergy)) {
