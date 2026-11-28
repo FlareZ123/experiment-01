@@ -12,7 +12,14 @@ function firstString(values) {
 function describeEffect(card, effect) {
   const sourceCard = effect?.trainerCard ?? card ?? effect?.sourceCard ??
     effect?.card ?? null;
+  // Handheld Fan's AfterDamageEffect carries the *attacker's* attack name.
+  // The prompt originates from this Tool's reducer, not from that attack.
+  // Keep the exact pinned Tool source for actor-owned Energy movement.
+  const fanAfterDamage = card?.name === 'Handheld Fan' &&
+    card?.set === 'TWM' && card?.setNumber === '150' &&
+    effect?.constructor?.name === 'AfterDamageEffect';
   const effectName = firstString([
+    fanAfterDamage ? card.name : null,
     effect?.attack?.name,
     effect?.power?.name,
     effect?.trainerCard?.name,
