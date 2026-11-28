@@ -70,6 +70,32 @@ for(const seat of [0,1]){
     assert.equal(scoreAction(r.actionFrontier.items[0],r),225);
     assert.deepEqual(policy.decide(r),{kind:'select-action',token:'megaton'});
   });
+  test('seat '+seat+': native-offered Temple replacement dominates consuming ACE SPEC',()=>{
+    // These three source-rank29 Stadiums can all replace Temple without
+    // recreating Wondrous Labyrinth's self-imposed extra attack cost.
+    for(const stadium of [
+      'Thunder Mountain Prism Star LOT 191',
+      'Tropical Beach BWP 50',
+      "Player's Ceremony SP 127"
+    ]){
+      const r=request(seat);
+      r.observation.ownHand.push(stadium);
+      r.actionFrontier.items.splice(1,0,{kind:'play-card',token:'stadium',
+        actorPrinting:stadium,publicMetadata:{cardType:'stadium'}});
+      assert.equal(scoreAction(r.actionFrontier.items[0],r),900);
+      assert.equal(scoreAction(r.actionFrontier.items[1],r),925);
+      assert.deepEqual(policy.decide(r),{kind:'select-action',token:'stadium'});
+    }
+    // Wondrous still replaces Temple but itself adds [C] to the attack,
+    // so the exact two-card Speed + DCE stack remains underfunded.
+    const immune=request(seat);
+    immune.observation.ownHand.push('Wondrous Labyrinth Prism Star TEU 158');
+    immune.actionFrontier.items.splice(1,0,{kind:'play-card',token:'wondrous',
+      actorPrinting:'Wondrous Labyrinth Prism Star TEU 158',
+      publicMetadata:{cardType:'stadium'}});
+    assert.equal(scoreAction(immune.actionFrontier.items[1],immune),0);
+    assert.deepEqual(policy.decide(immune),{kind:'select-action',token:'megaton'});
+  });
   test('seat '+seat+': Wondrous Labyrinth Item immunity does not masquerade as Temple removal',()=>{
     const r=request(seat,{stadium:'Wondrous Labyrinth Prism Star TEU 158'});
     assert.equal(scoreAction(r.actionFrontier.items[0],r),0);
