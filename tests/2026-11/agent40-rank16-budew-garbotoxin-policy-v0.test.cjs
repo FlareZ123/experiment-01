@@ -1843,3 +1843,44 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,disc),{kind:'select-choices',tokens:['boost','forest']});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Temple does not replace Jamming to revive Hooded Vileplume Item lock',()=>{
+  const garb=mon('Garbodor LTR 68',{tools:['Float Stone BKT 137'],
+   abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]});
+  const enemyVile=mon('Vileplume AOR 3',{tools:['Stealthy Hood UNB 186']});
+  const enemy=opp({active:mon('Regidrago VSTAR SIT 136',{
+   energies:['Double Colorless Energy NXD 92']}),
+   bench:[enemyVile],stadium:['Jamming Tower TWM 153']});
+  const q=root(seat,[play('Temple of Sinnoh ASR 155','temple'),pass],{
+   ownPublic:own({active:mon('Budew ASC 16'),bench:[garb]}),
+   opponentPublic:enemy,ownHand:['Temple of Sinnoh ASR 155']});
+  assert.equal(policy.garbotoxinStatus(q.observation),'live');
+  assert.equal(policy.opponentVileplumeItemLock(q.observation),false);
+  assert.equal(policy.replacingJammingRestoresHoodedLock(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  enemyVile.tools=[];
+  assert.equal(policy.replacingJammingRestoresHoodedLock(q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
+ });
+ test('seat '+seat+' Hooded Snorlax and Stoutland lock resurrection also prevents Temple',()=>{
+  const garb=mon('Garbodor LTR 68',{tools:['Float Stone BKT 137'],
+   abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]});
+  const ownBoard=own({active:mon('Budew ASC 16'),bench:[garb]});
+  const active=mon('Snorlax PGO 55',{tools:['Stealthy Hood UNB 186'],
+   energies:['Double Colorless Energy NXD 92']});
+  const enemy=opp({active,stadium:['Jamming Tower TWM 153']});
+  const q=root(seat,[play('Temple of Sinnoh ASR 155','temple'),pass],{
+   ownPublic:ownBoard,opponentPublic:enemy});
+  assert.equal(policy.replacingJammingRestoresHoodedLock(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  enemy.active=mon('Stoutland BCR 122',{tools:['Stealthy Hood UNB 186'],
+   energies:['Double Colorless Energy NXD 92']});
+  assert.equal(policy.replacingJammingRestoresHoodedLock(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  enemy.active=mon('Regidrago VSTAR SIT 136',{
+   energies:['Double Colorless Energy NXD 92']});
+  assert.equal(policy.replacingJammingRestoresHoodedLock(q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
+ });
+}
