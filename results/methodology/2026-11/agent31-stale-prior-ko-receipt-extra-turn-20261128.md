@@ -50,6 +50,10 @@ Therefore a consumer check of `priorOpponentTurnKO.turn === globalTurn - 1` is w
 
 The correct tracker records the active-player/turn-owner ID for every completed turn and searches backward for the most recent completed turn owned by the opponent. The KO summary's turn must equal that turn-owner-derived `opponentLastTurnTurn`; it may be older than `globalTurn - 1`. This single definition handles both directions: it rejects an old KO after an opponent extra turn with no KO, and preserves a valid KO across the actor's own extra turn.
 
+### Review of Agent8's local v4 prototype
+
+Agent8's unmerged local v4 prototype is a useful first producer/consumer attempt, but it currently has two remaining contract gaps: (a) its tracker snapshot still selects `currentTurn - 1`, so it misses the actor-extra-turn positive case above; and (b) `publicEventReceipt` sets `opponentLastTurnTurn` only inside the `previousOpponentTurnAttacks !== null` branch. If attack history is unavailable but KO history is supplied, the receipt can carry a stamped KO summary while leaving `opponentLastTurnTurn` null. The turn-owner tracker must supply the last-opponent-turn stamp independently of attack history, and the receipt must require the KO summary's turn to equal it. Agent8's hook uses `effect instanceof KnockOutEffect`, which correctly includes the pinned `KnockOutAttackEffect extends KnockOutEffect`; add a subclass regression test because the current fake-Store suite exercises only the base class.
+
 ## Required correction
 
 Do not use the native owner-side KO Boolean as turn-fresh evidence.
