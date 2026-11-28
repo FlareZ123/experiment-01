@@ -135,6 +135,17 @@ function runCases(policy,protocol) {
       ability('letter',A.unown,'Farewell Letter',2),pass]),action('letter'),tag+'Farewell before destructive hand draw');
     const withTool={...v,ownPublic:player({bench:[slot(A.voltorb),slot(A.pikachu),slot(A.unown,{tools:[A.uturn]})]})};
     same(runRoot(p,withTool,[ability('letter',A.unown,'Farewell Letter',2),pass]),action('letter'),tag+'U-Turn recycles through Farewell');
+    const jammedBoard={...withTool,opponentPublic:player({stadium:['Jamming Tower TWM']})};
+    same(runRoot(init(seat),jammedBoard,[ability('letter',A.unown,'Farewell Letter',2),pass]),
+      action('pass'),tag+'Jamming Tower disables U-Turn recycling');
+    const toolDisabled={...withTool,ownPublic:{...withTool.ownPublic,
+      publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:1}}};
+    same(runRoot(init(seat),toolDisabled,[ability('letter',A.unown,'Farewell Letter',2),pass]),
+      action('pass'),tag+'temporary Tool lock disables U-Turn recycling');
+    const impossibleTwoBoards={...withTool,ownPublic:player({bench:[slot(A.voltorb),slot(A.pikachu),
+      slot(A.unown,{tools:[A.uturn,A.uturn]})]})};
+    same(runRoot(init(seat),impossibleTwoBoards,[ability('letter',A.unown,'Farewell Letter',2),pass]),
+      action('pass'),tag+'malformed two-Tool Unown fails closed');
     const unknownTool={...v,ownPublic:player({bench:[slot(A.voltorb),slot(A.pikachu),slot(A.unown,{tools:['Float Stone BKT']})]})};
     same(runRoot(p,unknownTool,[ability('letter',A.unown,'Farewell Letter',2),pass]),action('pass'),tag+'other Tool guarded');
     const withEnergy={...v,ownPublic:player({bench:[slot(A.voltorb),slot(A.pikachu),slot(A.unown,{energies:[A.unit]})]})};

@@ -2197,7 +2197,11 @@ function r17ScoreAbility(item,view) {
     const slot=r17OwnAbilitySlot(item,view);
     return slot&&r17UnownUseful(view)&&!r17Suppressed(slot,name)&&
       list(slot.energies).length===0&&
-       list(slot.tools).every(c=>r17Key(c)==='uturn')?420:0;
+      // Only a live, single attached U-Turn Board recycles. Suppressed
+      // Pokémon Tools are discarded normally when Farewell leaves play.
+      list(slot.tools).length<=1&&
+      (!list(slot.tools).length||r17ToolEffectsLive(view))&&
+      list(slot.tools).every(c=>r17Key(c)==='uturn')?420:0;
   }
   if(key==='marshadow'&&name==='Resetting Hole') {
     const slot=r17OwnAbilitySlot(item,view);
