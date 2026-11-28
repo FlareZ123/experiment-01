@@ -140,3 +140,37 @@ All included source-worker/protocol regression modules now pass
 20 Heavy Ball, 10 Guzma/Prizes, 18 Tool Jammer/Float Stone,
 22 terminal attacks, and 76 neighboring cases. No native or Node execution,
 CI, V3 fixture or physical game.
+
+## Raihan EVS152: previously stranded one-of Supporter
+
+The fixed 60 also contains **Raihan EVS 152**, yet the worker's root
+`scoreTrainerPlay` never admitted it. Raihan is playable following
+any Pokémon Knock Out during the opponent's last turn: it attaches
+one Basic Energy from **your discard pile** to one of your Pokémon,
+then searches any deck card if that attachment succeeded.
+The owner-visible prior-KO receipt, presence of exactly printed Basic
+Psychic Energy in the discard, Supporter-per-turn window and existing
+actor Board now gate native-offered Raihan root actions. If that
+one Energy opens an otherwise unpayable Active attack, Raihan's
+combined Energy-plus-any-card access outranks Teammates; otherwise
+the native-offered two-card Teammates tutor remains preferred when
+available.
+
+A source-certified `ChooseCardsPrompt` can select Psychic Energy
+from the actor-owned discard and then search a needed owner-deck card.
+`ChoosePokemonPrompt` chooses a physically visible actor-owned
+recipient; a native `AttachEnergyPrompt`, if emitted by pinned
+Twinleaf, uses a single typed opaque Energy-to-Active/Bench token.
+All three paths check exact `Raihan EVS 152` source identity and
+actor-visible physical zones. No hidden Prize/Deck information is
+guessed. Unsupported native prompt variants still abstain.
+
+`tests/2026-11/agent3-raihan-after-ko-energy-tutor-source.test.cjs`
+covers 13 forks on each seat (**26/26**): prior-KO,
+discard Energy, spent Supporter negatives; newly payable attack
+versus Teammates contention; energy assignment to Active/Bench;
+invalid/hidden source; two-step Pokémon target; and discard/deck
+card-search continuation. All 13 source-worker/protocol test
+modules now pass **206/206** V8 groups. This is a logical candidate
+execution improvement, **not** proof that the actual Store exposes
+Raihan in this prompt shape or that it can complete a native turn.
