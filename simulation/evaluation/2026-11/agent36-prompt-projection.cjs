@@ -351,13 +351,50 @@ function addCancelChoice(choices, choiceByToken, prompt, state) {
   }, prompt, state);
 }
 
-function projectChooseCards(prompt, state, actorSeat, choices, choiceByToken) {
+// Pinned Hisuian Heavy Ball copies actor-owned Prizes into a temporary
+// CardList and temporarily sets isSecret=false before ChooseCardsPrompt.
+// Generic Prize visibility sees faceUpPrize=false and wrongly rejects this
+// legally actor-revealed search. Authorize only that exact live effect.
+function heavyBallPrizeVisibility(prompt, state, actorSeat, source, native, cards) {
+  if (source?.sourceKind !== 'card-effect' ||
+      source.effectName !== 'Hisuian Heavy Ball' ||
+      source.sourcePrinting !== 'Hisuian Heavy Ball ASR 146') return null;
+  const actor = state.players[actorSeat];
+  const allPrizes = (actor?.prizes ?? []).filter(p =>
+    Array.isArray(p?.cards) && p.cards.length > 0);
+  const realCards = allPrizes.flatMap(p => p.cards);
+  const promptExact = prompt.playerId === actor?.id &&
+    prompt.cards !== actor?.hand && prompt.cards !== actor?.deck &&
+    prompt.cards !== actor?.discard &&
+    prompt.filter?.superType === native?.SuperType?.POKEMON &&
+    prompt.filter?.stage === native?.Stage?.BASIC &&
+    prompt.options?.min === 0 && prompt.options?.max === 1 &&
+    prompt.options?.allowCancel === false;
+  const custodyExact = realCards.length > 0 && realCards.length === cards.length &&
+    realCards.every((card, index) => card === cards[index]);
+  const nativeRevealActive = allPrizes.length > 0 && allPrizes.every(p =>
+    p.isSecret === false && p.faceUpPrize !== true);
+  if (!promptExact || !custodyExact || !nativeRevealActive) {
+    throw Object.assign(new Error('Hisuian Heavy Ball lacks live owned temporarily revealed Prize custody'), {
+      code: 'UNSAFE_HEAVY_BALL_PRIZE_REVEAL'
+    });
+  }
+  return {sourceZone: 'prizes', ownerSeat: 'actor', isOwnerVisible: true};
+}
+
+function projectChooseCards(prompt, state, actorSeat, choices, choiceByToken, source, native) {
   const cards = cardListCards(prompt.cards);
-  const visibility = cardCollectionVisibility(state, actorSeat, cards);
+  const heavyBallReveal = heavyBallPrizeVisibility(prompt, state, actorSeat,
+    source, native, cards);
+  const visibility = heavyBallReveal ?? cardCollectionVisibility(state, actorSeat, cards);
   const min = Math.max(0, Number.isSafeInteger(prompt.options?.min) ? prompt.options.min : 0);
   const requestedMax = Number.isSafeInteger(prompt.options?.max) ? prompt.options.max : cards.length;
   const blocked = new Set(prompt.options?.blocked ?? []);
-  const indices = cards.map((_, index) => index).filter(index => !blocked.has(index));
+  // The temporary Prize list is heterogeneous. Offer only indices the
+  // actual native ChooseCardsPrompt confirms are legal Basic Pokémon.
+  const indices = cards.map((_, index) => index).filter(index =>
+    !blocked.has(index) && (!heavyBallReveal ||
+      validateRawPromptResult(prompt, [index], state).valid));
   const max = Math.min(indices.length, requestedMax);
   for (const index of indices) {
     const name = printing(cards[index]) ?? ('Card ' + (index + 1));
@@ -867,7 +904,8 @@ function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook
   switch (type) {
     case 'ChooseCardsPrompt':
     case 'NightWatchPrompt':
-      publicMetadata = projectChooseCards(prompt, state, actorSeat, choices, choiceByToken);
+      publicMetadata = projectChooseCards(prompt, state, actorSeat,
+        choices, choiceByToken, source, native);
       break;
     case 'ChoosePokemonPrompt':
       publicMetadata = projectChoosePokemon(prompt, state, actorSeat, native, choices, choiceByToken);
