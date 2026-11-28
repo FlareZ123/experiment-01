@@ -1356,7 +1356,12 @@ function rescueStretcherPrompt(request) {
   return target?picks([target]):no('R30_STRETCHER_NO_TARGET');
 }
 function rootDecision(request,{enablePatchProjection=false}={}) {
-  const o=request.observation, items=availableCards(request);
+  const o=request.observation;
+  // Treat the native frontier as a legal offer, but never trust a stale
+  // synthetic or cached Supporter action after the per-turn count is spent.
+  const items=availableCards(request).filter(a=>supporterAvailable(o)||
+    !(a.kind==='play-card'&&[P.guzma,P.marnie,P.raihan].some(p=>
+      has(ownPrinting(a),p))));
   if(!items.length)return no('R30_NO_OFFERED_ROOT');
   const miniorAttack=items.find(a=>a.kind==='attack'&&
     a.attackName==='Gravitational Tackle'&&has(ownPrinting(a),P.minior));
