@@ -39,7 +39,8 @@ const PRINT=Object.freeze({
  plumeria:/^Plumeria BUS 120\b/i,
  karen:/^Karen XYP 177\b/i,
  temple:/^Temple of Sinnoh ASR 155\b/i,
- jamming:/^Jamming Tower TWM 153\b/i
+ jamming:/^Jamming Tower TWM 153\b/i,
+ dimensionValley:/^Dimension Valley\b/i
 });
 const ROOT_KINDS=new Set(['play-card','use-ability','attack','retreat','use-stadium','pass']);
 const list=x=>Array.isArray(x)?x:[];
@@ -270,6 +271,12 @@ function score(action,req){
  }
  if(match(p,PRINT.guzma))return o.ownTurnResources?.supporterPlayedTurn===0&&benchCount(opp)>0?185:0;
  if(match(p,PRINT.temple)){
+  const opposingStadium=[...list(opp.stadium),...list(own.stadium)];
+  const suppressedGarbodor=opposingStadium.some(x=>match(x,PRINT.jamming))&&
+   slots(own).some(x=>match(x.pokemon.printing,PRINT.garbodor)&&
+    list(x.pokemon.tools).length>0);
+  if(suppressedGarbodor)return 810;
+  if(opposingStadium.some(x=>match(x,PRINT.dimensionValley)))return 255;
   const special=slots(opp).some(({pokemon})=>list(pokemon.energies).some(x=>!/^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal) Energy\b/i.test(name(x))));
   return special?170:0;
  }
