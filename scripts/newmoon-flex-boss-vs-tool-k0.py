@@ -90,23 +90,31 @@ def census():
 
 
 
-def triple_stage1_prize_gate(valid_probability):
-    """Prize-only necessary gate for v2's *two* Dusclops + Tool Jammer line.
+def named_prize_gate(nonbasic, basic, valid_probability):
+    """Exact chance all specified physical cards avoid six Prizes,
+    conditioned on Basic-valid opening seven from a 17-Basic 60.
 
-    Three specified non-Basics must all be absent from six Prizes.
-    Exact conditioning on a 17-Basic valid opening seven: if k of those
-    three are already in the initial hand, 3-k remain at Prize risk.
-    This is not a line-execution chance and is only required before
-    any Prize is taken or another recovery line becomes available.
+    nonbasic and basic distinguish named required cards; correlation
+    with opening-mulligan screening matters. Never equate with a line
+    being *playable*: Heavy Ball, Prize-taking, recovery and opponent
+    action may alter access later.
     """
-    none_prized = Fraction(comb(57, 6), comb(60, 6))
-    invalid_and_none_prized = sum(
-        (Fraction(comb(3, k) * comb(40, 7 - k), comb(60, 7))
-         * Fraction(comb(50 + k, 6), comb(53, 6))
-         for k in range(4)), Fraction(0))
-    conditional = (none_prized - invalid_and_none_prized) / valid_probability
-    assert Fraction(0) < conditional < Fraction(1)
-    return conditional
+    n = nonbasic + basic
+    none_prized = Fraction(comb(60-n, 6), comb(60, 6))
+    invalid_and_none_prized = sum((
+        Fraction(comb(nonbasic, h)*comb(43-nonbasic, 7-h),
+                 comb(60, 7))
+        * Fraction(comb(53-n+h, 6), comb(53, 6))
+        for h in range(nonbasic+1) if 0 <= 7-h <= 43-nonbasic
+    ), Fraction(0))
+    result = (none_prized-invalid_and_none_prized)/valid_probability
+    assert 0 < result < 1
+    return result
+
+
+def triple_stage1_prize_gate(valid_probability):
+    return named_prize_gate(3, 0, valid_probability)
+
 
 if __name__ == "__main__":
     check_source()
@@ -118,6 +126,10 @@ if __name__ == "__main__":
         "basicValidSeven": float(result["valid"]),
         "twoDusclopsAndToolUnprizedGivenValidSevenPercent": round(
             float(triple_stage1_prize_gate(result["valid"])) * 100, 7),
+        "twoDuskullTwoDusclopsAndToolUnprizedGivenValidSevenPercent": round(
+            float(named_prize_gate(3, 2, result["valid"])) * 100, 7),
+        "oneClefairyAndHoodUnprizedGivenValidSevenPercent": round(
+            float(named_prize_gate(1, 1, result["valid"])) * 100, 7),
         "conditionalPercent": {k: round(float(v / result["valid"]) * 100, 7)
                                for k, v in result.items() if k != "valid"},
         "exactUnconditional": {k: str(v) for k, v in result.items()}
