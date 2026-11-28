@@ -1226,21 +1226,56 @@ function chooseStartingPokemonSetup(prompt) {
     previousIndex = index;
   }
 
-  const selected = cardChoices.slice(0, metadata.maximumCount);
-  if (selected.length < metadata.minimumCount ||
-      (metadata.minimumCount === 0 && cardChoices.length > 0 && selected.length === 0)) {
-    return abstain('INSUFFICIENT_STARTING_POKEMON_CHOICES');
-  }
-  if (metadata.minimumCount === 0 && cardChoices.length === 0) {
-    const empty = emptyChoices[0];
-    return empty
-      ? { kind: 'select-choice', token: empty.token }
-      : abstain('NO_STARTING_POKEMON_CHOICE');
+  // The native initial setup may place an Active Basic and optional Benched
+  // Basics *before a player's turn starts*. Radiant Eternatus's
+  // Climactic Gate and Tapu Lele-GX's Wonder Tag are ON-PLAY-BENCH-DURING-
+  // TURN abilities: auto-benching them at setup consumes the card without
+  // triggering its engine. Likewise, indiscriminate setup-benching leaks
+  // singleton counters and extra multi-Prize liabilities.
+  const activeRank = printing => {
+    if (printing === 'Shadow Rider Calyrex V CRE 74') return 1000;
+    if (printing === 'Girafarig LOT 94') return 840;
+    if (printing === 'Mimikyu GRI 58') return 820;
+    if (printing === 'Latias ex SSP 76') return 780;
+    if (printing === "Lillie's Clefairy ex JTG 56") return 760;
+    if (printing === 'Marshadow UNB 81') return 660;
+    if (printing === 'Dialga-GX UPR 100') return 620;
+    if (printing === 'Tapu Lele-GX GRI 60') return 400;
+    if (printing === 'Radiant Eternatus CRZ 105') return 300;
+    if (printing === 'Trevenant & Dusknoir-GX SMP 217') return 200;
+    return 100;
+  };
+  for (const choice of cardChoices)
+    recordPolicyAuditScore(choice.token, activeRank(choice.printing),
+      'STARTING_ACTIVE_PRIORITY');
+  let selected = [];
+  if (metadata.minimumCount === 1 && cardChoices.length > 0) {
+    const best = [...cardChoices].sort((a,b) =>
+      activeRank(b.printing)-activeRank(a.printing) ||
+      a.publicMetadata.selectionIndex-b.publicMetadata.selectionIndex)[0];
+    selected = [best];
   }
 
-  // The native prompt has already filtered non-Basics through blocked indices.
-  // Preserve its order and let the pinned reducer's callback place cards only
-  // while Bench slots remain; do not impose a second capacity cap here.
+  // Setup only the first two printed Shadow Rider V engines; keep
+  // other Basics in hand for contextual, during-turn Bench placement.
+  const vPrinting = 'Shadow Rider Calyrex V CRE 74';
+  const alreadySelectedV = selected.filter(choice =>
+    choice.printing === vPrinting).length;
+  const extraV = cardChoices.filter(choice =>
+    choice.printing === vPrinting && !selected.some(s => s.token === choice.token))
+    .slice(0, Math.max(0, 2-alreadySelectedV));
+  selected = [...selected, ...extraV].slice(0, metadata.maximumCount);
+
+  if (selected.length < metadata.minimumCount)
+    return abstain('INSUFFICIENT_STARTING_POKEMON_CHOICES');
+  if (selected.length === 0 && metadata.minimumCount === 0) {
+    const empty = emptyChoices[0];
+    return empty ?
+      { kind: 'select-choice', token: empty.token } :
+      abstain('NO_STARTING_POKEMON_CHOICE');
+  }
+  setPolicyAuditRule('STARTING_PRESERVE_ONPLAY_BASIC_FOR_ACTUAL_TURN',
+    'ACTIVE_PRIORITY_THEN_MAX_TWO_ENGINES');
   return { kind: 'select-choices', tokens: selected.map(choice => choice.token) };
 }
 
