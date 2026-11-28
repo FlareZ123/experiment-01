@@ -374,3 +374,25 @@ for(const seat of [0,1])for(const ball of ['Quick Ball FST 237','Ultra Ball MEG 
     assert.deepEqual(decide(r),{kind:'select-action',token:'ball'});
   });
 }
+
+for(const seat of [0,1]){
+ const cards=['Secret Box TWM 163','Battle VIP Pass FST 225',
+   'Battle VIP Pass FST 225','Quick Ball FST 237','Ultra Ball MEG 131'];
+ const items=[action('attack','pollen',{attackName:'Itchy Pollen',
+   publicMetadata:{attackCostPayable:true}}),
+   action('play-card','secret',{actorPrinting:'Secret Box TWM 163'}),
+   action('pass','pass')];
+ test('rank16 Secret Box retains ACE rather than burn three cards with complete engine seat '+seat,()=>{
+   const r=state(seat,{globalTurn:4,ownHand:cards,
+     ownPublic:{active:poke(P.budew),bench:[
+       {...poke(P.garbBKP),tools:[tool()]},
+       {...poke(P.absol),energies:[{printing:'Darkness Energy MEE 15'},
+         {printing:'Darkness Energy MEE 15'},{printing:'Darkness Energy MEE 15'}]}]},items});
+   assert.deepEqual(decide(r),{kind:'select-action',token:'pollen'});
+ });
+ test('rank16 affordable Secret Box resolves missing Garbodor board channel seat '+seat,()=>{
+   const r=state(seat,{globalTurn:4,ownHand:cards,
+     ownPublic:{active:poke(P.budew),bench:[poke(P.absol)]},items});
+   assert.deepEqual(decide(r),{kind:'select-action',token:'secret'});
+ });
+}
