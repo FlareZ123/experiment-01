@@ -689,4 +689,35 @@ test('source-qualified global Stadium activation works for either player, fails 
   assert.equal(ambiguous.actionFrontier.items[0].actorPrinting,
     'Tropical Beach BWP',
     'source-60 conflicting native ID must not be assigned to either art');
+  // A genuine globally visible Stadium CardList resolves the owner even
+  // when two authenticated source decks resolve different printings to the
+  // same engine ID. Test both pre-digest projected and raw observations.
+  for(const seat of [0,1]){
+    const maps=seat===0?[conflictingMine,other]:[other,conflictingMine];
+    for(const stamped of [false,true]){
+      const view={actorSeat:seat,ownHand:[],
+        ownPublic:{active:null,bench:[],stadium:[]},
+        opponentPublic:{active:null,bench:[],
+          stadium:[stamped?'Tropical Beach BWP 50':'Tropical Beach BWP']}};
+      const frontier={schema:'aichi-action-frontier-v1',items:[
+        {token:'stadium',kind:'use-stadium',
+          actorPrinting:'Tropical Beach BWP',
+          publicMetadata:{stadiumEffectLive:true}}]};
+      const otherOwned=projectSourcePrintings(view,frontier,maps);
+      assert.equal(otherOwned.actionFrontier.items[0].actorPrinting,
+        'Tropical Beach BWP 50',
+        'opponent public Stadium zone is sufficient to resolve source owner');
+      assert.equal(otherOwned.observation.opponentPublic.stadium[0],
+        'Tropical Beach BWP 50');
+      const ownView={actorSeat:seat,ownHand:[],
+        ownPublic:{active:null,bench:[],
+          stadium:[stamped?'Tropical Beach BWP 51':'Tropical Beach BWP']},
+        opponentPublic:{active:null,bench:[],stadium:[]}};
+      const ownerOwned=projectSourcePrintings(ownView,frontier,maps);
+      assert.equal(ownerOwned.actionFrontier.items[0].actorPrinting,
+        'Tropical Beach BWP 51',
+        'actor public Stadium zone resolves actor-owned printing');
+    }
+  }
+
 });

@@ -138,6 +138,24 @@ function mapPrompt(prompt,mine,other){
         sourcePrinting:uniqueVisibleLabel(
           prompt.publicMetadata.sourcePrinting,mine,other)}:{})}:prompt.publicMetadata};
 }
+/**
+ * A globally playable Stadium belongs to the player whose Stadium CardList
+ * currently holds it, not necessarily to the player choosing USE_STADIUM.
+ * This ownership is public in the raw actor view (and remains so after an
+ * earlier pre-digest source-print projection). Use it to resolve otherwise
+ * ambiguous shared native IDs without revealing either player's hidden zones.
+ */
+function stadiumActionPrinting(nativeId,view,mine,other){
+  const visibleIn=(source,mapping)=>Array.isArray(source?.stadium)&&
+    source.stadium.some(value=>
+      value===nativeId||value===label(nativeId,mapping));
+  const own=visibleIn(view?.ownPublic,mine);
+  const opp=visibleIn(view?.opponentPublic,other);
+  if(own&&!opp)return label(nativeId,mine);
+  if(opp&&!own)return label(nativeId,other);
+  return uniqueVisibleLabel(nativeId,mine,other);
+}
+
 function mapOwnerK1(snapshot,map){
   if(!snapshot)return snapshot;
   return {...snapshot,knownPrintings:Array.isArray(snapshot.knownPrintings)?
@@ -171,7 +189,7 @@ function projectSourcePrintings(observation,frontier,sourceMapsBySeat,options={}
           // to the acting player's card inventory; conflicting print IDs
           // remain raw rather than guessing who physically played it.
           actorPrinting:item.kind==='use-stadium'
-            ? uniqueVisibleLabel(item.actorPrinting,mine,other)
+            ? stadiumActionPrinting(item.actorPrinting,observation,mine,other)
             : label(item.actorPrinting,mine)}:{}),
         ...(Object.hasOwn(item,'targetPrinting')?{
           targetPrinting:label(item.targetPrinting,targetMap)}:{}),
