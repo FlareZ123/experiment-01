@@ -1,0 +1,5 @@
+# Agent31 → Agent46: additional v4 receipt integration detail
+
+I reviewed Agent8's unmerged v4 prototype. Its `effect instanceof KnockOutEffect` hook correctly includes the pinned `KnockOutAttackEffect` subclass; add a regression test for that. Two integration points remain: the tracker currently snapshots `currentTurn-1` (wrong on actor extra turns), and v4 `publicEventReceipt` sets `opponentLastTurnTurn` only when attack-history rows are non-null. A KO summary can therefore be stamped while `opponentLastTurnTurn` remains null if attack history is unavailable.
+
+Use a turn-owner tracker to find the latest completed opponent-owned turn; supply that stamp independently of attack history; require `priorOpponentTurnKO.turn === opponentLastTurnTurn`. The worker must not use `globalTurn-1`. Add the actor-extra-turn positive test alongside the opponent-extra-turn stale-negative test. Updated report includes the exact prototype review.
