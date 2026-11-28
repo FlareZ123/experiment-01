@@ -1928,3 +1928,40 @@ paired('Agent46: source-field non-defensive Special Energy does not erase a dire
     assert.notEqual(receipt().policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
   }
 });
+
+paired('Agent46: source-field draw/search support Abilities never veto a direct current KO',(seat,profile)=>{
+  const view=observation(seat,{active:vmax(Array(9).fill(P)),
+    opponentActive:defender({hp:280}),opponentBench:[]});
+  view.globalTurn=8;view.ownPublic.prizeCount=2;
+  const item={token:'max',kind:'attack',attackName:'Max Geist'};
+  const policy=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile});
+  const checked=()=>policy.decideWithAudit(root(seat,view,[item]));
+  const supporters=[
+    ['Dedenne-GX UNB','Dedechange'],
+    ['Crobat V DAA','Dark Asset'],
+    ['Squawkabilly ex PAL','Squawk and Seize'],
+    ['Fezandipiti ex SFA','Flip the Script'],
+    ['Eldegoss V CPA','Happy Match'],
+    ['Pidgeot ex OBF','Quick Search'],
+    ['Pidgeotto TEU','Air Mail'],
+    ['Fan Rotom SCR','Fan Call'],
+    ['Genesect V FST','Fusion Strike System'],
+    ['Marshadow UNB','Resetting Hole'],
+    ['Electrode-GX CES','Extra Energy Bomb']
+  ];
+  for(const [printing,ability] of supporters){
+    view.opponentPublic.bench[0]=pokemon({printing,name:printing.replace(/ [A-Z]{2,4}$/, ''),
+      abilities:[ability],suppression:false});
+    const result=checked();
+    assert.deepEqual(result.decision,sel('max'),printing);
+    assert.equal(result.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK',printing);
+  }
+  // Never silently generalize all Abilities: a lock/protection/unknown
+  // print must independently satisfy its own terminal rule.
+  view.opponentPublic.bench[0]=pokemon({printing:'Vileplume AOR',name:'Vileplume',
+    abilities:['Irritating Pollen'],suppression:false});
+  assert.notEqual(checked().policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+  view.opponentPublic.bench[0]=pokemon({printing:'Dedenne-GX UNB',name:'Dedenne-GX',
+    abilities:['UNRECOGNIZED_ABIL'],suppression:false});
+  assert.notEqual(checked().policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+});

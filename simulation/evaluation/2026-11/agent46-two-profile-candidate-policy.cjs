@@ -3984,7 +3984,20 @@ function directTerminalHarmlessAbility(slot,name){
     (name==='Skyliner'&&hasName(slot.printing,'Latias ex')) ||
     (name==='Wonder Tag'&&hasName(slot.printing,'Tapu Lele-GX')) ||
     (name==='Underworld Door'&&isShadowRiderVmax(slot)) ||
-    (name==='Climactic Gate'&&hasName(slot.printing,'Radiant Eternatus'));
+    (name==='Climactic Gate'&&hasName(slot.printing,'Radiant Eternatus')) ||
+    // On-own-turn search/draw and entry-trigger utilities do not react to a
+    // direct hit or modify that hit's damage, Prize payout, or KO timing.
+    (name==='Dedechange'&&hasName(slot.printing,'Dedenne-GX')) ||
+    (name==='Dark Asset'&&hasName(slot.printing,'Crobat V')) ||
+    (name==='Squawk and Seize'&&hasName(slot.printing,'Squawkabilly ex')) ||
+    (name==='Flip the Script'&&hasName(slot.printing,'Fezandipiti ex')) ||
+    (name==='Happy Match'&&hasName(slot.printing,'Eldegoss V')) ||
+    (name==='Quick Search'&&hasName(slot.printing,'Pidgeot ex')) ||
+    (name==='Air Mail'&&hasName(slot.printing,'Pidgeotto')) ||
+    (name==='Fan Call'&&hasName(slot.printing,'Fan Rotom')) ||
+    (name==='Fusion Strike System'&&hasName(slot.printing,'Genesect V')) ||
+    (name==='Resetting Hole'&&hasName(slot.printing,'Marshadow')) ||
+    (name==='Extra Energy Bomb'&&hasName(slot.printing,'Electrode-GX'));
 }
 function astralTerminalHarmlessAbility(slot,name){
   return (name==='Safeguard'&&hasName(slot.printing,'Mimikyu PAL')) ||
