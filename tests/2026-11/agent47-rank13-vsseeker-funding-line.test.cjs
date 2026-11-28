@@ -3,7 +3,8 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { chooseRank13VsSeekerFundingLine: choose,
   assessRank13CrispinEnergyPair: assess,
-  assessSourceCountCrispinEnergyPair: assessSource } =
+  assessSourceCountCrispinEnergyPair: assessSource,
+  requiredBasicForApex: requiredBasic } =
   require('../../simulation/evaluation/2026-11/agent47-rank13-vsseeker-funding-line.cjs');
 const rank13 =
   require('../../simulation/evaluation/2026-11/agent24-rank13-regidrago-opponent-policy.cjs');
@@ -184,4 +185,29 @@ test('same Crispin source-text adapter serves ranks 13/14/20; ONLY rank13 4G/3F 
   assert.deepEqual(fourteen.lowerBounds,{grass:2,fire:0});
   assert.deepEqual(twenty,fourteen);
   assert.equal(assessSource(view,{grass:65,fire:2}).status,'invalid');
+});
+
+for(const seat of [0,1]){
+  test('seat '+seat+': G+G -> Crispin Fire guaranteed at K0 and wins the same final-Prize Apex cost',()=>{
+    const r=base(seat);
+    r.observation.ownPublic.active.energies=[
+      {printing:'Grass Energy MEE 9'},{printing:'Grass Energy MEE 1'}];
+    assert.equal(requiredBasic(r.observation.ownPublic.active.energies),'fire');
+    assert.equal(assess(r.observation).status,'certified-k0-lower-bound');
+    assert.deepEqual(assess(r.observation).lowerBounds,{grass:1,fire:2});
+    assert.deepEqual(choose(r),{kind:'select-choices',tokens:['crispin']});
+    // Even the independently authenticated rank14 and rank20 4G/2F
+    // inventories certify a deck Grass+Fire pair in THIS G+G prestate.
+    const other=assessSource(r.observation,{grass:4,fire:2});
+    assert.equal(other.status,'certified-k0-lower-bound');
+    assert.deepEqual(other.lowerBounds,{grass:1,fire:1});
+  });
+}
+test('Apex Basic-payment classification is exact and refuses F+F / surplus-energy paths',()=>{
+  const g={printing:'Grass Energy MEE 9'},f={printing:'Fire Energy MEE 10'};
+  assert.equal(requiredBasic([g,f]),'grass');
+  assert.equal(requiredBasic([g,g]),'fire');
+  assert.equal(requiredBasic([f,f]),null);
+  assert.equal(requiredBasic([g,g,f]),null);
+  assert.equal(requiredBasic([{printing:'Double Dragon Energy ROS 97'},g]),null);
 });
