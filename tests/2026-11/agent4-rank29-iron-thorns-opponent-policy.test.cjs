@@ -2812,3 +2812,115 @@ test('Palace Book never truncates a free Energy attachment nor reusable Ceremony
     items:[palace,ceremony,{token:'pass',kind:'pass'}]
   })),{kind:'select-action',token:'ceremony'});
 });
+
+
+test('Camping Gear printed unrestricted exact-one search never chooses native empty',()=>{
+  for(const seat of [0,1]){
+    const cards=[
+      'Double Colorless Energy SUM 136','Guzma & Hala CEC 193',
+      'Thundershock Basic LOR 38'
+    ];
+    const req=promptRequest({
+      seat,promptType:'ChooseCardsPrompt',
+      source:actorChoiceSource('Camping Gear BST','Camping Gear'),
+      publicMetadata:{selectionType:'card-combination',count:3,
+        minimumCount:0,maximumCount:1,allowCancel:false,
+        sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true},
+      choices:[
+        ...cards.map((name,index)=>({
+          ...cardChoice('deck'+index,name,'deck','actor'),
+          publicMetadata:{sourceZone:'deck',ownerSeat:'actor',
+            isOwnerVisible:true,selectionIndex:index,selectedCount:1}
+        })),
+        {token:'native-zero',kind:'empty-selection',label:'Choose no cards'}
+      ],
+      observation:{ownPublic:player({
+        active:pokemon('Iron Thorns ex TWM 77'),
+        deckCount:23
+      })}
+    });
+    const selected=checkedDecision(req,seat);
+    assert.equal(selected.kind,'select-choices');
+    assert.equal(selected.tokens.length,1);
+    assert.notEqual(selected.tokens[0],'native-zero');
+    // Even when no custom heuristic recognizes any offered card, the
+    // printed unrestricted search cannot resolve native [] on a full deck.
+    const onlyUnknown=promptRequest({
+      ...req,seat,promptType:'ChooseCardsPrompt',
+      source:actorChoiceSource('Camping Gear BST','Camping Gear'),
+      publicMetadata:{...req.prompt.publicMetadata,count:1},
+      choices:[
+        {token:'unlisted',kind:'card',printing:'Unknown Card XYZ 123',
+          label:'Unknown Card XYZ 123',
+          publicMetadata:{sourceZone:'deck',ownerSeat:'actor',
+            isOwnerVisible:true,selectionIndex:0,selectedCount:1}},
+        {token:'zero',kind:'empty-selection',label:'Choose no cards'}
+      ]
+    });
+    assert.deepEqual(checkedDecision(onlyUnknown,seat),
+      {kind:'select-choices',tokens:['unlisted']});
+  }
+});
+
+test('Camping Gear source-bound exact physical search rejects fake deck and zero source',()=>{
+  const base={
+    promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('Camping Gear BST','Camping Gear'),
+    publicMetadata:{selectionType:'card-combination',count:1,
+      minimumCount:0,maximumCount:1,allowCancel:false,
+      sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true},
+    choices:[
+      {token:'card',kind:'card',printing:'Double Colorless Energy SUM 136',
+        label:'DCE',publicMetadata:{sourceZone:'deck',
+          ownerSeat:'actor',isOwnerVisible:true,selectionIndex:0,
+          selectedCount:1}},
+      {token:'empty',kind:'empty-selection',label:'Choose none'}
+    ]
+  };
+  assert.deepEqual(checkedDecision(promptRequest(base)),
+    {kind:'select-choices',tokens:['card']});
+  for(const changes of [
+    {publicMetadata:{...base.publicMetadata,sourceZone:'discard'}},
+    {publicMetadata:{...base.publicMetadata,ownerSeat:'opponent'}},
+    {choices:[{...base.choices[0],publicMetadata:{
+      ...base.choices[0].publicMetadata,sourceZone:'discard'}},base.choices[1]]}
+  ]){
+    const req=promptRequest({...base,...changes});
+    assert.equal(checkedDecision(req).kind,'abstain');
+  }
+});
+
+test('Camping Gear root preserves exact next-turn DCE and does not preempt immediate actions',()=>{
+  const camping=action('camp','play-card','Camping Gear BST 122',{
+    cardType:'item'
+  });
+  const base={
+    ownHand:['Camping Gear BST 122'],
+    ownPublic:player({
+      active:pokemon('Iron Thorns ex TWM 77'),deckCount:30
+    }),
+    items:[camping,{token:'pass',kind:'pass'}]
+  };
+  assert.deepEqual(checkedDecision(rootRequest(base)),
+    {kind:'select-action',token:'camp'});
+  const k1MissingDce=rootRequest({...base,
+    ownerK1:{epoch:4,exactMembershipKnown:true,invalidationReason:null,
+      knownPrintings:[{printing:'Thunder Mountain ♢ LOT 191',copies:1}]}
+  });
+  assert.deepEqual(checkedDecision(k1MissingDce),
+    {kind:'select-action',token:'pass'});
+  assert.deepEqual(checkedDecision(rootRequest({...base,
+    items:[camping,
+      action('attack','attack','Iron Thorns ex TWM 77',{},
+        {attackName:'Volt Cyclone'}),
+      {token:'pass',kind:'pass'}]
+  })),{kind:'select-action',token:'attack'});
+  assert.deepEqual(checkedDecision(rootRequest({...base,
+    ownHand:['Camping Gear BST 122','Speed Lightning Energy RCL 173'],
+    items:[camping,
+      action('energy','play-card','Speed Lightning Energy RCL 173',{
+        cardType:'energy'
+      },{targetPrinting:'Iron Thorns ex TWM 77'}),
+      {token:'pass',kind:'pass'}]
+  })),{kind:'select-action',token:'energy'});
+});
