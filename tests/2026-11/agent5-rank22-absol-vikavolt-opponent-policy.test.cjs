@@ -278,3 +278,50 @@ test('opponent Garbotoxin also blocks source hand-play Ability payoffs', () => {
     kind:'play-card',actorPrinting:'Tapu Lele-GX GRI 60'
   },root([],o)),0);
 });
+
+test('Enhanced Hammer root is legal-value-positive only for attached Special Energy', () => {
+  const hammer={kind:'play-card',actorPrinting:'Enhanced Hammer TWM 148'};
+  const score=energyName=>policy.scoreAction(hammer,root([],
+    observation({opponentPublic:player({active:poke('Regidrago VSTAR SIT 136',
+      {energies:[energyName]})})})));
+  assert.equal(score('Double Dragon Energy ROS 97'),305);
+  assert.ok(score('Jet Energy PAL 190')>0);
+  assert.ok(score('Telepathic Psychic Energy MEG 181')>0);
+  assert.equal(score('Psychic Energy MEE 13'),0);
+  assert.equal(score('Lightning Energy MEE 12'),0);
+});
+test('Enhanced Hammer chooses the actual Special Energy holder, not a Basic-only target', () => {
+  const o=observation({opponentPublic:player({
+    active:poke('Shadow Rider Calyrex VMAX CRE 75',{energies:[P.dark]}),
+    bench:[poke('Regidrago VSTAR SIT 136',{energies:['Double Dragon Energy ROS 97']})]
+  })});
+  const prompt={
+    promptType:'ChoosePokemonPrompt',
+    source:{sourcePrinting:'Enhanced Hammer TWM 148',effectName:'Enhanced Hammer'},
+    choices:[
+      {token:'active',kind:'pokemon',printing:'Shadow Rider Calyrex VMAX CRE 75',
+        publicMetadata:{ownerSeat:'opponent',targetZone:'active'}},
+      {token:'drago',kind:'pokemon',printing:'Regidrago VSTAR SIT 136',
+        publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:0}}
+    ]
+  };
+  assert.deepEqual(policy.promptDecision({observation:o,prompt}),
+    {kind:'select-choice',token:'drago'});
+});
+test('Enhanced Hammer selects a public Special attachment, never hidden Energy', () => {
+  const o=observation();
+  const make=(token,printing,sourceZone='attached',ownerSeat='opponent')=>({
+    token,kind:'card',printing,publicMetadata:{ownerSeat,sourceZone}});
+  const prompt={
+    promptType:'ChooseCardsPrompt',
+    source:{sourcePrinting:'Enhanced Hammer TWM 148',effectName:'Enhanced Hammer'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:1,maximumCount:1},
+    choices:[make('dark',P.dark),make('jet','Jet Energy PAL 190'),
+      make('double','Double Dragon Energy ROS 97'),make('hidden','Legacy Energy TWM 167','hand')]
+  };
+  assert.deepEqual(policy.promptDecision({observation:o,prompt}),
+    {kind:'select-choices',tokens:['double']});
+  const onlyHidden={...prompt,choices:[make('hidden','Double Dragon Energy ROS 97','hand')]};
+  assert.deepEqual(policy.promptDecision({observation:o,prompt:onlyHidden}),
+    {kind:'abstain',reasonCode:'RANK22_HAMMER_NO_VISIBLE_SPECIAL'});
+});
