@@ -229,3 +229,22 @@ for (const seat of [0, 1]) {
     }
   });
 }
+
+
+for (const seat of [0, 1]) {
+  test('Articuno optional-zero native hook preserves explicit empty transfer, seat ' + seat, () => {
+    const scene = fixture(seat);
+    scene.prompt.options.min = 0;
+    const projected = projector.projectPrompt(scene);
+    const choices = projected.promptProjection.choices;
+    assert.deepEqual(choices.map(choice => choice.kind), ['energy', 'energy', 'empty-selection']);
+    assert.deepEqual(projected.choiceByToken.get('prompt-2'), []);
+    assert.equal(projected.promptProjection.publicMetadata.minimumCount, 0);
+    assert.equal(projected.promptProjection.publicMetadata.maximumCount, 2);
+    const decision = select(seat, projected);
+    assert.deepEqual(decision, { kind: 'select-choices', tokens: ['prompt-0', 'prompt-1'] });
+    protocol.validateDecision(decision, projected.promptProjection, new Set());
+    protocol.validateDecision({ kind: 'select-choice', token: 'prompt-2' },
+      projected.promptProjection, new Set());
+  });
+}
