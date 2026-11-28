@@ -239,6 +239,13 @@ function knockOut(item,request) {
 function terminal(item,request) {
   if(!knockOut(item,request))return false;
   const o=request.observation;
+  // A knockout of the opponent's sole remaining Pokémon wins by emptying
+  // their board even when the attack takes fewer than our remaining Prizes.
+  // Do not invent a clean win if our sole Eldegoss V simultaneously leaves
+  // play via Float Up: that can produce simultaneous loss conditions.
+  if(arr(o.opponentPublic?.bench).length===0&&
+     !(item.attackName==='Float Up'&&has(o.ownPublic?.active,P.eldegoss)&&
+       benchCount(o.ownPublic)===0))return true;
   // Float Up removes Eldegoss V itself from play after attacking. If it was
   // our only Pokémon, we also have no Pokémon in play; do not certify that
   // simultaneous game-ending position as a straightforward win.
