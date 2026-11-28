@@ -500,7 +500,8 @@ function getLostPressure(view) {
 
 // Tapu Lele-GX's actual GRI Wonder Tag is an on-Bench deck-to-hand
 // Supporter search (native ChooseCardsPrompt, not a Yes/No confirmation).
-function wonderTagSupporterScore(view, printing) {
+function wonderTagSupporterScore(view, printing, receipt = null) {
+  const priorKO = receipt?.priorOpponentTurnKO?.any === true;
   if (hasName(printing, 'Arven')) {
     return !boardHas(view, 'Shadow Rider Calyrex V') ||
       !boardHas(view, 'Shadow Rider Calyrex VMAX') ? 1350 : 520;
@@ -510,11 +511,23 @@ function wonderTagSupporterScore(view, printing) {
   if (hasName(printing, 'Guzma'))
     return canGuzmaForAttack(view, null) ? 1270 : 200;
   if (hasName(printing, 'Acerola'))
-    return ownBoard(view).some(slot => slot.damage >= 80) ? 850 : 120;
-  if (hasName(printing, 'Iono')) return 680;
-  if (hasName(printing, 'Pokémon Ranger')) return 450;
-  if (hasName(printing, 'Teammates') || hasName(printing, 'Raihan'))
-    return 350;
+    return ownBoard(view).some(slot => slot.damage > 0)
+      ? (ownBoard(view).some(slot => slot.damage >= 80) ? 850 : 400)
+      : -Infinity;
+  if (hasName(printing, 'Iono')) return
+    view.opponentPublic.handCount >= 5 &&
+      view.ownPublic.handCount <= 3 ? 680 : -Infinity;
+  if (hasName(printing, 'Pokémon Ranger'))
+    return view.ownPublic.publicTurnRestrictions.itemPlayLocked === true &&
+      view.ownHand.some(isItem) &&
+      receipt?.opponentLastTurnAttacks?.some(row =>
+        row.attackName === 'Itchy Pollen' &&
+        hasName(row.sourcePrinting, 'Budew')) ? 950 : -Infinity;
+  if (hasName(printing, 'Teammates'))
+    return priorKO && view.ownPublic.deckCount > 0 ? 950 : -Infinity;
+  if (hasName(printing, 'Raihan'))
+    return priorKO && view.ownPublic.deckCount > 0 &&
+      discardHas(view, 'Psychic Energy') ? 980 : -Infinity;
   return -Infinity;
 }
 
@@ -680,7 +693,7 @@ function isItem(printing) {
   return hasAnyName(printing, ITEM_NAMES);
 }
 
-function searchCandidates(view, prompt, choices) {
+function searchCandidates(view, prompt, choices, receipt = null) {
   const effectName = prompt.source?.effectName ?? '';
   const sourceZone = prompt.publicMetadata?.sourceZone;
   let rows;
@@ -696,7 +709,7 @@ function searchCandidates(view, prompt, choices) {
   } else if (sourceZone === 'discard' && effectName === 'VS Seeker' &&
       prompt.source?.sourcePrinting === 'VS Seeker PHF 109') {
     rows = choices.map(choice => ({
-      choice, score: wonderTagSupporterScore(view, choice.printing)
+      choice, score: wonderTagSupporterScore(view, choice.printing, receipt)
     }));
   } else if (sourceZone === 'discard' && effectName === 'Night Stretcher' &&
       prompt.source?.sourcePrinting === 'Night Stretcher SFA 61') {
@@ -706,7 +719,7 @@ function searchCandidates(view, prompt, choices) {
   } else if (sourceZone === 'deck' && effectName === 'Wonder Tag' &&
       prompt.source?.sourcePrinting === 'Tapu Lele-GX GRI 60') {
     rows = choices.map(choice => ({
-      choice, score: wonderTagSupporterScore(view, choice.printing)
+      choice, score: wonderTagSupporterScore(view, choice.printing, receipt)
     }));
   } else if (sourceZone === 'discard' && effectName === 'Get Lost' &&
       prompt.source?.sourcePrinting === 'Girafarig LOT 94') {
@@ -743,7 +756,7 @@ function searchCandidates(view, prompt, choices) {
   return rows;
 }
 
-function chooseCardCombination(view, prompt) {
+function chooseCardCombination(view, prompt, receipt = null) {
   setPolicyAuditRule('CARD_COMBINATION_SEARCH_SCORE', 'SCORE_DESC_PRINTING_ASC');
   const ownerSourceBindings = {
     'Wonder Tag': 'Tapu Lele-GX GRI 60',
@@ -807,7 +820,7 @@ function chooseCardCombination(view, prompt) {
     return abstain('HIDDEN_PRIZE_IDENTITY');
   }
 
-  const ranked = searchCandidates(view, prompt, choices)
+  const ranked = searchCandidates(view, prompt, choices, receipt)
     .sort((a, b) => b.score - a.score ||
       String(a.choice.printing).localeCompare(String(b.choice.printing)));
 
@@ -1344,7 +1357,7 @@ function choosePrompt(view, prompt, receipt) {
         ? chooseRaihanDiscardAttachment(view,prompt)
         : chooseUnderworldEnergyAssignment(view,prompt);
     case 'ChooseCardsPrompt':
-      return chooseCardCombination(view, prompt);
+      return chooseCardCombination(view, prompt, receipt);
     case 'ChoosePokemonPrompt':
       return choosePokemonRecipient(view, prompt);
     case 'ChooseEnergyPrompt':
@@ -1595,9 +1608,11 @@ function scoreTrainerPlay(item, view, receipt) {
       view.ownPublic.deckCount > 0 &&
       discardHas(view, 'Psychic Energy')) return 905;
   if (hasName(name, 'VS Seeker') && !supporterUsed &&
-      !handHas(view, 'Arven') && !handHas(view, "Lillie's Determination") &&
+      !view.ownHand.some(printing => hasAnyName(printing, [
+        'Arven', "Lillie's Determination", 'Guzma', 'Acerola', 'Iono',
+        'Teammates', 'Raihan', 'Pokémon Ranger'])) &&
       view.ownPublic.discard.some(printing =>
-        wonderTagSupporterScore(view, printing) > 0)) return 745;
+        wonderTagSupporterScore(view, printing, receipt) > 0)) return 745;
   // This is an Item root; its later actor-owned temporary Prize scan is a
   // separate native ChooseCardsPrompt. K0 uncertainty remains: use only
   // against Regidrago when a singleton counter Basic is currently missing.
