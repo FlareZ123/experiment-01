@@ -434,3 +434,53 @@ for(const seat of [0,1]) {
       {kind:'select-choices',tokens:['two-prize']});
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' actor-visible live Skyliner free-retreats Unown into funded Clefairy',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active={printing:'Unown AOR 30',
+      printed:{stage:'BASIC',retreatCost:['COLORLESS']},
+      specialConditions:[],publicRestrictions:{}};
+    r.observation.ownPublic.bench=[
+      {printing:clef,energies:[psychic,psychic]},
+      {printing:'Latias ex SSP 76',energies:[],abilities:['Skyliner'],
+        abilitySuppressions:[{abilityName:'Skyliner',suppressed:false,
+          reasonCode:null,sourcePrinting:null}]}];
+    r.observation.opponentPublic.active={printing:'Snorlax PGO 55',hp:150,damage:0};
+    r.actionFrontier.items=[
+      {...root('retreat','Unown AOR 30','free-retreat',
+        {benchIndex:0,targetSeat:'actor',targetZone:'bench'}),
+        targetPrinting:clef},root('pass','','pass')];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'free-retreat'});
+    // One projected Energy or an incorrect offered target must not be treated
+    // as a funded Rondo promotion.
+    r.observation.ownPublic.bench[0].energies=[psychic];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    r.observation.ownPublic.bench[0].energies=[psychic,psychic];
+    r.actionFrontier.items[0].targetPrinting='Unown AOR 30';
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  });
+  test('seat '+seat+' suppressed Skyliner blocks paid retreat but true printed zero is playable',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active={printing:'Unown AOR 30',
+      printed:{stage:'BASIC',retreatCost:['COLORLESS']},
+      specialConditions:[],publicRestrictions:{}};
+    r.observation.ownPublic.bench=[
+      {printing:clef,energies:[psychic,psychic]},
+      {printing:'Latias ex SSP 76',abilities:['Skyliner'],
+        abilitySuppressions:[{abilityName:'Skyliner',suppressed:true,
+          reasonCode:'ABILITY_LOCKED',sourcePrinting:'Garbodor DRX'}]}];
+    r.actionFrontier.items=[{
+      ...root('retreat','Unown AOR 30','retreat',
+        {benchIndex:0,targetSeat:'actor',targetZone:'bench'}),targetPrinting:clef}];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    r.observation.ownPublic.active.printed.retreatCost=[];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'retreat'});
+    r.observation.ownPublic.active.publicRestrictions.cannotRetreat=true;
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    r.observation.ownPublic.active.publicRestrictions.cannotRetreat=false;
+    r.observation.ownPublic.active.specialConditions=['ASLEEP'];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  });
+}
