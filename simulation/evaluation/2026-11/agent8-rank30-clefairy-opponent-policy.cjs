@@ -1442,7 +1442,7 @@ function hisuianHeavyBallPriority(choice,o,request) {
   if(kind==='minior'&&miniorStallOpportunity(o)?.knockout)return 92;
   if(kind==='lele'&&hand.some(c=>has(c,P.guzma)||has(c,P.marnie)))return 90;
   if(kind==='mimikyu'&&slots(o.opponentPublic).some(c=>
-    /(?:-GX| GX|\\bex\\b)/i.test(text(c))))return 88;
+    /(?:-GX| GX|\bex\b)/i.test(text(c))))return 88;
   if(kind==='unown'&&benchCount(o.ownPublic)<5)return 80;
   const fallback=startingActiveRank(choice);
   return fallback>0?30+fallback/10:0;
