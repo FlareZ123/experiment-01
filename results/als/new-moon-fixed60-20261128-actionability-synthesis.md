@@ -30,15 +30,23 @@ All variants derive from New Moon Lockbreak v1 with Mewtwo & Mew-GX Perfection, 
 
 ## One implementable whole-turn policy rather than more independent effects
 
-The research-only [composed action arbiter](new-moon-whole-turn-action-priority.cjs) with [19 passing synthetic precedence cases](../../tests/2026-11/agent22-newmoon-whole-turn-priority.test.cjs) now composes **six already separate actor-visible guards** under a **single actor-state fingerprint**:
+The research-only [composed action arbiter](new-moon-whole-turn-action-priority.cjs) with [30 passing synthetic precedence cases](../../tests/2026-11/agent22-newmoon-whole-turn-priority.test.cjs) now composes **seven complementary actor-visible guards** under a **single actor-state fingerprint**:
 
-1. **Already payable no-selfKO FairyZone direct Psychic attack** (including Stage2 through CovertFlight): use it instead of sacrificing Dusknoir.
-2. **Ability-only terminal Dusk CursedBlast130:** if opposing Active/Benched damaged target has ≤130 HP remaining, its Prize value closes our remaining Prize count, own Bench Dusk is live, and self-KO cannot award opponent its final Prize, finish without needing an attack. Requires actor-confirmed reactive and ability protection semantics; do not conflate with a wasted Blast before a payable direct KO.
-3. **Already payable Dusk CursedBlast130 + exact funded attack** (NightWatch or printed Miraculous): decline if the source has only one Prize left or an attack alone already KOs.
-4. **CursedBlast + post-selfKO Bench-refill Rondo**, either Dragon280 with FairyZone ×2 at combined Bench≥3 or Thorns230 at combined Bench≥4. The *post-selfKO* Bench count and real native TPE search must be assessed.
-5. **Guzma & Hala triple-search** if no tactical finisher is already certified, Supporter can be played, two cards are truly disposable, and the intended Stadium/Tool/Energy roles are still relevant. If Valley is wanted, fail closed on own NewMoon and avoid TPE searches that complete Solrock+Lunatone.
+1. **Already payable no-selfKO FairyZone direct Psychic attack** (including Stage2 through CovertFlight). A win by taking the last Prize or KOing the last Pokémon is preferred; a nonterminal KO no longer displaces a separately certified terminal line.
+2. **Ability-only terminal Dusk CursedBlast130:** close the last Prize *or* KO the opponent's **only remaining Pokémon** (actual empty Bench, exact Active target), while own Active survives and the Dusk self-KO cannot concede the opponent's final Prize. Neither is just a generic damage turn.
+3. **New counter-gust terminal**: from a tied 3–3 Prize state, a Benched Dusk CursedBlast130 hits the opponent's 330-HP **Benched Mega Lopunny ex**. The Dusk self-KO changes Prizes to own 3 versus opponent 2, **newly enabling Counter Catcher**, which gusts that 200-HP remaining Mega into the Active; a paid Mewtwo & Mew-GX Miraculous Duo-GX 200 then takes three Prizes. This is Item-lock-dependent and requires full effect/turn revalidation. [Exact actor-style continuation](../../simulation/evaluation/2026-11/agent22-newmoon-countercatcher-actor-sequence.cjs) implements both owner prompts and checks actual action-frontier tokens, Prize settlement, unchanged target and paid GX attack; [56 synthetic cases](../../tests/2026-11/agent22-newmoon-countercatcher-actor-sequence.test.cjs) passed. The independent [21-case branch gate](new-moon-countercatcher-after-selfko-finisher.cjs) is a conditional proposal, not a native game.
+4. **Already payable Dusk CursedBlast130 + exact funded attack** (NightWatch or printed Miraculous): decline if the source has one Prize left or an attack alone already KOs.
+5. **CursedBlast + post-selfKO Bench-refill Rondo**, either Dragon280 with FairyZone ×2 at combined Bench≥3 or Thorns230 at combined Bench≥4. The *post-selfKO* Bench count and real native TPE search must be assessed.
+6. **Guzma & Hala triple-search** if no tactical finisher is already certified, Supporter is available, two cards are disposable, and Stadium/Tool/Energy axes are live. If Valley is wanted, fail closed on own NewMoon and avoid TPE searches that complete Solrock+Lunatone.
+
+**Priority semantics:** the composed seven-branch arbiter first selects an actor-certified *terminal win*, preferring a paid non-selfKO terminal when competing wins exist; only among nonterminals does it use the original direct no-selfKO → Blast+attack → post-Blast Rondo → setup ordering. Unknown higher-priority live branches block lower candidates instead of being presumed impossible. Existing observations remain assumptions until a native turn proves each transition.
 
 Each branch is **only a first-action proposal**, not a performed native action. The composer fails closed rather than burying an uncertified higher-priority branch, and requires the native worker to **reobserve all state after each effect, KO, Bench placement, paid attack and search prompt**. It never reads hidden deck/Prize contents from the final 60 and never asserts source-player decisions.
+
+
+### Gladion Stage2 rescue is clock-sensitive, not a +9pp win probability
+
+Agent1's separate v3g Gladion variant improves a physical Prized-Stage2 resource gate by +9.081806579 percentage points, but an [exact natural-draw calculation](agent22-gladion-natural-turn2-frontier-20261128.md) finds the unassisted **by-own-turn-2 Gladion-visible** subset only **1.474951885% of legal openers** (16.240732% of the physical +9.08pp rescue surface). This is *not* a cap on actual search/draw access or evidence of an attack or win. Rank15's Stoutland Sentinel can deny the Supporter, and establishing a funded Stage2 still consumes evolution turns. Track native Gladion→legal funded ShadowBind before opposing pressure, then the cost of deleting the second Ace; otherwise this alternate is not a reason to revise the live nomination.
 
 ## Next focused decision experiment (not a new proxy)
 
