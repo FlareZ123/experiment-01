@@ -48,6 +48,7 @@ const PREFIX=Object.freeze({
   treasure:'Mysterious Treasure FLI 113',
   compressor:'Battle Compressor PHF 92',
   prime:'Prime Catcher TEF 157',
+  guzma:'Guzma BUS 115',
   dialga:'Dialga-GX UPR 100',
   dragapult:'Dragapult ex TWM 130',
   koraidon:'Koraidon ex TEF 120',
@@ -246,8 +247,16 @@ function finalPrizePrimeTarget(obs){
     (a.p.hp-a.p.damage)-(b.p.hp-b.p.damage)||a.index-b.index);
   return victims[0]??null;
 }
-function primeCatcherTargetChoice(prompt,obs){
+function gustSwitchTargetChoice(prompt,obs){
   const meta=prompt?.publicMetadata??{},choices=arr(prompt?.choices);
+  const offeredOwners=new Set(choices.map(choice=>
+    choice?.publicMetadata?.ownerSeat));
+  // Native Guzma/Prime Catcher emits two separate prompts, each exclusively
+  // actor or opponent Bench. A mixed-owner synthetic prompt is not a
+  // physically executable state and must fail closed.
+  if(offeredOwners.size!==1||
+     !['actor','opponent'].includes([...offeredOwners][0]))
+    return reason('UNSUPPORTED_PROMPT_TYPE');
   if(meta.selectionType!=='pokemon'||meta.minimumCount!==1||
     meta.maximumCount!==1||meta.allowCancel!==false)
     return reason('UNSUPPORTED_PROMPT_TYPE');
@@ -338,6 +347,7 @@ function scoreRoot(item,request){
       if(own.publicTurnRestrictions?.vstarUsed!==true&&state.vstar>0)return -Infinity;
       return board(opp).some(x=>arr(x.abilities).length>0)?145:20;
     }
+    if(p===PREFIX.guzma)return finalPrizePrimeTarget(obs)?465:60;
     if(p===PREFIX.raihan)return ownTurnKOEligible(obs,request.publicEventReceipt)?
       175:-Infinity;
     if(p===PREFIX.crispin)return !bestRegidragoEnergy(own).length?80:
@@ -593,9 +603,9 @@ function choosePrompt(request){
     return {kind:'select-choice',token:single.token};
   }
   if(kind==='ChoosePokemonPrompt'&&
-     src.sourcePrinting===PREFIX.prime&&
-     src.effectName==='Prime Catcher'){
-    return primeCatcherTargetChoice(prompt,obs);
+     ((src.sourcePrinting===PREFIX.prime&&src.effectName==='Prime Catcher')||
+      (src.sourcePrinting===PREFIX.guzma&&src.effectName==='Guzma'))){
+    return gustSwitchTargetChoice(prompt,obs);
   }
   if(kind==='ChooseAttackPrompt'){
     if(src.sourcePrinting!==PREFIX.regidragoVstar||src.effectName!=='Apex Dragon')return reason('UNSUPPORTED_ATTACK_CHOICE_SOURCE');
