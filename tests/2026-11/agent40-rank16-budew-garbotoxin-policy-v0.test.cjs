@@ -1531,3 +1531,42 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'boost'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Sky Field eight Bench slots permit a sixth support Dedenne',()=>{
+  const board=own({active:mon('Budew ASC 16'),bench:[
+   mon('Mega Absol ex MEG 86'),mon('Garbodor LTR 68'),mon('Crobat V DAA 104'),
+   mon('Tapu Lele-GX GRI 60'),mon('Trubbish CRI 56')]});
+  const their=opp({stadium:['Sky Field ROS 89']});
+  const q=root(seat,[play('Dedenne-GX UNB 57','dede'),pass],{
+   ownPublic:board,opponentPublic:their,ownHand:['Dedenne-GX UNB 57']});
+  assert.equal(policy.benchCapacity(q.observation),8);
+  assert.equal(policy.benchSupportFits(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'dede'});
+  their.stadium=[];
+  assert.equal(policy.benchCapacity(q.observation),5);
+  assert.equal(policy.benchSupportFits(q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  their.stadium=['Sky Field ROS 89'];
+  board.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining=1;
+  assert.equal(policy.benchCapacity(q.observation),5);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+ });
+ test('seat '+seat+' VIP respects seven-of-eight Sky Field Bench capacity and one free slot',()=>{
+  const board=own({active:mon('Budew ASC 16'),bench:Array.from({length:7},
+   (_,i)=>mon(i%2?'Crobat V DAA 104':'Tapu Lele-GX GRI 60'))});
+  const their=opp({stadium:['Sky Field ROS 89']});
+  const q=root(seat,[play('Battle VIP Pass FST 225','vip'),pass],{
+   globalTurn:2,ownPublic:board,opponentPublic:their});
+  assert.equal(policy.benchCapacity(q.observation)-board.bench.length,1);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'vip'});
+  const target=prompt(seat,{
+   source:{sourceKind:'card-effect',sourcePrinting:'Battle VIP Pass FST 225',effectName:'Battle VIP Pass'},
+   publicMetadata:{minimumCount:1,maximumCount:2},
+   choices:[choice('mega','Mega Absol ex MEG 86'),choice('trubbish','Trubbish CRI 56')]},
+   {globalTurn:2,ownPublic:board,opponentPublic:their});
+  assert.deepEqual(decide(seat,target),{kind:'select-choices',tokens:['trubbish']});
+  their.stadium=[];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+ });
+}
