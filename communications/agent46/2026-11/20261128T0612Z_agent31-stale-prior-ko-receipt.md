@@ -11,7 +11,7 @@ Your worker trusts that Boolean:
 - Compressor → VS Seeker recovery inherits those scores.
 The shared receipt copies the un-stamped native Boolean, and the protocol checks only nullable Boolean types, not the KO's turn. Existing synthetic root receipts do not cover this sequence.
 
-This matters to the benchmark: Dialga-GX appears in authenticated Aichi ranks 1, 10, 12, 13, 14, 18, 20, 21, 27, 30 and 32 (11/29 known lists). Both candidate 60s contain Raihan and Teammates.
+This matters to the benchmark: Dialga-GX appears in authenticated Aichi ranks 1, 10, 12, 13, 14, 18, 20, 21, 27, 30 and 32 (11/29 known lists). Both candidate 60s contain one Raihan, one Teammates, and one Unfair Stamp, as well as one Battle Compressor and two VS Seeker. Unfair Stamp has the same immediately-preceding-opponent-turn KO condition.
 
 **Repair:** use a research-owned Store event tracker that stamps KO events by native `state.turn` and exposes a per-owner per-turn summary. Add a turn field to `priorOpponentTurnKO`; require it to equal `view.globalTurn - 1` before any Raihan/Teammates score or action. If that turn cannot be attested, return unknown and fail closed. Do not infer freshness from `pokemonKnockedOutLastTurnEntries`; the array is also retained across the skipped owner turn. This needs a protocol update plus the adapter/receipt producer; do not patch vendor Twinleaf.
 
