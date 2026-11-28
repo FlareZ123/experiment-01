@@ -284,7 +284,13 @@ function createSlice({seat}){
    }
    reset();return null;
   }
-  if(own.prizeCount!==opp.prizeCount||own.prizeCount<=1||
+  // Tied Prizes: self-KO *newly unlocks* Counter Catcher.
+  // At 3-2: the Item is already legal, but Blast supplies otherwise
+  // missing 130 damage to a full-HP three-Prize target, and self-KO
+  // leaves opponent at one Prize (not an immediate loss).
+  const newlyEnables=own.prizeCount===opp.prizeCount;
+  const stillPlayable=own.prizeCount===3&&opp.prizeCount===2;
+  if(!(newlyEnables||stillPlayable)||own.prizeCount<=1||
      !Array.isArray(v.ownHand)||
      !v.ownHand.some(x=>has(x,'Counter Catcher')))return null;
   const blast=abilitySource(own,items);
@@ -307,7 +313,9 @@ function createSlice({seat}){
     attackName:check.def.attackName,
     ownPrizes:own.prizeCount,opponentPrizes:opp.prizeCount,
     attackerPrinting:own.active.printing};
-   return select(blast,'A22_BEGIN_BLAST_TO_ENABLE_COUNTERCATCHER_TERMINAL');
+   return select(blast,newlyEnables?
+     'A22_BEGIN_BLAST_TO_ENABLE_COUNTERCATCHER_TERMINAL':
+     'A22_BEGIN_BLAST_TO_DAMAGE_FOR_ALREADY_LEGAL_COUNTERCATCHER');
   }
   return null;
  }
