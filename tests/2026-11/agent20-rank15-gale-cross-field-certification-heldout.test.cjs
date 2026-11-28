@@ -6,7 +6,7 @@
 // Gale damage; actual HP and prize values remain public-state requirements.
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {rootDecision,retreatPrompt}=require(
+const {rootDecision,retreatPrompt,guzmaPrompt}=require(
   '../../simulation/evaluation/2026-11/agent20-rank15-lopunny-vileplume-opponent-policy.cjs');
 const MEGA='Mega Lopunny ex PFL 84', JET='Jet Energy PAL 190';
 const LEGACY='Legacy Energy TWM 167', DEW='Life Dew PLF 107';
@@ -205,5 +205,70 @@ for(const seat of [0,1]){
     r.actionFrontier.items[0].publicMetadata.targetIndex=1;
     r.actionFrontier.items[0].publicMetadata.benchIndex=1;
     assert.equal(rootDecision(r).token,'air-mail');
+  });
+}
+
+// Original rank15 inventory has two Basic Grass and two Guzma. With an
+// unused manual attachment, Guzma -> unpowered Bench Mega -> Grass -> Gale
+// can be a same-turn last-Prize win; the native action frontier owns legality.
+for(const seat of [0,1]){
+  test('seat '+seat+': exact two-action Guzma/Grass moved-Gale win',()=>{
+    const r=req(seat,'Pidgey FLF 75',{prizes:2,bench:true});
+    const o=r.observation;
+    o.opponentPublic.bench=[c('Iron Thorns ex TEF 77',[],[],{
+      hp:230,damage:10,printed:{stage:'BASIC',weakness:[],resistance:[]}
+    })];
+    o.ownPublic.active=c('Vileplume BUS 6');
+    o.ownPublic.bench[0].energies=[];
+    o.ownHand=['Guzma BUS 115','Grass Energy BLW 105'];
+    o.ownTurnResources={supporterPlayedTurn:8,energyPlayedTurn:8,
+      energyPlayLocked:false};
+    r.actionFrontier.items=[
+      {kind:'play-card',token:'guzma',actorPrinting:'Guzma BUS 115'},
+      {kind:'use-ability',token:'air-mail',
+        actorPrinting:'Pidgeotto TEU 123',publicMetadata:{abilityName:'Air Mail'}}
+    ];
+    o.ownTurnResources.energyPlayedTurn=9;
+    assert.equal(rootDecision(r).token,'air-mail');
+    o.ownTurnResources.energyPlayedTurn=8;
+    o.ownHand=['Guzma BUS 115'];
+    assert.equal(rootDecision(r).token,'air-mail');
+    o.ownHand=['Guzma BUS 115','Grass Energy BLW 105'];
+    o.ownPublic.prizeCount=3;
+    assert.equal(rootDecision(r).token,'air-mail');
+    o.ownPublic.prizeCount=2;
+    assert.equal(rootDecision(r).token,'guzma');
+    r.prompt={promptType:'ChoosePokemonPrompt',
+      publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+      choices:[{kind:'pokemon',token:'enemy-iron',
+        printing:'Iron Thorns ex TEF 77',
+        publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:0}}]};
+    o.ownTurnResources.supporterPlayedTurn=9;
+    assert.deepEqual(guzmaPrompt(r),{kind:'select-choices',tokens:['enemy-iron']});
+    o.opponentPublic.active=o.opponentPublic.bench[0];
+    o.opponentPublic.bench=[c('Pidgey FLF 75')];
+    r.prompt.choices=[{kind:'pokemon',token:'own-mega',
+      printing:MEGA,publicMetadata:{ownerSeat:'actor',
+        targetZone:'bench',benchIndex:0}}];
+    assert.deepEqual(guzmaPrompt(r),{kind:'select-choices',tokens:['own-mega']});
+    o.ownPublic.bench[0]=o.ownPublic.active;
+    o.ownPublic.active=c(MEGA,[],[],{printed:{stage:'STAGE_1'},
+      publicRestrictions:{cannotUseAttacksNextTurn:[]}});
+    r.prompt=null;r.publicEventReceipt.ownerActive={
+      printing:MEGA,movedFromBenchToActiveThisTurn:true
+    };
+    r.actionFrontier.items=[
+      {kind:'play-card',token:'grass-to-active',
+        actorPrinting:'Grass Energy BLW 105',targetPrinting:MEGA,
+        publicMetadata:{targetSeat:'actor',targetZone:'active'}},
+      {kind:'use-ability',token:'air-mail',
+        actorPrinting:'Pidgeotto TEU 123',publicMetadata:{abilityName:'Air Mail'}}
+    ];
+    assert.equal(rootDecision(r).token,'grass-to-active');
+    o.ownPublic.active.energies=['Grass Energy BLW 105'];
+    o.ownTurnResources.energyPlayedTurn=9;
+    r.actionFrontier.items=[{kind:'attack',token:'gale',
+      actorPrinting:MEGA,attackName:'Gale Thrust'}];
+    assert.equal(rootDecision(r).token,'gale');
   });
 }
