@@ -854,7 +854,7 @@ function promptDecision(request) {
       context.includes('faba') || context.includes('plumeria');
     if ((selectionType === 'card-combination' || selectionType === 'card-order') &&
         !recognizedCardSource) {
-      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_SELECTION_SOURCE' };
+      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_COMBINATION_SOURCE' };
     }
     let ranked;
     if (selectionType === 'pokemon') {
@@ -868,7 +868,7 @@ function promptDecision(request) {
       if (!discardPrompt && context.includes('guzma & hala')) {
         const selected = guzmaHalaSearchSelection(choices, request.observation, min, max);
         return selected ? { kind: 'select-choices', tokens: selected } :
-          { kind: 'abstain', reasonCode: 'NO_VALID_GUZMA_HALA_SEARCH_SET' };
+          { kind: 'abstain', reasonCode: 'NO_USEFUL_CARD_CHOICE' };
       }
       ranked = rankedChoices(choices, choice => {
         if (discardPrompt) return discardPriority(choice, request.observation);
@@ -904,10 +904,10 @@ function promptDecision(request) {
     const required = selectionType === 'prize-slots' &&
       Number.isSafeInteger(metadata.requiredCount) ? metadata.requiredCount : min;
     if (tokens.length < required) {
-      return emptyOrAbstain(prompt, choices, 'INSUFFICIENT_SUPPORTED_PROMPT_CHOICES');
+      return emptyOrAbstain(prompt, choices, 'NO_SUPPORTED_CARD_SELECTION');
     }
     if (tokens.length > 0) return { kind: 'select-choices', tokens };
-    return emptyOrAbstain(prompt, choices, 'NO_SUPPORTED_MULTI_SELECT');
+    return emptyOrAbstain(prompt, choices, 'NO_SUPPORTED_CARD_SELECTION');
   }
 
   if (prompt.promptType === 'SelectOptionPrompt' && context.includes('guzma & hala')) {
@@ -919,7 +919,7 @@ function promptDecision(request) {
       return { kind: 'select-choice', token: modeOne.token };
     }
     if (modeZero) return { kind: 'select-choice', token: modeZero.token };
-    return { kind: 'abstain', reasonCode: 'NO_SAFE_GUZMA_HALA_MODE' };
+    return { kind: 'abstain', reasonCode: 'UNRECOGNIZED_SIMPLE_PROMPT' };
   }
 
   if (prompt.promptType === 'ChooseAttackPrompt') {
@@ -970,7 +970,7 @@ function promptDecision(request) {
       return { kind: 'select-choice', token: yes.token };
     }
     if (no) return { kind: 'select-choice', token: no.token };
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_OPTIONAL_PROMPT' };
+    return { kind: 'abstain', reasonCode: 'UNRECOGNIZED_SIMPLE_PROMPT' };
   }
 
   return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
@@ -996,6 +996,16 @@ function bestAction(request) {
     { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ACTION' };
 }
 
+// Multi-select prompts require select-choices, including single-target cases.
+function currentPromptDecision(prompt,decision) {
+  if(!prompt||decision?.kind!=='select-choice')return decision;
+  const selected=prompt.choices.find(choice=>choice.token===decision.token);
+  if(!selected||selected.kind==='cancel'||selected.kind==='empty-selection')return decision;
+  if(['card-combination','pokemon','energy-payment','prize-slots','card-order'].includes(prompt.publicMetadata?.selectionType))
+    return {kind:'select-choices',tokens:[decision.token]};
+  return decision;
+}
+
 function createPolicy({ role, seat, policyVersion, config }) {
   if (role !== 'opponent' || (seat !== 0 && seat !== 1) ||
       policyVersion !== POLICY_VERSION || !config ||
@@ -1009,7 +1019,7 @@ function createPolicy({ role, seat, policyVersion, config }) {
           request.observation?.actorSeat !== seat) {
         return { kind: 'abstain', reasonCode: 'ROLE_SEAT_BINDING_MISMATCH' };
       }
-      if (request.prompt !== null) return promptDecision(request);
+      if (request.prompt !== null) return currentPromptDecision(request.prompt,promptDecision(request));
       return bestAction(request);
     }
   });
