@@ -67,6 +67,80 @@ function rank27Goal(obs){
     hand:arr(obs?.ownHand).length,
     energy:board(own).reduce((sum,p)=>sum+arr(p.energies).length,0)};
 }
+function recoverableSourceSupporter(value){
+  return /^(?:Guzma BUS 115|Crispin SCR 133|Raihan EVS 152|N FCO 105|Marnie SSH 169|Carmine TWM 145|Professor Sycamore BKP 107)(?: |$)/.test(name(value));
+}
+function sourceAbilityRecoveryOpen(obs){
+  const own=obs?.ownPublic??{},opp=obs?.opponentPublic??{};
+  if(!benchOpen(own)||has(own,PREFIX.eldegoss)||
+     obs?.ownTurnResources?.pokemonPlayLocked===true||
+     own.publicTurnRestrictions?.pokemonPlayLocked===true||
+     obs?.ownTurnResources?.abilityPokemonPlayLocked===true||
+     own.publicTurnRestrictions?.abilityPokemonPlayLocked===true)return false;
+  // Path to the Peak blanks Eldegoss V's Rule Box Ability. Unknown
+  // suppression of that Stadium is not a reason to assume Happy Match live.
+  if([...arr(own.stadium),...arr(opp.stadium)].some(x=>is(x,PREFIX.path)))return false;
+  return arr(own.discard).some(recoverableSourceSupporter);
+}
+function eldegossRecoveryValue(obs){
+  if(!sourceAbilityRecoveryOpen(obs))return -Infinity;
+  const held=arr(obs.ownHand).filter(recoverableSourceSupporter).length;
+  const hasGust=arr(obs.ownPublic.discard).some(x=>is(x,'Guzma BUS 115'));
+  return held>0?110:hasGust?255:220;
+}
+function sourceSearchTargetValue(source,printing,obs){
+  const goal=rank27Goal(obs),own=obs.ownPublic;
+  // The exact source printing type/stage gates remain in force even when a
+  // malformed synthetic frontier includes a legal-in-deck but unsearchable
+  // target. Real native Store choices are a stricter subset.
+  const basic=new Set([
+    PREFIX.regidragoV,PREFIX.budew,PREFIX.dialga,PREFIX.koraidon,
+    PREFIX.kyurem,PREFIX.dedenne,PREFIX.crobat,PREFIX.eldegoss,
+    PREFIX.tapu,PREFIX.latias,PREFIX.marshadow
+  ]);
+  const psychicDragon=new Set([
+    PREFIX.regidragoV,PREFIX.regidragoVstar,PREFIX.dialga,
+    PREFIX.dragapult,PREFIX.koraidon,PREFIX.noivern,PREFIX.kyurem,
+    PREFIX.tapu,PREFIX.latias,PREFIX.marshadow
+  ]);
+  if(!SOURCE_SET.has(printing))return -Infinity;
+  if(source===PREFIX.quickBall&&!basic.has(printing))return -Infinity;
+  if(source===PREFIX.treasure&&!psychicDragon.has(printing))return -Infinity;
+  if(source===PREFIX.ultraBall&&!basic.has(printing)&&
+    ![PREFIX.regidragoVstar,PREFIX.dragapult,PREFIX.noivern].includes(printing))
+    return -Infinity;
+  if(printing===PREFIX.regidragoVstar)return goal.v>0?310:40;
+  if(printing===PREFIX.regidragoV)return goal.v+goal.vstar<2?290:45;
+  if(printing===PREFIX.budew)return has(own,PREFIX.budew)?20:165;
+  if(printing===PREFIX.eldegoss)return eldegossRecoveryValue(obs);
+  if(printing===PREFIX.dedenne||printing===PREFIX.crobat)
+    return goal.hand<=3?185:20;
+  if(printing===PREFIX.tapu)return goal.hand<=3?150:25;
+  if(printing===PREFIX.latias)return has(own,PREFIX.latias)?15:140;
+  if(printing===PREFIX.marshadow)return 45;
+  // Other Dragons are Apex payloads, not normally hand-played setup.
+  return DRAGON_PAYLOADS.has(printing)?65:-Infinity;
+}
+function sourceDiscardValue(printing,obs){
+  const goal=rank27Goal(obs),own=obs.ownPublic;
+  if(!SOURCE_SET.has(printing))return -Infinity;
+  if(printing===PREFIX.regidragoV)
+    return goal.v+goal.vstar===0?-Infinity:goal.v+goal.vstar<2?60:220;
+  if(printing===PREFIX.regidragoVstar)
+    return goal.vstar===0?-Infinity:180;
+  if(DRAGON_PAYLOADS.has(printing))
+    return visibleDonors(obs).some(x=>name(x)===printing)?85:360;
+  if(printing==='Prime Catcher TEF 157')return -Infinity;
+  if(printing==='Double Dragon Energy ROS 97')
+    return goal.energy<3?-Infinity:45;
+  if(/^Grass Energy |^Fire Energy /.test(printing))
+    return goal.energy<3?15:100;
+  if(recoverableSourceSupporter(printing))
+    return arr(obs.ownHand).filter(recoverableSourceSupporter).length<=1?25:100;
+  if(printing===PREFIX.budew&&has(own,PREFIX.budew))return 150;
+  if(printing===PREFIX.eldegoss&&sourceAbilityRecoveryOpen(obs))return 20;
+  return 75;
+}
 function ownTurnKOEligible(obs,receipt){
   const turn=receipt?.opponentLastTurnTurn,ko=receipt?.priorOpponentTurnKO;
   return Number.isSafeInteger(turn)&&turn>=0&&turn<obs.globalTurn&&
@@ -303,9 +377,13 @@ function choosePrompt(request){
       },min,max);
     }
     if(src.sourcePrinting===PREFIX.netBall){
-      return pick(choices,c=>metadataOwnerVisible(c)&&
-        c.publicMetadata?.sourceZone==='deck'&&/^Grass Energy /.test(name(c))?
-        150:-Infinity,min,max);
+      return pick(choices,c=>{
+        const n=name(c);
+        if(!metadataOwnerVisible(c)||c.publicMetadata?.sourceZone!=='deck')
+          return -Infinity;
+        if(n===PREFIX.eldegoss)return eldegossRecoveryValue(obs);
+        return /^Grass Energy /.test(n)?150:-Infinity;
+      },min,max);
     }
     if(src.sourcePrinting===PREFIX.eldegoss&&e==='Happy Match'){
       return pick(choices,c=>metadataOwnerVisible(c)&&
@@ -315,21 +393,17 @@ function choosePrompt(request){
     }
     if(src.sourcePrinting===PREFIX.quickBall||src.sourcePrinting===PREFIX.treasure||
         src.sourcePrinting===PREFIX.ultraBall){
-      const discardPhase=/discard/i.test(prompt.description??'')||
-        /discard/i.test(e);
-      if(discardPhase)return pick(choices,c=>{
-        const n=name(c);
-        return metadataOwnerVisible(c)&&c.publicMetadata?.sourceZone==='hand'?
-          (DRAGON_PAYLOADS.has(n)?350:/Grass Energy|Fire Energy/.test(n)?40:65):-Infinity;
-      },min,max);
+      const zone=meta.sourceZone;
+      if(meta.ownerSeat!=='actor'||meta.isOwnerVisible!==true)
+        return reason('UNTRUSTED_CARD_SELECTION');
+      if(zone==='hand')return pick(choices,c=>
+        metadataOwnerVisible(c)&&c.publicMetadata?.sourceZone==='hand'?
+          sourceDiscardValue(name(c),obs):-Infinity,min,max);
+      if(zone!=='deck')return reason('UNTRUSTED_CARD_SELECTION');
       return pick(choices,c=>{
-        const n=name(c);
-        if(!metadataOwnerVisible(c)||c.publicMetadata?.sourceZone!=='deck')return -Infinity;
-        if(n===PREFIX.regidragoVstar)return rank27Goal(obs).v>0?310:50;
-        if(n===PREFIX.regidragoV)return rank27Goal(obs).v+rank27Goal(obs).vstar<2?290:40;
-        if(n===PREFIX.budew)return 140;
-        if(n===PREFIX.dedenne||n===PREFIX.crobat)return rank27Goal(obs).hand<=3?180:15;
-        return -Infinity;
+        if(!metadataOwnerVisible(c)||c.publicMetadata?.sourceZone!=='deck')
+          return -Infinity;
+        return sourceSearchTargetValue(src.sourcePrinting,name(c),obs);
       },min,max);
     }
   }
