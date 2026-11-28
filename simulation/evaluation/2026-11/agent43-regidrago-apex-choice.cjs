@@ -52,8 +52,8 @@ function prizeValue(pokemon) {
       rules.some(rule => /Mega Evolution ex Rule:.*takes 3 Prize cards/i.test(String(rule)))) return 3;
   if (subtypes.includes('VMAX') || subtypes.includes('TAG TEAM') || subtypes.includes('V-UNION') ||
       /VMAX|TAG\s*TEAM|V-UNION/i.test(printing)) return 3;
-  if (subtypes.some(value => ['V', 'VSTAR', 'GX', 'ex'].includes(value)) ||
-      /(?:-GX|\bVSTAR\b|\bex\b)/i.test(printing)) return 2;
+  if (subtypes.some(value => ['V', 'VSTAR', 'GX', 'EX', 'ex'].includes(value)) ||
+      /(?:-GX|-EX|\bVSTAR\b|\bex\b)/i.test(printing)) return 2;
   return 1;
 }
 
