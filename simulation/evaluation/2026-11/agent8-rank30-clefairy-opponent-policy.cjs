@@ -1405,11 +1405,13 @@ function hisuianHeavyBallOpportunity(o,request) {
     (!owned(P.lele)&&hand.some(c=>has(c,P.guzma)||has(c,P.marnie)));
 }
 function hisuianHeavyBallPriority(choice,o,request) {
-  const hand=arr(o.ownHand),board=slots(o.ownPublic);
+  const hand=arr(o.ownHand),board=slots(o.ownPublic),
+    discard=arr(o.ownPublic?.discard);
   const owned=pattern=>hand.some(c=>has(c,pattern))||
-    board.some(c=>has(c,pattern));
+    board.some(c=>has(c,pattern))||discard.some(c=>has(c,pattern));
   const clefairyCount=hand.filter(c=>has(c,P.clefairy)).length+
-    board.filter(c=>has(c,P.clefairy)).length;
+    board.filter(c=>has(c,P.clefairy)).length+
+    discard.filter(c=>has(c,P.clefairy)).length;
   if(has(choice,P.clefairy)&&clefairyCount<2)return 125-clefairyCount*5;
   if(has(choice,P.fez)&&!owned(P.fez)&&hand.length<=3&&
      hasFreshPriorOpponentTurnKO(request))return 120;
