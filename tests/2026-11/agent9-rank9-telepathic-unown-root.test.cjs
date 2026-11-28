@@ -137,6 +137,34 @@ for(const seat of [0,1]){
   }
 }
 
+
+/* When the three-Prize Gengar is ALREADY on Bench, hand-attaching the
+ * source's sole Psychic Energy to it can both search two disposable Unown
+ * and prepare a backup attack. This does not authorize benching Gengar as a
+ * new search target, which would create additional three-Prize exposure. */
+for(const seat of [0,1]){
+  const o=obs(seat);
+  o.ownPublic.bench=[mon(Un,{hp:60}),mon(Gen,{hp:240})];
+  const options={schema:protocol.FRONTIER_SCHEMA,items:[
+    {kind:'play-card',token:'unown-recipient',actorPrinting:T,
+      publicMetadata:{targetSeat:'actor',targetZone:'bench',
+        targetIndex:0,isOwnerVisible:true}},
+    {kind:'play-card',token:'gengar-recipient',actorPrinting:T,
+      publicMetadata:{targetSeat:'actor',targetZone:'bench',
+        targetIndex:1,isOwnerVisible:true}},
+    frontier().items[1],{kind:'pass',token:'pass'}
+  ]};
+  const pol=()=>P.createPolicy({role:'opponent',seat,
+    policyVersion:P.POLICY_VERSION,config:{}});
+  let decision=decide(pol(),o,1,options);
+  ok(decision.token==='gengar-recipient',
+    'already in-play unfunded Gengar receives search Energy, seat '+seat);
+  o.ownPublic.bench[1].energies=['Prism Energy ASC 216'];
+  decision=decide(pol(),o,1,options);
+  ok(decision.token==='unown-recipient',
+    'Gengar already has Energy; avoid redundant Telepath, seat '+seat);
+}
+
 /* Synthetic post-settlement challenge of the original rank-9 four-copy
  * Rescue Carrier engine: once searched Unown cycle into discard, physically
  * replaying recovered copies can unlock two more Farewell Letter draws
