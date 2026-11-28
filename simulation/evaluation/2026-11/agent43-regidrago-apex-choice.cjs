@@ -29,7 +29,20 @@ function occupiedBench(player) {
   return list(player?.bench).filter(Boolean);
 }
 
+function noPrizeKnockout(pokemon) {
+  const printing = printingValue(pokemon?.printing ?? pokemon).trim();
+  const printedRules = [...list(pokemon?.printed?.rules), ...list(pokemon?.rules)];
+  if (printedRules.some(rule => /(?:can't|cannot) take any prize cards for it/i.test(String(rule)))) return true;
+
+  // These Items are played as Pokémon but explicitly award zero Prize cards
+  // when Knocked Out. A source inventory may omit the official Team Flare
+  // Gear suffix, and native fullName may omit the collector number. Match
+  // only those observed name/set/number combinations, not arbitrary Items.
+  return /^(?:Robo Substitute(?: Team Flare Gear)?(?: PHF(?: 102)?)?|Lillie['’]s Pok[eé] Doll(?: CEC(?: (?:197|267))?)?|Snorlax Doll(?: PAR(?: 175)?)?)$/i.test(printing);
+}
+
 function prizeValue(pokemon) {
+  if (noPrizeKnockout(pokemon)) return 0;
   const subtypes = list(pokemon?.printed?.subtypes).map(String);
   const printing = printingValue(pokemon?.printing ?? pokemon);
   if (subtypes.includes('VMAX') || subtypes.includes('TAG TEAM') || subtypes.includes('V-UNION') ||
