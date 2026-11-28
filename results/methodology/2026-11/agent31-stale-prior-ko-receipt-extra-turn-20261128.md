@@ -40,6 +40,18 @@ This is not hypothetical turn accounting: the pinned `initNextTurn` increments `
 
 The supplied complete card pool has four distinct printed extra-turn attacks in scope: Dialga-GX Timeless-GX, Origin Forme Dialga VSTAR Star Chronos, Medicham V Yoga Loop, and Togepi & Cleffa & Igglybuff-GX Supreme Puff-GX. None of the 29 authenticated Aichi lists contains the latter three; only Dialga-GX appears, and its listed decks have no Metal Energy. The three unauthenticated Aichi lists (ranks 23, 25, and 28) remain unknown, so do not infer that the full 32 lacks a payable extra-turn line.
 
+## Native card playability markers repeat the same stale-turn bug
+
+This is not only a research-receipt problem. The pinned card implementations maintain separate per-card markers for the same printed condition:
+
+- Raihan EVS 152 sets `RAIHAN_MARKER` on the KO victim's owner, and both `canPlay` and the play reducer require that marker.
+- Teammates PRC 141 does the same with `TEAMMATES_MARKER`.
+- Unfair Stamp TWM 165 does the same with `UNFAIR_STAMP_MARKER`.
+
+Each removes its marker through `REMOVE_OPPONENT_LAST_TURN_MARKER_AT_END_OF_TURN` in `prefabs.ts` (around lines 3119–3130). That helper removes the marker only from `effect.player` (the player whose turn is ending) and returns early when `effect.player.usedTurnSkip` is true. This correctly preserves the owner's condition across the owner's own extra turn, but it does not clear the other player's marker when that other player is skipped by an opponent extra turn with no KO. The stale marker therefore remains on the skipped player, and the native `canPlay` methods can continue to report these cards as playable even though the opponent's last turn had no KO.
+
+Consequently, native card playability/marker state is not an independent legality check for these conditions. A research-owned adapter must use the turn-owner-aware event tracker to gate the candidate worker (and any other policy consuming these effects); do not trust the native Boolean or per-card markers as proof of freshness. Do not patch the upstream Twinleaf submodule directly.
+
 ## Why the stale receipt can reach a selected action
 
 The candidate worker's action frontier does not independently enforce these card-specific prior-KO conditions. In the pinned research adapter `simulation/evaluation/2026-11/agent3-known-cap-free-action-enumerator.cjs`, `playSupporterActions` (around lines 156–166) enumerates every Supporter in hand whenever the generic once-per-turn Supporter rule permits; `playItemActions` (around lines 148–154) likewise enumerates every Item. The frontier therefore does not filter Raihan, Teammates, or Unfair Stamp based on the prior-KO event.
