@@ -151,7 +151,7 @@ function observation(options = {}) {
     ownPublic: options.ownPublic ?? player(),
     opponentPublic: options.opponentPublic ?? player(),
     ownTurnResources: options.ownTurnResources ?? turnResources(),
-    ownerK1: null
+    ownerK1: options.ownerK1 ?? null
   };
 }
 
@@ -1769,6 +1769,47 @@ test('Grand Tree ACE SPEC is used when prior-turn Basic and K0 line are eligible
  assert.deepEqual(checkedDecision(request),{
    kind:'select-action',token:'grand-tree'});
 });
+test('rank2 refuses Guzma & Hala Stadium-only search when K1 confirms Grand Tree Prized',()=>{
+  const own=player({active:pokemon('Bunnelby PRC 121'),
+    bench:[pokemon('Oddish UNB 5',{lastPlayedOrEvolvedTurn:1})]});
+  const req=rootRequest({ownHand:['Guzma & Hala CEC 193'],ownPublic:own,
+    ownerK1:{epoch:1,exactMembershipKnown:true,invalidationReason:null,
+      knownPrintings:[
+        {printing:'Gloom UNB 7',copies:2},
+        {printing:'Vileplume AOR 3',copies:2},
+        {printing:'Grand Tree SCR 136',copies:0},
+        {printing:'Artazon PAL 171',copies:0}]},
+    items:[{token:'hala',kind:'play-card',actorPrinting:'Guzma & Hala CEC 193',
+      publicMetadata:{cardType:'trainer',handIndex:0}},
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'pass'});
+});
+test('rank2 still uses Guzma & Hala when same K1 knowledge confirms Grand Tree in deck',()=>{
+  const req=rootRequest({ownHand:['Guzma & Hala CEC 193'],
+    ownPublic:player({active:pokemon('Bunnelby PRC 121'),
+      bench:[pokemon('Oddish UNB 5',{lastPlayedOrEvolvedTurn:1})]}),
+    ownerK1:{epoch:1,exactMembershipKnown:true,invalidationReason:null,
+      knownPrintings:[{printing:'Gloom UNB 7',copies:1},
+        {printing:'Vileplume AOR 3',copies:1},
+        {printing:'Grand Tree SCR 136',copies:1}]},
+    items:[{token:'hala',kind:'play-card',actorPrinting:'Guzma & Hala CEC 193',
+      publicMetadata:{cardType:'trainer',handIndex:0}},
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'hala'});
+});
+test('rank2 treats invalidated K1 as uncertain K0, not a false zero deck',()=>{
+  const req=rootRequest({ownHand:['Guzma & Hala CEC 193'],
+    ownPublic:player({active:pokemon('Bunnelby PRC 121'),
+      bench:[pokemon('Oddish UNB 5',{lastPlayedOrEvolvedTurn:1})]}),
+    ownerK1:{epoch:2,exactMembershipKnown:false,
+      invalidationReason:'owner deck was shuffled since first search',
+      knownPrintings:null},
+    items:[{token:'hala',kind:'play-card',actorPrinting:'Guzma & Hala CEC 193',
+      publicMetadata:{cardType:'trainer',handIndex:0}},
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'hala'});
+});
+
 test('Grand Tree can still counter an opposing Path to the Peak Stadium',()=>{
  const request=grandTreeRoot({globalTurn:3,
    ownPublic:player({active:pokemon('Bunnelby PRC 121'),
