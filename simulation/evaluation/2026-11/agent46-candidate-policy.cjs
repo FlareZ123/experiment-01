@@ -1621,9 +1621,47 @@ function freeRetreatKnown(view) {
   return isBasic && skylinerStatus(view) === true;
 }
 
-function chooseRetreat(view, items) {
-  if (!freeRetreatKnown(view) || !view.opponentPublic.active) return null;
-  const current = bestAttackForSlot(view.ownPublic.active, view, view.opponentPublic.active);
+// This original candidate's Mimikyu is often one paid Retreat away from the
+// exact Regidrago Copycat -> Apex Dragon -> discarded Dialga Timeless-GX line.
+// The pinned RetreatEffect auto-pays identically providing Basic Psychic,
+// so there is no separate retreat-cost prompt in this particular fixed 60.
+// Score ONLY a native-enumerated, payable action with current actor-visible
+// last-opponent attack evidence; never fabricate a mobility action/token.
+function paidMimikyuApexRetreat(view, target, receipt) {
+  if (target?.printing !== 'Mimikyu GRI 58' ||
+      receipt?.actorSeat !== view.actorSeat ||
+      receipt?.turn !== view.globalTurn ||
+      !Array.isArray(receipt.opponentCopycatChoices) ||
+      !receipt.opponentCopycatChoices.some(row =>
+        row.attackName === 'Apex Dragon' && !row.gxAttack &&
+        !row.copycatAttack &&
+        row.sourcePrinting === 'Regidrago VSTAR SIT 136') ||
+      view.ownPublic.publicTurnRestrictions?.gxUsed !== false ||
+      !view.ownPublic.discard?.includes('Dialga-GX UPR 100')) return false;
+  const attack=target.attacks?.find(row=>row.name==='Copycat');
+  if (!attack || !canPayAttack(target, attack, view)) return false;
+  const active=view.ownPublic.active;
+  if (!active) return false;
+  const originalCost=active.printed?.retreatCost;
+  if (!Array.isArray(originalCost) || originalCost.some(x=>x!=='Colorless'))
+    return false;
+  const ownedBasicPsychic=(active.energies??[]).filter(
+    p=>p==='Psychic Energy MEE 13').length;
+  return freeRetreatKnown(view) || ownedBasicPsychic>=originalCost.length;
+}
+
+function chooseRetreat(view, items, receipt) {
+  if (!view.opponentPublic?.active) return null;
+  const free=freeRetreatKnown(view);
+  const current = bestAttackForSlot(view.ownPublic.active, view,
+    view.opponentPublic.active,{publicEventReceipt:receipt});
+  const opponent=view.opponentPublic.active;
+  const currentWins=Number.isFinite(current?.damage) &&
+    Number.isFinite(opponent?.hp) && Number.isFinite(opponent?.damage) &&
+    current.damage >= opponent.hp-opponent.damage &&
+    Number.isSafeInteger(view.ownPublic?.prizeCount) &&
+    view.ownPublic.prizeCount>0 &&
+    view.ownPublic.prizeCount<=prizeLiability(opponent);
   const retreats = items.filter(item => item.kind === 'retreat');
   let best = null;
   for (const item of retreats) {
@@ -1634,7 +1672,13 @@ function chooseRetreat(view, items) {
       recordPolicyAuditUnscored(item.token, 'RETREAT_TARGET_UNAVAILABLE');
       continue;
     }
-    const attack = bestAttackForSlot(target, view, view.opponentPublic.active);
+    const apexfunded=paidMimikyuApexRetreat(view,target,receipt);
+    if ((!free && !apexfunded) || (apexfunded && currentWins)) {
+      recordPolicyAuditUnscored(item.token,'RETREAT_PAYMENT_OR_FINAL_PRIZE_VETO');
+      continue;
+    }
+    const attack = bestAttackForSlot(target, view, view.opponentPublic.active,
+      {publicEventReceipt:receipt});
     if (!attack) {
       recordPolicyAuditUnscored(item.token, 'RETREAT_ATTACK_NOT_PAYABLE');
       continue;
@@ -1754,7 +1798,7 @@ function chooseRoot(view, request) {
     return { kind: 'select-action', token: scoredPlays[0].item.token };
   }
 
-  const retreat = chooseRetreat(view, items);
+  const retreat = chooseRetreat(view, items, request.publicEventReceipt);
   if (retreat) {
     setPolicyAuditRule('ROOT_RETREAT_ATTACK_IMPROVEMENT', 'SCORE_DESC_NATIVE_FRONTIER_ORDER');
     return { kind: 'select-action', token: retreat.token };
