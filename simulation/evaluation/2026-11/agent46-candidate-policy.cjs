@@ -735,6 +735,15 @@ function searchCandidates(view, prompt, choices) {
     rows = choices.map(choice => ({
       choice, score: wonderTagSupporterScore(view, choice.printing)
     }));
+  } else if (sourceZone === 'discard' && effectName === 'Raihan' &&
+      prompt.source?.sourcePrinting === 'Raihan EVS 152') {
+    // Raihan's first step attaches one BASIC Energy from the discard pile.
+    // The printed fixed 60 has only Psychic Basic Energy; do not select
+    // arbitrary discarded Trainer/Pokémon cards as energy.
+    rows = choices.map(choice => ({
+      choice,
+      score: choice.printing === 'Psychic Energy MEE 13' ? 1000 : -Infinity
+    }));
   } else if (sourceZone === 'discard' && effectName === 'Night Stretcher' &&
       prompt.source?.sourcePrinting === 'Night Stretcher ASC 196') {
     rows = choices.map(choice => ({
@@ -797,7 +806,8 @@ function chooseCardCombination(view, prompt) {
     'Hisuian Heavy Ball': 'Hisuian Heavy Ball ASR 146',
     'Star Alchemy': 'Forest Seal Stone SIT 156',
     'Arven': 'Arven SVI 166',
-    'Teammates': 'Teammates PRC 141'
+    'Teammates': 'Teammates PRC 141',
+    'Raihan': 'Raihan EVS 152'
   };
   const effect = prompt.source?.effectName;
   if (Object.hasOwn(ownerSourceBindings, effect) &&
@@ -921,6 +931,11 @@ function choosePokemonRecipient(view, prompt) {
   if (effectName === 'Acerola' &&
       (prompt.source?.sourceKind !== 'card-effect' ||
        prompt.source?.sourcePrinting !== 'Acerola BUS 112')) {
+    return abstain('UNTRUSTED_PROMPT_SOURCE');
+  }
+  if (effectName === 'Raihan' &&
+      (prompt.source?.sourceKind !== 'card-effect' ||
+       prompt.source?.sourcePrinting !== 'Raihan EVS 152')) {
     return abstain('UNTRUSTED_PROMPT_SOURCE');
   }
   const actorChoices = visible.filter(row => row.target.ownerSeat === 'actor');
@@ -1634,6 +1649,23 @@ function scoreTrainerPlay(item, view, receipt) {
   if (hasName(name, 'Teammates PRC') && !supporterUsed &&
       receipt?.priorOpponentTurnKO?.any === true &&
       view.ownPublic.deckCount > 0) return 945;
+  if (name === 'Raihan EVS 152' && !supporterUsed &&
+      receipt?.priorOpponentTurnKO?.any === true &&
+      view.ownPublic.discard.includes('Psychic Energy MEE 13') &&
+      ownBoard(view).length > 0) {
+    const active = view.ownPublic.active;
+    const target = view.opponentPublic.active;
+    const before = target ? bestAttackForSlot(active, view, target,
+      { publicEventReceipt: receipt }) : null;
+    const funded = active && {
+      ...active, energies: [...(active.energies ?? []), 'Psychic Energy MEE 13']
+    };
+    const after = target && funded ? bestAttackForSlot(funded, view, target,
+      { publicEventReceipt: receipt }) : null;
+    // Energy plus any-card tutor beats Teammates when that acceleration
+    // immediately pays a previously unavailable current-Active attack.
+    return !before && after ? 975 : 875;
+  }
   if (hasName(name, 'Pokémon Ranger STS') && !supporterUsed &&
       attackImposedLockNeedsRanger(view, receipt)) return 840;
   if (hasName(name, 'VS Seeker') && !supporterUsed &&
