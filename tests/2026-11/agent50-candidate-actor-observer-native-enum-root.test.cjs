@@ -227,3 +227,48 @@ for(const seat of [0,1]){
     });
   }
 }
+
+function stealthyHoodDecision(seat,targetZone,lock='none') {
+  const state={players:[player(100,seat===0),player(200,seat===1)],
+    activePlayer:seat,turn:5,phase:5,prompts:[]};
+  const owner=state.players[seat];
+  owner.active=slot(c('Mimikyu GRI'));
+  owner.bench[0]=slot(c('Shadow Rider Calyrex V CRE'));
+  owner.hand.cards=[c('Stealthy Hood UNB 186')];
+  state.players[1-seat].active=slot(c('Iron Thorns ex TWM 77'));
+  if(lock==='jammer')state.players[1-seat].active.tools=[c('Tool Jammer BST')];
+  if(lock==='tower')state.players[1-seat].stadium.cards=[c('Jamming Tower TWM')];
+  const targetSlot=targetZone==='bench'?'BENCH':'ACTIVE';
+  const action=projectNativeAction({type:'PLAY_CARD_ACTION',handIndex:0,
+    target:{player:'BOTTOM_PLAYER',slot:targetSlot,index:0}},
+    state,seat,minimalNative,'hood');
+  assert.ok(action);
+  const view=actorObservation(state,seat);
+  const frontier={schema:protocol.FRONTIER_SCHEMA,
+    items:[action,{kind:'pass',token:'pass'}]};
+  const worker=createPolicy({role:'candidate',seat,
+    policyVersion:POLICY_VERSION,config:{}});
+  const result=worker.decide({role:'candidate',seat,observation:view,
+    prompt:null,publicEventReceipt:null,actionFrontier:frontier});
+  return {view,action,result};
+}
+for(const seat of [0,1]){
+  test('Hood not wasted on non-V Mimikyu under Iron Thorns '+seat,()=>{
+    const {action,result}=stealthyHoodDecision(seat,'active');
+    assert.deepEqual(action.targetPrinting,'Mimikyu GRI');
+    assert.deepEqual(result,{kind:'select-action',token:'pass'});
+  });
+  test('Hood protects the actual Benched Shadow Rider V '+seat,()=>{
+    const {action,result}=stealthyHoodDecision(seat,'bench');
+    assert.deepEqual(action.targetPrinting,'Shadow Rider Calyrex V CRE');
+    assert.deepEqual(result,{kind:'select-action',token:'hood'});
+  });
+  test('Active Tool Jammer does not block Benched Hood under Thorns '+seat,()=>{
+    const {result}=stealthyHoodDecision(seat,'bench','jammer');
+    assert.deepEqual(result,{kind:'select-action',token:'hood'});
+  });
+  test('Jamming Tower prevents premature Bench Hood lock answer '+seat,()=>{
+    const {result}=stealthyHoodDecision(seat,'bench','tower');
+    assert.deepEqual(result,{kind:'select-action',token:'pass'});
+  });
+}

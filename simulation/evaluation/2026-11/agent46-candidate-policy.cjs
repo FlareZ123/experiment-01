@@ -1582,8 +1582,14 @@ function scoreTrainerPlay(item, view, receipt) {
   if (hasName(name, 'Dimension Valley') &&
       dimensionValleyStatus(view) === false &&
       ownBoard(view).some(slot => printedHasType(slot,'PSYCHIC'))) return 600;
-  if (isTool(name) && hasName(name, 'Stealthy Hood') && hasAbilityLockThreat(view) &&
-      ownBoard(view).some(slot => hasName(slot.printing, 'Shadow Rider Calyrex V'))) return 580;
+  if (isTool(name) && hasName(name, 'Stealthy Hood')) {
+    const target=ownedToolRecipient(item,view);
+    // Lock prevention must benefit the actual Tool recipient, not merely
+    // another Shadow Rider somewhere on the board.
+    if (target && hasName(target.printing,'Shadow Rider Calyrex V') &&
+        hasAbilityLockThreat(view) &&
+        toolsKnownLive(view,item.publicMetadata.targetZone)) return 580;
+  }
   return -Infinity;
 }
 
