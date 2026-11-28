@@ -262,6 +262,17 @@ function setupAbilityPending(items,o){
   (/^Squawk and Seize$/i.test(i.publicMetadata?.abilityName||'')&&turn<=2&&canRiskFullHandDiscard(o))
  ));
 }
+function urgentShadowRiderGarbotoxin(o){
+ // A pair of unhooded Underworld Door VMAX engines can accelerate Energy
+ // and draw repeatedly on the opponent's next turn. An equipped Trubbish
+ // evolving via Boost Shake would shut BOTH engines off immediately.
+ // Preserve Hood owner specificity: the opponent's Hood protects each
+ // Shadow Rider from OUR Garbotoxin unless Jamming disables its effect.
+ return slots(o.opponentPublic).filter(({pokemon:p})=>
+  /^Shadow Rider Calyrex VMAX CRE 75\b/i.test(name(p.printing))&&
+  (!toolEnabled(o)||!list(p.tools).some(t=>/^Stealthy Hood UNB 186\b/i.test(name(t)))))
+  .length>=2;
+}
 function hasFundedAttack(items){
  return list(items).some(x=>x.kind==='attack'&&x.publicMetadata?.attackCostPayable===true);
 }
@@ -727,14 +738,23 @@ function score(action,req){
   // unspent Darkness attachment that will power up the next Mega turn.
   const ready=slots(own).some(x=>match(x.pokemon.printing,PRINT.trubbish)&&list(x.pokemon.tools).length>0);
   if(!ready||setupAbilityPending(items,o)||onBoard(own,PRINT.garbodor))return 0;
+  // Terminal Period can already take a guaranteed conditional Knock
+  // Out. Never throw away that attack for Boost Shake.
   if(items.some(i=>i.kind==='attack'&&i.publicMetadata?.attackCostPayable===true&&
-     (i.attackName==='Itchy Pollen'||i.attackName==='Terminal Period')))return 0;
+     i.attackName==='Terminal Period'))return 0;
+  const urgentGarbotoxin=urgentShadowRiderGarbotoxin(o);
+  if(!urgentGarbotoxin&&items.some(i=>i.kind==='attack'&&
+     i.publicMetadata?.attackCostPayable===true&&i.attackName==='Itchy Pollen'))return 0;
+  if(items.some(i=>i.kind==='attack'&&i.attackName==='Claw of Darkness'&&
+    i.publicMetadata?.attackCostPayable===true&&
+    clawProjectedKnockoutScore(i,o)>=975))return 0;
   const canAttach=own.publicTurnRestrictions?.energyPlayLocked!==true&&
      o.ownTurnResources?.energyPlayedTurn!==true&&
      list(o.ownHand).some(x=>match(x,PRINT.dark))&&
      slots(own).some(x=>match(x.pokemon.printing,PRINT.mega)&&
         list(x.pokemon.energies).length<3);
   if(canAttach)return 0;
+  if(urgentGarbotoxin)return 690;
   if(items.some(i=>i.kind==='attack'&&i.publicMetadata?.attackCostPayable===true&&
     i.attackName==='Claw of Darkness')){
    return 255;
@@ -1224,4 +1244,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,prizeYield,activeMimikyuSafeguard,regidragoPayloadCount,karenOwnRecoveryScore,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,drawSupporterScore,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,opponentGarbotoxinStatus,liveGarbotoxin,benchCapacity,replacingJammingRestoresHoodedLock,pathToThePeakInPlay,silentLabInPlay,activeKlefkiLock,activeFlutterManeLock};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,prizeYield,activeMimikyuSafeguard,regidragoPayloadCount,karenOwnRecoveryScore,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,drawSupporterScore,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,opponentGarbotoxinStatus,liveGarbotoxin,benchCapacity,replacingJammingRestoresHoodedLock,pathToThePeakInPlay,silentLabInPlay,activeKlefkiLock,activeFlutterManeLock,urgentShadowRiderGarbotoxin};
