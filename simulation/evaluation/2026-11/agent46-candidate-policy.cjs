@@ -1555,10 +1555,15 @@ function scoreBasicPlay(item, view, receipt) {
     if (hasName(view.opponentPublic.active?.printing, 'Iron Thorns ex')) {
       return -Infinity;
     }
-    // Climactic Gate is a turn-ending line; finish search, evolution, and
-    // normal energy first. Radiant takes one Bench slot and needs at least
-    // one more for a VMAX searched directly onto the Bench.
-    if (countBench(view.ownPublic) > 3 ||
+    // Climactic Gate is a turn-ending line. Radiant needs one Bench slot
+    // *for itself* and another slot for at least one VMAX. Sky Field
+    // increases the legal Bench capacity from five to eight, so the old
+    // fixed ">3" gate needlessly blocked live six-/seven-card benches.
+    const skyField = [...view.ownPublic.stadium, ...view.opponentPublic.stadium]
+      .some(stadium => hasName(stadium, 'Sky Field'));
+    const benchCapacity = skyField ? 8 : 5;
+    const slotsAfterRadiant = benchCapacity - countBench(view.ownPublic) - 1;
+    if (slotsAfterRadiant < 1 ||
         ownBoard(view).filter(slot =>
           hasName(slot.printing, 'Shadow Rider Calyrex VMAX')).length >= 2) {
       return -Infinity;
