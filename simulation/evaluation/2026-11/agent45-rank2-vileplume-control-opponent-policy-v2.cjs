@@ -307,8 +307,18 @@ function opponentSkylinerMayBeLive(player) {
   });
 }
 
+// The proposed lock must survive both switches, not just the state before
+// Guzma. These exact printings gain Active-only Ability denial on promotion.
+// Conservatively avoid targeting them even if a current suppression might
+// expire or a Tool might protect one lock Pokémon but not the other.
+function guzmaTargetWouldDisableOwnLock(target) {
+  return matches(target?.printing, /^Wobbuffet PHF(?: \d+)?\b/i) ||
+    matches(target?.printing, /^Galarian Weezing RCL(?: \d+)?\b/i);
+}
+
 function nominalGuzmaRetreatTrap(target, opponent) {
-  if (!target || list(target.energies).length > 0 ||
+  if (!target || guzmaTargetWouldDisableOwnLock(target) ||
+      list(target.energies).length > 0 ||
       list(target.printed?.retreatCost).length === 0) return false;
   if (list(target.tools).some(tool =>
     /Float Stone|Air Balloon|Escape Board|U-Turn Board/i.test(printingValue(tool)))) {
@@ -900,6 +910,7 @@ function scorePokemonChoice(choice, observation, context) {
     const lockPivot = list(observation.ownPublic?.bench).some(pokemon =>
       stoutlandSentinelEffective(observation, pokemon)) &&
       observation.opponentPublic?.publicTurnRestrictions?.itemPlayLocked === true;
+    if (lockPivot && guzmaTargetWouldDisableOwnLock(target)) return -100;
     const stranded = lockPivot && nominalGuzmaRetreatTrap(target,
       observation.opponentPublic);
     return 100 + (hp > 0 && hp <= 90 ? 50 : 0) + multiPrize * 8 +
