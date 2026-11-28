@@ -2704,3 +2704,38 @@ paired('Agent2: Guzma projection clears switched-out Active Special Conditions b
   active.specialConditions=['unrecognized'];
   assert.deepEqual(decide(profile,root(seat,view,action)),sel('pass'));
 });
+
+paired('Agent2: Guzma switch clears on-Pokemon next-turn attack prohibition before paid multi-Prize pivot',(seat,profile)=>{
+  const guzma='Guzma BUS';
+  const active=vmax([P,P,P]),lat=latias();
+  active.printed.retreatCost=['Colorless','Colorless'];
+  lat.printed.retreatCost=['Colorless'];
+  const dedenne=pokemon({printing:'Dedenne-GX UNB',name:'Dedenne-GX',
+    hp:160,damage:80,types:['Lightning'],subtypes:['Basic','GX'],
+    abilities:['Dedechange']});
+  const view=observation(seat,{active,bench:[lat],
+    opponentActive:defender(),opponentBench:[dedenne],
+    ownHand:[guzma],globalTurn:4});
+  view.ownPublic.prizeCount=3;
+  view.opponentPublic.prizeCount=6;
+  active.publicRestrictions.cannotAttackNextTurn=true;
+  const guzmaOnly=[play('guzma',guzma)];
+  // The Active has a temporary attack effect, so no attack is offered.
+  // Switching it to the Bench clears that effect. Latias can retreat
+  // freely, allowing the same VMAX to attack Dedenne for two Prizes.
+  assert.deepEqual(decide(profile,root(seat,view,guzmaOnly)),sel('guzma'));
+  active.publicRestrictions.cannotAttackNextTurn=false;
+  active.publicRestrictions.blockedAttackNameUntilLeavesActive='Max Geist';
+  assert.deepEqual(decide(profile,root(seat,view,guzmaOnly)),sel('guzma'));
+  active.publicRestrictions.blockedAttackNameUntilLeavesActive=null;
+  active.publicRestrictions.cannotAttackNextTurn=true;
+  lat.abilitySuppressions[0]={...lat.abilitySuppressions[0],
+    suppressed:true,sourcePrinting:'Silent Lab PRC'};
+  assert.deepEqual(decide(profile,root(seat,view,guzmaOnly)),sel('pass'));
+  lat.abilitySuppressions[0].suppressed=false;
+  lat.abilitySuppressions[0].sourcePrinting=null;
+  // The expiry of a temporary Pokémon effect does not cancel a
+  // continuous Energy-payment requirement or global attack lock.
+  view.ownPublic.publicTurnRestrictions.attackLockTurnsRemaining=1;
+  assert.deepEqual(decide(profile,root(seat,view,guzmaOnly)),sel('pass'));
+});
