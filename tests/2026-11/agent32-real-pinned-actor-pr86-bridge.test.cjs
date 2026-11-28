@@ -14,7 +14,7 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const fs=require('node:fs');
 const {planAichi}=require('../../simulation/evaluation/aichi-pilot.cjs');
-const {buildSourcePrintingMap,projectAdmittedWorkerParts}=
+const {buildSourcePrintingMap,projectAdmittedWorkerParts,createCertifiedV3RoleAdapters}=
   require('../../simulation/evaluation/2026-11/agent32-source-printing-bridge.cjs');
 const {stage}=require('../../simulation/twinleaf/agent5-attack-special-arbitration-native.cjs');
 const {initializeCards}=require('../../simulation/twinleaf/headless.cjs');
@@ -253,6 +253,40 @@ for(const seat of [0,1]){
       state:x.state,actorSeat:seat,native:frontierNative()
     });
     const genuineItems=realFrontier.actionFrontier.items;
+    // This is the actual production-facing four-dependency composition, not
+    // merely an isolated mapper. The native Store's observe() is source
+    // qualified BEFORE the fixture driver's actor SHA; root and prompt
+    // frontiers still carry the genuine opaque native token->Action table.
+    const roleAdapters=createCertifiedV3RoleAdapters({
+      native:{...frontierNative(),observe:actorObservation},
+      protocol,candidateSeat:1-seat,opponentSeat:seat,
+      candidateSourceDeck:opponentDeck,opponentSourceDeck:sourceDeck,
+      candidateNativeOrdered60:opponentResolved.cards,
+      opponentNativeOrdered60:resolved.cards,
+      actionFrontier:require('../../simulation/evaluation/2026-11/agent36-native-action-frontier.cjs'),
+      promptProjection:require('../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs'),
+      eventReceipt:publicEventReceipt
+    });
+    const sourceActor=roleAdapters.native.observe(x.state,seat);
+    assert.equal(Object.isFrozen(sourceActor),true);
+    assert.equal(sourceActor.ownHand.includes('Penny SVI 183'),true);
+    assert.equal(sourceActor.ownPublic.active.printing,'Snorlax PGO 55');
+    const roleFrontier=roleAdapters.actionFrontier.buildNativeActionFrontier({
+      state:x.state,actorSeat:seat,native:frontierNative()
+    });
+    assert.deepEqual(roleFrontier.actionFrontier.items.map(item=>item.token),
+      realFrontier.actionFrontier.items.map(item=>item.token),
+      'source adapter must not change native action tokens or their ordering');
+    assert.equal(roleFrontier.actionByToken instanceof Map,true);
+    assert.ok([...roleFrontier.actionByToken.values()].every(
+      action=>action&&typeof action.type==='string'),
+      'opaque native token-to-Action values must remain real physical actions');
+    assert.equal(roleFrontier.actionFrontier.items.some(
+      item=>item.kind==='play-card'&&item.actorPrinting==='Penny SVI 183'),true);
+    assert.equal(roleAdapters.eventReceipt(x.state,seat).ownerActive.printing,
+      sourceActor.ownPublic.active.printing);
+
+
     const nativePenny=genuineItems.find(a=>a.kind==='play-card'&&
       a.actorPrinting==='Penny SVI');
     const nativeHandi=genuineItems.find(a=>a.kind==='play-card'&&
@@ -323,6 +357,16 @@ for(const seat of [0,1]){
         });
         assert.equal(nativePrompt.hostOnly,false);
         assert.equal(nativePrompt.promptProjection.source.sourcePrinting,'Penny SVI');
+        const rolePrompt=roleAdapters.promptProjection.projectPrompt({
+          prompt:pending,state:x.state,actorSeat:seat,
+          native:{...frontierNative(),ResolvePromptAction},
+          store:x.store,provenanceHook:promptProvenance
+        });
+        assert.equal(rolePrompt.promptProjection.source.sourcePrinting,
+          'Penny SVI 183');
+        assert.deepEqual(rolePrompt.promptProjection.choices.map(x=>x.token),
+          nativePrompt.promptProjection.choices.map(x=>x.token),
+          'native physical prompt token identity must survive source projection');
         const promptObservation=actorObservation(x.state,seat);
         assert.equal(promptObservation.decisionKind,'owner-prompt');
         assert.equal(promptObservation.pendingPromptType,'ChoosePokemonPrompt');
