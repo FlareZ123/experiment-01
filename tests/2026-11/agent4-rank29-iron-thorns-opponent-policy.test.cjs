@@ -2121,3 +2121,60 @@ test('VS Seeker connector prioritizes actual currently winning Guzma over Flare 
       {kind:'select-choices',tokens:['flare']});
   }
 });
+
+
+test('VS Seeker winning gust root chain beats premature active KO but only with prepared Bench',()=>{
+  const base={
+    ownHand:['VS Seeker PHF 109'],
+    opponentPublic:player({
+      active:pokemon('Dedenne-GX UNB 57',{hp:160,damage:30}),
+      bench:[pokemon('Trevenant & Dusknoir-GX SMP 180',{
+        hp:270,damage:160,subtypes:['TAG_TEAM','GX']})]
+    }),
+    items:[
+      action('attack','attack','Iron Thorns ex TWM 77',{},
+        {attackName:'Volt Cyclone'}),
+      action('seeker','play-card','VS Seeker PHF 109',{cardType:'item'}),
+      {token:'pass',kind:'pass'}
+    ]
+  };
+  const ready=rootRequest({...base,
+    ownPublic:player({
+      prizeCount:3,
+      active:pokemon('Iron Thorns ex TWM 77',{
+        energies:['Double Colorless Energy SUM 136']}),
+      bench:[pokemon('Iron Thorns ex TWM 77',{
+        energies:['Double Colorless Energy SUM 136']})],
+      discard:['Guzma BUS 115'],
+      stadium:['Thunder Mountain ♢ LOT 191']
+    })
+  });
+  assert.deepEqual(checkedDecision(ready),
+    {kind:'select-action',token:'seeker'});
+  const unready=rootRequest({...base,
+    ownPublic:player({
+      prizeCount:3,
+      active:pokemon('Iron Thorns ex TWM 77',{
+        energies:['Double Colorless Energy SUM 136']}),
+      bench:[pokemon('Iron Thorns ex TWM 77')],
+      discard:['Guzma BUS 115'],
+      stadium:['Thunder Mountain ♢ LOT 191']
+    })
+  });
+  assert.deepEqual(checkedDecision(unready),
+    {kind:'select-action',token:'attack'});
+  const alreadySupported=rootRequest({...base,
+    ownHand:['VS Seeker PHF 109','Guzma BUS 115'],
+    ownPublic:player({
+      prizeCount:3,
+      active:pokemon('Iron Thorns ex TWM 77',{
+        energies:['Double Colorless Energy SUM 136']}),
+      bench:[pokemon('Iron Thorns ex TWM 77',{
+        energies:['Double Colorless Energy SUM 136']})],
+      discard:['Guzma BUS 115'],
+      stadium:['Thunder Mountain ♢ LOT 191']
+    })
+  });
+  assert.deepEqual(checkedDecision(alreadySupported),
+    {kind:'select-action',token:'attack'});
+});
