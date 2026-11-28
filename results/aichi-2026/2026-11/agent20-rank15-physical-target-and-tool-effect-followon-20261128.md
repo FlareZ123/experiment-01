@@ -1,0 +1,44 @@
+# Rank 15 source-worker follow-on: physical destinations and global Tool suppression
+
+**2026-11-28, Agent20.** Development-only follow-on to Agent41's rank15 Temple/duplicate-print draft PR #90, at draft [PR #93](https://github.com/FlareZ123/experiment-01/pull/93). This is **not** a source-list change, candidate 60, full game, native Store trace, qualified opponent policy, or matchup result.
+
+## Decision changed
+
+The existing rank15 development worker could choose an *offered* action whose printing matched the desired Pokémon but whose native target was the wrong physical object. With the exact original rank15 source, two copies each of Bunnelby PRC121 and Vileplume AOR3 make these collisions possible:
+
+| Observable legal alternative | Original/PR90-head failure | Correction on this branch |
+| --- | --- | --- |
+| Jet Energy to TM-equipped Benched Bunnelby vs bare same-print Benched Bunnelby | Chose first Jet target, even when bare | Require the exact Jet target to be Benched and carry TM: Evolution |
+| TM: Evolution to ready Active Bunnelby vs bare same-print Bench Bunnelby | Chose first Tool target, losing this turn's Evolution attack opportunity | Prioritize the actual Active bare Bunnelby if offered |
+| Stealthy Hood to a suppressed AOR Vileplume vs unsuppressed identical copy | Scored only first same-print Vileplume, abstained even when suppression was on second | Score exact action target and its live suppression state |
+| Free-form Retreat action vs actor-relative BUS destination | First no-printing retreat could be selected, despite specified BUS target later in the frontier | Match the exact Bench index/printing before promoting to BUS |
+
+The state is observable from the worker's own board, action-frontier coordinates, and Ability suppression projection. No hidden deck cards or Prize contents are used. Coordinate-free name-only actions are not granted a fake identity when duplicate visible printings exist.
+
+## False terminal under Jamming Tower
+
+The source has **Choice Belt PAL176**; it adds 30 to attacks into Pokémon V. **Jamming Tower TWM153** makes Pokémon Tools have no effect. Without suppression, a moved source Mega Lopunny ex with Choice Belt has Spiky Hopper `160+30=190` into a non-resistant V; with Jamming Tower the same attack is only **160**, while its moved **Gale Thrust 230** can still take the Knock Out.
+
+For an opposing Shadow Rider Calyrex V at 180 remaining HP with two remaining own Prizes and two attacks offered in Spiky-then-Gale order:
+
+- No Jamming/global Tool suppression: Spiky 190, first-offered immediate-win Spiky is valid.
+- Jamming active: Spiky 160 is not a KO; Gale 230 is the immediate winning attack.
+- A visible `stadiumAndToolHaveNoEffectTurnsRemaining > 0` nullifies **both** Stadium and Tool effects: it suppresses Jamming Tower but *does not re-enable Choice Belt*. Spiky remains 160, and Gale is the winning attack.
+- This same global nullification makes Stealthy Hood ineffective, even when Jamming's own Stadium effect is muted. Do not infer that a muted Jamming re-enables other Tools.
+
+The initially written global-nullification test incorrectly expected Choice Belt to recover when Jamming was muted. That was corrected *before this report and handoff*: the final helper explicitly treats global Tool nullification independently of Stadium action. Paper textual basis comes from the supplied card database's Jamming Tower, Choice Belt, Mega Lopunny ex and Temple of Sinnoh entries.
+
+## Reproducible assets
+
+- Policy: `simulation/evaluation/2026-11/agent20-rank15-lopunny-vileplume-opponent-policy.cjs`
+- Physical-object tests: `tests/2026-11/agent20-rank15-physical-slot-continuation-heldout.test.cjs` (**10** cases)
+- Tool/Stadium tests: `tests/2026-11/agent20-rank15-jamming-belt-terminal-heldout.test.cjs` (**16** cases)
+- Exact final policy blob: `15887633d6facb04122f7ce3dfb9d639df7d6c40`
+- Exact test blobs: `04aa7326f3d2c3bf18b115ca48d6988021c511cb`, `99418a2ca86cc651773af5cf3248979e4563317c`
+- Executed both committed test files against the exact policy blob with a JavaScript CommonJS V8 shim for `node:test`, `node:assert/strict`, and the policy module: **26 passed / 0 failed**. This confirms synchronous decision assertions only. The V8 shim is not Node CLI, pinned Twinleaf Store, native protocol, source-deck game, or competitive qualification.
+
+The original PR90 head reproduced the wrong Jet and TM selections and the absent correct Hood decision before the follow-on patch. Neither PR90 nor PR93 should be treated as an admission to main or a frozen policy. Both may be challenged through independent actor-visible native continuation before any owner-approved game. No CI or V3 dispatch was performed here.
+
+## Integration boundary
+
+PR #93 targets PR90's **development branch**, not main, and is intentionally draft. Rank15 ownership remains Agent20/Agent17 per the 27 Nov coordinator disposition. Mainline 32-field policy/admission counters and fixed60 nomination should not be changed by this work.
