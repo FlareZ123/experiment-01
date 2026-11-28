@@ -239,6 +239,71 @@ function chooseStage2BusEscape(view,items) {
 }
 
 
+
+function stage2MissingUnderBus(view){
+ const own=view?.ownPublic,opp=view?.opponentPublic;
+ if(!own||!opp||!has(opp.active?.printing,'Vileplume BUS')||
+  !live(opp.active,'Disgusting Pollen')||
+  !Array.isArray(own.bench)||!Array.isArray(view.ownHand))return null;
+ const played=slots(own),hand=view.ownHand;
+ const have=n=>played.some(x=>has(x.printing,n));
+ const held=n=>hand.some(x=>has(x,n));
+ if(have('Dusclops')&&!have('Dusknoir')&&!held('Dusknoir'))
+   return 'Dusknoir';
+ if(have('Duskull')&&!have('Dusclops')&&!held('Dusclops'))
+   return 'Dusclops';
+ if(!have('Duskull')&&!have('Dusclops')&&!held('Duskull')&&
+    own.bench.filter(Boolean).length<5) return 'Duskull';
+ return null;
+}
+function chooseStage2StarRoot(view,items) {
+ const own=view?.ownPublic;
+ const missing=stage2MissingUnderBus(view);
+ if(!missing||!own||!Array.isArray(items))return null;
+ const hosts=(own.bench??[]).map((s,index)=>({s,index}))
+  .filter(x=>has(x.s?.printing,'Galarian Articuno V'));
+ const withStone=hosts.find(x=>Array.isArray(x.s.tools)&&
+  x.s.tools.some(t=>has(t,'Forest Seal Stone')));
+ if(withStone){
+  const star=items.find(x=>x.kind==='use-ability'&&
+   x.publicMetadata?.abilityName==='Star Alchemy'&&
+   x.publicMetadata?.sourceZone==='bench'&&
+   x.publicMetadata.sourceIndex===withStone.index);
+  if(star)return select(star,'V3_STAR_ALCHEMY_FOR_MISSING_'+missing.toUpperCase());
+ }
+ if(!Array.isArray(view.ownHand)||
+  !view.ownHand.some(x=>has(x,'Forest Seal Stone')))return null;
+ const free=hosts.find(x=>Array.isArray(x.s.tools)&&x.s.tools.length===0);
+ if(!free)return null;
+ const attach=items.find(x=>x.kind==='play-card'&&
+  has(x.actorPrinting,'Forest Seal Stone')&&
+  x.publicMetadata?.cardType==='trainer'&&
+  x.publicMetadata?.targetSeat==='actor'&&
+  x.publicMetadata.targetZone==='bench'&&
+  x.publicMetadata.targetIndex===free.index&&
+  (!x.targetPrinting||x.targetPrinting===free.s.printing));
+ return attach?select(attach,'V3_INSTALL_STONE_ON_ARTICUNO_TO_FIND_'+missing.toUpperCase()):null;
+}
+function chooseStage2StarPrompt(view,prompt){
+ const missing=stage2MissingUnderBus(view);
+ const m=prompt?.publicMetadata,src=prompt?.source;
+ if(!missing||!src||src.classification!=='actor-choice'||
+  src.sourceKind!=='card-effect'||src.effectName!=='Star Alchemy'||
+  !has(src.sourcePrinting,'Forest Seal Stone')||
+  prompt.promptType!=='ChooseCardsPrompt'||!Array.isArray(prompt.choices)||
+  m?.selectionType!=='card-combination'||m.sourceZone!=='deck'||
+  m.ownerSeat!=='actor'||m.isOwnerVisible!==true||
+  m.minimumCount!==1||m.maximumCount!==1)return null;
+ const target=prompt.choices.find(x=>x.kind==='card'&&
+   has(x.printing,missing)&&
+   (missing!=='Dusknoir'||!has(x.printing,'Trevenant & Dusknoir-GX'))&&
+   x.publicMetadata?.ownerSeat==='actor'&&
+   x.publicMetadata?.sourceZone==='deck'&&
+   x.publicMetadata?.isOwnerVisible===true);
+ return target?{decision:{kind:'select-choices',tokens:[target.token]},
+  reason:'V3_STAR_SEARCH_' +missing.toUpperCase()}:null;
+}
+
 function treasureNeed(view){
  const own=view?.ownPublic,hand=view?.ownHand;
  if(!own||!Array.isArray(hand)||!Array.isArray(own.bench))return null;
@@ -344,7 +409,7 @@ function createPolicy({role,seat,policyVersion,config}) {
    if(pending && v.globalTurn!==pending.turn)pending=null;
    if(v.decisionKind==='owner-prompt'){
      const p=request.prompt;
-     if(!pending)return chooseTreasurePrompt(v,p);
+     if(!pending)return chooseStage2StarPrompt(v,p)??chooseTreasurePrompt(v,p);
      if(!pending||pending.phase!=='target'||p?.actingSeat!==seat||
        p?.source?.classification!=='actor-choice'||
        p?.source?.sourceKind!=='card-effect'||
@@ -399,7 +464,7 @@ function createPolicy({role,seat,policyVersion,config}) {
      return select(attack,'V3_FINISH_ATTACK_AFTER_SETTLED_BLAST');
    }
    const p=ready(v,items);
-   if(!p)return shadowBindBus(v,items)??chooseStage2BusEscape(v,items)??chooseTreasureRoot(v,items);
+   if(!p)return shadowBindBus(v,items)??chooseStage2BusEscape(v,items)??chooseStage2StarRoot(v,items)??chooseTreasureRoot(v,items);
    pending={
      turn:v.globalTurn,phase:'target',target:opp.active.printing,
      hp:opp.active.hp,initialDamage:opp.active.damage,
@@ -428,4 +493,4 @@ function createPolicy({role,seat,policyVersion,config}) {
  }
  return {decide:r=>decideWithAudit(r).decision,decideWithAudit};
 }
-module.exports={POLICY_VERSION,DECK_PATH,DECK_SHA,createPolicy,ready,validTarget,sourceAttack,shadowBindBus,aceSafe,verifiedAttackDamage,preservedCommonSetup,COMMON_SETUP_REASONS,chooseStage2BusEscape,treasureNeed,chooseTreasureRoot,chooseTreasurePrompt};
+module.exports={POLICY_VERSION,DECK_PATH,DECK_SHA,createPolicy,ready,validTarget,sourceAttack,shadowBindBus,aceSafe,verifiedAttackDamage,preservedCommonSetup,COMMON_SETUP_REASONS,chooseStage2BusEscape,treasureNeed,chooseTreasureRoot,chooseTreasurePrompt,stage2MissingUnderBus,chooseStage2StarRoot,chooseStage2StarPrompt};
