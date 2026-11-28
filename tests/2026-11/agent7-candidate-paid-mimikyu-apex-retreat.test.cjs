@@ -60,6 +60,35 @@ for(const seat of [0,1]){
     const {policy,request}=fixture(seat);
     assert.deepEqual(policy.decide(request),{kind:'select-action',token:'retreat'});
   });
+  test('source continuation: paid Retreat -> Copycat -> Apex -> Timeless, seat='+seat,()=>{
+    const {policy,request,view}=fixture(seat);
+    assert.deepEqual(policy.decide(request),{kind:'select-action',token:'retreat'});
+    const previousActive=view.ownPublic.active;
+    const promoted=view.ownPublic.bench[0];
+    view.ownPublic.active=promoted;
+    view.ownPublic.bench=[{...previousActive,energies:[]}];
+    request.publicEventReceipt.mimikyuCopycatCompatible=true;
+    request.actionFrontier.items=[
+      {token:'copycat',kind:'attack',actorPrinting:M,attackName:'Copycat'},
+      {token:'pass',kind:'pass'}
+    ];
+    assert.deepEqual(policy.decide(request),{kind:'select-action',token:'copycat'});
+    view.decisionKind='owner-prompt';
+    request.prompt={schema:'aichi-owner-prompt-projection-v3',actingSeat:seat,
+      promptType:'ChooseAttackPrompt',description:'CHOOSE_ATTACK',
+      source:{classification:'actor-choice',sourceKind:'card-effect',
+        sourcePrinting:M,effectName:'Copycat'},
+      publicMetadata:{selectionType:'attack'},choices:[
+        {kind:'attack',token:'apex',publicMetadata:{sourceAttack:'Apex Dragon'}}]
+    };
+    assert.deepEqual(policy.decide(request),{kind:'select-choice',token:'apex'});
+    request.prompt.source.effectName='Apex Dragon';
+    request.prompt.choices=[
+      {kind:'attack',token:'power',publicMetadata:{sourceAttack:'Power Beam'}},
+      {kind:'attack',token:'timeless',publicMetadata:{sourceAttack:'Timeless-GX'}}
+    ];
+    assert.deepEqual(policy.decide(request),{kind:'select-choice',token:'timeless'});
+  });
   test('no Dialga discard, GX spent, missing Apex, unfunded Mimikyu veto, seat='+seat,()=>{
     for(const opts of [
       {donor:false},{usedGX:true},{priorApex:false},{mimikyuEnergy:1}
