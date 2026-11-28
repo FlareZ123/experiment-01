@@ -946,11 +946,11 @@ for(const seat of [0,1]) {
     r.prompt.source.effectName='Dedechange';
     assert.equal(policy(seat).decide(r).reasonCode,'UNRECOGNIZED_SIMPLE_PROMPT');
   });
-  test('seat '+seat+' Fezandipiti Flip the Script only after certified opponent last-turn KO',()=>{
+  test('seat '+seat+' Fezandipiti requires a KO stamped to the immediately preceding opponent turn',()=>{
     const r=request(seat);
     r.observation.ownPublic.active=b('Unown AOR 30');
     r.observation.ownHand=[psychic];
-    r.publicEventReceipt={priorOpponentTurnKO:{any:true,byAttack:true}};
+    r.publicEventReceipt={priorOpponentTurnKO:{turn:3,any:true,byAttack:true}};
     r.actionFrontier.items=[
       root('play-card',"Trainers' Mail ROS 92",'mail'),
       {...root('play-card','Fezandipiti ex ASC 142','fez',
@@ -962,7 +962,13 @@ for(const seat of [0,1]) {
       root('use-ability','Fezandipiti ex ASC 142','flip',
         {abilityName:'Flip the Script'})];
     assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'flip'});
-    r.publicEventReceipt.priorOpponentTurnKO.any=null;
+    // KO on turn 2 is stale at turn 4 after an opponent extra turn on turn 3.
+    r.publicEventReceipt.priorOpponentTurnKO.turn=2;
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'mail'});
+    // An unstamped legacy Boolean is unknown, never proof of a fresh KO.
+    r.publicEventReceipt.priorOpponentTurnKO={any:true,byAttack:true};
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'mail'});
+    r.publicEventReceipt.priorOpponentTurnKO={turn:3,any:null,byAttack:null};
     assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'mail'});
   });
   test('seat '+seat+' Dedenne only discards safe thin hand and Squawk requires opening turn',()=>{
