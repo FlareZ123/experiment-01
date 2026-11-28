@@ -329,6 +329,44 @@ test('first-turn Battle VIP Pass is selected when legal and no higher-priority R
   assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'vip' });
 });
 
+test('Echoing Horn requires opponent Bench space, even if actor Bench is full', () => {
+  const horn=action('horn','play-card','Echoing Horn CRE 136');
+  const shade='Shadow Rider Calyrex V CRE 74';
+  const occupied=Array.from({length:5},(_,i)=>pokemon('Budew ASC 16'));
+  for(const seat of [0,1]){
+    const available=rootRequest({seat,
+      ownPlayer:{bench:occupied},
+      opponentPlayer:{bench:[pokemon('Snorlax PGO 55')],discard:[shade]},
+      items:[horn,action('pass','pass',null)]
+    });
+    assert.deepEqual(checkedDecision(available),{kind:'select-action',token:'horn'});
+    const full=rootRequest({seat,
+      ownPlayer:{bench:[]},
+      opponentPlayer:{bench:occupied,discard:[shade]},
+      items:[horn,action('pass','pass',null)]
+    });
+    assert.deepEqual(checkedDecision(full),{kind:'select-action',token:'pass'});
+  }
+});
+
+test('Squawk is valued on either opening turn but not as a late two-Prize liability', () => {
+  const squawk=action('squawk','play-card','Squawkabilly ex PAL 169');
+  const dedenne=action('dede','play-card','Dedenne-GX UNB 57');
+  for(const seat of [0,1]){
+    for(const turn of [1,2,3]){
+      const req=rootRequest({seat,globalTurn:turn,
+        ownHand:[],ownPlayer:{bench:[]},items:[squawk,action('pass','pass',null)]
+      });
+      const expected=turn<=2?'squawk':'pass';
+      assert.deepEqual(checkedDecision(req),{kind:'select-action',token:expected});
+      const ownReq=rootRequest({seat,globalTurn:turn,
+        ownHand:[],ownPlayer:{bench:[]},items:[dedenne,action('pass','pass',null)]
+      });
+      assert.deepEqual(checkedDecision(ownReq),{kind:'select-action',token:'dede'});
+    }
+  }
+});
+
 test('Battle Compressor is used when no Dragon payload is visible in the public discard', () => {
   const request = rootRequest({
     ownPlayer: { discard: [] },
