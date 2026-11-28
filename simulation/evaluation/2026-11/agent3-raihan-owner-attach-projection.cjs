@@ -50,7 +50,8 @@ function projectRaihanOwnerAttachPrompt(options={}){
       prompt.playerType!==native?.PlayerType?.BOTTOM_PLAYER ||
       !Array.isArray(prompt.slots)||
       !prompt.slots.every(slot=>slot===native.SlotType.ACTIVE||
-        slot===native.SlotType.BENCH) ||
+        slot===native.SlotType.BENCH||
+        (native.SlotType.BOARD!==undefined&&slot===native.SlotType.BOARD)) ||
       !prompt.slots.length ||
       prompt.options?.min!==1||prompt.options?.max!==1 ||
       !Array.isArray(actor.discard.cards) ||
@@ -68,11 +69,13 @@ function projectRaihanOwnerAttachPrompt(options={}){
     accepted.has(card)&&card instanceof native.EnergyCard&&
     card.energyType===native.EnergyType.BASIC);
   const slots=[];
-  if(prompt.slots.includes(native.SlotType.ACTIVE)&&
+  if((prompt.slots.includes(native.SlotType.ACTIVE)||
+      prompt.slots.includes(native.SlotType.BOARD))&&
       actor.active?.getPokemonCard?.())
     slots.push({zone:'active',index:0,slot:native.SlotType.ACTIVE,
       pokemon:actor.active.getPokemonCard()});
-  if(prompt.slots.includes(native.SlotType.BENCH)) {
+  if(prompt.slots.includes(native.SlotType.BENCH)||
+      prompt.slots.includes(native.SlotType.BOARD)) {
     for(let index=0;index<(actor.bench??[]).length;index++){
       const pokemon=actor.bench[index]?.getPokemonCard?.();
       if(pokemon)slots.push({zone:'bench',index,slot:native.SlotType.BENCH,pokemon});
