@@ -1672,18 +1672,23 @@ function turboDceAttackWindow(request) {
     item.kind === 'attack' && /Volt Cyclone/i.test(item.attackName ?? ''));
 }
 
-// When Temple or Wondrous is replaced, Speed Lightning supplies [L] and DCE
+// When Temple, Wondrous or a neutral Stadium is replaced, Speed provides [L] and DCE
 // supplies [C][C]. A free Stadium replacement is stronger than consuming
 // the one-off ACE SPEC. Return only an owner-visible conditional window,
 // never claim that a future native attack was actually executed.
-function templeThornsAttackUnlock(observation,replacingWithThunder=false,
+function prospectiveStadiumThornsAttackUnlock(observation,replacingWithThunder=false,
     replacingByStadium=false) {
-  // A playable Stadium can replace either Temple or Wondrous; an Item
-  // such as Megaton Blower must NOT pretend to remove Prism Star Wondrous.
+  // Thunder's Lightning reduction can enable Volt Cyclone with DCE
+  // even without a cost-raising Stadium. A neutral Stadium is not a veto.
+  // Chaotic Swell consumes the incoming Stadium and prevents its effect.
+  // Megaton Blower cannot remove Wondrous Labyrinth Prism Star.
   const temple=hasStadium(observation,/^Temple of Sinnoh\b/i);
   const wondrous=hasStadium(observation,PRINT.wondrousLabyrinth);
-  if((!temple && !(replacingByStadium && wondrous)) ||
-      !ownActiveIsThorns(observation))return null;
+  const chaotic=hasStadium(observation,/^Chaotic Swell\b/i);
+  if(!ownActiveIsThorns(observation) ||
+      (replacingByStadium && chaotic) ||
+      (!temple && !(replacingByStadium &&
+        (wondrous || replacingWithThunder))))return null;
   const active=observation.ownPublic?.active;
   const energies=list(active?.energies);
   const restrictions=active?.publicRestrictions??{};
@@ -1712,6 +1717,10 @@ function templeThornsAttackUnlock(observation,replacingWithThunder=false,
       return null;
     }
   }
+  // If the Active already has a payable attack, replacing a neutral
+  // Stadium merely to keep the same attack is NOT an access improvement.
+  if(replacingByStadium && !temple &&
+      lightningUnits>=1 && totalUnits>=(wondrous?4:3))return null;
   // Thunder Mountain Prism Star removes one [L] from a Lightning Pokémon
   // attack: Volt Cyclone's [L][C][C] then requires *two* Colorless units,
   // playable even on DCE alone. Other Stadiums and Megaton's Stadium
@@ -1787,12 +1796,12 @@ function scorePlayCard(item, request) {
   // Replacing Temple or Wondrous with a payable, non-taxing Stadium
   // can unlock a winning attack without spending our singleton ACE SPEC.
   // Wondrous itself is excluded: its Colorless tax would remain.
-  const templeWindow=templeThornsAttackUnlock(observation,
+  const attackWindow=prospectiveStadiumThornsAttackUnlock(observation,
     matches(card,PRINT.thunderMountain),true);
-  if(templeWindow&&!stadiumLocked(observation) &&
+  if(attackWindow&&!stadiumLocked(observation) &&
       [PRINT.thunderMountain,PRINT.tropicalBeach,PRINT.playersCeremony]
         .some(pattern=>matches(card,pattern))){
-    return templeWindow.potentialTerminal?925:245;
+    return attackWindow.potentialTerminal?925:245;
   }
   if (matches(card, PRINT.ironThorns)) {
     const ownBench = slots(own).filter(row => row.zone === 'bench' &&
@@ -1960,7 +1969,7 @@ function scorePlayCard(item, request) {
     // line, a newly payable Volt Cyclone can then deliver final Prizes.
     // Preserve the ACE SPEC if a legal non-taxing Stadium replacement is
     // in the native action frontier: that free line scores 925/245.
-    const window=templeThornsAttackUnlock(observation);
+    const window=prospectiveStadiumThornsAttackUnlock(observation);
     if(window)return window.potentialTerminal?900:225;
     return opponentHasTool(observation) ||
       opponentSpecialEnergyCount(observation)>0 ? 185 : 0;

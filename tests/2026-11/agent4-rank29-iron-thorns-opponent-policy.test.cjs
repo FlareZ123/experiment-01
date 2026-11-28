@@ -3072,3 +3072,87 @@ test('Temple removal reactivates Spiky recoil: deny false terminal premium on si
         unsafe?115:925);
     }
 });
+
+test('bounded terminal Stadium root oracle: neutral, Temple, Wondrous and Chaotic Swell',()=>{
+  const e={
+    DCE:'Double Colorless Energy SUM 136',
+    Speed:'Speed Lightning Energy RCL 173',
+    Capture:'Capture Energy RCL 171',
+    Spiky:'Spiky Energy JTG 159'
+  };
+  const stadiums={
+    Temple:'Temple of Sinnoh ASR 155',
+    Wondrous:'Wondrous Labyrinth ◇ TEU 158',
+    Thunder:'Thunder Mountain ◇ LOT 191',
+    Beach:'Tropical Beach BCR 147',
+    Swell:'Chaotic Swell CEC 187'
+  };
+  const funding=(keys,stadium)=>{
+    let total=0,lightning=0;
+    for(const key of keys){
+      if(key==='DCE')total+=stadium==='Temple'?1:2;
+      else{
+        total++;
+        if(key==='Speed'&&stadium!=='Temple')lightning++;
+      }
+    }
+    return stadium==='Thunder'?total>=2:
+      total>=(stadium==='Wondrous'?4:3)&&lightning>0;
+  };
+  const energyNames=Object.keys(e);
+  let oracleCases=0;
+  for(const seat of [0,1])
+    for(let mask=0;mask<16;mask++)
+      for(const stadium of ['Temple','Wondrous','Thunder','Beach','Swell','None'])
+        for(const targetSpiky of [false,true])
+          for(const opponentPrizes of [2,3])
+            for(const ownerDamage of [0,220]){
+              const keys=energyNames.filter((_,i)=>Boolean(mask&(1<<i)));
+              const cards=keys.map(key=>e[key]);
+              const stadiumCards=stadium==='None'?[]:[stadiums[stadium]];
+              const owner=player({
+                active:pokemon('Iron Thorns ex TWM 77',{
+                  energies:cards,damage:ownerDamage
+                }),
+                bench:[pokemon('Iron Thorns ex TWM 77')],
+                stadium:stadiumCards,deckCount:25,prizeCount:2
+              });
+              const opponent=player({
+                active:pokemon('Iron Thorns ex TWM 77',{
+                  energies:[targetSpiky?e.Spiky:e.Capture],damage:120
+                }),
+                bench:[pokemon('Shadow Rider Calyrex V CRE 74')],
+                prizeCount:opponentPrizes
+              });
+              const items=[action('flare','play-card','Team Flare Grunt XY 129',
+                {cardType:'supporter'})];
+              const already=funding(keys,stadium);
+              if(already)items.push(action('attack','attack',
+                'Iron Thorns ex TWM 77',{attackCostPayable:true},
+                {attackName:'Volt Cyclone'}));
+              if(stadium!=='Thunder')items.push(action('thunder','play-card',
+                stadiums.Thunder,{cardType:'stadium'}));
+              if(stadium!=='Beach')items.push(action('beach','play-card',
+                stadiums.Beach,{cardType:'stadium'}));
+              items.push({token:'pass',kind:'pass'});
+              const unsafe=targetSpiky&&ownerDamage===220&&opponentPrizes===2;
+              let expected=null;
+              if(!unsafe&&already)expected='attack';
+              else if(!unsafe&&stadium!=='Swell'&&
+                stadium!=='Thunder'&&funding(keys,'Thunder'))
+                expected='thunder';
+              else if(!unsafe&&stadium!=='Swell'&&
+                stadium!=='Beach'&&funding(keys,'Beach'))
+                expected='beach';
+              if(expected===null)continue;
+              const request=rootRequest({
+                seat,items,ownPublic:owner,opponentPublic:opponent,
+                ownHand:['Team Flare Grunt XY 129',
+                  stadiums.Thunder,stadiums.Beach]
+              });
+              assert.deepEqual(checkedDecision(request,seat),
+                {kind:'select-action',token:expected});
+              oracleCases++;
+            }
+  assert.equal(oracleCases,910);
+});
