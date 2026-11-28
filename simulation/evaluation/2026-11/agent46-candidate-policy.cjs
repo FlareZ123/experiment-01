@@ -1030,6 +1030,94 @@ function chooseUnderworldDoorAttachment(view, prompt) {
   return abstain('NO_VALID_UNDERWORLD_ATTACHMENT');
 }
 
+const WONDER_TAG_SUPPORTERS=Object.freeze([
+  "Lillie's Determination MEG 119",'Iono PAL 185','Arven SVI 166',
+  'Guzma BUS 115','Pokémon Ranger STS 104','Raihan EVS 152',
+  'Teammates PRC 141','Acerola BUS 112'
+]);
+
+function sourceWonderTag(prompt){
+  return prompt?.source?.sourceKind==='card-effect' &&
+    prompt.source.sourcePrinting==='Tapu Lele-GX GRI 60' &&
+    prompt.source.effectName==='Tapu Lele-GX';
+}
+
+function wonderTagEligible(view){
+  const own=view.ownPublic;
+  if(view.ownTurnResources?.supporterPlayedTurn>0 ||
+     view.ownHand.some(printing=>WONDER_TAG_SUPPORTERS.includes(printing)) ||
+     !Number.isSafeInteger(own.deckCount)||own.deckCount<=0) return false;
+  return true;
+}
+
+function chooseWonderTagConfirm(view,prompt){
+  setPolicyAuditRule('WONDER_TAG_CONFIRM','SOURCE_CERTIFIED_SUPPORTER_NEED');
+  if(!sourceWonderTag(prompt) ||
+    prompt.description!=='WANT_TO_USE_ABILITY' ||
+    prompt.publicMetadata?.selectionType!=='confirm')
+      return abstain('UNTRUSTED_WONDER_TAG_CONFIRM');
+  const yes=prompt.choices.find(choice=>
+    choice.kind==='confirm'&&choice.label==='Yes');
+  const no=prompt.choices.find(choice=>
+    choice.kind==='confirm'&&choice.label==='No');
+  if(!yes||!no)return abstain('BAD_WONDER_TAG_CONFIRM_CHOICES');
+  const onBench=view.ownPublic.bench.some(slot=>
+    slot?.printing==='Tapu Lele-GX GRI 60');
+  const eligible=onBench&&wonderTagEligible(view);
+  recordPolicyAuditRule(eligible?yes.token:no.token,
+    eligible?'WONDER_TAG_FIND_SUPPORTER':'WONDER_TAG_DECLINE_RESOURCE_CONTENTION');
+  return {kind:'select-choice',token:eligible?yes.token:no.token};
+}
+
+function chooseWonderTagSupporter(view,prompt,receipt){
+  setPolicyAuditRule('WONDER_TAG_SUPPORTER','TACTICAL_SUPPORTER_PRIORITY');
+  const meta=prompt.publicMetadata??{};
+  if(!sourceWonderTag(prompt)||
+     prompt.description!=='CHOOSE_CARD_TO_HAND'||
+     meta.selectionType!=='card-combination'||
+     meta.ownerSeat!=='actor'||meta.sourceZone!=='deck'||
+     meta.isOwnerVisible!==true||
+     meta.minimumCount!==0||meta.maximumCount!==1)
+    return abstain('UNTRUSTED_WONDER_TAG_SUPPORTER_SEARCH');
+  const needsHood=hasAbilityLockThreat(view)&&
+    !ownBoard(view).some(slot=>
+      slot.tools?.some(tool=>hasName(tool,'Stealthy Hood')));
+  const ranking=Object.freeze({
+    "Lillie's Determination MEG 119":65,'Iono PAL 185':55,
+    'Arven SVI 166':45,'Guzma BUS 115':40,
+    'Pokémon Ranger STS 104':10,'Raihan EVS 152':20,
+    'Teammates PRC 141':15,'Acerola BUS 112':12
+  });
+  const choices=prompt.choices.filter(c=>
+    c.kind==='card'&&WONDER_TAG_SUPPORTERS.includes(c.printing) &&
+    c.publicMetadata?.ownerSeat==='actor' &&
+    c.publicMetadata?.sourceZone==='deck' &&
+    c.publicMetadata?.isOwnerVisible===true)
+    .map(c=>{
+      let score=ranking[c.printing]??0;
+      if(c.printing==='Arven SVI 166'&&needsHood)score+=100;
+      if(c.printing==='Guzma BUS 115'&&canGuzmaForAttack(view))score+=120;
+      if(c.printing==="Lillie's Determination MEG 119" &&
+        view.ownHand.length<=3)score+=30;
+      if(c.printing==='Iono PAL 185' &&
+        view.ownHand.length<=2)score+=15;
+      if(receipt?.priorOpponentTurnKO?.any===true &&
+         (c.printing==='Raihan EVS 152' ||
+          c.printing==='Teammates PRC 141'))score+=45;
+      return {choice:c,score};
+    }).sort((a,b)=>b.score-a.score ||
+      (a.choice.publicMetadata.selectionIndex??9999)-
+      (b.choice.publicMetadata.selectionIndex??9999)||
+      String(a.choice.token).localeCompare(String(b.choice.token)));
+  if(choices.length>0){
+    recordPolicyAuditRule(choices[0].choice.token,'WONDER_TAG_SELECTED_SUPPORTER');
+    return {kind:'select-choices',tokens:[choices[0].choice.token]};
+  }
+  const empty=prompt.choices.find(choice=>choice.kind==='empty-selection');
+  if(empty)return {kind:'select-choice',token:empty.token};
+  return abstain('NO_CERTIFIED_WONDER_TAG_SUPPORTER');
+}
+
 function sourceRadiantGate(prompt){
   return prompt?.source?.sourceKind==='card-effect' &&
     prompt.source.sourcePrinting==='Radiant Eternatus CRZ 105' &&
@@ -1121,6 +1209,9 @@ function choosePrompt(view, prompt, receipt) {
     case 'AttachEnergyPrompt':
       return chooseUnderworldDoorAttachment(view, prompt);
     case 'ChooseCardsPrompt':
+      if(prompt.source?.sourcePrinting==='Tapu Lele-GX GRI 60'||
+         prompt.source?.effectName==='Tapu Lele-GX')
+        return chooseWonderTagSupporter(view,prompt,receipt);
       // A malformed Radiant provenance must never fall through to generic
       // deck search, where a superficially useful VMAX could be selected.
       return prompt.source?.sourcePrinting==='Radiant Eternatus CRZ 105'||
@@ -1138,6 +1229,7 @@ function choosePrompt(view, prompt, receipt) {
     case 'OrderCardsPrompt':
       return chooseCardOrder(view, prompt);
     case 'ConfirmPrompt':
+      if(sourceWonderTag(prompt)) return chooseWonderTagConfirm(view,prompt);
       if(sourceRadiantGate(prompt)) return chooseRadiantGateConfirm(view,prompt);
       // Otherwise retain the intentionally narrow single-choice contract.
       if(prompt.choices.length===1){
@@ -1188,6 +1280,21 @@ function scoreBasicPlay(item, view) {
      !bestAttackForSlot(view.ownPublic.active,view,view.opponentPublic.active)){
     return 520;
   }
+  // Wonder Tag pays one permanent 2-Prize Bench slot to tutor a Supporter.
+  // It is not a free draw, and it competes with the much higher-ceiling
+  // turn-ending Radiant Eternatus turbo line. Use only if we currently lack
+  // a playable Supporter and have room to preserve Shadow Rider's Bench.
+  if(printing==='Tapu Lele-GX GRI 60' &&
+     countBench(view.ownPublic)<=3 &&
+     Number.isSafeInteger(view.globalTurn) && view.globalTurn>=2 &&
+     wonderTagEligible(view) &&
+     view.ownPublic.deckCount>=3 &&
+     !boardHas(view,'Tapu Lele-GX') &&
+     !allBoard(view).some(slot=>hasAnyName(slot.printing,
+       ['Iron Thorns ex','Garbodor','Galarian Weezing'])) &&
+     ![...view.ownPublic.stadium,...view.opponentPublic.stadium]
+       .some(stadium=>hasName(stadium,'Path to the Peak')))
+    return 480;
   if (hasName(printing, 'Latias ex') && !boardHas(view, 'Latias ex')) return 650;
   if (hasName(printing, 'Girafarig') && opponentHasRegidrago(view) &&
       !boardHas(view, 'Girafarig')) return 450;
