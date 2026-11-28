@@ -341,6 +341,15 @@ function score(action,req){
   if(!payable)return 0;
   if(a==='Terminal Period'&&target?.damage===60)return 1000;
   if(a==='Claw of Darkness')return clawProjectedKnockoutScore(action,o);
+  if(a==='Acid Spray'&&match(own.active?.printing,PRINT.trubbish)){
+   const energies=list(opp.active?.energies);
+   if(!energies.length)return 65;
+   const hasDde=energies.some(x=>/^Double Dragon Energy\b/i.test(name(x)));
+   const hasDce=energies.some(x=>/^Double Colorless Energy\b/i.test(name(x)));
+   if(hasDde&&match(opp.active?.printing,/^Regidrago VSTAR\b/i))return 485;
+   if(hasDce&&match(opp.active?.printing,/^Iron Thorns ex\b/i))return 480;
+   return energies.length===1?350:245;
+  }
   if(a==='Itchy Pollen'&&match(own.active?.printing,PRINT.budew)){
    return opp.publicTurnRestrictions?.itemPlayLocked===true?270:530;
   }
@@ -679,18 +688,19 @@ function promptDecision(req){
  if(p.promptType==='ChooseAttackPrompt'&&bd.kind==='attack'){
   const attacks=cs.filter(c=>c.kind==='attack');
   const sourcePrinting=p.source?.sourcePrinting||'';
-  if(!match(sourcePrinting,PRINT.mega)&&!match(sourcePrinting,PRINT.budew)){
+  if(!match(sourcePrinting,PRINT.mega)&&!match(sourcePrinting,PRINT.budew)&&!match(sourcePrinting,PRINT.trubbish)){
    return{kind:'abstain',reasonCode:'UNSUPPORTED_ATTACK_CHOICE_SOURCE'};
   }
   const pr=attacks.slice().sort((a,b)=>{
    const rank=c=>/terminal period/i.test(c.publicMetadata?.sourceAttack||'')?
     (o.opponentPublic?.active?.damage===60?100:0):
     /claw of darkness/i.test(c.publicMetadata?.sourceAttack||'')?65:
-    /itchy pollen/i.test(c.publicMetadata?.sourceAttack||'')?80:0;
+    /itchy pollen/i.test(c.publicMetadata?.sourceAttack||'')?80:
+    /acid spray/i.test(c.publicMetadata?.sourceAttack||'')?50:0;
    return rank(b)-rank(a);
   });
   const wanted=pr[0];
-  if(wanted&&(/^(Terminal Period|Claw of Darkness|Itchy Pollen)$/i).test(wanted.publicMetadata?.sourceAttack||'')){
+  if(wanted&&(/^(Terminal Period|Claw of Darkness|Itchy Pollen|Acid Spray)$/i).test(wanted.publicMetadata?.sourceAttack||'')){
    return{kind:'select-choice',token:wanted.token};
   }
   return{kind:'abstain',reasonCode:'NO_SUPPORTED_ATTACK_CHOICE'};
@@ -703,7 +713,7 @@ function promptDecision(req){
   }
   return{kind:'abstain',reasonCode:'NO_SUPPORTED_PRIZE_SELECTION'};
  }
- if(p.promptType==='ChooseEnergyPrompt'&&bd.kind==='energy-payment'&&/plumeria/.test(src)){
+ if(p.promptType==='ChooseEnergyPrompt'&&bd.kind==='energy-payment'&&/plumeria|acid spray/.test(src)){
   const candidates=cs.filter(c=>c.kind==='energy'&&owner(c)==='opponent'&&
    c.publicMetadata?.isOwnerVisible===true);
   const rank=c=>/^Double Dragon Energy\b/i.test(name(c))?270:
