@@ -129,3 +129,104 @@ for(const seat of [0,1]){
       {kind:'select-action',token:'handi'});
   });
 }
+
+
+/*
+ * Stronger executable line: genuine ActionEnumerator -> isolated Simulator
+ * legality -> protocol -> rank6 policy -> real Store settlement. The two
+ * offered Stadiums are genuine independently validated native root actions.
+ * A policy's synthetic action-list victory is not sufficient for this test.
+ */
+const rank6=require('../../simulation/evaluation/2026-11/agent39-rank6-iron-thorns-opponent-policy.cjs');
+const {buildNativeActionFrontier,selectedNativeAction}=
+  require('../../simulation/evaluation/2026-11/agent36-native-action-frontier.cjs');
+
+function stadiumScene(seat){
+  const x=stage(seat),manager=initializeCards();
+  replaceActive(x.owner,[createCard(manager,'Iron Thorns ex TWM')]);
+  replaceActive(x.opponent,[createCard(manager,'Gardevoir-GX BUS')]);
+  const fairy=createCard(manager,'Fairy Energy SVE');
+  const dce=createCard(manager,'Double Colorless Energy FCO');
+  x.opponent.active.cards.push(fairy,dce);
+  x.opponent.active.energies.cards.push(fairy,dce);
+  x.owner.hand.cards.length=0;
+  x.owner.hand.cards.push(createCard(manager,'Wondrous Labyrinth TEU 158'),
+    createCard(manager,'Tropical Beach BWP 50'));
+  x.owner.stadium.cards.length=0;
+  x.opponent.stadium.cards.length=0;
+  x.owner.deck.cards.length=0;
+  x.opponent.deck.cards.length=0;
+  for(let i=0;i<20;i++)x.owner.deck.cards.push(createCard(manager,'Psychic Energy SVE'));
+  for(let i=0;i<30;i++)x.opponent.deck.cards.push(createCard(manager,'Psychic Energy SVE'));
+  return x;
+}
+
+function frontierNative(){
+  return {
+    ActionEnumerator:native('advanced-bot/action-enumerator').ActionEnumerator,
+    Simulator:native('game/bots/simulator').Simulator,
+    PokemonCard:native('game/store/card/pokemon-card').PokemonCard,
+    EnergyCard:native('game/store/card/energy-card').EnergyCard,
+    TrainerCard:native('game/store/card/trainer-card').TrainerCard,
+    PlayerType:native('game/store/actions/play-card-action').PlayerType,
+    SlotType:native('game/store/actions/play-card-action').SlotType,
+    TrainerType:native('game/store/card/card-types').TrainerType,
+    GameError:native('game/game-error').GameError
+  };
+}
+
+function rank6Root(seat,{rawOldType=false}={}){
+  const x=stadiumScene(seat);
+  const observation=actorObservation(x.state,seat);
+  assert.deepEqual(observation.opponentPublic.active.printed.types,['Fairy']);
+  assert.deepEqual(observation.opponentPublic.active.energies,
+    ['Fairy Energy SVE','Double Colorless Energy FCO']);
+  const view=rawOldType?JSON.parse(JSON.stringify(observation)):observation;
+  if(rawOldType)view.opponentPublic.active.printed.types=[CardType.FAIRY];
+  if(!rawOldType)assert.doesNotThrow(()=>
+    protocol.validateActorObservation(view,seat));
+  const available=buildNativeActionFrontier({
+    state:x.state,actorSeat:seat,native:frontierNative()
+  });
+  const entries=available.actionFrontier.items;
+  const beach=entries.find(a=>a.kind==='play-card'&&
+    a.actorPrinting?.startsWith('Tropical Beach BWP'));
+  const wondrous=entries.find(a=>a.kind==='play-card'&&
+    a.actorPrinting?.startsWith('Wondrous Labyrinth TEU'));
+  assert.ok(beach,'Tropical Beach must be genuinely offered and native-legal');
+  assert.ok(wondrous,'Wondrous Labyrinth must be genuinely offered and native-legal');
+  assert.notEqual(beach.token,wondrous.token);
+  const request={schema:protocol.REQUEST_SCHEMA,type:'decision',
+    requestId:'agent32-rank6-'+seat+'-'+(rawOldType?'old':'fixed'),
+    sequence:0,role:'opponent',seat,
+    observationSchema:protocol.OBSERVATION_SCHEMA,observation:view,
+    prompt:null,publicEventReceipt:null,actionFrontier:available.actionFrontier};
+  const init={role:'opponent',seat,policyVersion:rank6.POLICY_VERSION,config:{}};
+  if(!rawOldType)protocol.validateRequest(request,init,0,new Set());
+  const policy=rank6.createPolicy(init);
+  const decision=policy.decide({
+    role:'opponent',seat,observation:view,prompt:null,
+    publicEventReceipt:null,actionFrontier:available.actionFrontier
+  });
+  assert.equal(decision.kind,'select-action');
+  assert.equal(decision.token,(rawOldType?wondrous:beach).token);
+  const chosen=selectedNativeAction(available,decision.token);
+  assert.equal(chosen.type,'PLAY_CARD_ACTION');
+  x.store.dispatch(chosen);
+  assert.equal(x.owner.stadium.cards.length,1);
+  assert.equal(x.owner.stadium.cards[0].fullName,
+    (rawOldType?wondrous:beach).actorPrinting);
+  assert.equal(x.state.prompts.some(p=>p.result===undefined),false,
+    'Chosen Stadium must completely settle with no pending prompt');
+  return {seat,chosenPrinting:x.owner.stadium.cards[0].fullName,
+    offered:[wondrous.actorPrinting,beach.actorPrinting]};
+}
+
+for(const seat of [0,1]){
+  test('native legal Stadium root/protocol/worker/settlement changed by Fairy enum; seat '+seat,()=>{
+    const fixed=rank6Root(seat);
+    const old=rank6Root(seat,{rawOldType:true});
+    assert.notEqual(fixed.chosenPrinting,old.chosenPrinting);
+    assert.deepEqual(fixed.offered,old.offered);
+  });
+}
