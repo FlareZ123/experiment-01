@@ -493,7 +493,7 @@ function retreatActionTargets(item,target,own) {
 // Constrain a predicted Gale winner to known plain V/ex printings: an
 // unmodeled defender (e.g. Arceus VSTAR) must not receive a false win.
 const TERMINAL_GALE_CERTIFIED_TARGET=/^(?:Shadow Rider Calyrex V CRE(?: 74)?|Iron Thorns ex TEF(?: 77)?|Regidrago V SIT(?: 135)?|Genesect V FST(?: 185)?|Mew V FST(?: 113)?|Lugia V SIT(?: 138)?|Crobat V DAA(?: 104)?)\b/i;
-function terminalGalePromotionTarget(request) {
+function terminalGalePromotionTarget(request,{jetTarget=null}={}) {
   const o=request?.observation,own=o?.ownPublic,op=o?.opponentPublic?.active;
   if(!own||!has(op,TERMINAL_GALE_CERTIFIED_TARGET)||
     (has(own.active,P.mega)&&movementEvidence(request)!==false))return null;
@@ -511,21 +511,29 @@ function terminalGalePromotionTarget(request) {
   if(remaining===null||remaining<=0||gale===null||gale<remaining||
     (!prizeWin&&!boardOut))return null;
   const bench=arr(own.bench);
-  const index=bench.findIndex(x=>x&&readyGuzmaMega(x,o));
-  return index<0?null:{index,printing:bench[index].printing};
+  const index=jetTarget?bench.indexOf(jetTarget):
+    bench.findIndex(x=>x&&readyGuzmaMega(x,o));
+  if(index<0||(jetTarget&&!jetPoweredGaleEligible(bench[index])))return null;
+  return {index,printing:bench[index].printing};
 }
 function terminalGalePromotionAction(items,request) {
   const target=terminalGalePromotionTarget(request);
-  if(!target)return null;
-  const own=request.observation.ownPublic,bench=arr(own.bench);
-  const retreat=items.find(x=>retreatActionTargets(x,target,own));
-  if(retreat)return retreat;
-  // Jet attached from hand to the exact powered Benched Mega produces
-  // Bench->Active movement, including where normal Retreat is unavailable.
-  // Temple of Sinnoh disables that switching effect, not Energy provision.
+  const own=request.observation.ownPublic;
+  if(target){
+    const retreat=items.find(x=>retreatActionTargets(x,target,own));
+    if(retreat)return retreat;
+  }
+  // Jet both pays the [C] Gale cost and physically promotes the exact
+  // Benched Mega, even if no Energy was attached to that Mega beforehand.
+  // Plain Retreat still requires a previously funded Mega.
   if(templeSuppressesSpecialEnergy(request.observation))return null;
-  return items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.jet)&&
-    ownActionTarget(x,own)===bench[target.index])??null;
+  for(const item of items){
+    if(item.kind!=='play-card'||!has(ownPrinting(item),P.jet))continue;
+    const intended=ownActionTarget(item,own);
+    if(intended&&terminalGalePromotionTarget(request,{jetTarget:intended}))
+      return item;
+  }
+  return null;
 }
 function mobilityActions(items,o,request) {
   const own=o?.ownPublic;
@@ -947,10 +955,14 @@ function quickSearchPrompt(request) {
   return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
     abstain('NO_LEGAL_CARD_SET');
 }
-function readyGuzmaMega(x,o) {
-  return has(x,P.mega)&&attachedEnergyUnits(x,o)>=1&&
+function jetPoweredGaleEligible(x) {
+  // Jet provides Gale Thrust's [C] itself, even to an unpowered Mega.
+  return has(x,P.mega)&&
     arr(x.publicRestrictions?.cannotUseAttacksNextTurn).length===0&&
     x.publicRestrictions?.cannotAttackNextTurn!==true;
+}
+function readyGuzmaMega(x,o) {
+  return jetPoweredGaleEligible(x)&&attachedEnergyUnits(x,o)>=1;
 }
 function guzmaOpportunity(o,{resolvingGuzma=false}={}) {
   // Proposed gust is intentionally *not* a native damage projection. It
