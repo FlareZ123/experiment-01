@@ -1,7 +1,4 @@
 {
-  "run_id": "agent1-chat-20261128T0642Z-normal6-89032d721311445b637a",
-  "claimed_at": "2026-11-28T06:41:52.453Z",
-  "mode": "normal",
-  "selection_draw": 6,
-  "previous_claim": "2026-11-28T04:53:39.710290Z"
+  "run_id": "agent1-20261128T0842Z-gpt6-normal1-36c8ac91",
+  "claimed_at": "2026-11-28T08:41:30.292Z"
 }
