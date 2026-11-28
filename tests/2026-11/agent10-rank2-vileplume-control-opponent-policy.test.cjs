@@ -1938,6 +1938,86 @@ test('Jet Energy still establishes Stoutland when opposing Garbotoxin has no Too
    kind:'select-action',token:'jet-stoutland'});
 });
 
+
+test('Live Bide Barricade prioritizes Gloom Hood over routine Jet attachment',()=>{
+ const request=rootRequest({
+  ownHand:['Stealthy Hood UNB 186','Jet Energy PAL 190'],
+  ownPublic:player({active:pokemon('Fan Rotom SCR 118'),bench:[
+    pokemon('Gloom UNB 7',{stage:'STAGE1',subtypes:['Stage 1']}),
+    pokemon('Bunnelby PRC 121')]}),
+  opponentPublic:player({active:pokemon('Wobbuffet PHF 36',{
+    abilities:['Bide Barricade']})}),
+  items:[energyRootAction('jet','Jet Energy PAL 190',
+      'Bunnelby PRC 121','bench',1),
+    hoodRootAction('hood-gloom','Gloom UNB 7','bench',0),
+    {token:'pass',kind:'pass',label:'Pass turn'}]
+ });
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-action',token:'hood-gloom'});
+});
+test('Live Bide Barricade reverses Guzma self pivot away from suppressed Stoutland',()=>{
+ const request=promptRequest({
+   promptType:'ChoosePokemonPrompt',
+   source:actorChoiceSource('Guzma BUS 115','Guzma'),
+   choices:[pokemonChoice('stoutland','Stoutland BCR 122','actor','bench',0),
+     pokemonChoice('bunnelby','Bunnelby PRC 121','actor','bench',1)],
+   observation:{
+     ownPublic:player({active:pokemon('Fan Rotom SCR 118'),bench:[
+       pokemon('Stoutland BCR 122'),pokemon('Bunnelby PRC 121')]}),
+     opponentPublic:player({active:pokemon('Wobbuffet PHF 36',{
+       abilities:['Bide Barricade']})})
+   }
+ });
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-choices',tokens:['bunnelby']});
+});
+test('Hood protects Active Stoutland Sentinel from Neutralizing Gas',()=>{
+ const request=rootRequest({
+  ownHand:['Stealthy Hood UNB 186'],
+  ownPublic:player({active:pokemon('Stoutland BCR 122',{
+    abilities:['Sentinel']})}),
+  opponentPublic:player({active:pokemon('Galarian Weezing RCL 113',{
+    abilities:['Neutralizing Gas']})}),
+  items:[hoodRootAction('hood-stoutland','Stoutland BCR 122','active',0),
+    {token:'pass',kind:'pass',label:'Pass turn'}]
+ });
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-action',token:'hood-stoutland'});
+});
+test('Hood stays playable under own Vileplume Item lock (Tools distinct)',()=>{
+ const request=rootRequest({
+  ownHand:['Stealthy Hood UNB 186'],
+  ownPublic:player({active:pokemon('Stoutland BCR 122',{
+    abilities:['Sentinel']}),
+   bench:[pokemon('Vileplume AOR 3',{
+     stage:'STAGE2',subtypes:['Stage 2'],abilities:['Irritating Pollen']})],
+   publicTurnRestrictions:{itemPlayLocked:true}}),
+  opponentPublic:player({active:pokemon('Wobbuffet PHF 36',{
+    abilities:['Bide Barricade']})}),
+  ownTurnResources:{...turnResources(),itemPlayLocked:true},
+  items:[hoodRootAction('hood-stoutland','Stoutland BCR 122','active',0),
+    {token:'pass',kind:'pass',label:'Pass turn'}]
+ });
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-action',token:'hood-stoutland'});
+});
+test('Explicitly suppressed Bide Barricade cannot inflate Hood target value',()=>{
+ const wobbuffet=pokemon('Wobbuffet PHF 36',{abilities:['Bide Barricade']});
+ wobbuffet.abilitySuppressions=[{
+   abilityName:'Bide Barricade',suppressed:true,
+   reasonCode:'ABILITY_LOCKED',sourcePrinting:'Garbodor DRX 54'}];
+ const request=rootRequest({
+  ownHand:['Stealthy Hood UNB 186'],
+  ownPublic:player({active:pokemon('Stoutland BCR 122',{
+    abilities:['Sentinel']})}),
+  opponentPublic:player({active:wobbuffet}),
+  items:[hoodRootAction('hood-stoutland','Stoutland BCR 122','active',0),
+    {token:'pass',kind:'pass',label:'Pass turn'}]
+ });
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-action',token:'pass'});
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
