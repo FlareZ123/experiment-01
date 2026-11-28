@@ -737,6 +737,50 @@ function chooseEnergyPayment(view, prompt) {
   return { kind: 'select-choices', tokens: selected.map(row => row.choice.token) };
 }
 
+/**
+ * Narrow, public-only two-turn Mimikyu counterline for the authenticated
+ * Aichi Regidrago VSTAR SIT active. With no live Fairy Zone, Timeless-GX's
+ * 150 followed by copied Radiant Eternatus CRZ Power Beam's 200 can KO a
+ * clean 280-HP Regidrago during the granted *consecutive* actor turn.
+ *
+ * This is conditional on no unmodeled damage prevention/reduction; it is a
+ * choice-ranking heuristic, not a source-certain guaranteed win. Do not
+ * enlarge to arbitrary target/card without game-state evidence.
+ */
+function hasCopycatTwoTurnPowerBeamLine(view, receipt) {
+  const active=view?.ownPublic?.active;
+  const target=view?.opponentPublic?.active;
+  const discard=view?.ownPublic?.discard;
+  const restrictions=view?.ownPublic?.publicTurnRestrictions;
+  if(!active||!target||
+     !hasName(active.printing,'Mimikyu GRI')||
+     target.printing!=='Regidrago VSTAR SIT'||
+     !Number.isSafeInteger(target.hp)||target.hp!==280||
+     !Number.isSafeInteger(target.damage)||target.damage<0||
+     !Array.isArray(target.tools)||target.tools.length!==0||
+     !Array.isArray(active.attacks)||
+     !active.attacks.some(row=>row?.name==='Copycat')||
+     !Array.isArray(discard)||!restrictions||
+     restrictions.gxUsed!==false||
+     !discard.some(printing=>hasName(printing,'Dialga-GX UPR'))||
+     !discard.some(printing=>hasName(printing,'Radiant Eternatus CRZ'))||
+     fairyZoneStatus(view)===true)
+    return false;
+  const remaining=target.hp-target.damage;
+  if(remaining<=200||remaining>350)return false;
+  if(receipt?.actorSeat!==view.actorSeat||
+     receipt?.turn!==view.globalTurn||
+     receipt?.mimikyuCopycatCompatible!==true||
+     !Number.isSafeInteger(receipt?.opponentLastTurnTurn)||
+     receipt.opponentLastTurnTurn>=view.globalTurn||
+     !Array.isArray(receipt?.opponentCopycatChoices))
+    return false;
+  return receipt.opponentCopycatChoices.some(row=>
+    row?.attackName==='Apex Dragon'&&
+    row.sourcePrinting==='Regidrago VSTAR SIT'&&
+    row.gxAttack===false);
+}
+
 function chooseAttackPrompt(view, prompt, receipt) {
   setPolicyAuditRule('ATTACK_CHOICE_SCORE_DESC', 'SCORE_DESC_TOKEN_ASC');
   const choices = prompt.choices.filter(choice =>
@@ -753,7 +797,8 @@ function chooseAttackPrompt(view, prompt, receipt) {
     let score = 0;
     if (effectName === 'Apex Dragon' && attackName === 'Timeless-GX' &&
         hasDialga && gxUnused && dragonTarget &&
-        fairyZoneStatus(view) === true) score = 50000;
+        (fairyZoneStatus(view) === true ||
+         hasCopycatTwoTurnPowerBeamLine(view, receipt))) score = 50000;
     else if (effectName === 'Copycat' && attackName === 'Apex Dragon' &&
         Array.isArray(receipt?.opponentCopycatChoices) &&
         receipt.opponentCopycatChoices.some(row =>
