@@ -428,6 +428,44 @@ test('Temple-of-Sinnoh one-Colorless Specials complete Volt Cyclone, even as dup
   }
 });
 
+test('rank6 DCE plus Thunder Mountain immediately unlocks Volt Cyclone', () => {
+  const dce='Double Colorless Energy SUM 136',thunder='Thunder Mountain ♢ LOT 191';
+  const stadiumAction=action('mountain','play-card',thunder,{cardType:'stadium',handIndex:0});
+  for(const seat of [0,1]){
+    for(const hostileStadium of [[],['Temple of Sinnoh ASR 155']]){
+      const request=rootRequest({seat,globalTurn:2,ownHand:[thunder],
+        ownPublic:player({active:pokemon('Iron Thorns ex TWM 77',{energies:[dce]})}),
+        opponentPublic:player({active:pokemon('Shadow Rider Calyrex V CRE 74'),stadium:hostileStadium}),
+        ownTurnResources:turnResources({energyPlayedTurn:2}),
+        items:[stadiumAction,{token:'pass',kind:'pass'}]});
+      assert.deepEqual(checkedDecision(request,seat),{kind:'select-action',token:'mountain'});
+    }
+    const empty=rootRequest({seat,ownHand:[thunder],
+      ownPublic:player({active:pokemon('Iron Thorns ex TWM 77')}),
+      items:[stadiumAction,{token:'pass',kind:'pass'}]});
+    assert.deepEqual(checkedDecision(empty,seat),{kind:'select-action',token:'pass'});
+  }
+});
+
+test('rank6 duplicate Speed Lightning can pay Volt Cyclone attack costs', () => {
+  const speed='Speed Lightning Energy RCL 173',dce='Double Colorless Energy SUM 136';
+  for(const seat of [0,1]){
+    const attach=(cards,stadium=[])=>rootRequest({seat,globalTurn:4,
+      ownHand:[speed],ownTurnResources:turnResources({energyPlayedTurn:3}),
+      ownPublic:player({active:pokemon('Iron Thorns ex TWM 77',{energies:cards}),stadium}),
+      items:[action('speed','play-card',speed,{cardType:'energy',handIndex:0},
+        {targetPrinting:'Iron Thorns ex TWM 77'}),{token:'pass',kind:'pass'}]});
+    for(const [cards,stadium] of [
+      [[speed],['Thunder Mountain ♢ LOT 191']],
+      [[speed],[]],
+      [[speed,speed],[]]
+    ])assert.deepEqual(checkedDecision(attach(cards,stadium),seat),
+      {kind:'select-action',token:'speed'});
+    assert.deepEqual(checkedDecision(attach([speed,dce]),seat),
+      {kind:'select-action',token:'pass'});
+  }
+});
+
 test('Plumeria denial outranks deckout when opponent Bench has Energy and payment is available', () => {
   const request = rootRequest({
     ownHand: ['Plumeria BUS 120', "Trainers' Mail ROS 92", 'Captivating Poké Puff STS 99',
