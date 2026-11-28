@@ -22,7 +22,8 @@ function player(active,bench,prizeCount,deckCount,handCount=2){
 function make(seat,opts={}){
   const {energy=3,deck=2,damage=150,prizes=2,enemy='VSTAR',
     bench=true,handEnergy=true,offerAttack=true,offerDraw=true,
-    ability=true,nativeSource=true,unmodeled=false,enemyBench=1}=opts;
+    ability=true,nativeSource=true,unmodeled=false,enemyBench=1,
+    nativeProtection=null}=opts;
   const active=mon(VMAX,{hp:320,types:['Psychic'],subtypes:['VMAX','V'],
     energies:Array(energy).fill(E),abilities:ability?['Underworld Door']:[],
     attacks:[{name:'Max Geist',cost:['Colorless','Colorless','Colorless'],
@@ -43,7 +44,8 @@ function make(seat,opts={}){
       publicMetadata:{abilityName:'Underworld Door',
         sourceSeat:nativeSource?'actor':'opponent',sourceZone:'active'}},
     ...(offerAttack?[{kind:'attack',token:'geist',attackName:'Max Geist',
-      publicMetadata:{hasUnmodeledModifier:unmodeled}}]:[]),
+      publicMetadata:{hasUnmodeledModifier:unmodeled,
+        ...(nativeProtection??{})}}]:[]),
     ...(offerDraw?[{kind:'play-card',token:'draw',
       actorPrinting:"Lillie's Determination MEG 119",
       publicMetadata:{cardType:'supporter'}}]:[]),
@@ -109,6 +111,19 @@ for(const seat of [0,1]){
       {deck:2,energy:3,damage:150,prizes:2,nativeSource:false},'draw'],
     ['suppressed Underworld Door not used',
       {deck:2,energy:3,damage:150,prizes:2,ability:false},'draw'],
+    ['native prevention forbids purported terminal Door line',
+      {deck:2,energy:3,damage:150,prizes:2,
+        nativeProtection:{hasPrevention:true}},'draw'],
+    ['native reduction forbids purported terminal Door line',
+      {deck:2,energy:3,damage:150,prizes:2,
+        nativeProtection:{damageReduced:30}},'draw'],
+    ['numeric native prevention forbids terminal Door line',
+      {deck:2,energy:3,damage:150,prizes:2,
+        nativeProtection:{damagePrevented:100}},'draw'],
+    ['native unprotected explicit zero keeps terminal Door line',
+      {deck:2,energy:3,damage:150,prizes:2,
+        nativeProtection:{hasPrevention:false,damageReduced:0,
+          damagePrevented:0}},'door'],
     ['Max Geist still 30 short despite Door: conserve deck',
       {deck:2,energy:3,damage:90,prizes:2},'draw']
   ]){
