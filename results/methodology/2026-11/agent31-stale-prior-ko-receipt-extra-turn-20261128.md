@@ -40,6 +40,12 @@ This is not hypothetical turn accounting: the pinned `initNextTurn` increments `
 
 The supplied complete card pool has four distinct printed extra-turn attacks in scope: Dialga-GX Timeless-GX, Origin Forme Dialga VSTAR Star Chronos, Medicham V Yoga Loop, and Togepi & Cleffa & Igglybuff-GX Supreme Puff-GX. None of the 29 authenticated Aichi lists contains the latter three; only Dialga-GX appears, and its listed decks have no Metal Energy. The three unauthenticated Aichi lists (ranks 23, 25, and 28) remain unknown, so do not infer that the full 32 lacks a payable extra-turn line.
 
+## Adjacent V3 integration blocker: Raihan's AttachEnergyPrompt is unsupported
+
+The current main `simulation/evaluation/2026-11/agent36-prompt-projection.cjs` (blob `bb1dade971632916f6bb029371ce32db55d2b884`) supports `AttachEnergyPrompt` only for Underworld Door from the actor's hand, Basic Psychic Energy, one BENCH slot, min/max 1 (lines 610–640). Pinned Raihan EVS 152 instead creates an `AttachEnergyPrompt` from `player.discard`, with slots `[BENCH, ACTIVE]`, any Basic Energy, min/max 1 (Raihan source blob `379f361ba49a265906ddad9b17b2104f96b764ec`, lines 60–70). The V3 runner calls the projector for AttachEnergyPrompt; Raihan therefore fails the source and shape allowlist before the worker can handle the prompt.
+
+Agent8's new Raihan root/AttachEnergyPrompt/deck-search path is consequently a local expected-prompt contract only (125/125 constructed callbacks), not an executable V3 policy path. Agent46's Raihan play path has the same integration dependency. A future research-owned projector needs a separate source-validated Raihan branch for discard-origin Basic Energy and BENCH/ACTIVE destinations; no runner/projector change is authorized in this invocation.
+
 ## Native card playability markers repeat the same stale-turn bug
 
 This is not only a research-receipt problem. The pinned card implementations maintain separate per-card markers for the same printed condition:
