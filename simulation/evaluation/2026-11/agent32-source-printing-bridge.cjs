@@ -84,7 +84,8 @@ function mapPublicEventReceipt(receipt,mine,other){
     ownerBench:Array.isArray(receipt.ownerBench)?
       receipt.ownerBench.map(eventPokemon):receipt.ownerBench,
     opponentLastTurnAttacks:attackRows(receipt.opponentLastTurnAttacks),
-    opponentCopycatChoices:attackRows(receipt.opponentCopycatChoices)};
+    ...(Object.hasOwn(receipt,'opponentCopycatChoices')?{
+      opponentCopycatChoices:attackRows(receipt.opponentCopycatChoices)}:{})};
 }
 function mapPrompt(prompt,mine,other){
   if(!prompt)return prompt;
@@ -99,7 +100,9 @@ function mapPrompt(prompt,mine,other){
   }
   const source={...origin,
     sourcePrinting:uniqueVisibleLabel(origin.sourcePrinting,mine,other),
-    copiedSourcePrinting:uniqueVisibleLabel(origin.copiedSourcePrinting,mine,other)};
+    ...(Object.hasOwn(origin,'copiedSourcePrinting')?{
+      copiedSourcePrinting:uniqueVisibleLabel(
+        origin.copiedSourcePrinting,mine,other)}:{})};
   const choices=Array.isArray(prompt.choices)?prompt.choices.map(choice=>{
     const seat=choice.publicMetadata?.ownerSeat??prompt.publicMetadata?.ownerSeat;
     const m=seat==='actor'?mine:seat==='opponent'?other:null;
@@ -107,12 +110,14 @@ function mapPrompt(prompt,mine,other){
     return {...choice,
       printing:label(choice.printing,m),
       publicMetadata:meta?{...meta,
-        sourcePrinting:uniqueVisibleLabel(meta.sourcePrinting,mine,other)}:meta};
+        ...(Object.hasOwn(meta,'sourcePrinting')?{
+          sourcePrinting:uniqueVisibleLabel(meta.sourcePrinting,mine,other)}:{})}:meta};
   }):prompt.choices;
   return {...prompt,source,choices,
     publicMetadata:prompt.publicMetadata?{...prompt.publicMetadata,
-      sourcePrinting:uniqueVisibleLabel(
-        prompt.publicMetadata.sourcePrinting,mine,other)}:prompt.publicMetadata};
+      ...(Object.hasOwn(prompt.publicMetadata,'sourcePrinting')?{
+        sourcePrinting:uniqueVisibleLabel(
+          prompt.publicMetadata.sourcePrinting,mine,other)}:{})}:prompt.publicMetadata};
 }
 function mapOwnerK1(snapshot,map){
   if(!snapshot)return snapshot;
@@ -145,9 +150,12 @@ function projectSourcePrintings(observation,frontier,sourceMapsBySeat,options={}
         actorPrinting:label(item.actorPrinting,mine),
         targetPrinting:label(item.targetPrinting,targetMap),
         publicMetadata:item.publicMetadata?{...m,
-          sourceCardFullName:label(m.sourceCardFullName,mine),
-          attackSource:m.attackSource?{...m.attackSource,
-            sourceCardFullName:label(m.attackSource.sourceCardFullName,mine)}:m.attackSource
+          ...(typeof m.priorSourcePrinting==='string'?{
+            priorSourcePrinting:label(m.priorSourcePrinting,other)}:{}),
+          ...(typeof m.stadiumPrinting==='string'?{
+            stadiumPrinting:uniqueVisibleLabel(m.stadiumPrinting,mine,other)}:{}),
+          ...(m.attackSource?{attackSource:{...m.attackSource,
+            sourceCardFullName:label(m.attackSource.sourceCardFullName,mine)}}:{})
         }:item.publicMetadata};
     })};
   }
