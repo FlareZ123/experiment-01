@@ -1,0 +1,246 @@
+{
+  "schema": "agent41-apex-stone-retreat-repaired-screen-v1",
+  "status": "source-printed repair branch; research-only structural two-own-turn opportunity screen, not actual games or qualified matchup wins",
+  "candidate": "agent1-apex-lockdown-v1",
+  "exact60_sha256": "f04a8793b11b8a76e414e0f4d21ff77be38820a63801b142edb048b85dddf8d6",
+  "deck_manifest_path": "results/aichi-2026/2026-11/agent1-apex-lockdown-v1.json",
+  "deck_manifest_git_blob": "f219821dc95381dc8cb0b2f6fedbf3e50db657d1",
+  "proxy_path": "results/aichi-2026/2026-11/agent1-apex-lockdown-setup-proxy.cjs",
+  "proxy_git_blob": "e6de6a4f2960f053438c49410507ebbce7febe37",
+  "source_corrections": [
+    "Regidrago V SIT135 retreat 3, Regidrago VSTAR SIT136 retreat 3, Latias ex SSP76 retreat 2",
+    "Forest Seal Stone Star Alchemy belongs to Tool, can be used despite Pokemon Ability denial; original garbotoxin-specific exclusion removed"
+  ],
+  "official_ruling": "https://asia.pokemon-card.com/sg/rules/search/?keyword=Forest+Seal+Stone",
+  "restrictions": "No opponent board, damage, KOs, prize-taking, actual attack settlement or native policies; scenarios are stylized game constraints and results are opportunity counts",
+  "paired_seed": "(27112028 + Math.imul(i+1,0x9e3779b9)) >>> 0, i=0..1999 per row",
+  "goal": "wipe-lock",
+  "native_games": 0,
+  "qualified_matchups": 0,
+  "rows": [
+    {
+      "scenario": "clean",
+      "goingSecond": false,
+      "policy": "greedy",
+      "trialCount": 2000,
+      "counts": {
+        "ready": 961,
+        "apex": 922,
+        "wipeLock": 351,
+        "toolWipeLock": 255,
+        "vstarPowerSpent": 1459,
+        "t1Active": 1493
+      }
+    },
+    {
+      "scenario": "clean",
+      "goingSecond": false,
+      "policy": "joint",
+      "trialCount": 2000,
+      "counts": {
+        "ready": 1046,
+        "apex": 994,
+        "wipeLock": 386,
+        "toolWipeLock": 275,
+        "vstarPowerSpent": 1467,
+        "t1Active": 1493
+      }
+    },
+    {
+      "scenario": "clean",
+      "goingSecond": true,
+      "policy": "greedy",
+      "trialCount": 2000,
+      "counts": {
+        "ready": 1262,
+        "apex": 1215,
+        "wipeLock": 564,
+        "toolWipeLock": 410,
+        "vstarPowerSpent": 1499,
+        "t1Active": 1392
+      }
+    },
+    {
+      "scenario": "clean",
+      "goingSecond": true,
+      "policy": "joint",
+      "trialCount": 2000,
+      "counts": {
+        "ready": 1295,
+        "apex": 1243,
+        "wipeLock": 572,
+        "toolWipeLock": 411,
+        "vstarPowerSpent": 1511,
+        "t1Active": 1392
+      }
+    },
+    {
+      "scenario": "rulebox",
+      "goingSecond": false,
+      "policy": "greedy",
+      "trialCount": 2000,
+      "counts": {
+        "ready": 563,
+        "apex": 457,
+        "wipeLock": 85,
+        "toolWipeLock": 58,
+        "vstarPowerSpent": 557,
+        "t1Active": 1146
+      }
+    },
+    {
+      "scenario": "rulebox",
+      "goingSecond": false,
+      "policy": "joint",
+      "trialCount": 2000,
+      "counts": {
+        "ready": 642,
+        "apex": 518,
+        "wipeLock": 110,
+        "toolWipeLock": 73,
+        "vstarPowerSpent": 574,
+        "t1Active": 1146
+      }
+    },
+    {
+      "scenario": "rulebox",
+      "goingSecond": true,
+      "policy": "greedy",
+      "trialCount": 2000,
+      "counts": {
+        "ready": 890,
+        "apex": 803,
+        "wipeLock": 204,
+        "toolWipeLock": 139,
+        "vstarPowerSpent": 666,
+        "t1Active": 1086
+      }
+    },
+    {
+      "scenario": "rulebox",
+      "goingSecond": true,
+      "policy": "joint",
+      "trialCount": 2000,
+      "counts": {
+        "ready": 921,
+        "apex": 830,
+        "wipeLock": 213,
+        "toolWipeLock": 147,
+        "vstarPowerSpent": 673,
+        "t1Active": 1090
+      }
+    },
+    {
+      "scenario": "garbotoxin",
+      "goingSecond": false,
+      "policy": "greedy",
+      "trialCount": 2000,
+      "counts": {
+        "ready": 798,
+        "apex": 724,
+        "wipeLock": 150,
+        "toolWipeLock": 109,
+        "vstarPowerSpent": 679,
+        "t1Active": 1493
+      }
+    },
+    {
+      "scenario": "garbotoxin",
+      "goingSecond": false,
+      "policy": "joint",
+      "trialCount": 2000,
+      "counts": {
+        "ready": 880,
+        "apex": 790,
+        "wipeLock": 176,
+        "toolWipeLock": 125,
+        "vstarPowerSpent": 701,
+        "t1Active": 1493
+      }
+    },
+    {
+      "scenario": "garbotoxin",
+      "goingSecond": true,
+      "policy": "greedy",
+      "trialCount": 2000,
+      "counts": {
+        "ready": 1139,
+        "apex": 1064,
+        "wipeLock": 300,
+        "toolWipeLock": 214,
+        "vstarPowerSpent": 828,
+        "t1Active": 1392
+      }
+    },
+    {
+      "scenario": "garbotoxin",
+      "goingSecond": true,
+      "policy": "joint",
+      "trialCount": 2000,
+      "counts": {
+        "ready": 1175,
+        "apex": 1093,
+        "wipeLock": 309,
+        "toolWipeLock": 219,
+        "vstarPowerSpent": 855,
+        "t1Active": 1392
+      }
+    },
+    {
+      "scenario": "t2-both",
+      "goingSecond": false,
+      "policy": "greedy",
+      "trialCount": 2000,
+      "counts": {
+        "ready": 644,
+        "apex": 547,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "vstarPowerSpent": 664,
+        "t1Active": 1493
+      }
+    },
+    {
+      "scenario": "t2-both",
+      "goingSecond": false,
+      "policy": "joint",
+      "trialCount": 2000,
+      "counts": {
+        "ready": 726,
+        "apex": 613,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "vstarPowerSpent": 686,
+        "t1Active": 1493
+      }
+    },
+    {
+      "scenario": "t2-both",
+      "goingSecond": true,
+      "policy": "greedy",
+      "trialCount": 2000,
+      "counts": {
+        "ready": 961,
+        "apex": 863,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "vstarPowerSpent": 859,
+        "t1Active": 1392
+      }
+    },
+    {
+      "scenario": "t2-both",
+      "goingSecond": true,
+      "policy": "joint",
+      "trialCount": 2000,
+      "counts": {
+        "ready": 1008,
+        "apex": 902,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "vstarPowerSpent": 890,
+        "t1Active": 1392
+      }
+    }
+  ]
+}
