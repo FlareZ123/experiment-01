@@ -646,17 +646,17 @@ for(const seat of [0,1]){
 
 for(const seat of [0,1]){
  test('seat '+seat+' Temple disables Iron Thorns DCE plus Basic Lightning Volt Cyclone',()=>{
-  const active=mon('Iron Thorns ex TWM 77',{energies:['Lightning Energy MEE 4','Double Colorless Energy FST 283']});
+  const active=mon('Iron Thorns ex TWM 77',{energies:['Lightning Energy MEE 4','Double Colorless Energy SUM 136']});
   const q=root(seat,[play('Temple of Sinnoh ASR 155','temple'),attack('Itchy Pollen','pollen'),pass],{
    ownPublic:own({active:mon('Budew ASC 16')}),opponentPublic:opp({active})});
   assert.equal(policy.templeStrandsIronThorns(q.observation),true);
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
-  active.energies.push('Double Colorless Energy FST 283');
+  active.energies.push('Double Colorless Energy SUM 136');
   assert.equal(policy.templeStrandsIronThorns(q.observation),false);
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
  });
  test('seat '+seat+' Temple replaces Thunder Mountain first-turn DCE-powered Thorns attack',()=>{
-  const active=mon('Iron Thorns ex TWM 77',{energies:['Double Colorless Energy FST 283']});
+  const active=mon('Iron Thorns ex TWM 77',{energies:['Double Colorless Energy SUM 136']});
   const q=root(seat,[play('Temple of Sinnoh ASR 155','temple'),attack('Itchy Pollen','pollen'),pass],{
    ownPublic:own({active:mon('Budew ASC 16')}),
    opponentPublic:opp({active,stadium:['Thunder Mountain LOT 191']})});
@@ -665,5 +665,31 @@ for(const seat of [0,1]){
   q.observation.opponentPublic.stadium=[];
   assert.equal(policy.templeStrandsIronThorns(q.observation),false);
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+ });
+}
+
+for(const seat of [0,1]){
+ test('seat '+seat+' source rank6 Thorns Speed Lightning+DCE cannot attack under Temple',()=>{
+  const thorns=mon('Iron Thorns ex TWM 77',{energies:[
+    'Speed Lightning Energy RCL 173','Double Colorless Energy SUM 136']});
+  const q=root(seat,[play('Temple of Sinnoh ASR 155','temple'),
+     attack('Itchy Pollen','pollen'),pass],{
+   ownPublic:own({active:mon('Budew ASC 16')}),
+   opponentPublic:opp({active:thorns})});
+  assert.equal(policy.templeStrandsIronThorns(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
+  thorns.energies.push('Lightning Energy MEE 4');
+  assert.equal(policy.templeStrandsIronThorns(q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+ });
+ test('seat '+seat+' source rank24 Thorns double Speed Lightning with Thunder Mountain loses Lightning under Temple',()=>{
+  const thorns=mon('Iron Thorns ex TWM 77',{energies:[
+    'Speed Lightning Energy RCL 173','Speed Lightning Energy RCL 173']});
+  const q=root(seat,[play('Temple of Sinnoh ASR 155','temple'),pass],{
+   opponentPublic:opp({active:thorns,stadium:['Thunder Mountain ♢ LOT 191']})});
+  assert.equal(policy.templeStrandsIronThorns(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
+  q.observation.opponentPublic.stadium=[];
+  assert.equal(policy.templeStrandsIronThorns(q.observation),false);
  });
 }
