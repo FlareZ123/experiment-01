@@ -77,3 +77,18 @@ A further direct-KO missed priority was a board containing **Path to the Peak** 
 New both-profile/both-seat source tests cover: a paid 9-Psychic VMAX Max Geist direct Prize KO through either Stadium; a **5-Psychic** VMAX whose Max Geist base 160 only reaches 280-HP Dragon Regidrago VSTAR if its **Basic Lillie's Clefairy ex Fairy Zone** remains active — under either Path or Silent Lab this Weakness double must be *removed* and terminal admission must be withheld; Silent Lab suppresses Basic non-Rule-Box Mimikyu PAL Safeguard, while Path must **not**, preventing a phantom Max Geist into live Safeguard. The two Stadiums remain separate from Wondrous attack-cost control and active Vileplume BUS attack prohibition.
 
 At latest head `193acec4bc392bf92c98297069853ac679063f47`, actual worker/protocol/root-suite source was executed under a V8 assertion/test shim: **82/85 root groups passed with 1,939 assertions**, three other root groups could not load transitive host modules. No full native Node or gameplay result. The conservative win certificate still does not admit unverified effects, and the 99.5% target remains entirely unestablished.
+
+
+## Original rank-4/rank-17 Raichu Counter and Unit Energy: real Energy Drive math
+
+**Source patch** `df4af649379a12e249d761bf6b5cd3a7cbd43c67`; physically correctly resolved Prize-win fixture `7335d2018b6834ff437301905f9781ec8218f45f`.
+
+In original Aichi ranks **4 and 17**, the Raichu/Electrode lists carry **four Counter Energy CIN 100 and four Unit Energy LPM UPR 138** each. The candidate's real Tapu Lele-GX Energy Drive directly scales with Energy units attached to both Active Pokémon. The existing `publicEnergySupply` refused both those source Energy names as unknown, so even an immediately lethal fully paid Energy Drive could be wrongly declined. The new source-side supply projection implements:
+
+- Counter Energy: 1 Colorless normally, but if the holder is **not Pokémon-GX or Pokémon-EX** and its player has *more* remaining Prize cards, count **2 units of every type**, respecting physical Prize lead and printed exclusions;
+- Unit Energy LPM/GFW/FDF: exactly **1 unit** offering the corresponding three types (LPM = Lightning, Psychic, Metal); unknown variants remain unresolved rather than guessed;
+- `publicEnergyCanPay` adds the Wondrous Labyrinth extra Colorless requirement for non-Fairy source attacks when the Stadium is live/unknown, mirroring the candidate-cost gate. The new explicit supply and payment functions are exposed through the existing non-enumerable `__test` interface only, without broadening the actual worker request API.
+
+The exact decision fixture uses original Alolan Raichu UNM Stage1 with two attached Counter and one Unit LPM versus a candidate Tapu Lele-GX with two Psychic and **one remaining Prize**. When the source has four remaining Prizes, Counter empowers the Raichu to 5 Energy units and Energy Drive reaches 140 into 110HP, taking the final Prize. When the source has only one remaining Prize, the same attachments produce 3 units, Energy Drive reaches only 100, and the deterministic final-KO override is correctly withheld. Also verified source Electrode-GX does not empower attached Counter, unknown Unit variants remain unknown, and the source's Wondrous +Colorless attack-cost distinction holds.
+
+**Actual current V8 worker/protocol/root suite after patch:** **83 of 86 test groups passed, 1,979 assertions**; the three unavailable groups import additional native host modules, not policy failures. Earlier eight pure setup groups also passed in shim. No Node-native game or 32-match result; no cardlist or profile changes.
