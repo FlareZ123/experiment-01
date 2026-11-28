@@ -31,8 +31,18 @@ const { ActionEnumerator } = native('advanced-bot/action-enumerator');
 const { PokemonCard } = native('game/store/card/pokemon-card');
 const { EnergyCard } = native('game/store/card/energy-card');
 const { TrainerCard } = native('game/store/card/trainer-card');
-const { projectNativeAction } =
+const { buildNativeActionFrontier, selectedNativeAction } =
   require('../../simulation/evaluation/2026-11/agent36-native-action-frontier.cjs');
+const { createKnownCapFreeActionEnumerator, assertKnownCapFreeAdapterAdmissionClear } =
+  require('../../simulation/evaluation/2026-11/agent3-known-cap-free-action-enumerator.cjs');
+const { Simulator } = native('game/bots/simulator');
+const { GameError } = native('game/game-error');
+const { CheckPokemonTypeEffect } = native('game/store/effects/check-effects');
+const { StateUtils } = native('game/store/state-utils');
+const cardActions = native('game/store/actions/play-card-action');
+const gameActions = native('game/store/actions/game-actions');
+const { Stage, TrainerType, SpecialCondition, EnergyType, CardType, SuperType } =
+  native('game/store/card/card-types');
 const originalRank3 = require('../../results/aichi-2026/full-decklists.json').decks
   .find(entry => entry.rank === 3);
 
@@ -201,9 +211,9 @@ for (const seat of [0, 1]) {
 // This extends the proven native continuation backward to a *real native*
 // root action choice. The source-manifest cards are original Aichi rank 3;
 // the constructed physical setup is not an original-60 deal or a full game.
-// Handiwork is an actual competing Supporter, not a fabricated frontier row.
+// The full root frontier is admitted through the pinned cloned-Store adapter; Handiwork is a genuine competing Supporter.
 for (const seat of [0, 1]) {
-  test('native rank-3 Articuno root beats playable Handiwork, then resolves GX, seat ' + seat, () => {
+  test('native rank-3 full-root Articuno beats Handiwork/attack, then resolves GX, seat ' + seat, () => {
     assert.equal(originalRank3.cards.find(row => row.name === 'Articuno-GX')?.count, 1);
     assert.equal(originalRank3.cards.find(row => row.name === "Team Rocket's Handiwork")?.count, 1);
     const scene = fixture(seat);
@@ -212,20 +222,35 @@ for (const seat of [0, 1]) {
       assert.ok(handiwork, 'original rank-3 Handiwork not loaded by pinned engine');
       handiwork.id = 910 + seat;
       scene.actor.hand.cards.push(handiwork);
-      const enumerator = new ActionEnumerator();
-      const nativeActions = enumerator.enumerate(scene.store.state, scene.actor, scene.actor.id)
-        .filter(action => action.type === 'PLAY_CARD_ACTION' &&
-          [scene.articuno, handiwork].includes(scene.actor.hand.cards[action.handIndex]));
-      assert.equal(nativeActions.length, 2, 'two actual native root card actions required');
-      const actorTypes = { PokemonCard, TrainerCard, EnergyCard, PlayerType, SlotType };
-      const items = nativeActions.map((action, index) =>
-        projectNativeAction(action, scene.store.state, seat, actorTypes, 'native-' + index));
-      assert.ok(items.every(Boolean), 'both native actions must project into the worker frontier');
-      assert.deepEqual(
-        new Set(items.map(item => item.actorPrinting)),
-        new Set(['Articuno-GX CES', "Team Rocket's Handiwork FCO"]));
-      const frontier = { schema: protocol.FRONTIER_SCHEMA, items };
+      // Run the same reviewed uncapped source enumerator plus cloned-Store
+      // legality filter as the V3 fixture host. Do not cherry-pick two hand
+      // plays while silently hiding attacks, passes, or other legal actions.
+      const nativeBindings = {
+        ActionEnumerator, Simulator, cardActions, gameActions,
+        PokemonCard, TrainerCard, EnergyCard, PlayerType, SlotType,
+        Stage, TrainerType, SpecialCondition, EnergyType, CardType,
+        SuperType, GameError, CheckPokemonTypeEffect, StateUtils
+      };
+      const enumerator = createKnownCapFreeActionEnumerator({
+        native: nativeBindings,
+        enginePin: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05'
+      });
+      const admitted = buildNativeActionFrontier({
+        state: scene.store.state, actorSeat: seat,
+        native: nativeBindings, enumerator
+      });
+      assertKnownCapFreeAdapterAdmissionClear({
+        enumerator, enginePin: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+        frontierDiagnostics: admitted.diagnostics
+      });
+      const frontier = admitted.actionFrontier;
+      const items = frontier.items;
       const tokens = protocol.validateFrontier(frontier);
+      assert.ok(items.some(item => item.actorPrinting === 'Articuno-GX CES' &&
+        item.kind === 'play-card'), 'physical Articuno action was omitted');
+      assert.ok(items.some(item => item.actorPrinting === "Team Rocket's Handiwork FCO" &&
+        item.kind === 'play-card'), 'legal competing Handiwork action was omitted');
+      assert.ok(items.some(item => item.kind === 'pass'), 'full native frontier lacks pass');
       const observation = {
         actorSeat: seat, globalTurn: 4, decisionKind: 'owner-root',
         ownHand: scene.actor.hand.cards.map(card => card.fullName),
@@ -252,11 +277,11 @@ for (const seat of [0, 1]) {
         role: 'opponent', seat, observation, prompt: null, actionFrontier: frontier
       });
       protocol.validateDecision(decision, null, tokens);
-      const index = items.findIndex(item => item.token === decision.token);
-      assert.ok(index >= 0, 'root worker selected an unoffered native token');
-      assert.equal(items[index].actorPrinting, 'Articuno-GX CES',
-        'root must prefer payable Cold Crush-GX over Handiwork');
-      scene.store.dispatch(nativeActions[index]);
+      const selected = items.find(item => item.token === decision.token);
+      assert.ok(selected, 'root worker selected an unoffered native token');
+      assert.equal(selected.actorPrinting, 'Articuno-GX CES',
+        'full-frontier root must prefer payable Cold Crush-GX over Handiwork / attack / pass');
+      scene.store.dispatch(selectedNativeAction(admitted, decision.token));
 
       const confirm = projectAndDecide(scene);
       assert.equal(confirm.projection.choiceByToken.get(confirm.decision.token), true);
