@@ -4,7 +4,7 @@
 
 ## The concrete field gap
 
-Aichi Open League 2026 rank **27** has an authenticated original source 60, but the current opponent-policy v2 manifest records `no_rank_specific_policy` and an empty policy-variant list. This rank is one of the nine published Regidrago variants and part of the fixed-deck field requirement. Its English-display original 60 is at [`results/aichi-2026/full-decklists.json`](../../full-decklists.json), rank 27, source blob `ae773f6201d7aa69d31914dbfee66f3fba692200`. The 37 source entries sum to **60** cards. This is not a substitute or reconstruction.
+Aichi Open League 2026 rank **27** has an authenticated original source 60, but the current opponent-policy v2 manifest records `no_rank_specific_policy` and an empty policy-variant list. This rank is one of the nine published Regidrago variants and part of the fixed-deck field requirement. Its English-display original 60 is at [`results/aichi-2026/full-decklists.json`](../full-decklists.json), rank 27, source blob `ae773f6201d7aa69d31914dbfee66f3fba692200`. The 37 source entries sum to **60** cards. This is not a substitute or reconstruction.
 
 A source-bound developmental opponent is now committed at [`simulation/evaluation/2026-11/agent2-rank27-regidrago-opponent-policy.cjs`](../../../simulation/evaluation/2026-11/agent2-rank27-regidrago-opponent-policy.cjs), with executable, source-specific regression groups at [`tests/2026-11/agent2-rank27-regidrago-opponent-policy.test.cjs`](../../../tests/2026-11/agent2-rank27-regidrago-opponent-policy.test.cjs). Source binding requires `{rank:27,sourceBlobSha1:'ae773f6201d7aa69d31914dbfee66f3fba692200'}`, the opponent role, correct physical actor seat, and policy version `agent2-rank27-regidrago-source-v2`.
 
