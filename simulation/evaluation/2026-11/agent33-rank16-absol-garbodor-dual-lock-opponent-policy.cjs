@@ -1075,20 +1075,28 @@ function promptDecision(request) {
   return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
 }
 function bestAction(request) {
-  const items = list(request.actionFrontier?.items).filter(item => EXECUTABLE.has(item.kind));
-  if (!items.length) return { kind: 'abstain', reasonCode: 'NO_EXECUTABLE_ACTION' };
-  let best = null;
-  let bestScore = 0;
-  for (const item of items) {
-    const score = scoreAction(item, request);
-    if (score > bestScore) {
-      best = item;
-      bestScore = score;
-    }
-  }
-  if (best) return { kind: 'select-action', token: best.token };
-  const pass = items.find(item => item.kind === 'pass');
-  return pass ? { kind: 'select-action', token: pass.token } : { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ACTION' };
+  const items = list(request.actionFrontier?.items).filter(item=>EXECUTABLE.has(item.kind));
+  if(!items.length)return {kind:'abstain',reasonCode:'NO_EXECUTABLE_ACTION'};
+  const scored=items.map(item=>({item,score:scoreAction(item,request)}));
+  // A Pokémon attack ends the turn. Set up with an actually offered and
+  // materially useful nonterminal action first, then reconsider the attack
+  // on the next actual actor frontier. Boost Shake ALSO ends the turn.
+  // Exception: a verified immediate decisive Knock Out can be taken now.
+  const decisive=scored.filter(({item,score})=>item.kind==='attack'&&score>=330&&
+    (/^Terminal Period$/i.test(item.attackName??'')||
+      /^Claw of Darkness$/i.test(item.attackName??'')));
+  const bestDecisive=decisive.sort((a,b)=>b.score-a.score)[0];
+  if(bestDecisive)return {kind:'select-action',token:bestDecisive.item.token};
+  const nonterminal=scored.filter(({item,score})=>
+    score>=60 && item.kind!=='attack' &&
+    !(item.kind==='play-card'&&matches(item.actorPrinting??'',PRINT.boost)));
+  const bestNonterminal=nonterminal.sort((a,b)=>b.score-a.score)[0];
+  if(bestNonterminal)return {kind:'select-action',token:bestNonterminal.item.token};
+  const best=scored.filter(row=>row.score>0).sort((a,b)=>b.score-a.score)[0];
+  if(best)return {kind:'select-action',token:best.item.token};
+  const pass=items.find(item=>item.kind==='pass');
+  return pass?{kind:'select-action',token:pass.token}:
+    {kind:'abstain',reasonCode:'NO_SUPPORTED_ACTION'};
 }
 function createPolicy({ role, seat, policyVersion, config }) {
   if (role !== 'opponent' || (seat !== 0 && seat !== 1) || policyVersion !== POLICY_VERSION ||
