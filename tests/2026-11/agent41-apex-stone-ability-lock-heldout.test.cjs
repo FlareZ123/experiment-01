@@ -6,58 +6,57 @@ const proxy=require('../../results/aichi-2026/2026-11/agent1-apex-lockdown-setup
 const source=require('../../results/aichi-2026/2026-11/agent1-apex-lockdown-v1.json');
 
 /*
- * Forest Seal Stone SIT 156 grants Star Alchemy, an Ability used by the
- * attached Pokémon V. The model's 'rulebox' condition suppresses a V's
- * Abilities (Iron Thorns-style), and own active Wobbuffet PHF 36
- * Bide Barricade suppresses non-Psychic Pokémon V's Abilities.
+ * Official Star Alchemy ruling: Forest Seal Stone SIT156 itself owns the
+ * Ability. The attached Pokemon V has access to it but does not acquire it.
+ * Therefore Path-to-the-Peak-style Rule Box Ability denial, Wobbuffet
+ * Bide Barricade and Garbotoxin do not prevent this Tool-granted VSTAR Power.
+ * A distinct Tool-effect suppression would (not simulated by this proxy).
  *
- * These are fixed-deck, fixed-deal, simulated two-turn policy tests.
- * Not full games, engine traces, or competitive win-rate evidence.
+ * All cases are fixed-deck deterministic TWO-turn proxy lines, not games.
  */
 const run=(seed,scenario,second=false)=>proxy.one(source.cards,seed,{
   goal:'wipe-lock',scenario,second,trace:true
 });
 const star=r=>r.trace.filter(row=>row[1]==='star');
 
-test('rulebox: already attached Stone on Regidrago VSTAR cannot search for DDE',()=>{
+test('rulebox: Tool-granted Star Alchemy can fetch DDE under Pokemon Ability denial',()=>{
   const r=run(1188942899,'rulebox');
   assert.ok(r.trace.some(row=>row[1]==='tool'&&row[2]?.[1]==='Forest Seal Stone'));
-  assert.ok(r.trace.some(row=>row[1]==='evolve'&&row[2]==='Regidrago VSTAR'));
-  assert.equal(star(r).length,0);
-  assert.equal(r.vstarSpent,false);
-  assert.equal(r.ready,false);
-  assert.equal(r.apex,false);
+  assert.deepEqual(star(r),[[2,'star','Double Dragon Energy']]);
+  assert.equal(r.vstarSpent,true);
+  assert.equal(r.ready,true);
+  assert.equal(r.apex,true);
 });
 
-test('rulebox going second: attached Stone cannot fetch Regidrago VSTAR from deck',()=>{
+test('rulebox going second: Stone remains available to find Regidrago VSTAR',()=>{
   const r=run(322965286,'rulebox',true);
-  assert.ok(r.trace.some(row=>row[1]==='tool'&&row[2]?.[1]==='Forest Seal Stone'));
-  assert.equal(star(r).length,0);
-  assert.equal(r.vstarSpent,false);
-  assert.equal(r.ready,false);
+  assert.deepEqual(star(r),[[2,'star','Regidrago VSTAR']]);
+  assert.equal(r.vstarSpent,true);
 });
 
-test('turn-2-only rulebox and Item locks preserve earlier legal actions but prohibit new Star',()=>{
+test('turn-2 Rule Box and Item locks do not themselves suppress Stone Ability',()=>{
   const r=run(4082728996,'t2-both');
-  assert.ok(r.trace.some(row=>row[1]==='tool'&&row[2]?.[1]==='Forest Seal Stone'));
-  assert.equal(star(r).length,0);
-  assert.equal(r.vstarSpent,false);
-  assert.equal(r.ready,false);
+  assert.deepEqual(star(r),[[2,'star','Regidrago VSTAR']]);
+  assert.equal(r.vstarSpent,true);
 });
 
-test('clean: unsuppressed Regidrago V with Stone retains genuine turn-1 Star access',()=>{
+test('clean: Regidrago V with Forest Seal Stone uses real turn-1 Star',()=>{
   const r=run(801665942,'clean');
   assert.deepEqual(star(r),[[1,'star','Double Dragon Energy']]);
   assert.equal(r.vstarSpent,true);
 });
 
-test('clean with own active Wobbuffet: its Bide Barricade suppresses Benched Regidrago Stone',()=>{
-  // This physical seed opens Wobbuffet Active and places the Stone on a
-  // Benched Regidrago V; no switch/promote is made prior to the Stone line.
+test('clean with own Active Wobbuffet: its lock does not suppress the Tool Ability',()=>{
+  // The fixed deal opens Wobbuffet Active, puts Forest Seal Stone on
+  // Benched Regidrago V, and uses Star on turn 1 before switching.
   const r=run(1861883004,'clean');
-  assert.ok(r.trace.some(row=>row[1]==='tool'&&row[2]?.[1]==='Forest Seal Stone'));
-  assert.equal(r.trace.some(row=>row[1]==='switch'),false);
-  assert.equal(star(r).length,0);
-  assert.equal(r.vstarSpent,false);
-  assert.equal(r.apex,false);
+  assert.deepEqual(star(r),[[1,'star','Double Dragon Energy']]);
+  assert.equal(r.vstarSpent,true);
+  assert.equal(r.ready,true);
+});
+
+test('turn-2 Garbotoxin suppresses Pokemon Abilities, not the Tool ability',()=>{
+  const r=run(4082728996,'garbotoxin');
+  assert.deepEqual(star(r),[[2,'star','Regidrago VSTAR']]);
+  assert.equal(r.vstarSpent,true);
 });
