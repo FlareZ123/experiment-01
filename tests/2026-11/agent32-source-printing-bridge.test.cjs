@@ -204,3 +204,39 @@ test('Copycat copied Night Watch is host-only before or after source relabel',()
   assert.equal(projectSourcePrintings(view,null,[map,new Map()],{
     prompt:nonNightWatch}).prompt.source.copiedAttackName,'Poltergeist');
 });
+
+
+test('native pass and optional prompt choices keep exact JSON key sets',()=>{
+  const map=buildSourcePrintingMap(source,ids);
+  const view={actorSeat:0,ownHand:[],ownPublic:null,opponentPublic:null};
+  const frontier={schema:'fixture',items:[
+    {token:'pass',kind:'pass'},
+    {token:'attack',kind:'attack',attackName:'Attack Name'},
+    {token:'penny',kind:'play-card',actorPrinting:'Penny SVI'}
+  ]};
+  const prompt={source:{sourceKind:'card-effect',sourcePrinting:'Penny SVI',
+    effectName:'Penny'},choices:[
+      {token:'empty',kind:'empty-selection',label:'Choose no items'},
+      {token:'target',kind:'pokemon',printing:'Penny SVI',
+        publicMetadata:{ownerSeat:'actor'}}],
+    publicMetadata:{selectionType:'pokemon'}};
+  const after=projectSourcePrintings(view,frontier,[map,new Map()],{prompt});
+  assert.deepEqual(after.actionFrontier.items[0],{token:'pass',kind:'pass'});
+  assert.deepEqual(after.actionFrontier.items[1],
+    {token:'attack',kind:'attack',attackName:'Attack Name'});
+  assert.deepEqual(after.actionFrontier.items[2],
+    {token:'penny',kind:'play-card',actorPrinting:'Penny SVI 183'});
+  assert.deepEqual(after.prompt.choices[0],
+    {token:'empty',kind:'empty-selection',label:'Choose no items'});
+  assert.deepEqual(after.prompt.choices[1],
+    {token:'target',kind:'pokemon',printing:'Penny SVI 183',
+      publicMetadata:{ownerSeat:'actor'}});
+  const rejectNonJson=value=>{
+    if(value===undefined)throw new Error('undefined property');
+    if(Array.isArray(value))return value.forEach(rejectNonJson);
+    if(value&&typeof value==='object')
+      return Object.values(value).forEach(rejectNonJson);
+  };
+  assert.doesNotThrow(()=>rejectNonJson(after.prompt));
+  assert.doesNotThrow(()=>rejectNonJson(after.actionFrontier));
+});
