@@ -2275,7 +2275,7 @@ test('Agent46: Compressor fuels held Raihan with precisely one searchable Psychi
     assert.deepEqual(decide(profile,root(seat,view,[playBC,playRaihan],koReceipt)),
       sel('compress')); // Direct Raihan has no discard fuel.
     const choose=cardPrompt(seat,view,bc,'Battle Compressor','deck',
-      [P,teammates='Teammates PRC',D],0,3);
+      [P,'Teammates PRC',D],0,3);
     choose.publicEventReceipt=koReceipt;
     assert.deepEqual(decide(profile,choose),mult('card-0'));
     const after={...view,ownHand:[raihan],ownPublic:{...view.ownPublic,
