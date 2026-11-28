@@ -48,5 +48,7 @@ b=base();b.action.otherEffectsResolved=false;
 check(b,'blocked','UNCERTIFIED_OTHER_DAMAGE_EFFECTS');
 b=base();delete b.public.fairyZoneWeaknessX2;
 check(b,'unsupported','UNCERTIFIED_DRAGON_OR_ACTOR_FACTS');
-assert.equal(checks,14);
+b=base();b.public.sourceDamage=150;
+check(b,'blocked','CURSED_BLAST_ALONE_ALREADY_KOS_TARGET');
+assert.equal(checks,15);
 console.log('agent22 FairyZone Dragon 130+Rondo x2: '+checks+' synthetic cases passed');
