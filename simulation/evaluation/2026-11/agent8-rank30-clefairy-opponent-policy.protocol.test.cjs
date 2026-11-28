@@ -510,3 +510,39 @@ for(const seat of [0,1]) {
       sourceRank:30,sourceBlobSha1:SOURCE_LIST_BLOB_SHA1}}));
   });
 }
+
+for(const seat of [0,1]){
+  test('seat '+seat+' rank30 Raihan accepts exact native projector metadata without fake top-level zone',()=>{
+    const psychic='Psychic Energy MEE 13';
+    const r=request(seat,[],[clef],'Raihan EVS 152','deck',[],1,1);
+    r.observation.ownPublic.active={printing:clef,energies:[psychic]};
+    r.observation.ownPublic.bench=[{printing:clef,energies:[]}];
+    r.publicEventReceipt={actorSeat:seat,turn:4,
+      priorOpponentTurnKO:{turn:3,any:true,byAttack:true}};
+    // Agent46's pinned Raihan AttachEnergyPrompt projector describes each
+    // individual destination in choices[].publicMetadata.zone, not at the
+    // prompt level. Never require a fake global 'bench,active' field.
+    r.prompt={
+      schema:protocol.PROMPT_SCHEMA,actingSeat:seat,
+      promptType:'AttachEnergyPrompt',description:'ATTACH_ENERGY_CARDS',
+      source:{classification:'actor-choice',sourceKind:'card-effect',
+        sourcePrinting:'Raihan EVS 152',effectName:'Raihan'},
+      publicMetadata:{selectionType:'energy-attachment',count:2,
+        minimumCount:1,maximumCount:1,allowCancel:false,sourceZone:'discard',
+        ownerSeat:'actor',isOwnerVisible:true,energyType:'BASIC'},
+      choices:[
+        {kind:'energy',token:'active',printing:psychic,
+          publicMetadata:{sourceZone:'discard',ownerSeat:'actor',
+            isOwnerVisible:true,energyType:'BASIC',zone:'active',
+            choiceIndex:0,selectedCount:1}},
+        {kind:'energy',token:'bench',printing:psychic,
+          publicMetadata:{sourceZone:'discard',ownerSeat:'actor',
+            isOwnerVisible:true,energyType:'BASIC',zone:'bench',benchIndex:0,
+            choiceIndex:1,selectedCount:1}}
+      ]
+    };
+    assertValid(seat,r,{kind:'select-choice',token:'active'});
+    r.publicEventReceipt.priorOpponentTurnKO.turn=2;
+    assertValid(seat,r,{kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'});
+  });
+}
