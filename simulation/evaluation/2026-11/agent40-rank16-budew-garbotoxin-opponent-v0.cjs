@@ -240,7 +240,7 @@ function opponentSnorlaxBlock(o){
 function benchSupportAbilityUsable(printing,o){
  if(!usableOwnAbilities(o))return false;
  // Flutter Mane suppresses only the opponent's Active Pokémon, not its Bench.
- if(match(o.ownPublic?.active?.printing,printing)&&activeFlutterManeLock(o))return false;
+ if(name(o.ownPublic?.active?.printing)===name(printing)&&activeFlutterManeLock(o))return false;
  if(activeOpponentAbilityWorking(o,/^Iron Thorns ex TWM 77\b/i,'Initialization'))return false;
  if(activeOpponentAbilityWorking(o,/^Wobbuffet PHF 36\b/i,'Bide Barricade')){
   return match(printing,PRINT.tapu); // Psychic Tapu Lele-GX escapes Bide Barricade
