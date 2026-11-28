@@ -3447,3 +3447,107 @@ test('Chaotic Swell vetoes unreachable Guzma-Hala / Tag Call / Thunder turbo',()
         swollen?(token==='gh'?140:token==='tag'?105:0):normal);
     }
 });
+test('original rank7 zero-Prize substitutes and 140-damage terminal targeting',()=>{
+  const rank7=source.decks.find(row=>row.rank===7);
+  assert.ok(rank7);
+  for(const name of ['Wobbuffet','Snorlax','Mimikyu',
+    'Robo Substitute',"Lillie's Poké Doll"])
+    assert.ok(rank7.cards.some(row=>row.name===name));
+  const variants=[
+    ['Wobbuffet PHF 36',110,[],true],
+    ['Snorlax PGO 55',150,[],false],
+    ['Mimikyu PAL 97',70,['Safeguard'],false],
+    ['Robo Substitute Team Flare Gear PHF 102',30,[],false],
+    ["Lillie's Poké Doll CEC 197",30,[],false]
+  ];
+  for(const seat of [0,1])for(const [printing,hp,abilities,terminal] of variants){
+    const active={
+      ...pokemon(printing,{hp,types:['Psychic'],
+        energies:['Capture Energy RCL 171'],abilities}),
+      ...(abilities.includes('Safeguard')?{
+        abilityDetails:[{
+          name:'Safeguard',powerType:'ABILITY',
+          text:'Prevent all damage done to this Pokémon by attacks from your opponent\'s Pokémon ex and Pokémon V.'
+        }]
+      }:{})
+    };
+    const own=player({
+      active:pokemon('Iron Thorns ex TWM 77',{
+        energies:['Double Colorless Energy SUM 136']}),
+      bench:[pokemon('Iron Thorns ex TWM 77')],
+      stadium:['Chaotic Swell CEC 187'],prizeCount:1
+    });
+    const opponent=player({
+      active,bench:[pokemon('Snorlax PGO 55',{hp:150})],
+      prizeCount:3
+    });
+    const root=rootRequest({
+      seat,ownPublic:own,opponentPublic:opponent,
+      ownHand:['Field Blower GRI 125','Thunder Mountain ◇ LOT 191',
+        'Team Flare Grunt XY 129'],
+      items:[
+        action('blower','play-card','Field Blower GRI 125',{cardType:'item'}),
+        action('flare','play-card','Team Flare Grunt XY 129',{cardType:'supporter'}),
+        {token:'pass',kind:'pass'}
+      ]
+    });
+    const audit=makePolicy(seat).decideWithAudit(root);
+    assert.equal(audit.policyAudit.evaluations.find(x=>x.token==='blower').score,
+      terminal?1010:0);
+    assert.deepEqual(checkedDecision(root,seat),
+      {kind:'select-action',token:terminal?'blower':'flare'});
+
+    // If the Stadium were already Thunder, a 140 hit is legal. It takes
+    // our last Prize only vs the real 110-HP Wobbuffet. Doll/Substitute
+    // have zero Prize, Safeguard blocks ex attacks, Snorlax survives.
+    const direct=rootRequest({
+      seat,ownPublic:player({...own,stadium:['Thunder Mountain ◇ LOT 191']}),
+      opponentPublic:opponent,
+      items:[
+        action('attack','attack','Iron Thorns ex TWM 77',
+          {attackCostPayable:true},{attackName:'Volt Cyclone'}),
+        action('flare','play-card','Team Flare Grunt XY 129',{cardType:'supporter'}),
+        {token:'pass',kind:'pass'}
+      ]
+    });
+    const directAudit=makePolicy(seat).decideWithAudit(direct);
+    assert.equal(directAudit.policyAudit.evaluations.find(x=>x.token==='attack').score,
+      terminal?1000:
+        /Robo Substitute|Poké Doll/.test(printing)?120:25);
+    assert.deepEqual(checkedDecision(direct,seat),
+      {kind:'select-action',token:terminal?'attack':'flare'});
+  }
+});
+
+test('Guzma does not select zero-Prize Bench Doll over payable final-Prize Wobbuffet',()=>{
+  for(const seat of [0,1]){
+    const opponent=player({
+      active:pokemon('Snorlax PGO 55',{hp:150}),
+      bench:[
+        pokemon('Robo Substitute Team Flare Gear PHF 102',{hp:30}),
+        pokemon('Wobbuffet PHF 36',{hp:110})
+      ],
+      prizeCount:3
+    });
+    const own=player({
+      active:pokemon('Iron Thorns ex TWM 77'),
+      bench:[pokemon('Iron Thorns ex TWM 77',{
+        energies:['Double Colorless Energy SUM 136']})],
+      stadium:['Thunder Mountain ◇ LOT 191'],prizeCount:1
+    });
+    const req=promptRequest({
+      seat,promptType:'ChoosePokemonPrompt',
+      source:actorChoiceSource('Guzma BUS 115','Guzma'),
+      publicMetadata:{selectionType:'pokemon',minimumCount:1,
+        maximumCount:1,allowCancel:false,isSecret:false},
+      observation:{ownPublic:own,opponentPublic:opponent},
+      choices:[
+        pokemonChoice('doll','Robo Substitute Team Flare Gear PHF 102',
+          'opponent','bench',0),
+        pokemonChoice('wobb','Wobbuffet PHF 36','opponent','bench',1)
+      ]
+    });
+    assert.deepEqual(checkedDecision(req,seat),
+      {kind:'select-choices',tokens:['wobb']});
+  }
+});

@@ -813,6 +813,9 @@ function benchThornsVoltReady(pokemon, observation) {
 function guzmaTargetPrizeValue(pokemon) {
   const subtypes=list(pokemon?.printed?.subtypes).join(' ');
   const printing=valueText(pokemon?.printing);
+  // Both original rank7 Trainer-cards-as-Basic Pokémon explicitly deny
+  // all Prizes on KO. Never infer a single Prize from their Basic stage.
+  if(/Robo Substitute|Lillie.s Pok[eé] Doll/i.test(printing))return 0;
   if(/VMAX|Mega Evolution ex|TAG.?TEAM/i.test(subtypes+' '+printing)||
     /^Mega\s+.+\s+ex\b/i.test(printing)||
     (/\s&\s/i.test(printing)&&/-GX\b/i.test(printing)))return 3;
@@ -867,6 +870,9 @@ function guzmaKnockoutValue(observation, target) {
   if(!target||readyAttackers.length===0)return 0;
   const damage=visibleVoltCycloneDamage(target);
   if(!damage.knockout)return 0;
+  // Gusting a zero-Prize Doll/Substitute cannot end the game: Guzma's
+  // opposing Active is now Benched, so the board is not empty either.
+  if(guzmaTargetPrizeValue(target)===0)return 0;
   // Guzma switches our chosen powered Bench attacker into Active. Against
   // the source Iron Thorns mirror a Spiky Energy attached to the gusted
   // opponent now triggers 20 recoil after Volt Cyclone, even if that target
