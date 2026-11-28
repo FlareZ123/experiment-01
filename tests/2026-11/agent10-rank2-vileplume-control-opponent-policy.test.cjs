@@ -1639,6 +1639,40 @@ test('Grand Tree can still counter an opposing Path to the Peak Stadium',()=>{
    kind:'select-action',token:'grand-tree'});
 });
 
+
+test('publicly revealed own hand is not double-counted as exhausted K0 Stage copies',()=>{
+ const hand=['Grand Tree SCR 136','Gloom UNB 7'];
+ const request=rootRequest({
+   ownHand:hand,globalTurn:3,
+   ownPublic:player({
+     active:pokemon('Bunnelby PRC 121'),
+     bench:[pokemon('Oddish UNB 5',{lastPlayedOrEvolvedTurn:1})],
+     publicHand:hand
+   }),
+   items:[{token:'grand-tree',kind:'play-card',actorPrinting:'Grand Tree SCR 136',
+     publicMetadata:{cardType:'trainer',handIndex:0}},
+     {token:'pass',kind:'pass',label:'Pass turn'}]
+ });
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-action',token:'grand-tree'});
+});
+test('two physically held Gloom copies still exhaust Grand Tree Stage1 search',()=>{
+ const hand=['Grand Tree SCR 136','Gloom UNB 7','Gloom UNB 7'];
+ const request=rootRequest({
+   ownHand:hand,globalTurn:3,
+   ownPublic:player({
+     active:pokemon('Bunnelby PRC 121'),
+     bench:[pokemon('Oddish UNB 5',{lastPlayedOrEvolvedTurn:1})],
+     publicHand:hand
+   }),
+   items:[{token:'grand-tree',kind:'play-card',actorPrinting:'Grand Tree SCR 136',
+     publicMetadata:{cardType:'trainer',handIndex:0}},
+     {token:'pass',kind:'pass',label:'Pass turn'}]
+ });
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-action',token:'pass'});
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
