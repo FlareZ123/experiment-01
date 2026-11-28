@@ -9,6 +9,37 @@ const {planPowerMobility}=require('./power_mobility_plan.cjs');
 const {planDonationResources}=require('./donk_resource_plan.cjs');
 const {reconciledTurnCosts}=require('./shared_turn_costs.cjs');
 
+
+/* Require the donor phase to preserve every real post-power Active/Bench
+ * occupant. Otherwise omitted Pokémon fabricate Bench room and invented
+ * Pokémon fabricate damage donors. Hand-only copies are still caller-certified.
+ */
+function verifyPostPowerProjection(powerFinal, donation){
+ const fail=reason=>({valid:false,reason});
+ if(!powerFinal||!Array.isArray(powerFinal.board)||!donation||
+    !['eggs','unown','fixed','handDonors'].every(k=>Array.isArray(donation[k]))||
+    (donation.small!==undefined&&!Array.isArray(donation.small)))
+   return fail('POST_POWER_PROJECTION_SHAPE');
+ const entries=['eggs','unown','fixed','handDonors','small']
+   .flatMap(k=>donation[k]??[]);
+ const ids=entries.map(p=>p?.id);
+ if(ids.some(x=>typeof x!=='string'||!x)||new Set(ids).size!==ids.length)
+   return fail('DUPLICATED_DONOR_IDENTITY');
+ const expected=new Map(powerFinal.board.map(p=>[p.id,p]));
+ if(expected.size!==powerFinal.board.length)return fail('POWER_BOARD_IDENTITY');
+ const accounted=new Set();
+ for(const entry of entries){
+   if(!['A','B'].includes(entry.zone))continue;
+   const card=expected.get(entry.id);
+   if(!card)return fail('INVENTED_POST_POWER_BOARD_CARD');
+   if((entry.zone==='A')!==card.active || entry.counters!==card.counters)
+     return fail('POST_POWER_ZONE_OR_DAMAGE_MISMATCH');
+   accounted.add(entry.id);
+ }
+ if(accounted.size!==expected.size)return fail('MISSING_POST_POWER_BOARD_CARD');
+ return {valid:true};
+}
+
 function planJointKnownTurn({powerInput,makeDonationInput,physical}={}){
  const fail=(status,reason,checks=[])=>({status,reason,checks});
  if(!powerInput||typeof makeDonationInput!=='function'||!physical||
@@ -33,6 +64,12 @@ function planJointKnownTurn({powerInput,makeDonationInput,physical}={}){
    const base=makeDonationInput(power.final, power.actions);
    if(!base||typeof base!=='object'){
      checks.push({variant,phase:'donation-input',status:'unsupported'});
+     continue;
+   }
+   const projected=verifyPostPowerProjection(power.final,base);
+   if(!projected.valid){
+     checks.push({variant,phase:'post-power-projection',status:'unsupported',
+       reason:projected.reason});
      continue;
    }
    // The source has four distinct Damage Pump cards, plus at most one
@@ -71,4 +108,4 @@ function planJointKnownTurn({powerInput,makeDonationInput,physical}={}){
  return fail(anyLimit?'limit':'no-verified-joint-resource-trace',
    anyLimit?'SOURCE_SEARCH_LIMIT':'NO_COMPOSED_PATH_IN_BOUNDED_SEARCH',checks);
 }
-module.exports={planJointKnownTurn};
+module.exports={planJointKnownTurn,verifyPostPowerProjection};
