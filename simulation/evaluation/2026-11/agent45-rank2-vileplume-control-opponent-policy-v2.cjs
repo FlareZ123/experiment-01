@@ -335,6 +335,27 @@ function choiceOwner(choice) {
   return choice?.publicMetadata?.ownerSeat ?? null;
 }
 
+// Bind a public Pokémon choice to its actual physical slot. Matching only a
+// printing can silently choose a healthy rather than a damaged duplicate.
+// Choice order is not Bench order; missing or contradictory slot data fails closed.
+function physicalPokemonChoice(choice, observation, expectedOwner) {
+  const m = choice?.publicMetadata ?? {};
+  if (choice?.kind !== 'pokemon' || m.ownerSeat !== expectedOwner ||
+      m.isOwnerVisible !== true ||
+      !['active', 'bench'].includes(m.targetZone)) return null;
+  const index = m.targetZone === 'active' ? 0 :
+    (Number.isSafeInteger(m.benchIndex) ? m.benchIndex :
+      Number.isSafeInteger(m.slotIndex) ? m.slotIndex : null);
+  if (!Number.isSafeInteger(index) || index < 0 || index > 4 ||
+      (m.targetZone === 'active' && index !== 0)) return null;
+  const player = expectedOwner === 'actor' ? observation?.ownPublic :
+    observation?.opponentPublic;
+  const pokemon = m.targetZone === 'active' ? player?.active :
+    list(player?.bench)[index];
+  if (!pokemon || !samePrinting(pokemon.printing, choicePrinting(choice))) return null;
+  return { pokemon, zone: m.targetZone, index };
+}
+
 function missingLinePriority(observation) {
   const own = observation?.ownPublic ?? {};
   const hand = list(observation?.ownHand);
@@ -954,31 +975,29 @@ function scorePokemonChoice(choice, observation, context) {
   if (zone && zone !== 'bench' && !context.includes('irresistible aroma') &&
       !context.includes('cassius') && !context.includes('grand tree')) return -100;
   if (context.includes('guzma')) {
-    const target = list(observation.opponentPublic?.bench).find(slot =>
-      slot && samePrinting(slot.printing, printing));
-    if (!target) return -100;
-    const hp = remainingHp(target);
+    const selected = physicalPokemonChoice(choice, observation, 'opponent');
+    if (!selected || selected.zone !== 'bench') return -100;
+    const hp = remainingHp(selected.pokemon);
     const multiPrize = /(?:-GX|\b(?:V|VMAX|VSTAR|ex)\b)/i.test(printing) ? 2 : 1;
     return 100 + (hp > 0 && hp <= 90 ? 50 : 0) + multiPrize * 8;
   }
   if (context.includes('cassius')) {
-    const target = boardSlots(observation.ownPublic).find(row =>
-      samePrinting(row.pokemon.printing, printing));
-    if (!target) return -100;
-    return remainingHp(target.pokemon) > 0 &&
-      remainingHp(target.pokemon) <= 50 ? 160 : 15;
+    const selected = physicalPokemonChoice(choice, observation, 'actor');
+    if (!selected) return -100;
+    return remainingHp(selected.pokemon) > 0 &&
+      remainingHp(selected.pokemon) <= 50 ? 160 : 15;
   }
   if (context.includes('grand tree')) {
-    const target = boardSlots(observation.ownPublic).find(row =>
-      samePrinting(row.pokemon.printing, printing) &&
-      grandTreeTargetPossible(observation, row.pokemon));
-    if (!target) return -100;
+    const selected = physicalPokemonChoice(choice, observation, 'actor');
+    if (!selected || !grandTreeTargetPossible(observation, selected.pokemon)) return -100;
     if (matches(printing, PRINT.oddish)) return 140;
     if (matches(printing, PRINT.lillipup)) return 135;
     if (matches(printing, PRINT.pidgey)) return 125;
     return -100;
   }
   if (context.includes('evolution') || context.includes('technical machine')) {
+    const selected = physicalPokemonChoice(choice, observation, 'actor');
+    if (!selected || selected.zone !== 'bench') return -100;
     if (matches(printing, PRINT.gloom)) return hasK0PossibleStageFor(observation, printing) ? 180 : -100;
     if (matches(printing, PRINT.herdier)) return hasK0PossibleStageFor(observation, printing) ? 172 : -100;
     if (matches(printing, PRINT.pidgeotto)) return hasK0PossibleStageFor(observation, printing) ? 160 : -100;
