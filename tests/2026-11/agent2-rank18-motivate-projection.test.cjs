@@ -33,7 +33,7 @@ const pk=(name,set,number)=>({
  name,set,setNumber:String(number),fullName:name+' '+set
 });
 function slot(mon,attached=[]){
- return {cards:mon?[mon,...attached]:[],
+ return {cards:mon?[mon,...attached]:[],energies:{cards:attached.slice()},
   getPokemonCard(){return mon??null}};
 }
 class AttachEnergyPrompt{
@@ -304,5 +304,27 @@ test('policy rejects forged Motivate composite target and unregistered config',(
   assert.throws(()=>createPolicy({role:'opponent',seat,
     policyVersion:POLICY_VERSION,config:{rank:18,sourceBlobSha1:SOURCE_BLOB_SHA1,
       motivateProjection:'unregistered'}}));
+ }
+});
+
+
+test('authoritative pinned EnergyCardList overrides incomplete composite card stack',()=>{
+ for(const seat of [0,1]){
+  const e=env(seat);
+  const vstar=e.actor.bench[0];
+  // Simulate a native code path that maintains the canonical attachment
+  // zone before/without synchronizing auxiliary composite list copies.
+  vstar.cards=[vstar.getPokemonCard()];
+  vstar.energies.cards=[grass(),grass()];
+  e.actor.discard.cards=[fire()];
+  const out=project(e);
+  assert.equal(out.diagnostics.nativeSelectedBasicCount,1);
+  assert.equal(out.diagnostics.targetBenchIndex,0);
+  assert.equal(out.diagnostics.policy,'agent2-rank18-motivate-source-v1');
+  assert.deepEqual([...out.choiceByToken.values()][0],
+    [{to:{player:0,slot:1,index:0},index:0}]);
+  // Native selection remains legal and reaches a GGF-enabled attacker.
+  assert.equal(e.prompt.validate(e.prompt.decode(
+    [...out.choiceByToken.values()][0]),e.state),true);
  }
 });
