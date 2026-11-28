@@ -883,9 +883,13 @@ function guzmaOpportunity(o,{resolvingGuzma=false}={}) {
   // requires an observable powered Bench attacker and target, then selects
   // only when the printed unmodified Gale Thrust could secure Prize tempo.
   const own=o?.ownPublic,opp=o?.opponentPublic;
-  if(!own||!opp||!opp.active||has(own.active,P.bus)||
+  if(!own||!opp||!opp.active||
     (!resolvingGuzma&&!supporterUnused(o)))
     return null;
+  // Moving BUS Vileplume off Active normally surrenders Basic attack lock,
+  // but preserving the lock cannot be better than a fully certified
+  // last-Prize Guzma + powered Bench Mega moved-Gale knockout.
+  const activeBusLock=has(own.active,P.bus);
   const bench=arr(own.bench),targets=arr(opp.bench);
   const attackerIndex=bench.findIndex(x=>readyGuzmaMega(x,o));
   if(attackerIndex<0)return null;
@@ -901,6 +905,7 @@ function guzmaOpportunity(o,{resolvingGuzma=false}={}) {
     if(galeDamage===null||x.hp-x.damage>galeDamage)return null;
     const prizeValue=sourcePrizeValue(x);
     const terminal=prizes!==null&&prizes>0&&prizes<=prizeValue;
+    if(activeBusLock&&!terminal)return null;
     // Don't expend the Supporter on a merely one-Prize intermediate gust.
     if(!terminal && prizeValue<2)return null;
     return {opponentIndex:index,attackerIndex,terminal,
