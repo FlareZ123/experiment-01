@@ -1,0 +1,38 @@
+# Agent 1 — New Moon Dusknoir v3 actor-policy finisher and Stage-2 BUS lockbreak
+
+**Date:** 28 November 2026. **Status:** research-only, unadmitted candidate component. This is a concrete decision policy against explicit actor-visible frontier/prompt states, **not** a full native engine policy, authorized game, qualified matchup or demonstrated field win rate.
+
+## Decision changed
+
+The [exact v3 fixed 60](../../../results/als/new-moon-dusknoir-shadow-bind-v3-60.json), which replaces Tool Jammer from v2 with **Dusknoir SFA 20**, now has a runnable, source-bound implementation of both complementary ways to use that Stage2:
+
+1. **Immediate same-turn close:** Bench Dusknoir uses Cursed Blast to place 130 on the opponent's Active (self-KO awards opponent 1 Prize); after the mandatory opponent-target prompt and post-effect Prize settlement, use currently paid Night Watch 150 against a 280HP Regidrago VSTAR/Mega Absol ex, or Mewtwo & Mew-GX's *printed* Miraculous Duo-GX 200 against 230HP Iron Thorns ex or 300/330HP Mega Kangaskhan/Lopunny. The code checks actual target HP/remaining damage and native action-source provenance. Miraculous Duo does not require Mewtwo's Perfection; Night Watch copied from a Benched Trevenant & Dusknoir-GX does require active, unsuppressed Perfection. No discarded attack donor inference is attempted.
+2. **Preserve Dusknoir and attack:** Under Active BUS Vileplume with Stealthy Hood and its live Basic-attack lock, develop an actual Dusclops into Stage2 Dusknoir, attach legal Psychic Energy (three total for `[P][P][C]`), promote a paid Benched Dusknoir using an offered native retreat, and take the 140HP BUS directly with **Shadow Bind 150**. Unlike Cursed Blast, Shadow Bind does not self-KO or concede a Prize. Never promote a known-unfunded Stage2 solely to claim the lockbreak.
+
+The actor-policy implementation is at [`simulation/evaluation/2026-11/agent1-newmoon-v3-finisher-slice.cjs`](../../../simulation/evaluation/2026-11/agent1-newmoon-v3-finisher-slice.cjs). Tests: [`tests/2026-11/agent1-newmoon-v3-finisher-slice.test.cjs`](../../../tests/2026-11/agent1-newmoon-v3-finisher-slice.test.cjs).
+
+## Exact decision and resource gates
+
+- **No self-KO at opponent's last Prize.** The current root must have an offered, paid, attributable finishing attack *before* the Dusknoir self-KO. The target must have a recognized print and HP; the nominal attack alone must not already KO it. An attack prevented or reduced according to exposed metadata is rejected. Unknown target Tool protection or altered target HP fails closed.
+- **Actual source/target prompt lifecycle:** `USE_ABILITY_ACTION` must originate from a live Benched Dusknoir. The subsequent `ChoosePokemonPrompt` must belong to that effect/actor; select the actual opponent's Active. Post-prompt, require the observed 130 counters, target still Active, exactly one opponent Prize taken from the self-KO and a paid finisher still in the current action frontier. A turn or actor change, incomplete settlement, opponent reposition, attack suppression or vanished payment aborts the planned continuation.
+- **Ace Trainer is conditional, not automatic:** after the self-KO, if the Source hand is publicly >3 and Ace Trainer is offered and legal, choose it only if the candidate cannot already take the final Prizes with the attack and the candidate's hand does not contain strategically protected Secret Box or an unused Forest Seal Stone. Unknown own hand does not justify the Ace gamble. The plan then returns to the paid attack; never apply Ace speculatively *before* the Prize change.
+- **Stage2 setup under BUS:** choose only actor-owned, genuinely offered Stage2 evolution on the right Stage1, legal Energy attachment on a developing Dusclops, and a native retreated promotion into an already paid Dusknoir. Do not confuse an in-hand Stage2 with a legal same-turn evolution.
+- **Shared early Psychic setup, narrowed:** reuse prior v2 actor-only opening decisions for going-second/starter prompts, TPE attachment and Basic searches, Battle VIP Pass, Fog Crystal, select early Horror House and related owner prompts. Explicitly exclude all old Tool Jammer-specific decisions because the v3 fixed 60 has no Tool Jammer; Lillie hand replacement is also suppressed when it would shuffle held Dusknoir or protected singletons.
+
+The module exports an exact list identity SHA-256 over sorted UTF-8 `id:count\n` rows: `0db19a75d0d1ce43128b9a9fdc4fe3013833eaaba4641972af7af30f4b41e7dd`. The policy constructor uses the production-required `config:{}`; the identity hash is **not** a production role or manifest authorization.
+
+## Executed evidence
+
+The exact checked-in JavaScript source and test were fetched back from the GitHub repository, evaluated in the V8 runtime with a relative import shim for the existing v2 setup module. **90 assertions passed** over staged synthetic actor-visible decisions: 130+150, 130+200, Stage2 Shadow Bind, funded Stage2 evolution/promotion, both seats, conditional Ace, final-Prize veto, stale prompt/turn, dropped or reduced attack damage, Tool protection, unsupported donors, Setup/VIP/TPE inheritance and Tool Jammer exclusion.
+
+To reproduce in a Node repository checkout: `node tests/2026-11/agent1-newmoon-v3-finisher-slice.test.cjs`. The local JavaScript execution is not a pinned Twinleaf native `Store` run. There is no successful game, matchup win, or estimate of the v3 field win rate in these results.
+
+## Best next decision-changing work
+
+A bounded **exact native state-source and policy competence review**, only under existing owner permissions, should check which native frontier/prompt sequences actually arise from Cursed Blast, Shadow Bind, Stage2 evolutions, and Mewtwo copied attacks. This would establish whether the v3 implementation's actor metadata maps to a real `Store` action, rather than creating another abstract accessibility calculation. In particular, recognize the typed actual attack damage prevention, any opponent Ability effects blocking counter placement, stage evolution age and the source opponent's best retreat/lock reconfiguration. Next compare v3 against v2 Tool Jammer and the previously proposed Stealthy Hood alternate under the **same** rank15 and multi-rank response conditions. The fixed v3 source remains a challenger; no change to owner Stage-A/V3 freeze, final nomination or qualified 0/32 matchups.
+
+## Related work
+
+- Agent22's [one-turn Prize-clock and 330HP threshold note](../../../results/als/new-moon-dusknoir-one-turn-ace-trainer-closure-20261128.md) and [19-case pure opportunity gate](../../../results/als/new-moon-dusknoir-actor-finisher-gate.cjs) motivate the two-attack branch; this work changes the evidence class by translating it to actual actor-style action and prompt decisions.
+- Agent38's [Tool Jammer vs Stealthy Hood counterline](../../../communications/agent1/2026-11/20261128T030700Z_agent38-tool-jammer-prize-clock-and-hood-counterline.md) established the low-Prize self-KO weakness.
+- Agent1's existing [v2 actor decision report](agent1-newmoon-v2-executable-slice-20261127.md) documents the generic opening sequence; the v3 implementation does not inherit its hard lock-specific choices.
