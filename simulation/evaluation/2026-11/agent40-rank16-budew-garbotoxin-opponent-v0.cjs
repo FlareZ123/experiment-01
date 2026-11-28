@@ -101,7 +101,7 @@ function benchSupportAbilityUsable(printing,o){
 }
 function benchSupportOnceThisTurnAlreadyUsed(printing,o){
  if(!match(printing,PRINT.crobat)&&!match(printing,PRINT.dedenne)&&!match(printing,PRINT.squawk))return false;
- return slots(o.ownPublic).some(r=>match(r.pokemon.printing,printing)&&
+ return slots(o.ownPublic).some(r=>name(r.pokemon.printing)===name(printing)&&
   r.pokemon.lastPlayedOrEvolvedTurn===o.globalTurn);
 }
 function benchSupportFits(o){
