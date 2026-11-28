@@ -166,14 +166,32 @@ function sourceCardCategory(value){
  if([PRINT.quick,PRINT.ultra,PRINT.mail,PRINT.vs,PRINT.patch,PRINT.compressor,PRINT.vip,PRINT.boost].some(x=>match(value,x)))return 'item';
  return null;
 }
+function regidragoPayloadCount(o){
+ const board=slots(o.opponentPublic);
+ const seen=board.some(x=>/^Regidrago (?:VSTAR|V)\b/i.test(name(x.pokemon.printing)));
+ if(!seen)return 0;
+ const payload=/^(?:Dialga-GX UPR 100|Dragapult ex TWM 130|Kyurem SFA 47|Noivern ex PAL 153|Hisuian Goodra VSTAR LOR 136|Mega Dragonite ex ASC 152)\b/i;
+ return list(o.opponentPublic?.discard).filter(x=>payload.test(name(x))).length;
+}
+function karenDenialScore(o,items){
+ const n=regidragoPayloadCount(o);
+ if(n===0)return 0;
+ const canItemLock=list(items).some(x=>x.kind==='attack'&&x.attackName==='Itchy Pollen'&&x.publicMetadata?.attackCostPayable===true);
+ const alreadyLocked=o.opponentPublic?.publicTurnRestrictions?.itemPlayLocked===true;
+ const activeVstar=match(o.opponentPublic?.active?.printing,/^Regidrago VSTAR\b/i);
+ if((canItemLock||alreadyLocked)&&n>=2)return liveGarbotoxin(o)?765:710;
+ if((canItemLock||alreadyLocked)&&n===1)return 595;
+ return activeVstar&&n>=2?445:(n>=2?325:155);
+}
 function supportChoiceScore(choice,o){
  if(owner(choice)!=='actor'||zone(choice)!=='discard')return 0;
  if(match(choice,PRINT.lillie))return handCount(o)<=3?210:110;
  if(match(choice,PRINT.marnie))return handCount(o)<=3?200:125;
  if(match(choice,PRINT.guzma))return benchCount(o.opponentPublic)>0?180:35;
- if(match(choice,PRINT.karen))return list(o.ownPublic?.discard).some(x=>[
-   PRINT.mega,PRINT.trubbish,PRINT.garbodor,PRINT.budew
-  ].some(p=>match(x,p)))?170:20;
+ if(match(choice,PRINT.karen))return Math.max(regidragoPayloadCount(o)>=2?260:
+  regidragoPayloadCount(o)===1?170:20,
+  list(o.ownPublic?.discard).some(x=>[PRINT.mega,PRINT.trubbish,PRINT.garbodor,PRINT.budew]
+   .some(p=>match(x,p)))?160:20);
  if(match(choice,PRINT.carmine))return handCount(o)<=3&&!hasProtectedHand(o)?150:0;
  if(match(choice,PRINT.plumeria))return slots(o.opponentPublic).some(x=>list(x.pokemon.energies).length>0)?100:0;
  return 0;
@@ -320,6 +338,7 @@ function score(action,req){
  }
  if(match(p,PRINT.secret))return handCanPay(o,p,3)&&deckCount(o)>0?300:0;
  if(match(p,PRINT.vs))return o.ownTurnResources?.supporterPlayedTurn===0&&list(own.discard).some(x=>/Marnie|Carmine|Guzma|Plumeria|Karen|Determination/i.test(name(x)))?190:0;
+ if(match(p,PRINT.karen)&&o.ownTurnResources?.supporterPlayedTurn===0)return karenDenialScore(o,items);
  if(match(p,PRINT.marnie)||match(p,PRINT.lillie)||match(p,PRINT.carmine)){
   if(o.ownTurnResources?.supporterPlayedTurn!==0||handCount(o)>3)return 0;
   if(match(p,PRINT.carmine)&&hasProtectedHand(o))return 0;
@@ -593,4 +612,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,toolEnabled,garbotoxinStatus,liveGarbotoxin};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,regidragoPayloadCount,karenDenialScore,toolEnabled,garbotoxinStatus,liveGarbotoxin};
