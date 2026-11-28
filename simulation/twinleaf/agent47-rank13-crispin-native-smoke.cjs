@@ -41,6 +41,7 @@ const {SuperType,EnergyType}=native('game/store/card/card-types');
 
 const ownerPrintings=Object.freeze({
   active:'Regidrago VSTAR SIT',
+  basic:'Regidrago V SIT',
   donor:'Dialga-GX UPR',
   vsSeeker:'VS Seeker PHF',
   crispin:'Crispin SCR',
@@ -60,13 +61,16 @@ function setup(seat) {
     found.id=nextId++;
     return found;
   };
-  // Stage only known printed cards and a public board geometry. Starting
-  // from an evolved Regidrago directly is intentionally not a legal setup.
-  const vstar=card(ownerPrintings.active),grass1=card(ownerPrintings.grass),
+  // Stage only known printings in a plausible in-play evolution stack.
+  // No source-dealt / prior-turn evolution sequence is claimed.
+  const basic=card(ownerPrintings.basic),vstar=card(ownerPrintings.active),
+    grass1=card(ownerPrintings.grass),
     fire1=card(ownerPrintings.fire),mimikyu=card(ownerPrintings.foeActive);
   x.owner.active.cards.length=0;
   x.owner.active.energies.cards.length=0;
-  x.owner.active.cards.push(vstar,grass1,fire1);
+  x.owner.active.cards.push(basic,vstar,grass1,fire1);
+  x.owner.active.pokemonPlayedTurn=2;
+  assert.equal(x.owner.active.isEvolved(),true);
   x.owner.active.energies.cards.push(grass1,fire1);
   for(const slot of x.owner.bench) {
     slot.cards.length=0;slot.energies.cards.length=0;
