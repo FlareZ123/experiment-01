@@ -120,20 +120,27 @@ function resolveOne(x,policy,provenance,history) {
   const context={prompt,state:x.store.state,actorSeat:x.seat,
     native:nativeContext(),store:x.store,provenanceHook:provenance};
   const origin=provenance.getPromptProvenance(prompt);
-  const provider=origin?.sourceCard?.name==='Crispin'?
-    projectRank13CrispinPrompt:baseProject.projectPrompt;
-  const projected=provider(context);
-  if(projected.hostOnly){
-    // Host-only presentation and shuffle: no invented owner worker token.
-    // Deterministic pseudo-random mock here is NOT competitive physical RNG.
+  // A card's ShowCardsPrompt can be owned by the *other* player. Never feed
+  // such host-only presentations to the actor-bound prompt projector, which
+  // correctly rejects owner-seat mismatches before classifying a prompt.
+  const host=baseProject.hostOnlyPrompt(prompt,origin);
+  if(host?.hostOnly){
+    // Host-only presentation/shuffle: no fabricated owner worker token.
+    // Fixed shuffle sample is intentionally NOT competitive physical RNG.
     const one=baseProject.resolveHostOnlyPrompt({
       ...context,physicalRandom:()=>0.271828,
       enginePin:PIN,dispatch:true});
     history.push({kind:'host-only',promptType:prompt.constructor.name,
-      reason:projected.reason??null,
-      effectName:origin?.effectName??null});
+      promptedSeat:x.store.state.players.findIndex(p=>p.id===prompt.playerId),
+      reason:host.reason??null,effectName:origin?.effectName??null});
     return one;
   }
+  assert.equal(prompt.playerId,x.owner.id,
+    'Only the matching actor owns discretionary native prompts');
+  const provider=origin?.sourceCard?.name==='Crispin'?
+    projectRank13CrispinPrompt:baseProject.projectPrompt;
+  const projected=provider(context);
+  assert.equal(projected.hostOnly,false,'host-only prompt was not intercepted');
   const actor=actorObservation(x.store.state,x.seat);
   const request={role:'opponent',seat:x.seat,
     observation:actor,prompt:projected.promptProjection};
