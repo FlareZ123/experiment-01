@@ -767,6 +767,54 @@ function chooseCardCombination(view, prompt) {
       .sort((a,b) => b.score - a.score ||
         String(a.choice.printing).localeCompare(String(b.choice.printing)));
     selected = groups.slice(0, maximum).map(row => row.choice);
+    // Connector contention: Arven can reach exactly ONE Item + ONE Tool.
+    // If an original CRE74 V is already Active with one Psychic and the
+    // second Psychic is held, Mysterious Treasure must locate a VMAX while
+    // Forest Seal Stone's only Star Alchemy locates the missing Dimension
+    // Valley. Fog Crystal would satisfy an already-filled Energy channel
+    // and leave one independently missing attack component untouched.
+    // This is a narrow owner-visible line; unknown/prized targets remain
+    // a native deck-search uncertainty, not an assertion of availability.
+    const a=view.ownPublic.active;
+    const r=view.ownTurnResources??{};
+    const undisruptedStadium=[...(view.ownPublic.stadium??[]),
+      ...(view.opponentPublic.stadium??[])].length===0;
+    const heldDisposable=view.ownHand.some(card =>
+      !hasAnyName(card,['Psychic Energy','Dimension Valley',
+        'Forest Seal Stone','Shadow Rider Calyrex VMAX']) &&
+      discardValue(view,card)<800);
+    const readyForBridge =
+      maximum>=2 && Number.isSafeInteger(view.globalTurn) &&
+      r.energyPlayedTurn!==view.globalTurn &&
+      r.stadiumPlayedTurn!==view.globalTurn &&
+      r.itemPlayLocked!==true &&
+      (r.vstarUsed===false||r.vstarUsed===undefined) &&
+      view.ownPublic.publicTurnRestrictions?.vstarUsed===false &&
+      undisruptedStadium &&
+      a && hasName(a.printing,'Shadow Rider Calyrex V CRE 74') &&
+      !hasName(a.printing,'Shadow Rider Calyrex VMAX') &&
+      (a.tools??[]).length===0 &&
+      slotEnergyCount(a)===1 &&
+      handHas(view,'Psychic Energy') && heldDisposable &&
+      !handHas(view,'Shadow Rider Calyrex VMAX') &&
+      !handHas(view,'Forest Seal Stone') &&
+      !handHas(view,'Dimension Valley') &&
+      !ownBoard(view).some(slot =>
+        hasName(slot.printing,'Shadow Rider Calyrex VMAX'));
+    if(readyForBridge){
+      const treasure=ranked.find(row =>
+        hasName(row.choice.printing,'Mysterious Treasure FLI 113'));
+      const forest=ranked.find(row =>
+        hasName(row.choice.printing,'Forest Seal Stone SIT 156'));
+      if(treasure && forest){
+        // Preserve the typed Item+Tool pair and opaque source tokens;
+        // do NOT invent the subsequent search/attachment actions.
+        recordPolicyAuditScore(treasure.choice.token,96);
+        selected=[treasure.choice,forest.choice];
+        setPolicyAuditRule('ARVEN_T2_TREASURE_FOREST_DUAL_AXIS',
+          'MYSTERIOUS_ITEM_THEN_FOREST_TOOL');
+      }
+    }
   } else if (metadata.sourceZone === 'hand' ||
       (metadata.sourceZone === 'deck' && effect === 'Battle Compressor')) {
     selected = ranked.slice(0, minimum).filter(row => Number.isFinite(row.score))
