@@ -1963,3 +1963,37 @@ test('rank29 V3 policyAudit resolves engine setup and abstention without replaye
   assert.deepEqual(abstain.policyAudit.evaluations,[]);
   assert.equal(abstain.policyAudit.selectionRuleCode,'RANK29_ABSTAIN');
 });
+
+
+test('Guzma sees TAG TEAM GX as three Prizes and chooses a final-three knockout',()=>{
+  const req=promptRequest({
+    promptType:'ChoosePokemonPrompt',
+    source:actorChoiceSource('Guzma BUS 115','Guzma'),
+    publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+      allowCancel:false,isSecret:false},
+    observation:{
+      ownPublic:player({
+        prizeCount:3,
+        active:pokemon('Iron Thorns ex TWM 77'),
+        bench:[pokemon('Iron Thorns ex TWM 77',{
+          energies:['Double Colorless Energy SUM 136']})],
+        stadium:['Thunder Mountain ♢ LOT 191']
+      }),
+      opponentPublic:player({
+        active:pokemon('Shadow Rider Calyrex VMAX CRE 75'),
+        bench:[
+          pokemon('Tapu Lele-GX GRI 60',{hp:170,damage:40}),
+          pokemon('Trevenant & Dusknoir-GX SMP 180',{
+            hp:270,damage:160,subtypes:['TAG_TEAM','GX']})
+        ]
+      })
+    },
+    choices:[
+      pokemonChoice('two-prize','Tapu Lele-GX GRI 60','opponent','bench',0),
+      pokemonChoice('winning-three','Trevenant & Dusknoir-GX SMP 180',
+        'opponent','bench',1)
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),
+    {kind:'select-choices',tokens:['winning-three']});
+});
