@@ -115,6 +115,6 @@ assert.equal(qualifyingTarget({printing:'Pikachu',hp:60,damage:0,tools:[]},
  1,false,false).mode,'all-prizes');checks++;
 assert.equal(qualifyingTarget({printing:'Pikachu',hp:60,damage:0,tools:[]},
  5,true,true).mode,'no-opponent-pokemon');checks++;
-assert.equal(checks,56);
+assert.equal(checks,68);
 console.log('Agent22 Cursed Blast ability-only game finish: '+
  checks+' actor contracts passed');
