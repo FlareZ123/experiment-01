@@ -77,6 +77,11 @@ cases = [
         ("Dusknoir", 1, False), ("Mewtwo", 2, True),
         ("other basic", 13, True), ("other nonbasic", 40, False)
     ], {"Duskull": 1, "Dusclops": 1, "Dusknoir": 1, "Mewtwo": 1}),
+    ("v3 Mega Dragonite 370HP two-selfKO full-chain gate", [
+        ("Duskull", 2, True), ("Dusclops", 2, False),
+        ("Dusknoir", 1, False), ("Mewtwo", 2, True),
+        ("other basic", 13, True), ("other nonbasic", 40, False)
+    ], {"Duskull": 2, "Dusclops": 2, "Dusknoir": 1, "Mewtwo": 1}),
 ]
 expected = [
     Fraction(13813723731137, 15627986902094),
@@ -86,6 +91,7 @@ expected = [
     Fraction(24614475913803, 31255973804188),
     Fraction(31045383146866, 39069967255235),
     Fraction(27389106032389, 31255973804188),
+    Fraction(17941935171135, 31255973804188),
 ]
 for (label, categories, required), exact in zip(cases, expected):
     p = gate_probability(categories, required)
