@@ -357,7 +357,7 @@ function scoreAttack(item, observation) {
   if (metadata.attackCostPayable === false) return 0;
   const remaining = Number.isFinite(metadata.targetHp) && Number.isFinite(metadata.targetDamage)
     ? metadata.targetHp - metadata.targetDamage : -1;
-  if (/^Terminal Period$/i.test(attack)) return metadata.targetDamage === 300 ? 340 : 0;
+  if (/^Terminal Period$/i.test(attack)) return metadata.targetDamage === 60 ? 340 : 0;
   if (/^Claw of Darkness$/i.test(attack)) {
     const damage = Number.isFinite(metadata.damageAfterWeakness) ? metadata.damageAfterWeakness :
       Number.isFinite(metadata.damage) ? metadata.damage : 200;
