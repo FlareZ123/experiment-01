@@ -705,7 +705,8 @@ function chooseCardCombination(view, prompt) {
     'Climactic Gate': 'Radiant Eternatus CRZ 105',
     'Get Lost': 'Girafarig LOT 94',
     'VS Seeker': 'VS Seeker PHF 109',
-    'Night Stretcher': 'Night Stretcher ASC 196'
+    'Night Stretcher': 'Night Stretcher ASC 196',
+    'Star Alchemy': 'Forest Seal Stone SIT 156'
   };
   const effect = prompt.source?.effectName;
   if (Object.hasOwn(ownerSourceBindings, effect) &&
@@ -1377,9 +1378,39 @@ function canGuzmaForAttack(view, receipt) {
   }));
 }
 
+function ownedToolRecipient(item, view) {
+  const m = item.publicMetadata ?? {};
+  if (m.targetSeat !== 'actor' ||
+      !['active', 'bench'].includes(m.targetZone)) return null;
+  const target = m.targetZone === 'active'
+    ? view.ownPublic.active : view.ownPublic.bench[m.targetIndex];
+  if (!target || (item.targetPrinting && item.targetPrinting !== target.printing) ||
+      !Array.isArray(target.tools) || target.tools.length !== 0) return null;
+  return target;
+}
+
 function scoreTrainerPlay(item, view, receipt) {
   const name = item.actorPrinting ?? '';
   const supporterUsed = view.ownTurnResources.supporterPlayedTurn > 0;
+  if (hasName(name, 'Forest Seal Stone SIT')) {
+    const target = ownedToolRecipient(item, view);
+    const vstarUsed = view.ownPublic.publicTurnRestrictions.vstarUsed;
+    const suppressed = view.ownPublic.publicTurnRestrictions
+      .stadiumAndToolHaveNoEffectTurnsRemaining;
+    if (target && hasName(target.printing, 'Shadow Rider Calyrex V') &&
+        vstarUsed === false && suppressed === 0 &&
+        view.ownPublic.deckCount > 0) return 680;
+    return -Infinity;
+  }
+  if (hasName(name, 'Float Stone BKT')) {
+    const target = ownedToolRecipient(item, view);
+    if (target && target === view.ownPublic.active &&
+        view.ownPublic.bench.some(Boolean) &&
+        view.ownPublic.publicTurnRestrictions
+          .stadiumAndToolHaveNoEffectTurnsRemaining === 0 &&
+        !freeRetreatKnown(view)) return 650;
+    return -Infinity;
+  }
   if (hasName(name, 'Unfair Stamp') && receipt?.priorOpponentTurnKO?.any === true) return 980;
   if (hasName(name, 'VS Seeker') && !supporterUsed &&
       !handHas(view, 'Arven') && !handHas(view, "Lillie's Determination") &&
@@ -1546,6 +1577,23 @@ function chooseRoot(view, request) {
   const usefulAbility = abilities.find(item =>
     item.publicMetadata?.abilityName === 'Resetting Hole' &&
     hasStadiumRemovalTarget(view));
+  const starAlchemy = abilities.find(item => {
+    if (item.publicMetadata?.abilityName !== 'Star Alchemy' ||
+        view.ownPublic.publicTurnRestrictions.vstarUsed !== false ||
+        view.ownPublic.deckCount <= 0 ||
+        view.ownPublic.publicTurnRestrictions
+          .stadiumAndToolHaveNoEffectTurnsRemaining !== 0 ||
+        hasName(view.opponentPublic.active?.printing, 'Iron Thorns ex')) return false;
+    return ownBoard(view).some(slot =>
+      hasName(slot.printing, 'Shadow Rider Calyrex V') &&
+      slot.tools.some(tool => hasName(tool, 'Forest Seal Stone')));
+  });
+  if (starAlchemy) {
+    setPolicyAuditRule('ROOT_FOREST_SEAL_STONE_STAR_ALCHEMY',
+      'FIRST_NATIVE_FRONTIER_MATCH');
+    recordPolicyAuditRule(starAlchemy.token, 'VSTAR_ONE_CARD_SEARCH');
+    return {kind:'select-action',token:starAlchemy.token};
+  }
   for (const item of abilities) {
     if (usefulAbility && item.token === usefulAbility.token) {
       recordPolicyAuditRule(item.token, 'RESETTING_HOLE_STADIUM_REMOVAL');
