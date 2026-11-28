@@ -1618,6 +1618,14 @@ function activeAttachmentUnlocksMaxGeistKnockout(item, view) {
       !view.ownPublic?.active?.printing?.startsWith('Shadow Rider Calyrex VMAX CRE') ||
       !view.opponentPublic?.active) return false;
   const active = view.ownPublic.active;
+  const restrictions = active.publicRestrictions ?? {};
+  if ((view.ownPublic.publicTurnRestrictions?.attackLockTurnsRemaining ?? 0)>0 ||
+      restrictions.cannotAttackNextTurn===true ||
+      restrictions.cannotUseAttacksNextTurn?.includes('Max Geist') ||
+      restrictions.blockedAttackNameNextTurn==='Max Geist' ||
+      (restrictions.onlyAllowedAttackNameNextTurn!==null &&
+       restrictions.onlyAllowedAttackNameNextTurn!==undefined &&
+       restrictions.onlyAllowedAttackNameNextTurn!=='Max Geist')) return false;
   const maxGeist = (active.attacks ?? []).find(a => a.name === 'Max Geist');
   if (!maxGeist || !Array.isArray(active.energies) ||
       !active.printed?.types?.includes('Psychic')) return false;
