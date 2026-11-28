@@ -1081,8 +1081,16 @@ function scoreBasicPlay(item, view) {
   if (metadata.targetSeat !== 'actor' || metadata.targetZone !== 'bench') return -Infinity;
   const printing = item.actorPrinting ?? '';
   if (hasName(printing, 'Shadow Rider Calyrex V') &&
-      !hasName(printing, 'VMAX') &&
-      !boardHas(view, 'Shadow Rider Calyrex V')) return 1000;
+      !hasName(printing, 'VMAX')) {
+    // The fixed source 60 contains 4 Basic V / 4 VMAX. The former
+    // one-copy boardHas test incorrectly made EVERY second V inert.
+    // Both the Basic V and its evolved VMAX consume one engine board slot.
+    const established = ownBoard(view).filter(slot =>
+      hasName(slot.printing, 'Shadow Rider Calyrex V')).length;
+    if (established === 0) return 1000;
+    if (established === 1 && countBench(view.ownPublic) === 0) return 995;
+    if (established === 1 && countBench(view.ownPublic) <= 3) return 790;
+  }
   if (hasName(printing, 'Mimikyu') && opponentHasRegidrago(view) &&
       !boardHas(view, 'Mimikyu')) return 950;
   if (hasName(printing, "Lillie's Clefairy ex") && opponentHasDragon(view) &&
