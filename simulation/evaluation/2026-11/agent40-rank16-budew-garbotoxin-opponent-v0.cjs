@@ -245,7 +245,13 @@ function handCanPay(o,played,n){
 function sourceBasicChoices(rows,o,max){
  const mine=o.ownPublic;
  const selected=[],present=new Set();
- const priority=[PRINT.trubbish,PRINT.mega,PRINT.budew,PRINT.crobat,PRINT.tapu,PRINT.dedenne,PRINT.squawk];
+ // VIP can place Budew directly when Float on the initial non-Budew
+ // Active makes an immediate zero-Energy Item-lock attack reachable.
+ // A fixed Trubbish+Mega ordering otherwise consumes both VIP slots.
+ const urgency=readyToPivotIntoBudew(o)&&!onBoard(mine,PRINT.budew);
+ const priority=urgency?
+  [PRINT.budew,PRINT.trubbish,PRINT.mega,PRINT.crobat,PRINT.tapu,PRINT.dedenne,PRINT.squawk]:
+  [PRINT.trubbish,PRINT.mega,PRINT.budew,PRINT.crobat,PRINT.tapu,PRINT.dedenne,PRINT.squawk];
  for(const printing of priority){
   if(selected.length>=max)break;
   if(slots(mine).some(x=>match(x.pokemon.printing,printing)))continue;
