@@ -159,8 +159,37 @@ function run(integratedSource){
   if(got.join('|')!==c.expected.join('|'))
    errors.push({case:c.name,seat,profile:cfg.profileId,expected:c.expected,got});
  }
+ let continuationChecks=0;
+ // Explicitly check the available next-turn legal action offers after
+ // promoting VMAX. Not a Store reducer execution.
+ for(const seat of [0,1])for(const cfg of configs){
+  const initial=view(seat,CASES[0]),oldActive=initial.ownPublic.bench[1];
+  const future={...initial,globalTurn:initial.globalTurn+1,phase:2,decisionKind:'owner-root',
+   pendingPromptType:null,ownPublic:{...initial.ownPublic,active:oldActive,
+    bench:[initial.ownPublic.bench[0],null,null,null,null]},
+   ownTurnResources:{...initial.ownTurnResources,energyPlayedTurn:initial.globalTurn-1}};
+  const attach={role:'candidate',seat,observation:future,prompt:null,
+   actionFrontier:{items:[
+    {kind:'play-card',token:'attach',actorPrinting:P,targetPrinting:oldActive.printing,
+     publicMetadata:{targetSeat:'actor',targetZone:'active',targetIndex:0}},
+    {kind:'pass',token:'pass'}]}};
+  const a=patched.createPolicy({role:'candidate',seat,
+   policyVersion:patched.POLICY_VERSION,config:cfg}).decide(attach);
+  continuationChecks++;
+  if(a.token!=='attach')errors.push({where:'next-turn-attachment',seat,profile:cfg.profileId,got:a});
+  const armed={...future,ownHand:[],ownPublic:{...future.ownPublic,handCount:0,
+   active:{...oldActive,energies:[...oldActive.energies,P]}},
+   ownTurnResources:{...future.ownTurnResources,energyPlayedTurn:future.globalTurn}};
+  const attack={role:'candidate',seat,observation:armed,prompt:null,
+   actionFrontier:{items:[{kind:'attack',token:'max',attackName:'Max Geist'},
+    {kind:'pass',token:'pass'}]}};
+  const b=patched.createPolicy({role:'candidate',seat,
+   policyVersion:patched.POLICY_VERSION,config:cfg}).decide(attack);
+  continuationChecks++;
+  if(b.token!=='max')errors.push({where:'next-turn-max-geist',seat,profile:cfg.profileId,got:b});
+ }
  const summary={schema:'agent2-promotion-snorlax-next-turn-v1',scenarioCount:CASES.length,
-  pairedGroups:pairs,workerCalls:2*pairs,changed,
+  pairedGroups:pairs,workerCalls:2*pairs,continuationChecks,changed,
   preserved:pairs-changed,allMatched:errors.length===0,errors};
  if(errors.length)throw Error(JSON.stringify(summary));
  return summary;
