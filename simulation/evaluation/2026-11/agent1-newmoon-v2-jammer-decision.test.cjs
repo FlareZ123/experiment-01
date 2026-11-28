@@ -28,7 +28,7 @@ function root(v,items) {return policy.decideWithAudit({role:'candidate',seat:0,
 function prompt(v,effect,type,meta,choices) {
   return policy.decideWithAudit({role:'candidate',seat:0,
     observation:{...v,decisionKind:'owner-prompt'},
-    prompt:{actingSeat:0,promptType:type,source:{sourceKind:'card-effect',classification:'actor-choice',effectName:effect,sourcePrinting:effect==='Telepathic Psychic Energy'?'Telepathic Psychic Energy MEG 088':null},publicMetadata:meta,choices}});
+    prompt:{actingSeat:0,promptType:type,source:{sourceKind:'card-effect',classification:'actor-choice',effectName:effect,sourcePrinting:effect==='Telepathic Psychic Energy'?'Telepathic Psychic Energy MEG 088':effect==='Battle VIP Pass'?'Battle VIP Pass FST 225':effect==='Fog Crystal'?'Fog Crystal CRE 140':null},publicMetadata:meta,choices}});
 }
 const target=(token,printing,ownerSeat,targetZone='active')=>({token,kind:'pokemon',printing,
   publicMetadata:{ownerSeat,targetZone,isOwnerVisible:true}});
@@ -105,6 +105,58 @@ function earlyStart(active,extra={}) {
 }
 const hh=action('attack','horror-house',{}, {attackName:'Horror House-GX'});
 const poltergeist=action('attack','poltergeist',{}, {attackName:'Poltergeist'});
+const deckChoice=(token,printing,index)=>({kind:'card',token,printing,publicMetadata:{
+  sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true,selectionIndex:index}});
+check('first-turn VIP is played before an already-funded native Horror House',()=>{
+ const v=earlyStart(makeSlot('Gengar & Mimikyu-GX TEU 053',
+  {energies:['Basic Psychic Energy']}),{bench:[]});
+ const vip=action('play-card','vip',{}, {actorPrinting:'Battle VIP Pass FST 225'});
+ assert.equal(sel(root(v,[hh,vip,pass()])),'vip');
+ v.globalTurn=4;
+ assert.equal(sel(root(v,[hh,vip,pass()])),'horror-house');
+});
+check('VIP deck prompt supplies two relevant legal Basics without saturating Bench',()=>{
+ const v=earlyStart(makeSlot('Mewtwo & Mew-GX UNM 071'),{bench:[]});
+ const m={selectionType:'card-combination',sourceZone:'deck',ownerSeat:'actor',
+ isOwnerVisible:true,minimumCount:0,maximumCount:2};
+ const c=[deckChoice('sol','Solrock CES 062',0),
+  deckChoice('gengar','Gengar & Mimikyu-GX TEU 053',1),
+  deckChoice('dusk','Duskull VIV 069',2),
+  {kind:'empty-selection',token:'empty'}];
+ assert.equal(sel(prompt(v,'Battle VIP Pass','ChooseCardsPrompt',m,c)),'gengar,dusk');
+});
+check('Fog Crystal fetches actual Basic Psychic for unfunded Gengar',()=>{
+ const v=earlyStart(makeSlot('Gengar & Mimikyu-GX TEU 053',{energies:[]}));
+ v.globalTurn=3;
+ const fog=action('play-card','fog',{}, {actorPrinting:'Fog Crystal CRE 140'});
+ assert.equal(sel(root(v,[fog,pass()])),'fog');
+ const m={selectionType:'card-combination',sourceZone:'deck',ownerSeat:'actor',
+  isOwnerVisible:true,minimumCount:1,maximumCount:1};
+ const c=[deckChoice('gengar','Gengar & Mimikyu-GX TEU 053',0),
+  deckChoice('energy','Basic Psychic Energy',1)];
+ assert.equal(sel(prompt(v,'Fog Crystal','ChooseCardsPrompt',m,c)),'energy');
+});
+check('Fog Crystal can fetch Gengar when Perfection lacks a donor',()=>{
+ const v=earlyStart(makeSlot('Mewtwo & Mew-GX UNM 071',{
+   abilities:['Perfection'],energies:['Basic Psychic Energy']}));
+ v.globalTurn=3;
+ const fog=action('play-card','fog',{}, {actorPrinting:'Fog Crystal CRE 140'});
+ assert.equal(sel(root(v,[fog,pass()])),'fog');
+ const m={selectionType:'card-combination',sourceZone:'deck',ownerSeat:'actor',
+  isOwnerVisible:true,minimumCount:1,maximumCount:1};
+ const c=[deckChoice('energy','Basic Psychic Energy',0),
+  deckChoice('gengar','Gengar & Mimikyu-GX TEU 053',1)];
+ assert.equal(sel(prompt(v,'Fog Crystal','ChooseCardsPrompt',m,c)),'gengar');
+});
+check('Lillie is a real fallback after VIP, Fog and Energy routes fail',()=>{
+ const v=earlyStart(makeSlot('Gengar & Mimikyu-GX TEU 053',{energies:[]}));
+ v.globalTurn=3;v.ownHand=["Lillie's Determination MEG 119"];
+ const lillie=action('play-card','draw',{}, {actorPrinting:"Lillie's Determination MEG 119"});
+ assert.equal(sel(root(v,[lillie,pass()])),'draw');
+ v.ownHand.push('Forest Seal Stone SIT 156');
+ assert.equal(sel(root(v,[lillie,pass()])),'abstain');
+});
+
 check('Psychic energy attachment uses TPE to unlock Gengar before Horror House',()=>{
  const v=earlyStart(makeSlot('Gengar & Mimikyu-GX TEU 053',{energies:[]}));
  v.ownTurnResources.energyPlayedTurn=0;

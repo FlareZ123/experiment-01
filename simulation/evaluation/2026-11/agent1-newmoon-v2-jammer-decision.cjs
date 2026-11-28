@@ -1,6 +1,6 @@
 'use strict';
 /* Research-only actor-visible decision slice; NOT a full candidate worker or game policy. */
-const POLICY_VERSION = 'agent1-newmoon-tool-jammer-v2-slice-v2';
+const POLICY_VERSION = 'agent1-newmoon-tool-jammer-v2-slice-v3';
 const DECK_SHA = 'aebe9a142e8492be929316bff4b871375e3e478945e01f8c5844037332634fe6';
 const has = (s,n) => typeof s === 'string' && s.includes(n);
 const slots = p => [p?.active,...(Array.isArray(p?.bench)?p.bench:[])].filter(Boolean);
@@ -122,6 +122,7 @@ function chooseRoot(view,frontier) {
   if (!Array.isArray(items)) return null;
   const p=position(view);
   if (!p) return chooseEscapedBusResponse(view,items) ??
+    chooseEarlyResourceAction(view,items) ??
     chooseActivePsychicAttachment(view,items) ?? chooseEarlyHorrorHouse(view,items);
   const choose=(row,reason)=>row ? {decision:{kind:'select-action',token:row.token},reason}:null;
   const canSelfKO = Number.isSafeInteger(p.opp.prizeCount) &&
@@ -190,6 +191,94 @@ function chooseRoot(view,frontier) {
 }
 
 
+
+function chooseEarlyResourceAction(view,items) {
+  const own=view?.ownPublic;
+  if(!own || !Array.isArray(own.bench) || !Array.isArray(items) ||
+     !Number.isSafeInteger(view.globalTurn) || view.globalTurn>4)return null;
+  const isFirstTurn=view.globalTurn<=2;
+  if(isFirstTurn && own.bench.filter(Boolean).length<5) {
+    const vip=items.find(x=>cardAction(x,'Battle VIP Pass'));
+    if(vip)return {decision:{kind:'select-action',token:vip.token},
+       reason:'FIRST_TURN_BATTLE_VIP_BEFORE_ATTACK'};
+  }
+  const active=own.active;
+  const requiresPsychic=active &&
+    (has(active.printing,'Mewtwo & Mew-GX') ||
+     has(active.printing,'Gengar & Mimikyu-GX')) &&
+     psychicSupply(active)===0;
+  const lackingGengar=has(active?.printing,'Mewtwo & Mew-GX') &&
+    !slots(own).some(x=>has(x.printing,'Gengar & Mimikyu-GX')) &&
+    !(own.discard??[]).some(x=>has(x,'Gengar & Mimikyu-GX'));
+  if(requiresPsychic || lackingGengar) {
+    const hasTargetedEnergy=items.some(x=>x.kind==='play-card' &&
+      x.publicMetadata?.cardType==='energy' &&
+      x.publicMetadata?.targetSeat==='actor' &&
+      x.publicMetadata?.targetZone==='active' &&
+      (has(x.actorPrinting,'Telepathic Psychic Energy') ||
+       has(x.actorPrinting,'Basic Psychic Energy')));
+    if(!hasTargetedEnergy) {
+      const fog=items.find(x=>cardAction(x,'Fog Crystal'));
+      if(fog)return {decision:{kind:'select-action',token:fog.token},
+        reason:'FOG_CRYSTAL_FIND_ENERGY_OR_GENGAR'};
+      // Lillie is a fallback draw, not a substitute for an already-funded
+      // attack. Retain critical one-of Tools/ACE SPEC in hand when possible.
+      const protectedHand=(view.ownHand??[]).some(x=>
+        has(x,'Tool Jammer') || has(x,'Forest Seal Stone') ||
+        has(x,'Secret Box'));
+      if(!protectedHand && requiresPsychic &&
+         view.ownTurnResources?.supporterPlayedTurn===0) {
+        const lillie=items.find(x=>cardAction(x,"Lillie's Determination"));
+        if(lillie)return {decision:{kind:'select-action',token:lillie.token},
+          reason:'LILLIE_DRAW_TO_FIND_MISSING_PSYCHIC'};
+      }
+    }
+  }
+  return null;
+}
+function chooseFogCrystalSearch(view,prompt) {
+  const own=view?.ownPublic,m=prompt?.publicMetadata;
+  if (!own || prompt?.promptType!=='ChooseCardsPrompt' ||
+      !has(prompt.source?.sourcePrinting,'Fog Crystal') ||
+      m?.selectionType!=='card-combination' || m.sourceZone!=='deck' ||
+      m.ownerSeat!=='actor' || m.isOwnerVisible!==true ||
+      ![0,1].includes(m.minimumCount) || m.maximumCount!==1) return null;
+  const cards=prompt.choices.filter(x=>x.kind==='card' &&
+      x.publicMetadata?.sourceZone==='deck' &&
+      x.publicMetadata?.ownerSeat==='actor' &&
+      x.publicMetadata?.isOwnerVisible===true);
+  const active=own.active;
+  const needEnergy=psychicSupply(active)===0 &&
+    (has(active?.printing,'Gengar & Mimikyu-GX') ||
+     has(active?.printing,'Mewtwo & Mew-GX') ||
+     isDusclops(active));
+  const lackDonor=has(active?.printing,'Mewtwo & Mew-GX') &&
+    !slots(own).some(x=>has(x.printing,'Gengar & Mimikyu-GX')) &&
+    !(own.discard??[]).some(x=>has(x,'Gengar & Mimikyu-GX'));
+  const score=x=>{
+    const n=x.printing;
+    if(has(n,'Basic Psychic Energy'))return needEnergy?140:32;
+    if(has(n,'Gengar & Mimikyu-GX'))return lackDonor?130:50;
+    if(has(n,'Duskull'))return 91;
+    if(has(n,'Mewtwo & Mew-GX'))return 88;
+    if(has(n,'Galarian Articuno V'))return 85;
+    if(has(n,'Unown'))return 75;
+    if(has(n,'Solrock'))return 70;
+    if(has(n,'Lunatone'))return 69;
+    return 40;
+  };
+  const chosen=cards.slice().sort((a,b)=>score(b)-score(a) ||
+    (a.publicMetadata?.selectionIndex??0)-(b.publicMetadata?.selectionIndex??0))[0];
+  if(!chosen){
+    const empty=prompt.choices.find(x=>x.kind==='empty-selection');
+    return m.minimumCount===0 && empty ?
+      {decision:{kind:'select-choice',token:empty.token},
+        reason:'FOG_CRYSTAL_NO_TARGET'}:null;
+  }
+  return {decision:{kind:'select-choices',tokens:[chosen.token]},
+    reason:'FOG_CRYSTAL_CHOOSE_MISSING_PIECE'};
+}
+
 function chooseActivePsychicAttachment(view,items,lockedDusclops=false) {
   const own=view?.ownPublic,active=own?.active;
   if (!active || !Array.isArray(items) ||
@@ -214,11 +303,12 @@ function chooseActivePsychicAttachment(view,items,lockedDusclops=false) {
   return {decision:{kind:'select-action',token:select.token},
     reason:tele?'ATTACH_TPE_FOR_ATTACK_AND_SEARCH':'ATTACH_BASIC_PSYCHIC_TO_ATTACK'};
 }
-function chooseTelepathicSearch(view,prompt) {
+function chooseBasicBenchSearch(view,prompt) {
   const own=view?.ownPublic,m=prompt?.publicMetadata;
   if (!own || !Array.isArray(own.bench) ||
       prompt?.promptType!=='ChooseCardsPrompt' ||
-      !has(prompt.source?.sourcePrinting,'Telepathic Psychic Energy') ||
+      !(has(prompt.source?.sourcePrinting,'Telepathic Psychic Energy') ||
+       has(prompt.source?.sourcePrinting,'Battle VIP Pass')) ||
       m?.selectionType!=='card-combination' ||
       m.sourceZone!=='deck' || m.ownerSeat!=='actor' ||
       m.isOwnerVisible!==true || ![0,1].includes(m.minimumCount) ||
@@ -263,7 +353,8 @@ function chooseTelepathicSearch(view,prompt) {
     .slice(0,available).map(x=>x.token);
   return picked.length>=m.minimumCount && picked.length>0 ?
     {decision:{kind:'select-choices',tokens:picked},
-     reason:'TPE_BASIC_PSYCHIC_BENCH_SEARCH'}:null;
+     reason:has(prompt.source.sourcePrinting,'Battle VIP Pass') ?
+       'VIP_BASIC_BENCH_SEARCH':'TPE_BASIC_PSYCHIC_BENCH_SEARCH'}:null;
 }
 
 function chooseEngineSetup(view,prompt) {
@@ -343,8 +434,10 @@ function choosePrompt(view,prompt) {
       !Array.isArray(prompt.choices)) return null;
   if(prompt.source?.sourceKind==='engine') return chooseEngineSetup(view,prompt);
   if(prompt.source?.sourceKind!=='card-effect') return null;
-  const tpe=chooseTelepathicSearch(view,prompt);
+  const tpe=chooseBasicBenchSearch(view,prompt);
   if(tpe)return tpe;
+  const fog=chooseFogCrystalSearch(view,prompt);
+  if(fog)return fog;
   if (!p) return chooseEarlyPerfectionPrompt(view,prompt);
   const m=prompt.publicMetadata;
   const effect=prompt.source.effectName;

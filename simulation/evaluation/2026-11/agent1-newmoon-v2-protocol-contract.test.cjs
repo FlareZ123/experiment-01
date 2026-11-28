@@ -259,6 +259,59 @@ function test() {
  same(run(attachWindow,[],tpeSearch),
   {kind:'select-choices',tokens:['dusk','mew']},
   'TPE owned search gets Duskull/Mewtwo and leaves Bench space');
+
+ const vipReady=view({active:slot('Gengar & Mimikyu-GX TEU 053','Gengar & Mimikyu-GX',
+  [],[],1),bench:[],bus:slot('Bunnelby PRC 121','Bunnelby'),oppBench:[]});
+ vipReady.globalTurn=2;
+ const vipRoot={kind:'play-card',token:'vip',actorPrinting:'Battle VIP Pass FST 225',
+   publicMetadata:{cardType:'trainer',handIndex:0}};
+ same(run(vipReady,[vipRoot,
+  {kind:'attack',token:'horror',attackName:'Horror House-GX'},pass()]),
+  {kind:'select-action',token:'vip'},'VIP before funded opening Horror House');
+ const sc=(token,printing,index)=>({token,kind:'card',printing,label:printing,
+  publicMetadata:{selectionType:'card-combination',sourceZone:'deck',
+   ownerSeat:'actor',isOwnerVisible:true,selectionIndex:index,selectedCount:1}});
+ const vipSearch={schema:P.PROMPT_SCHEMA,actingSeat:0,
+  promptType:'ChooseCardsPrompt',description:'Search Basic Pokémon',
+  source:{classification:'actor-choice',sourceKind:'card-effect',
+   sourcePrinting:'Battle VIP Pass FST 225',effectName:'Battle VIP Pass'},
+  choices:[sc('sol','Solrock CES 062',0),sc('dusk','Duskull VIV 069',1),
+   sc('gengar','Gengar & Mimikyu-GX TEU 053',2),
+   {kind:'empty-selection',token:'empty',label:'Choose no items'}],
+  publicMetadata:{selectionType:'card-combination',sourceZone:'deck',
+   ownerSeat:'actor',isOwnerVisible:true,isSecret:false,
+   minimumCount:0,maximumCount:2,allowCancel:false}};
+ const vipMew=view({active:slot('Mewtwo & Mew-GX UNM 071','Mewtwo & Mew-GX'),bench:[],
+  bus:slot('Bunnelby PRC 121','Bunnelby'),oppBench:[]});
+ same(run(vipMew,[],vipSearch),
+  {kind:'select-choices',tokens:['gengar','dusk']},
+  'VIP actor-owned deck search selects donor and future Dusclops base');
+ const noEnergy=view({active:slot('Gengar & Mimikyu-GX TEU 053','Gengar & Mimikyu-GX'),
+   bench:[],bus:slot('Bunnelby PRC 121','Bunnelby'),oppBench:[]});
+ noEnergy.globalTurn=3;
+ const fogRoot={kind:'play-card',token:'fog',actorPrinting:'Fog Crystal CRE 140',
+  publicMetadata:{cardType:'trainer',handIndex:0}};
+ same(run(noEnergy,[fogRoot,pass()]),
+  {kind:'select-action',token:'fog'},'Fog crystal when no Psychic Energy is attached');
+ const fogSearch={schema:P.PROMPT_SCHEMA,actingSeat:0,
+  promptType:'ChooseCardsPrompt',description:'Choose Basic Psychic or Energy',
+  source:{classification:'actor-choice',sourceKind:'card-effect',
+   sourcePrinting:'Fog Crystal CRE 140',effectName:'Fog Crystal'},
+  choices:[sc('donor','Gengar & Mimikyu-GX TEU 053',0),
+   sc('basic','Basic Psychic Energy',1)],
+  publicMetadata:{selectionType:'card-combination',sourceZone:'deck',
+   ownerSeat:'actor',isOwnerVisible:true,isSecret:false,
+   minimumCount:1,maximumCount:1,allowCancel:false}};
+ same(run(noEnergy,[],fogSearch),
+  {kind:'select-choices',tokens:['basic']},
+  'Fog search chooses Energy to make first attack viable');
+ noEnergy.ownHand=["Lillie's Determination MEG 119"];
+ const lillie={kind:'play-card',token:'lillie',
+  actorPrinting:"Lillie's Determination MEG 119",
+  publicMetadata:{cardType:'trainer',handIndex:0}};
+ same(run(noEnergy,[lillie,pass()]),
+  {kind:'select-action',token:'lillie'},
+  'Lillie fallback reaches missing Psychic when no immediate Fog action');
  const nativeGengar=slot('Gengar & Mimikyu-GX TEU 053','Gengar & Mimikyu-GX',[],[],1);
  nativeGengar.printed.stage='Basic';nativeGengar.printed.subtypes=['Basic','TAG TEAM','GX'];
  const earlyNative=view({active:nativeGengar,bench:[],
