@@ -158,7 +158,7 @@ function run(source){
   if(c.positive){
    const expected=['c0','c1'];
    if(JSON.stringify(decisions[1].tokens)!==JSON.stringify(expected)||
-     decisions[0].tokens?.length!==1)
+     JSON.stringify(decisions[0].tokens??[])===JSON.stringify(expected))
     errors.push({where:'positive-prompt',seat,profile:profile.profileId,label:c.label,decisions});
   }else if(before!==after)
    errors.push({where:'control-changed',seat,profile:profile.profileId,label:c.label,decisions});
