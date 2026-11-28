@@ -1992,8 +1992,19 @@ function candidateTerminalAttack(view, items, receipt) {
   const remaining = defender.hp - defender.damage;
   if (!Number.isFinite(remaining) || remaining <= 0) return null;
   const prizes = view.ownPublic.prizeCount;
+  // Legacy Energy TWM167 (five original Aichi lists) and Life Dew PLF107
+  // (one list) subtract one Prize from attack-damage Knock Outs. The once-
+  // per-game Legacy use counter is not publicly certified here, so treat
+  // an attached copy as available (conservative for a terminal forecast).
+  // Jamming Tower disables the Tool effect of Life Dew, not an Energy.
+  const legacyReduction = (defender.energies ?? [])
+    .some(energy => hasName(energy, 'Legacy Energy')) ? 1 : 0;
+  const lifeDewReduction = toolsKnownLive(view, defender) &&
+    (defender.tools ?? []).some(tool => hasName(tool, 'Life Dew')) ? 1 : 0;
+  const effectivePrizes = Math.max(0,
+    prizeLiability(defender) - legacyReduction - lifeDewReduction);
   const finalPrizeKO = Number.isSafeInteger(prizes) &&
-    prizes > 0 && prizes <= prizeLiability(defender);
+    prizes > 0 && prizes <= effectivePrizes;
   // Never reinterpret an omitted/unknown opponent Bench as a known empty one.
   const boardWipe = Array.isArray(view.opponentPublic.bench) &&
     view.opponentPublic.bench.every(slot => !slot);
