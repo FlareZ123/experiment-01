@@ -107,14 +107,41 @@ function setupAbilityPending(items,o){
 function hasFundedAttack(items){
  return list(items).some(x=>x.kind==='attack'&&x.publicMetadata?.attackCostPayable===true);
 }
+function urgentBudewSearch(o){
+ return !onBoard(o.ownPublic,PRINT.budew)&&o.globalTurn<=2&&readyToPivotIntoBudew(o);
+}
+function safeDiscardRows(rows,o,n){
+ const eligible=rows.filter(c=>owner(c)==='actor'&&zone(c)==='hand');
+ const darks=eligible.filter(c=>match(c,PRINT.dark)).length;
+ const floats=eligible.filter(c=>match(c,PRINT.float)).length;
+ const unfundedMega=slots(o.ownPublic).some(x=>match(x.pokemon.printing,PRINT.mega)&&
+  list(x.pokemon.energies).length<3);
+ const keepDark=!o.ownTurnResources?.energyPlayedTurn&&unfundedMega&&!urgentBudewSearch(o);
+ const existingLockTool=slots(o.ownPublic).some(x=>
+  (match(x.pokemon.printing,PRINT.trubbish)||match(x.pokemon.printing,PRINT.garbodor))&&
+  list(x.pokemon.tools).some(y=>match(y,PRINT.float)));
+ const keepFloat=!existingLockTool;
+ const ranked=eligible.map(x=>({x,score:discardScore(x,o)})).filter(r=>r.score>0)
+  .sort((a,b)=>b.score-a.score);
+ const selected=[];
+ let discardDark=0,discardFloat=0;
+ for(const {x} of ranked){
+  if(selected.length>=n)break;
+  if(match(x,PRINT.dark)&&discardDark>=darks-(keepDark?1:0))continue;
+  if(match(x,PRINT.float)&&discardFloat>=floats-(keepFloat?1:0))continue;
+  selected.push(x);
+  if(match(x,PRINT.dark))discardDark++;
+  if(match(x,PRINT.float))discardFloat++;
+ }
+ return selected.length===n?selected:null;
+}
 function handCanPay(o,played,n){
  const copy=list(o.ownHand).slice();
  const i=copy.findIndex(x=>name(x)===name(played));
  if(i>=0)copy.splice(i,1);
- const pay=copy.map(x=>({kind:'card',printing:name(x),
-  publicMetadata:{ownerSeat:'actor',sourceZone:'hand'}}))
-  .filter(x=>discardScore(x,o)>0);
- return pay.length>=n;
+ const rows=copy.map(x=>({kind:'card',printing:name(x),
+  publicMetadata:{ownerSeat:'actor',sourceZone:'hand'}}));
+ return safeDiscardRows(rows,o,n)!==null;
 }
 function sourceBasicChoices(rows,o,max){
  const mine=o.ownPublic;
@@ -336,7 +363,13 @@ function discardScore(c,o){
  if(owner(c)!=='actor'||zone(c)!=='hand')return 0;
  if(match(c,PRINT.vip))return o.globalTurn>2?200:0;
  if(match(c,PRINT.dark)&&list(o.ownPublic?.discard).filter(x=>match(x,PRINT.dark)).length<3)return 160;
- if(match(c,PRINT.float)&&onBoard(o.ownPublic,PRINT.garbodor))return 80;
+ if(match(c,PRINT.float)){
+  const held=list(o.ownHand).filter(x=>match(x,PRINT.float)).length;
+  const alreadyAttached=slots(o.ownPublic).some(x=>
+   (match(x.pokemon.printing,PRINT.trubbish)||match(x.pokemon.printing,PRINT.garbodor))&&
+   list(x.pokemon.tools).some(y=>match(y,PRINT.float)));
+  return alreadyAttached?95:(held>=2?65:0);
+ }
  if(match(c,PRINT.garbodor)&&onBoard(o.ownPublic,PRINT.garbodor))return 75;
  if(match(c,PRINT.mega)&&onBoard(o.ownPublic,PRINT.mega))return 55;
  return 0;
@@ -385,7 +418,9 @@ function promptDecision(req){
   const cards=cs.filter(c=>c.kind==='card'&&owner(c)==='actor');
   if(/quick ball|ultra ball|secret box/.test(src)&&cards.some(c=>zone(c)==='hand')){
    const n=/secret box/.test(src)?3:(/ultra ball/.test(src)?2:1);
-   return pickRows(p,cards.filter(c=>zone(c)==='hand'),n,n,c=>discardScore(c,o));
+   const chosen=safeDiscardRows(cards.filter(c=>zone(c)==='hand'),o,n);
+   return chosen?{kind:'select-choices',tokens:chosen.map(c=>c.token)}:
+    {kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'};
   }
   if(/dark patch/.test(src)){
    return pickRows(p,cards.filter(c=>zone(c)==='discard'),bd.min,bd.max,c=>match(c,PRINT.dark)?200:0);
