@@ -1677,13 +1677,42 @@ function hasFreshPriorOpponentTurnKO(request) {
 }
 // Raihan's native KO marker can survive a skipped owner turn too; the stamped
 // event receipt, not the native action frontier, is the freshness authority.
+function raihanSecondaryFinishOpportunity(o) {
+  if(!o?.ownPublic||!o?.opponentPublic||
+     o.ownTurnResources?.retreatedTurn===o.globalTurn&&
+       !has(o.ownPublic.active,P.latias)&&
+       !has(o.ownPublic.active,P.lele))return false;
+  const psychic='Psychic Energy MEE 13';
+  const board=slots(o.ownPublic);
+  return board.some(p=>{
+    const active=p===o.ownPublic.active;
+    if(!active&&(!noCostRetreatOpportunity(o)||
+      o.ownTurnResources?.retreatedTurn===o.globalTurn))return false;
+    const old=arr(p.energies);
+    if(!((has(p,P.latias)&&old.length===2)||
+      (has(p,P.lele)&&old.length===1)))return false;
+    const nextBench=arr(o.ownPublic.bench).slice();
+    if(!active){
+      const i=nextBench.indexOf(p);
+      if(i<0)return false;
+      nextBench[i]=o.ownPublic.active;
+    }
+    const future={...o,ownPublic:{...o.ownPublic,
+      active:{...p,energies:[...old,psychic]},bench:nextBench}};
+    return has(p,P.latias)?
+      latiasEonBladeKO(future)!==null:
+      tapuLeleEnergyDriveKO(future)!==null;
+  });
+}
 function raihanOpportunity(request) {
   const o=request?.observation;
   if(!o||!hasFreshPriorOpponentTurnKO(request))return false;
   const options=previousTurnResponseOptions(o,request.publicEventReceipt,
     c=>has(c,P.basicPsychic));
-  return options.some(x=>x.printing==='Raihan EVS')&&
-    slots(o.ownPublic).some(p=>has(p,P.clefairy)&&arr(p.energies).length<2);
+  if(!options.some(x=>x.printing==='Raihan EVS'))return false;
+  const clefairyNeed=slots(o.ownPublic).some(p=>
+    has(p,P.clefairy)&&arr(p.energies).length<2);
+  return clefairyNeed||raihanSecondaryFinishOpportunity(o);
 }
 function raihanAttachPrompt(request) {
   const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
@@ -1749,6 +1778,11 @@ function raihanAttachPrompt(request) {
 // Tactical search priorities are a deterministic local heuristic, not a
 // claim that the chosen card is optimal across the full Aichi field.
 function raihanSearchPriority(choice,o,request) {
+  // A fetched Stadium is genuinely useful when it alone opens enough
+  // remaining in-hand Basic bodies for a funded Rondo knockout. This check
+  // uses the target board and future hand, not generic card desirability.
+  if(has(choice,P.sky)&&!arr(o.ownHand).some(x=>has(x,P.sky))&&
+     skyFieldHandExpansionKO(o))return 340;
   const hand=arr(o.ownHand),board=slots(o.ownPublic),discard=arr(o.ownPublic?.discard);
   const owned=pattern=>hand.some(c=>has(c,pattern))||
     board.some(c=>has(c,pattern))||discard.some(c=>has(c,pattern));
