@@ -560,7 +560,9 @@ function cardChoiceScore(choice, observation, context) {
     if (/Float Stone|Palace Belt|Handheld Fan/i.test(printing)) return 220;
     if (/Tool\b/i.test(printing)) return 175;
     if (choiceZone(choice) === 'stadium' || choice.kind === 'stadium') return 100;
-    return 0;
+    // The native Field Blower prompt has *already* filtered Tool targets,
+    // and a Pokémon Tool's printing need not contain the word "Tool".
+    return choiceOwner(choice)==='opponent' ? 125 : 0;
   }
   if (context === 'target-whistle') {
     if (choiceOwner(choice) !== 'opponent' ||
@@ -578,7 +580,9 @@ function cardChoiceScore(choice, observation, context) {
     if (/Pok[eé]mon Tool|Tool\b/i.test(printing)) return 180;
     if (isSpecialEnergy(printing)) return 160;
     if (/Stadium/i.test(printing) || /Mountain|Labyrinth|Beach|Ceremony/i.test(printing)) return 150;
-    return 0;
+    // The validated Faba prompt can choose Tools with no literal "Tool"
+    // in their printed names. Still never target a visible friendly Tool.
+    return choiceOwner(choice)==='opponent' ? 100 : 0;
   }
   if (context === 'enhanced-hammer') return isSpecialEnergy(printing) ? 200 : 0;
   if (context === 'plumeria-energy' || context === 'crushing-hammer' || context === 'team-flare-energy') {
@@ -681,8 +685,11 @@ function cardChoiceScore(choice, observation, context) {
     return 0;
   }
   if (context === 'megaton-blower') {
+    if(choiceOwner(choice)!=='opponent')return 0;
     if (/Pok[eé]mon Tool|Tool\b/i.test(printing) || isSpecialEnergy(printing)) return 200;
-    return 0;
+    // Exact native ACE SPEC targets are already restricted to opposing
+    // Tool/Special Energy, not arbitrary Trainer/hand cards.
+    return 125;
   }
   return 0;
 }
