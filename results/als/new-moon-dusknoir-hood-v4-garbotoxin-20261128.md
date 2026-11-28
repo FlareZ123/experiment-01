@@ -30,6 +30,22 @@ All four Garb source decks also use **Dark Patch**, **Mega Absol ex** and speed/
 
 The price of adding Hood is removing the **second Canceling Cologne**, which was valued against **Iron Thorns ex rank6/24/29**, Active Klefki, Flutter Mane, and BUS Vileplume when Items remain playable. It is not a free improvement. The fixed 60 still contains only **one Hood**, and each Garb rank may deny our Duskull/Dusclops evolution before it exists. That same singleton Hood also becomes strategically *UDP* when held for a later turn, potentially worsening Secret Box/Ultra Ball discard realism and hand quality.
 
+## Hood allocation is a stateful three-holder decision, not a deck-wide binary
+
+The v4 singleton Hood can also be attached to **Mewtwo & Mew-GX** (to prevent applicable opponent Ability lock on its Rule-Box **Perfection**) or **Lillie's Clefairy ex** (to protect its Basic attack from BUS Vileplume). This produces a mutually exclusive matrix for the same fixed 60; Tools cannot be moved freely after attachment:
+
+| Public source lock/root | Best *conditional* Hood holder | Attack/payoff if source effects and energy truly permit |
+| --- | --- | --- |
+| **Garbodor with Tool (ranks 8/11/16/22)**, enemy Mega Absol280 Active | **Benched Dusknoir SFA20** | Shield Stage2 **Cursed Blast130** from Garbotoxin; Mewtwo's **printed** Miraculous Duo-GX200 still works even with Perfection suppressed: total330, 3-Prize Mega KO / 1 own self-KO, GX spent |
+| **Iron Thorns ex Initialization (ranks6/24/29)**, Active Thorns230 | **Active Mewtwo & Mew-GX** | Stage2 Dusknoir (non-Rule-Box) already has Cursed Blast130; Hoodie on Mewtwo prevents opponent's Rule-Box Ability denial on **Perfection**, permitting copied **Night Watch150**: total280, 2-Prize KO / 1 own self-KO, *without spending the GX attack*; if Hood is unavailable, printed Miraculous Duo-GX200 can still finish after Blast, but consumes GX |
+| **BUS Vileplume Active/Hood, AOR Benched (rank15)**, ≥3 Psychic on Active Mewtwo and no independent Perfection suppression | **Active Mewtwo & Mew-GX** | Protect Basic Mewtwo from BUS Ability so it can copy **Night Watch150** to KO BUS140 with no own self-KO, independent of combined Bench size, but exposes a three-Prize TAG TEAM |
+| Same BUS lock with **Active Clefairy ex**, one prior Energy, one Telepathic attach, and enough combined Bench positions to reach six | **Active Clefairy ex** | Preserve Basic Clefairy from BUS attack prohibition, use **Full Moon Rondo140** for the KO with two Energy, no self-KO; requires large Bench and exposes a two-Prize Pokémon ex |
+| **Active Stoutland Sentinel + Benched AOR (rank2)** | **None needed for the attack line** | Stage2 Dusknoir **Shadow Bind150** KO Stoutland140 through both lock types; attaching Hood to a Pokémon does **not** remove Stoutland's player-directed Supporter lock, and a spent Tool may block Powerglass |
+
+This is a *conditional tool-assignment preference*, not proof of dominance or a complete policy. In the Iron Thorns row, Hood protection against Initialization is inferred from the printed text and official analogous Ability-denial rulings, **not native certified**; both opponent locks and any Stadium suppressions must be re-evaluated after attaching. The Mewtwo BUS row fails if rank15's Path to the Peak or Silent Lab suppresses Perfection even after Hood, because Hood protects only against **opponent Abilities**, not Stadium effects. The source has both Stadiums in its exact 60.
+
+**Action rule for a future worker:** if the relevant Hooded line is verified by the current actor-visible action frontier, assign the singleton Hood to the Pokémon whose **own** Ability or ability-induced attack restriction is the immediate bottleneck, while respecting Tool occupation and Prize risk. Do **not** attach it reflexively to the Active Pokémon or always to Dusknoir; both can be dominated.
+
 ## Quantified pregame access versus opportunity cost
 
 Using exactly the v4 17 Basics/60 counts, seven drawn conditioned on having at least one Basic, then uniform six initial Prizes from the remaining deck:
