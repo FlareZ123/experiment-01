@@ -693,3 +693,43 @@ for(const seat of [0,1]){
   assert.equal(policy.templeStrandsIronThorns(q.observation),false);
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Thorns Initialization source suppresses bench draw/support Rule Box abilities',()=>{
+  const thorns=mon('Iron Thorns ex TWM 77',{abilitySuppressions:[
+    {abilityName:'Initialization',suppressed:false}]});
+  const q=root(seat,[play('Crobat V DAA 104','crobat'),play('Dedenne-GX UNB 57','dedenne'),
+    play('Tapu Lele-GX GRI 60','tapu'),attack('Itchy Pollen','pollen'),pass],
+   {ownPublic:own({active:mon('Budew ASC 16'),bench:[]}),opponentPublic:opp({active:thorns})});
+  for(const p of ['Crobat V DAA 104','Dedenne-GX UNB 57','Tapu Lele-GX GRI 60'])
+   assert.equal(policy.benchSupportAbilityUsable(p,q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+  thorns.abilitySuppressions=[{abilityName:'Initialization',suppressed:true}];
+  assert.equal(policy.benchSupportAbilityUsable('Crobat V DAA 104',q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'crobat'});
+ });
+ test('seat '+seat+' Wobbuffet Bide Barricade permits Psychic Tapu but blocks Dark Crobat',()=>{
+  const wob=mon('Wobbuffet PHF 36',{abilitySuppressions:[
+    {abilityName:'Bide Barricade',suppressed:false}]});
+  const q=root(seat,[play('Crobat V DAA 104','crobat'),play('Tapu Lele-GX GRI 60','tapu'),pass],
+   {ownPublic:own({active:mon('Budew ASC 16'),bench:[]}),
+    opponentPublic:opp({active:wob})});
+  assert.equal(policy.benchSupportAbilityUsable('Crobat V DAA 104',q.observation),false);
+  assert.equal(policy.benchSupportAbilityUsable('Tapu Lele-GX GRI 60',q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'tapu'});
+ });
+ test('seat '+seat+' core Trubbish+Mega Bench reservation blocks extra Crobat at four occupied',()=>{
+  const ownP=own({active:mon('Budew ASC 16'),bench:[
+    mon('Garbodor LTR 68'),mon('Crobat V DAA 104'),
+    mon('Dedenne-GX UNB 57'),mon('Tapu Lele-GX GRI 60')]});
+  const q=root(seat,[play('Crobat V DAA 104','crobat'),pass],{ownPublic:ownP});
+  assert.equal(policy.benchSupportFits(q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  ownP.bench.push(mon('Mega Absol ex MEG 86'));
+  assert.equal(policy.benchSupportFits(q.observation),false);
+  ownP.bench.pop();
+  ownP.bench.pop();
+  assert.equal(policy.benchSupportFits(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'crobat'});
+ });
+}
