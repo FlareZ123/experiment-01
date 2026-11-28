@@ -5,7 +5,7 @@
  * Pin the bundle blob after independent review before any native worker use.
  * agent43-regidrago-apex-choice.cjs 65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b
  * agent1-rank12-regidrago-opponent-policy-v2.cjs bfaee2205ea9d0c3b618948fe24ff81075d4ccda
- * agent3-rank32-regidrago-opponent-policy.cjs 78b1271e7f19a88ccd12afd060d0ba5c86d29290
+ * agent3-rank32-regidrago-opponent-policy.cjs 617ff9eb67c35a77f895223d8611c59fdebf9c72
  */
 const __rank32Modules = Object.freeze({
 "./agent43-regidrago-apex-choice.cjs": function(require, module, exports) {
@@ -1169,7 +1169,7 @@ function canUseLegacyStar(observation) {
       own.publicTurnRestrictions?.vstarUsed!==false)return false;
   return slots(own).some(p=>/^Regidrago VSTAR SIT 136\b/i.test(print(p)));
 }
-function prizeValue(pokemon) {
+function prizeValue(pokemon,observation=null) {
   const types=list(pokemon?.printed?.subtypes);
   const name=print(pokemon);
   let prizes=1;
@@ -1179,7 +1179,12 @@ function prizeValue(pokemon) {
   else if(types.some(x=>['V','VSTAR','GX','ex','EX'].includes(x)))prizes=2;
   // Treat unobserved once-per-game Legacy Energy consumption conservatively.
   // One fewer Prize on a KO is not a terminal Prize condition.
-  if(list(pokemon?.energies).some(e=>/^Legacy Energy TWM 167\b/i.test(print(e))))
+  // Temple of Sinnoh suppresses Legacy Energy's Prize-reduction effect.
+  // An unobserved prior consumption is still treated conservatively.
+  const temple=list(observation?.ownPublic?.stadium)
+    .concat(list(observation?.opponentPublic?.stadium))
+    .some(s=>/^Temple of Sinnoh ASR 155\b/i.test(print(s)));
+  if(!temple && list(pokemon?.energies).some(e=>/^Legacy Energy TWM 167\b/i.test(print(e))))
     prizes=Math.max(1,prizes-1);
   return prizes;
 }
@@ -1212,7 +1217,7 @@ function gustTargetPriority(pokemon,observation,attacker) {
   const damage=strongestCopiedDamage({...observation,
     ownPublic:{...observation.ownPublic,active:attacker}},pokemon);
   if(!Number.isFinite(targetHP)||targetHP<=0||targetHP>damage)return 0;
-  const prizes=prizeValue(pokemon), ownPrizes=observation?.ownPublic?.prizeCount;
+  const prizes=prizeValue(pokemon,observation), ownPrizes=observation?.ownPublic?.prizeCount;
   return (Number.isSafeInteger(ownPrizes)&&prizes>=ownPrizes?400:260)+prizes*12;
 }
 function tacticalGustScore(action,observation) {
@@ -1267,10 +1272,10 @@ function aceSpecBlowerPriority(observation) {
     // Megaton's all-Special-Energy removal can convert an otherwise
     // nonterminal KO into a same-turn Prize win. This discrete win line
     // dominates saving the ACE SPEC or attacking through Legacy Energy.
-    if(prizeValue(target)<prizeNeed&&prizeValue(cleared)>=prizeNeed)
+    if(prizeValue(target,observation)<prizeNeed&&prizeValue(cleared,observation)>=prizeNeed)
       return 385;
   }
-  if(canOHKO&&prizeValue(target)>=prizeNeed)
+  if(canOHKO&&prizeValue(target,observation)>=prizeNeed)
     return 0; // Already winning; save the ACE SPEC.
   const energy=list(opp.active?.energies)
     .concat(list(opp.bench).flatMap(p=>list(p?.energies)));
@@ -1745,7 +1750,33 @@ function promptDecision(request) {
       const enabled=canUseLegacyStar(obs)&&
         (useful||countDonors(obs.ownPublic??{})===0);
       const target=choices.find(c=>c.kind==='confirm' &&
-        new RegExp(enabled?'^yes$':'^no$','i').test(c.label??''));
+        new RegExp(enabled?'^yes
+}
+});
+const __rank32Cache = Object.create(null);
+function __rank32Load(id) {
+  if (!Object.prototype.hasOwnProperty.call(__rank32Modules, id)) throw new Error('UNKNOWN_RANK32_MODULE');
+  if (Object.prototype.hasOwnProperty.call(__rank32Cache, id)) return __rank32Cache[id].exports;
+  const internal = {exports: {}};
+  __rank32Cache[id] = internal;
+  __rank32Modules[id](__rank32Load,internal,internal.exports);
+  return internal.exports;
+}
+module.exports = __rank32Load("./agent3-rank32-regidrago-opponent-policy.cjs");
+:'^no
+}
+});
+const __rank32Cache = Object.create(null);
+function __rank32Load(id) {
+  if (!Object.prototype.hasOwnProperty.call(__rank32Modules, id)) throw new Error('UNKNOWN_RANK32_MODULE');
+  if (Object.prototype.hasOwnProperty.call(__rank32Cache, id)) return __rank32Cache[id].exports;
+  const internal = {exports: {}};
+  __rank32Cache[id] = internal;
+  __rank32Modules[id](__rank32Load,internal,internal.exports);
+  return internal.exports;
+}
+module.exports = __rank32Load("./agent3-rank32-regidrago-opponent-policy.cjs");
+,'i').test(c.label??''));
       return target?{kind:'select-choice',token:target.token}:
         {kind:'abstain',reasonCode:'UNRECOGNIZED_SIMPLE_PROMPT'};
     }
@@ -1800,7 +1831,33 @@ function promptDecision(request) {
     if (p.promptType === 'ConfirmPrompt' && meta.selectionType === 'confirm') {
       const safe=list(obs.ownHand).some(c=>donorScore(c,obs,false)>0);
       const desired=choices.find(c=>c.kind==='confirm'&&
-        new RegExp(safe?'^yes$':'^no$','i').test(c.label??''));
+        new RegExp(safe?'^yes
+}
+});
+const __rank32Cache = Object.create(null);
+function __rank32Load(id) {
+  if (!Object.prototype.hasOwnProperty.call(__rank32Modules, id)) throw new Error('UNKNOWN_RANK32_MODULE');
+  if (Object.prototype.hasOwnProperty.call(__rank32Cache, id)) return __rank32Cache[id].exports;
+  const internal = {exports: {}};
+  __rank32Cache[id] = internal;
+  __rank32Modules[id](__rank32Load,internal,internal.exports);
+  return internal.exports;
+}
+module.exports = __rank32Load("./agent3-rank32-regidrago-opponent-policy.cjs");
+:'^no
+}
+});
+const __rank32Cache = Object.create(null);
+function __rank32Load(id) {
+  if (!Object.prototype.hasOwnProperty.call(__rank32Modules, id)) throw new Error('UNKNOWN_RANK32_MODULE');
+  if (Object.prototype.hasOwnProperty.call(__rank32Cache, id)) return __rank32Cache[id].exports;
+  const internal = {exports: {}};
+  __rank32Cache[id] = internal;
+  __rank32Modules[id](__rank32Load,internal,internal.exports);
+  return internal.exports;
+}
+module.exports = __rank32Load("./agent3-rank32-regidrago-opponent-policy.cjs");
+,'i').test(c.label??''));
       return desired?
         {kind:'select-choice',token:desired.token}:
         {kind:'abstain',reasonCode:'UNRECOGNIZED_SIMPLE_PROMPT'};
