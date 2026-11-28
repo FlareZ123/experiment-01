@@ -2673,3 +2673,34 @@ paired('Agent2: Guzma Latias free pivot takes nonterminal multi-Prize KOs and su
   view.opponentPublic.bench[0]=mew;
   assert.deepEqual(decide(profile,root(seat,view,choices)),sel('guzma'));
 });
+
+paired('Agent2: Guzma projection clears switched-out Active Special Conditions before attacking',(seat,profile)=>{
+  const guzma='Guzma BUS';
+  const active=vmax([P,P,P]),lat=latias();
+  active.printed.retreatCost=['Colorless','Colorless'];
+  lat.printed.retreatCost=['Colorless'];
+  const dedenne=pokemon({printing:'Dedenne-GX UNB',name:'Dedenne-GX',
+    hp:160,damage:80,types:['Lightning'],subtypes:['Basic','GX'],
+    abilities:['Dedechange']});
+  const view=observation(seat,{active,bench:[lat],opponentActive:defender(),
+    opponentBench:[dedenne],ownHand:[guzma],globalTurn:4});
+  view.ownPublic.prizeCount=3;
+  view.opponentPublic.prizeCount=6;
+  // No attack is offered in the native frontier while Paralyzed/Asleep.
+  // Guzma's own switch legally removes the status from the prior Active,
+  // and the free Latias retreat restores a paid Max Geist attacker.
+  const action=[play('guzma',guzma)];
+  for(const status of ['Paralyzed','Asleep','Confused']){
+    active.specialConditions=[status];
+    assert.deepEqual(decide(profile,root(seat,view,action)),sel('guzma'));
+  }
+  active.specialConditions=['Paralyzed'];
+  lat.abilitySuppressions[0]={...lat.abilitySuppressions[0],
+    suppressed:true,sourcePrinting:'Silent Lab PRC'};
+  assert.deepEqual(decide(profile,root(seat,view,action)),sel('pass'));
+  lat.abilitySuppressions[0].suppressed=false;
+  lat.abilitySuppressions[0].sourcePrinting=null;
+  // Malformed/unknown condition codes must remain fail-closed.
+  active.specialConditions=['unrecognized'];
+  assert.deepEqual(decide(profile,root(seat,view,action)),sel('pass'));
+});
