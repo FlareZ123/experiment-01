@@ -451,7 +451,7 @@ function choosePerfectionPrompt(view,prompt) {
   if(choice?.kind!=='attack'||!choice.printing||
      choice.publicMetadata?.ownerSeat!=='actor'||
      choice.publicMetadata?.isOwnerVisible!==true||
-     !['bench','discard','mixed'].includes(choice.publicMetadata?.sourceZone))continue;
+     !['board','bench','discard','mixed'].includes(choice.publicMetadata?.sourceZone))continue;
   const n=choice.printing;
   const isDonor=(has(n,'-GX')||has(n,'-EX')) &&
     (own.discard.includes(n)||own.bench.some(x=>x?.printing===n));
