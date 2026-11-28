@@ -904,8 +904,11 @@ function validatePrompt(prompt, seat) {
         meta.selectionType !== 'energy-transfer' ||
         meta.ownerSeat !== 'actor' || meta.sourceZone !== 'bench' ||
         meta.targetZone !== 'active' || meta.allowCancel !== false ||
-        meta.minimumCount !== 1) fail('UNTRUSTED_ENERGY_SELECTION');
+        ![0, 1].includes(meta.minimumCount)) fail('UNTRUSTED_ENERGY_SELECTION');
     for (const choice of prompt.choices) {
+      // The research-owned exact Articuno zero-transfer hook makes this legal
+      // after the Active switch has already changed game state.
+      if (choice.kind === 'empty-selection' && meta.minimumCount === 0) continue;
       if (choice.kind !== 'energy' ||
           !/^Water Energy\b/i.test(choice.printing ?? '') ||
           choice.publicMetadata?.ownerSeat !== 'actor' ||
