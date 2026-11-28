@@ -2380,3 +2380,74 @@ test('Duplicate own-switch prompt chooses genuinely powered slot regardless of c
       {kind:'select-choices',tokens:['powered']});
   }
 });
+
+
+test('Same-print Bench Speed root attachment obeys physical targetIndex and penalizes already-loaded slot',()=>{
+  for(const seat of [0,1]){
+    const bench=[
+      pokemon('Iron Thorns ex TWM 77',{
+        energies:['Speed Lightning Energy RCL 173',
+          'Double Colorless Energy SUM 136']}),
+      pokemon('Iron Thorns ex TWM 77',{energies:[]})
+    ];
+    const meta=index=>({
+      cardType:'energy',targetZone:'bench',targetSeat:'actor',
+      targetIndex:index,isOwnerVisible:true
+    });
+    const actions=[
+      action('wrong-loaded','play-card','Speed Lightning Energy RCL 173',
+        meta(0),{targetPrinting:'Iron Thorns ex TWM 77'}),
+      action('fresh-slot','play-card','Speed Lightning Energy RCL 173',
+        meta(1),{targetPrinting:'Iron Thorns ex TWM 77'}),
+      {token:'pass',kind:'pass'}
+    ];
+    const base={
+      seat,ownHand:['Speed Lightning Energy RCL 173'],
+      ownPublic:player({active:pokemon('Iron Thorns ex TWM 77',{
+        energies:['Capture Energy RCL 171']}),bench}),
+      items:actions
+    };
+    assert.deepEqual(checkedDecision(rootRequest(base),seat),
+      {kind:'select-action',token:'fresh-slot'});
+    const physicallyUnbound=actions.map(a=>
+      a.token==='fresh-slot'?
+        {...a,publicMetadata:{...a.publicMetadata,targetIndex:8}}:a);
+    assert.deepEqual(checkedDecision(rootRequest({...base,items:physicallyUnbound}),seat),
+      {kind:'select-action',token:'pass'});
+    const identitySpoof=actions.map(a=>
+      a.token==='fresh-slot'?
+        {...a,targetPrinting:'Dedenne-GX UNB 57'}:a);
+    assert.deepEqual(checkedDecision(rootRequest({...base,items:identitySpoof}),seat),
+      {kind:'select-action',token:'pass'});
+  }
+});
+
+test('Root retreat scoring resolves exact same-print Bench recipient not first matching card',()=>{
+  const bench=[
+    pokemon('Iron Thorns ex TWM 77',{damage:190}),
+    pokemon('Iron Thorns ex TWM 77',{
+      energies:['Double Colorless Energy SUM 136','Speed Lightning Energy RCL 173']
+    })
+  ];
+  const actionFor=(token,index)=>action(token,'retreat','Tapu Lele-GX GRI 60',{
+    benchIndex:index,targetSeat:'actor',targetZone:'bench',
+    targetIndex:index,isOwnerVisible:true
+  },{targetPrinting:'Iron Thorns ex TWM 77'});
+  const root=rootRequest({
+    ownPublic:player({active:pokemon('Tapu Lele-GX GRI 60'),bench}),
+    items:[actionFor('injured',0),actionFor('ready',1),
+      {token:'pass',kind:'pass'}]
+  });
+  assert.deepEqual(checkedDecision(root),
+    {kind:'select-action',token:'ready'});
+  const wrong=rootRequest({
+    ownPublic:root.observation.ownPublic,
+    items:[actionFor('injured',0),
+      {...actionFor('ready',1),publicMetadata:{
+        benchIndex:0,targetSeat:'actor',targetZone:'bench',
+        targetIndex:1,isOwnerVisible:true}},
+      {token:'pass',kind:'pass'}]
+  });
+  assert.deepEqual(checkedDecision(wrong),
+    {kind:'select-action',token:'injured'});
+});
