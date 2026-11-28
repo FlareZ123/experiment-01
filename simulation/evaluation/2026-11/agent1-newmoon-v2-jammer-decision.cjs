@@ -1,6 +1,6 @@
 'use strict';
 /* Research-only actor-visible decision slice; NOT a full candidate worker or game policy. */
-const POLICY_VERSION = 'agent1-newmoon-tool-jammer-v2-slice-v4';
+const POLICY_VERSION = 'agent1-newmoon-tool-jammer-v2-slice-v5';
 const DECK_SHA = 'aebe9a142e8492be929316bff4b871375e3e478945e01f8c5844037332634fe6';
 const has = (s,n) => typeof s === 'string' && s.includes(n);
 const slots = p => [p?.active,...(Array.isArray(p?.bench)?p.bench:[])].filter(Boolean);
@@ -121,9 +121,22 @@ function chooseRoot(view,frontier) {
   const items=frontier?.items;
   if (!Array.isArray(items)) return null;
   const p=position(view);
-  if (!p) return chooseEscapedBusResponse(view,items) ??
-    chooseActivePsychicAttachment(view,items) ??
-    chooseEarlyResourceAction(view,items) ?? chooseEarlyHorrorHouse(view,items);
+  if (!p) {
+    const own=view?.ownPublic,active=own?.active;
+    const needEnergy=active && psychicSupply(active)===0 &&
+     (has(active.printing,'Gengar & Mimikyu-GX') ||
+      has(active.printing,'Mewtwo & Mew-GX'));
+    const needDonor=has(active?.printing,'Mewtwo & Mew-GX') &&
+     !slots(own).some(s=>has(s.printing,'Gengar & Mimikyu-GX')) &&
+     !(own.discard??[]).some(s=>has(s,'Gengar & Mimikyu-GX')) &&
+     !(view.ownHand??[]).some(s=>has(s,'Gengar & Mimikyu-GX'));
+    return chooseEscapedBusResponse(view,items) ??
+     chooseActivePsychicAttachment(view,items) ??
+     chooseGengarDonorBench(view,items) ??
+     chooseEarlyResourceAction(view,items) ??
+     chooseFssRoot(view,items,needEnergy||needDonor) ??
+     chooseEarlyHorrorHouse(view,items);
+  }
   const choose=(row,reason)=>row ? {decision:{kind:'select-action',token:row.token},reason}:null;
   const canSelfKO = Number.isSafeInteger(p.opp.prizeCount) &&
     p.opp.prizeCount > 1 && Number.isSafeInteger(p.own.prizeCount) &&
@@ -187,10 +200,91 @@ function chooseRoot(view,frontier) {
     if (art && star && !view.ownHand?.some(x=>has(x,'Tool Jammer')))
       return choose(star,'STAR_ALCHEMY_TO_JAMMER');
   }
+  if(p.activeDus && (p.jammerActive?
+      psychicSupply(p.active)<2 :
+      !hasTool(p.active,'Tool Jammer')&&p.benchDus.length>0 &&
+      !(view.ownHand??[]).some(x=>has(x,'Tool Jammer')))){
+    const fss=chooseFssRoot(view,items,true);
+    if(fss)return fss;
+  }
   return null;
 }
 
 
+
+
+
+function chooseGengarDonorBench(view,items){
+ const own=view?.ownPublic;
+ if(!own || !Array.isArray(own.bench) ||
+  !has(own.active?.printing,'Mewtwo & Mew-GX') ||
+  own.bench.filter(Boolean).length>=5 ||
+  !Array.isArray(view.ownHand) ||
+  !view.ownHand.some(x=>has(x,'Gengar & Mimikyu-GX')) ||
+  slots(own).some(x=>has(x.printing,'Gengar & Mimikyu-GX')) ||
+  (own.discard??[]).some(x=>has(x,'Gengar & Mimikyu-GX')))return null;
+ const donor=items.find(x=>x.kind==='play-card' &&
+   x.publicMetadata?.cardType==='pokemon' &&
+   has(x.actorPrinting,'Gengar & Mimikyu-GX') &&
+   (x.publicMetadata.targetZone===undefined ||
+    (x.publicMetadata.targetZone==='bench'&&
+     x.publicMetadata.targetSeat==='actor')));
+ return donor?{decision:{kind:'select-action',token:donor.token},
+   reason:'BENCH_HELD_GENGAR_DONOR_BEFORE_SEARCH'}:null;
+}
+function chooseFssRoot(view,items,need) {
+ const own=view?.ownPublic;
+ if(!need || !own || !Array.isArray(own.bench) || !Array.isArray(items))return null;
+ const hosts=own.bench.map((s,i)=>({s,i})).filter(x=>has(x.s?.printing,'Galarian Articuno V'));
+ const live=hosts.find(x=>hasTool(x.s,'Forest Seal Stone'));
+ if(live){
+  const star=items.find(x=>x.kind==='use-ability' &&
+   x.publicMetadata?.abilityName==='Star Alchemy' &&
+   x.publicMetadata.sourceZone==='bench' &&
+   x.publicMetadata.sourceIndex===live.i);
+  return star?{decision:{kind:'select-action',token:star.token},
+   reason:'STAR_ALCHEMY_TO_UNBLOCK_CRITICAL_RESOURCE'}:null;
+ }
+ const free=hosts.find(x=>Array.isArray(x.s.tools)&&x.s.tools.length===0);
+ if(!free)return null;
+ const attach=items.find(x=>x.kind==='play-card' &&
+   has(x.actorPrinting,'Forest Seal Stone') &&
+   x.publicMetadata?.targetSeat==='actor' &&
+   x.publicMetadata.targetZone==='bench' &&
+   x.publicMetadata.targetIndex===free.i &&
+   (!x.targetPrinting||x.targetPrinting===free.s.printing));
+ return attach?{decision:{kind:'select-action',token:attach.token},
+   reason:'ATTACH_FOREST_SEAL_STONE_TO_V_HOST'}:null;
+}
+function chooseStarAlchemyMissingResource(view,prompt) {
+ const own=view?.ownPublic,m=prompt?.publicMetadata;
+ if(!own || !prompt || prompt.promptType!=='ChooseCardsPrompt' ||
+  prompt.source?.effectName!=='Star Alchemy' ||
+  !has(prompt.source.sourcePrinting,'Forest Seal Stone') ||
+  m?.selectionType!=='card-combination' || m.sourceZone!=='deck' ||
+  m.ownerSeat!=='actor' || m.isOwnerVisible!==true ||
+  m.minimumCount!==1 || m.maximumCount!==1)return null;
+ const active=own.active;
+ const locked=has(view.opponentPublic?.active?.printing,'Vileplume BUS') &&
+   abilityLive(view.opponentPublic.active,'Disgusting Pollen');
+ const needed=locked&&isDusclops(active)?2:1;
+ const targets=[];
+ if(psychicSupply(active)<needed && (isDusclops(active) ||
+     has(active?.printing,'Gengar & Mimikyu-GX') ||
+     has(active?.printing,'Mewtwo & Mew-GX')))
+  targets.push('Telepathic Psychic Energy','Basic Psychic Energy');
+ else if(has(active?.printing,'Mewtwo & Mew-GX') &&
+   !slots(own).some(s=>has(s.printing,'Gengar & Mimikyu-GX')) &&
+   !(own.discard??[]).some(s=>has(s,'Gengar & Mimikyu-GX')))
+  targets.push('Gengar & Mimikyu-GX');
+ if(targets.length===0)return null;
+ const chosen=targets.map(n=>prompt.choices.find(x=>x.kind==='card' &&
+   has(x.printing,n) && x.publicMetadata?.sourceZone==='deck' &&
+   x.publicMetadata?.ownerSeat==='actor' &&
+   x.publicMetadata?.isOwnerVisible===true)).find(Boolean);
+ return chosen?{decision:{kind:'select-choices',tokens:[chosen.token]},
+   reason:'STAR_ALCHEMY_SELECT_NEEDED_CARD'}:null;
+}
 
 function chooseEarlyResourceAction(view,items) {
   const own=view?.ownPublic;
@@ -209,7 +303,8 @@ function chooseEarlyResourceAction(view,items) {
      psychicSupply(active)===0;
   const lackingGengar=has(active?.printing,'Mewtwo & Mew-GX') &&
     !slots(own).some(x=>has(x.printing,'Gengar & Mimikyu-GX')) &&
-    !(own.discard??[]).some(x=>has(x,'Gengar & Mimikyu-GX'));
+    !(own.discard??[]).some(x=>has(x,'Gengar & Mimikyu-GX')) &&
+    !(view.ownHand??[]).some(x=>has(x,'Gengar & Mimikyu-GX'));
   if(requiresPsychic || lackingGengar) {
     const hasTargetedEnergy=items.some(x=>x.kind==='play-card' &&
       x.publicMetadata?.cardType==='energy' &&
@@ -254,7 +349,8 @@ function chooseFogCrystalSearch(view,prompt) {
      isDusclops(active));
   const lackDonor=has(active?.printing,'Mewtwo & Mew-GX') &&
     !slots(own).some(x=>has(x.printing,'Gengar & Mimikyu-GX')) &&
-    !(own.discard??[]).some(x=>has(x,'Gengar & Mimikyu-GX'));
+    !(own.discard??[]).some(x=>has(x,'Gengar & Mimikyu-GX')) &&
+    !(view.ownHand??[]).some(x=>has(x,'Gengar & Mimikyu-GX'));
   const score=x=>{
     const n=x.printing;
     if(has(n,'Basic Psychic Energy'))return needEnergy?140:32;
@@ -438,6 +534,8 @@ function choosePrompt(view,prompt) {
   if(tpe)return tpe;
   const fog=chooseFogCrystalSearch(view,prompt);
   if(fog)return fog;
+  const starSearch=chooseStarAlchemyMissingResource(view,prompt);
+  if(starSearch)return starSearch;
   if (!p) return chooseEarlyPerfectionPrompt(view,prompt);
   const m=prompt.publicMetadata;
   const effect=prompt.source.effectName;

@@ -356,6 +356,73 @@ function test() {
  extra.globalTurn=2;
  same(run(extra,[{token:'horror-house',kind:'attack',attackName:'Horror House-GX'},pass()]),
    {kind:'abstain',reasonCode:'NO_SUPPORTED_ACTION'},'2-Psychic bonus cannot be silently chosen');
+
+ const sealHost=slot('Galarian Articuno V CRE 058','Galarian Articuno V');
+ sealHost.printed.stage='Basic';sealHost.printed.subtypes=['Basic','V'];
+ const underLock=view({active:dus(),bench:[dus(),sealHost],hand:[]});
+ const attachSeal={kind:'play-card',token:'attach-seal',
+  actorPrinting:'Forest Seal Stone SIT 156',targetPrinting:sealHost.printing,
+  publicMetadata:{cardType:'tool',handIndex:0,targetSeat:'actor',
+    targetZone:'bench',targetIndex:1,isOwnerVisible:true}};
+ same(run(underLock,[attachSeal,pass()]),
+  {kind:'select-action',token:'attach-seal'},
+  'FSS attached to actual Benched Articuno V despite AOR Item lock');
+ sealHost.tools=['Forest Seal Stone SIT 156'];
+ same(run(underLock,[use('star','Star Alchemy','bench',1),pass()]),
+  {kind:'select-action',token:'star'},
+  'FSS host Star Alchemy chosen after installation');
+ const starSearch={schema:P.PROMPT_SCHEMA,actingSeat:0,
+   promptType:'ChooseCardsPrompt',description:'Find missing Tool Jammer',
+   source:{classification:'actor-choice',sourceKind:'card-effect',
+    sourcePrinting:'Forest Seal Stone SIT 156',effectName:'Star Alchemy'},
+   choices:[
+    {kind:'card',token:'jam',printing:'Tool Jammer BST 136',
+      publicMetadata:{selectionType:'card-combination',selectionIndex:0,
+       selectedCount:1,sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true}},
+    {kind:'card',token:'basic',printing:'Basic Psychic Energy',
+      publicMetadata:{selectionType:'card-combination',selectionIndex:1,
+       selectedCount:1,sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true}}
+   ],publicMetadata:{selectionType:'card-combination',sourceZone:'deck',
+    ownerSeat:'actor',isOwnerVisible:true,isSecret:false,
+    minimumCount:1,maximumCount:1,allowCancel:false}};
+ same(run(underLock,[],starSearch),{kind:'select-choices',tokens:['jam']},
+   'Star Alchemy deck prompt resolves exact Tool Jammer resource');
+ const shortEnergy=view({active:dus(['Tool Jammer BST 136'],1),
+   bench:[dus(),sealHost],hand:[]});
+ shortEnergy.ownTurnResources.energyPlayedTurn=1;
+ same(run(shortEnergy,[use('star','Star Alchemy','bench',1),pass()]),
+   {kind:'select-action',token:'star'},
+   'Star Alchemy obtains second Psychic behind dual lock');
+ const energyPrompt={...starSearch,choices:[
+  {kind:'card',token:'tpe',printing:'Telepathic Psychic Energy MEG 088',
+    publicMetadata:{selectionType:'card-combination',selectionIndex:0,
+    selectedCount:1,sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true}},
+  {kind:'card',token:'basic',printing:'Basic Psychic Energy',
+    publicMetadata:{selectionType:'card-combination',selectionIndex:1,
+    selectedCount:1,sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true}}]};
+ same(run(shortEnergy,[],energyPrompt),{kind:'select-choices',tokens:['tpe']},
+   'Star Alchemy chooses correctly providing second Psychic');
+
+ const donorInHand=view({active:slot('Mewtwo & Mew-GX UNM 071','Mewtwo & Mew-GX',
+  ['Perfection'],[],1),bench:[sealHost],
+  bus:slot('Bunnelby PRC 121','Bunnelby'),oppBench:[],
+  hand:['Gengar & Mimikyu-GX TEU 053']});
+ donorInHand.globalTurn=3;
+ const playDonor={kind:'play-card',token:'gengar-from-hand',
+  actorPrinting:'Gengar & Mimikyu-GX TEU 053',
+  publicMetadata:{cardType:'pokemon',handIndex:0}};
+ same(run(donorInHand,[playDonor,pass()]),
+  {kind:'select-action',token:'gengar-from-hand'},
+  'Mewtwo plays held donor, does not waste global FSS search');
+ donorInHand.ownPublic.bench.push(slot('Gengar & Mimikyu-GX TEU 053','Gengar & Mimikyu-GX'));
+ same(run(donorInHand,[use('perfection','Perfection','active'),pass()]),
+  {kind:'select-action',token:'perfection'},
+  'Perfection becomes live after actual donor Bench transition');
+ const heldJammer=view({active:dus(),bench:[dus(),sealHost],
+  hand:['Tool Jammer BST 136']});
+ same(run(heldJammer,[use('star','Star Alchemy','bench',1),pass()]),
+  {kind:'abstain',reasonCode:'NO_SUPPORTED_ACTION'},
+  'do not spend Star Alchemy on a Tool Jammer already visible in hand');
  const escaped=view({active:dus(['Tool Jammer BST 136']),
   oppBench:[aor(),bus()],bus:slot('Bunnelby PRC 121','Bunnelby',[],[],0,10)});
  escaped.opponentPublic.active.hp=60;

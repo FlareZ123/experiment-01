@@ -28,7 +28,7 @@ function root(v,items) {return policy.decideWithAudit({role:'candidate',seat:0,
 function prompt(v,effect,type,meta,choices) {
   return policy.decideWithAudit({role:'candidate',seat:0,
     observation:{...v,decisionKind:'owner-prompt'},
-    prompt:{actingSeat:0,promptType:type,source:{sourceKind:'card-effect',classification:'actor-choice',effectName:effect,sourcePrinting:effect==='Telepathic Psychic Energy'?'Telepathic Psychic Energy MEG 088':effect==='Battle VIP Pass'?'Battle VIP Pass FST 225':effect==='Fog Crystal'?'Fog Crystal CRE 140':null},publicMetadata:meta,choices}});
+    prompt:{actingSeat:0,promptType:type,source:{sourceKind:'card-effect',classification:'actor-choice',effectName:effect,sourcePrinting:effect==='Telepathic Psychic Energy'?'Telepathic Psychic Energy MEG 088':effect==='Battle VIP Pass'?'Battle VIP Pass FST 225':effect==='Fog Crystal'?'Fog Crystal CRE 140':effect==='Star Alchemy'?'Forest Seal Stone SIT 156':null},publicMetadata:meta,choices}});
 }
 const target=(token,printing,ownerSeat,targetZone='active')=>({token,kind:'pokemon',printing,
   publicMetadata:{ownerSeat,targetZone,isOwnerVisible:true}});
@@ -107,6 +107,95 @@ const hh=action('attack','horror-house',{}, {attackName:'Horror House-GX'});
 const poltergeist=action('attack','poltergeist',{}, {attackName:'Poltergeist'});
 const deckChoice=(token,printing,index)=>({kind:'card',token,printing,publicMetadata:{
   sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true,selectionIndex:index}});
+
+
+check('Mewtwo benches its actual held Gengar before Fog, FSS or Perfection',()=>{
+ const v=earlyStart(makeSlot('Mewtwo & Mew-GX UNM 071',
+  {abilities:['Perfection'],energies:['Basic Psychic Energy']}),
+  {bench:[makeSlot('Galarian Articuno V CRE 058')]});
+ v.ownHand=['Gengar & Mimikyu-GX TEU 053'];
+ const donor=action('play-card','donor',{cardType:'pokemon'},
+  {actorPrinting:'Gengar & Mimikyu-GX TEU 053'});
+ const fog=action('play-card','fog',{}, {actorPrinting:'Fog Crystal CRE 140'});
+ assert.equal(sel(root(v,[fog,donor,pass()])),'donor');
+ v.ownPublic.bench.push(makeSlot('Gengar & Mimikyu-GX TEU 053'));
+ const perf=action('use-ability','perf',{abilityName:'Perfection',sourceZone:'active'});
+ assert.equal(sel(root(v,[perf,pass()])),'perf');
+});
+check('Mewtwo does not bench held donor on an already-full Bench',()=>{
+ const v=earlyStart(makeSlot('Mewtwo & Mew-GX UNM 071',
+ {abilities:['Perfection'],energies:['Basic Psychic Energy']}),{
+ bench:Array.from({length:5},()=>makeSlot('Unown AOR 030'))});
+ v.ownHand=['Gengar & Mimikyu-GX TEU 053'];
+ const donor=action('play-card','donor',{cardType:'pokemon'},
+  {actorPrinting:'Gengar & Mimikyu-GX TEU 053'});
+ assert.equal(sel(root(v,[donor,pass()])),'abstain');
+});
+check('FSS cannot be spent to search already-held Tool Jammer',()=>{
+ const v=view({active:dus({energies:['Basic Psychic Energy','Basic Psychic Energy']}),
+ bench:[dus(),makeSlot('Galarian Articuno V CRE 058',{tools:['Forest Seal Stone SIT 156']})],
+ hand:['Tool Jammer BST 136']});
+ const star=action('use-ability','star',{abilityName:'Star Alchemy',
+ sourceZone:'bench',sourceIndex:1});
+ assert.equal(sel(root(v,[star,pass()])),'abstain');
+});
+check('FSS Tool attaches specifically to observed Benched Articuno V under dual lock',()=>{
+ const v=view({active:dus({energies:['Basic Psychic Energy','Basic Psychic Energy']}),
+  bench:[dus(),makeSlot('Galarian Articuno V CRE 058')],hand:[]});
+ const right=action('play-card','fss',{targetSeat:'actor',targetZone:'bench',targetIndex:1},
+  {actorPrinting:'Forest Seal Stone SIT 156',targetPrinting:'Galarian Articuno V CRE 058'});
+ const wrong=action('play-card','wrong',{targetSeat:'actor',targetZone:'bench',targetIndex:0},
+  {actorPrinting:'Forest Seal Stone SIT 156',targetPrinting:'Dusclops SFA 019'});
+ assert.equal(sel(root(v,[right,wrong,pass()])),'fss');
+ assert.equal(sel(root(v,[wrong,pass()])),'abstain');
+});
+check('after FSS installation Star Alchemy searches missing Tool Jammer',()=>{
+ const v=view({active:dus({energies:['Basic Psychic Energy','Basic Psychic Energy']}),
+  bench:[dus(),makeSlot('Galarian Articuno V CRE 058',
+   {tools:['Forest Seal Stone SIT 156']})],hand:[]});
+ const star=action('use-ability','star',{abilityName:'Star Alchemy',
+    sourceZone:'bench',sourceIndex:1});
+ assert.equal(sel(root(v,[star,pass()])),'star');
+ const m={selectionType:'card-combination',sourceZone:'deck',ownerSeat:'actor',
+ isOwnerVisible:true,minimumCount:1,maximumCount:1};
+ const c=[{kind:'card',token:'jam',printing:'Tool Jammer BST 136',
+ publicMetadata:{sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true}}];
+ assert.equal(sel(prompt(v,'Star Alchemy','ChooseCardsPrompt',m,c)),'jam');
+});
+check('FSS Star Alchemy resolves missing Psychic behind Tool Jammer',()=>{
+ const v=view({active:dus({tools:['Tool Jammer BST 136'],
+  energies:['Basic Psychic Energy']}),
+  bench:[dus(),makeSlot('Galarian Articuno V CRE 058',
+   {tools:['Forest Seal Stone SIT 156']})]});
+ v.ownTurnResources.energyPlayedTurn=1;
+ const star=action('use-ability','star',{abilityName:'Star Alchemy',
+   sourceZone:'bench',sourceIndex:1});
+ assert.equal(sel(root(v,[star,pass()])),'star');
+ const m={selectionType:'card-combination',sourceZone:'deck',ownerSeat:'actor',
+ isOwnerVisible:true,minimumCount:1,maximumCount:1};
+ const c=[{kind:'card',token:'basic',printing:'Basic Psychic Energy',
+  publicMetadata:{sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true}},
+  {kind:'card',token:'tpe',printing:'Telepathic Psychic Energy MEG 088',
+   publicMetadata:{sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true}}];
+ assert.equal(sel(prompt(v,'Star Alchemy','ChooseCardsPrompt',m,c)),'tpe');
+});
+check('early Mewtwo missing donor attaches FSS then uses Star Alchemy',()=>{
+ const active=makeSlot('Mewtwo & Mew-GX UNM 071',{abilities:['Perfection'],
+   energies:['Basic Psychic Energy']});
+ const art=makeSlot('Galarian Articuno V CRE 058');
+ const v=earlyStart(active,{bench:[art]});
+ const attach=action('play-card','fss',{targetSeat:'actor',targetZone:'bench',targetIndex:0},
+   {actorPrinting:'Forest Seal Stone SIT 156',targetPrinting:'Galarian Articuno V CRE 058'});
+ assert.equal(sel(root(v,[attach,pass()])),'fss');
+ art.tools=['Forest Seal Stone SIT 156'];
+ const star=action('use-ability','star',{abilityName:'Star Alchemy',sourceZone:'bench',sourceIndex:0});
+ assert.equal(sel(root(v,[star,pass()])),'star');
+ const m={selectionType:'card-combination',sourceZone:'deck',ownerSeat:'actor',
+ isOwnerVisible:true,minimumCount:1,maximumCount:1};
+ const c=[{kind:'card',token:'donor',printing:'Gengar & Mimikyu-GX TEU 053',
+ publicMetadata:{sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true}}];
+ assert.equal(sel(prompt(v,'Star Alchemy','ChooseCardsPrompt',m,c)),'donor');
+});
 check('TPE Energy attachment preempts VIP when it can both power Gengar and search',()=>{
  const v=earlyStart(makeSlot('Gengar & Mimikyu-GX TEU 053',{energies:[]}),{bench:[]});
  v.ownTurnResources.energyPlayedTurn=0;
