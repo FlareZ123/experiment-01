@@ -219,10 +219,12 @@ function one(rows,seed,opts={}){
    }
    // Preserve the one VSTAR power until the actor can identify a specific
    // need. Star is deterministic; Legacy may close two needs but mills.
-   // Star Alchemy is an Ability used by the Stone-holder (a Pokémon V).
-   // Rule Box Ability lock and our own Active Bide Barricade can suppress it;
-   // a Tool remaining attached does not bypass that Ability suppression.
-   if(b&&b.tool===N.FS&&!vstar&&canAbility(b.name)&&(turn===2||!handE().length&&!cost(b.energy))&&
+   // Star Alchemy belongs to the Forest Seal Stone Tool, NOT to the
+   // attached Pokémon V. Pokemon Ability locks (Path/Initialization,
+   // Bide Barricade, Garbotoxin) do not switch off this Tool Ability.
+   // This proxy has no Tool-effect suppression scenario; such a scenario
+   // must gate this branch separately if introduced.
+   if(b&&b.tool===N.FS&&!vstar&&(turn===2||!handE().length&&!cost(b.energy))&&
       !(opts.policy==="joint"&&turn===1&&chooseSupp(hand.filter(x=>supporter.has(x)))&&[N.GH,N.CR,N.AR,N.CT].includes(chooseSupp(hand.filter(x=>supporter.has(x)))))){
      let x=targetForSearch();if(x&&possible(x)){
        // If a usable Legacy Star can recover discarded ACE/energy, prefer
