@@ -3507,8 +3507,18 @@ function switchedPublic(view,side,index) {
   const known=departing?normalizeSpecialConditionNames(departing.specialConditions??[]):[];
   // Unknown numeric/string condition codes are *not* silently normalized
   // into legal cleared status; preserve them so the continuation fails shut.
+  // Attack-affixed next-turn or until-leaves restrictions disappear when
+  // their target moves from Active to Bench. Do not erase continuous
+  // attacker-wide/while-Active source restrictions or any attached cards.
+  const restrictions=departing?.publicRestrictions??{};
   const cleared=departing?{...departing,
-    specialConditions:known===null?departing.specialConditions:[]}:departing;
+    specialConditions:known===null?departing.specialConditions:[],
+    publicRestrictions:{...restrictions,
+      cannotAttackNextTurn:false,cannotUseAttacksNextTurn:[],
+      blockedAttackNameNextTurn:null,
+      blockedAttackNameUntilLeavesActive:null,
+      onlyAllowedAttackNameNextTurn:null,
+      attackCostIncreaseNextTurn:0,cannotRetreatNextTurn:false}}:departing;
   return {...view,[side]:{...player,active:incoming,
     bench:player.bench.map((slot,i)=>i===index?cleared:slot)}};
 }
