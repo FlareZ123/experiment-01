@@ -2167,13 +2167,13 @@ paired('Agent46: poisoned or burned current attacker and statused defender still
   view.ownPublic.active.specialConditions=['poisoned'];
   view.opponentPublic.active.specialConditions=['asleep'];
   assert.equal(rule(),final); // Defender's sleep does not prevent being hit.
-  view.ownPublic.active.specialConditions=[0,4]; // Poisoned and Burned engine codes.
+  view.ownPublic.active.specialConditions=[3,4]; // Poisoned and Burned engine codes.
   view.opponentPublic.active.specialConditions=[1]; // Confused defender.
   assert.equal(rule(),final); // Confusion only affects attacking Pokémon.
   view.ownPublic.active.specialConditions=['burned'];
   view.opponentPublic.active.specialConditions=['poisoned','burned'];
   assert.equal(rule(),final); // End-of-turn Checkup is after the Prize win.
-  for(const unsafe of [['confused'],['asleep'],['paralyzed'],[1],[2],[3],['unfamiliar']]){
+  for(const unsafe of [['confused'],['asleep'],['paralyzed'],[1],[2],[0],['unfamiliar']]){
     view.ownPublic.active.specialConditions=unsafe;
     assert.notEqual(rule(),final); // Probability/forbidden/unknown -> no certificate.
   }
