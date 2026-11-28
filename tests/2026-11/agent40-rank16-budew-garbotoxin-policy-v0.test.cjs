@@ -2125,7 +2125,9 @@ for(const seat of [0,1]){
   enemy.active=mon('Flutter Mane TEF 78');
   assert.equal(policy.activeFlutterManeLock(q.observation),false);
   enemy.stadium=[];
+  enemy.active=mon('Klefki SVI 96');
   assert.equal(policy.activeKlefkiLock(q.observation),true);
+  enemy.active=mon('Flutter Mane TEF 78');
   assert.equal(policy.activeFlutterManeLock(q.observation),true);
  });
 }
