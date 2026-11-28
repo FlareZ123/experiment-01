@@ -183,6 +183,23 @@ function templeStrandsApexDragon(o){
  // Apex Dragon needs G G R; Temple removes all special effects and leaves Colorless.
  return grass<2||fire<1;
 }
+function plumeriaTargetScore(pokemon,zoneName){
+ if(!pokemon)return 0;
+ const energies=list(pokemon.energies),n=energies.length;
+ if(n===0)return 0;
+ const source=name(pokemon.printing);
+ const dde=energies.some(e=>/^Double Dragon Energy\b/i.test(name(e)));
+ const dce=energies.some(e=>/^Double Colorless Energy\b/i.test(name(e)));
+ if(/^Regidrago VSTAR\b/i.test(source)&&dde)return zoneName==='active'?(n<=2?690:565):455;
+ if(/^Iron Thorns ex\b/i.test(source)&&dce)return zoneName==='active'?(n<=2?650:515):435;
+ if(zoneName==='active'&&n===1)return 510;
+ if(zoneName==='active')return 390;
+ return n===1?340:260;
+}
+function plumeriaDenialScore(o){
+ return slots(o.opponentPublic).reduce((best,x)=>Math.max(best,
+  plumeriaTargetScore(x.pokemon,x.zone)),0);
+}
 function karenDenialScore(o,items){
  const n=regidragoPayloadCount(o);
  if(n===0)return 0;
@@ -203,7 +220,7 @@ function supportChoiceScore(choice,o){
   list(o.ownPublic?.discard).some(x=>[PRINT.mega,PRINT.trubbish,PRINT.garbodor,PRINT.budew]
    .some(p=>match(x,p)))?160:20);
  if(match(choice,PRINT.carmine))return handCount(o)<=3&&!hasProtectedHand(o)?150:0;
- if(match(choice,PRINT.plumeria))return slots(o.opponentPublic).some(x=>list(x.pokemon.energies).length>0)?100:0;
+ if(match(choice,PRINT.plumeria))return Math.min(245,Math.round(plumeriaDenialScore(o)/2));
  return 0;
 }
 function secretBoxSearch(prompt,cards,min,max,o){
@@ -349,6 +366,8 @@ function score(action,req){
  if(match(p,PRINT.secret))return handCanPay(o,p,3)&&deckCount(o)>0?300:0;
  if(match(p,PRINT.vs))return o.ownTurnResources?.supporterPlayedTurn===0&&list(own.discard).some(x=>/Marnie|Carmine|Guzma|Plumeria|Karen|Determination/i.test(name(x)))?190:0;
  if(match(p,PRINT.karen)&&o.ownTurnResources?.supporterPlayedTurn===0)return karenDenialScore(o,items);
+ if(match(p,PRINT.plumeria)&&o.ownTurnResources?.supporterPlayedTurn===0&&handCanPay(o,p,2))
+  return plumeriaDenialScore(o);
  if(match(p,PRINT.marnie)||match(p,PRINT.lillie)||match(p,PRINT.carmine)){
   if(o.ownTurnResources?.supporterPlayedTurn!==0||handCount(o)>3)return 0;
   if(match(p,PRINT.carmine)&&hasProtectedHand(o))return 0;
@@ -506,6 +525,11 @@ function promptDecision(req){
    return chosen?{kind:'select-choices',tokens:chosen.map(c=>c.token)}:
     {kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'};
   }
+  if(/plumeria/.test(src)&&cards.some(c=>zone(c)==='hand')){
+   const chosen=safeDiscardRows(cards.filter(c=>zone(c)==='hand'),o,2);
+   return chosen?{kind:'select-choices',tokens:chosen.map(c=>c.token)}:
+    {kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'};
+  }
   if(/dark patch/.test(src)){
    return pickRows(p,cards.filter(c=>zone(c)==='discard'),bd.min,bd.max,c=>match(c,PRINT.dark)?200:0);
   }
@@ -542,6 +566,15 @@ function promptDecision(req){
    };
   }else if(/boost shake/.test(src)){
    rank=c=>match(c,PRINT.trubbish)?150:0;
+  }else if(/plumeria/.test(src)){
+   const opponent=cs.filter(c=>c.kind==='pokemon'&&owner(c)==='opponent');
+   return pickRows(p,opponent,bd.min,bd.max,c=>{
+    const idx=c.publicMetadata?.benchIndex;
+    const zoneName=zone(c);
+    const target=slots(o.opponentPublic).find(x=>x.zone===zoneName&&
+     (zoneName==='active'||x.index===idx)&&name(x.pokemon.printing)===name(c));
+    return target?plumeriaTargetScore(target.pokemon,target.zone):0;
+   });
   }else if(/dark patch/.test(src)){
    rank=c=>{
     if(zone(c)!=='bench'||!match(c,PRINT.mega))return 0;
@@ -598,6 +631,18 @@ function promptDecision(req){
   }
   return{kind:'abstain',reasonCode:'NO_SUPPORTED_PRIZE_SELECTION'};
  }
+ if(p.promptType==='ChooseEnergyPrompt'&&bd.kind==='energy-payment'&&/plumeria/.test(src)){
+  const candidates=cs.filter(c=>c.kind==='energy'&&owner(c)==='opponent'&&
+   c.publicMetadata?.isOwnerVisible===true);
+  const rank=c=>/^Double Dragon Energy\b/i.test(name(c))?270:
+   /^Double Colorless Energy\b/i.test(name(c))?260:
+   /^Double Turbo Energy\b/i.test(name(c))?240:
+   /^(?:Basic )?(?:Grass|Fire) Energy\b/i.test(name(c))?145:
+   /\bEnergy\b/i.test(name(c))?120:0;
+  const ranked=candidates.map(c=>({c,v:rank(c)})).sort((a,b)=>b.v-a.v);
+  return ranked[0]?.v>0?{kind:'select-choices',tokens:[ranked[0].c.token]}:
+   {kind:'abstain',reasonCode:'NO_SUPPORTED_OPPONENT_ENERGY'};
+ }
  if(p.promptType==='ConfirmPrompt'){
   if(p.source?.sourceKind==='engine'&&o.phase===1&&p.source?.effectName==='GO_FIRST'){
    // The source is built to attack for zero Energy with Budew on its first turn going second.
@@ -623,4 +668,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,regidragoPayloadCount,karenDenialScore,templeStrandsApexDragon,toolEnabled,garbotoxinStatus,liveGarbotoxin};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,regidragoPayloadCount,karenDenialScore,plumeriaDenialScore,templeStrandsApexDragon,toolEnabled,garbotoxinStatus,liveGarbotoxin};
