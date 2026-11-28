@@ -224,3 +224,13 @@ Original rank29 registers **four copies** of `Plumeria BUS120`, a Supporter that
 - New focused both-seat, 6/6 exact-source V8 groups **`fdac2f53439de9ee425bae26dd9b18c74c67e900`**, file `tests/2026-11/agent4-rank29-plumeria-duplicate-discard-realism.test.cjs`.
 - This establishes only a legal/actor-choice correction; no actual native Plumeria discard prompt or deck/matchplay outcome is asserted.
 
+## 2026-11-28 seventh original-rank29 tactical correction: one spare Guzma & Hala pays a real turbo discard
+
+Original rank29 runs **Guzma & Hala CEC193 ×2** and **Trainers' Mail ROS92**. Using one G&H as the turn's Supporter removes only **that one physical copy** from the hand. The second G&H remains a legitimate discard candidate for the **optional two-card discard** unlocking an Energy + Tool alongside the mandatory Stadium search. Old `guzmaHalaPaymentRealism()` filtered **all** G&H copies out of the hand, and `discardPriority()` assigned every copy protected singleton value `-100`, even if there were two. This falsely erased the source-deck's strong turbo `G&H→Thunder Mountain + Double Colorless` line.
+
+**Decision-changing exact actor hand**: `[Guzma & Hala CEC193 ×2, Trainers' Mail ROS92]`, own Active Iron Thorns ex TWM77 unfunded, native-offered G&H versus Crushing Hammer with opponent Shadow Rider V CRE74 holding Psychic Energy. Prior scoring G&H **90** (mandatory Stadium-only), Hammer **125**, selected Hammer. Corrected scoring G&H **210** (spare copy + Mail are two physically discardable cost cards) and selects G&H. **Negatives**: one G&H + Mail still cannot pay the optional two-card cost; two G&H with no Mail also cannot; both retain G&H90 and select Hammer125. No inferred extra hand/deck access is used.
+
+- Worker change **`c3a6c25ce7cbb86b88a745a6e58e80c28337166e`** in `simulation/evaluation/2026-11/agent4-rank29-iron-thorns-opponent-policy.cjs`.
+- Source actor-only both-seat regression **`580787071aedbab3a856cac7491aeaf2eb28b8c0`**, `tests/2026-11/agent4-rank29-guzma-hala-spare-supporter-discard.test.cjs`, **6/6 exact-V8 module groups** passed.
+- This is a meaningful discard-payability/action-selection repair, **not** proof that the following two native search prompts resolve, that the line wins any real match, or that this opponent policy merits native admission. The owner review and one pinned Store witness still gate competitive use.
+
