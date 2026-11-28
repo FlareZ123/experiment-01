@@ -15,7 +15,7 @@ function base(seat = 0, shorthand = false) {
       ownTurnResources: { supporterPlayedTurn: 0 },
       ownHand: [],
       ownPublic: {
-        prizeCount: 1,
+        prizeCount: 1, deckCount: 18,
         active: { printing: 'Regidrago VSTAR SIT' + suffix,
           energies: [{ printing: 'Grass Energy MEE 9' }, { printing: 'Fire Energy MEE 10' }],
           specialConditions: [], publicRestrictions: {} },
@@ -79,6 +79,8 @@ test('fail-closed: no Dialga payload, already powered, already used Supporter or
     r => { r.observation.ownTurnResources.supporterPlayedTurn = 5; },
     r => { r.observation.ownTurnResources.supporterPlayLocked = true; },
     r => { r.observation.ownPublic.prizeCount = 2; },
+    r => { r.observation.ownPublic.deckCount = 1; },
+    r => { r.observation.ownPublic.deckCount = 0; },
     r => { r.observation.opponentPublic.active.damage = 70; },
     r => { r.observation.ownPublic.discard.push('Grass Energy MEE 9','Grass Energy MEE 9','Grass Energy MEE 9'); },
     r => { r.observation.ownPublic.discard.push('Fire Energy MEE 10','Fire Energy MEE 10'); },
