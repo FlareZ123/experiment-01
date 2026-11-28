@@ -20,24 +20,31 @@ function choose(n,k){
 }
 function evaluate({
   v=4,vmax=4,psychic=11,dimensionValley=1,
-  forestSealStone=1,startingBasics=14
+  forestSealStone=1,startingBasics=14,psychicBenchBasics=7
 }={}){
   const n=60,hand=7,prizes=6;
   // [V, VMAX, Psychic, Dimension Valley, Forest Seal Stone,
-  //  other starting Basic, all remaining cards].
+  //  other Psychic starting Basic, non-Psychic starting Basic, remaining].
+  // Exact Hood: other Psychic = Clefairy(2), Lele, TrevDusk, Latias,
+  // Mimikyu, Girafarig (7); other non-Psychic = Dialga, Marshadow,
+  // Radiant Eternatus (3).
   const c=[v,vmax,psychic,dimensionValley,forestSealStone,
-    startingBasics-v,n-(startingBasics+vmax+psychic+dimensionValley+forestSealStone)];
+    psychicBenchBasics,startingBasics-v-psychicBenchBasics,
+    n-(startingBasics+vmax+psychic+dimensionValley+forestSealStone)];
   if(c.some(x=>!Number.isSafeInteger(x)||x<0)||
       c.reduce((a,b)=>a+b,0)!==60||v<1)throw Error('invalid 60-card profile');
   const unseenAfterNine=n-hand-2; // 51, including 6 Prizes
   const prizeWays=choose(unseenAfterNine,prizes);
   const total=choose(n,hand)*BigInt(n-hand)*BigInt(n-hand-1);
   let valid=0n,direct=0n,searchT2=0n,searchT1=0n,profiles=0;
+  let doorAdded=0n;
+  const doorWays=choose(unseenAfterNine,2); // unordered 2 Door draws
+  const prizeWaysAfterDoor=choose(unseenAfterNine-2,prizes);
   function enumerate(i,left,initial,w){
     if(i===c.length-1){
       if(left>c[i])return;
       const seven=initial.concat(left);
-      if(seven[0]+seven[5]===0)return; // actual starting Basic required
+      if(seven[0]+seven[5]+seven[6]===0)return; // actual starting Basic required
       const copies=w*choose(c[i],left);
       profiles++;
       for(let first=0;first<c.length;first++){
@@ -55,14 +62,33 @@ function evaluate({
           const ready=seven[0]>=1&&eight[2]>=1&&nine[2]>=2&&nine[1]>=1;
           if(!ready)continue;
           if(nine[3]>=1){direct+=weight;continue;}
-          if(nine[4]<1)continue;
           const unseenStadium=c[3]-nine[3];
-          // all unseen Dimension Valley copies are Prized in
-          // choose(51-k,6-k) out of choose(51,6) assignments.
-          const possible=prizeWays-
-            choose(unseenAfterNine-unseenStadium,prizes-unseenStadium);
-          searchT2+=weight*possible;
-          if(eight[4]>=1)searchT1+=weight*possible;
+          if(nine[4]>=1){
+            // all unseen Dimension Valley copies Prized in
+            // choose(51-k,6-k) out of choose(51,6) assignments.
+            const possible=prizeWays-
+              choose(unseenAfterNine-unseenStadium,prizes-unseenStadium);
+            searchT2+=weight*possible;
+            if(eight[4]>=1)searchT1+=weight*possible;
+            continue;
+          }
+          // First and only modeled T2 Underworld Door activation:
+          // A third Psychic in first nine must fund Benched attachment,
+          // and a second Psychic Basic (including another V) must be
+          // available for the Bench, besides the initially Active V.
+          // Two Door draws from the actual deck of 45 are exchangeable
+          // with two uniform draws from the remaining 51, conditional on
+          // subsequent six Prizes from the other 49 (no earlier search).
+          if(nine[2]<3 || nine[0]+nine[5]<2)continue;
+          const unseenSeal=c[4]-nine[4];
+          const firstDV=doorWays-
+            choose(unseenAfterNine-unseenStadium,2);
+          const onlySeal=choose(unseenAfterNine-unseenStadium,2)-
+            choose(unseenAfterNine-unseenStadium-unseenSeal,2);
+          const afterDoorDVInDeck=prizeWaysAfterDoor-
+            choose(unseenAfterNine-2-unseenStadium,prizes-unseenStadium);
+          doorAdded+=weight*(firstDV*prizeWaysAfterDoor+
+            onlySeal*afterDoorDVInDeck);
         }
       }
       return;
@@ -77,16 +103,25 @@ function evaluate({
   const pDirect=fraction(direct,valid);
   const pT2=fraction(direct*prizeWays+searchT2,valid*prizeWays);
   const pT1=fraction(direct*prizeWays+searchT1,valid*prizeWays);
+  const doorDenom=valid*doorWays*prizeWaysAfterDoor;
+  const pDoorOnly=fraction(doorAdded,doorDenom);
+  const pWithDoor=fraction(
+    (direct*prizeWays+searchT2)*doorWays*prizeWaysAfterDoor+
+      doorAdded*prizeWays,
+    valid*prizeWays*doorWays*prizeWaysAfterDoor);
   return {
-    input:{v,vmax,psychic,dimensionValley,forestSealStone,startingBasics},
+    input:{v,vmax,psychic,dimensionValley,forestSealStone,startingBasics,psychicBenchBasics},
     eligibleInitialSevenProfiles:profiles,
     validOpeningSeven:pValid,directDimension:pDirect,
     dimensionOrForestT2:pT2,dimensionOrForestT1:pT1,
+    withOneUnderworldDoor:pWithDoor,doorOnlyContribution:pDoorOnly,
     percentages:{
       validOpeningSeven:100*numeric(pValid),
       directDimension:100*numeric(pDirect),
       dimensionOrForestT2:100*numeric(pT2),
-      dimensionOrForestT1:100*numeric(pT1)
+      dimensionOrForestT1:100*numeric(pT1),
+      withOneUnderworldDoor:100*numeric(pWithDoor),
+      doorOnlyContribution:100*numeric(pDoorOnly)
     }
   };
 }
