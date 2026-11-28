@@ -413,6 +413,9 @@ function scoreAttack(item, observation) {
     return ready ? (ownDeck <= 4 ? 140 : 155) : 20;
   }
   if (name === 'Burrow') {
+    // Taking the last deck card wins when the opponent next attempts to draw.
+    // Do not spend this attack on a slower recursion line if Burrow is terminal.
+    if (opponentDeck === 1) return 400;
     return 92 + (opponentDeck <= 8 ? 32 : 0) +
       (opponentDeck < ownDeck ? 8 : 0);
   }
@@ -424,10 +427,18 @@ function scoreAttack(item, observation) {
     return ownDeck <= 4 ? 150 : (keyRecovery ? 78 : 12);
   }
   if (name === 'Get Lost') {
-    const targets = opponentDiscard.filter(card =>
-      /VS Seeker|Lusamine|Team Yell|Karen|Guzma|Guzma & Hala|Special Charge|Double Dragon Energy|Double Colorless Energy|Rare Candy|Forest Seal Stone|Battle Compressor/i.test(card));
-    return targets.length >= 2 ? 125 + Math.min(40, targets.length * 8) :
-      (targets.length === 1 ? 95 : 22);
+    // Use the same matchup-aware target values as the subsequent prompt.
+    // A root score based on a different name-only whitelist can otherwise
+    // decline Get Lost immediately before its high-value Dragon payload cut.
+    const ranked = opponentDiscard.map(printing =>
+      cardPriority(printing, observation, 'get lost')).sort((a, b) => b - a);
+    const first = ranked[0] ?? 0, second = ranked[1] ?? 0;
+    const twoDecisive = first >= 200 && second >= 200;
+    if (twoDecisive) return 190;
+    if (first >= 200 && second >= 20) return 155;
+    if (first >= 125 && second >= 125) return 141;
+    if (first >= 125) return 95;
+    return 22;
   }
   if (name === 'Itchy Pollen') {
     const itemLockLive = boardHas(own, PRINT.vileplume) &&
