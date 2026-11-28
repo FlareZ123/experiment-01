@@ -539,3 +539,43 @@ source-policy/protocol V8 cases; consolidated suite
 expected **414** after final full batches. This
 is a source-card-text defensive correction, not
 native simulated evidence of an Aichi matchup win.
+
+## Shared effective Prize yield in Guzma's two-phase target choice
+
+The previously repaired Guzma target scorer still used a
+raw printed Prize count, even after the terminal-attack
+shortcut gained Legacy Energy/Life Dew adjustments.
+A Guzma against a Benched three-Prize Mega ex with
+attached Legacy Energy can realistically yield only
+two Prizes; choosing it over an uncovered three-Prize
+VMAX can lose the exact turn.
+
+The opponent-Guzma recipient scorer and terminal fast
+path now call one `estimatedKnockoutPrizeYield(view,target)`
+function: printed liability minus attached Legacy Energy
+and live Life Dew, clamped at zero. Both decline to
+assign an immediate-win bonus against source-exact
+`Mimikyu PAL97` Safeguard with a VMAX/ex hitter.
+Modern ex/V are carefully distinguished from old
+Pokémon-EX/GX, which PAL97 does **not** automatically
+protect against. This intentionally conservative
+forecast does not infer unused Legacy counters or
+unknown Safeguard Ability suppression.
+
+Four new two-seat Guzma forks in
+`tests/2026-11/agent3-guzma-postswitch-source-prizes-20261128.test.cjs`
+cover Legacy-vs-VMAX, Life Dew-vs-VMAX,
+double-reduced Mega-vs-ex, and PAL97 Safeguard-vs-
+unprotected single Prize target. They pass **18/18**
+Guzma checks total (original ten plus eight new).
+The terminal module passes **44/44** (38 previous plus
+six Safeguard negatives). The existing 12 other
+Agent3 modules and six neighboring suites remain
+**unchanged and passing**. On the final combined
+worker branch, the complete **21-module,
+422/422 source-policy/strict-protocol V8 suite
+passed** in two independent tool-call batches
+(**266/266** + **156/156**). There was still no
+Node run, no pinned Twinleaf Store, no CI, no complete
+game, no qualified Aichi matchup and no demonstrated
+99.5% game win rate.
