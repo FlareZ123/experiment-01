@@ -754,3 +754,63 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'garb'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Compressor Karen VS Seeker combo converts Dragon discard into one-turn Budew denial',()=>{
+  const enemy=opp({active:mon('Regidrago VSTAR SIT 136'),
+   discard:['Dialga-GX UPR 100','Dragapult ex TWM 130']});
+  const ownP=own({active:mon('Budew ASC 16'),discard:[]});
+  const root1=root(seat,[play('Battle Compressor PHF 92','compressor'),
+      play('VS Seeker PHF 109','seeker'),attack('Itchy Pollen','pollen'),pass],{
+   opponentPublic:enemy,ownPublic:ownP,
+   ownHand:['Battle Compressor PHF 92','VS Seeker PHF 109']});
+  assert.equal(policy.battleCompressorKarenLineScore(root1.observation),690);
+  assert.deepEqual(decide(seat,root1),{kind:'select-action',token:'compressor'});
+  const p1=prompt(seat,{source:{sourceKind:'card-effect',sourcePrinting:'Battle Compressor PHF 92',
+    effectName:'Battle Compressor'},publicMetadata:{minimumCount:1,maximumCount:3},
+   choices:[choice('dark','Darkness Energy MEE 15'),choice('k','Karen XYP 177'),
+    choice('vip','Battle VIP Pass FST 225')]},{
+     ownPublic:ownP,opponentPublic:enemy,
+     ownHand:['VS Seeker PHF 109'],globalTurn:4});
+  const search=decide(seat,p1);
+  assert.deepEqual(search,{kind:'select-choices',tokens:['k','dark','vip']});
+  ownP.discard=['Karen XYP 177','Darkness Energy MEE 15'];
+  root1.observation.ownHand=['VS Seeker PHF 109'];
+  root1.actionFrontier.items=[play('VS Seeker PHF 109','seeker'),
+   attack('Itchy Pollen','pollen'),pass];
+  assert.deepEqual(decide(seat,root1),{kind:'select-action',token:'seeker'});
+  const p2=prompt(seat,{source:{sourceKind:'card-effect',sourcePrinting:'VS Seeker PHF 109',effectName:'VS Seeker'},
+   choices:[choice('k','Karen XYP 177','discard')]},{
+     ownPublic:ownP,opponentPublic:enemy});
+  assert.deepEqual(decide(seat,p2),{kind:'select-choices',tokens:['k']});
+  root1.observation.ownHand=['Karen XYP 177'];
+  root1.actionFrontier.items=[play('Karen XYP 177','karen'),attack('Itchy Pollen','pollen'),pass];
+  assert.deepEqual(decide(seat,root1),{kind:'select-action',token:'karen'});
+  enemy.discard=[];
+  root1.actionFrontier.items=[attack('Itchy Pollen','pollen'),pass];
+  assert.deepEqual(decide(seat,root1),{kind:'select-action',token:'pollen'});
+ });
+ test('seat '+seat+' no Karen dump absent recovery VS or when opponent already emptied discard',()=>{
+  const board=own({active:mon('Budew ASC 16')});
+  const enemy=opp({active:mon('Regidrago VSTAR SIT 136'),
+   discard:['Dialga-GX UPR 100','Dragapult ex TWM 130']});
+  const q=root(seat,[play('Battle Compressor PHF 92','compressor'),
+   attack('Itchy Pollen','pollen'),pass],{
+   ownPublic:board,opponentPublic:enemy,ownHand:['Battle Compressor PHF 92']});
+  assert.equal(policy.battleCompressorKarenLineScore(q.observation),0);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+  enemy.discard=[];
+  q.observation.ownHand=['Battle Compressor PHF 92','VS Seeker PHF 109'];
+  assert.equal(policy.battleCompressorKarenLineScore(q.observation),0);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+ });
+ test('seat '+seat+' Karen Prized: Compressor searches only genuinely offered Darkness',()=>{
+  const enemy=opp({active:mon('Regidrago VSTAR SIT 136'),
+   discard:['Dialga-GX UPR 100','Dragapult ex TWM 130']});
+  const q=prompt(seat,{source:{sourceKind:'card-effect',sourcePrinting:'Battle Compressor PHF 92',
+    effectName:'Battle Compressor'},publicMetadata:{minimumCount:1,maximumCount:3},
+   choices:[choice('d1','Darkness Energy MEE 15'),choice('d2','Darkness Energy MEE 15')]},
+    {opponentPublic:enemy,ownHand:['VS Seeker PHF 109']});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['d1','d2']});
+ });
+}
