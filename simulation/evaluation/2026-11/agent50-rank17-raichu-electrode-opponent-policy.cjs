@@ -2940,6 +2940,11 @@ function r17CrushBurnEnergyDecision(request,chain){
      printingValue(active(opponent(v)))!==chain.targetPrinting||
      own(v).prizeCount!==chain.ownPrizes||
      opponent(v).prizeCount!==chain.opponentPrizes)return null;
+  if(chain.requiredDiscard===0){
+    const empty=list(p.choices).filter(choice=>choice.kind==='empty-selection');
+    return empty.length===1&&empty[0].token?
+      {kind:'select-choice',token:empty[0].token}:null;
+  }
   const remaining=new Map(chain.inventory),tokens=[];
   for(const choice of list(p.choices)){
     if(tokens.length===chain.requiredDiscard)break;
