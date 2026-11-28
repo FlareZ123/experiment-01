@@ -814,6 +814,25 @@ function cardPriority(printing, observation, context) {
     }
     return 0;
   }
+  if (context.includes('grand tree')) {
+    // Grand Tree has *two* separate deck-search continuations: Basic->Stage1
+    // followed, if it evolved, by Stage1->Stage2. Both must be answered.
+    if (matches(printing,PRINT.vileplume) && boardHas(own,PRINT.gloom))
+      return 240;
+    if (matches(printing,PRINT.stoutland) && boardHas(own,PRINT.herdier))
+      return 220;
+    if (matches(printing,PRINT.pidgeot) && boardHas(own,PRINT.pidgeotto))
+      return 205;
+    if (matches(printing,PRINT.vileplumeGx) && boardHas(own,PRINT.gloom))
+      return 105;
+    if (matches(printing,PRINT.gloom) && boardHas(own,PRINT.oddish))
+      return 195;
+    if (matches(printing,PRINT.herdier) && boardHas(own,PRINT.lillipup))
+      return 188;
+    if (matches(printing,PRINT.pidgeotto) && boardHas(own,PRINT.pidgey))
+      return 175;
+    return 0;
+  }
   if (context.includes('technical machine: evolution')) {
     if (matches(printing, PRINT.gloom) && boardHas(own, PRINT.oddish)) return 195;
     if (matches(printing, PRINT.herdier) && boardHas(own, PRINT.lillipup)) return 188;
@@ -1213,7 +1232,9 @@ function promptDecision(request) {
       selectionType === 'card-order') {
     const tmEvolutionAttack = matches(prompt.source?.sourcePrinting, PRINT.tmEvolution) &&
       String(prompt.source?.effectName ?? '').toLowerCase() === 'evolution';
-    const recognizedCardSource = tmEvolutionAttack || context.includes('tag call') ||
+    const grandTreeSearch = matches(prompt.source?.sourcePrinting,PRINT.grandTree) &&
+      String(prompt.source?.effectName ?? '').toLowerCase() === 'grand tree';
+    const recognizedCardSource = tmEvolutionAttack || grandTreeSearch || context.includes('tag call') ||
       context.includes('fan call') || context.includes('guzma & hala') ||
       context.includes('artazon') || context.includes('capture energy') ||
       context.includes('rototiller') ||
