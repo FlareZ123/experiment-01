@@ -32,7 +32,8 @@ function req(seat,config={}){
  }
  const target=mon(config.targetPrinting??THORNS,config.targetHP??230,
    (config.targetHP??230)-(config.targetRemaining??140));
- target.printed.subtypes=config.targetPrinting===DRAGO?['VSTAR']:
+ target.printed.subtypes=config.targetPrinting==='Mimikyu PAL 97'?['Basic']:
+   config.targetPrinting===DRAGO?['VSTAR']:
    config.targetPrinting===MEGA?['ex','MEGA']:['ex'];
  if(config.spiky)target.energies=['Spiky Energy JTG 159'];
  if(config.legacy)target.energies.push('Legacy Energy TWM 167');
@@ -97,7 +98,17 @@ const cases=[
   {ownPrize:2,legacy:true,targetPrinting:MEGA,targetHP:280,
    targetRemaining:140},'attack'],
  ['Last-board KO still wins even if Legacy Energy reduces Prize count',
-  {ownPrize:6,legacy:true,opponentBench:false},'attack']
+  {ownPrize:6,legacy:true,opponentBench:false},'attack'],
+ ['Safeguard Mimikyu PAL97 blocks VMAX terminal attack damage',
+  {targetPrinting:'Mimikyu PAL 97',targetHP:70,
+   targetRemaining:70,ownPrize:1,ownBench:false},'basic'],
+ ['Safeguard Mimikyu PAL97 blocks VMAX last-board KO shortcut',
+  {targetPrinting:'Mimikyu PAL 97',targetHP:70,targetRemaining:70,
+   ownPrize:6,ownBench:false,opponentBench:false},'basic'],
+ ['Safeguard Mimikyu PAL97 blocks Latias ex terminal attack damage',
+  {activePrinting:'Latias ex SSP 76',ownEnergy:3,
+   targetPrinting:'Mimikyu PAL 97',targetHP:70,targetRemaining:70,
+   ownPrize:1,ownBench:false},'basic']
 ];
 for(const seat of [0,1])for(const [label,config,token]of cases)
  test(label+' seat '+seat,()=>{
