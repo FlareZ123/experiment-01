@@ -1042,6 +1042,31 @@ test('Grand Tree root to target to both Stage searches can complete rank2 lock l
       allowCancel:false,isSecret:false}});
   assert.deepEqual(checkedDecision(stage2),{kind:'select-choices',tokens:['lock']});
 });
+test('Grand Tree legally cancels missing Stage2 deck-search continuation',()=>{
+  const req=promptRequest({promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('Grand Tree SCR 136','Grand Tree'),
+    choices:[cardChoice('junk','Herdier SUM 104'),
+      {token:'cancel',kind:'cancel',label:'Cancel selection'}],
+    observation:{ownPublic:player({active:pokemon('Bunnelby PRC 121'),
+      bench:[pokemon('Gloom UNB 7',{stage:'STAGE1',
+        evolutionPrintings:['Oddish UNB 5']})]})},
+    publicMetadata:{selectionType:'card-combination',minimumCount:1,
+      maximumCount:1,allowCancel:true,isSecret:false}});
+  assert.deepEqual(checkedDecision(req),{kind:'select-choice',token:'cancel'});
+});
+test('Grand Tree cannot invent cancellation for a mandatory unsupported Stage2 search',()=>{
+  const req=promptRequest({promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('Grand Tree SCR 136','Grand Tree'),
+    choices:[cardChoice('junk','Herdier SUM 104')],
+    observation:{ownPublic:player({active:pokemon('Bunnelby PRC 121'),
+      bench:[pokemon('Gloom UNB 7',{stage:'STAGE1',
+        evolutionPrintings:['Oddish UNB 5']})]})},
+    publicMetadata:{selectionType:'card-combination',minimumCount:1,
+      maximumCount:1,allowCancel:false,isSecret:false}});
+  assert.deepEqual(checkedDecision(req),{
+    kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'});
+});
+
 test('Grand Tree stage search abstains on a source-mismatched card instead of choosing it',()=>{
   const request=promptRequest({promptType:'ChooseCardsPrompt',
     source:actorChoiceSource('Grand Tree SCR 136','Grand Tree'),
