@@ -101,6 +101,10 @@ for (const seat of [0, 1]) for (const [label, config, expected] of cases) {
     }).decideWithAudit(input);
     assert.deepEqual(result.decision, { kind: 'select-action', token: expected });
     assert.deepEqual(result.policyAudit.selectedTokens, [expected]);
+    protocol.validateDecision(result.decision, input.prompt,
+      new Set(input.actionFrontier.items.map(item => item.token)));
+    protocol.validatePolicyAudit(result.policyAudit, input, result.decision,
+      POLICY_VERSION);
     assert.deepEqual(result.policyAudit.evaluations.map(x => x.token),
       input.actionFrontier.items.map(x => x.token));
     if (config.labyrinth === true && config.mimicEnergy !== 3) {
