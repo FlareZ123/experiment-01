@@ -358,13 +358,13 @@ function exactRank3PhysicalScene(seat) {
     take('Water Energy')
   ];
   const remaining = Array.from(pool.values()).flat();
-  assert.equal(remaining.length, 45);
+  assert.equal(remaining.length, 51);
   const prizes = remaining.splice(0, 6).map(prize => {
     const slot = new CardList();
     slot.cards.push(prize);
     return slot;
   });
-  assert.equal(remaining.length, 39);
+  assert.equal(remaining.length, 45);
   scene.actor.active.cards = [before, water];
   scene.actor.active.energies.cards = [water];
   scene.actor.hand.cards = hand;
@@ -408,7 +408,7 @@ for (const seat of [0, 1]) {
     try {
       assertExactRank3PhysicalConservation(scene);
       assert.equal(scene.actor.hand.cards.length, 7);
-      assert.equal(scene.actor.deck.cards.length, 39);
+      assert.equal(scene.actor.deck.cards.length, 45);
       assert.equal(scene.actor.prizes.length, 6);
       const enginePin = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
       const nativeBindings = {
