@@ -1422,3 +1422,59 @@ for(const seat of [0,1]) {
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' Telepathic Rondo payoff requires enough Bench slots and Psychic search targets',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active={
+      printing:clef,energies:[psychic,psychic]};
+    r.observation.ownPublic.bench=[
+      b('Unown AOR 30'),b('Latias ex SSP 76'),
+      b('Minior PAR 99'),b('Dedenne-GX UNB 57')];
+    r.observation.opponentPublic.active={
+      printing:'Crobat V DAA 104',hp:230,damage:90,
+      printed:{weakness:[],resistance:[]}};
+    r.observation.opponentPublic.bench=[];
+    r.observation.ownHand=['Telepathic Psychic Energy POR 88'];
+    r.actionFrontier.items=[{
+      ...root('play-card','Telepathic Psychic Energy POR 88','telepath',
+        {targetSeat:'actor',targetZone:'active',isOwnerVisible:true}),
+       targetPrinting:clef}];
+    // 100 current Rondo, 140 remaining: one free Bench slot adds 20 only.
+    assert.deepEqual(projectedRondo(r.observation),
+      {damage:100,remaining:140,total:4});
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    r.observation.ownPublic.stadium=['Sky Field ROS 89'];
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'telepath'});
+    r.observation.ownerK1={exactMembershipKnown:true,
+      knownPrintings:[{printing:'Minior PAR 99',copies:2},
+        {printing:'Psychic Energy MEE 13',copies:5}]};
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    r.observation.ownerK1.knownPrintings.push({
+      printing:'Unown AOR 30',copies:1});
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    r.observation.ownerK1.knownPrintings.push({
+      printing:'Latias ex SSP 76',copies:1});
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'telepath'});
+  });
+  test('seat '+seat+' Telepathic search never chooses two Basics for one Bench vacancy',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active={printing:clef,energies:[psychic]};
+    r.observation.ownPublic.bench=[
+      b('Unown AOR 30'),b('Minior PAR 99'),
+      b('Squawkabilly ex PAL 169'),b('Dedenne-GX UNB 57')];
+    r.prompt={...prompt('deck',[
+      card('Latias ex SSP 76','latias'),
+      card(clef,'clefairy'),
+      card('Unown AOR 30','unown')],0,2),
+      source:{sourcePrinting:'Telepathic Psychic Energy POR 88',
+        effectName:'Telepathic Psychic Energy'}};
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choices',tokens:['latias']});
+    r.observation.ownPublic.bench.push(b('Crobat V DAA 104'));
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_LEGAL_CARD_SET');
+  });
+}
