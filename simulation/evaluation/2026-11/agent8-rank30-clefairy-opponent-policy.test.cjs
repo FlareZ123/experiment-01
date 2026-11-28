@@ -743,3 +743,67 @@ for(const seat of [0,1]) {
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' Field Blower -> Minior attach -> Meteor switch -> Snorlax KO line',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active=b('Unown AOR 30');
+    r.observation.ownPublic.bench=[{printing:'Minior PAR 99',energies:[]}];
+    r.observation.opponentPublic.active={
+      printing:'Snorlax PGO 55',hp:150,damage:0,tools:['Float Stone BKT 137'],
+      abilities:['Block'],abilitySuppressions:[{abilityName:'Block',
+        suppressed:false,reasonCode:null,sourcePrinting:null}]};
+    r.observation.ownHand=['Field Blower GRI 125',psychic];
+    r.observation.ownTurnResources.energyPlayedTurn=0;
+    r.actionFrontier.items=[
+      root('play-card',"Trainers' Mail ROS 92",'mail'),
+      root('play-card','Field Blower GRI 125','blower')];
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'blower'});
+    r.prompt={promptType:'ChooseCardsPrompt',
+      source:{sourcePrinting:'Field Blower GRI 125',effectName:'Field Blower'},
+      publicMetadata:{selectionType:'card-combination',sourceZone:'tool',
+        ownerSeat:'opponent',isOwnerVisible:true,
+        minimumCount:0,maximumCount:2},
+      choices:[{kind:'card',printing:'Float Stone BKT 137',token:'opp-tool'},
+        {kind:'empty-selection',token:'empty'}]};
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choices',tokens:['opp-tool']});
+    // A detached sequential state envelope from after the chosen item;
+    // native physical resolution remains an independent admission gate.
+    r.prompt=null;r.observation.opponentPublic.active.tools=[];
+    r.observation.ownHand=[psychic];
+    r.actionFrontier.items=[{
+      ...root('play-card',psychic,'attach-minior',
+        {targetSeat:'actor',targetZone:'bench',targetIndex:0,isOwnerVisible:true}),
+      targetPrinting:'Minior PAR 99'}];
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'attach-minior'});
+    r.observation.ownPublic.bench[0].energies=[psychic];
+    r.prompt={promptType:'ConfirmPrompt',
+      source:{sourcePrinting:'Minior PAR 99',effectName:'Far-Flying Meteor'},
+      publicMetadata:{selectionType:'confirm'},
+      choices:[{kind:'confirm',token:'yes',label:'Yes'},
+        {kind:'confirm',token:'no',label:'No'}]};
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choice',token:'yes'});
+    r.prompt=null;
+    r.observation.ownPublic.active={printing:'Minior PAR 99',energies:[psychic]};
+    r.observation.ownPublic.bench=[];
+    r.actionFrontier.items=[
+      {...root('attack','Minior PAR 99','tackle'),attackName:'Gravitational Tackle'}];
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'tackle'});
+    // With two indistinguishable Float Stones in visible play, the prompt
+    // cannot identify the opponent's copy and must refuse the action.
+    r.observation.ownPublic.active={printing:'Unown AOR 30',
+      tools:['Float Stone BKT 137']};
+    r.observation.ownPublic.bench=[{printing:'Minior PAR 99',energies:[]}];
+    r.observation.opponentPublic.active.tools=['Float Stone BKT 137'];
+    r.observation.ownHand=['Field Blower GRI 125',psychic];
+    r.prompt=null;r.actionFrontier.items=[
+      root('play-card','Field Blower GRI 125','blower')];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  });
+}
