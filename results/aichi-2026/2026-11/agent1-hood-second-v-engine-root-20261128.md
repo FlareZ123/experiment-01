@@ -1,0 +1,35 @@
+# Hood fixed-60 execution blocker: second Shadow Rider V was never played (28 Nov 2026)
+
+**Evidence type:** exact source-60 + card-text mechanistic fault, evaluated with executable candidate-worker and pinned strict policy-audit protocol. **Not** a native Store game, a completed turn, simulation strength estimate, or owner approval.
+
+## Why this is material to a fixed strong 60
+
+The nominated immutable [Hood Shadow Rider source 60](../candidate-hood-shadow-rider.json) plays **four Shadow Rider Calyrex V CRE74, four VMAX CRE75, and eleven Basic Psychic Energy**. CRE75's printed **Underworld Door** is a once-per-Pokémon-per-turn Ability that attaches a Psychic from hand to a Benched Psychic Pokémon and draws 2; multiple VMAX engines can thus contribute separate acceleration/draw once established. The unchanged original source opponent rank1 is also Shadow Rider, and rank1 isn't the only opponent needing sustained attack pressure.
+
+Current [Agent32 draft PR #95](https://github.com/FlareZ123/experiment-01/pull/95), head `321302d26d417257d947fb0a942c26e647c32b67`, repaired choosing and completing Underworld Door *once it exists*, but its frozen `agent46-candidate-policy.cjs` had this condition in `scoreBasicPlay`:
+
+```js
+if (hasName(printing, 'Shadow Rider Calyrex V') &&
+    !hasName(printing, 'VMAX') &&
+    !boardHas(view, 'Shadow Rider Calyrex V')) return 1000;
+```
+
+Since `hasName` is substring matching, the first existing **Basic V or evolved VMAX** satisfies `boardHas(view, 'Shadow Rider Calyrex V')`. Every **subsequent** legal Basic V root returns negative infinity for every basic-play scoring branch. In a constructed no-other-play state with a first V **or VMAX** on board, a second source-printed V in hand, and a native-offered `play-card` Bench action, the worker incorrectly **passes** even though it must establish a second V to evolve into a second Underworld Door.
+
+This is distinct from Agent32's existing Underworld Door root/prompt/cost corrections: the missing second V prevents a second ability source from existing at all. It is also separate from [our Guzma forced-self-switch fix](agent1-hood-guzma-forced-self-switch-decision-20261128.md).
+
+## Executable bounded patch
+
+[Agent1 isolated review branch](https://github.com/FlareZ123/experiment-01/tree/agent1/candidate-second-v-engine-20261128), based exactly on PR #95 head. Two changed files only; no changes to main sealed worker, fixed candidate 60, native engine, source-print bridge, worker registration, CI, or V3.
+
+- [Worker patch](https://github.com/FlareZ123/experiment-01/commit/873b3f8591198fb44d0026ca05181911e16c12ff) / [priority adjustment](https://github.com/FlareZ123/experiment-01/commit/72930bdff3ebd5f80db65d942ed33b3ddffec8e8): count board-established V **including their VMAX evolutions** as engine slots. Continue to prioritize first V, allow a second Basic V when one engine slot exists and a Bench reservation remains, then stop automatic V expansion at two. Explicitly retain matchup Mimikyu priority if Regidrago is detected, and preserve the last ordinary Bench slot.
+- [14 two-seat policy/protocol cases](https://github.com/FlareZ123/experiment-01/blob/agent1/candidate-second-v-engine-20261128/tests/2026-11/agent1-candidate-second-v-early-engine.test.cjs) with actual `createPolicy(...).decideWithAudit`, `validateDecision`, `validatePolicyAudit`. Controls include no-V first engine, one V Active, VMAX Active, VMAX + a separate Bench filler, already two engine slots, four existing Bench fillers, and Regidrago-matchup Mimikyu contention.
+- Exact committed V8/CommonJS source+test execution: **PR #95 baseline 8/14 vs proposed branch 14/14**, six repaired decisions (three missing-second-V states × two seats) and eight unchanged controls. No compiled Store, legal action enumeration, native draw/progression, full game or 99.5% evaluation occurred.
+
+## Integration prioritization
+
+The owner has a **different and more developed** implementation: `simulation/evaluation/2026-11/agent46-two-profile-candidate-policy.cjs` on branch `agent46/two-profile-policy-successor-20261127-v2` already has a `scoreBasicPlay` second-V branch for fewer than two engine slots plus richer Radiant Eternatus Climactic Gate and matchup protections. **If Agent46 elects to integrate that successor**, do not transplant this simplified heuristic; use the test to ensure equivalent intended behavior in the final worker. If the smaller PR #95 path is retained, cherry-pick only the bounded V-root delta after owner review.
+
+A complete engine planner must also handle Radiant Eternatus **CRZ105 Climactic Gate**, whose printed effect can put up to two VMAX from deck onto the Bench but ends the turn when used. PR #95 simple worker still doesn't score this Basic play, while the two-profile successor has gated logic. We intentionally did not install a blind Eternatus play without native triggered-Ability continuation, Bench budget, Supporter opportunity, turn-end cost, and viable prompt choice; that would trade one false pass for an uncontrolled false positive.
+
+**Goal status:** 29/32 exact original opposing lists, ranks 23/25/28 unresolved, 0/32 qualified Aichi matchups, no demonstrated 99.5% game-win rate. The 14/14 are policy-decision tests only.
