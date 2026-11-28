@@ -96,6 +96,13 @@ cases = [
         ("other basic", 12, True), ("other nonbasic", 38, False)
     ], {"Duskull": 1, "Dusclops": 1, "Dusknoir": 1,
         "Mewtwo": 1, "AceTrainer": 1}),
+    ("v4 Hooded Dusknoir + Miraculous Duo one-turn roles", [
+        ("Duskull", 2, True), ("Dusclops", 2, False),
+        ("Dusknoir", 1, False), ("Mewtwo", 2, True),
+        ("Hood", 1, False), ("other basic", 13, True),
+        ("other nonbasic", 39, False)
+    ], {"Duskull": 1, "Dusclops": 1, "Dusknoir": 1,
+        "Mewtwo": 1, "Hood": 1}),
 ]
 expected = [
     Fraction(13813723731137, 15627986902094),
@@ -108,8 +115,55 @@ expected = [
     Fraction(17941935171135, 31255973804188),
     Fraction(634024466607825, 812655318908888),
     Fraction(705718383423173, 812655318908888),
+    Fraction(35096261771521, 44651391148840),
 ]
 for (label, categories, required), exact in zip(cases, expected):
     p = gate_probability(categories, required)
     assert p == exact, (label, p, exact)
     print(f"{label}: {100*float(p):.9f}% = {p}")
+
+def first_eight_probability(categories, successful):
+    """A legal initial 7 plus one ordinary draw; no opponent mulligan bonuses.
+
+    categories: (name, physical_count, is_basic); successful: predicate on
+    named first-eight counts. No Prize identity, searches or sequencing.
+    """
+    assert sum(n for _, n, _ in categories) == 60
+    names = [name for name, _, _ in categories]
+    totals = [n for _, n, _ in categories]
+    denominator = numerator = 0
+    for hand in compositions(totals, 7):
+        if not any(count and basic for count, (_, _, basic) in zip(hand, categories)):
+            continue
+        weight = 1
+        for n, k in zip(totals, hand):
+            weight *= comb(n, k)
+        for idx, remaining in enumerate(n-k for n, k in zip(totals, hand)):
+            if remaining <= 0:
+                continue
+            eight = list(hand)
+            eight[idx] += 1
+            cases = weight * remaining
+            denominator += cases
+            if successful(dict(zip(names, eight))):
+                numerator += cases
+    return Fraction(numerator, denominator)
+
+
+first_eight_tests = [
+    ("two Canceling Cologne", [
+        ("basic", 17, True), ("Cologne", 2, False), ("other", 41, False)
+    ], lambda h: h["Cologne"] >= 1, Fraction(416435, 1708349)),
+    ("singleton Canceling Cologne", [
+        ("basic", 17, True), ("Cologne", 1, False), ("other", 42, False)
+    ], lambda h: h["Cologne"] >= 1, Fraction(3752617, 29041933)),
+    ("singleton Hood and one Duskull", [
+        ("Duskull", 2, True), ("other basic", 15, True),
+        ("Hood", 1, False), ("other", 42, False)
+    ], lambda h: h["Hood"] >= 1 and h["Duskull"] >= 1,
+       Fraction(15884666, 493712861)),
+]
+for label, cats, event, exact in first_eight_tests:
+    actual = first_eight_probability(cats, event)
+    assert actual == exact, (label, actual, exact)
+    print(f"{label}, first 8, legal opener: {100*float(actual):.9f}% = {actual}")
