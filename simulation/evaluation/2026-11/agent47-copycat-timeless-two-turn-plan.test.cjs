@@ -94,3 +94,68 @@ for(const seat of [0,1]){
     assert.deepEqual(decide(r),{kind:'select-choice',token:'power-beam'});
   });
 }
+
+function postTimeless(seat=0){
+  const r=request(seat);
+  r.observation.globalTurn=5;
+  r.observation.ownTurnResources={extraTurnActive:true,
+    supporterPlayedTurn:0,retreatedTurn:0};
+  r.observation.ownPublic.publicTurnRestrictions.gxUsed=true;
+  r.observation.opponentPublic.active.damage=150;
+  r.publicEventReceipt.turn=5;
+  r.publicEventReceipt.opponentLastTurnTurn=2;
+  r.publicEventReceipt.opponentCopycatChoices[0].turn=2;
+  return r;
+}
+
+for(const seat of [0,1]){
+  test('seat '+seat+' actor extra-turn root selects Copycat for 150+200 finish',()=>{
+    const r=postTimeless(seat);
+    r.observation.decisionKind='owner-root';
+    r.prompt=null;
+    r.actionFrontier={items:[
+      {kind:'attack',token:'copycat-action',attackName:'Copycat'},
+      {kind:'pass',token:'pass-action'}
+    ]};
+    assert.deepEqual(decide(r),{kind:'select-action',token:'copycat-action'});
+  });
+  test('seat '+seat+' actor extra-turn chooses Apex at first nested prompt',()=>{
+    const r=postTimeless(seat);
+    r.prompt.source.effectName='Copycat';
+    r.prompt.choices=[
+      {kind:'attack',token:'apex-choice',
+        publicMetadata:{sourceAttack:'Apex Dragon'}},
+      {kind:'attack',token:'other-attack',
+        publicMetadata:{sourceAttack:'Power Beam'}}
+    ];
+    assert.deepEqual(decide(r),{kind:'select-choice',token:'apex-choice'});
+  });
+  test('seat '+seat+' actor extra-turn chooses Power Beam over spent Timeless',()=>{
+    const r=postTimeless(seat);
+    assert.deepEqual(decide(r),{kind:'select-choice',token:'power-beam'});
+  });
+  for(const [label,mutate] of [
+    ['no extra-turn flag',r=>{r.observation.ownTurnResources.extraTurnActive=false}],
+    ['no observed Radiant payload',r=>{r.observation.ownPublic.discard=['Dialga-GX UPR']}],
+    ['unpaid GX first turn',r=>{r.observation.ownPublic.publicTurnRestrictions.gxUsed=false}],
+    ['no prior Apex',r=>{r.publicEventReceipt.opponentCopycatChoices=[]}],
+    ['wrong source print',r=>{r.publicEventReceipt.opponentCopycatChoices[0].sourcePrinting='Dialga-GX UPR'}],
+    ['stale actor turn',r=>{r.publicEventReceipt.turn=4}],
+    ['wrong attacker',r=>{r.observation.ownPublic.active.printing='Shadow Rider Calyrex V CRE'}],
+    ['healed Regidrago',r=>{r.observation.opponentPublic.active.damage=0}],
+    ['KO already complete',r=>{r.observation.opponentPublic.active.damage=280}],
+    ['unknown protection Tool',r=>{r.observation.opponentPublic.active.tools=['Hard Charm XY']}]
+  ]){
+    test('seat '+seat+' rejects unearned extra-turn finish: '+label,()=>{
+      const r=postTimeless(seat);
+      mutate(r);
+      r.observation.decisionKind='owner-root';
+      r.prompt=null;
+      r.actionFrontier={items:[
+        {kind:'attack',token:'copycat-action',attackName:'Copycat'},
+        {kind:'pass',token:'pass-action'}
+      ]};
+      assert.notDeepEqual(decide(r),{kind:'select-action',token:'copycat-action'});
+    });
+  }
+}
