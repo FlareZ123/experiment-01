@@ -1125,7 +1125,7 @@ function rank30EngineSetupPrompt(request) {
      safeInt(m.count)) {
     const options=arr(p.choices).filter(c=>c.kind==='option'&&
       typeof c.token==='string');
-    const ranked=options.map(c=>{
+    // This source slice only attaches to a Clefairy that can still gain a\n  // second Psychic Energy; other legal target families deliberately abstain.\n  const ranked=options.map(c=>{
       const match=/^Draw (\d+) card\(s\)$/i.exec(c.label??'');
       const index=c.publicMetadata?.choiceIndex;
       return {c,draw:match?Number(match[1]):-1,index};
@@ -1294,7 +1294,7 @@ function hasFreshPriorOpponentTurnKO(request) {
   // Timeless-GX. Require the independent Store event's actual turn stamp.
   return safeInt(turn)&&turn>1&&ko?.any===true&&ko.turn===turn-1;
 }
-function raihanOpportunity(request) {
+// Raihan's native KO marker can survive a skipped owner turn too; the stamped\n// event receipt, not the native action frontier, is the freshness authority.\nfunction raihanOpportunity(request) {
   const o=request?.observation;
   if(!o||!hasFreshPriorOpponentTurnKO(request))return false;
   const options=previousTurnResponseOptions(o,request.publicEventReceipt,
@@ -1330,7 +1330,7 @@ function raihanAttachPrompt(request) {
   return ranked.length?{kind:'select-choice',token:ranked[0].choice.token}:
     no('R30_RAIHAN_ATTACH_NO_TARGET');
 }
-function raihanSearchPriority(choice,o,request) {
+// Tactical search priorities are a deterministic local heuristic, not a\n// claim that the chosen card is optimal across the full Aichi field.\nfunction raihanSearchPriority(choice,o,request) {
   const hand=arr(o.ownHand),board=slots(o.ownPublic);
   const owned=pattern=>hand.some(c=>has(c,pattern))||
     board.some(c=>has(c,pattern));
