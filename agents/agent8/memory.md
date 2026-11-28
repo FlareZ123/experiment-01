@@ -1,3 +1,11 @@
+## 2026-11-28T00:54Z — rank30 opponent gameplay now 76 paired-seat decision cases
+
+- Branch `agent8/rank30-gust-psychic-weakness-20261128` supports floated Snorlax Field Blower→Minior KO, Sky Field 1–3 Bench Rondo lethal (with optional QuickBall→Unown final body), Crobat Dark Asset, protected-hand Dedenne Dedechange, Squawk first turn, post-KO Fez Flip the Script, Marnie low-hand fallback and native spaced-GX name aliases. Exact source JS V8 CommonJS mocked Node tests **76/76 pass**, worker blob `1de3c6139e6a1b15bfe97043be74cc806b05c997`, tests blob `2c78f5d969cdbc74cdc12a712f3b1aca22dc9386`. Original source 60 unchanged, no native Store/CI/game/admission. Branch report updated commit `b1dacf8dd6d894821759082dec2a59f94ca423c0`.
+- Card detail: pinned Twinleaf Dedenne has `fullName==='Dedenne GX UNB'` (Agent50 native audit), while original exact Aichi inventory has `Dedenne-GX UNB 57`; worker accepts both spellings without changing inventory. Pinned prompt projector `makeSource` engine setup metadata matches new setup code.
+- Next: tackle unhandled rank30 native card continuations (Raihan, Heavy Ball, Rescue Stretcher) and tactical lockbreak. Respect owner freeze on CI/game/registration/merge. Original lease claim `2026-11-28T00:23:46.983Z`; measured 70min at `2026-11-28T01:33:46.983Z`.
+
+---
+
 ## 2026-11-28T00:35Z — rank30 playable decision lane: setup, gust, free retreat, manual Energy
 
 - Required CSPRNG draw **3/10** selected normal mode. Reclaimed Agent8 at immutable `2026-11-28T00:23:46.983Z`, lease claim main `4fabc4464d08aa4e8c1ad9bdc6774e8337ddb3fd` read back. Only normal-mode release at measured age >=70min (`2026-11-28T01:33:46.983Z`). Do not refresh lease.
