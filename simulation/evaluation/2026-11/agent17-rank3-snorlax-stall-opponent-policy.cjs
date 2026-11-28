@@ -1235,6 +1235,32 @@ function promptDecision(request) {
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_POKEMON_PROMPT' };
   }
 
+  if (prompt.promptType === 'MoveEnergyPrompt') {
+    // The pinned Articuno-GX CES Legendary Ascent prompt transfers attached
+    // Water Energy from an actor-owned Bench slot to the physical Active.
+    // This is not a ChooseEnergyPrompt payment; use each unique native token.
+    if (!/legendary ascent/i.test(source) ||
+        selectionType !== 'energy-transfer' ||
+        metadata.ownerSeat !== 'actor' ||
+        metadata.sourceZone !== 'bench' ||
+        metadata.targetZone !== 'active' ||
+        metadata.allowCancel !== false) {
+      return { kind: 'abstain', reasonCode: 'UNTRUSTED_ENERGY_SELECTION' };
+    }
+    const water = choices.filter(choice =>
+      choice.kind === 'energy' &&
+      choiceOwner(choice) === 'actor' &&
+      choiceZone(choice) === 'bench' &&
+      choice.publicMetadata?.targetZone === 'active' &&
+      Number.isSafeInteger(choice.publicMetadata?.benchIndex) &&
+      /^Water Energy\b/i.test(valueText(choice)));
+    const min = Number.isSafeInteger(metadata.minimumCount) ? metadata.minimumCount : 1;
+    const max = Number.isSafeInteger(metadata.maximumCount) ? metadata.maximumCount : min;
+    return multiSelectDecision(prompt, water.map((choice, index) => ({
+      choice, score: 100 - index
+    })), min, max);
+  }
+
   if (prompt.promptType === 'ChooseEnergyPrompt') {
     if (/legendary ascent/i.test(source)) {
       // Native actor prompt is multi-Energy payment, not a deck card search.
