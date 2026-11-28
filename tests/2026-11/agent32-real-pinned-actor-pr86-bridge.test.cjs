@@ -19,6 +19,10 @@ const {stage}=require('../../simulation/twinleaf/agent5-attack-special-arbitrati
 const {initializeCards}=require('../../simulation/twinleaf/headless.cjs');
 const {actorObservation}=require('../../simulation/twinleaf/actor-observation-contract.cjs');
 const {publicEventReceipt}=require('../../simulation/twinleaf/agent8-public-event-receipt.cjs');
+const {installPromptProvenanceHook}=
+  require('../../simulation/evaluation/2026-11/agent36-prompt-provenance.cjs');
+const {projectPrompt,dispatchPromptChoice}=
+  require('../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
 const protocol=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const rank3=require('../../simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs');
 
@@ -224,33 +228,86 @@ for(const seat of [0,1]){
     assert.deepEqual(policy.decide({...bridgedRoot,observation:oldMapped}),
       {kind:'select-action',token:nativeHandi.token});
 
-    // Settle the *actual selected* Penny through the genuine Store. This
-    // tests a legal optional Bench target, not source-policy competence for
-    // choosing the best Penny target under live match conditions.
-    x.store.dispatch(selectedNativeAction(realFrontier,selected.token));
-    const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
-    let chosePennyTarget=false;
-    for(let i=0;i<24;i++){
-      const pending=x.state.prompts.find(p=>p.result===undefined);
-      if(!pending)break;
-      if(pending.constructor.name==='WaitPrompt'){
-        x.store.dispatch(new ResolvePromptAction(pending.id,null));
-        continue;
+    // Continue the same worker-selected native root through its REAL
+    // Penny effect, typed prompt provenance, two-seat actor observation,
+    // certified exact source-60 printings, strict worker protocol,
+    // rank3 prompt policy, and native Store/validator settlement.
+    const promptProvenance=installPromptProvenanceHook(x.store);
+    const ResolvePromptAction=
+      native('game/store/actions/resolve-prompt-action').ResolvePromptAction;
+    try{
+      x.store.dispatch(selectedNativeAction(realFrontier,selected.token));
+      let selectedByWorker=false;
+      for(let i=0;i<24;i++){
+        const pending=x.state.prompts.find(p=>p.result===undefined);
+        if(!pending)break;
+        if(pending.constructor.name==='WaitPrompt'){
+          x.store.dispatch(new ResolvePromptAction(pending.id,null));
+          continue;
+        }
+        assert.equal(pending.constructor.name,'ChoosePokemonPrompt',
+          'Penny must request an owned Basic Pokémon target');
+        assert.equal(pending.playerId,x.owner.id);
+        assert.equal(selectedByWorker,false,
+          'Penny must create one target prompt, not repeat it');
+        const nativePrompt=projectPrompt({
+          prompt:pending,state:x.state,actorSeat:seat,
+          native:{...frontierNative(),ResolvePromptAction},
+          store:x.store,provenanceHook:promptProvenance
+        });
+        assert.equal(nativePrompt.hostOnly,false);
+        assert.equal(nativePrompt.promptProjection.source.sourcePrinting,'Penny SVI');
+        const promptObservation=actorObservation(x.state,seat);
+        assert.equal(promptObservation.decisionKind,'owner-prompt');
+        assert.equal(promptObservation.pendingPromptType,'ChoosePokemonPrompt');
+        const nativePromptReceipt=publicEventReceipt(x.state,seat);
+        const emptyPromptFrontier={schema:protocol.FRONTIER_SCHEMA,items:[]};
+        const promptParts=projectAdmittedWorkerParts({
+          observation:promptObservation,prompt:nativePrompt.promptProjection,
+          actionFrontier:emptyPromptFrontier,publicEventReceipt:nativePromptReceipt
+        },maps,protocol);
+        assert.equal(promptParts.prompt.source.sourcePrinting,'Penny SVI 183');
+        const promptChoices=promptParts.prompt.choices;
+        const pickup=promptChoices.find(choice=>
+          choice.printing==='Galarian Stunfisk SSH 132');
+        assert.ok(pickup,'Source-printed native Penny choice must be Stunfisk');
+        const promptRequest={...nativeRequest,
+          requestId:'agent32-real-penny-prompt-'+seat,sequence:1,
+          observation:promptParts.observation,
+          prompt:promptParts.prompt,
+          publicEventReceipt:promptParts.publicEventReceipt,
+          actionFrontier:promptParts.actionFrontier};
+        const admittedPrompt=protocol.validateRequest(
+          promptRequest,init,1,new Set());
+        const promptDecision=policy.decide({
+          role:'opponent',seat,
+          observation:promptParts.observation,
+          prompt:promptParts.prompt,
+          publicEventReceipt:promptParts.publicEventReceipt,
+          actionFrontier:promptParts.actionFrontier
+        });
+        assert.deepEqual(promptDecision,
+          {kind:'select-choices',tokens:[pickup.token]});
+        protocol.validateDecision(promptDecision,
+          promptParts.prompt,admittedPrompt.actionTokens);
+        dispatchPromptChoice({
+          store:x.store,prompt:pending,state:x.state,actorSeat:seat,
+          projection:nativePrompt,decision:promptDecision,
+          native:{ResolvePromptAction},dispatch:true
+        });
+        selectedByWorker=true;
       }
-      assert.equal(pending.constructor.name,'ChoosePokemonPrompt',
-        'Penny must request only the owned Basic Pokémon target');
-      assert.equal(pending.playerId,x.owner.id);
-      assert.equal(chosePennyTarget,false,'Penny should choose one target');
-      const answer=[x.owner.bench[1]];
-      assert.equal(pending.validate(answer,x.state),true);
-      x.store.dispatch(new ResolvePromptAction(pending.id,answer));
-      chosePennyTarget=true;
+      assert.equal(selectedByWorker,true,
+        'worker must select a concrete native Penny prompt target');
+      assert.equal(x.state.prompts.some(p=>p.result===undefined),false);
+      assert.equal(x.owner.bench[1].cards.length,0);
+      assert.equal(x.owner.hand.cards.some(
+        c=>c.fullName==='Galarian Stunfisk SSH'),true);
+    }finally{
+      promptProvenance.restore();
+      assert.equal(promptProvenance.restored,true);
+      assert.equal(promptProvenance.activeEffectDepth,0);
     }
-    assert.equal(chosePennyTarget,true);
-    assert.equal(x.state.prompts.some(p=>p.result===undefined),false);
-    assert.equal(x.owner.bench[1].cards.length,0);
-    assert.equal(x.owner.hand.cards.some(c=>c.fullName==='Galarian Stunfisk SSH'),true);
-
   });
 }
 
