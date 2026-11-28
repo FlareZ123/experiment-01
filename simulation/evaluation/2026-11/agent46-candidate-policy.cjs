@@ -175,6 +175,31 @@ function boardHas(view, name) {
   return ownBoard(view).some(slot => hasName(slot.printing, name));
 }
 
+// The source 60 has four CRE 74 Basics and four CRE 75 VMAX. Substring
+// matches treat VMAX as Basic V and erroneously cap this multi-Ability engine.
+function isShadowRiderBasicV(printing) {
+  return /^Shadow Rider Calyrex V CRE(?:\\s|$)/i.test(printing ?? '');
+}
+function isShadowRiderVmax(printing) {
+  return /^Shadow Rider Calyrex VMAX CRE(?:\\s|$)/i.test(printing ?? '');
+}
+function shadowRiderStages(view) {
+  const board=ownBoard(view);
+  const basic=board.filter(p=>isShadowRiderBasicV(p.printing)).length;
+  const vmax=board.filter(p=>isShadowRiderVmax(p.printing)).length;
+  return {basic,vmax};
+}
+function needsSecondShadowBasic(view) {
+  const stages=shadowRiderStages(view);
+  // Preserve at least one of the normal five Bench slots for matchup techs.
+  return stages.basic+stages.vmax < 2 &&
+    countBench(view.ownPublic) < 4;
+}
+function needsShadowVmax(view) {
+  const stages=shadowRiderStages(view);
+  return stages.basic > 0 && stages.vmax < 2;
+}
+
 function handHas(view, name) {
   return view.ownHand.some(printing => hasName(printing, name));
 }
@@ -450,8 +475,6 @@ function searchNeedScore(view, printing, effectName = '') {
   const regidrago = opponentHasRegidrago(view);
   const dragon = opponentHasDragon(view);
   const board = ownBoard(view);
-  const hasShadowV = board.some(slot => hasName(slot.printing, 'Shadow Rider Calyrex V'));
-  const hasShadowVmax = board.some(slot => hasName(slot.printing, 'Shadow Rider Calyrex VMAX'));
   const hasMimikyu = board.some(slot => hasName(slot.printing, 'Mimikyu'));
   const hasClefairy = board.some(slot => hasName(slot.printing, "Lillie's Clefairy ex"));
   const hasLatias = board.some(slot => hasName(slot.printing, 'Latias ex'));
@@ -466,11 +489,11 @@ function searchNeedScore(view, printing, effectName = '') {
     return -5;
   }
   if (hasName(printing, 'Shadow Rider Calyrex VMAX')) {
-    if (hasShadowV && !hasShadowVmax && !handHas(view, 'Shadow Rider Calyrex VMAX')) return 94;
+    if (needsShadowVmax(view) && !handHas(view, 'Shadow Rider Calyrex VMAX')) return 94;
     return -5;
   }
   if (hasName(printing, 'Shadow Rider Calyrex V')) {
-    if (!hasShadowV && !hasShadowVmax && !handHas(view, 'Shadow Rider Calyrex V')) return 100;
+    if (needsSecondShadowBasic(view) && !handHas(view, 'Shadow Rider Calyrex V')) return 100;
     return -5;
   }
   if (hasName(printing, "Lillie's Clefairy ex")) {
@@ -485,7 +508,7 @@ function searchNeedScore(view, printing, effectName = '') {
     return psychicEnergyCount(view) < 5 ? 45 : 5;
   }
   if (hasName(printing, 'Fog Crystal')) {
-    return (!hasShadowV && !hasShadowVmax) || psychicEnergyCount(view) < 3 ? 60 : 10;
+    return needsSecondShadowBasic(view) || psychicEnergyCount(view) < 3 ? 60 : 10;
   }
   if (hasName(printing, 'Stealthy Hood')) {
     const lock = allBoard(view).some(slot =>
@@ -1082,9 +1105,10 @@ function scoreBasicPlay(item, view) {
   const metadata = item.publicMetadata ?? {};
   if (metadata.targetSeat !== 'actor' || metadata.targetZone !== 'bench') return -Infinity;
   const printing = item.actorPrinting ?? '';
-  if (hasName(printing, 'Shadow Rider Calyrex V') &&
-      !hasName(printing, 'VMAX') &&
-      !boardHas(view, 'Shadow Rider Calyrex V')) return 1000;
+  if (isShadowRiderBasicV(printing) && needsSecondShadowBasic(view)) {
+    const stages=shadowRiderStages(view);
+    return stages.basic+stages.vmax===0 ? 1000 : 890;
+  }
   if (hasName(printing, 'Mimikyu') && opponentHasRegidrago(view) &&
       !boardHas(view, 'Mimikyu')) return 950;
   if (hasName(printing, "Lillie's Clefairy ex") && opponentHasDragon(view) &&
@@ -1117,7 +1141,7 @@ function scoreEnergyPlay(item, view) {
       psychicEnergyCount(view) < 5 && count < 5) return 880;
   if (opponentHasDragon(view) && hasName(target.printing, "Lillie's Clefairy ex") &&
       count < 2) return 840;
-  if (hasName(target.printing, 'Shadow Rider Calyrex V') && count < 3) return 600;
+  if (isShadowRiderBasicV(target.printing) && count < 3) return 600;
   return -Infinity;
 }
 
@@ -1160,17 +1184,17 @@ function scoreTrainerPlay(item, view, receipt) {
       !discardHas(view, 'Dialga-GX') && !handHas(view, 'Dialga-GX') &&
       !boardHas(view, 'Dialga-GX') && (boardHas(view, 'Mimikyu') || handHas(view, 'Mimikyu'))) return 860;
   if (hasName(name, 'Fog Crystal') &&
-      (!boardHas(view, 'Shadow Rider Calyrex V') || psychicEnergyCount(view) < 3)) return 820;
+      (needsSecondShadowBasic(view) || psychicEnergyCount(view) < 3)) return 820;
   if (hasName(name, 'Mysterious Treasure') && hasDiscardableHand(view, 1) &&
-      (opponentHasRegidrago(view) || !boardHas(view, 'Shadow Rider Calyrex V'))) return 800;
+      (opponentHasRegidrago(view) || needsSecondShadowBasic(view) ||
+       needsShadowVmax(view))) return 800;
   if (hasName(name, 'Quick Ball') && hasDiscardableHand(view, 1) &&
-      (!boardHas(view, 'Shadow Rider Calyrex V') ||
+      (needsSecondShadowBasic(view) ||
        (opponentHasRegidrago(view) && !boardHas(view, 'Mimikyu')))) return 790;
   if (hasName(name, 'Ultra Ball') && hasDiscardableHand(view, 2) &&
-      boardHas(view, 'Shadow Rider Calyrex V') &&
-      !boardHas(view, 'Shadow Rider Calyrex VMAX')) return 780;
+      needsShadowVmax(view)) return 780;
   if (hasName(name, 'Arven') && !supporterUsed &&
-      (!boardHas(view, 'Shadow Rider Calyrex V') ||
+      (needsSecondShadowBasic(view) ||
        (hasAbilityLockThreat(view) && !ownBoard(view).some(slot =>
          slot.tools.some(tool => hasName(tool, 'Stealthy Hood')))))) return 760;
   if (hasName(name, 'Guzma') && !supporterUsed && canGuzmaForAttack(view)) return 750;
