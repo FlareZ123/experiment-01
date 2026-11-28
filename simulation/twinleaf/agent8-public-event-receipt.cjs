@@ -14,12 +14,17 @@ const VERSION='agent8-public-event-receipt-v4-ko-turn-stamped';
  *   Research-owned, turn-stamped public history; null means unavailable,
  *   while [] means the opponent's previous turn contained no attacks.
  * @param {number|null} [previousOpponentTurnTurn=null]
- *   The tracker snapshot's turn. Required for known-empty history; inferred
- *   from rows only for backward-compatible non-empty callers.
+ *   The attack tracker snapshot's turn. Required for known-empty history.
+ * @param {object[]|null} [previousOpponentTurnKOs=null]
+ *   Store-tracked opponent KO events; null means unavailable, [] means
+ *   known-empty history for the supplied snapshot turn.
+ * @param {number|null} [previousOpponentTurnKOTurn=null]
+ *   The KO tracker snapshot's turn. A stale snapshot becomes unknown.
  * @returns {Readonly<object>}
  */
 function publicEventReceipt(state,seat,previousOpponentTurnAttacks=null,
-    previousOpponentTurnTurn=null){
+    previousOpponentTurnTurn=null,previousOpponentTurnKOs=null,
+    previousOpponentTurnKOTurn=null){
   assert.ok((seat===0||seat===1)&&state?.players?.length===2);
   assert.equal(state.activePlayer,seat,'Event receipt is actor-turn scoped');
   const owner=state.players[seat];
@@ -170,7 +175,8 @@ function publicEventReceipt(state,seat,previousOpponentTurnAttacks=null,
     ownerBench:Object.freeze(owner.bench.map(slot=>clone(view(slot)))),
     // Last-opponent-turn copied attack history is intentionally unknown:
     // pinned playerLastAttack has no turn stamp and can outlive a Pass.
-    // Never use the native owner-side KO Boolean: it can survive a skipped turn.\n    priorOpponentTurnKO,
+    // Never use the native owner-side KO Boolean: it can survive a skipped turn.
+    priorOpponentTurnKO,
     // Legacy single-record field stays unknown; the turn-stamped list below
     // is supplied only by the research-owned Store event tracker.
     opponentLastTurnAttack:null,
