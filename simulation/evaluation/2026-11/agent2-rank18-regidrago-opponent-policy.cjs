@@ -159,6 +159,17 @@ function validOwnerCard(choice,zone){
   return choice?.kind==='card'&&m.ownerSeat==='actor'&&
     m.isOwnerVisible===true&&m.sourceZone===zone;
 }
+function motivateScore(obs){
+  if(name(obs?.ownPublic?.active)!==P.squawk)return -Infinity;
+  const basic=arr(obs?.ownPublic?.discard).filter(x=>
+    /^(?:Grass Energy MEE(?: 9)?|Fire Energy MEE(?: 10)?)$/.test(name(x)));
+  const targets=arr(obs?.ownPublic?.bench).filter(x=>
+    x&&(name(x)===P.v||name(x)===P.star)&&
+    common.energyCoverage(x.energies,false)<3);
+  // The 20 printed damage remains an attack even with no energy transfer,
+  // but this is normally an acceleration line for the Benched Regidrago.
+  return targets.length&&basic.length?205+Math.min(2,basic.length)*30:15;
+}
 function scoreRoot(item,request){
   const obs=request?.observation??{},own=obs.ownPublic??{},opp=obs.opponentPublic??{};
   const p=name(item?.actorPrinting??item?.publicMetadata?.sourcePrinting??item?.label);
@@ -189,6 +200,8 @@ function scoreRoot(item,request){
   }
   if(item.kind==='attack'){
     const attack=item.attackName??item.publicMetadata?.sourceAttack??item.label;
+    if(attack==='Motivate')return request?.config?.motivateProjection===
+      'complete-choice-token-v1'?motivateScore(obs):-Infinity;
     if(attack==='Rapid-Fire Combo')return name(own.active)===P.kang?205:-Infinity;
   }
   const aliased={...item,actorPrinting:p,
@@ -213,6 +226,33 @@ function promptDecision(request){
   const p={...prompt,source:{...source,sourcePrinting}};
   const req={...request,prompt:p};
   const meta=p.publicMetadata??{},choices=arr(p.choices);
+  if(p.promptType==='AttachEnergyPrompt'&&sourcePrinting===P.squawk&&
+     source.effectName==='Motivate'){
+    if(request?.config?.motivateProjection!=='complete-choice-token-v1'||
+       meta.selectionType!=='energy-attachment'||
+       meta.count!==1||meta.allowCancel!==false||
+       meta.sourceZone!=='discard'||meta.ownerSeat!=='actor'||
+       meta.isOwnerVisible!==true||meta.energyType!=='BASIC'||
+       meta.zone!=='bench'||choices.length!==1)
+      return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};
+    const selected=choices[0],m=selected?.publicMetadata??{};
+    const k=m.selectedCount;
+    if(selected?.kind!=='energy'||typeof selected.token!=='string'||
+       m.sourceZone!=='discard'||m.ownerSeat!=='actor'||
+       m.isOwnerVisible!==true||m.energyType!=='BASIC'||
+       m.zone!=='bench'||!Number.isSafeInteger(k)||k<0||k>2||
+       meta.minimumCount!==k||meta.maximumCount!==k)
+      return {kind:'abstain',reasonCode:'UNTRUSTED_ENERGY_SELECTION'};
+    if(k>0){
+      const target=arr(obs?.ownPublic?.bench)[m.benchIndex];
+      if(!Number.isSafeInteger(m.benchIndex)||m.benchIndex<0||
+         !(name(target)===P.v||name(target)===P.star))
+        return {kind:'abstain',reasonCode:'UNTRUSTED_ENERGY_SELECTION'};
+    }else if(m.benchIndex!==undefined){
+      return {kind:'abstain',reasonCode:'UNTRUSTED_ENERGY_SELECTION'};
+    }
+    return {kind:'select-choice',token:selected.token};
+  }
   if(p.promptType==='ConfirmPrompt'&&meta.selectionType==='confirm'&&
      sourcePrinting===P.squawk&&
      ['Squawk and Seize','Squawkabilly ex'].includes(source.effectName)){
@@ -296,17 +336,18 @@ function chooseRoot(request){
 }
 function createPolicy({role,seat,policyVersion,config}={}){
   if(role!=='opponent'||(seat!==0&&seat!==1)||policyVersion!==POLICY_VERSION||
-     !config||Object.keys(config).some(x=>!['rank','sourceBlobSha1','phantomDiveAllocation'].includes(x))||
+     !config||Object.keys(config).some(x=>!['rank','sourceBlobSha1','phantomDiveAllocation','motivateProjection'].includes(x))||
      config.rank!==SOURCE_RANK||config.sourceBlobSha1!==SOURCE_BLOB_SHA1||
-     !['disabled','complete-choice-token-v1'].includes(config.phantomDiveAllocation??'disabled'))
+     !['disabled','complete-choice-token-v1'].includes(config.phantomDiveAllocation??'disabled')||
+     !['disabled','complete-choice-token-v1'].includes(config.motivateProjection??'disabled'))
     throw Error('R18_SOURCE_POLICY_INIT');
   return Object.freeze({decide(request){
     if(request?.role!=='opponent'||request.seat!==seat||
        request.observation?.actorSeat!==seat)
       return {kind:'abstain',reasonCode:'ROLE_SEAT_BINDING_MISMATCH'};
-    return request.prompt?promptDecision({...request,config}):chooseRoot(request);
+    return request.prompt?promptDecision({...request,config}):chooseRoot({...request,config});
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_BLOB_SHA1,
  SOURCE_PRINTINGS,createPolicy,scoreRoot,promptDecision,searchValue,
- sourceDiscardValue,benchOpen,pickAttack,templeUnlocksApex,carmineScore,resolveSourcePrinting:name};
+ sourceDiscardValue,benchOpen,pickAttack,templeUnlocksApex,carmineScore,motivateScore,resolveSourcePrinting:name};
