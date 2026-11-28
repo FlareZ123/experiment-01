@@ -37,6 +37,7 @@ const P = Object.freeze({
   guzma: /^Guzma BUS(?: 115)?\b/i,
   marnie: /^Marnie SSH(?: 169)?\b/i,
   raihan: /^Raihan EVS(?: 152)?\b/i,
+  stretcher: /^Rescue Stretcher GRI(?: 130)?\b/i,
   lele: /^Tapu Lele(?:-GX| GX) GRI(?: 60)?\b/i,
   crobat: /^Crobat V DAA(?: 104)?\b/i,
   dedenne: /^Dedenne(?:-GX| GX) UNB(?: 57)?\b/i,
@@ -104,7 +105,9 @@ const PUBLIC_ABORT = Object.freeze({
   R30_BLOWER_NO_UNIQUE_TARGET:'NO_LEGAL_CARD_SET',
   R30_LELE_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
   R30_LELE_NO_SUPPORTER:'NO_LEGAL_CARD_SET',
-  R30_DRAW_CONFIRM_UNSUPPORTED:'UNRECOGNIZED_SIMPLE_PROMPT'
+  R30_DRAW_CONFIRM_UNSUPPORTED:'UNRECOGNIZED_SIMPLE_PROMPT',
+  R30_STRETCHER_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
+  R30_STRETCHER_NO_TARGET:'NO_LEGAL_CARD_SET'
 });
 const no = reasonCode => ({kind:'abstain',reasonCode:PUBLIC_ABORT[reasonCode]??reasonCode});
 const act = x => ({kind:'select-action',token:x.token});
@@ -1247,6 +1250,43 @@ function marnieRecoveryOpportunity(o) {
   // have been considered; a protected singleton is not expendable draw fuel.
   return remaining.length<=2&&remaining.every(c=>discardScore(c,o)>=35);
 }
+function rescueStretcherTarget(o) {
+  const own=o?.ownPublic;
+  if(!own||o.ownTurnResources?.pokemonPlayLocked===true||
+     benchCount(own)>=(stadium(o)?8:5))return null;
+  const discard=arr(own.discard),held=arr(o.ownHand),board=slots(own);
+  const ownClefairy=board.filter(p=>has(p,P.clefairy)).length+
+    held.filter(p=>has(p,P.clefairy)).length;
+  if(ownClefairy<=1&&discard.some(c=>has(c,P.clefairy)))return P.clefairy;
+  const latias=/^Latias ex SSP(?: 76)?\b/i;
+  if(!board.some(p=>has(p,latias))&&!held.some(c=>has(c,latias))&&
+     discard.some(c=>has(c,latias)))return latias;
+  return null;
+}
+function rescueStretcherPrompt(request) {
+  const p=request.prompt,m=p?.publicMetadata??{},o=request.observation;
+  if(!sameSource(p,P.stretcher))return no('R30_STRETCHER_PROMPT_UNSUPPORTED');
+  const desired=rescueStretcherTarget(o);
+  if(!desired)return no('R30_STRETCHER_NO_TARGET');
+  if(['SelectPrompt','SelectOptionPrompt'].includes(p.promptType)&&
+     m.selectionType==='option') {
+    // Card text's first mode returns 1 Pokémon directly to hand. Do not
+    // infer native indices: choose by actual actor-visible option label.
+    const mode=arr(p.choices).find(c=>c.kind==='option'&&
+      typeof c.token==='string'&&
+      /(?:put|get|return|retrieve).*(?:pok[eé]mon).*(?:hand)/i.test(c.label??''));
+    return mode?{kind:'select-choice',token:mode.token}:
+      no('R30_STRETCHER_PROMPT_UNSUPPORTED');
+  }
+  if(p.promptType!=='ChooseCardsPrompt'||
+     m.selectionType!=='card-combination'||m.sourceZone!=='discard'||
+     m.ownerSeat!=='actor'||m.isOwnerVisible!==true||
+     m.minimumCount!==1||m.maximumCount!==1)
+    return no('R30_STRETCHER_PROMPT_UNSUPPORTED');
+  const target=arr(p.choices).find(c=>c.kind==='card'&&
+    typeof c.token==='string'&&has(c,desired));
+  return target?picks([target]):no('R30_STRETCHER_NO_TARGET');
+}
 function rootDecision(request,{enablePatchProjection=false}={}) {
   const o=request.observation, items=availableCards(request);
   if(!items.length)return no('R30_NO_OFFERED_ROOT');
@@ -1297,6 +1337,8 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   if(mail&&Number.isSafeInteger(o.ownPublic?.deckCount)&&o.ownPublic.deckCount>0)return act(mail);
   const vip=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.vip));
   if(vip && benchCount(o.ownPublic)<(stadium(o)?8:5))return act(vip);
+  const stretcher=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.stretcher));
+  if(stretcher&&rescueStretcherTarget(o))return act(stretcher);
   const quick=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.quickBall));
   if(quick && canStartQuickBall(o))return act(quick);
   const carrier=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.carrier));
@@ -1389,6 +1431,7 @@ function createPolicy({role,seat,policyVersion,config}) {
         return rank30EngineSetupPrompt(request);
       if([P.crobat,P.dedenne,P.squawk].some(p=>sameSource(request.prompt,p)))
         return onPlayDrawConfirmPrompt(request);
+      if(sameSource(request.prompt,P.stretcher))return rescueStretcherPrompt(request);
       if(sameSource(request.prompt,P.lele))return wonderTagPrompt(request);
       if(sameSource(request.prompt,P.blower))return fieldBlowerPrompt(request);
       if(sameSource(request.prompt,P.box))return boxPrompt(request);
@@ -1414,4 +1457,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
+  rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
