@@ -321,4 +321,91 @@ for (const seat of [0, 1]) {
       { kind: 'select-action', token: 'quick-search' });
   });
 
+  function garbotoxinDoubleHoodView() {
+    const view = actorView(seat);
+    view.opponentPublic.bench[2] = {
+      printing: 'Garbodor BKP 57', hp: 120, damage: 0,
+      abilities: ['Garbotoxin'], tools: ['Float Stone BKT 137'],
+      abilitySuppressions: [{ abilityName: 'Garbotoxin', suppressed: false }]
+    };
+    view.ownPublic.bench[0] = { ...clone(stoutland),
+      tools: ['Stealthy Hood UNB 186'] };
+    view.ownPublic.bench[2] = {
+      ...clone(view.ownPublic.bench[2]), tools: ['Stealthy Hood UNB 186']
+    };
+    return view;
+  }
+
+  test('seat ' + seat + ': Item-lock flag without a Vileplume source is insufficient', () => {
+    const view = actorView(seat);
+    view.ownPublic.bench[2] = null; // e.g. prior Budew turn Item lock
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)), pass());
+  });
+
+  test('seat ' + seat + ': explicitly suppressed Vileplume cannot sustain the pivot', () => {
+    const view = actorView(seat);
+    view.ownPublic.bench[2] = {
+      ...clone(view.ownPublic.bench[2]),
+      abilitySuppressions: [
+        { abilityName: 'Irritating Pollen', suppressed: true }
+      ]
+    };
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)), pass());
+  });
+
+  test('seat ' + seat + ': Jamming Tower nullifies both Hoods but not Garbotoxin', () => {
+    const view = garbotoxinDoubleHoodView();
+    view.opponentPublic.stadium = ['Jamming Tower TWM 153'];
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)), pass());
+  });
+
+  test('seat ' + seat + ': without Jamming Tower two Stealthy Hoods sustain the nominal pivot', () => {
+    assert.deepEqual(policy(seat).decide(rootRequest(seat,
+      garbotoxinDoubleHoodView(), false)),
+      { kind: 'select-action', token: 'guzma' });
+  });
+
+  test('seat ' + seat + ': Tool Jammer on the future Active target defeats Stoutland Hood under Garbotoxin', () => {
+    const view = garbotoxinDoubleHoodView();
+    view.opponentPublic.bench[1].tools = ['Tool Jammer BST 136'];
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)), pass());
+  });
+
+  test('seat ' + seat + ': alternative target avoids promoted Tool Jammer and retains two-lock root', () => {
+    const view = garbotoxinDoubleHoodView();
+    view.opponentPublic.bench[1].tools = ['Tool Jammer BST 136'];
+    view.opponentPublic.bench[3] = {
+      printing: 'Shadow Rider Calyrex V CRE 74', hp: 210, damage: 0,
+      energies: [], tools: [],
+      printed: { stage: 'BASIC', retreatCost: ['Colorless', 'Colorless'] }
+    };
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)),
+      { kind: 'select-action', token: 'guzma' });
+    const targetRequest = promptRequest(seat, view, 'opponent');
+    targetRequest.prompt.choices.push({
+      token: 'bench-3', kind: 'pokemon',
+      printing: view.opponentPublic.bench[3].printing,
+      publicMetadata: {
+        ownerSeat: 'opponent', targetZone: 'bench',
+        benchIndex: 3, selectionIndex: 3, selectionType: 'pokemon',
+        isOwnerVisible: true
+      }
+    });
+    assert.deepEqual(policy(seat).decide(targetRequest), pick(3));
+  });
+
+  test('seat ' + seat + ': Jamming Tower alone is not an Ability lock', () => {
+    const view = actorView(seat);
+    view.opponentPublic.stadium = ['Jamming Tower TWM 153'];
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)),
+      { kind: 'select-action', token: 'guzma' });
+  });
+
+  test('seat ' + seat + ': Tool Jammer without Garbotoxin does not suppress Stoutland Sentinel', () => {
+    const view = actorView(seat);
+    view.opponentPublic.bench[1].tools = ['Tool Jammer BST 136'];
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)),
+      { kind: 'select-action', token: 'guzma' });
+  });
+
 }
