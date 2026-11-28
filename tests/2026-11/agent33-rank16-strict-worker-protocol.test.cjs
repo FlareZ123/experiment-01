@@ -223,3 +223,27 @@ for(const seat of [0,1]) {
       {kind:'select-choices',tokens:['dark1','dark2','vip']});
   });
 }
+
+/* Source Karen XYP177 itself has no choose-card prompt: shuffle all Pokémon
+ * in both public discards, specifically useful versus Regidrago Apex Dragon. */
+for(const seat of [0,1]) {
+  test('strict source Karen attacks Regidrago live Dragon discard seat '+seat,()=>{
+    const request=rootRequest({seat,globalTurn:5,
+      ownPublic:player({active:pokemon('Mega Absol ex MEG 86')}),
+      ownHand:['Karen XYP 177'],
+      opponentPublic:player({active:pokemon('Regidrago VSTAR SIT 136'),
+        discard:['Dragapult ex TWM 130']}),
+      items:[{token:'karen',kind:'play-card',actorPrinting:'Karen XYP 177'},
+        {token:'pass',kind:'pass',label:'Pass turn'}]});
+    assert.deepEqual(checked(request,seat),{kind:'select-action',token:'karen'});
+  });
+  test('strict Karen does not burn Supporter with no public Dragon payload seat '+seat,()=>{
+    const request=rootRequest({seat,globalTurn:5,
+      ownPublic:player({active:pokemon('Mega Absol ex MEG 86')}),
+      ownHand:['Karen XYP 177'],
+      opponentPublic:player({active:pokemon('Regidrago VSTAR SIT 136'),discard:[]}),
+      items:[{token:'karen',kind:'play-card',actorPrinting:'Karen XYP 177'},
+        {token:'pass',kind:'pass',label:'Pass turn'}]});
+    assert.deepEqual(checked(request,seat),{kind:'select-action',token:'pass'});
+  });
+}
