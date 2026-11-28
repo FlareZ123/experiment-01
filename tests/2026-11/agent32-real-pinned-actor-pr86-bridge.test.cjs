@@ -80,6 +80,8 @@ for(const seat of [0,1]){
     assert.equal(snorlax.stage,Stage.BASIC);
     replaceActive(x.owner,[snorlax]);
     x.owner.active.damage=70;
+    // Non-Snorlax damaged Basic creates a truly executable Penny target.
+    x.owner.bench[1].damage=50;
     x.owner.hand.cards.length=0;
     const penny=createCard(manager,'Penny SVI');
     const handi=createCard(manager,"Team Rocket's Handiwork FCO");
@@ -139,6 +141,11 @@ for(const seat of [0,1]){
     }};
     assert.deepEqual(policy.decide(sourceStamped),
       {kind:'select-action',token:'penny'});
+    const noUsablePickup=JSON.parse(JSON.stringify(view));
+    noUsablePickup.ownPublic.bench[1].damage=0;
+    assert.deepEqual(policy.decide({...sourceStamped,observation:noUsablePickup}),
+      {kind:'select-action',token:'handi'},
+      'Damaged Active Snorlax alone must not choose a dead-end Penny');
     const oldView=JSON.parse(JSON.stringify(view));
     oldView.ownPublic.active.printed.stage=Stage.BASIC;
     assert.deepEqual(policy.decide({...sourceStamped,observation:oldView}),
