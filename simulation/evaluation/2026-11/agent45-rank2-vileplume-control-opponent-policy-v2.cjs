@@ -642,11 +642,14 @@ function scoreAction(item, request) {
     return canUseGuzmaHalaMode0(observation) ? 105 : 0;
   }
   if (matches(card, PRINT.tmEvolution)) {
-    const bunnelby = boardSlots(own).some(row => matches(row.pokemon.printing, PRINT.bunnelby));
-    const bunnelbyActive = matches(own.active?.printing ?? '', PRINT.bunnelby);
+    const targetSlot = publicActionTarget(item, own);
+    const tmOnBunnelby = matches(targetSlot?.pokemon?.printing, PRINT.bunnelby);
+    const bunnelbyActive = targetSlot?.zone === 'active';
     const hasJet = handCount(hand, PRINT.jetEnergy) > 0;
     const targetReady = hasK0PossibleBenchEvolutionTarget(observation);
-    return bunnelby && (hasJet || bunnelbyActive) && targetReady ? 178 : 88;
+    // A TM carried by Fan Rotom is not equivalent to one on the Bunnelby
+    // that will be promoted by Jet and invoke Barrage for double Evolution.
+    return tmOnBunnelby && (hasJet || bunnelbyActive) && targetReady ? 178 : 88;
   }
   if (matches(card, PRINT.jetEnergy)) {
     const targetSlot = publicActionTarget(item, own);
