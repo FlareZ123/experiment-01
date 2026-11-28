@@ -178,7 +178,15 @@ function rootRequest(options = {}) {
     publicEventReceipt: null,
     actionFrontier: {
       schema: protocol.FRONTIER_SCHEMA,
-      items: options.items ?? [{ token: 'pass', kind: 'pass', label: 'Pass turn' }]
+      items: (options.items ?? [{ token: 'pass', kind: 'pass', label: 'Pass turn' }])
+        .map(item => {
+          const meta = item.publicMetadata;
+          if (!meta || typeof meta.isOwnerVisible === 'boolean' ||
+              (meta.targetSeat === undefined && meta.targetZone === undefined &&
+                meta.targetIndex === undefined)) return item;
+          // Native public target projections carry owner visibility.
+          return { ...item, publicMetadata: { ...meta, isOwnerVisible: true } };
+        })
     }
   };
 }
@@ -200,7 +208,9 @@ function promptRequest(options = {}) {
     description: options.description ?? 'Choose a legal option',
     source: options.source,
     choices: options.choices ?? [],
-    ...(options.publicMetadata ? { publicMetadata: options.publicMetadata } : {})
+    ...(options.publicMetadata ? { publicMetadata: options.publicMetadata } :
+      options.promptType === 'ChooseAttackPrompt' ?
+        { publicMetadata: { selectionType: 'attack', allowCancel: false } } : {})
   };
   return {
     schema: protocol.REQUEST_SCHEMA,
@@ -598,7 +608,7 @@ test('unknown attack-choice sources fail closed', () => {
   const request = promptRequest({
     promptType: 'ChooseAttackPrompt',
     source: actorChoiceSource(null, 'Unrecognized attack selector'),
-    choices: [{ token: 'unknown', kind: 'option', label: 'Unknown attack' }]
+    choices: [{ token: 'unknown', kind: 'attack', label: 'Unknown attack' }]
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'abstain',
@@ -610,12 +620,16 @@ test('unknown prompt types fail closed', () => {
   const request = promptRequest({
     promptType: 'UnmodeledPrompt',
     source: actorChoiceSource(null, 'Unknown engine choice'),
-    choices: [{ token: 'x', kind: 'option', label: 'Unknown' }]
+    choices: [{ token: 'x', kind: 'option', label: 'Unknown' }],
+    publicMetadata: { selectionType: 'option', allowCancel: false }
   });
-  assert.deepEqual(checkedDecision(request), {
+  // The strict worker rejects an unrecognized native prompt class BEFORE
+  // invoking the policy; the policy also fails closed when called alone.
+  assert.deepEqual(policy.decide(request), {
     kind: 'abstain',
     reasonCode: 'UNSUPPORTED_PROMPT_TYPE'
   });
+  assert.throws(() => checkedDecision(request), /PROMPT_SELECTION_TYPE_MISMATCH/);
 });
 
 
