@@ -162,6 +162,14 @@ The original rank15 Eldegoss V Happy Match line can fail even when the hand cont
 
 Both-seat tests check 34 root/Ability outcomes, including selected Eldegoss action versus abstention, public known-suppressed exceptions, Garbodor with/without Tool, Jamming's distinction and print-specific nonlocks. These improve source actor action realism without inspecting concealed opponent resources. They remain actor-projection decisions, not native-store Ability-resolution tests.
 
+## TM: Evolution + Bunnelby Ω Barrage: both targets and both Evolution cards
+
+The precise original source carries **Bunnelby PRC121 (Ω Barrage)** and **two TM: Evolution PAR178**. The worker previously chose only a *single* Benched Pokémon in TM's `ChoosePokemonPrompt`, even when native offered two separate physical targets. This discarded half of the first attack's possible evolution throughput, and an Ω Barrage turn can repeat the attack. The corrected prompt selects **up to two distinct actual actor-owned Bench positions**, honoring `minimumCount`, `maximumCount`, and identity of same-printing Oddish. Its indexless duplicate fallback **abstains** rather than guessing which Pokémon to evolve. Unlike ordinary hand evolution, TM's attack-based evolution can work on a just-played Basic.
+
+There was a second independent blocker: TM's **deck card search** `ChooseCardsPrompt` generated only one desired `Gloom` even when two Oddish were selected. It now generates one matching Stage1 search priority per corresponding visible eligible Bench Basic, up to two. It likewise supports two Pidgeotto choices for two Pidgey and two Mega Lopunny choices for two Buneary, and mixed Oddish+Buneary. The worker still selects only genuinely **offered native deck-card tokens** and obeys the source prompt's maximum choices; it never invents a card in the deck.
+
+The two halves are demonstrated by **32** constructed both-seat prompt cases and **4** production strict-V3 schema/decision cases (two for Pokémon targets, two for deck-card choices). These assert a legal choice of *offered* physical Pokémon and *offered* Evolution cards, but not that those specific cards were actually in deck or that two attacks successfully resolved in a native Twinleaf Store. An owner-approved native two-attack turn trace is the next evidence gate before claiming executable board establishment.
+
 ## Reproducible assets
 
 - Policy: `simulation/evaluation/2026-11/agent20-rank15-lopunny-vileplume-opponent-policy.cjs`
@@ -174,19 +182,21 @@ Both-seat tests check 34 root/Ability outcomes, including selected Eldegoss acti
 - Guzma own attacker promise, Belt lower-bound and BUS-lock terminal override: `tests/2026-11/agent20-rank15-guzma-prompt-attacker-binding-heldout.test.cjs` (**18** cases)
 - Complete original fixed-attack surface: `tests/2026-11/agent20-rank15-source-fixed-attack-damage-heldout.test.cjs` (**80** cases)
 - Eldegoss self-Silent Lab/Path root choices: `tests/2026-11/agent20-rank15-eldegoss-self-silent-lab-heldout.test.cjs` (**10** cases)
-- Full strict V3 Grand Tree/Pidgeot requests: `tests/2026-11/agent20-rank15-grandtree-pidgeot-strict-v3-heldout.test.cjs` (**8** cases)
+- Full strict V3 Grand Tree/Pidgeot/TM requests: `tests/2026-11/agent20-rank15-grandtree-pidgeot-strict-v3-heldout.test.cjs` (**12** cases)
 - Terminal indexed Jet/Gale from BUS/Fan/Mega Active: `tests/2026-11/agent20-rank15-terminal-jet-gale-promotion-heldout.test.cjs` (**18** cases)
 - Grand Tree mixed-evolution-chain choice collision: `tests/2026-11/agent20-rank15-grandtree-mixed-chain-source-heldout.test.cjs` (**12** cases)
 - Legacy Energy Prize terminal false positives: `tests/2026-11/agent20-rank15-legacy-energy-prize-terminal-heldout.test.cjs` (**20** cases)
 - Life Dew, Island Challenge Amulet and TAG TEAM/V-UNION: `tests/2026-11/agent20-rank15-prize-tools-tagteam-vunion-heldout.test.cjs` (**26** cases)
 - Rank15 native-opening priority hook (isolated fake native prompt): `tests/2026-11/agent20-rank15-owner-setup-priority-heldout.test.cjs` (**22** cases)
 - Opponent Ability-lock matrix: `tests/2026-11/agent20-rank15-eldegoss-opponent-lock-matrix-heldout.test.cjs` (**34** cases)
+- Two-target TM Evolution Pokémon/Stage-card selection: `tests/2026-11/agent20-rank15-tm-evolution-two-targets-heldout.test.cjs` (**32** cases)
 - Reproducible 300,000-hand opener: `simulation/evaluation/2026-11/agent20-rank15-opening-hand-comparison.cjs`; retained JSON at `results/aichi-2026/2026-11/agent20-rank15-opening-hand-comparison-300k-seed20c0ffee.json`
 - Parent strict V3 Temple regressions (not owned by PR93): `tests/2026-11/agent41-rank15-temple-strict-v3-protocol-heldout.test.cjs` (**4** cases)
 - Exact setup hook/test blobs: `1af37b7b632ac21ee294f71cad255bdca2f04289` / `9d43575ff215ea62348d74e35f973001722e59a1`
-- Exact final policy blob: `e05044c170bbfcb4701217afb84a04805df05620`
+- Exact final policy blob: `23d717d38b58bdcc375ecac501a3a637aae48e48`
+- Exact new TM/strict test blobs: `bc603a708535d42793a0129538b437147992205e` / `eeb9c198e2d119df89210429f8fbcbcf04459839`
 - Exact test blobs: `04aa7326f3d2c3bf18b115ca48d6988021c511cb`, `99418a2ca86cc651773af5cf3248979e4563317c`, `5d99721052439eb84849b4094ad98e0c6bd16132`, `fea7ca06fc33741301619f13dd8782a2ccfcd57a`, `7fa0f188ae3b889e16163fb8af639632dd4816e8`, `7276272a458f1941cdf1e2f5f8261aa93faf1818`, `757fb4f866d5013f6bb6a76eb92a4813ee3c549d`, `b488b4988c93ef88065c87f390dd6320dcade34b`, `259305b66e940632aed10c45708178915d1096d9`, `eac80e65146d35e8e27c40e309dc9cc7f3bb7647`, `63db297a905a12b7f3fdf9238208c1a192b9d236`, `f1e3df15364dc42e4153502b1f122d7fdf229915`, `1a1d9641378968375b26e0f46da3fd08b7359a60`, `635a9f49c285dfdb33e841415656700b1d6cecb5`
-- Executed both committed test files against the exact policy blob with a JavaScript CommonJS V8 shim for `node:test`, `node:assert/strict`, and the policy module: **320 passed / 0 failed** (286 constructed source cases + 8 new full strict V3 requests + 4 inherited strict V3 requests + 22 injected-native setup decisions). This confirms synchronous decision assertions only. The V8 shim is not Node CLI, pinned Twinleaf Store, native protocol, source-deck game, or competitive qualification.
+- Executed all 17 committed test files against the exact policy, strict V3 protocol and injected native setup shim: **354 passed / 0 failed** (318 constructed source cases + 12 new full strict V3 requests + 4 inherited strict V3 requests + 22 injected-native setup decisions). This confirms synchronous decision assertions only. The V8 shim is not Node CLI, pinned Twinleaf Store, native protocol, source-deck game, or competitive qualification.
 
 The original PR90 head reproduced the wrong Jet and TM selections and the absent correct Hood decision before the follow-on patch. Neither PR90 nor PR93 should be treated as an admission to main or a frozen policy. Both may be challenged through independent actor-visible native continuation before any owner-approved game. No CI or V3 dispatch was performed here.
 
