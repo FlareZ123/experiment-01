@@ -930,6 +930,36 @@ function promptDecision(req){
    };
   }else if(/boost shake/.test(src)){
    rank=c=>match(c,PRINT.trubbish)?150:0;
+  }else if(match(src,PRINT.skyField)){
+   // Sky Field leaving play forces the owner to discard down to five
+   // Benched Pokémon. Preserve the attacker, a live Garbotoxin carrier,
+   // and any unused Forest Seal Stone; shed spent on-play support first.
+   const excess=Math.max(0,benchCount(o.ownPublic)-5);
+   const rows=cs.filter(c=>c.kind==='pokemon'&&owner(c)==='actor'&&zone(c)==='bench');
+   if(excess===0)return {kind:'abstain',reasonCode:'NO_SUPPORTED_POKEMON_CHOICE'};
+   const rank=c=>{
+    const r=slots(o.ownPublic).find(x=>x.zone==='bench'&&
+     x.index===c.publicMetadata?.benchIndex&&x.pokemon.printing===name(c));
+    if(!r)return 0;
+    const self=r.pokemon;
+    if(match(self.printing,PRINT.dedenne))return 450;
+    if(match(self.printing,PRINT.squawk))return o.globalTurn<=2?150:440;
+    if(match(self.printing,PRINT.tapu))return 420;
+    if(match(self.printing,PRINT.crobat)){
+     const unspentFSS=!o.ownTurnResources?.vstarUsed&&
+      list(self.tools).some(t=>match(t,PRINT.forest))&&toolEnabled(o);
+     return unspentFSS?30:405;
+    }
+    if(match(self.printing,PRINT.budew))return match(o.ownPublic?.active?.printing,PRINT.budew)?260:75;
+    if(match(self.printing,PRINT.trubbish))return onBoard(o.ownPublic,PRINT.garbodor)?210:85;
+    if(match(self.printing,PRINT.mega))return list(self.energies).length>=2?5:165;
+    if(match(self.printing,PRINT.garbodor)){
+     const n=slots(o.ownPublic).filter(x=>match(x.pokemon.printing,PRINT.garbodor)).length;
+     return n>1?100:1;
+    }
+    return 95;
+   };
+   return pickRows(p,rows,bd.min,Math.min(bd.max,excess),rank);
   }else if(/plumeria/.test(src)){
    const opponent=cs.filter(c=>c.kind==='pokemon'&&owner(c)==='opponent');
    return pickRows(p,opponent,bd.min,bd.max,c=>{
