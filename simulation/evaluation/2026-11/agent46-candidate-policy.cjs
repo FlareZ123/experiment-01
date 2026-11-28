@@ -976,6 +976,60 @@ function chooseEngineSetupPrompt(view, prompt) {
   return abstain('UNSUPPORTED_ENGINE_SETUP_PROMPT');
 }
 
+// The pinned source Underworld Door AttachEnergyPrompt enumerates *complete*
+// single Basic Psychic Energy hand-card -> Benched Psychic Pokemon assignments.
+// The native prompt projector has already checked the live target's dynamic
+// Psychic type and preflighted each assignment; this worker additionally
+// requires the exact source, public recipient and owner-visible hand card.
+function chooseUnderworldDoorAttachment(view, prompt) {
+  setPolicyAuditRule('UNDERWORLD_DOOR_ASSIGNMENT', 'BENCH_TARGET_SCORE_DESC_INDEX_ASC');
+  const meta=prompt.publicMetadata??{};
+  if(prompt.source?.sourceKind!=='card-effect' ||
+     prompt.source.effectName!=='Underworld Door' ||
+     prompt.source.sourcePrinting!=='Shadow Rider Calyrex VMAX CRE 75' ||
+     prompt.description!=='ATTACH_ENERGY_TO_BENCH' ||
+     meta.selectionType!=='energy-attachment' ||
+     meta.ownerSeat!=='actor' || meta.sourceZone!=='hand' ||
+     meta.zone!=='bench' || meta.energyType!=='BASIC' ||
+     meta.isOwnerVisible!==true ||
+     meta.minimumCount!==1 || meta.maximumCount!==1) {
+    return abstain('UNTRUSTED_UNDERWORLD_ATTACHMENT_SOURCE');
+  }
+  const eligible=[];
+  for(const choice of prompt.choices) {
+    const m=choice.publicMetadata;
+    const idx=m?.benchIndex;
+    const slot=Number.isSafeInteger(idx)&&idx>=0&&idx<5
+      ?view.ownPublic.bench[idx]:null;
+    if(choice.kind!=='energy' ||
+       choice.printing!=='Psychic Energy MEE 13' ||
+       !view.ownHand.includes(choice.printing) ||
+       m?.ownerSeat!=='actor' || m.isOwnerVisible!==true ||
+       m.sourceZone!=='hand' || m.zone!=='bench' ||
+       m.energyType!=='BASIC' ||
+       !slot || !slot.printed?.types?.includes('Psychic')) {
+      recordPolicyAuditUnscored(choice.token,'INVALID_UNDERWORLD_ASSIGNMENT');
+      continue;
+    }
+    let score=200-10*slotEnergyCount(slot);
+    if(hasName(slot.printing,'Shadow Rider Calyrex VMAX')) score+=50;
+    else if(hasName(slot.printing,'Shadow Rider Calyrex V')) score+=30;
+    if(hasName(slot.printing,'Mimikyu')&&opponentHasRegidrago(view)) score+=90;
+    if(hasName(slot.printing,"Lillie's Clefairy ex")&&opponentHasDragon(view)) score+=70;
+    recordPolicyAuditScore(choice.token,score,'NO_VALID_UNDERWORLD_TARGET');
+    eligible.push({choice,index:idx,score});
+  }
+  eligible.sort((a,b)=>b.score-a.score||
+    a.index-b.index||String(a.choice.token).localeCompare(String(b.choice.token)));
+  if(eligible.length>0)return {kind:'select-choice',token:eligible[0].choice.token};
+  const cancel=prompt.choices.find(choice=>choice.kind==='cancel');
+  if(meta.allowCancel===true&&cancel){
+    recordPolicyAuditRule(cancel.token,'UNDERWORLD_ATTACHMENT_CANCEL');
+    return {kind:'select-choice',token:cancel.token};
+  }
+  return abstain('NO_VALID_UNDERWORLD_ATTACHMENT');
+}
+
 function choosePrompt(view, prompt, receipt) {
   if (!prompt || prompt.actingSeat !== view.actorSeat ||
       prompt.source?.classification !== 'actor-choice') {
@@ -988,6 +1042,8 @@ function choosePrompt(view, prompt, receipt) {
     return abstain('UNTRUSTED_PROMPT_SOURCE');
   }
   switch (prompt.promptType) {
+    case 'AttachEnergyPrompt':
+      return chooseUnderworldDoorAttachment(view, prompt);
     case 'ChooseCardsPrompt':
       return chooseCardCombination(view, prompt);
     case 'ChoosePokemonPrompt':
@@ -1194,6 +1250,34 @@ function chooseRoot(view, request) {
   if (retreat) {
     setPolicyAuditRule('ROOT_RETREAT_ATTACK_IMPROVEMENT', 'SCORE_DESC_NATIVE_FRONTIER_ORDER');
     return { kind: 'select-action', token: retreat.token };
+  }
+
+  // Underworld Door fuels Max Geist, develops a Benched Psychic attacker and
+  // draws two cards without ending the turn. Unlike the fallback one-use VSTAR
+  // search, this is the deck's repeatable primary engine; use it after
+  // productive card plays/retreat, but *before* an attack ends this turn.
+  // The pinned action frontier preflights marker/Ability suppression; here
+  // require its exact source-bound printing, a real Psychic Bench recipient,
+  // owner-visible Basic Psychic Energy and enough deck for the two draws.
+  const door=items.find(item=>
+    item.kind==='use-ability' &&
+    item.publicMetadata?.abilityName==='Underworld Door' &&
+    item.publicMetadata?.sourceSeat==='actor' &&
+    ['active','bench'].includes(item.publicMetadata?.sourceZone) &&
+    item.actorPrinting==='Shadow Rider Calyrex VMAX CRE 75' &&
+    ownBoard(view).some(slot=>
+      slot.printing===item.actorPrinting &&
+      slot.abilities?.includes('Underworld Door')) &&
+    view.ownPublic.bench.some(slot=>
+      slot?.printed?.types?.includes('Psychic')) &&
+    view.ownHand.includes('Psychic Energy MEE 13') &&
+    Number.isSafeInteger(view.ownPublic.deckCount) &&
+    view.ownPublic.deckCount>=3
+  );
+  if(door){
+    recordPolicyAuditRule(door.token,'UNDERWORLD_DOOR_ENERGY_AND_TWO_DRAW');
+    setPolicyAuditRule('ROOT_UNDERWORLD_DOOR_BEFORE_ATTACK','FIRST_CERTIFIED_ENERGY_ACCELERATION');
+    return {kind:'select-action',token:door.token};
   }
 
   const active = view.ownPublic.active;
