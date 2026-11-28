@@ -900,3 +900,44 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['dede']});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' source Snorlax Block swaps via Guzma to Budew instead of illegal Float retreat',()=>{
+  const board=own({active:mon('Mega Absol ex MEG 86',{
+    energies:['Darkness Energy MEE 15','Darkness Energy MEE 15','Darkness Energy MEE 15']}),
+    bench:[mon('Budew ASC 16')]});
+  const theirs=opp({active:mon('Snorlax PGO 55',{abilitySuppressions:[
+    {abilityName:'Block',suppressed:false}]}),bench:[mon('Mimikyu PAL 97',{hp:70})]});
+  const q=root(seat,[play('Guzma BUS 115','gust'),
+    play('Float Stone BKT 137','float',{targetSeat:'actor',targetZone:'active'}),
+    {kind:'retreat',token:'retreat',targetPrinting:'Budew ASC 16'},pass],{
+    ownPublic:board,opponentPublic:theirs,ownHand:['Guzma BUS 115','Float Stone BKT 137']});
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'gust'});
+  const tp=prompt(seat,{promptType:'ChoosePokemonPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Guzma BUS 115',effectName:'Guzma'},
+   publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+   choices:[{kind:'pokemon',token:'mime',printing:'Mimikyu PAL 97',
+     publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:0}}]},
+   {ownPublic:board,opponentPublic:theirs});
+  assert.deepEqual(decide(seat,tp),{kind:'select-choices',tokens:['mime']});
+  tp.prompt.choices=[{kind:'pokemon',token:'budew',printing:'Budew ASC 16',
+   publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0}}];
+  assert.deepEqual(decide(seat,tp),{kind:'select-choices',tokens:['budew']});
+ });
+ test('seat '+seat+' Snorlax Block suppression restores Float mobility on Mega',()=>{
+  const theirs=opp({active:mon('Snorlax PGO 55',{abilitySuppressions:[
+    {abilityName:'Block',suppressed:true}]}),bench:[mon('Mimikyu PAL 97',{hp:70})]});
+  const board=own({active:mon('Mega Absol ex MEG 86',{
+    printed:{retreatCost:['Colorless','Colorless']}}),bench:[mon('Budew ASC 16')]});
+  const q=root(seat,[play('Float Stone BKT 137','float',
+    {targetSeat:'actor',targetZone:'active'}),pass],{
+    ownPublic:board,opponentPublic:theirs,globalTurn:2,
+    ownHand:['Float Stone BKT 137']});
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'float'});
+  theirs.active.abilitySuppressions=[{abilityName:'Block',suppressed:false}];
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+ });
+}
