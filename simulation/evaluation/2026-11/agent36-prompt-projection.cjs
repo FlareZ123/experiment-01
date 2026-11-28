@@ -824,7 +824,7 @@ function projectElectrodeCrushBurnDiscard({
   };
   append(actor.active,'active',native.SlotType.ACTIVE,0);
   actor.bench.forEach((slot,i)=>append(slot,'bench',native.SlotType.BENCH,i));
-  if(list.length!==opt.max||list.length<1||list.length>MAX_PROMPT_CHOICES)
+  if(list.length!==opt.max||list.length<1||list.length+1>MAX_PROMPT_CHOICES)
     throw Object.assign(
       new Error('CES48 board physical Energy differs from native discard maximum'),
       {code:'GX_DISCARD_PHYSICAL_COUNT_MISMATCH'});
@@ -847,6 +847,7 @@ function projectElectrodeCrushBurnDiscard({
       }
     });
   }
+  addEmptySelectionChoice(choices,choiceByToken,prompt,state);
   return {
     selectionType:'energy-payment',
     count:list.length,energyCount:list.length,
