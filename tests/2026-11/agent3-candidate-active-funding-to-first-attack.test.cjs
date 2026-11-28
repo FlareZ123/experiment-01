@@ -3,6 +3,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createPolicy, POLICY_VERSION } =
   require('../../simulation/evaluation/2026-11/agent46-candidate-policy.cjs');
+const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 
 // The frozen candidate has Latias ex SSP76 and only Basic Psychic Energy.
 // If its Active Eon Blade would become playable after one manual attachment,
@@ -18,6 +19,29 @@ const latias = n => poke('Latias ex SSP 76', 210, 'Psychic', n, [
   { name: 'Eon Blade', cost: ['Psychic', 'Psychic', 'Colorless'], damage: '200' }
 ]);
 const opponent = () => poke('Iron Thorns ex TWM 77', 230, 'Lightning', 0, []);
+const lastApex = {
+  turn: 7, sourcePrinting: 'Regidrago VSTAR SIT 136',
+  attackName: 'Apex Dragon', gxAttack: false, copycatAttack: false
+};
+function copycatReceipt(view) {
+  return {
+    version: protocol.EVENT_RECEIPT_VERSION, actorSeat: view.actorSeat,
+    turn: view.globalTurn,
+    ownerActive: {
+      printing: view.ownPublic.active.printing,
+      movedFromBenchToActiveThisTurn: false, knownAbilityUse: []
+    },
+    ownerBench: view.ownPublic.bench.map(slot => slot ? {
+      printing: slot.printing, movedFromBenchToActiveThisTurn: false,
+      knownAbilityUse: []
+    } : null),
+    priorOpponentTurnKO: { any: false, byAttack: false },
+    opponentLastTurnAttack: null, opponentLastTurnTurn: 7,
+    opponentLastTurnAttacks: [{ ...lastApex }],
+    opponentCopycatChoices: [{ ...lastApex }],
+    mimikyuCopycatCompatible: true
+  };
+}
 const side = (active, stadium = []) => ({
   active, bench: [], stadium, discard: [], lostZone: [], resolvingSupporter: [],
   deckCount: 30, handCount: 1, publicTurnRestrictions: { gxUsed: false,
@@ -67,17 +91,16 @@ for (const seat of [0, 1]) for (const lastApex of [false, true]) {
     const active = poke('Mimikyu GRI 58', 70, 'Psychic', 2, [
       { name: 'Copycat', cost: ['Psychic', 'Colorless'], damage: '' }
     ]);
+    active.name = 'Mimikyu';
     const own = side(active);
     own.discard = ['Dialga-GX UPR 100'];
     const other = side(poke('Regidrago VSTAR SIT 136', 280,
       'Dragon', 0, []), ['Wondrous Labyrinth ◇ TEU 158']);
     const input = {
       role: 'candidate', seat, prompt: null,
-      publicEventReceipt: lastApex ? { opponentCopycatChoices: [
-        { attackName: 'Apex Dragon', sourcePrinting: 'Regidrago VSTAR SIT 136' }
-      ] } : null,
+      publicEventReceipt: null,
       observation: {
-        actorSeat: seat, decisionKind: 'owner-root',
+        actorSeat: seat, globalTurn: 8, decisionKind: 'owner-root',
         ownHand: ['Psychic Energy MEE 13'], ownPublic: own,
         opponentPublic: other,
         ownTurnResources: { supporterPlayedTurn: 0 }
@@ -89,6 +112,8 @@ for (const seat of [0, 1]) for (const lastApex of [false, true]) {
         { token: 'pass', kind: 'pass' }
       ] }
     };
+    if (lastApex) input.publicEventReceipt = copycatReceipt(input.observation);
+    protocol.validatePublicEventReceipt(input.publicEventReceipt, input.observation);
     const expected = lastApex ? 'attach-mimikyu' : 'pass';
     const got = createPolicy({
       role: 'candidate', seat, policyVersion: POLICY_VERSION, config: {}
