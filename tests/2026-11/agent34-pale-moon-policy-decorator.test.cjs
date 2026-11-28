@@ -60,7 +60,7 @@ test('opt-in wrapper displaces only a terminal Pass with genuine Ranger in a ric
   assert.equal(result.policyAudit.evaluations.find(row=>row.token==='pass').status,'not-evaluated');
   assert.equal(result.policyAudit.evaluations.find(row=>row.token==='ranger').status,'rule-selected');
 });
-test('wrapper leaves original attacks, nonterminal passing, and ambiguous roots untouched',()=>{
+test('wrapper leaves original attacks and nonterminal passing untouched; selects a real rescue amid competing roots',()=>{
   const attackRequest={observation:rootView(),actionFrontier:{items:[pass,...other,ranger]}};
   const active=withPaleMoonTerminalEscapePolicy(policy('attack'));
   const before=active.decideWithAudit(attackRequest);
@@ -71,7 +71,7 @@ test('wrapper leaves original attacks, nonterminal passing, and ambiguous roots 
   const ambig={...attackRequest,observation:{...rootView(),
     ownPublic:{...rootView().ownPublic,bench:[{printing:'Mimikyu GRI 58'}]}},
     actionFrontier:{items:[pass,...other,ranger,retreat]}};
-  assert.deepEqual(withPaleMoonTerminalEscapePolicy(policy()).decide(ambig),{kind:'select-action',token:'pass'});
+  assert.deepEqual(withPaleMoonTerminalEscapePolicy(policy()).decide(ambig),{kind:'select-action',token:'ranger'});
 });
 test('Guzma pending owner-switch prompt overrides abstention with real physical Bench token',()=>{
   const chosen={token:'prompt-owner',kind:'pokemon',printing:'Mimikyu GRI 58',
