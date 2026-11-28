@@ -276,6 +276,7 @@ function cardSearchScore(choice, observation) {
   const printing = textOf(choice);
   if (matches(printing, PRINT.garbodor)) return hasTrubbish(observation) && !hasGarbodor(observation) ? 340 : 0;
   if (matches(printing, PRINT.enhancedHammer)) return hammerLive(observation);
+  if (matches(printing, PRINT.wally)) return supporterScore(printing, observation);
   if (matches(printing, PRINT.vikavolt)) return count(observation.ownPublic, PRINT.vikavolt) < 1 ? 270 : 35;
   if (matches(printing, PRINT.boost)) return hasTrubbish(observation) && !hasGarbodor(observation) ? 285 : 0;
   if (matches(printing, PRINT.vip)) return observation.globalTurn <= 2 && benchCount(observation.ownPublic) < 5 ? 230 : 0;
@@ -423,7 +424,13 @@ function scoreAttack(item, observation) {
   if (/^Suffocating Gas$/i.test(attack) || /^Venomous Hit$/i.test(attack)) return 25;
   return 0;
 }
+function wallyLineReady(observation) {
+  return supporterAvailable(observation) && hasTrubbish(observation) &&
+    !hasGarbodor(observation) && deckCount(observation) > 0;
+}
 function supporterScore(card, observation) {
+  if (matches(card, PRINT.wally)) return wallyLineReady(observation) ?
+    (observation.globalTurn <= 2 ? 330 : 260) : 0;
   if (matches(card, PRINT.guzma)) {
     const target = slots(observation.opponentPublic).some(row => row.zone === 'bench' && prizeLiability(row.pokemon) >= 2);
     return supporterAvailable(observation) && target ? 215 : 0;
@@ -536,7 +543,7 @@ function scoreAction(item, request) {
       matches(row.pokemon.printing, PRINT.trubbish) && row.pokemon.lastPlayedOrEvolvedTurn <= observation.globalTurn);
     return target && !hasGarbodor(observation) ? 170 : 0;
   }
-  if ([PRINT.guzma, PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination]
+  if ([PRINT.guzma, PRINT.wally, PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination]
     .some(pattern => matches(printing, pattern))) return supporterScore(printing, observation);
   if (matches(printing, PRINT.dark)) {
     const row = slots(own).find(value => value.pokemon.printing === item.targetPrinting);
@@ -795,6 +802,11 @@ function promptDecision(request) {
     if (/battle compressor/.test(source)) {
       return rank22CompressorTargets(prompt, deck, observation);
     }
+    if (/wally/.test(source)) {
+      return singleChoice(prompt, deck, choice =>
+        matches(choice, PRINT.garbodor) && hasTrubbish(observation) &&
+        !hasGarbodor(observation) ? 350 : 0, 'RANK22_WALLY_NO_GARBODOR');
+    }
     if (/claw of darkness/.test(source)) {
       return singleChoice(prompt, choices.filter(choice => owner(choice) === 'opponent' && zone(choice) === 'hand'),
         choice => opponentHandDiscardScore(choice, observation), 'NO_REVEALED_OPPONENT_HAND_CARD');
@@ -880,12 +892,21 @@ function promptDecision(request) {
     if (/tap[u]? koko|dance of the ancients/.test(source)) {
       return { kind: 'abstain', reasonCode: 'RANK22_TAPU_KOKO_PROMPT_HELD_OUT' };
     }
-    if (/crispin|pokémon communication|pokemon communication|hisuian heavy ball|wally|karen/.test(source)) {
+    if (/crispin|pokémon communication|pokemon communication|hisuian heavy ball|karen/.test(source)) {
       return { kind: 'abstain', reasonCode: 'RANK22_MULTI_STEP_PROMPT_HELD_OUT' };
     }
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_PROMPT' };
   }
   if (prompt.promptType === 'ChoosePokemonPrompt') {
+    if (/wally/.test(source)) {
+      return singleChoice(prompt, choices.filter(choice => owner(choice) === 'actor'),
+        choice => {
+          const row = ownPokemon(choice, observation);
+          return row && matches(row.pokemon.printing, PRINT.trubbish) &&
+            !hasGarbodor(observation) ?
+            (list(row.pokemon.tools).length > 0 ? 360 : 310) : 0;
+        }, 'RANK22_WALLY_NO_EVOLUTION_TARGET');
+    }
     if (/enhanced hammer/.test(source)) {
       return singleChoice(prompt, choices.filter(choice => owner(choice) === 'opponent'),
         choice => hammerTargetScore(opponentPokemon(choice, observation)),
