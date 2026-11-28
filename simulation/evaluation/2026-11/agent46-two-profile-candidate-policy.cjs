@@ -4959,7 +4959,7 @@ Object.defineProperty(module.exports, '__test', {
     hasOpponentAbilityLockOnFairyZoneHolder, hasOwnFairyZoneHolderLockThreat,
     viewAfterRemovingAbilityStadiums, fieldBlowerHoodBlocksFairyZone,
     paleMoonExtraPsychicAvailable, paleMoonRetreatStatus, paleMoonScore,
-    publicEnergySupply, publicEnergyCanPay,
+    publicEnergySupply, publicEnergyCanPay, apexHazard,
     projectedStadium, usefulCandidateStadium, chooseEnergyPayment, weaknessMultiplier, stealthyHoodTargetScore
   })
 });
