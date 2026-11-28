@@ -91,7 +91,7 @@ function heavyBallBasicCoverage() {
     };
   });
 }
-const {previousTurnResponseOptions}=require('../../twinleaf/agent8-ko-supporter-options.cjs');
+const {previousTurnResponseOptions,hostLastOpponentTurnKO}=require('../../twinleaf/agent8-ko-supporter-options.cjs');
 const arr = value => Array.isArray(value) ? value : [];
 const text = value => typeof value === 'string' ? value : value?.printing ?? value?.fullName ?? value?.label ?? '';
 const has = (value, pattern) => pattern.test(text(value));
@@ -1669,10 +1669,16 @@ function handIsSafeToReset(o,excludePrinting=null) {
   return kept.every(c=>discardScore(c,o)>=45);
 }
 function hasFreshPriorOpponentTurnKO(request) {
-  const turn=request?.observation?.globalTurn;
-  const ko=request?.publicEventReceipt?.priorOpponentTurnKO;
-  // Twinleaf's owner-side KO Boolean can survive a skipped owner turn after
-  // Timeless-GX. Require the independent Store event's actual turn stamp.
+  const o=request?.observation,turn=o?.globalTurn;
+  const receipt=request?.publicEventReceipt;
+  // The host-only certificate comes from a Store observer that records every
+  // completed turn's actor, including repeated turns. It is injected AFTER
+  // validating the original V3 wire receipt; V3 itself forbids that field.
+  const host=hostLastOpponentTurnKO(o,receipt);
+  if(host)return host.any===true;
+  const ko=receipt?.priorOpponentTurnKO;
+  // Direct-call fixtures may carry an independently stamped KO, but current
+  // V3 wire schema does not. Without the host observer, refuse stale booleans.
   return safeInt(turn)&&turn>1&&ko?.any===true&&ko.turn===turn-1;
 }
 // Raihan's native KO marker can survive a skipped owner turn too; the stamped
