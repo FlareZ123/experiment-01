@@ -389,8 +389,8 @@ function offeredPaleMoonRetreatChoices(view,items) {
        item.targetPrinting!==target.printing))continue;
     const hp=typeof target.hp==='number'?target.hp-target.damage:-1;
     const energies=Array.isArray(target.energies)?target.energies.length:0;
-    const cost=/\\bVMAX\\b/.test(target.printing)?3:
-      /\\b(?:VSTAR|GX|EX|ex|V)\\b/.test(target.printing)?2:1;
+    const cost=/\bVMAX\b/.test(target.printing)?3:
+      /\b(?:VSTAR|GX|EX|ex|V)\b/.test(target.printing)?2:1;
     rows.push({token:item.token,index:idx,score:hp+energies*5-cost*10});
   }
   rows.sort((a,b)=>b.score-a.score||a.index-b.index||
