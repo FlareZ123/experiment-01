@@ -50,7 +50,7 @@ function view(seat) {
   ['Grass Energy SVE','Double Dragon Energy ROS'],
   [['Apex Dragon',['Grass','Grass','Fire'],null]],['Dragon'],['VSTAR']);
  const own=player(gir,[],['Temple of Sinnoh ASR']);
- const opp=player(dragon,['Dialga-GX UPR','Kyurem SFA','Megaton Blower SSP','Crispin SCR']);
+ const opp=player(dragon,['Dialga-GX UPR','Kyurem SFA','Megaton Blower SSP','Crispin SCR','Dragapult ex TWM']);
  opp.lostZone=['Silent Lab PRC','Parallel City BKT'];
  return {
   actorSeat:seat,globalTurn:7,phase:2,decisionKind:'owner-root',
@@ -179,6 +179,15 @@ for(const seat of [0,1]){
  test('public Bench Marshadow remains an alternate Resetting Hole route, seat '+seat,()=>{
   const v=view(seat);
   v.opponentPublic.bench[0]=slot('Marshadow UNB',[],[],['Fighting']);
+  assert.deepEqual(decision(prompt(seat,v)),
+   {kind:'select-choices',tokens:['card-0','card-1']});
+ });
+}
+
+for(const seat of [0,1]){
+ test('two exposed donors exhaust observed payload: donor cut beats funding cut, seat '+seat,()=>{
+  const v=view(seat);
+  v.opponentPublic.discard.pop(); // Remove the third observed Dragon payload.
   assert.deepEqual(decision(prompt(seat,v)),
    {kind:'select-choices',tokens:['card-0','card-1']});
  });
