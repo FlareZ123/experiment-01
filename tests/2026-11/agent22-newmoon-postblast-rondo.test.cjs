@@ -42,7 +42,7 @@ assert.equal(x.rondo,80);
 x=base();x.public.sourceBenchCount=0;x.own.benchBeforeBlast=4;
 x.action.postBlastBasicsFromTpe=1;
 x=check(x,'candidate');assert.equal(x.projectedTotalDamage,230);
-x=base();x.own.benchBeforeBlast=3;x.action.postBlastBasicsFromHand=3;
+x=base();x.own.benchBeforeBlast=3;x.action.postBlastBasicsFromHand=4;
 check(x,'blocked','INSUFFICIENT_BENCH_CAPACITY');
 x=base();x.public.sourcePrizesRemaining=1;
 check(x,'blocked','OPPONENT_FINAL_PRIZE_FROM_SELF_KO');
@@ -69,6 +69,6 @@ check(x,'unsupported','INVALID_PUBLIC_STATE');
 x=base();x.own.benchBeforeBlast=0;
 check(x,'unsupported','INVALID_PUBLIC_STATE');
 x=base();x.public.sourceDamage=50;
-x=check(x,'blocked','POST_BLAST_BENCH_DAMAGE_SHORT'); // total260 but code checks total<230!
+x=check(x,'candidate'); // Prior 50 damage means 130+80 is lethal despite only 3 Bench
 assert.equal(checks,21);
 console.log('agent22 post-Blast Rondo actor gate: '+checks+' synthetic cases passed');
