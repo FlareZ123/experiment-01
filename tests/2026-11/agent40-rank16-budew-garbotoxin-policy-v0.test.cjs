@@ -1362,3 +1362,19 @@ for(const seat of [0,1]){
   assert.equal(policy.activeMimikyuSafeguard(q.observation),true);
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Guzma cannot bypass Snorlax without an opposing Bench target',()=>{
+  const board=own({active:mon('Crobat V DAA 104'),bench:[mon('Budew ASC 16')]});
+  const theirs=opp({active:mon('Snorlax PGO 55',{abilitySuppressions:[
+   {abilityName:'Block',suppressed:false}]}),bench:[]});
+  const q=root(seat,[play('Guzma BUS 115','guzma'),pass],{
+   ownPublic:board,opponentPublic:theirs,ownHand:['Guzma BUS 115']});
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),true);
+  assert.equal(policy.guzmaRootScore(q.observation),0);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  theirs.bench=[mon('Mimikyu PAL 97')];
+  assert.equal(policy.guzmaRootScore(q.observation),550);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'guzma'});
+ });
+}
