@@ -4,7 +4,7 @@
 // alone must not upgrade one attachment because a DIFFERENT copy has a Tool.
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { POLICY_VERSION, createPolicy, scoreAction } =
+const { POLICY_VERSION, createPolicy, scoreAction, scoreAttack } =
   require('../../simulation/evaluation/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.cjs');
 
 const BUNNELBY = 'Bunnelby PRC 121';
@@ -224,6 +224,35 @@ for (const seat of [0, 1]) {
     const obs = halaResourceState();
     obs.ownPublic.bench[1].energies = ['Jet Energy PAL 190'];
     assert.equal(halaScore(obs), 215);
+  });
+
+  function evolutionAttackView() {
+    const obs = tmDecisionView();
+    obs.ownPublic.active = {
+      printing: BUNNELBY, hp: 70, damage: 0, tools: []
+    };
+    obs.ownPublic.bench[0].tools = [TM];
+    obs.ownPublic.deckCount = 30;
+    obs.opponentPublic.deckCount = 25;
+    return obs;
+  }
+  const evolutionAttack = { token: 'evolution', kind: 'attack', attackName: 'Evolution' };
+
+  test('seat ' + seat + ': TM on another Bunnelby does not make Active Bunnelby know Evolution', () => {
+    assert.equal(scoreAttack(evolutionAttack, evolutionAttackView()), 20);
+  });
+
+  test('seat ' + seat + ': Evolution attack has full value when Active Bunnelby itself has TM', () => {
+    const obs = evolutionAttackView();
+    obs.ownPublic.active.tools = [TM];
+    assert.equal(scoreAttack(evolutionAttack, obs), 155);
+  });
+
+  test('seat ' + seat + ': Active TM Evolution attack respects own low-deck caution', () => {
+    const obs = evolutionAttackView();
+    obs.ownPublic.active.tools = [TM];
+    obs.ownPublic.deckCount = 4;
+    assert.equal(scoreAttack(evolutionAttack, obs), 140);
   });
 
 }
