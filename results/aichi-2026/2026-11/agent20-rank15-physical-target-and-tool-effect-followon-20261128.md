@@ -50,6 +50,12 @@ The correction identifies an established physical target by its `lastPlayedOrEvo
 
 Both-seat constructed cases cover newly planted versus old Oddish in either Bench order, indexless collisions, unique fallback, established Active-only, old Active versus new Bench, new Active versus old Bench, explicitly Bench-restricted negatives, and actual offered `use-stadium` root activation. The correction is a source-policy decision test, not an authenticated pinned Store evolution chain or a game.
 
+## Guzma: retain the promised legal attacker through the second switch
+
+The source's Guzma BUS115 uses an opposing Bench selection followed by a mandatory own Bench promotion. A decisive observed line uses an already-funded Mega Lopunny ex on the Bench to deliver moved Gale Thrust for a two-Prize terminal win. The root `guzmaOpportunity` correctly skipped a candidate Mega with `publicRestrictions.cannotUseAttacksNextTurn` entries; **the actual own-Pokémon `guzmaPrompt` did not**, and promoted the first identically printed restricted Mega rather than the second, legal attacker. On a constructed fully visible board with two Mega, Root planned Bench index1 and the prompt selected Bench index0: a concrete internal action-chain failure.
+
+The change shares `readyGuzmaMega` between the planning root and own-switch prompt. It additionally removes a blanket veto of the source Mega attacker when **Choice Belt** is attached: Belt cannot reduce a base-230 moved Gale Thrust, and Jamming Tower disabling its bonus still leaves 230. Hence a visibly guaranteed base-230 KO remains a terminal Guzma regardless of whether Belt's extra +30 currently applies. Opposing target Tools or unresolved defender modifiers still prevent a certainty claim. Both-seat tests cover restricted first Mega versus legal second Mega, Jamming/Belt present and absent, and defender-Tool conservative negatives.
+
 ## Reproducible assets
 
 - Policy: `simulation/evaluation/2026-11/agent20-rank15-lopunny-vileplume-opponent-policy.cjs`
@@ -58,9 +64,10 @@ Both-seat constructed cases cover newly planted versus old Oddish in either Benc
 - Terminal Mega promotion: `tests/2026-11/agent20-rank15-terminal-gale-promotion-heldout.test.cjs` (**12** cases)
 - Colorless source damage: `tests/2026-11/agent20-rank15-colorless-modifiers-heldout.test.cjs` (**12** cases)
 - Grand Tree target age/slot/Active: `tests/2026-11/agent20-rank15-grandtree-physical-evolution-heldout.test.cjs` (**18** cases)
-- Exact final policy blob: `669ffab2e38da1fbeee3d662eb40168119d39cbd`
-- Exact test blobs: `04aa7326f3d2c3bf18b115ca48d6988021c511cb`, `99418a2ca86cc651773af5cf3248979e4563317c`, `5d99721052439eb84849b4094ad98e0c6bd16132`, `fea7ca06fc33741301619f13dd8782a2ccfcd57a`, `7fa0f188ae3b889e16163fb8af639632dd4816e8`
-- Executed both committed test files against the exact policy blob with a JavaScript CommonJS V8 shim for `node:test`, `node:assert/strict`, and the policy module: **68 passed / 0 failed**. This confirms synchronous decision assertions only. The V8 shim is not Node CLI, pinned Twinleaf Store, native protocol, source-deck game, or competitive qualification.
+- Guzma own attacker promise / Belt lower-bound: `tests/2026-11/agent20-rank15-guzma-prompt-attacker-binding-heldout.test.cjs` (**14** cases)
+- Exact final policy blob: `8003b552de2ce7e2c2e5205785fa34bd23747d64`
+- Exact test blobs: `04aa7326f3d2c3bf18b115ca48d6988021c511cb`, `99418a2ca86cc651773af5cf3248979e4563317c`, `5d99721052439eb84849b4094ad98e0c6bd16132`, `fea7ca06fc33741301619f13dd8782a2ccfcd57a`, `7fa0f188ae3b889e16163fb8af639632dd4816e8`, `ad0d6d4c0c4259827ec70ef1b298e11d90cbcb5e`
+- Executed both committed test files against the exact policy blob with a JavaScript CommonJS V8 shim for `node:test`, `node:assert/strict`, and the policy module: **82 passed / 0 failed**. This confirms synchronous decision assertions only. The V8 shim is not Node CLI, pinned Twinleaf Store, native protocol, source-deck game, or competitive qualification.
 
 The original PR90 head reproduced the wrong Jet and TM selections and the absent correct Hood decision before the follow-on patch. Neither PR90 nor PR93 should be treated as an admission to main or a frozen policy. Both may be challenged through independent actor-visible native continuation before any owner-approved game. No CI or V3 dispatch was performed here.
 
