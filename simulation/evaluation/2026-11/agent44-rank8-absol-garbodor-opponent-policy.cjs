@@ -211,6 +211,9 @@ function toolScore(choice, observation) {
     return target && !observation.ownTurnResources?.vstarUsed ? 270 : 35;
   }
   if (matches(printing, PRINT.float)) {
+    const garbodorNeedsTool = slots(own).some(row =>
+      matches(row.pokemon.printing, PRINT.garbodor) && list(row.pokemon.tools).length === 0);
+    if (garbodorNeedsTool) return 280;
     const trubbishNeedsTool = slots(own).some(row =>
       matches(row.pokemon.printing, PRINT.trubbish) && list(row.pokemon.tools).length === 0);
     if (trubbishNeedsTool && !hasGarbodor(observation)) return 260;
@@ -302,8 +305,10 @@ function discardScore(choice, observation) {
         .some(pattern => discardHas(own, pattern))) return 0;
   if (matches(printing, PRINT.forest) && !observation.ownTurnResources?.vstarUsed &&
       slots(own).some(row => matches(row.pokemon.printing, PRINT.crobat) && list(row.pokemon.tools).length === 0)) return 0;
-  if (matches(printing, PRINT.float) && !hasGarbodor(observation) &&
-      slots(own).some(row => matches(row.pokemon.printing, PRINT.trubbish) && list(row.pokemon.tools).length === 0)) return 0;
+  if (matches(printing, PRINT.float) && slots(own).some(row =>
+      list(row.pokemon.tools).length === 0 &&
+      (matches(row.pokemon.printing, PRINT.garbodor) ||
+        !hasGarbodor(observation) && matches(row.pokemon.printing, PRINT.trubbish)))) return 0;
   if (matches(printing, PRINT.dark)) return hand.filter(card => matches(card, PRINT.dark)).length > 2 ? 65 : 0;
   if (matches(printing, PRINT.lightning)) {
     return hand.filter(card => matches(card, PRINT.lightning)).length > 1 ? 55 : 0;
@@ -357,7 +362,7 @@ function scoreAttack(item, observation) {
   if (metadata.attackCostPayable === false) return 0;
   const remaining = Number.isFinite(metadata.targetHp) && Number.isFinite(metadata.targetDamage)
     ? metadata.targetHp - metadata.targetDamage : -1;
-  if (/^Terminal Period$/i.test(attack)) return metadata.targetDamage === 300 ? 340 : 0;
+  if (/^Terminal Period$/i.test(attack)) return metadata.targetDamage === 60 ? 340 : 0;
   if (/^Claw of Darkness$/i.test(attack)) {
     const damage = Number.isFinite(metadata.damageAfterWeakness) ? metadata.damageAfterWeakness :
       Number.isFinite(metadata.damage) ? metadata.damage : 200;
@@ -483,6 +488,7 @@ function scoreAction(item, request) {
   if ([PRINT.float, PRINT.forest, PRINT.muscle].some(pattern => matches(printing, pattern))) {
     const row = slots(own).find(value => value.pokemon.printing === item.targetPrinting);
     if (!row || list(row.pokemon.tools).length > 0) return 0;
+    if (matches(printing, PRINT.float) && matches(row.pokemon.printing, PRINT.garbodor)) return 270;
     if (matches(printing, PRINT.float) && matches(row.pokemon.printing, PRINT.trubbish) && !hasGarbodor(observation)) return 225;
     if (matches(printing, PRINT.forest) && matches(row.pokemon.printing, PRINT.crobat)) return 180;
     if (matches(printing, PRINT.muscle) && matches(row.pokemon.printing, PRINT.mega)) return 150;
@@ -675,6 +681,7 @@ function promptDecision(request) {
       return singleChoice(prompt, choices.filter(choice => owner(choice) === 'actor'), choice => {
         const row = ownPokemon(choice, observation);
         if (!row || list(row.pokemon.tools).length > 0) return 0;
+        if (/float stone/.test(source) && matches(row.pokemon.printing, PRINT.garbodor)) return 300;
         if (/float stone/.test(source) && matches(row.pokemon.printing, PRINT.trubbish) && !hasGarbodor(observation)) return 260;
         if (/forest seal stone/.test(source) && matches(row.pokemon.printing, PRINT.crobat)) return 240;
         if (/muscle band/.test(source) && matches(row.pokemon.printing, PRINT.mega)) return 220;
