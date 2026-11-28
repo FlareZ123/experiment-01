@@ -203,3 +203,23 @@ test('single-target Bench attacks select exactly one target and count zero-Prize
   assert.equal(dollLaser.immediateWin, false);
   assert.equal(dollFrost.immediateWin, false);
 });
+
+
+test('rank19 legacy Ho-Oh-EX is a two-Prize single-Bench Dragon Laser finish', () => {
+  const obs = megaView();
+  obs.ownPublic.prizeCount = 2;
+  obs.opponentPublic.bench = [
+    { hp: 160, damage: 140, printing: 'Ho-Oh-EX DRX 22',
+      printed: { subtypes: ['Basic', 'EX'], rules: [
+        'Pokémon-EX rule: When a Pokémon-EX has been Knocked Out, your opponent takes 2 Prize cards.'
+      ] } }
+  ];
+  for (const seat of [0, 1]) {
+    obs.physicalSeat = seat;
+    const result = evaluateApexAttackChoice(laser, obs);
+    assert.equal(result.benchPrizeValue, 2);
+    assert.equal(result.immediateWin, true);
+    assert.deepEqual(chooseApexAttack([laser, timeless], obs),
+      { kind: 'select-choice', token: 'laser' });
+  }
+});
