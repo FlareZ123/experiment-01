@@ -635,3 +635,58 @@ test('V3 four-adapter producer is source-consistent while native actions and hos
   assert.equal(dispatchCalls,2);
   assert.equal(wrapped.promptProjection.resolveHostOnlyPrompt().action.native,true);
 });
+
+
+test('source-qualified global Stadium activation works for either player, fails closed on alias conflict',()=>{
+  const psychic={name:'Psychic Energy',count:60,
+    printing:{set:'SVE',number:'5'}};
+  const ownDeck={cards:[psychic]};
+  const otherDeck={cards:[
+    {name:'Tropical Beach',count:1,printing:{set:'BWP',number:'50'}},
+    {name:'Psychic Energy',count:59,printing:{set:'SVE',number:'5'}}
+  ]};
+  const mine=buildSourcePrintingMap(ownDeck,
+    Array(60).fill('Psychic Energy SVE'));
+  const other=buildSourcePrintingMap(otherDeck,
+    ['Tropical Beach BWP',...Array(59).fill('Psychic Energy SVE')]);
+  for(const seat of [0,1]){
+    const maps=seat===0?[mine,other]:[other,mine];
+    const view={actorSeat:seat,ownHand:[],
+      ownPublic:{active:null,bench:[],stadium:[],discard:[],lostZone:[]},
+      opponentPublic:{active:null,bench:[],stadium:['Tropical Beach BWP'],
+        discard:[],lostZone:[]}};
+    const frontier={schema:'aichi-action-frontier-v1',items:[
+      {token:'stadium',kind:'use-stadium',
+        actorPrinting:'Tropical Beach BWP',
+        publicMetadata:{stadiumEffectLive:true,
+          stadiumPrinting:'Tropical Beach BWP'}},
+      {token:'pass',kind:'pass'}
+    ]};
+    const actual=projectSourcePrintings(view,frontier,maps);
+    assert.equal(actual.observation.opponentPublic.stadium[0],
+      'Tropical Beach BWP 50');
+    assert.equal(actual.actionFrontier.items[0].actorPrinting,
+      'Tropical Beach BWP 50',
+      'actor may use a publicly visible opponent-owned Stadium');
+    assert.equal(actual.actionFrontier.items[0].publicMetadata.stadiumPrinting,
+      'Tropical Beach BWP 50');
+    assert.deepEqual(actual.actionFrontier.items[1],
+      {token:'pass',kind:'pass'});
+  }
+  const conflictingActorDeck={cards:[
+    {name:'Tropical Beach',count:1,printing:{set:'BWP',number:'51'}},
+    {name:'Psychic Energy',count:59,printing:{set:'SVE',number:'5'}}
+  ]};
+  const conflictingMine=buildSourcePrintingMap(conflictingActorDeck,
+    ['Tropical Beach BWP',...Array(59).fill('Psychic Energy SVE')]);
+  const ambiguous=projectSourcePrintings(
+    {actorSeat:0,ownHand:[],ownPublic:null,opponentPublic:null},
+    {schema:'aichi-action-frontier-v1',items:[
+      {token:'stadium',kind:'use-stadium',
+        actorPrinting:'Tropical Beach BWP',
+        publicMetadata:{stadiumEffectLive:true}}]},
+    [conflictingMine,other]);
+  assert.equal(ambiguous.actionFrontier.items[0].actorPrinting,
+    'Tropical Beach BWP',
+    'source-60 conflicting native ID must not be assigned to either art');
+});

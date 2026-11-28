@@ -166,7 +166,13 @@ function projectSourcePrintings(observation,frontier,sourceMapsBySeat,options={}
         m.targetSeat==='opponent'?other:null;
       return {...item,
         ...(Object.hasOwn(item,'actorPrinting')?{
-          actorPrinting:label(item.actorPrinting,mine)}:{}),
+          // A globally playable Stadium effect can originate from either
+          // player's source 60. Never attribute an opponent-owned Stadium
+          // to the acting player's card inventory; conflicting print IDs
+          // remain raw rather than guessing who physically played it.
+          actorPrinting:item.kind==='use-stadium'
+            ? uniqueVisibleLabel(item.actorPrinting,mine,other)
+            : label(item.actorPrinting,mine)}:{}),
         ...(Object.hasOwn(item,'targetPrinting')?{
           targetPrinting:label(item.targetPrinting,targetMap)}:{}),
         ...(Object.hasOwn(item,'publicMetadata')?{publicMetadata:item.publicMetadata?{...m,
