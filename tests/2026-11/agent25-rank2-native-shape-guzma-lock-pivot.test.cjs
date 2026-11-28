@@ -274,9 +274,50 @@ for (const seat of [0, 1]) {
       { kind: 'select-action', token: 'guzma' });
   });
 
-  test('seat ' + seat + ': U-Turn Board vetoes a claimed unpowered retreat trap', () => {
+  test('seat ' + seat + ': U-Turn Board reduces a two-energy printed Retreat Cost to one, not zero', () => {
     const view = actorView(seat);
     view.opponentPublic.bench[1].tools = ['U-Turn Board UNM 211'];
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)),
+      { kind: 'select-action', token: 'guzma' });
+  });
+
+  test('seat ' + seat + ': U-Turn Board does make a one-energy printed retreat free', () => {
+    const view = actorView(seat);
+    view.opponentPublic.bench[1] = {
+      printing: 'Mimikyu PAL 97', hp: 70, damage: 0,
+      energies: [], tools: ['U-Turn Board UNM 211'],
+      printed: { retreatCost: ['COLORLESS'], stage: 'BASIC' },
+      evolutionPrintings: ['Mimikyu PAL 97']
+    };
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)), pass());
+  });
+
+  test('seat ' + seat + ': Air Balloon only removes two of Goodra VSTAR three Retreat symbols', () => {
+    const view = actorView(seat);
+    view.opponentPublic.bench[1] = {
+      printing: 'Hisuian Goodra VSTAR LOR 136', hp: 270, damage: 0,
+      energies: [], tools: ['Air Balloon SSH 156'],
+      printed: { retreatCost: ['COLORLESS', 'COLORLESS', 'COLORLESS'], stage: 'VSTAR' },
+      evolutionPrintings: ['Hisuian Goodra V LOR 135', 'Hisuian Goodra VSTAR LOR 136']
+    };
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)),
+      { kind: 'select-action', token: 'guzma' });
+  });
+
+  test('seat ' + seat + ': Air Balloon frees a two-Retreat Shadow Rider V', () => {
+    const view = actorView(seat);
+    view.opponentPublic.bench[1].tools = ['Air Balloon SSH 156'];
+    assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)), pass());
+  });
+
+  test('seat ' + seat + ': Float Stone removes all Goodra VSTAR Retreat symbols', () => {
+    const view = actorView(seat);
+    view.opponentPublic.bench[1] = {
+      printing: 'Hisuian Goodra VSTAR LOR 136', hp: 270, damage: 0,
+      energies: [], tools: ['Float Stone BKT 137'],
+      printed: { retreatCost: ['COLORLESS', 'COLORLESS', 'COLORLESS'], stage: 'VSTAR' },
+      evolutionPrintings: ['Hisuian Goodra V LOR 135', 'Hisuian Goodra VSTAR LOR 136']
+    };
     assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)), pass());
   });
 
