@@ -220,6 +220,8 @@ for(const seat of [0,1]) {
     r.observation.ownHand=['Battle VIP Pass FST'];
     r.actionFrontier.items=[root('play-card','Battle VIP Pass FST','vip-native')];
     assert.equal(policy(seat).decide(r).token,'vip-native');
+    // On a later turn, the same VIP is truly expendable Quick Ball payment.
+    r.observation.globalTurn=4;
     r.observation.ownHand=['Quick Ball FST','Battle VIP Pass FST'];
     r.actionFrontier.items=[root('play-card','Quick Ball FST','quick-native')];
     assert.equal(policy(seat).decide(r).token,'quick-native');
