@@ -55,3 +55,55 @@ test('ambiguous or incomplete source mapping fails closed',()=>{
     new Map([['Penny SVI','Penny SVI 183']]),new Map()]),
     /nonempty source-printing map must be created/);
 });
+
+
+test('source-projected receipt, prompt and K1 stay shape-safe',()=>{
+  const map=buildSourcePrintingMap(source,ids);
+  const view={actorSeat:0,ownHand:['Penny SVI'],
+    ownPublic:{active:{printing:'Penny SVI',energies:[],tools:[]},bench:[null]},
+    opponentPublic:{active:{printing:'Penny SVI'},bench:[]},
+    ownerK1:{epoch:2,exactMembershipKnown:true,invalidationReason:null,
+      knownPrintings:[{printing:'Penny SVI',copies:1}]}};
+  const receipt={ownerActive:{printing:'Penny SVI',knownAbilityUse:[]},
+    ownerBench:[null],opponentLastTurnAttacks:null};
+  const prompt={source:{sourcePrinting:'Penny SVI',effectName:'Penny',
+    sourceKind:'card-effect'},choices:[{kind:'card',token:'a',printing:'Penny SVI',
+      publicMetadata:{ownerSeat:'actor'}}],
+    publicMetadata:{selectionType:'card-combination',ownerSeat:'actor'}};
+  const frontier={schema:'fixture',items:[{kind:'play-card',token:'a',
+    actorPrinting:'Penny SVI',publicMetadata:{cardType:'trainer'}}]};
+  const projected=projectSourcePrintings(view,frontier,[map,new Map()],{
+    prompt,publicEventReceipt:receipt});
+  assert.equal(projected.observation.ownPublic.active.printing,
+    projected.publicEventReceipt.ownerActive.printing);
+  assert.equal(projected.observation.ownerK1.knownPrintings[0].printing,'Penny SVI 183');
+  assert.equal(projected.prompt.source.sourcePrinting,'Penny SVI 183');
+  assert.equal(projected.prompt.choices[0].printing,'Penny SVI 183');
+  assert.equal(projected.actionFrontier.items[0].actorPrinting,'Penny SVI 183');
+  assert.equal(Object.hasOwn(projected.publicEventReceipt,'opponentCopycatChoices'),false);
+  assert.equal(Object.hasOwn(projected.prompt.source,'copiedSourcePrinting'),false);
+  assert.equal(Object.hasOwn(projected.prompt.publicMetadata,'sourcePrinting'),false);
+  assert.equal(Object.hasOwn(projected.prompt.choices[0].publicMetadata,'sourcePrinting'),false);
+  assert.equal(Object.hasOwn(projected.actionFrontier.items[0].publicMetadata,'sourceCardFullName'),false);
+  assert.equal(view.ownPublic.active.printing,'Penny SVI');
+  assert.equal(receipt.ownerActive.printing,'Penny SVI');
+  assert.equal(prompt.source.sourcePrinting,'Penny SVI');
+});
+
+test('ambiguous origin retains native identity and Night Watch fails closed',()=>{
+  const map=buildSourcePrintingMap(source,ids);
+  const otherSource={cards:[
+    {name:'Penny',count:1,printing:{set:'SVI',number:'999'}},
+    {name:'Psychic Energy',count:59,printing:{set:'SVE',number:'5'}}]};
+  const otherMap=buildSourcePrintingMap(otherSource,
+    ['Penny SVI',...Array(59).fill('Psychic Energy SVE')]);
+  const view={actorSeat:0,ownHand:[],ownPublic:null,opponentPublic:null};
+  const prompt={source:{sourcePrinting:'Penny SVI',effectName:'Penny',
+    sourceKind:'card-effect'},choices:[],publicMetadata:{selectionType:'pokemon'}};
+  const after=projectSourcePrintings(view,null,[map,otherMap],{prompt});
+  assert.equal(after.prompt.source.sourcePrinting,'Penny SVI');
+  const nightWatch={...prompt,source:{...prompt.source,
+    sourcePrinting:'Trevenant & Dusknoir-GX SMP',effectName:'Night Watch'}};
+  assert.throws(()=>projectSourcePrintings(view,null,[map,otherMap],
+    {prompt:nightWatch}),/HOST_ONLY_PHYSICAL_PROMPT/);
+});
