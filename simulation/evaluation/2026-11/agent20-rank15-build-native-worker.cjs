@@ -26,6 +26,20 @@ const NAMES=Object.freeze([
   ['agent49-policy-protocol.cjs','agent49-policy-protocol.cjs'],
   ['original-source-deck.json','agent20-rank15-engine-opponent-deck.json']
 ]);
+// The strict Agent49 init contract requires config={} for every role. The
+// optional *packaged* playable mode therefore adapts the factory in the
+// research-owned policy source, not in the protocol, without trusting an
+// impossible nonempty config field or changing shared vendor code.
+const PLAYABLE_POLICY_SUFFIX=String.raw`
+;(function(){
+  const strictFactory=module.exports.createPolicy;
+  module.exports.createPolicy=function constructorWithPassFallback(init){
+    if(init&&init.config&&Object.keys(init.config).length===0)
+      return strictFactory({...init,config:{allowPassFallback:true}});
+    return strictFactory(init);
+  };
+})();
+`;
 function sha(bytes){return crypto.createHash('sha256').update(bytes).digest('hex');}
 function loadSource60(file){
   const src=JSON.parse(fs.readFileSync(file,'utf8'));
@@ -42,7 +56,8 @@ function loadSource60(file){
     throw new Error('RANK15_SOURCE_ALIAS_MISMATCH');
   return src;
 }
-function bundle({out,allowExisting=false}={}){
+function bundle({out,allowExisting=false,mode='strict'}={}){
+  if(mode!=='strict'&&mode!=='playable')throw new Error('INVALID_BUNDLE_MODE');
   const dest=out?path.resolve(out):fs.mkdtempSync(path.join(os.tmpdir(),'agent20-rank15-v3-'));
   if(fs.existsSync(dest)){
     if(!allowExisting&&fs.readdirSync(dest).length)throw new Error('BUNDLE_OUTPUT_NOT_EMPTY');
@@ -52,7 +67,9 @@ function bundle({out,allowExisting=false}={}){
   // Ensure exact template and its metadata, not merely an arbitrary 60.
   const bytes={};
   for(const [output,input] of NAMES){
-    const content=fs.readFileSync(path.join(LOCAL,input));
+    let content=fs.readFileSync(path.join(LOCAL,input));
+    if(output==='policy.cjs'&&mode==='playable')
+      content=Buffer.from(content.toString('utf8')+PLAYABLE_POLICY_SUFFIX,'utf8');
     bytes[output]=content;
   }
   for(const [output,content] of Object.entries(bytes)){
@@ -69,6 +86,9 @@ function bundle({out,allowExisting=false}={}){
     protocol:'agent49',
     policyVersion:'agent20-rank15-lopunny-vileplume-opponent-v1',
     status:'DEVELOPMENT_ONLY_NOT_BENCHMARK_QUALIFIED',
+    mode,
+    passFallback:mode==='playable'?'OPT_IN_AT_BUNDLE_BUILD':'STRICT_ABSTENTION',
+    workerInitConfig:{}, // Agent49 validateInit requires exactly empty {}.
     files:Object.fromEntries(Object.entries(bytes).map(([name,value])=>[
       name,{sha256:sha(value),bytes:value.length}
     ])),
@@ -81,13 +101,14 @@ function bundle({out,allowExisting=false}={}){
 }
 if(require.main===module){
   const args=process.argv.slice(2);
-  if(args.length!==2||args[0]!=='--out'||!args[1]){
-    process.stderr.write('Usage: node agent20-rank15-build-native-worker.cjs --out EMPTY_DIRECTORY\n');
+  if(!([2,3].includes(args.length)&&args[0]==='--out'&&args[1]&&
+    (args.length===2||args[2]==='--playable'))){
+    process.stderr.write('Usage: node agent20-rank15-build-native-worker.cjs --out EMPTY_DIRECTORY [--playable]\n');
     process.exitCode=2;
   }else{
-    try{const result=bundle({out:args[1]});
+    try{const result=bundle({out:args[1],mode:args[2]==='--playable'?'playable':'strict'});
       process.stdout.write(JSON.stringify(result,null,2)+'\n');
     }catch(error){process.stderr.write('RANK15_PACKAGE_ERROR '+error.message+'\n');process.exitCode=1;}
   }
 }
-module.exports={bundle,loadSource60,NAMES,sha};
+module.exports={bundle,loadSource60,NAMES,PLAYABLE_POLICY_SUFFIX,sha};
