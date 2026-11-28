@@ -1341,7 +1341,11 @@ function visibleTempleRegidragoFundingPairBonus(view,names){
       .some(p=>hasAnyName(p,otherRemoval)))return 0;
   const apex={name:'Apex Dragon',cost:['Grass','Grass','Fire']};
   if(publicEnergyCanPay(active,apex,view,true)!==false)return 0;
-  if((opp.bench??[]).some(slot=>slot&&hasName(slot.printing,'Regidrago VSTAR')&&
+  // An already paid Benched Regidrago V can evolve into VSTAR on the next
+  // opponent turn. Count it as a possible paid attacker, not just VSTARs.
+  if((opp.bench??[]).some(slot=>slot&&
+       (hasName(slot.printing,'Regidrago VSTAR')||
+        (/^Regidrago V(?: |$)/.test(slot.printing))) &&
        publicEnergyCanPay(slot,apex,view,true)===true))return 0;
   const beforeDonors=observedPayloads(opp.discard,view);
   if(!beforeDonors.length)return 0;
