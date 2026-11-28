@@ -131,6 +131,16 @@ module.exports = (function build() {
     }
     return dfs(0,new Set());
   }
+  // Pinned Twinleaf's Weakness reducer treats undefined printed value as
+  // x2; actorObservation maps it to null. A numeric legacy value is additive.
+  function applyPrintedWeakness(damage,weakness) {
+    const v=weakness?.value;
+    if(v===null||v===undefined||/^[×x]\\s*2$/i.test(String(v)))
+      return damage*2;
+    if(Number.isSafeInteger(v)&&v>=0)return damage+v;
+    if(/^\\+\\d+$/.test(String(v)))return damage+Number(v);
+    return null;
+  }
   function printedDamage(o,attacker,target,attack) {
     if(!target||!attacker||remaining(target)<=0||!num(target.damage))return null;
     if(attack==='Terminal Period')return target.damage===60&&!uncertainDefense(o,target,'effect')?Infinity:0;
@@ -142,7 +152,7 @@ module.exports = (function build() {
     }
     const weak=L(target.printed?.weakness).filter(x=>type(x.type)==='darkness');
     const resist=L(target.printed?.resistance).filter(x=>type(x.type)==='darkness');
-    for(const w of weak) { const v=String(w.value);if(/^[×x]\s*2$/i.test(v))raw*=2;else if(/^\+\d+$/.test(v))raw+=Number(v);else return null; }
+    for(const w of weak) {raw=applyPrintedWeakness(raw,w);if(raw===null)return null;}
     for(const r of resist) {if(!/^-\d+$/.test(String(r.value)))return null;raw+=Number(r.value);}
     return Math.max(0,raw);
   }
@@ -239,8 +249,7 @@ module.exports = (function build() {
     const types=L(p.printed?.types).map(type);
     if(types.length===1){
       for(const w of L(target?.printed?.weakness).filter(x=>type(x.type)===types[0])){
-        const v=String(w.value);
-        if(/^[×x]\s*2$/i.test(v))damage*=2;else if(/^\+\d+$/.test(v))damage+=Number(v);else return null;
+        damage=applyPrintedWeakness(damage,w);if(damage===null)return null;
       }
       for(const r of L(target?.printed?.resistance).filter(x=>type(x.type)===types[0])){
         if(!/^-\d+$/.test(String(r.value)))return null;damage+=Number(r.value);
@@ -656,7 +665,7 @@ function bombPlanner(o,sourceBenchIndex){
       const pt=L(p.printed?.types).map(type);
       if(L(p.tools).some(x=>match(x,R.muscle))&&!liveStadium(o,/Jamming Tower/i)&&!o.ownPublic?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining)raw+=20;
       if(pt.length===1){
-        for(const w of L(target.printed?.weakness).filter(x=>type(x.type)===pt[0])){if(/^[×x]2$/i.test(w.value))raw*=2;else if(/^\+\d+$/.test(w.value))raw+=Number(w.value);else return Math.max(0,bonus);}
+        for(const w of L(target.printed?.weakness).filter(x=>type(x.type)===pt[0])){raw=applyPrintedWeakness(raw,w);if(raw===null)return Math.max(0,bonus);}
         for(const r of L(target.printed?.resistance).filter(x=>type(x.type)===pt[0])){if(!/^-\d+$/.test(r.value))return Math.max(0,bonus);raw+=Number(r.value);}
       }
       if(raw>=remaining(target)){
