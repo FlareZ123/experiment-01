@@ -14,7 +14,7 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const fs=require('node:fs');
 const {planAichi}=require('../../simulation/evaluation/aichi-pilot.cjs');
-const {buildSourcePrintingMap,projectAdmittedWorkerParts,createCertifiedV3RoleAdapters}=
+const {buildSourcePrintingMap,projectSourcePrintings,projectAdmittedWorkerParts,createCertifiedV3RoleAdapters}=
   require('../../simulation/evaluation/2026-11/agent32-source-printing-bridge.cjs');
 const {stage}=require('../../simulation/twinleaf/agent5-attack-special-arbitration-native.cjs');
 const {initializeCards}=require('../../simulation/twinleaf/headless.cjs');
@@ -201,8 +201,15 @@ for(const seat of [0,1]){
 
     // Controlled *source-stamped* comparator: independently shows why the
     // numeric Stage normalization matters once the identity issue is solved.
+    // Source-print the observation too, not only the offered actions. Otherwise
+    // the protected Active Snorlax is mistaken for a generic damaged Basic,
+    // manufacturing a positive Penny score in the negative control.
     // This comparator is NOT the genuine native observation/action frontier.
-    const sourceStamped={...root,actionFrontier:{
+    const printMap=buildSourcePrintingMap(sourceDeck,resolved.cards);
+    const opponentMap=buildSourcePrintingMap(opponentDeck,opponentResolved.cards);
+    const maps=seat===0?[printMap,opponentMap]:[opponentMap,printMap];
+    const sourceStampedView=projectSourcePrintings(view,null,maps).observation;
+    const sourceStamped={...root,observation:sourceStampedView,actionFrontier:{
       schema:protocol.FRONTIER_SCHEMA,items:[
         {...actions[0],actorPrinting:'Penny SVI 183'},
         {...actions[1],actorPrinting:"Team Rocket's Handiwork FCO 112"},
@@ -211,19 +218,19 @@ for(const seat of [0,1]){
     }};
     assert.deepEqual(policy.decide(sourceStamped),
       {kind:'select-action',token:'penny'});
-    const noUsablePickup=JSON.parse(JSON.stringify(view));
+    const noUsablePickup=JSON.parse(JSON.stringify(sourceStampedView));
     noUsablePickup.ownPublic.bench[1].damage=0;
     assert.deepEqual(policy.decide({...sourceStamped,observation:noUsablePickup}),
       {kind:'select-action',token:'handi'},
       'Damaged Active Snorlax alone must not choose a dead-end Penny');
-    const oldView=JSON.parse(JSON.stringify(view));
+    const oldView=JSON.parse(JSON.stringify(sourceStampedView));
     oldView.ownPublic.active.printed.stage=Stage.BASIC;
     oldView.ownPublic.bench[1].printed.stage=Stage.BASIC;
     assert.deepEqual(policy.decide({...sourceStamped,observation:oldView}),
       {kind:'select-action',token:'handi'});
 
     // An unrecognized future Stage must never become a Basic by assumption.
-    const unknownView=JSON.parse(JSON.stringify(view));
+    const unknownView=JSON.parse(JSON.stringify(sourceStampedView));
     unknownView.ownPublic.active.printed.stage=98765;
     unknownView.ownPublic.active.printed.subtypes=[];
     unknownView.ownPublic.bench[1].printed.stage=98765;
@@ -233,7 +240,6 @@ for(const seat of [0,1]){
     
     // Full source-sixty + exact native-sixty order defines the alias; neither
     // a naive string suffix nor a guess from card name is accepted.
-    const printMap=buildSourcePrintingMap(sourceDeck,resolved.cards);
     assert.equal(printMap.get('Penny SVI'),'Penny SVI 183');
     assert.equal(printMap.get("Team Rocket's Handiwork FCO"),
       "Team Rocket's Handiwork FCO 112");
@@ -244,11 +250,8 @@ for(const seat of [0,1]){
     // which must retain its exact native ID, not collide with BWP 28.
     assert.equal(printMap.get('Tropical Beach BWP 50'),'Tropical Beach BWP 50');
     assert.equal(printMap.has('Tropical Beach BWP'),false);
-    const opponentMap=buildSourcePrintingMap(opponentDeck,opponentResolved.cards);
     assert.equal(opponentMap.get('Shadow Rider Calyrex V CRE'),
       'Shadow Rider Calyrex V CRE 74');
-    const maps=seat===0?[printMap,opponentMap]:[opponentMap,printMap];
-
     const realFrontier=buildNativeActionFrontier({
       state:x.state,actorSeat:seat,native:frontierNative()
     });
