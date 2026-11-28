@@ -6,6 +6,7 @@
  * global turn, changed actor, invalid opponent board, or missing continuation.
  * No hidden cards / opponent-hand contents / native Store state.
  */
+const oldSetup=require('./agent1-newmoon-v2-jammer-decision.cjs');
 const POLICY_VERSION='agent1-newmoon-dusknoir-v3-finisher-research-v1';
 const DECK_PATH='results/als/new-moon-dusknoir-shadow-bind-v3-60.json';
 const DECK_SHA='0db19a75d0d1ce43128b9a9fdc4fe3013833eaaba4641972af7af30f4b41e7dd'; // sorted UTF-8 id:count lines + final newline
@@ -122,10 +123,36 @@ function aceSafe(view){
  return true;
 }
 
+
+const COMMON_SETUP_REASONS = new Set([
+ 'NEWMOON_PREFER_GO_SECOND_FOR_FIRST_HORROR_HOUSE',
+ 'STARTER_GENGAR_PERFECTION_AND_BACKUP','NO_STARTING_BASIC_ELIGIBLE',
+ 'MULLIGAN_MAXIMUM_EXTRA_CARDS','BENCH_HELD_GENGAR_DONOR_BEFORE_SEARCH',
+ 'ATTACH_TPE_FOR_ATTACK_AND_SEARCH','ATTACH_BASIC_PSYCHIC_TO_ATTACK',
+ 'FIRST_TURN_BATTLE_VIP_BEFORE_ATTACK','FOG_CRYSTAL_FIND_ENERGY_OR_GENGAR',
+ 'FOG_CRYSTAL_CHOOSE_MISSING_PIECE','VIP_BASIC_BENCH_SEARCH',
+ 'TPE_BASIC_PSYCHIC_BENCH_SEARCH',
+ 'EARLY_NATIVE_HORROR_HOUSE_HAND_LOCK',
+ 'PERFECTION_DIRECT_COPIED_GENGAR_ATTACK',
+ 'LILLIE_DRAW_TO_FIND_MISSING_PSYCHIC'
+]);
+function preservedCommonSetup(request,policy){
+ const x=policy.decideWithAudit(request),rule=x?.policyAudit?.selectionRuleCode;
+ if(!COMMON_SETUP_REASONS.has(rule)||x.decision?.kind==='abstain')return null;
+ // The old tool-jammer 60 is not v3: never use its Jammer search/lock line.
+ // Even its generic Lillie draw is unsuitable with a critical held Dusknoir.
+ if(rule==='LILLIE_DRAW_TO_FIND_MISSING_PSYCHIC'&&
+    (request.observation?.ownHand??[]).some(y=>
+       has(y,'Dusknoir')||has(y,'Secret Box')||has(y,'Forest Seal Stone')))
+    return null;
+ return {decision:x.decision,reason:'V3_REUSE_'+rule};
+}
+
 function createPolicy({role,seat,policyVersion,config}) {
  if(role!=='candidate'||![0,1].includes(seat)||
    policyVersion!==POLICY_VERSION||!config||typeof config!=='object'||
    Array.isArray(config)||Object.keys(config).length!==0)throw Error('V3_RESEARCH_PROFILE_MISMATCH');
+ const baseSetup=oldSetup.createPolicy({role,seat,policyVersion:oldSetup.POLICY_VERSION,config:{}});
  let pending=null;
  function decideOne(request){
    if(request?.seat!==seat||request?.role!==role||
@@ -202,7 +229,7 @@ function createPolicy({role,seat,policyVersion,config}) {
    return select(p.ability,'V3_BEGIN_PAID_SAME_TURN_DUSKNOIR_FINISH');
  }
  function decideWithAudit(request) {
-   const x=decideOne(request);
+   const x=decideOne(request)??preservedCommonSetup(request,baseSetup);
    const decision=x?.decision??{kind:'abstain',reasonCode:'NO_SUPPORTED_V3_FINISH'};
    const source=request?.prompt?.choices??request?.actionFrontier?.items??[];
    const selected=decision.token?[decision.token]:decision.tokens??[];
@@ -218,4 +245,4 @@ function createPolicy({role,seat,policyVersion,config}) {
  }
  return {decide:r=>decideWithAudit(r).decision,decideWithAudit};
 }
-module.exports={POLICY_VERSION,DECK_PATH,DECK_SHA,createPolicy,ready,validTarget,sourceAttack,shadowBindBus,aceSafe};
+module.exports={POLICY_VERSION,DECK_PATH,DECK_SHA,createPolicy,ready,validTarget,sourceAttack,shadowBindBus,aceSafe,preservedCommonSetup,COMMON_SETUP_REASONS};
