@@ -249,10 +249,12 @@ function prizeLiability(slot) {
   if (!slot) return 1;
   const subtypes = slot.printed?.subtypes ?? [];
   const printing = slot.printing ?? '';
-  if (subtypes.some(value => ['VMAX', 'V-UNION', 'TAG TEAM'].includes(value)) ||
+  if (subtypes.some(value => ['VMAX', 'V-UNION', 'TAG TEAM', 'MEGA'].includes(value)) ||
+      /^Mega [^\n]* ex(?:\s|$)/.test(printing) ||
       hasName(printing, 'VMAX') || hasName(printing, 'V-UNION') ||
       hasName(printing, ' & ') && hasName(printing, '-GX')) return 3;
-  if (subtypes.some(value => ['ex', 'GX', 'V'].includes(value)) ||
+  if (subtypes.some(value => ['ex', 'GX', 'V', 'VSTAR'].includes(value)) ||
+      /\bVSTAR\b/.test(printing) ||
       hasName(printing, '-GX') || / ex(?: |$)/.test(printing) ||
       / V(?: |$)/.test(printing)) return 2;
   return 1;
@@ -1226,13 +1228,57 @@ function chooseRetreat(view, items) {
   return best && best.score > 0 ? best.item : null;
 }
 
+// An exact two-card draw can empty the deck without immediate deck-out:
+// losing on an empty deck occurs at the beginning of the NEXT player turn.
+// With only two deck cards, take this exceptional Door line only if the extra
+// Bench Psychic converts an already-funded Max Geist to a same-turn win.
+// The calculation is conservative and never manufactures an attack action.
+function doorConvertsFinalMaxGeist(view, actions) {
+  const active = view.ownPublic?.active;
+  const target = view.opponentPublic?.active;
+  const attack = active?.attacks?.find(a => a.name === 'Max Geist');
+  if (!active || !target ||
+      !hasName(active.printing, 'Shadow Rider Calyrex VMAX') ||
+      !attack || !canPayAttack(active, attack, view) ||
+      !actions.some(a => a.kind === 'attack' &&
+        a.attackName === 'Max Geist' &&
+        a.publicMetadata?.attackCostPayable !== false &&
+        a.publicMetadata?.hasUnmodeledModifier !== true) ||
+      !Number.isFinite(target.hp) ||
+      !Number.isFinite(target.damage) ||
+      !Array.isArray(target.printed?.weakness) ||
+      !Array.isArray(target.printed?.resistance)) return false;
+  const remaining = target.hp - target.damage;
+  if (remaining <= 0) return false;
+  const benchIndex = view.ownPublic.bench.findIndex(p =>
+    p?.printed?.types?.includes('Psychic') && Array.isArray(p.energies));
+  if (benchIndex < 0) return false;
+  const before = estimatedDamage(active, attack, view, target);
+  const afterView = {...view, ownPublic: {...view.ownPublic,
+    bench: view.ownPublic.bench.map((p, i) => i === benchIndex ?
+      {...p, energies: [...p.energies, 'Psychic Energy MEE 13']} : p)}};
+  const after = estimatedDamage(active, attack, afterView, target);
+  const terminalByPrizes =
+    Number.isSafeInteger(view.ownPublic.prizeCount) &&
+    view.ownPublic.prizeCount > 0 &&
+    view.ownPublic.prizeCount <= prizeLiability(target);
+  const terminalByNoBench =
+    Array.isArray(view.opponentPublic.bench) &&
+    view.opponentPublic.bench.every(p => p === null);
+  return Number.isFinite(before) && Number.isFinite(after) &&
+    before < remaining && after >= remaining &&
+    (terminalByPrizes || terminalByNoBench);
+}
+
 // Native root legality is authoritative.  In the fixed Psychic-only 60,
 // Underworld Door attaches a Psychic to an eligible Benched Psychic and draws
 // two, preserving the ordinary once-per-turn hand attachment.  Refuse stale
 // native offers when public/owner-visible prerequisites are missing.
 function eligibleCandidateDoor(view, actions) {
   if (!handHas(view, 'Psychic Energy') ||
-      view.ownPublic.deckCount < 3 ||
+      (view.ownPublic.deckCount < 2 ||
+       view.ownPublic.deckCount === 2 &&
+       !doorConvertsFinalMaxGeist(view, actions)) ||
       !view.ownPublic.bench.some(p => p?.printed?.types?.includes('Psychic'))) {
     return null;
   }
