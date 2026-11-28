@@ -398,11 +398,13 @@ function handCopies(hand, pattern) {
 function discardPriority(card, observation) {
   const hand = ownHand(observation);
   const critical = [
-    PRINT.lusamine, PRINT.handiwork, PRINT.guzmaHala, PRINT.gladion,
+    PRINT.lusamine, PRINT.handiwork, PRINT.gladion,
     PRINT.doubleColorless, PRINT.megatonBlower, PRINT.thunderMountain,
     PRINT.wondrousLabyrinth
   ];
   if (critical.some(pattern => matches(card, pattern))) return -100;
+  if (matches(card,PRINT.guzmaHala))
+    return handCopies(hand,PRINT.guzmaHala)>1 ? 45 : -100;
   if (matches(card, PRINT.speedLightning)) {
     const turbo = ownActiveIsThorns(observation) &&
       energyAvailable(observation) && !specialEnergyLocked(observation) &&
@@ -497,10 +499,14 @@ function peoniaSafeReplacementCount(observation) {
 }
 
 function guzmaHalaPaymentRealism(observation) {
-  const eligible = ownHand(observation)
-    .filter(card => !matches(card, PRINT.guzmaHala))
-    .map(card => discardPriority(card, observation))
-    .filter(value => value >= 0);
+  const hand=ownHand(observation);
+  // Only the physical Supporter being played leaves hand. Rank29 runs
+  // two G&H: the remaining copy is a legal (if costly) discard toward
+  // the two-card optional Tool/Special Energy search.
+  const playedIndex=hand.findIndex(card=>matches(card,PRINT.guzmaHala));
+  const eligible=hand.filter((_,index)=>index!==playedIndex)
+    .map(card=>discardPriority(card,observation))
+    .filter(value=>value>=0);
   if (eligible.length < 2) return 0;
   return eligible.filter(value => value >= 60).length >= 2 ? 1 : 0.65;
 }
