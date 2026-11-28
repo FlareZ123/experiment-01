@@ -15,6 +15,10 @@ const psychic=(s)=>Array.isArray(s?.energies) ? s.energies.filter(x=>has(x,'Psyc
 function position(view) {
   const own=view?.ownPublic, opp=view?.opponentPublic;
   if (!own || !opp || !Array.isArray(own.bench) || !Array.isArray(opp.bench)) return null;
+  // Tool-locking Stadiums act directly and need not appear in the attack-created
+  // turn-restriction field. Do not mistake an attached but blank Jammer for live.
+  const stadium=[...(own.stadium??[]),...(opp.stadium??[])];
+  if (stadium.some(x=>has(x,'Jamming Tower'))) return null;
   const bus=opp.active;
   const aor=slots(opp).some(x=>has(x.printing,'Vileplume AOR') && abilityLive(x,'Irritating Pollen'));
   const busLive=has(bus?.printing,'Vileplume BUS') && abilityLive(bus,'Disgusting Pollen');

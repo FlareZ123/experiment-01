@@ -11,9 +11,9 @@ const box=()=>({stadiumAndToolHaveNoEffectTurnsRemaining:0});
 const view=(opts={})=>({actorSeat:0,decisionKind:'owner-root',
   ownHand:opts.hand??['Tool Jammer BST 136'],
   ownPublic:{active:opts.active??dus({energies:['Basic Psychic Energy','Basic Psychic Energy']}),
-    bench:opts.bench??[dus()],prizeCount:opts.ownPrizeCount??3,publicTurnRestrictions:opts.ownRestriction??box()},
+    bench:opts.bench??[dus()],stadium:opts.ownStadium??[],prizeCount:opts.ownPrizeCount??3,publicTurnRestrictions:opts.ownRestriction??box()},
   opponentPublic:{active:opts.bus??bus(),bench:opts.opponentBench??[aor()],
-    prizeCount:opts.oppPrizeCount??3,publicTurnRestrictions:opts.oppRestriction??box()}});
+    stadium:opts.oppStadium??[],prizeCount:opts.oppPrizeCount??3,publicTurnRestrictions:opts.oppRestriction??box()}});
 const action=(kind,token,metadata={},extra={})=>({kind,token,publicMetadata:metadata,...extra});
 const play=()=>action('play-card','play-jammer',{}, {actorPrinting:'Tool Jammer BST 136'});
 const benchBlast=()=>action('use-ability','blast-bench',{abilityName:'Cursed Blast',sourceZone:'bench',sourceIndex:0});
@@ -120,6 +120,13 @@ check('BUS moves Bench: no stale active suppression or phantom lockbreak',()=>{
  const v=view({active:dus({tools:['Tool Jammer BST 136']}),bus:makeSlot('Bunnelby PRC'),
    opponentBench:[aor(),bus()]});
  assert.equal(sel(root(v,[benchBlast(),activeBlast(),pass()])),'abstain');
+});
+check('Jamming Tower blankets attached Tool Jammer, so special route abstains',()=>{
+ const v=view({active:dus({tools:['Tool Jammer BST 136'],energies:['Basic Psychic Energy','Basic Psychic Energy']}),
+   oppStadium:['Jamming Tower TWM 153']});
+ assert.equal(sel(root(v,[benchBlast(),willow(),pass()])),'abstain');
+ const before=view({oppStadium:['Jamming Tower TWM 153']});
+ assert.equal(sel(root(before,[play(),pass()])),'abstain');
 });
 check('Tool-effect suppression unknown fails closed',()=>{
  assert.equal(sel(root(view({oppRestriction:{stadiumAndToolHaveNoEffectTurnsRemaining:null}}),[play()])), 'abstain');
