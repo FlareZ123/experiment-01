@@ -31,6 +31,14 @@ If the opponent's Active is **Mega Lopunny ex 330HP** (rank15) or **Mega Kangask
 
 The GX attack **consumes GX allowance**, and it **does not** reduce the source's Ace Trainer hand from three to one (unlike Night Watch). The source's Mega may have a Tool such as Stealthy Hood or a defensive effect that prevents Cursed Blast; rank15 also has AOR/BUS lock and can prohibit the Basic Mewtwo attack while BUS is Active. Source rank18 may attack before the candidate assembles the attack. The 200+130 math is not a free turn.
 
+## A third matchup class: printed GX attack under Iron Thorns Initialization
+
+The authenticated **rank 6, 24 and 29** original 60s each contain **four Iron Thorns ex TWM 77 (230 HP)**, with no Stealthy Hood and no Garbodor. Their Active **Initialization** removes Abilities from Pokémon with a Rule Box, except Future Pokémon. It therefore disables **Mewtwo & Mew-GX's Perfection** but **does not disable Dusknoir SFA20's Cursed Blast** (Dusknoir is Stage2 without a Rule Box), nor does it prevent the Active Mewtwo's **printed** attack.
+
+Under the exact stated funding/state prerequisites, candidate can use the **same-turn** sequence: Bench Dusknoir `Cursed Blast 130` on Active Iron Thorns230 (giving the opponent one Prize), then **Mewtwo & Mew-GX's printed Miraculous Duo-GX [P][P][C] 200**, KOing that Iron Thorns for **two opposing Prizes**, without accessing Perfection or any GX/EX donor. Source Iron Thorns can respond with Enhanced Hammer (ranks6 and24 two; rank29 one) to deny Telepathic Psychic Special Energy, Guzma to pick off Mewtwo/Duskull and its own Volt Cyclone140. This same-turn two-piece line is **not** proof of viability: one Dusknoir Stage2 must actually be established, three Energy found on Mewtwo, the GX attack unspent, and both actors' Prize clock respected. Candidate Mewtwo TAG TEAM concedes three Prizes if subsequently KO'd, so the nominal two-for-one exchange can reverse rapidly.
+
+Under source Ability lock this makes a conceptual difference: **do not treat "Perfection suppressed" as equivalent to "Mewtwo has no usable attack"**. A future candidate policy should distinguish printed Miraculous Duo-GX and copied Night Watch at an Active Iron Thorns root, and score the Cursed Blast + printed-GX plan subject to its one-Prize self-KO. No current policy has been admitted to execute this counterline.
+
 ## Same-turn feasibility is NOT implied by the exact initial unprized gate
 
 The [exhaustive opening-Prize model](../../scripts/2026-11/agent22-rank15-dusknoir-prize-gates.py) conditions on a Basic-valid initial 7, takes uniform 6 Prizes from remaining 53, then checks only copies **outside initial Prizes**. For the named no-prize-taking parts:
