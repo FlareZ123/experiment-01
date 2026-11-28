@@ -433,8 +433,10 @@ function secretBoxSearch(prompt,cards,min,max,o){
 function activeMimikyuSafeguard(o){
  const p=o.opponentPublic?.active;
  if(!match(p?.printing,/^Mimikyu PAL 97\b/i))return false;
- const suppression=list(p.abilitySuppressions).find(x=>x.abilityName==='Safeguard');
- return suppression?.suppressed!==true;
+ // PAL97 Safeguard is an Ability, not immunity independent of Garbotoxin.
+ // It fails under either side's live equipped Garbodor unless Stealthy Hood
+ // protects Mimikyu. A typed suppressed flag takes precedence.
+ return opponentLockAbilityLive(o,p,'Safeguard');
 }
 function projectedClawDamage(action,o){
  const meta=action.publicMetadata||{},active=o.ownPublic?.active,target=o.opponentPublic?.active;
