@@ -901,6 +901,10 @@ function bombPlanner(o,sourceBenchIndex){
           const unown=candidates.filter(isUn).slice(0,capacity);
           if(unown.length>=m.minimumCount&&unown.length)
             return select(p,unown,unown.length,'NO_SUPPORTED_CARD_SELECTION');
+          // At K0 a candidate can be Prized. Once this genuine deck prompt
+          // reveals no Unown, choose none; do not silently bench a risky
+          // three-Prize Gengar contrary to the root's discard/draw plan.
+          return pick([],()=>0);
         }
         const out=[];
         if(!ownHas(o,isGengar)&&cap(o)>0&&m.maximumCount>0){
