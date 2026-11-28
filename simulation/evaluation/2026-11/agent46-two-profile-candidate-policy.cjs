@@ -1378,24 +1378,23 @@ function visibleTempleRegidragoFundingPairBonus(view,names){
        (hasName(slot.printing,'Regidrago VSTAR')||
         (/^Regidrago V(?: |$)/.test(slot.printing))) &&
        publicEnergyCanPay(slot,apex,view,true)===true))return 0;
-  const beforeDonors=observedPayloads(opp.discard,view);
-  if(!beforeDonors.length)return 0;
   const remain=opp.discard.slice();
   for(const name of names){
     const i=remain.indexOf(name);
     if(i<0)return 0;
     remain.splice(i,1);
   }
-  // Next-turn observable attack potential has two independent gates:
-  // a recoverable funding channel AND an attack donor still in discard.
-  // This protects against blindly favouring a pair of funding counters
-  // over two donors that are themselves the entire visible attack payload.
+  // Do NOT give the full cut bonus for merely removing every *observed*
+  // Dragon payload from public discard. Battle Compressor, Ultra Ball,
+  // Quick Ball and Research can move fresh donors from concealed hand/deck
+  // next turn. Public non-observation is not global donor unavailability.
+  // The exact Megaton+Crispin pair instead removes two unique observed
+  // future funding channels under the guarded Temple source geometry.
   const fundingAfter=remain.some(e=>hasName(e,'Megaton Blower'))||
      remain.some(e=>hasName(e,'Crispin'));
-  const donorsAfter=observedPayloads(remain,view).length>0;
-  // Upper-bound tactical proxy, not a real-game denial certificate:
-  // unseen donors, outs, hand/deck/Prize draws and Raihan may change access.
-  return !fundingAfter||!donorsAfter?2500:0;
+  // Not a lock certificate: unknown Stadiums, other future attacks, and
+  // drawn Basic Energy on later turns can still enable alternatives.
+  return !fundingAfter?2500:0;
 }
 function getLostPairs(view,rows){
   const before=apexHazard(view);
@@ -1426,7 +1425,13 @@ function getLostPlan(view) {
   const values=discard.map(p=>getLostValue(view,p)).sort((a,b)=>b-a);
   if(values.length<2)return -Infinity;
   const best=getLostPairs(view,discard.map((printing,index)=>({printing,index})));
-  if(values[0]<300&&(!best||controlPairBonus(view,best.rows.map(r=>r.printing))===0))return -Infinity;
+  const pairNames=best?.rows?.map(r=>r.printing)??[];
+  // A source-compatible funding denial can be worth using before a Dragon
+  // donor ever appears in the public discard: unseen donors can be discarded
+  // next turn, but the two unique exposed funding resources can be Lost now.
+  if(values[0]<300&&(!best||
+     (controlPairBonus(view,pairNames)===0&&
+      visibleTempleRegidragoFundingPairBonus(view,pairNames)===0)))return -Infinity;
   return (best?.score??values[0]+values[1])+100;
 }
 function tapuCureValue(view,slot){
