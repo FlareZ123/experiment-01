@@ -175,10 +175,11 @@ function createSlice({seat}){
        !Array.isArray(t.tools)||t.tools.length>0){
       reset();return null;
     }
-    const a=offeredMewtwoAttack(own,items,pending.attackName);
+    const attackName=pending.attackName;
+    const a=offeredMewtwoAttack(own,items,attackName);
     if(!a||!certifiedDamage(a,t)){reset();return null;}
     reset();
-    return select(a,pending.attackName==='Miraculous Duo-GX'?
+    return select(a,attackName==='Miraculous Duo-GX'?
       'A22_MIRACULOUS_GX_AFTER_GUST_FOR_FINAL_THREE_PRIZES':
       'A22_NIGHT_WATCH_AFTER_GUST_FOR_FINAL_TWO_PRIZES');
    }
