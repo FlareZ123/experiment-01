@@ -374,6 +374,8 @@ function cardSearchScore(choice, observation) {
   if (matches(printing, PRINT.lilliesDetermination)) {
     return supporterAvailable(observation) && handCount(observation) <= 3 ? 145 : 0;
   }
+  if([PRINT.marnie,PRINT.plumeria,PRINT.karen].some(p=>matches(printing,p)))
+    return Math.max(20,rank16SourceSupporterScore(choice,observation));
   if (matches(printing, PRINT.vs)) return rank16HasViableVsTarget(observation)?185:0;
   if (matches(printing, PRINT.temple)) return list(observation.opponentPublic?.stadium).length > 0 ? 95 : 15;
   return 0;
@@ -545,6 +547,15 @@ function scoreAttack(item, observation) {
   }
   return 0;
 }
+// A Ball or Secret Box must discard *other* cards. A hand of protected
+// singletons is not a playable connector merely because the root is offered.
+function rank16CheapDiscardCount(o,playingPrinting) {
+  let excluded=false;
+  return list(o?.ownHand).filter(card=>{
+    if(!excluded&&textOf(card)===playingPrinting){excluded=true;return false;}
+    return discardScore(card,o)>0;
+  }).length;
+}
 function rank16SourceSupporterScore(card,o) {
   const base=supporterScore(card,o);
   if(base>0)return base;
@@ -683,10 +694,15 @@ function scoreAction(item, request) {
   if (matches(printing, PRINT.budew)) return count(own, PRINT.budew) === 0 ? 265 : 0;
   if (matches(printing, PRINT.vip)) return observation.globalTurn <= 2 && benchCount(own) < 5 ? 240 : 0;
   if (matches(printing, PRINT.quick)) {
+    if(rank16CheapDiscardCount(observation,printing)<1)return 0;
     return count(own, PRINT.trubbish) < 2 || count(own, PRINT.mega) < 2 || count(own, PRINT.dedenne) === 0 ? 185 : 35;
   }
   if (matches(printing, PRINT.ultra)) {
-    return hand.length >= 2 && (count(own, PRINT.trubbish) < 2 || count(own, PRINT.mega) < 2) ? 165 : 0;
+    if(rank16CheapDiscardCount(observation,printing)<2)return 0;
+    return count(own, PRINT.trubbish) < 2 || count(own, PRINT.mega) < 2 ? 165 : 0;
+  }
+  if (matches(printing, PRINT.secret)) {
+    return deckCount(observation)>0&&rank16CheapDiscardCount(observation,printing)>=3?335:0;
   }
   if (matches(printing, PRINT.darkPatch)) {
     return discardHas(own, PRINT.dark) &&
