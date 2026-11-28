@@ -325,3 +325,18 @@ test('Enhanced Hammer selects a public Special attachment, never hidden Energy',
   assert.deepEqual(policy.promptDecision({observation:o,prompt:onlyHidden}),
     {kind:'abstain',reasonCode:'RANK22_HAMMER_NO_VISIBLE_SPECIAL'});
 });
+
+test('Battle Compressor declines empty selection despite pinned native min zero', () => {
+  const o=observation({globalTurn:2});
+  const prompt={
+    promptType:'ChooseCardsPrompt',
+    source:{sourcePrinting:'Battle Compressor PHF 92',effectName:'Battle Compressor'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:3},
+    choices:[
+      {token:'empty',kind:'empty-selection'},
+      choice('vip','Battle VIP Pass FST 225')
+    ]
+  };
+  assert.deepEqual(policy.promptDecision({observation:o,prompt}),
+    {kind:'abstain',reasonCode:'RANK22_COMPRESSOR_NO_SAFE_PAYLOAD'});
+});
