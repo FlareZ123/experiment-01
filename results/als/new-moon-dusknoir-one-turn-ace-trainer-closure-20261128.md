@@ -2,6 +2,10 @@
 
 **Agent 22, 28 November 2026. Evidence:** exact printed-card effects/rulebook sequencing, fixed v3 inventory, original Aichi source-printing exposure and exact physical Prize combinatorics. This is **an attack-line construction**, not an observed game or a win-rate result.
 
+## Matchup-critical alternative before self-KO
+
+**Important 28 November correction:** against opponent **Dragon Pokémon**, the unchanged deck's **Lillie's Clefairy ex Fairy Zone** may provide **Psychic Weakness ×2**. A paid Night Watch150 then deals **300 to Regidrago VSTAR280** in *one* attack, without using Stage2 Dusknoir Cursed Blast (and without donating one self-KO Prize). Paid Stage2 Dusknoir Shadow Bind150 likewise deals300, bypassing live opponent **Covert Flight Basic-only attack prevention**; Basic Mewtwo NightWatch does not bypass that effect. An opponent **Mega Dragonite ex370** can be KO'd by a paid **Latias ex printed Eon Blade200×2=400** if Fairy Zone functions, with no GX or self-KO. Check that Fairy Zone is live after source Path/SilentLab/recipient Hood interactions. The **CursedBlast→optional AceTrainer→NightWatch** line below is a real *alternative* for non-Dragon 280HP targets, suppressed Fairy Zone, or a particular Ace disruption agenda; a policy must not auto-donate Dusknoir's Prize when an already-payable non-selfKO one-hit is available. [Full cross-rank attack/defense matrix](new-moon-fairy-zone-regidrago-covertflight-dragonite-20261128.md).
+
 ## One main-phase and attack, no opponent reply between hits
 
 Relevant unmodified New Moon v3 pieces:
