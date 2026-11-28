@@ -978,3 +978,32 @@ test('Temple ASR155 suppresses Double Dragon color funding; replacing it can unl
     'replace');
  }
 });
+
+
+test('MEGA ex prints are three-Prize targets, unlike ordinary two-Prize ex',()=>{
+ for(const seat of [0,1]){
+  const mega=pokemon('Mega Kangaskhan ex MEG 104',{
+    hp:300,damage:100,printed:{subtypes:['Basic','MEGA','ex']}});
+  assert.equal(publicPrizeValue(mega),3);
+  assert.equal(publicPrizeValue(pokemon('Mega Dragonite ex ASC 152',{
+    printed:{subtypes:['Basic','MEGA','ex']}})),3);
+  assert.equal(publicPrizeValue(pokemon('Mew VMAX FST 114',{
+    printed:{subtypes:['VMAX']}})),3);
+  assert.equal(publicPrizeValue(pokemon('Trevenant & Dusknoir-GX SMP 217',{
+    printed:{subtypes:['TAG TEAM','GX']}})),3);
+  assert.equal(publicPrizeValue(pokemon('Squawkabilly ex PAL 169',{
+    printed:{subtypes:['Basic','ex']}})),2);
+  const original=observation(seat);
+  const own={...original.ownPublic,
+    bench:[pokemon(P.star,{energies:[
+      'Double Dragon Energy ROS 97','Grass Energy MEE 9']})],
+    discard:[P.dragapult],prizeCount:3};
+  const opp={...original.opponentPublic,bench:[mega]};
+  const state=observation(seat,{ownPublic:own,opponentPublic:opp});
+  assert.equal(finalPrizePrimeTarget(state)?.index,0);
+  const ordinary=pokemon('Squawkabilly ex PAL 169',{hp:160,damage:0,
+    printed:{subtypes:['Basic','ex']}});
+  assert.equal(finalPrizePrimeTarget(observation(seat,{
+    ownPublic:own,opponentPublic:{...opp,bench:[ordinary]}})),null);
+ }
+});
