@@ -1909,6 +1909,35 @@ test('Get Lost root retains ordinary Trainer removal against non-Regidrago',()=>
    kind:'select-action',token:'get-lost'});
 });
 
+
+test('Jet Energy does not promote Bench Stoutland into live Tool-bearing Garbotoxin',()=>{
+ const request=rootRequest({
+  ownHand:['Jet Energy PAL 190'],
+  ownPublic:player({active:pokemon('Bunnelby PRC 121'),bench:[
+    pokemon('Stoutland BCR 122',{abilities:['Sentinel']})]}),
+  opponentPublic:player({active:pokemon('Garbodor DRX 54',{
+    abilities:['Garbotoxin'],tools:['Float Stone BKT 137']})}),
+  items:[energyRootAction('jet-stoutland','Jet Energy PAL 190',
+    'Stoutland BCR 122','bench',0),
+    {token:'pass',kind:'pass',label:'Pass turn'}]
+ });
+ assert.deepEqual(checkedDecision(request),{kind:'select-action',token:'pass'});
+});
+test('Jet Energy still establishes Stoutland when opposing Garbotoxin has no Tool',()=>{
+ const request=rootRequest({
+  ownHand:['Jet Energy PAL 190'],
+  ownPublic:player({active:pokemon('Bunnelby PRC 121'),bench:[
+    pokemon('Stoutland BCR 122',{abilities:['Sentinel']})]}),
+  opponentPublic:player({active:pokemon('Garbodor DRX 54',{
+    abilities:['Garbotoxin'],tools:[]})}),
+  items:[energyRootAction('jet-stoutland','Jet Energy PAL 190',
+    'Stoutland BCR 122','bench',0),
+    {token:'pass',kind:'pass',label:'Pass turn'}]
+ });
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-action',token:'jet-stoutland'});
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
