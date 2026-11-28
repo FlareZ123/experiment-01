@@ -285,6 +285,28 @@ for(const seat of [0,1]){
         a.actorPrinting==='Shadow Rider Calyrex VMAX CRE 75'&&
         a.publicMetadata?.abilityName==='Underworld Door'),false,
         'negative control: the spent same-source Ability is no longer native-legal');
+      // The required negative is a *decision*, not just an absent frontier
+      // item. Pass the post-attachment real physical frontier through the
+      // exact same source/strict protocol and worker. An alternate action or
+      // typed abstention is acceptable; repeating the spent Door is not.
+      const postReq={
+        schema:protocol.REQUEST_SCHEMA,type:'decision',
+        requestId:'agent6-actual-door-post-'+seat,sequence:2,
+        role:'candidate',seat,observationSchema:protocol.OBSERVATION_SCHEMA,
+        observation:adapters.native.observe(state,seat),prompt:null,
+        publicEventReceipt:adapters.eventReceipt(state,seat),
+        actionFrontier:post.actionFrontier
+      };
+      const postDecision=checkedDecision(worker,postReq,init,2).decision;
+      assert.ok(['select-action','abstain'].includes(postDecision.kind),
+        'spent Door must cause a strict worker alternate root or typed abstention');
+      if(postDecision.kind==='select-action'){
+        const selectedAfter=post.actionFrontier.items.find(item=>
+          item.token===postDecision.token);
+        assert.ok(selectedAfter,'post ability decision must have a real offered token');
+        assert.notEqual(selectedAfter.publicMetadata?.abilityName,'Underworld Door',
+          'worker must not retry an already consumed same-source Ability');
+      }
       const receipt={
         kind:'agent6-pinned-store-underworld-no-game',
         seat,enginePin:PIN,branchWorkerBlob:PR95_WORKER_BLOB,
