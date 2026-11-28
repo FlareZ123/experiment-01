@@ -144,7 +144,7 @@ test('KO Supporter alternatives require the exact preceding-turn stamp',()=>{
     actorSeat:0,globalTurn:4,decisionKind:'owner-root',
     ownTurnResources:{supporterPlayedTurn:0},
     ownPublic:{deckCount:20,discard:['Basic Psychic Energy']},
-    ownHand:['Teammates PRC','Raihan EVS']
+    ownHand:['Teammates PRC 141','Raihan EVS 152']
   };
   const receipt={
     actorSeat:0,turn:4,
