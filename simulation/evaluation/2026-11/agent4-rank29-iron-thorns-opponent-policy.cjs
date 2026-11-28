@@ -628,6 +628,59 @@ function chooseOneNativeEnergy(prompt, choices, scorer) {
   return multiSelectDecision(prompt,rankedChoices(choices,scorer,1),1,1);
 }
 
+// Guzma is not merely a retreat trap. It can gust a damaged opponent
+// into range of a ready Benched Thorns while simultaneously switching our
+// Active. Estimate only source-rank29 Energy forms, using actor-visible
+// attachments and Stadium; no future draws or unobservable resources.
+function benchThornsVoltReady(pokemon, observation) {
+  if(!matches(pokemon?.printing,PRINT.ironThorns))return false;
+  const own=observation?.ownPublic;
+  const restrictions=pokemon?.publicRestrictions ?? {};
+  if(restrictions.cannotAttackNextTurn===true||
+    list(restrictions.cannotUseAttacksNextTurn).includes('Volt Cyclone')||
+    restrictions.blockedAttackNameNextTurn==='Volt Cyclone'||
+    Number(own?.publicTurnRestrictions?.attackLockTurnsRemaining??0)>0||
+    Number(observation?.ownTurnResources?.attackLockTurnsRemaining??0)>0)
+    return false;
+  // Temple removes the rank29 Special Energy type benefit; Wondrous
+  // Labyrinth's extra attack cost is outside this conservative ready check.
+  if(stadiumsInPlay(observation).some(card=>/Temple of Sinnoh|Wondrous Labyrinth/i
+    .test(valueText(card))))return false;
+  let total=0,lightning=0;
+  for(const energy of list(pokemon.energies)){
+    if(matches(energy,PRINT.doubleColorless)){total+=2;continue;}
+    total++;
+    if(matches(energy,PRINT.speedLightning)||
+      /^(?:Basic )?Lightning Energy\b/i.test(valueText(energy)))lightning++;
+  }
+  const mountain=hasStadium(observation,PRINT.thunderMountain);
+  return total >= (mountain?2:3) && (mountain || lightning>0);
+}
+
+function guzmaTargetPrizeValue(pokemon) {
+  const subtypes=list(pokemon?.printed?.subtypes).join(' ');
+  const printing=valueText(pokemon?.printing);
+  if(/VMAX|Mega Evolution ex/i.test(subtypes+' '+printing))return 3;
+  if(/\bGX\b|\bVSTAR\b|\bV\b|\bex\b|\bEX\b/i.test(subtypes+' '+printing))
+    return 2;
+  return 1;
+}
+
+function guzmaKnockoutValue(observation, target) {
+  if(!target || !slots(observation?.ownPublic).some(row=>
+      row.zone==='bench'&&benchThornsVoltReady(row.pokemon,observation)))return 0;
+  const hp=remainingHp(target);
+  if(hp<=0)return 0;
+  const matchType=modifier=>list(modifier).some(row=>/Lightning/i.test(row?.type));
+  let damage=140;
+  if(matchType(target.printed?.weakness))damage*=2;
+  if(matchType(target.printed?.resistance))damage-=30;
+  if(hp>damage)return 0;
+  const prizes=guzmaTargetPrizeValue(target);
+  return (prizes >= (observation?.ownPublic?.prizeCount ?? 6) ? 440 : 230)+
+    (prizes-1)*55;
+}
+
 function opponentPokemonScore(choice, observation, context) {
   if (choiceOwner(choice) !== 'opponent') return 0;
   const zone = choiceZone(choice);
@@ -644,7 +697,9 @@ function opponentPokemonScore(choice, observation, context) {
   const retreat = list(pokemon.printed?.retreatCost).length;
   const energies = energyCount(pokemon);
   const hp = remainingHp(pokemon);
-  if (context === 'guzma') return 100 + retreat * 30 - energies * 35 +
+  if (context === 'guzma') return guzmaKnockoutValue(observation,pokemon) > 0 ?
+    1000 + guzmaKnockoutValue(observation,pokemon) :
+    100 + retreat * 30 - energies * 35 +
     (pokemon.printed?.stage === 'BASIC' ? 8 : 0) + (hp > 0 && hp <= 100 ? 12 : 0);
   return 80 + energies * 35 + (zone === 'active' ? 15 : 0);
 }
@@ -656,7 +711,8 @@ function ownSwitchScore(choice, observation) {
     item.zone === 'bench' && (Number.isSafeInteger(slotIndex) ? item.index === slotIndex :
       item.pokemon.printing === choicePrinting(choice)));
   if (!row || !matches(row.pokemon.printing, PRINT.ironThorns)) return 0;
-  return 100 + energyCount(row.pokemon) * 30 - (row.pokemon.damage ?? 0);
+  return (benchThornsVoltReady(row.pokemon,observation) ? 350 : 100) +
+    energyCount(row.pokemon) * 30 - (row.pokemon.damage ?? 0);
 }
 
 function bestGuzmaHalaSearch(choices, observation, maximum) {
@@ -1455,10 +1511,14 @@ function scorePlayCard(item, request) {
   if (matches(card, PRINT.guzma)) {
     const ownBench = slots(own).filter(row => row.zone === 'bench' &&
       matches(row.pokemon.printing, PRINT.ironThorns));
+    if(ownBench.length===0)return 0;
+    const decisiveGust = slots(opponent).filter(row => row.zone === 'bench')
+      .reduce((best,row)=>Math.max(best,guzmaKnockoutValue(observation,row.pokemon)),0);
+    if(decisiveGust>0)return decisiveGust;
     const trapTarget = slots(opponent).some(row => row.zone === 'bench' &&
       energyCount(row.pokemon) === 0 &&
       list(row.pokemon.printed?.retreatCost).length >= 2);
-    return ownBench.length > 0 && trapTarget ? 135 : 0;
+    return trapTarget ? 135 : 0;
   }
   if (matches(card, PRINT.guzmaHala)) {
     const needDce = !list(own.active?.energies).some(energy => matches(energy, PRINT.doubleColorless)) &&
