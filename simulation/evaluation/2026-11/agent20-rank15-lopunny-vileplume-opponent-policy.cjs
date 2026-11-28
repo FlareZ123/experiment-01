@@ -231,6 +231,56 @@ function actorPokemonBench(p) {
     x.publicMetadata?.ownerSeat==='actor'&&x.publicMetadata?.targetZone==='bench'&&
     typeof x.token==='string');
 }
+function quickSearchPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
+    !actorCardZone(p,'deck')||!Number.isSafeInteger(m.minimumCount)||
+    !Number.isSafeInteger(m.maximumCount)||m.minimumCount>1||m.maximumCount!==1)
+    return abstain('UNSUPPORTED_CARD_COMBINATION_SOURCE');
+  const own=o.ownPublic,op=o.opponentPublic;
+  const board=slots(own),hand=arr(o.ownHand);
+  const hasBoard=pat=>board.some(x=>has(x,pat));
+  const hasHand=pat=>hand.some(x=>has(x,pat));
+  const itemLocked=own?.publicTurnRestrictions?.itemPlayLocked===true;
+  const needsStage2=hasBoard(P.gloom)&&!hasBoard(P.aor);
+  const needsStage1=hasBoard(P.oddish)&&!hasBoard(P.gloom)&&!hasBoard(P.aor)&&!hasBoard(P.bus);
+  const needsMega=hasBoard(P.buneary)&&!hasBoard(P.mega);
+  const needsPidgeot=hasBoard(P.pidgeotto)&&!hasBoard(P.pidgeot);
+  const bunnelby=hasBoard(P.bunnelby);
+  const toolAttached=board.some(x=>has(x,P.bunnelby)&&
+    arr(x.tools).some(t=>has(t,P.tmEvolution)));
+  const stageTarget=arr(own.bench).some(x=>x&&
+    [P.oddish,P.gloom,P.buneary,P.pidgey,P.pidgeotto].some(p=>has(x,p)));
+  const score=c=>{
+    if(has(c,P.aor))return needsStage2&&!hasHand(P.aor)?210:35;
+    if(has(c,P.bus))return hasBoard(P.gloom)&&!hasBoard(P.bus)&&
+      op?.active?.printed?.stage==='BASIC'&&!hasHand(P.bus)?195:32;
+    if(has(c,P.gloom))return needsStage1&&!hasHand(P.gloom)?180:28;
+    if(has(c,P.pidgeot))return needsPidgeot&&!hasHand(P.pidgeot)?175:36;
+    if(has(c,P.mega))return needsMega&&!hasHand(P.mega)?173:45;
+    if(has(c,P.tmEvolution))return bunnelby&&stageTarget&&!toolAttached&&!hasHand(P.tmEvolution)?170:33;
+    if(has(c,P.jet))return bunnelby&&stageTarget&&!hasHand(P.jet)?155:80;
+    if(has(c,P.doubleColorless))return hasBoard(P.mega)&&!hasHand(P.doubleColorless)?145:75;
+    if(has(c,P.guzmaHala))return supporterUnused(o)&&!hasHand(P.guzmaHala)&&
+      bunnelby&&stageTarget?140:60;
+    if(has(c,P.grandTree))return stageTarget&&!hasHand(P.grandTree)?130:50;
+    if(has(c,P.poffin))return !itemLocked&&benchCount(own)<5&&!hasBoard(P.oddish)&&
+      !hasHand(P.poffin)?120:5;
+    if(has(c,P.tagCall))return !itemLocked&&supporterUnused(o)&&!hasHand(P.guzmaHala)?100:4;
+    if(has(c,P.artazon))return benchCount(own)<5?92:45;
+    if(has(c,P.capture))return benchCount(own)<5?80:50;
+    if(has(c,P.oddish))return !hasBoard(P.oddish)&&benchCount(own)<5?90:38;
+    if(has(c,P.bunnelby))return !bunnelby&&benchCount(own)<5?86:34;
+    return 12;
+  };
+  const choices=arr(p.choices).filter(c=>c.kind==='card'&&typeof c.token==='string');
+  const ranked=choices.map((c,i)=>({c,i,score:score(c)}))
+    .sort((a,b)=>b.score-a.score||a.i-b.i);
+  if(ranked.length)return {kind:'select-choices',tokens:[ranked[0].c.token]};
+  const empty=arr(p.choices).find(c=>c.kind==='empty-selection'&&typeof c.token==='string');
+  return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
+    abstain('NO_LEGAL_CARD_SET');
+}
 function fanCallPrompt(request) {
   const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
   if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
@@ -468,6 +518,10 @@ function rootDecision(request) {
   const fanNeeds=[P.bunnelby,P.pidgey,P.buneary].some(p=>
     ![...slots(o.ownPublic),...arr(o.ownHand)].some(c=>has(c,p)));
   if(fanCall&&fanNeeds&&benchCount(o.ownPublic)<5&&o.globalTurn<=2)return take(fanCall);
+  const quick=items.find(x=>x.kind==='use-ability'&&
+    x.publicMetadata?.abilityName==='Quick Search'&&
+    (has(ownPrinting(x),P.pidgeot)||slots(o.ownPublic).some(c=>has(c,P.pidgeot))));
+  if(quick)return take(quick);
   const tmAttack=attacks.find(x=>x.attackName==='Evolution'&&
     has(o.ownPublic?.active,P.bunnelby)&&
     arr(o.ownPublic?.active?.tools).some(c=>has(c,P.tmEvolution)));
@@ -558,6 +612,7 @@ function createPolicy({role,seat,policyVersion,config}) {
     if(request.prompt!==null){
       if(has(request.prompt?.source?.sourcePrinting,P.poffin))return poffinPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.fan))return fanCallPrompt(request);
+      if(has(request.prompt?.source?.sourcePrinting,P.pidgeot))return quickSearchPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.tagCall))return tagCallPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.guzmaHala))return ghPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.tmEvolution))return evolutionPrompt(request);
@@ -575,4 +630,4 @@ function createPolicy({role,seat,policyVersion,config}) {
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,
   createPolicy,rootDecision,poffinPrompt,printedDamage,movementEvidence,
-  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
+  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
