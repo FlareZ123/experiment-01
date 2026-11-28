@@ -25,7 +25,7 @@ const SOURCE_COUNTS = Object.freeze([
   ['Psychic Energy MEE 13',5],['Telepathic Psychic Energy POR 88',2]
 ]);
 const P = Object.freeze({
-  clefairy: /^Lillie's Clefairy ex JTG(?: 56)?\b/i,
+  clefairy: /^Lillie's Clefairy ex JTG(?: 56)?\b/i,\n  latias: /^Latias ex SSP(?: 76)?\\b/i,
   box: /^Secret Box TWM(?: 163)?\b/i,
   basicPsychic: /^(?:Basic )?Psychic Energy(?: MEE(?: 13)?)?\b/i,
   telepathic: /^(?:Telepathic Psychic Energy POR(?: 88)?|Telepath \[P\] Energy M3)\b/i,
@@ -55,6 +55,7 @@ const P = Object.freeze({
   mail: /^Trainers' Mail ROS(?: 92)?\b/i,
   ultra: /^Ultra Ball MEG(?: 131)?\b/i
 });
+const {previousTurnResponseOptions}=require('../../twinleaf/agent8-ko-supporter-options.cjs');
 const arr = value => Array.isArray(value) ? value : [];
 const text = value => typeof value === 'string' ? value : value?.printing ?? value?.fullName ?? value?.label ?? '';
 const has = (value, pattern) => pattern.test(text(value));
@@ -79,6 +80,10 @@ const PUBLIC_ABORT = Object.freeze({
   R30_VIP_NO_TARGET:'NO_LEGAL_CARD_SET',
   R30_PATCH_PROMPT_UNSUPPORTED:'UNSUPPORTED_PROMPT_TYPE',
   R30_PATCH_NO_ELIGIBLE_BENCH:'NO_VISIBLE_POKEMON_TARGET',
+  R30_RAIHAN_ATTACH_UNSUPPORTED:'UNSUPPORTED_PROMPT_TYPE',
+  R30_RAIHAN_ATTACH_NO_TARGET:'NO_VISIBLE_POKEMON_TARGET',
+  R30_RAIHAN_SEARCH_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
+  R30_RAIHAN_SEARCH_NO_TARGET:'NO_LEGAL_CARD_SET',
   R30_TELEPATH_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
   R30_TELEPATH_NO_TARGET:'NO_LEGAL_CARD_SET',
   R30_STAR_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
@@ -1288,6 +1293,91 @@ function hasFreshPriorOpponentTurnKO(request) {
   // Timeless-GX. Require the independent Store event's actual turn stamp.
   return safeInt(turn)&&turn>1&&ko?.any===true&&ko.turn===turn-1;
 }
+function raihanOpportunity(request) {
+  const o=request?.observation;
+  if(!o||!hasFreshPriorOpponentTurnKO(request))return false;
+  const options=previousTurnResponseOptions(o,request.publicEventReceipt,
+    c=>has(c,P.basicPsychic));
+  return options.some(x=>x.printing==='Raihan EVS')&&
+    slots(o.ownPublic).some(p=>has(p,P.clefairy)&&arr(p.energies).length<2);
+}
+function raihanAttachPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='AttachEnergyPrompt'||
+     m.selectionType!=='energy-attachment'||m.ownerSeat!=='actor'||
+     m.isOwnerVisible!==true||m.sourceZone!=='discard'||
+     m.minimumCount!==1||m.maximumCount!==1||
+     !hasFreshPriorOpponentTurnKO(request))
+    return no('R30_RAIHAN_ATTACH_UNSUPPORTED');
+  const options=arr(p.choices).filter(c=>{
+    const cm=c.publicMetadata??{};
+    return c.kind==='energy'&&typeof c.token==='string'&&
+      has(c,P.basicPsychic)&&cm.sourceZone==='discard'&&
+      cm.ownerSeat==='actor'&&cm.isOwnerVisible===true&&
+      (cm.targetSeat===undefined||cm.targetSeat==='actor')&&
+      (cm.targetZone==='active'||cm.targetZone==='bench');
+  });
+  const ranked=options.map(c=>{
+    const cm=c.publicMetadata??{};
+    const index=safeInt(cm.benchIndex)?cm.benchIndex:cm.targetIndex;
+    const target=cm.targetZone==='active'?o.ownPublic?.active:
+      safeInt(index)?arr(o.ownPublic?.bench)[index]:null;
+    const useful=has(target,P.clefairy)&&arr(target?.energies).length<2;
+    return {choice:c,score:!useful?-1:
+      cm.targetZone==='active'?150:125};
+  }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
+  return ranked.length?{kind:'select-choice',token:ranked[0].choice.token}:
+    no('R30_RAIHAN_ATTACH_NO_TARGET');
+}
+function raihanSearchPriority(choice,o,request) {
+  const hand=arr(o.ownHand),board=slots(o.ownPublic);
+  const owned=pattern=>hand.some(c=>has(c,pattern))||
+    board.some(c=>has(c,pattern));
+  const clefairyCount=hand.filter(c=>has(c,P.clefairy)).length+
+    board.filter(c=>has(c,P.clefairy)).length;
+  if(has(choice,P.clefairy)&&clefairyCount<2)return 125-clefairyCount*5;
+  if(has(choice,P.fez)&&!owned(P.fez)&&hand.length<=3&&
+     hasFreshPriorOpponentTurnKO(request))return 120;
+  if(has(choice,P.crobat)&&!owned(P.crobat)&&hand.length<=3)return 110;
+  if(has(choice,P.dedenne)&&!owned(P.dedenne)&&hand.length<=2&&
+     handIsSafeToReset(o))return 105;
+  if(has(choice,P.lele)&&!owned(P.lele)&&
+     hand.some(c=>has(c,P.guzma)||has(c,P.marnie)))return 95;
+  if(has(choice,P.blower)&&fieldBlowerOpportunity(o)&&
+     !hand.some(c=>has(c,P.blower)))return 90;
+  if(has(choice,P.guzma)&&guzmaOpportunity(o)&&
+     !hand.some(c=>has(c,P.guzma)))return 85;
+  if(has(choice,P.latias)&&!owned(P.latias)&&benchCount(o.ownPublic)<5)return 80;
+  if(has(choice,P.marnie)&&!hand.some(c=>has(c,P.marnie)))return 70;
+  if(has(choice,P.quickBall)&&!hand.some(c=>has(c,P.quickBall)))return 60;
+  if(has(choice,P.basicPsychic))return 50;
+  if(has(choice,P.unown)&&!owned(P.unown)&&benchCount(o.ownPublic)<5)return 40;
+  if(has(choice,P.minior)&&!owned(P.minior)&&benchCount(o.ownPublic)<5)return 35;
+  return 0;
+}
+function raihanSearchPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='ChooseCardsPrompt'||
+     m.selectionType!=='card-combination'||m.ownerSeat!=='actor'||
+     m.isOwnerVisible!==true||m.sourceZone!=='deck'||
+     m.minimumCount!==1||m.maximumCount!==1||
+     !hasFreshPriorOpponentTurnKO(request))
+    return no('R30_RAIHAN_SEARCH_UNSUPPORTED');
+  const choices=arr(p.choices).filter(c=>c.kind==='card'&&
+    typeof c.token==='string');
+  const ranked=choices.map(c=>({choice:c,
+    score:raihanSearchPriority(c,o,request)}))
+    .filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
+  return ranked.length?picks([ranked[0].choice]):
+    no('R30_RAIHAN_SEARCH_NO_TARGET');
+}
+function raihanPrompt(request) {
+  const p=request.prompt;
+  if(!sameSource(p,P.raihan))return no('R30_RAIHAN_ATTACH_UNSUPPORTED');
+  if(p.promptType==='AttachEnergyPrompt')return raihanAttachPrompt(request);
+  if(p.promptType==='ChooseCardsPrompt')return raihanSearchPrompt(request);
+  return no('R30_RAIHAN_ATTACH_UNSUPPORTED');
+}
 function drawSupportOpportunity(request) {
   const o=request?.observation,own=o?.ownPublic,items=availableCards(request);
   if(!own||!leleAbilityAccessIsSafe(o)||
@@ -1441,6 +1531,8 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   // Minior Far-Flying Meteor / Gravitational Tackle counter sequence.
   const forceBlower=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.blower));
   if(forceBlower&&fieldBlowerOpportunity(o))return act(forceBlower);
+  const raihan=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.raihan));
+  if(raihan&&raihanOpportunity(request))return act(raihan);
   // If Field Blower removes Sky Field, the attack's damage may fall below KO.
   // No Field Blower line is opened before a still-available Rondo attack.
   const sky=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.sky));
@@ -1557,6 +1649,7 @@ function createPolicy({role,seat,policyVersion,config}) {
       if([P.crobat,P.dedenne,P.squawk].some(p=>sameSource(request.prompt,p)))
         return onPlayDrawConfirmPrompt(request);
       if(sameSource(request.prompt,P.stretcher))return rescueStretcherPrompt(request);
+      if(sameSource(request.prompt,P.raihan))return raihanPrompt(request);
       if(sameSource(request.prompt,P.lele))return wonderTagPrompt(request);
       if(sameSource(request.prompt,P.blower))return fieldBlowerPrompt(request);
       if(sameSource(request.prompt,P.box))return boxPrompt(request);
@@ -1582,4 +1675,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,certifiedPsychicBenchTargets,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy,hasFreshPriorOpponentTurnKO};
+  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,certifiedPsychicBenchTargets,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy,hasFreshPriorOpponentTurnKO,raihanOpportunity,raihanAttachPrompt,raihanSearchPrompt,raihanPrompt};
