@@ -14,6 +14,20 @@
 const has=(x,s)=>typeof x==='string'&&x.includes(s);
 const int=x=>Number.isSafeInteger(x)&&x>=0;
 const select=(x,reason)=>({decision:{kind:'select-action',token:x.token},reason});
+// Every direct-gust target is anchored to a distinct *published* Aichi
+// card printing's exact HP and two-/three-Prize rule, crosschecked against
+// resources/cards/en and the 29 authenticated original source 60s. This
+// deliberately excludes unknown rule-box identities and single-Prizers.
+const DIRECT_GUST_TARGETS=Object.freeze([
+ ['Mega Lopunny ex',330,3],['Mega Kangaskhan ex',300,3],
+ ['Mega Absol ex',280,3],['Mega Dragonite ex',370,3],
+ ['Regidrago VSTAR',280,2],
+ ['Dedenne-GX',160,2],['Tapu Lele-GX',170,2],
+ ['Squawkabilly ex',160,2],['Crobat V',180,2],
+ ['Genesect V',190,2],['Pidgeot ex',280,2],
+ ['Articuno-GX',170,2],['Rotom V',190,2],
+ ['Iron Thorns ex',230,2]
+]);
 const TOPS=Object.freeze([
  {name:'Mega Lopunny ex',hp:330,prizes:3,attackName:'Miraculous Duo-GX',attackDamage:200},
  {name:'Mega Kangaskhan ex',hp:300,prizes:3,attackName:'Miraculous Duo-GX',attackDamage:200},
@@ -143,8 +157,7 @@ function visiblePrintedDuoDamage(own,opp,target){
     !Array.isArray(target?.tools)||target.tools.length||
     !Array.isArray(target.printed?.resistance)||
     target.printed.resistance.some(r=>r?.type==='Psychic')||
-    !['Mega Lopunny ex','Mega Kangaskhan ex','Mega Absol ex',
-      'Mega Dragonite ex','Regidrago VSTAR'].some(n=>has(target.printing,n)))
+    !DIRECT_GUST_TARGETS.some(([n,h])=>has(target.printing,n)&&target.hp===h))
    return null;
  const dragon=has(target.printing,'Mega Dragonite ex')&&
    Array.isArray(target.printed.types)&&
@@ -324,4 +337,4 @@ function createSlice({seat}){
 module.exports={createSlice,validRootTarget,offeredMewtwoAttack,
  abilitySource,ownerBenchChoice,certifiedDamage,
  nightWatchDonor,psychicCostPhysicallyReady,ownerPerfectionNightWatchPrompt,
- visiblePrintedDuoDamage};
+ visiblePrintedDuoDamage,DIRECT_GUST_TARGETS};
