@@ -7,6 +7,7 @@ const {AttackAction}=
 const {ResolvePromptAction}=
   require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
 const {GameMessage}=require('../../vendor/twinleaf/ptcg-server/output/game/game-message');
+const {classifyPrintedGXAttack}=require('./printed-gx-attack-classifier.cjs');
 
 /**
  * Mimikyu's printed Copycat excludes GX attacks and, by official ruling,
@@ -25,33 +26,7 @@ function isMimikyuCopycatAttack(row){
 }
 
 /** @param {object} row @returns {boolean} */
-/**
- * Pinned Twinleaf's attack.gxAttack field is absent on 4 field-present printed
- * GX attacks (SMP217 Pale Moon, UNB57 Tingly Return, CEC95 Strafe,
- * CEC156 Altered Creation). A boolean conversion of the missing property
- * turns a mandatory once-per-game restriction into false.
- *
- * GX attack names have the printed -GX suffix; the explicit once-per-game
- * clause is a second independent source signal. Never classify an attack
- * with missing identity as safely ordinary.
- *
- * This is a narrow source-attack *classification* repair. It does not certify
- * copied attack history, payment, native GX legality or game outcomes.
- * @param {object} attack Native attack or detached attack-like row.
- * @returns {boolean|null} null means source identity insufficient
- */
-function classifyPrintedGXAttack(attack){
-  if(attack?.gxAttack===true) return true;
-  const name=typeof attack?.name==='string'&&attack.name.trim()?
-    attack.name.trim():
-    (typeof attack?.attackName==='string'&&attack.attackName.trim()?
-      attack.attackName.trim():null);
-  if(name===null)return null;
-  const text=typeof attack?.text==='string'?attack.text:'';
-  const restricted=/\b(?:you|each player)\s+can(?:not|'t|’t)\s+use\s+more\s+than\s+(?:one|1)\s+GX\s+attack\s+in\s+a\s+game\b/i.test(text);
-  return /-GX$/i.test(name)||restricted;
-}
-
+/** Printed GX classification is shared by actor-visible board and attack-history adapters. */
 /** @param {object} row @returns {boolean} */
 function isMimikyuCopycatEligibleAttack(row){
   return row?.gxAttack===false&&
