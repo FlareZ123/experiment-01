@@ -53,3 +53,33 @@ for(const seat of [0,1]){
     });
   }
 }
+
+
+for(const seat of [0,1]){
+  for(const [label,belt,stadium,opponentTool,expected] of [
+    ['Choice Belt on attacker still allows base-230 terminal',true,[],[],true],
+    ['Jamming disables Belt but base-230 terminal persists',
+      true,['Jamming Tower TWM 153'],[],true],
+    ['without Choice Belt retains same base terminal',false,[],[],true],
+    ['opaque defender Tool remains conservative',true,[],
+      ['Stealthy Hood UNB 186'],false]
+  ]){
+    test('seat '+seat+': '+label,()=>{
+      const source=make(seat,'none');
+      source.observation.ownPublic.bench=[
+        card(MEGA,{tools:belt?['Choice Belt PAL 176']:[],publicRestrictions:{}})
+      ];
+      source.observation.ownPublic.stadium=stadium;
+      source.observation.opponentPublic.bench[0].tools=opponentTool;
+      const root={...source,prompt:null,actionFrontier:{items:[
+        {kind:'play-card',token:'guzma',actorPrinting:GUZMA}
+      ]}};
+      assert.equal(!!guzmaOpportunity(root.observation),expected);
+      const {rootDecision}=require(
+        '../../simulation/evaluation/2026-11/agent20-rank15-lopunny-vileplume-opponent-policy.cjs');
+      const decision=rootDecision(root);
+      assert.equal(decision.kind==='select-action',expected);
+      if(expected)assert.equal(decision.token,'guzma');
+    });
+  }
+}
