@@ -1965,3 +1965,30 @@ paired('Agent46: source-field draw/search support Abilities never veto a direct 
     abilities:['UNRECOGNIZED_ABIL'],suppression:false});
   assert.notEqual(checked().policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
 });
+
+paired('Agent46: inert source Stadium must not mask a payable direct final Prize win',(seat,profile)=>{
+  const view=observation(seat,{active:vmax(Array(9).fill(P)),
+    opponentActive:defender({hp:280})});
+  view.globalTurn=8;view.ownPublic.prizeCount=2;
+  const attackItem={token:'max',kind:'attack',attackName:'Max Geist'};
+  const policy=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile});
+  const final=()=>policy.decideWithAudit(root(seat,view,[attackItem]))
+    .policyAudit.selectionRuleCode;
+  for(const stadium of ['Tropical Beach BWP 50','Chaotic Swell CEC',
+      'Artazon PAL','Thunder Mountain LOT']) {
+    view.opponentPublic.stadium=[stadium];
+    assert.equal(final(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK',stadium);
+  }
+  // Wondrous increases the price of a non-Fairy attack. Other unknown
+  // Stadiums may change direct damage or the execution path.
+  for(const stadium of ['Wondrous Labyrinth TEU','Path to the Peak CRE',
+      'UNRECOGNIZED STADIUM']){
+    view.opponentPublic.stadium=[stadium];
+    assert.notEqual(final(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+  }
+  // Never certify a Thunder Mountain energy-cost interaction for an
+  // unregistered Lightning attacker from this generic helper.
+  view.opponentPublic.stadium=['Thunder Mountain LOT'];
+  view.ownPublic.active.printed.types=['Lightning'];
+  assert.notEqual(final(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+});

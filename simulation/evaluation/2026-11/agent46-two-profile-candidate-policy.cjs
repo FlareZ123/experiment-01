@@ -4022,6 +4022,17 @@ function directTerminalSafeSpecialEnergy(energy,slot) {
   if(matches('Unit Energy'))return true; // all three printed Unit families are type-only
   return TERMINAL_DIRECT_SAFE_ENERGY_NAMES.some(matches);
 }
+// Current, directly offered printed attacks are unaffected by Stadiums that
+// only provide optional searches/draws or respond to Stadium replacement.
+function directTerminalSafeStadium(stadium,view){
+  if(!isText(stadium))return false;
+  if(hasAnyName(stadium,['Tropical Beach','Chaotic Swell','Artazon']))return true;
+  // The immutable Hood/Lockbridge lists use no Lightning Pokémon attackers.
+  // Still fail closed for a future Lightning-type caller of this helper.
+  if(hasName(stadium,'Thunder Mountain') &&
+      !view.ownPublic.active?.printed?.types?.includes('Lightning'))return true;
+  return false;
+}
 function terminalAbilityProvablyOff(slot, abilityName, view) {
   if (abilityStatus(slot, abilityName) === true) return false;
   if (abilityLockSourceStadiumSuppression({slot}, view) === true) return true;
@@ -4044,7 +4055,9 @@ function cleanPublicTerminalView(view,direct=false,extraHarmlessAbility=null){
     (direct && directTerminalSafeSpecialEnergy(p,slot))))&&
     !(view.ownPublic.active.specialConditions??[]).length&&
     !(view.opponentPublic.active.specialConditions??[]).length&&
-    [...view.ownPublic.stadium,...view.opponentPublic.stadium].every(p=>hasAnyName(p,['Sky Field','Dimension Valley','Temple of Sinnoh']));
+    [...view.ownPublic.stadium,...view.opponentPublic.stadium].every(p=>
+      hasAnyName(p,['Sky Field','Dimension Valley','Temple of Sinnoh']) ||
+      (direct && directTerminalSafeStadium(p,view)));
 }
 function publicFinalAttack(view,allowedNames=null){
   if(!cleanPublicTerminalView(view,allowedNames!==null))return null;
