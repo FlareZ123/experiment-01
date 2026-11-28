@@ -482,6 +482,14 @@ function scoreAction(item, request) {
   if (matches(printing, PRINT.ultra)) {
     return hand.length >= 2 && (count(own, PRINT.trubbish) < 2 || count(own, PRINT.mega) < 2) ? 165 : 0;
   }
+  if (matches(printing, PRINT.battleCompressor)) {
+    const needsDarkPatchPayload = hasMegaAbsol(observation) &&
+      slots(own).some(row => row.zone === 'bench' &&
+        matches(row.pokemon.printing, PRINT.mega) && energyCount(row.pokemon) < 3) &&
+      discardCount(own, PRINT.dark) < 2;
+    return deckCount(observation) > 0 && needsDarkPatchPayload ?
+      (hand.some(card => matches(card, PRINT.darkPatch)) ? 260 : 200) : 0;
+  }
   if (matches(printing, PRINT.darkPatch)) {
     return discardHas(own, PRINT.dark) &&
       slots(own).some(row => row.zone === 'bench' && matches(row.pokemon.printing, PRINT.mega) && energyCount(row.pokemon) < 3)
@@ -574,6 +582,29 @@ function secretBoxTargets(prompt, choices, observation) {
   if (selected.length < minimum) return { kind: 'abstain', reasonCode: 'SECRET_BOX_CATEGORY_SET_INCOMPLETE' };
   return { kind: 'select-choices', tokens: selected.slice(0, maximum).map(choice => choice.token) };
 }
+function rank22CompressorTargets(prompt, deck, observation) {
+  const metadata = prompt.publicMetadata ?? {};
+  const min = metadata.minimumCount, max = metadata.maximumCount;
+  if (metadata.selectionType !== 'card-combination' ||
+      !Number.isSafeInteger(min) || !Number.isSafeInteger(max) ||
+      min < 0 || min > max || max > 3) {
+    return { kind: 'abstain', reasonCode: 'RANK22_COMPRESSOR_SCHEMA_UNSUPPORTED' };
+  }
+  const targetDark = Math.max(0, 2 - discardCount(observation.ownPublic, PRINT.dark));
+  const darks = deck.filter(choice => matches(choice, PRINT.dark)).slice(0, targetDark);
+  const deadVip = observation.globalTurn > 2 ?
+    deck.filter(choice => matches(choice, PRINT.vip)) : [];
+  const selected = [...darks, ...deadVip].slice(0, max);
+  if (selected.length < min) {
+    return { kind: 'abstain', reasonCode: 'RANK22_COMPRESSOR_NO_SAFE_PAYLOAD' };
+  }
+  if (!selected.length) {
+    const empty = list(prompt.choices).find(choice => choice.kind === 'empty-selection');
+    return empty ? { kind: 'select-choice', token: empty.token } :
+      { kind: 'abstain', reasonCode: 'RANK22_COMPRESSOR_NO_SAFE_PAYLOAD' };
+  }
+  return { kind: 'select-choices', tokens: selected.map(choice => choice.token) };
+}
 function rank22SetupDecision(prompt, observation) {
   if (observation?.phase !== 1 || prompt?.source?.sourceKind !== 'engine' ||
       prompt.source.sourcePrinting !== null ||
@@ -663,6 +694,9 @@ function promptDecision(request) {
     const deck = choices.filter(choice => owner(choice) === 'actor' && zone(choice) === 'deck');
     const discard = choices.filter(choice => owner(choice) === 'actor' && zone(choice) === 'discard');
     const multi = ['card-combination', 'pokemon', 'energy-payment', 'prize-slots', 'card-order'].includes(prompt.publicMetadata?.selectionType);
+    if (/battle compressor/.test(source)) {
+      return rank22CompressorTargets(prompt, deck, observation);
+    }
     if (/claw of darkness/.test(source)) {
       return singleChoice(prompt, choices.filter(choice => owner(choice) === 'opponent' && zone(choice) === 'hand'),
         choice => opponentHandDiscardScore(choice, observation), 'NO_REVEALED_OPPONENT_HAND_CARD');
@@ -747,7 +781,7 @@ function promptDecision(request) {
     if (/tap[u]? koko|dance of the ancients/.test(source)) {
       return { kind: 'abstain', reasonCode: 'RANK22_TAPU_KOKO_PROMPT_HELD_OUT' };
     }
-    if (/crispin|battle compressor|pokémon communication|pokemon communication|hisuian heavy ball|wally|karen/.test(source)) {
+    if (/crispin|pokémon communication|pokemon communication|hisuian heavy ball|wally|karen/.test(source)) {
       return { kind: 'abstain', reasonCode: 'RANK22_MULTI_STEP_PROMPT_HELD_OUT' };
     }
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_PROMPT' };
