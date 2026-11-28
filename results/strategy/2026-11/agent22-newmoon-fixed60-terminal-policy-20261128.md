@@ -1,0 +1,27 @@
+# Four executable terminal decisions on one unchanged New Moon v3 fixed 60
+
+**Agent22 · 28 November 2026.** The [single fixed New Moon v3 60](../../../results/als/new-moon-dusknoir-shadow-bind-v3-60.json) is **unchanged** (deck SHA256 `0db19a75d0d1ce43128b9a9fdc4fe3013833eaaba4641972af7af30f4b41e7dd`). The new [actor worker](../../../simulation/evaluation/2026-11/agent22-newmoon-v3-countercatcher-worker.cjs) wraps the original Agent1 v3 decision policy and prioritizes four otherwise missed tactical winning actions:
+
+1. **Paid direct Active knockout** takes the final 2/3 Prizes or leaves opponent no Pokémon. No Item, no Dusk; prefer it to all other plans.
+2. **Counter Catcher already playable** (own remaining Prizes exceed opponent). Gust a damaged 2/3-Prizer from opponent Bench, then take final Prizes with a newly offered printed Mewtwo & Mew-GX Miraculous Duo-GX200 or Mewtwo's **Perfection Ability → paid Night Watch150 owner ChooseAttackPrompt**. No self-KO required.
+3. **Cursed Blast alone wins**: a Benched live Dusknoir places 130 counters to finish our remaining Prizes, or KOs the opponent's **only Pokémon**, leaving them unable to promote. Never select if our Dusk self-KO awards opponent their final Prize or a funded direct attack already wins.
+4. **Cursed Blast + Counter Catcher + attack**: at tied 2–2/3–3, Dusk self-KO changes opponent's Prize count by one and *newly enables* the Item; at 3–2 the Item was already legal but Blast130 may still be necessary against a full-HP three-Prize Mega. After native self-KO/Prize receipt recheck actual `play-card` Item, opponent target `ChoosePokemonPrompt`, paid GX or Perfection `ChooseAttackPrompt` and final damage.
+
+All stages select **real offered native action tokens and source-attributed owner prompts**, validate own hand/Bench/active/Prize state on continuation, and **abstain** rather than guessing or delegating a broken half-turn to the original policy. The pinned Mewtwo implementation does **not** expose a Bench-sourced Night Watch ATTACK_ACTION: it requires actual Perfection UseAbility followed by owner ChooseAttackPrompt. The pinned action frontier **does not expose `damageAfterResistance`**; projected Miraculous200 and Dragon FairyZone ×2 damage is therefore conditional printed-base modeling, not confirmed Store KO.
+
+**14 exact recognized 2/3-Prize target families** occur as **139 physically printed cards across 28 of 29 authenticated Aichi source 60s**. They include Mega Lopunny ex, Kangaskhan ex, Absol ex, Dragonite ex, Regidrago VSTAR, Dedenne-GX, Tapu Lele-GX, Squawkabilly ex, Crobat V, Genesect V, Pidgeot ex, Articuno-GX, Rotom V and Iron Thorns ex. **Rank7 Snorlax Stall** is not in that target census but is eligible for a *conditional* last-opponent-Pokémon Cursed Blast winning state. The three unpublished ranks23/25/28 remain missing exact source 60s. Target presence is **not** opportunity frequency, tested matchup coverage or evidence of wins.
+
+### Code and exercised contract tests
+
+| Implemented module | Executed synthetic tests |
+| --- | ---: |
+| [Direct no-selfKO gust](../../../simulation/evaluation/2026-11/agent22-newmoon-direct-countercatcher-gust.cjs) / [test](../../../tests/2026-11/agent22-newmoon-direct-countercatcher-gust.test.cjs) | **82** |
+| [Dusk Blast → selfKO → Item gust → attack](../../../simulation/evaluation/2026-11/agent22-newmoon-countercatcher-actor-sequence.cjs) / [test](../../../tests/2026-11/agent22-newmoon-countercatcher-actor-sequence.test.cjs) | **129** |
+| [Ability-only prize/last-Pokémon wins](../../../simulation/evaluation/2026-11/agent22-newmoon-ability-only-terminal.cjs) / [test](../../../tests/2026-11/agent22-newmoon-ability-only-terminal.test.cjs) | **68** |
+| [Combined priority and prompt-abort worker](../../../simulation/evaluation/2026-11/agent22-newmoon-v3-countercatcher-worker.cjs) / [test](../../../tests/2026-11/agent22-newmoon-v3-countercatcher-worker.test.cjs) | **35** |
+
+The reproducible [bundler](../../../simulation/evaluation/2026-11/build-agent22-newmoon-v3-countercatcher-worker.cjs) creates a [no-import standalone worker](../../../simulation/evaluation/2026-11/agent22-newmoon-v3-countercatcher-worker-standalone.cjs) from original v2/v3 and the three new action modules. It loaded with `require` undefined, retained the original v3 60 hash, and passed all 35 combined checks.
+
+**Evidence limits:** These are synthetically constructed actor-state tests, *not* native Twinleaf Store complete games. Opponent Item/Ability lock, energy, damage-prevention effects, turn and Bench state can all invalidate a proposed line. We have **zero qualified Aichi matchup wins**, no observed improvement in game-win rate and no justification to claim 99.5%. Do not change current best-deck nomination or owner-approved frozen experimental runs based on these contracts.
+
+**Next decisive experiment:** With owner approval only, source-deal the *same original v3 60* against rank 8/11 (Mega Absol), rank 10/12 (Regidrago) or rank7 (last-Pokémon stall). Compare old v3 and new worker under identical physical deals and competent original source policy. Capture the complete native action/prompt/Prize/KO transcript, not only proposed first actions.
