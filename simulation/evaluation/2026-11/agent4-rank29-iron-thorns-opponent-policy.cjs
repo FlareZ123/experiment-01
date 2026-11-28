@@ -297,11 +297,11 @@ function remainingHp(pokemon) {
 // two authenticated source manifests and exclude Tools/Supporters/Stadiums.
 function thornsPublicCategory(printing, targetType) {
   const name=valueText(printing);
-  const energy=/\\bEnergy\\b/i.test(name);
-  const specialEnergy=energy&&!/^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy\\b/i
+  const energy=/\bEnergy\b/i.test(name);
+  const specialEnergy=energy&&!/^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy\b/i
     .test(name);
-  const toolOrStadium=/\\b(?:Palace Belt|Handheld Fan|Tool Jammer|Tropical Beach|Player'?s Ceremony|Thunder Mountain|Wondrous Labyrinth)\\b/i.test(name);
-  const item=/\\b(?:Crushing Hammer|Enhanced Hammer|VS Seeker|Trainers['’]? Mail|Tag Call|Camping Gear|Captivating Pok[eé] Puff|Echoing Horn|Target Whistle|Field Blower|Megaton Blower|Palace Book)\\b/i
+  const toolOrStadium=/\b(?:Palace Belt|Handheld Fan|Tool Jammer|Tropical Beach|Player'?s Ceremony|Thunder Mountain|Wondrous Labyrinth)\b/i.test(name);
+  const item=/\b(?:Crushing Hammer|Enhanced Hammer|VS Seeker|Trainers['’]? Mail|Tag Call|Camping Gear|Captivating Pok[eé] Puff|Echoing Horn|Target Whistle|Field Blower|Megaton Blower|Palace Book)\b/i
     .test(name);
   return targetType==='energy'?energy :
     targetType==='item'?item :
