@@ -1203,7 +1203,7 @@ function getLostValue(view,printing) {
   const regidrago=opponentHasRegidrago(view);
   if(regidrago&&hasAnyName(printing,['Dialga-GX','Dragapult ex','Giratina VSTAR','Goodra VSTAR',
     'Hisuian Goodra VSTAR','Noivern ex','Haxorus','Flygon ex','Altaria-GX','Dragonite ex',
-    'Garchomp ex','Alolan Exeggutor ex','Duraludon VMAX','Kyurem']))return 500;
+    'Garchomp ex','Alolan Exeggutor ex','Duraludon VMAX','Kyurem','Salamence ex']))return 500;
   if(regidrago&&hasName(printing,'Regidrago VSTAR'))return 300;
   if(hasAnyName(printing,['ACE SPEC','Computer Search','Dowsing Machine','Unfair Stamp','Secret Box',
     'Legacy Energy','Double Dragon Energy','Double Colorless Energy','Pokémon Ranger',
@@ -1220,7 +1220,10 @@ const APEX_PAYLOADS=[
   ['Mega Dragonite ex ASC','Ryuno Glide',330],['Koraidon SSP','Unrelenting Onslaught',180],
   ['Alolan Exeggutor ex SSP','Tropical Frenzy',150],
   ['Hisuian Goodra VSTAR LOR','Rolling Iron',200],['Noivern ex PAL','Covert Flight',70],
-  ['Garchomp & Giratina-GX UNM','Calamitous Slash',160],['Garchomp ex PAR','Hydro Lander',160]
+  ['Garchomp & Giratina-GX UNM','Calamitous Slash',160],['Garchomp ex PAR','Hydro Lander',160],
+  // Salamence ex JTG 114 is an actual rank-13 donor: Dragon Impact deals
+  // 300 to Active; Wide Blast deals 50 to each opponent Benched Pokemon.
+  ['Salamence ex JTG','Dragon Impact',300],['Salamence ex JTG','Wide Blast',50]
 ];
 function observedPayloads(discard,view){
   return APEX_PAYLOADS.filter(([printing,name])=>discard.some(p=>hasName(p,printing))&&
@@ -1269,6 +1272,11 @@ function hazardVariants(view,rows,activeKey,payload){
       hits:[[active.key,modified(active)],[row.key,60]]});
     return variants;
   }
+  // Wide Blast has no Active damage: every candidate Benched Pokemon takes
+  // 50 damage (bench Weakness/Resistance are not applied). The legacy model
+  // still omits defensive bench prevention, so this is an optimistic hazard.
+  if(name==='Wide Blast')return [{name,alteredPrizeKey:null,
+    hits:rows.filter(row=>row.key!==activeKey).map(row=>[row.key,base])}];
   if(name==='Calamitous Slash')return [{name,alteredPrizeKey,
     hits:[[active.key,modified(active)+(active.damaged?80:0)]]}];
   return [{name,alteredPrizeKey,hits:[[active.key,modified(active)]]}];
