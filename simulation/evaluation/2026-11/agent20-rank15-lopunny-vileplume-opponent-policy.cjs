@@ -964,6 +964,39 @@ function jetPoweredGaleEligible(x) {
 function readyGuzmaMega(x,o) {
   return jetPoweredGaleEligible(x)&&attachedEnergyUnits(x,o)>=1;
 }
+
+// Distinct two-action terminal line: Guzma moves an unpowered Bench Mega,
+// then the actor's still-unused normal Basic Grass attachment pays Gale [C].
+// Require both steps from visible, owner-owned state, not projected hand odds.
+function handFundableGuzmaMegaIndex(o) {
+  const turn=o?.globalTurn,resource=o?.ownTurnResources;
+  if(!Number.isSafeInteger(turn)||
+     !Number.isSafeInteger(resource?.energyPlayedTurn)||
+     resource.energyPlayedTurn>=turn||resource.energyPlayLocked===true||
+     !arr(o?.ownHand).some(x=>has(x,P.grass)))return -1;
+  return arr(o?.ownPublic?.bench).findIndex(x=>x&&
+    jetPoweredGaleEligible(x)&&attachedEnergyUnits(x,o)===0);
+}
+function certifiedLastPrizeMovedGale(o,op) {
+  if(!o?.ownPublic||!has(op,TERMINAL_GALE_CERTIFIED_TARGET)||
+     !Number.isSafeInteger(op.hp)||!Number.isSafeInteger(op.damage)||
+     op.hp<=op.damage||arr(op.tools).some(x=>!has(x,P.lifeDew))||
+     arr(op.abilitySuppressions).some(x=>x.suppressed===false))return false;
+  const hit=applyColorlessWeaknessResistance(230,op);
+  return hit!==null&&hit>=op.hp-op.damage&&
+    Number.isSafeInteger(o.ownPublic.prizeCount)&&o.ownPublic.prizeCount>0&&
+    o.ownPublic.prizeCount<=sourcePrizeValue(op,o);
+}
+function terminalHandGalePayment(items,request) {
+  const o=request.observation,own=o?.ownPublic;
+  if(!own||!has(own.active,P.mega)||movementEvidence(request)!==true||
+     !jetPoweredGaleEligible(own.active)||
+     attachedEnergyUnits(own.active,o)!==0||
+     !certifiedLastPrizeMovedGale(o,o.opponentPublic?.active))return null;
+  return items.find(item=>item.kind==='play-card'&&
+    has(ownPrinting(item),P.grass)&&
+    ownActionTarget(item,own)===own.active)??null;
+}
 function guzmaOpportunity(o,{resolvingGuzma=false}={}) {
   // Proposed gust is intentionally *not* a native damage projection. It
   // requires an observable powered Bench attacker and target, then selects
@@ -977,7 +1010,9 @@ function guzmaOpportunity(o,{resolvingGuzma=false}={}) {
   // last-Prize Guzma + powered Bench Mega moved-Gale knockout.
   const activeBusLock=has(own.active,P.bus);
   const bench=arr(own.bench),targets=arr(opp.bench);
-  const attackerIndex=bench.findIndex(x=>readyGuzmaMega(x,o));
+  const poweredIndex=bench.findIndex(x=>readyGuzmaMega(x,o));
+  const handIndex=poweredIndex<0?handFundableGuzmaMegaIndex(o):-1;
+  const attackerIndex=poweredIndex>=0?poweredIndex:handIndex;
   if(attackerIndex<0)return null;
   // Choice Belt can add +30, but never reduces the moved-Gale base 230.
   // Even when Jamming Tower nullifies the Belt, a guaranteed base-230 KO
@@ -991,6 +1026,8 @@ function guzmaOpportunity(o,{resolvingGuzma=false}={}) {
     if(galeDamage===null||x.hp-x.damage>galeDamage)return null;
     const prizeValue=sourcePrizeValue(x,o);
     const terminal=prizes!==null&&prizes>0&&prizes<=prizeValue;
+    // No hypothetical hand-funded nonterminal gust or uncertified defender.
+    if(poweredIndex<0&&(!terminal||!has(x,TERMINAL_GALE_CERTIFIED_TARGET)))return null;
     if(activeBusLock&&!terminal)return null;
     // Don't expend the Supporter on a merely one-Prize intermediate gust.
     if(!terminal && prizeValue<2)return null;
@@ -1024,7 +1061,10 @@ function guzmaPrompt(request) {
   // Bench Pokémon moved Active. Its old Bench target is now absent: never
   // recompute the original gust candidate against the changed opponent Bench.
   const bench=arr(o.ownPublic?.bench);
-  const index=bench.findIndex(x=>readyGuzmaMega(x,o));
+  const funded=bench.findIndex(x=>readyGuzmaMega(x,o));
+  const index=funded>=0?funded:
+    certifiedLastPrizeMovedGale(o,o.opponentPublic?.active)?
+      handFundableGuzmaMegaIndex(o):-1;
   const found=ours.find(c=>c.publicMetadata?.benchIndex===index&&
     txt(bench[index])===txt(c));
   return found?{kind:'select-choices',tokens:[found.token]}:
@@ -1340,6 +1380,8 @@ function rootDecision(request) {
   // A demonstrated last-Prize movement action must beat mere setup actions.
   const winningPromotion=terminalGalePromotionAction(items,request);
   if(winningPromotion)return take(winningPromotion);
+  const afterGuzmaPayment=terminalHandGalePayment(items,request);
+  if(afterGuzmaPayment)return take(afterGuzmaPayment);
   const karen=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.karen));
   if(karen&&karenOpportunity(o))return take(karen);
   // First-turn Fan Call is a free actor-owned search for the source's
