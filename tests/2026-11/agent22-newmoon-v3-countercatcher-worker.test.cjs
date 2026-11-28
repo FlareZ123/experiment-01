@@ -177,6 +177,9 @@ finalSolo.observation.opponentPublic.prizeCount=2;
 finalSolo.observation.opponentPublic.active={
  printing:'Mimikyu PAL',hp:70,damage:0,tools:[]};
 finalSolo.observation.opponentPublic.bench=[];
+// No currently offered paid Mewtwo attack: if it were payable, a direct
+// knockout of the last Pokemon would be strictly better than Dusk selfKO.
+finalSolo.actionFrontier.items=[finalSolo.actionFrontier.items[0]];
 const aSolo=createPolicy({role:'candidate',seat:0,
  policyVersion:POLICY_VERSION,config:{}});
 r=aSolo.decideWithAudit(finalSolo);
