@@ -2415,25 +2415,30 @@ paired('Agent46: pinned native GRW and FDY Unit variants share source-safe seman
 test('Agent46: Battle Compressor and Night Stretcher form an exact no-KO Psychic access line',()=>{
   const bc='Battle Compressor PHF',stretcher='Night Stretcher SFA';
   for(const seat of [0,1])for(const profile of profiles){
-    const view=observation(seat,{active:vmax([P,P]),bench:[vmax([])],
-      opponentActive:defender(),ownHand:[bc,stretcher]});
+    const view=observation(seat,{active:vmax([P,P]),
+      bench:[v([P]),vmax([]),vmax([]),vmax([])],
+      opponentActive:pokemon({printing:'Snorlax PGO',name:'Snorlax',
+        hp:150,types:['Colorless']}),
+      ownHand:[bc,stretcher,M]});
     view.globalTurn=8;
+    view.ownTurnResources.supporterPlayedTurn=1;
+    view.opponentPublic.handCount=1;
     const compressor=play('compress',bc),recover=play('recover',stretcher);
     assert.deepEqual(decide(profile,root(seat,view,[compressor])),sel('compress'));
     const choose=cardPrompt(seat,view,bc,'Battle Compressor','deck',
-      [P,D,'Shadow Rider Calyrex V CRE'],0,3);
+      [P,D,'Mimikyu GRI'],0,3);
     assert.deepEqual(decide(profile,choose),mult('card-0'));
     const notInDeck=cardPrompt(seat,view,bc,'Battle Compressor','deck',
-      [D,'Shadow Rider Calyrex V CRE'],0,3);
+      [D,'Mimikyu GRI'],0,3);
     assert.deepEqual(decide(profile,notInDeck),choice('empty'));
-    const after={...view,ownHand:[stretcher],ownPublic:{...view.ownPublic,
-      handCount:1,discard:[bc,P],deckCount:view.ownPublic.deckCount-1}};
+    const after={...view,ownHand:[stretcher,M],ownPublic:{...view.ownPublic,
+      handCount:2,discard:[bc,P],deckCount:view.ownPublic.deckCount-1}};
     assert.deepEqual(decide(profile,root(seat,after,[recover])),sel('recover'));
     const pick=cardPrompt(seat,after,stretcher,'Night Stretcher','discard',
       [P,bc]);
     assert.deepEqual(decide(profile,pick),mult('card-0'));
-    const ready={...after,ownHand:[P],ownPublic:{...after.ownPublic,
-      handCount:1,discard:[bc,stretcher]}};
+    const ready={...after,ownHand:[P,M],ownPublic:{...after.ownPublic,
+      handCount:2,discard:[bc,stretcher]}};
     assert.deepEqual(decide(profile,root(seat,ready,
       [play('attach',P,null,target('active',0))])),sel('attach'));
     // This line consumes Items and can still function after a Supporter.
@@ -2441,9 +2446,9 @@ test('Agent46: Battle Compressor and Night Stretcher form an exact no-KO Psychic
       supporterPlayedTurn:1}};
     assert.deepEqual(decide(profile,root(seat,spent,[compressor])),sel('compress'));
     // It is a real energy-access line, not a reason for blind milling.
-    const noStretcher={...view,ownHand:[bc]};
+    const noStretcher={...view,ownHand:[bc,M]};
     assert.deepEqual(decide(profile,root(seat,noStretcher,[compressor])),sel('pass'));
-    const alreadyHeld={...view,ownHand:[bc,stretcher,P]};
+    const alreadyHeld={...view,ownHand:[bc,stretcher,P,M]};
     assert.deepEqual(decide(profile,root(seat,alreadyHeld,[compressor])),sel('pass'));
     const alreadyDiscarded={...view,ownPublic:{...view.ownPublic,discard:[P]}};
     assert.deepEqual(decide(profile,root(seat,alreadyDiscarded,[compressor])),sel('pass'));
@@ -2472,7 +2477,7 @@ test('Agent46: Compressor-Stretcher turns a real deck VMAX into an immediately p
     const ready={...after,ownHand:[M,P],ownPublic:{...after.ownPublic,
       handCount:2,discard:[bc,stretcher]}};
     assert.deepEqual(decide(profile,root(seat,ready,
-      [play('evolve',M,null,target('active',0))])),sel('evolve'));
+      [play('evolve',M,V,target('active',0))])),sel('evolve'));
     // Direct Stretcher on a useful already-discarded evolution dominates
     // spending Compressor just to access another copy.
     const direct={...view,ownPublic:{...view.ownPublic,discard:[M]}};
