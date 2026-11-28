@@ -84,6 +84,10 @@ test('Marnie only when public Prize race is imminent; never claim hidden gust ce
   r.actionFrontier.items=[root('play-card','Marnie SSH 169','marnie')];
   assert.equal(policy(0).decide(r).token,'marnie');
   r.observation.opponentPublic.prizeCount=3;
+  // Without the Prize race, a safe one-card hand can still use Marnie
+  // productively. A protected singleton prevents that fallback.
+  assert.equal(policy(0).decide(r).token,'marnie');
+  r.observation.ownHand.push(box);
   assert.equal(policy(0).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
 });
 test('Marnie does not beat visible unspent Forest Seal Stone into Star Alchemy gust',()=>{
