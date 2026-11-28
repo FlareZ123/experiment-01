@@ -814,11 +814,27 @@ function choosePokemonRecipient(view, prompt) {
   }
 
   const effectName = prompt.source?.effectName ?? '';
+  if (effectName === 'Acerola' &&
+      (prompt.source?.sourceKind !== 'card-effect' ||
+       prompt.source?.sourcePrinting !== 'Acerola BUS 112')) {
+    return abstain('UNTRUSTED_PROMPT_SOURCE');
+  }
   const actorChoices = visible.filter(row => row.target.ownerSeat === 'actor');
   const opponentChoices = visible.filter(row => row.target.ownerSeat === 'opponent');
 
   let ranked;
-  if (effectName === 'Guzma' && actorChoices.length > 0) {
+  if (effectName === 'Acerola' && actorChoices.length > 0) {
+    ranked = actorChoices.map(row => {
+      const slot = row.target.slot;
+      const safeToRemoveActive = slot !== view.ownPublic.active ||
+        view.ownPublic.bench.some(Boolean);
+      const score = safeToRemoveActive && slot.damage > 0
+        ? prizeLiability(slot) * 1000 + slot.damage * 4 -
+          slotEnergyCount(slot) * 50
+        : -Infinity;
+      return { ...row, score };
+    });
+  } else if (effectName === 'Guzma' && actorChoices.length > 0) {
     const target = view.opponentPublic.active;
     ranked = actorChoices.map(row => {
       const attack = bestAttackForSlot(row.target.slot, view, target);
@@ -1516,6 +1532,12 @@ function scoreTrainerPlay(item, view, receipt) {
        (hasAbilityLockThreat(view) && !ownBoard(view).some(slot =>
          slot.tools.some(tool => hasName(tool, 'Stealthy Hood')))))) return 760;
   if (hasName(name, 'Guzma') && !supporterUsed && canGuzmaForAttack(view, receipt)) return 750;
+  if (hasName(name, 'Acerola BUS') && !supporterUsed &&
+      ownBoard(view).some(slot =>
+        (slot !== view.ownPublic.active ||
+         view.ownPublic.bench.some(Boolean)) &&
+        prizeLiability(slot) >= 2 && slot.damage >= 80 &&
+        slot.hp - slot.damage <= 150)) return 850;
   if (hasName(name, "Lillie's Determination") && !supporterUsed &&
       (view.ownPublic.handCount <= 5 ||
        (!boardHas(view, 'Shadow Rider Calyrex V') &&
