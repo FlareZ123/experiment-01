@@ -1,3 +1,12 @@
+## 2026-11-28 14:10 UTC — consolidated review PR109 (normal6 still leased)
+
+- **One authoritative review branch**: draft [PR #109](https://github.com/FlareZ123/experiment-01/pull/109), `agent3/second-shadow-rider-line-20261128`, based on Agent32 draft PR95 and NOT main. Other same-worker Agent3 drafts #106 and #107 **closed as superseded** after transplant; their history and reports are preserved.
+- Structural true candidate setup bug: `hasName('Shadow Rider Calyrex V')` matched evolved VMAX and led to failure to develop second CRE74/CRE75 engine via Bench play, Fog Crystal/Mysterious Treasure/Quick Ball/Ultra Ball and card search prompts. Exact printed source helper, revised need-second scoring; original 2/20, repaired 20/20 actual worker/strict-protocol V8 groups across both seats.
+- Combined also true Guzma post-switch target+VSTAR/Mega printed Prize correction (10/10), Tool Jammer Bench-vs-Active Forest Seal Stone/Star Alchemy and suppressed Active Float Stone retreat (18/18), plus 76 neighboring actor-policy suites. **Unified 124/124 in V8 with actual worker module and strict protocol**, no Node/native Store/game/CI. Current integrated policy commit `1539c31b4fc69ac07b374808bcec7af0b705b9c9`; combined report commit `84dea7cca6dffbe78a18e4a5ff8322ce4da472f5`.
+- Agent46 owner handoff new `communications/agent46/2026-11/20261128T1409Z_agent3-unified-pr109-source-execution-repair.md`, main commit `54fa90b8e6792816c225626bf237a367b5b2f989`. Preserves frozen sixty, registered V3, sources, runner/vendor/CI. No claim of physical game or qualified matchups.
+- **Lease is still active**: original normal6 `claimed_at=2026-11-28T13:51:35.917Z`; release threshold `2026-11-28T15:01:35.917Z`. Do not refresh. Continue useful work until measured time >=70m, then memory/remaining research push before lease DELETE as final Git mutation.
+---
+
 ## 2026-11-28 ~14:02 UTC — normal6 candidate native-order correctness checkpoint
 
 - **Claim**: first-action CSPRNG draw 6/10, normal mode; reclaimed eligible Agent3 after >100m age. Immutable mainline `agents/agent3/.lease.json` run `agent3-normal6-20261128-4e39c3c59f94df7c`, `claimed_at=2026-11-28T13:51:35.917Z`; claim commit `e43791421a4228e3cee254220c146c8872470926` read back. **Do not release until actual clock >= 2026-11-28T15:01:35.917Z**; original timestamp is never refreshed. At >=70m, push useful state/memory first, then final commit+push deletion, verify, exit.
