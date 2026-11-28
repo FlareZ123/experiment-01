@@ -38,6 +38,10 @@ const P = Object.freeze({
   marnie: /^Marnie SSH(?: 169)?\b/i,
   raihan: /^Raihan EVS(?: 152)?\b/i,
   lele: /^Tapu Lele-GX GRI(?: 60)?\b/i,
+  crobat: /^Crobat V DAA(?: 104)?\b/i,
+  dedenne: /^Dedenne-GX UNB(?: 57)?\b/i,
+  squawk: /^Squawkabilly ex PAL(?: 169)?\b/i,
+  fez: /^Fezandipiti ex ASC(?: 142)?\b/i,
   quickBall: /^Quick Ball FST(?: 237)?\b/i,
   blower: /^Field Blower GRI(?: 125)?\b/i,
   compressor: /^Battle Compressor PHF(?: 92)?\b/i,
@@ -99,7 +103,8 @@ const PUBLIC_ABORT = Object.freeze({
   R30_BLOWER_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
   R30_BLOWER_NO_UNIQUE_TARGET:'NO_LEGAL_CARD_SET',
   R30_LELE_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
-  R30_LELE_NO_SUPPORTER:'NO_LEGAL_CARD_SET'
+  R30_LELE_NO_SUPPORTER:'NO_LEGAL_CARD_SET',
+  R30_DRAW_CONFIRM_UNSUPPORTED:'UNRECOGNIZED_SIMPLE_PROMPT'
 });
 const no = reasonCode => ({kind:'abstain',reasonCode:PUBLIC_ABORT[reasonCode]??reasonCode});
 const act = x => ({kind:'select-action',token:x.token});
@@ -1137,6 +1142,82 @@ function wonderTagPrompt(request) {
   return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
     no('R30_LELE_NO_SUPPORTER');
 }
+function isInitialOwnerTurn(o) {
+  const t=o?.globalTurn;
+  return safeInt(t)&&t>0&&t<=2;
+}
+function handIsSafeToReset(o,excludePrinting=null) {
+  const kept=arr(o?.ownHand).filter(c=>
+    excludePrinting===null||!has(c,excludePrinting));
+  if(!kept.length)return true;
+  if(kept.length>2)return false;
+  // A six-card fresh draw is not a cheap alternative when the remaining
+  // hand contains a protected singleton, required Basic Psychic, or gust.
+  return kept.every(c=>discardScore(c,o)>=45);
+}
+function drawSupportOpportunity(request) {
+  const o=request?.observation,own=o?.ownPublic,items=availableCards(request);
+  if(!own||!leleAbilityAccessIsSafe(o)||
+     !safeInt(own.deckCount)||own.deckCount<=0)return null;
+  const hand=arr(o.ownHand),small=hand.length<=3;
+  const priorOpponentKO=request?.publicEventReceipt?.priorOpponentTurnKO?.any===true;
+  const readyAbility=(print,ability)=>items.find(a=>
+    a.kind==='use-ability'&&has(ownPrinting(a),print)&&
+    a.publicMetadata?.abilityName===ability);
+  const fromHand=print=>items.find(a=>a.kind==='play-card'&&
+    has(ownPrinting(a),print)&&a.publicMetadata?.targetSeat==='actor'&&
+    a.publicMetadata?.targetZone==='bench'&&
+    a.publicMetadata?.isOwnerVisible===true);
+  const freeBench=benchCount(own)<(stadium(o)?8:5);
+  if(priorOpponentKO&&hand.length<=4) {
+    const flip=readyAbility(P.fez,'Flip the Script');
+    if(flip)return flip;
+    const fezInPlay=slots(own).some(p=>has(p,P.fez));
+    if(!fezInPlay&&freeBench) {
+      const setFez=fromHand(P.fez);
+      if(setFez)return setFez;
+    }
+  }
+  if(isInitialOwnerTurn(o)&&small&&handIsSafeToReset(o)) {
+    const seize=readyAbility(P.squawk,'Squawk and Seize');
+    if(seize)return seize;
+  }
+  if(small) {
+    const dark=readyAbility(P.crobat,'Dark Asset');
+    if(dark)return dark;
+    if(freeBench&&!slots(own).some(p=>has(p,P.crobat))) {
+      const setCrobat=fromHand(P.crobat);
+      if(setCrobat)return setCrobat;
+    }
+  }
+  if(hand.length<=2&&handIsSafeToReset(o,P.dedenne)&&freeBench&&
+     !slots(own).some(p=>has(p,P.dedenne))) {
+    const setDedenne=fromHand(P.dedenne);
+    if(setDedenne)return setDedenne;
+  }
+  return null;
+}
+function onPlayDrawConfirmPrompt(request) {
+  const p=request.prompt,o=request.observation;
+  if(p?.promptType!=='ConfirmPrompt'||
+     p.publicMetadata?.selectionType!=='confirm'||
+     !leleAbilityAccessIsSafe(o))return no('R30_DRAW_CONFIRM_UNSUPPORTED');
+  const effect=p.source?.effectName;
+  const crobat=sameSource(p,P.crobat)&&effect==='Dark Asset';
+  const dedenne=sameSource(p,P.dedenne)&&effect==='Dedechange';
+  const squawk=sameSource(p,P.squawk)&&effect==='Squawk and Seize';
+  if(!crobat&&!dedenne&&!squawk)
+    return no('R30_DRAW_CONFIRM_UNSUPPORTED');
+  const allow=crobat?
+    arr(o.ownHand).length<=3&&o.ownPublic.deckCount>0:
+    dedenne?handIsSafeToReset(o)&&o.ownPublic.deckCount>0:
+      isInitialOwnerTurn(o)&&handIsSafeToReset(o)&&o.ownPublic.deckCount>0;
+  const answer=allow?'Yes':'No';
+  const choice=arr(p.choices).find(c=>c.kind==='confirm'&&
+    c.label===answer&&typeof c.token==='string');
+  return choice?{kind:'select-choice',token:choice.token}:
+    no('R30_DRAW_CONFIRM_UNSUPPORTED');
+}
 function rootDecision(request,{enablePatchProjection=false}={}) {
   const o=request.observation, items=availableCards(request);
   if(!items.length)return no('R30_NO_OFFERED_ROOT');
@@ -1168,6 +1249,10 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
       if(playLele)return act(playLele);
     }
   }
+  // Use actual draw/hand-reset engine actions, not hypothetical access
+  // through the Bench. Reserve on-play support cards until usable.
+  const immediateDraw=drawSupportOpportunity(request);
+  if(immediateDraw)return act(immediateDraw);
   // Strip a unique opposing Snorlax Float Stone before the prepared
   // Minior Far-Flying Meteor / Gravitational Tackle counter sequence.
   const forceBlower=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.blower));
@@ -1273,6 +1358,8 @@ function createPolicy({role,seat,policyVersion,config}) {
     if(request.prompt!==null){
       if(request.prompt?.source?.sourceKind==='engine')
         return rank30EngineSetupPrompt(request);
+      if([P.crobat,P.dedenne,P.squawk].some(p=>sameSource(request.prompt,p)))
+        return onPlayDrawConfirmPrompt(request);
       if(sameSource(request.prompt,P.lele))return wonderTagPrompt(request);
       if(sameSource(request.prompt,P.blower))return fieldBlowerPrompt(request);
       if(sameSource(request.prompt,P.box))return boxPrompt(request);
@@ -1298,4 +1385,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
+  isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
