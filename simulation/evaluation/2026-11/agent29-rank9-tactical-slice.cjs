@@ -90,6 +90,16 @@ module.exports = (function build() {
     if (/^Jet Energy\b|^Gift Energy\b|^Mist Energy\b|^Guard Energy\b/i.test(s)) return ['colorless'];
     return null;
   }
+  // Wondrous Labyrinth increases the attack costs of non-Fairy Pokemon by
+  // Colorless. Cost must be modeled at every payable test, not only damage
+  // calculations; the actor could otherwise pass on the required fourth
+  // Energy, or incorrectly assume an opponent's funded attack is live.
+  function attackCostWithStadium(o,p,cost){
+    if(!Array.isArray(cost))return null;
+    const extra=o&&liveStadium(o,/Wondrous Labyrinth/i)&&
+      !L(p?.printed?.types).some(t=>type(t)==='fairy');
+    return extra?[...cost,'colorless']:cost.slice();
+  }
   function payable(p,cost,removed=-1,o=null) {
     if(!Array.isArray(cost))return null;
     if(cost.length===0)return true;
@@ -130,7 +140,7 @@ module.exports = (function build() {
     if(a.cannotAttackNextTurn||L(a.cannotUseAttacksNextTurn).includes(attack)||a.blockedAttackNameNextTurn===attack||a.blockedAttackNameUntilLeavesActive===attack||a.onlyAllowedAttackNameNextTurn&&a.onlyAllowedAttackNameNextTurn!==attack)return false;
     if(a.attackCostIncreaseNextTurn||a.attackCostIncreaseWhileActive)return false;
     const cost=attack==='Terminal Period'?['darkness','colorless']:attack==='Claw of Darkness'?['darkness','darkness','colorless']:attack==='Crazy Claws'?['darkness','darkness']:null;
-    return cost!==null&&payable(p,cost,-1,o)===true;
+    return cost!==null&&payable(p,attackCostWithStadium(o,p,cost),-1,o)===true;
   }
   function finishesGame(o,target){
     const need=o.ownPublic?.prizeCount;
@@ -196,7 +206,7 @@ module.exports = (function build() {
     if(L(p.printed?.types).some(t=>type(t)==='psychic')&&liveStadium(o,/Dimension Valley/i)){
       const i=c.findIndex(t=>type(t)==='colorless');if(i>=0)c.splice(i,1);
     }
-    return c;
+    return attackCostWithStadium(o,p,c);
   }
   function publicOpponentDamage(o,p,target,a){
     let damage=Number(a.damage);
@@ -610,7 +620,7 @@ function bombPlanner(o,sourceBenchIndex){
       cost=['lightning','colorless'];raw=60;if(benchCount(o)===0||o.opponentPublic?.prizeCount<=1)return 0;bonus=-130;
     }else return 0;
     if(L(p.printed?.types).some(t=>type(t)==='psychic')&&liveStadium(o,/Dimension Valley/i)){const i=cost.indexOf('colorless');if(i>=0)cost.splice(i,1);}
-    if(payable(p,cost,-1,o)!==true)return 0;
+    if(payable(p,attackCostWithStadium(o,p,cost),-1,o)!==true)return 0;
     if(raw>0){
       if(uncertainDefense(o,target,'damage')||M(item).hasPrevention===true)return Math.max(0,bonus);
       const pt=L(p.printed?.types).map(type);
@@ -793,7 +803,7 @@ function bombPlanner(o,sourceBenchIndex){
       const next={...p,energies:[...L(p.energies),x]};
       if(mega(p)||sableye(p)){
         const cost=mega(p)?['darkness','darkness','colorless']:['darkness','darkness'];
-        const before=payable(p,cost,-1,o),after=payable(next,cost,-1,o);
+        const before=payable(p,attackCostWithStadium(o,p,cost),-1,o),after=payable(next,attackCostWithStadium(o,next,cost),-1,o);
         if(before===true||after===null)return 0;
         if(after===true)return 350+Math.min(100,bestAttackAgainst(o,next,o.opponentPublic?.active)/10);
         const newUnits=energyUnits(x,p,o),priorDark=L(p.energies).filter(e=>L(energyUnits(e,p,o)).some(x=>x==='darkness'||x==='any')).length;
@@ -830,7 +840,7 @@ function bombPlanner(o,sourceBenchIndex){
           return Math.max(isGengar(p)?355:345,preKo+(isGengar(p)?10:0));
         }
       }
-      if(isGengar(p)&&first(o)&&o.ownPublic?.publicTurnRestrictions?.gxUsed!==true&&payable(p,['psychic'],-1,o)!==true&&payable(next,['psychic'],-1,o)===true)return 300;
+      if(isGengar(p)&&first(o)&&o.ownPublic?.publicTurnRestrictions?.gxUsed!==true&&payable(p,attackCostWithStadium(o,p,['psychic']),-1,o)!==true&&payable(next,attackCostWithStadium(o,next,['psychic']),-1,o)===true)return 300;
       return 0;
     }
     if(elec(x)&&p&&isVol(p))return 380;
@@ -1086,7 +1096,7 @@ function bombPlanner(o,sourceBenchIndex){
     const candidate=slots(own).find(x=>isGengar(x.p))?.p??{printing:'Gengar & Mimikyu-GX TEU 53',hp:240,damage:0,energies:[],specialConditions:[],printed:{stage:'Basic',types:['Psychic'],weakness:[{type:'Darkness',value:'×2'}],resistance:[]}};
     const fuel=L(o.ownHand).filter(c=>match(c,R.psychic));
     const context=stadiumAnswer?{...o,ownPublic:{...own,stadium:['PokéStop PGO 68']},opponentPublic:{...opp,stadium:[]}}:o;
-    const powered=payable(candidate,['psychic'],-1,context)===true;
+    const powered=payable(candidate,attackCostWithStadium(context,candidate,['psychic']),-1,context)===true;
     if(!powered&&(o.ownTurnResources?.energyPlayedTurn!==false||!fuel.length))return false;
     if(earlyHorrorScore(context,powered?candidate:{...candidate,energies:[...L(candidate.energies),name(fuel[0])]},opp?.active)<250)return false;
     if(isGengar(a))return true;
@@ -1102,7 +1112,7 @@ function bombPlanner(o,sourceBenchIndex){
     if(!horrorDesired(o)||item.kind!=='play-card')return 0;
     const x=name(item),p=targetSlot(o,item);
     if(stadiumCard(x)&&liveStadium(o,/Temple of Sinnoh/i))return /^PokéStop/i.test(x)?570:560;
-    if(ePred(x)&&p&&isGengar(p)&&o.ownTurnResources?.energyPlayedTurn===false&&payable(p,['psychic'],-1,o)!==true&&payable({...p,energies:[...L(p.energies),x]},['psychic'],-1,o)===true)return 550;
+    if(ePred(x)&&p&&isGengar(p)&&o.ownTurnResources?.energyPlayedTurn===false&&payable(p,attackCostWithStadium(o,p,['psychic']),-1,o)!==true&&payable({...p,energies:[...L(p.energies),x]},attackCostWithStadium(o,p,['psychic']),-1,o)===true)return 550;
     if(isGengar(x)&&!ownHas(o,isGengar)&&cap(o)>0)return 540;
     if(match(x,R.vip)&&!has(o,isGengar)&&cap(o)>0)return 530;
     if(match(x,R.ultra)&&!has(o,isGengar)&&fundCost(L(o.ownHand).map(printing=>({printing})),o,2,x).length===2)return 520;
