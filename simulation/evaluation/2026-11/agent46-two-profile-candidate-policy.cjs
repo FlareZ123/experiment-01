@@ -33,6 +33,18 @@ function paperAstralBarrageTargetsEnabled(profile){
   return profile?.paperAstralBarrageTargets===PAPER_ASTRAL_BARRAGE_TARGETS;
 }
 
+// Twinleaf supplies last-used global-turn indices for Energy and Retreat.
+// Unlike supporterPlayedTurn (a per-turn count), these are not Booleans.
+// Keep Boolean false only for existing synthetic planning/fixture views.
+function energyAvailableNow(view) {
+  const stamp=view?.ownTurnResources?.energyPlayedTurn, turn=view?.globalTurn;
+  return stamp===false ||
+    (Number.isSafeInteger(stamp)&&Number.isSafeInteger(turn)&&stamp!==turn);
+}
+function retreatAvailableNow(view) {
+  const stamp=view?.ownTurnResources?.retreatedTurn, turn=view?.globalTurn;
+  return Number.isSafeInteger(stamp)&&Number.isSafeInteger(turn)&&stamp!==turn;
+}
 let activePolicyAudit = null;
 
 function createPolicyAuditContext(request) {
@@ -914,7 +926,7 @@ function astralBarragePlan(attacker,view,paperTargetHook=false){
 
 function canFuelNightWatch(view) {
   return handHas(view, 'Psychic Energy') &&
-    (view.ownTurnResources.energyPlayedTurn === false ||
+    (energyAvailableNow(view) ||
      boardAbilityStatus(view, 'Underworld Door') === true);
 }
 
@@ -1142,13 +1154,13 @@ function controlPairBonus(view,names) {
 function affordableControlGetLostAccess(view){
   if(!observedDenialThreat(view))return false;
   if(!hasOpenBench(view)||boardHas(view,'Girafarig')||
-     view.ownTurnResources.retreatedTurn!==0||view.globalTurn<=1||
+     !retreatAvailableNow(view)||view.globalTurn<=1||
      view.ownTurnResources.pokemonPlayLocked||
      view.ownPublic.publicTurnRestrictions?.attackLockTurnsRemaining!==0)return false;
   const cost=ownRetreatCost(view);
   if(cost===null||cost>1||slotEnergyCount(view.ownPublic.active)<cost)return false;
   if(dimensionValleyStatus(view)!==true&&
-     (view.ownTurnResources.energyPlayedTurn!==false||view.ownTurnResources.energyPlayLocked||!handHas(view,'Psychic Energy')))return false;
+     (!energyAvailableNow(view)||view.ownTurnResources.energyPlayLocked||!handHas(view,'Psychic Energy')))return false;
   const plan=getLostPlan(view);
   if(!Number.isFinite(plan))return false;
   const current=bestAttackForSlot(view.ownPublic.active,view,view.opponentPublic.active);
@@ -1597,7 +1609,7 @@ function invalidateDepartedWobbuffet(view, old) {
 }
 function gatePivotView(view) {
   if(!hasName(view.ownPublic.active?.printing,'Wobbuffet') ||
-      view.ownTurnResources?.retreatedTurn>0) return null;
+      !retreatAvailableNow(view)) return null;
   const cost=ownRetreatCost(view);
   if(cost===null) return null;
   const active=view.ownPublic.active;
@@ -1711,7 +1723,7 @@ function bestRecoverableSupporter(view, receipt) {
 function recoveryNeedScore(view, printing, receipt) {
   if (hasName(printing, 'Psychic Energy')) {
     const handEnergy = view.ownHand.filter(p => hasName(p, 'Psychic Energy')).length;
-    return handEnergy === 0 && (view.ownTurnResources?.energyPlayedTurn === false ||
+    return handEnergy === 0 && (energyAvailableNow(view) ||
       boardAbilityStatus(view,'Underworld Door') === true) ? 95 : handEnergy < 2 ? 25 : -5;
   }
   if (hasName(printing, 'Dialga-GX')) return -5;
@@ -1730,7 +1742,7 @@ function recoveryNeedScore(view, printing, receipt) {
 // A held Energy satisfies one attachment; additional copies are useful only
 // when a live Door or further manual attachment can consume them.
 function energyDemand(view, receipt=null) {
-  const manual=view.ownTurnResources?.energyPlayedTurn===false &&
+  const manual=energyAvailableNow(view) &&
     view.ownTurnResources?.energyPlayLocked!==true &&
     view.ownPublic.publicTurnRestrictions?.energyPlayLocked!==true;
   const recipient=view.ownPublic.bench.some(slot=>slot?.printed?.types?.includes('Psychic'));
@@ -3111,7 +3123,7 @@ function controlGetLostChargeValue(view,index,printing,items){
  if(!observedDenialThreat(view))return -Infinity;
  const own=view.ownPublic,target=view.opponentPublic.active,gir=own.bench[index];
  if(!target||!gir||!hasName(gir.printing,'Girafarig')||
-   view.globalTurn<=1||view.ownTurnResources.retreatedTurn!==0||
+   view.globalTurn<=1||!retreatAvailableNow(view)||
    !items.some(x=>x.kind==='retreat'&&x.publicMetadata?.benchIndex===index&&
       (!x.targetPrinting||x.targetPrinting===gir.printing)))return -Infinity;
  const cost=ownRetreatCost(view);
@@ -3135,7 +3147,7 @@ function controlGetLostChargeValue(view,index,printing,items){
 }
 function scoreEnergyPlay(item, view, items = []) {
   const metadata = item.publicMetadata ?? {};
-  if (view.ownTurnResources?.energyPlayedTurn !== false ||
+  if (!energyAvailableNow(view) ||
       view.ownTurnResources?.energyPlayLocked === true ||
       view.ownPublic.publicTurnRestrictions?.energyPlayLocked === true ||
       metadata.targetSeat !== 'actor' ||
@@ -4072,7 +4084,7 @@ function fieldBlowerHoodFinal(view,items,attackNames){
 // Energy paid by the outgoing Active (which reduces Max Geist).
 function projectedBenchFinalAttack(view,index){
   const old=view.ownPublic.active,slot=view.ownPublic.bench[index];
-  if(!old||!slot||view.ownTurnResources?.retreatedTurn!==0||
+  if(!old||!slot||!retreatAvailableNow(view)||
      activeOnlyLockSource(view,'ownPublic')||
      view.ownPublic.publicTurnRestrictions?.attackMaxEnergyTurnsRemaining>0||
      slot.publicRestrictions?.attackCostIncreaseNextTurn>0)return null;
@@ -4092,7 +4104,7 @@ function benchTerminalCharge(view,item,items){
      !view.ownHand.includes(item.actorPrinting)||m.targetSeat!=='actor'||m.targetZone!=='bench'||
      !Number.isSafeInteger(m.targetIndex)||!slot||
      (item.targetPrinting&&item.targetPrinting!==slot.printing)||
-     view.ownTurnResources?.energyPlayedTurn!==false||
+     !energyAvailableNow(view)||
      view.ownTurnResources?.energyPlayLocked===true||
      view.ownPublic.publicTurnRestrictions?.energyPlayLocked===true||
      !items.some(r=>r.kind==='retreat'&&r.publicMetadata?.benchIndex===m.targetIndex&&
@@ -4173,7 +4185,7 @@ function finalPublicStep(view,items,receipt,profile){
 if(item.kind==='play-card'&&hasName(item.actorPrinting,'Float Stone')&&
     actionTargetSlot(view,item.publicMetadata)===view.ownPublic.active&&
     view.ownPublic.active.tools?.length===0&&
-    view.ownTurnResources?.retreatedTurn===0&&
+    retreatAvailableNow(view)&&
     view.ownTurnResources?.toolPlayLocked!==true&&
     view.ownPublic.publicTurnRestrictions?.toolPlayLocked!==true&&
     (ownRetreatCost(view)??0)>0&&
