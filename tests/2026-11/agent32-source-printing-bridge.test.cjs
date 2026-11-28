@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {buildSourcePrintingMap,projectSourcePrintings,projectAdmittedWorkerParts,wrapSourcePrintedObserver,createCertifiedSourcePrintedHostBridge,createCertifiedRoleSourcePrintedHostBridge}=
+const {buildSourcePrintingMap,projectSourcePrintings,projectAdmittedWorkerParts,wrapSourcePrintedObserver,createCertifiedSourcePrintedHostBridge,createCertifiedRoleSourcePrintedHostBridge,createCertifiedV3RoleAdapters}=
   require('../../simulation/evaluation/2026-11/agent32-source-printing-bridge.cjs');
 
 const source={cards:[
@@ -525,4 +525,112 @@ test('source-wrapped driver accepts NATIVE event receipt before strict worker SH
   }
   assert.ok(counts.actor>=10);
   assert.ok(counts.receipts>=8);
+});
+
+
+test('V3 four-adapter producer is source-consistent while native actions and host prompts stay physical',()=>{
+  const alternate={cards:[
+    {name:'Penny',count:1,printing:{set:'SVI',number:'999'}},
+    {name:'Psychic Energy',count:59,printing:{set:'SVE',number:'5'}}]};
+  const alternateIds=['Penny SVI',...Array(59).fill('Psychic Energy SVE')];
+  const strict={
+    FRONTIER_SCHEMA:'fixture',
+    validateActorObservation(view,seat){
+      assert.equal(view.actorSeat,seat);
+      assert.equal(view.ownPublic.active.printing,
+        seat===0?'Penny SVI 183':'Penny SVI 999');
+    },
+    validatePrompt(prompt){if(prompt)assert.equal(prompt.source.effectName,'Penny');},
+    validatePublicEventReceipt(receipt,view){
+      if(!receipt)return;
+      assert.equal(receipt.ownerActive.printing,view.ownPublic.active.printing);
+      assert.equal(receipt.opponentLastTurnAttacks[0].sourcePrinting,
+        view.opponentPublic.active.printing);
+    },
+    validateFrontier(frontier){
+      assert.equal(frontier.schema,'fixture');
+      return new Set(frontier.items.map(x=>x.token));
+    }
+  };
+  const physicalAction={kind:'real-store-native-action',identity:935};
+  const native={observe(_state,seat){
+    return {actorSeat:seat,ownHand:['Penny SVI'],
+      ownPublic:{active:{printing:'Penny SVI'},bench:[]},
+      opponentPublic:{active:{printing:'Penny SVI'},bench:[]}};
+  }};
+  let frontierCalls=0,promptCalls=0,eventCalls=0,dispatchCalls=0;
+  const actionFrontier={
+    buildNativeActionFrontier(){
+      frontierCalls++;
+      return {actionFrontier:{schema:'fixture',items:[
+        {token:'native-action',kind:'play-card',
+          actorPrinting:'Penny SVI',publicMetadata:{}}]},
+        actionByToken:new Map([['native-action',physicalAction]]),
+        diagnostics:{acceptedCount:1}};
+    },
+    dispatchSelectedNativeAction({frontier,token}){
+      dispatchCalls++;
+      return frontier.actionByToken.get(token);
+    }
+  };
+  const nativePrompt={
+    projectPrompt(args){
+      promptCalls++;
+      if(args.prompt.hostOnly)return {hostOnly:true,promptProjection:null};
+      return {hostOnly:false,choiceByToken:new Map([['prompt-0',{physical:true}]]),
+        promptProjection:{promptType:'ChoosePokemonPrompt',
+          source:{classification:'actor-choice',sourceKind:'card-effect',
+            sourcePrinting:'Penny SVI',effectName:'Penny'},
+          choices:[{token:'prompt-0',kind:'pokemon',
+            printing:'Penny SVI',publicMetadata:{ownerSeat:'actor'}}],
+          publicMetadata:{selectionType:'pokemon'}}};
+    },
+    dispatchPromptChoice({projection,decision}){
+      return projection.choiceByToken.get(decision.tokens[0]);
+    },
+    resolveHostOnlyPrompt(){return {action:{native:true}};}
+  };
+  const nativeReceipt=(state,seat)=>{
+    eventCalls++;return {actorSeat:seat,
+      ownerActive:{printing:'Penny SVI'},ownerBench:[],
+      opponentLastTurnAttacks:[{sourcePrinting:'Penny SVI'}]};
+  };
+  const wrapped=createCertifiedV3RoleAdapters({
+    native,protocol:strict,candidateSeat:0,opponentSeat:1,
+    candidateSourceDeck:source,opponentSourceDeck:alternate,
+    candidateNativeOrdered60:ids,opponentNativeOrdered60:alternateIds,
+    actionFrontier,promptProjection:nativePrompt,eventReceipt:nativeReceipt
+  });
+  for(const seat of [0,1]){
+    const state={seat};
+    const observation=wrapped.native.observe(state,seat);
+    const receipt=wrapped.eventReceipt(state,seat);
+    const root=wrapped.actionFrontier.buildNativeActionFrontier({
+      state,actorSeat:seat,native:wrapped.native});
+    const prompt=wrapped.promptProjection.projectPrompt({
+      state,actorSeat:seat,prompt:{hostOnly:false}});
+    const expectedOwn=seat===0?'Penny SVI 183':'Penny SVI 999';
+    assert.equal(observation.ownPublic.active.printing,expectedOwn);
+    assert.equal(receipt.ownerActive.printing,expectedOwn);
+    assert.equal(root.actionFrontier.items[0].actorPrinting,expectedOwn);
+    assert.equal(root.actionByToken.get('native-action'),physicalAction);
+    assert.equal(wrapped.actionFrontier.dispatchSelectedNativeAction({
+      frontier:root,token:'native-action'}),physicalAction);
+    assert.equal(prompt.promptProjection.source.sourcePrinting,'Penny SVI');
+    // Both decks contain native Penny but different source printings, so
+    // ambiguous source-origin prompts intentionally retain native identity.
+    assert.equal(prompt.promptProjection.choices[0].printing,expectedOwn);
+    assert.deepEqual(wrapped.promptProjection.dispatchPromptChoice({
+      projection:prompt,decision:{tokens:['prompt-0']}}),{physical:true});
+    assert.deepEqual(wrapped.promptProjection.projectPrompt({
+      state,actorSeat:seat,prompt:{hostOnly:true}}),
+      {hostOnly:true,promptProjection:null});
+    assert.equal(native.observe(state,seat).ownHand[0],'Penny SVI',
+      'adapter must not mutate the original native actor callback');
+  }
+  assert.equal(frontierCalls,2);
+  assert.equal(eventCalls,2);
+  assert.equal(promptCalls,4);
+  assert.equal(dispatchCalls,2);
+  assert.equal(wrapped.promptProjection.resolveHostOnlyPrompt().action.native,true);
 });
