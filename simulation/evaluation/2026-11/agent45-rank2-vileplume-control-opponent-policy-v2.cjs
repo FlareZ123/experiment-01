@@ -608,8 +608,17 @@ function scoreAction(item, request) {
       missingLinePriority(observation) > 0 ? 102 : 18;
   }
   if (matches(card, PRINT.counterGain)) {
-    // Native play-card action has no Pokémon target, so inspect the eligible
-    // actor board NOW, then select the physical recipient in its prompt.
+    // Native root PLAY_CARD_ACTION may ALREADY specify an attached Tool's
+    // physical target. A targetless action instead obtains a continuation
+    // ChoosePokemonPrompt. These paths are mutually exclusive: don't score a
+    // targeted-but-wrong physical Pokémon based on some other viable slot.
+    if (metadata.targetZone === 'active' || metadata.targetZone === 'bench') {
+      const row=boardSlots(own).find(row=>row.zone===metadata.targetZone &&
+        row.index===metadata.targetIndex);
+      if (metadata.targetSeat !== 'actor' || !row ||
+          !samePrinting(row.pokemon.printing,target)) return 0;
+      return counterGainRecipientScore(row.pokemon,row.zone,observation);
+    }
     return Math.max(0, ...boardSlots(own).map(row =>
       counterGainRecipientScore(row.pokemon, row.zone, observation)));
   }
