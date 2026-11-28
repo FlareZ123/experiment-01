@@ -1,6 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
+const protocol=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const {chooseRank13CrispinContinuation:choose}=
   require('../../simulation/evaluation/2026-11/agent47-rank13-crispin-prompt-continuation.cjs');
 const {projectRank13CrispinPrompt:project}=
@@ -142,6 +143,7 @@ for(const seat of [0,1]) {
     assert.equal(raw[0].index,0);
     assert.equal(raw[0].to.slot,'ACTIVE');
     assert.equal(x.prompt.validate(raw,x.state),true);
+    assert.deepEqual(protocol.validateDecision(chosen,p.promptProjection,new Set()),chosen);
   });
 }
 test('projection refuses wrong player, untrusted source, same-type energy and stale prompt',()=>{
