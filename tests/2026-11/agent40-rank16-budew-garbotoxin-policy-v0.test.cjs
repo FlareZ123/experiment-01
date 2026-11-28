@@ -1261,7 +1261,7 @@ for(const seat of [0,1]){
   const q=root(seat,[play('Crobat V DAA 104','crobat'),pass],{
    ownPublic:us,opponentPublic:them,ownHand:['Crobat V DAA 104']});
   assert.equal(policy.opponentGarbotoxinStatus(q.observation),'live');
-  assert.equal(policy.opponentSnorlaxBlock(q.observation),true);
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),false);
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
   them.stadium=['Jamming Tower TWM 153'];
   assert.equal(policy.opponentGarbotoxinStatus(q.observation),'live');
@@ -1769,5 +1769,28 @@ for(const seat of [0,1]){
   enemyGarb.tools=[];
   assert.equal(policy.opponentGarbotoxinStatus(q.observation),'inactive');
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
+ });
+}
+
+for(const seat of [0,1]){
+ test('seat '+seat+' same-side Garbotoxin bypasses Stealthy Hood; opponent Garbotoxin does not',()=>{
+  const enemyGarb=mon('Garbodor BKP 57',{tools:['Float Stone BKT 137'],
+   abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]});
+  const ownGarb=mon('Garbodor LTR 68',{tools:['Float Stone BKT 137'],
+   abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]});
+  const theirBlock=mon('Snorlax PGO 55',{tools:['Stealthy Hood UNB 186']});
+  const theirSafeguard=mon('Mimikyu PAL 97',{tools:['Stealthy Hood UNB 186']});
+  const ownBoard=own({active:mon('Budew ASC 16'),bench:[]});
+  const theirBoard=opp({active:theirBlock,bench:[enemyGarb]});
+  const q=root(seat,[pass],{ownPublic:ownBoard,opponentPublic:theirBoard});
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),false);
+  theirBoard.active=theirSafeguard;
+  assert.equal(policy.activeMimikyuSafeguard(q.observation),false);
+  enemyGarb.tools=[];ownBoard.bench=[ownGarb];
+  assert.equal(policy.activeMimikyuSafeguard(q.observation),true);
+  theirBoard.active=theirBlock;
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),true);
+  theirBoard.stadium=['Jamming Tower TWM 153'];
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),false);
  });
 }
