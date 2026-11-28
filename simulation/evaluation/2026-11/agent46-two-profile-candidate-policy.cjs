@@ -920,7 +920,8 @@ function astralBarragePlan(attacker,view,paperTargetHook=false){
   if(!isBasicShadowRiderV(attacker)||
     (paperTargetHook ? opponentBoard(view).length<1 : benchCount<2)||
     cannotAttackPublicly(attacker,view.opponentPublic.active,view))return -Infinity;
-  const scores=opponentBoard(view).map(p=>astralTargetScore(attacker,p,view)).sort((a,b)=>b-a);
+  const legalTargets=paperTargetHook?opponentBoard(view):view.opponentPublic.bench.filter(Boolean);
+  const scores=legalTargets.map(p=>astralTargetScore(attacker,p,view)).sort((a,b)=>b-a);
   return scores.length>=1&&scores[0]>0?scores[0]+(scores[1]??0):-Infinity;
 }
 
@@ -2974,7 +2975,8 @@ function scoreBasicPlay(item, view, profile,receipt) {
   if(hasName(printing,'Girafarig')&&affordableControlGetLostAccess(view))return 1080;
   const reserveGate = handHas(view,'Radiant Eternatus') &&
     !boardHas(view,'Radiant Eternatus') && openBenchSlots(view)<=3 &&
-    expectedClimacticGateTargets(view,2)>=1;
+    expectedClimacticGateTargets(view,2)>=1 &&
+    (canPlayRadiantForGate(view) || gatePivotView(view)!==null);
   if (reserveGate && !hasName(printing,'Latias ex')) return -Infinity;
   if (isBasicShadowRiderVPrinting(printing) &&
       !hasBasicShadowRiderV(view)) return 1000;

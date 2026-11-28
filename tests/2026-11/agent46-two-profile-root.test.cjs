@@ -1767,3 +1767,41 @@ test('native public-damage projection survives candidate protocol, rejects legac
       /BAD_PUBLIC_DAMAGE_EFFECT/,'invalid native reduction cannot pass');
   }
 });
+
+paired('Agent2: unhooked Astral ignores a phantom Active KO when Benched targets block effects',(seat,profile)=>{
+  const active=pokemon({printing:'Regidrago V SIT',name:'Regidrago V',
+    hp:220,damage:190,types:['Dragon'],subtypes:['Basic','V']});
+  const misted=()=>pokemon({printing:'Kyurem SFA',name:'Kyurem',
+    hp:130,types:['Dragon'],energies:['Mist Energy TEF']});
+  const view=observation(seat,{active:v([P,P,P]),opponentActive:active,
+    opponentBench:[misted(),misted()]});
+  const items=[
+    {token:'barrage',kind:'attack',attackName:'Astral Barrage'},
+    {token:'mist',kind:'attack',attackName:'Shadow Mist'}
+  ];
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('mist'));
+  // Positive: when the legal Bench targets are unprotected, retain the attack.
+  view.opponentPublic.bench[0].energies=[];
+  view.opponentPublic.bench[1].energies=[];
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('barrage'));
+});
+paired('Agent2: an inaccessible Gate cannot reserve away a second Rider Basic',(seat,profile)=>{
+  const thorns=pokemon({printing:'Iron Thorns ex TWM',name:'Iron Thorns ex',
+    hp:230,types:['Lightning'],subtypes:['Basic','ex','Future'],
+    abilities:['Initialization'],suppression:false});
+  const view=observation(seat,{active:v([P]),bench:[latias(),wob()],
+    opponentActive:thorns,ownHand:[R,V]});
+  const cards=[
+    play('bench-v',V,null,target('bench',2)),
+    play('gate',R,null,target('bench',2))
+  ];
+  assert.deepEqual(decide(profile,root(seat,view,cards)),sel('bench-v'));
+  // A live Gate still outranks a discretionary extra Rider Bench play.
+  thorns.abilities=[];
+  thorns.abilityDetails=[];
+  thorns.abilitySuppressions=[];
+  assert.deepEqual(decide(profile,root(seat,view,cards)),sel('gate'));
+  // An unremoved Path is another distinct source of the same blocked-Gate case.
+  view.opponentPublic.stadium=['Path to the Peak CRE'];
+  assert.deepEqual(decide(profile,root(seat,view,cards)),sel('bench-v'));
+});
