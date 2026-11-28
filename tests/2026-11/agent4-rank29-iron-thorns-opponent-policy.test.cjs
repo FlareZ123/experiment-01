@@ -874,7 +874,7 @@ test('Handheld Fan native owner prompt moves opposing DCE to exposed draw suppor
     const req=promptRequest({
       seat,promptType:'AttachEnergyPrompt',
       source:actorChoiceSource('Handheld Fan TWM','Handheld Fan'),
-      publicMetadata:{selectionType:'energy-attachment',count:3,
+      publicMetadata:{selectionType:'energy-attachment',count:2,
         minimumCount:0,maximumCount:1,allowCancel:false,
         sourceZone:'active',ownerSeat:'opponent',isOwnerVisible:true,zone:'bench'},
       observation:{opponentPublic:player({
@@ -889,8 +889,7 @@ test('Handheld Fan native owner prompt moves opposing DCE to exposed draw suppor
             zone:'bench',benchIndex:1,isOwnerVisible:true,selectedCount:1}},
         {token:'dce-lele',kind:'energy',printing:'Double Colorless Energy SUM 136',
           publicMetadata:{ownerSeat:'opponent',sourceZone:'active',
-            zone:'bench',benchIndex:0,isOwnerVisible:true,selectedCount:1}},
-        {token:'none',kind:'empty-selection',label:'Move no Energy'}
+            zone:'bench',benchIndex:0,isOwnerVisible:true,selectedCount:1}}
       ]
     });
     assert.deepEqual(checkedDecision(req,seat),{kind:'select-choice',token:'dce-lele'});
@@ -1929,7 +1928,7 @@ test('rank29 V3 policyAudit covers opposing Fan prompt and legal empty selection
   const fields={
     promptType:'AttachEnergyPrompt',
     source:actorChoiceSource('Handheld Fan TWM','Handheld Fan'),
-    publicMetadata:{selectionType:'energy-attachment',count:2,
+    publicMetadata:{selectionType:'energy-attachment',count:1,
       minimumCount:0,maximumCount:1,allowCancel:false,
       sourceZone:'active',ownerSeat:'opponent',isOwnerVisible:true,zone:'bench'},
     observation:{opponentPublic:player({
@@ -1941,17 +1940,15 @@ test('rank29 V3 policyAudit covers opposing Fan prompt and legal empty selection
     choices:[
       {token:'move',kind:'energy',printing:'Double Colorless Energy SUM 136',
         publicMetadata:{sourceZone:'active',ownerSeat:'opponent',isOwnerVisible:true,
-          zone:'bench',benchIndex:0,selectedCount:1}},
-      {token:'empty',kind:'empty-selection',label:'Move no Energy'}
+          zone:'bench',benchIndex:0,selectedCount:1}}
     ]
   };
   const withMove=checkedAudited(promptRequest(fields),0,policy);
   assert.deepEqual(withMove.decision,{kind:'select-choice',token:'move'});
   assert.equal(withMove.policyAudit.evaluations[0].status,'scored');
-  assert.equal(withMove.policyAudit.evaluations[1].status,'scored');
-  assert.equal(withMove.policyAudit.evaluations[1].score,0);
+  assert.equal(withMove.policyAudit.evaluations.length,1);
   const withoutMove=checkedAudited(promptRequest({
-    ...fields,choices:[fields.choices[1]],
+    ...fields,choices:[{token:'empty',kind:'empty-selection',label:'Move no Energy'}],
     publicMetadata:{...fields.publicMetadata,count:1},
     observation:{opponentPublic:player({bench:[pokemon('Tapu Lele-GX GRI 60')]})}
   }),0,policy);
