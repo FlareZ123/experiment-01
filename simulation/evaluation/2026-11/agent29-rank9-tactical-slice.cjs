@@ -526,6 +526,26 @@ function bombPlanner(o,sourceBenchIndex){
     return payment.length===2?375:0;
   }
   const abilityLive=(p,a)=>p&&!L(p.abilitySuppressions).some(x=>x.abilityName===a&&x.suppressed===true);
+  // Source-known, publicly visible global Ability lock: a newly fetched or
+  // replayed 60-HP Basic Unown has no protective Tool, even if no existing
+  // Unown is present for an actor abilitySuppression flag to attach to.
+  // Source: Garbodor BKP57/LTR68 Garbotoxin; Alolan Muk SUM58 Power of
+  // Alchemy; Galarian Weezing RCL113 Active-only Neutralizing Gas.
+  function publicUnownAbilityBlocked(o){
+    return slots(o.opponentPublic).some(({p,zone})=>{
+      const nm=name(p),known=L(p.abilityDetails).map(a=>a.name??'');
+      const suppressed=ability=>L(p.abilitySuppressions).some(
+        x=>x.abilityName===ability&&x.suppressed===true);
+      if((known.includes('Garbotoxin')||/^Garbodor (?:BKP 57|LTR 68)\b/i.test(nm))&&
+         L(p.tools).length>0&&!suppressed('Garbotoxin'))return true;
+      if((known.includes('Power of Alchemy')||/^Alolan Muk SUM 58\b/i.test(nm))&&
+         !suppressed('Power of Alchemy'))return true;
+      if(zone==='active'&&(known.includes('Neutralizing Gas')||
+         /^Galarian Weezing RCL 113\b/i.test(nm))&&
+         !suppressed('Neutralizing Gas'))return true;
+      return false;
+    });
+  }
   const stadiumCard=x=>/^(?:Silent Lab PRC 140|Path to the Peak CRE 148|PokéStop PGO 68)\b/i.test(name(x));
   const basicDark=x=>/^Darkness Energy MEE 15\b/i.test(name(x));
   const darkCutRisk=o=>liveStadium(o,/Temple of Sinnoh/i)||slots(o.opponentPublic).some(x=>/^Girafarig LOT 94\b/i.test(name(x.p)));
@@ -790,7 +810,7 @@ function bombPlanner(o,sourceBenchIndex){
       if((isUn(p)||isGengar(p))&&m.targetZone==='bench'&&/^Telepathic Psychic Energy POR 88\b/i.test(name(x))&&
          !liveStadium(o,/Temple of Sinnoh|Silent Lab/i)&&
          (isGengar(p)||abilityLive(p,'Farewell Letter'))&&
-         cap(o)>0&&Number(o.ownPublic?.deckCount)>8&&
+         !publicUnownAbilityBlocked(o)&&cap(o)>0&&Number(o.ownPublic?.deckCount)>8&&
          !L(p.energies).length&&(!isUn(p)||!L(p.tools).length)&&
          mega(o.ownPublic?.active)&&usable(o.ownPublic.active,'Claw of Darkness',o)){
         const known=[...slots(o.ownPublic).map(row=>row.p),...L(o.ownHand),...L(o.ownPublic?.discard)];
@@ -819,7 +839,7 @@ function bombPlanner(o,sourceBenchIndex){
       if(mega(x)&&!ownHas(o,mega))return 410;
       if(isVol(x)&&!ownHas(o,isVol)&&!ownHas(o,elec))return 395;
       if(isToed(x)&&!ownHas(o,isToed)&&!ownHas(o,cruel))return 250;
-      if(isUn(x)&&!liveStadium(o,/Silent Lab/i)&&Number(o.ownPublic?.deckCount)>8){
+      if(isUn(x)&&!liveStadium(o,/Silent Lab/i)&&!publicUnownAbilityBlocked(o)&&Number(o.ownPublic?.deckCount)>8){
         // Farewell Letter is available immediately on a freshly Benched
         // Unown. Do not surrender that draw to a non-final Claw KO.
         const ko=mega(o.ownPublic?.active)&&usable(o.ownPublic?.active,'Claw of Darkness',o)?
@@ -837,7 +857,7 @@ function bombPlanner(o,sourceBenchIndex){
     if(match(x,R.carrier)&&cap(o)>0&&d.some(c=>[isVol,isToed,isUn].some(f=>f(c))&&pokemonSearch(c,o)>0)){
       // Recovering original Unown and then replaying Farewell is a
       // non-turn-ending draw before a paid, non-final Claw KO.
-      if(d.some(isUn)&&!liveStadium(o,/Silent Lab/i)&&Number(o.ownPublic?.deckCount)>8&&
+      if(d.some(isUn)&&!liveStadium(o,/Silent Lab/i)&&!publicUnownAbilityBlocked(o)&&Number(o.ownPublic?.deckCount)>8&&
          mega(o.ownPublic?.active)&&usable(o.ownPublic?.active,'Claw of Darkness',o)){
         const ko=knockoutScore(o,o.ownPublic.active,o.opponentPublic?.active,'Claw of Darkness');
         if(ko>0&&ko<1000)return ko+13;
