@@ -16,6 +16,22 @@ Run `node simulation/evaluation/2026-11/agent40-rank16-opening-lines-exact.cjs`;
 
 These *resource-presence events* are not statements that Item lock is actually established. They do not account for protected hand-card discard costs, Prize-card sequestration after the first seven, opponent disruption, first-turn action sequencing, remaining Bench and Tool slots, retreat locks, search availability, or how Item-locking attacks are announced. Other access lines via Ultra Ball, Secret Box, Trainer's Mail or later draws lie outside these events; therefore the 41.7% union is **not** a full-deck setup ceiling.
 
+## Adding the ordinary first-turn draw and face-down Prize risk
+
+The original table deliberately analyzes seven opening cards only. A second exact model now enumerates the **first ordinary draw on turn one** while requiring an original legal seven-card Basic. Its categories are Budew (2), other Basic (9), Float (4), Quick Ball or VIP Pass (6), and everything else (39). The marginal turn draw is uniform over the 53 cards remaining after the initial seven; six face-down Prizes are incorporated in the search-access stage without exposing their identities.
+
+| Disjoint turn-one resource event, conditional on legal initial seven | Exact (7+1) outcomes | Probability |
+|---|---:|---:|
+| Budew in initial seven | 4,533,240,096 | **28.4819%** |
+| No initial Budew, **draw Budew** and had Float in initial seven | 166,105,128 | **1.0436%** |
+| No Budew in initial seven or turn draw, but any initial Basic, Float and Quick/VIP **among eight seen** | 2,580,517,989 | **16.2131%** |
+| Union, before removing double-Budew-Prized cases | 7,279,863,213 / 15,916,235,808 | **45.7386%** |
+| Union, requiring at least one unprized Budew for the search branch | exact BigInt fraction in code | **45.5552%** |
+
+Given Budew is unseen after eight cards, the probability both copies are sequestered in the six Prizes is exactly \\(\\binom{50}{4}/\\binom{52}{6}=30/(52\\cdot51)\\approx1.1312\\%\\). The prize-adjusted union is therefore below the raw resource-envelope union by about 0.1834 percentage points. This calculation **does not claim a 45.56% Item-lock rate**: it assumes Quick Ball's hand-discard cost can be paid acceptably and searches can be executed, omits Trainer's Mail, Secret Box, Ultra Ball, opposing disruptions, the deck's own end-turn plays, and native prompt reachability. It is a *partial access envelope* for this precisely defined pathway, neither an attainable lower bound nor a ceiling on all possible pathways.
+
+The 7+1 exact fraction also demonstrates why the worker must preserve a Float Stone for the pivot rather than discard it into Quick Ball to pursue Budew. The code's joint-payment guard and Trubbish pivot are concrete decisions informed by that resource constraint.
+
 ## Implementation decision changed
 
 A rigid starting rule that only chooses Budew if initially visible can use the direct opening in only 28.5% of legal hands. In the additional 3.88% event with Trubbish + Float + Quick/VIP and no initial Budew, there is a distinct *possible* ALS:
