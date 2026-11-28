@@ -64,6 +64,7 @@ const P = Object.freeze({
   thorns:/^Iron Thorns ex TWM(?: 77)?\b/i,
   grass:/^Grass Energy (?:(?:MEE(?: 9)?)|(?:BLW(?: 105)?)|(?:BW(?: 105)?))\b/i,
   hood:/^Stealthy Hood UNB(?: 186)?\b/i,
+  floatStone:/^Float Stone BKT(?: 137)?\b/i,
   powerful:/^Powerful Colorless Energy DAA(?: 176)?\b/i,
   choiceBelt:/^Choice Belt PAL(?: 176)?\b/i,
   mimikyu:/^Mimikyu GRI(?: 58)?\b/i,
@@ -289,6 +290,10 @@ function energyActionScore(item,o) {
     return 0;
   }
   if(has(target,P.mega)){
+    if(has(energy,P.jet)&&!has(own.active,P.mega)&&
+      arr(own.bench).some(x=>x===target)&&used>=1&&
+      !(has(own.active,P.bus)&&
+        o.opponentPublic?.active?.printed?.stage==='BASIC'))return 180;
     if(used>=2)return 0;
     if(has(energy,P.doubleColorless))return 158;
     if(has(energy,P.powerful))return used===0?137:140;
@@ -301,6 +306,49 @@ function energyActionScore(item,o) {
   if(has(target,P.fan)||has(target,P.budew)||has(target,P.pidgey))
     return used===0&&has(energy,P.capture)&&available>0?65:0;
   return 0;
+}
+function positionTarget(o) {
+  const own=o?.ownPublic,opp=o?.opponentPublic;
+  if(!own||!opp||!own.active||!opp.active)return null;
+  const active=own.active,bench=arr(own.bench);
+  if(has(active,P.bus)&&opp.active.printed?.stage==='BASIC'&&
+    !arr(active.abilitySuppressions).some(x=>
+      x.abilityName==='Disgusting Pollen'&&x.suppressed===true))return null;
+  if(has(active,P.mega)&&attachedEnergyUnits(active)>=1)return null;
+  if(has(active,P.bunnelby)&&arr(active.tools).some(x=>has(x,P.tmEvolution))&&
+    attachedEnergyUnits(active)>=1&&k1EvoTarget(o))return null;
+  let index=-1;
+  if(opp.active.printed?.stage==='BASIC')index=bench.findIndex(x=>
+    x&&has(x,P.bus)&&!arr(x.abilitySuppressions).some(a=>
+      a.abilityName==='Disgusting Pollen'&&a.suppressed===true));
+  if(index<0&&k1EvoTarget(o))index=bench.findIndex(x=>
+    x&&has(x,P.bunnelby)&&attachedEnergyUnits(x)>=1&&
+    arr(x.tools).some(t=>has(t,P.tmEvolution)));
+  if(index<0)index=bench.findIndex(x=>x&&has(x,P.mega)&&attachedEnergyUnits(x)>=1);
+  if(index<0)return null;
+  return {index,printing:bench[index].printing};
+}
+function retreatPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='ChoosePokemonPrompt'||m.selectionType!=='pokemon'||
+    m.minimumCount!==1||m.maximumCount!==1)return abstain('UNSUPPORTED_POKEMON_PROMPT');
+  const target=positionTarget(o);
+  if(!target)return abstain('NO_SUPPORTED_POKEMON_CHOICE');
+  const found=actorPokemonBench(p).find(c=>
+    c.publicMetadata?.benchIndex===target.index&&txt(c)===target.printing);
+  return found?{kind:'select-choices',tokens:[found.token]}:
+    abstain('NO_SUPPORTED_POKEMON_CHOICE');
+}
+function mobilityActions(items,o) {
+  const target=positionTarget(o);
+  if(!target)return null;
+  const retreat=items.find(x=>x.kind==='retreat'&&
+    (!x.targetPrinting||x.targetPrinting===target.printing));
+  if(retreat)return retreat;
+  const float=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.floatStone)&&
+    x.targetPrinting===o.ownPublic.active.printing&&
+    arr(o.ownPublic.active.tools).length===0);
+  return float??null;
 }
 function capturePrompt(request) {
   const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
@@ -1097,6 +1145,8 @@ function rootDecision(request) {
     if(retreatBus)return take(retreatBus);
   }
   if(attrition)return take(attrition);
+  const mobility=mobilityActions(items,o);
+  if(mobility)return take(mobility);
   const attachTm=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.tmEvolution)&&
     has(x.targetPrinting,P.bunnelby));
   if(attachTm&&slots(o.ownPublic).some(x=>has(x,P.bunnelby)&&
@@ -1203,6 +1253,8 @@ function createPolicy({role,seat,policyVersion,config}) {
       if(request.prompt?.source?.effectName==='Omega Barrage'&&
         request.prompt?.promptType==='ConfirmPrompt')return omegaBarragePrompt(request);
       if(request.prompt?.promptType==='ChoosePokemonPrompt'&&
+        request.prompt?.source?.effectName==='Retreat')return retreatPrompt(request);
+      if(request.prompt?.promptType==='ChoosePokemonPrompt'&&
         (request.prompt?.source?.effectName==='Retreat'||
          has(request.prompt?.source?.sourcePrinting,P.bunnelby)))return busRetreatPrompt(request);
       return abstain('UNSUPPORTED_PROMPT_TYPE');
@@ -1212,4 +1264,4 @@ function createPolicy({role,seat,policyVersion,config}) {
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,ENGINE_PRINTING_ALIASES,ENGINE_COUNTS,
   createPolicy,rootDecision,poffinPrompt,printedDamage,applyColorlessWeaknessResistance,movementEvidence,karenOpportunity,REGIDRAGO_DRAGON_PAYLOADS,
-  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,energyProvided,attachedEnergyUnits,energyActionScore,capturePrompt,hoodProtectionScore,k1Available,k1EvoTarget,ghStadiumOnlyLine,nOpportunity,peakLockOpportunity,silentLabOpportunity,eldCanBench,eldegossPrompt,floatUpPrompt,eldSupporterPriority,xtransceiverPrompt,usefulArtazonBasic,artazonPrompt,airMailPrompt,grandTreePrompt,grandTreeTarget,guzmaOpportunity,guzmaPrompt,rototillerPrompt,rototillerPriority,bunnelbyAttritionAction,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
+  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,energyProvided,attachedEnergyUnits,energyActionScore,positionTarget,retreatPrompt,mobilityActions,capturePrompt,hoodProtectionScore,k1Available,k1EvoTarget,ghStadiumOnlyLine,nOpportunity,peakLockOpportunity,silentLabOpportunity,eldCanBench,eldegossPrompt,floatUpPrompt,eldSupporterPriority,xtransceiverPrompt,usefulArtazonBasic,artazonPrompt,airMailPrompt,grandTreePrompt,grandTreeTarget,guzmaOpportunity,guzmaPrompt,rototillerPrompt,rototillerPriority,bunnelbyAttritionAction,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
