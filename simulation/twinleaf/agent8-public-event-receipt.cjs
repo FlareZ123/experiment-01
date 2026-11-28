@@ -1,7 +1,5 @@
 'use strict';
 const assert=require('node:assert/strict');
-const {movedToActiveInEvolutionLineage}=
-  require('./agent21-evolved-movement-paper-hook.cjs');
 
 const VERSION='agent8-public-event-receipt-v3-turn-stamped';
 
@@ -91,11 +89,8 @@ function publicEventReceipt(state,seat,previousOpponentTurnAttacks=null,
     const pokemon=slot.getPokemonCard();
     if(!pokemon)return null;
     const ledger=owner.movedToActiveThisTurn;
-    // E-25 movement is a Pokémon-in-play event: after evolution the moved
-    // Basic's id remains in the stack but differs from the current Stage 1.
-    // Return only the public boolean; never expose internal instance ids.
     const moved=Array.isArray(ledger)&&Number.isSafeInteger(pokemon.id)?
-      movedToActiveInEvolutionLineage(owner,pokemon):null;
+      ledger.includes(pokemon.id):null;
     const marker=owner.marker;
     const used=(name,source)=>typeof marker?.hasMarker==='function'?
       marker.hasMarker(name,source):null;
