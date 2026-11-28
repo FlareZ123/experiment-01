@@ -162,3 +162,23 @@ test('engine chooses maximum lawful opponent mulligan bonus draw', () => {
     prompt,observation:{...observation(),phase:1}
   }),{kind:'select-choice',token:'2'});
 });
+
+test('post-evolution Garbodor with empty Tool slot receives Float Stone before attacker Tool', () => {
+  const own=player({active:poke(P.garbodor,{tools:[]}),bench:[poke(P.mega,{tools:[]})]});
+  const o=observation({ownPublic:own});
+  const item={kind:'play-card',actorPrinting:'Float Stone BKT 137',
+    targetPrinting:P.garbodor};
+  assert.ok(policy.scoreAction(item,root([],o))>=260);
+  const prompt={
+    promptType:'ChoosePokemonPrompt',
+    source:{sourcePrinting:'Float Stone BKT 137',effectName:'Float Stone'},
+    choices:[
+      {token:'mega',kind:'pokemon',printing:P.mega,publicMetadata:{
+        ownerSeat:'actor',targetZone:'bench',benchIndex:0}},
+      {token:'garb',kind:'pokemon',printing:P.garbodor,publicMetadata:{
+        ownerSeat:'actor',targetZone:'active',benchIndex:0}}
+    ]
+  };
+  assert.deepEqual(policy.promptDecision({observation:o,prompt}),
+    {kind:'select-choice',token:'garb'});
+});
