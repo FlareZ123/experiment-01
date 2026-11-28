@@ -86,7 +86,9 @@ for(const seat of [0,1]){
     const x=stage(seat,{name:'Apex Dragon',copycatAttack:true});
     try{
       // Opponent's turn 2 uses copied Timeless and earns an extra turn.
-      x.store.dispatch(new AttackAction(x.opponent.id,'Apex Dragon'),1-seat);
+      const attack=new AttackAction(x.opponent.id,'Apex Dragon');
+      attack.nextSeat=1-seat; // fake Store preserves extra-turn owner
+      x.store.dispatch(attack);
       // Opponent's turn 3 finishes without an attack; its turn 2 Apex
       // must no longer be the previous opponent-owned turn on our turn 4.
       x.store.dispatch({kind:'end-turn-without-attack',nextSeat:seat});
