@@ -76,3 +76,12 @@ These are game-state-specific actor decisions checked by the shared protocol and
 - **Grand Tree** is a shared-effect singleton ACE SPEC Stadium, not an unconditional +95 setup card. Card text explicitly forbids evolving a Basic played this turn and both players can use the Stadium. The root policy now preserves Grand Tree if no usable source Stage1+Stage2 line exists for a prior-turn Basic, except to replace a currently disruptive Stadium such as Path to the Peak. The stranded-turn comparison was **71/72 → 72/72**, with legal-evolution and Stadium-counter positive controls.
 
 Current review-branch exact source blob `ebbf384f01f8a81194a25fe4e6a2c5ec3997bc26`, tests blob `7360782eb37977d20f29c7dde14f2aff5b864ebd`, both readback verified. Nothing in this experiment demonstrates native Store settlement, actual game win rate, field coverage, or authority to run CI.
+
+
+## Revealed-hand K0 identity and shared Artazon donation
+
+**K0 source count, concrete double-counting:** The acting player's own hand appears as `observation.ownHand` irrespective of public visibility. When the hand is also revealed, `ownPublic.publicHand` is the *same physical cards*. Previous `visibleSourceCopies` counted both representations. This could mark two total Gloom copies exhausted when only one was physically held and falsely veto Grand Tree's live evolution route. The revised count excludes `ownPublic.publicHand` because `ownHand` is already authoritative for this seat. After fixing the test player's `publicHand` fixture, the exact original formula failed one newly added decision (**73/74**), while the revised formula passed **74/74**; a negative control with two genuinely held Gloom still refuses Grand Tree.
+
+**Artazon:** Like Grand Tree, this Stadium may help the opponent if handed over for no immediate actor benefit. The previous root scorer assigned Artazon +70 even with the Bench full, and could overwrite the actor's active Grand Tree. Revised Artazon root scoring requires a vacant Bench with a missing Basic development line, or an immediately removable disruptive Stadium such as Path to the Peak. Opponent suppressor removal still allowed when Bench full. The contested full-Bench case was **76/77** before and **77/77** after, with positive vacant-Bench and Stadium-counter controls.
+
+Current branch worker blob `7a2161d6d6789537bc36129b63e87694f532bbd1`, tests blob `306740fd460ef163004a996433159a48cc6c29db`; exact source/test readback confirmed. All decisions are synthetic actor-protocol decisions, not native Store transitions or game claims.
