@@ -82,6 +82,7 @@ function one(rows,seed,opts={}){
  function objective(){let b=reg();return !!b&&b.name===N.S&&active()===b&&attackPaid(b.energy)&&!missingDonor()&&(!needACE()&&(!(opts.goal==="wipe-lock")||canItem()))}
  function value(n){
    let b=reg();
+   if(scenario==='temple'&&[N.SW,N.HE,'Field Blower'].includes(n))return 105;
    if(n===N.MB)return opts.goal==="wipe-lock"?90:20;
    if(n===N.V)return b?15:100;
    if(n===N.S)return b?.name===N.S?15:count(hand,n)>1?34:85;
@@ -181,9 +182,23 @@ function one(rows,seed,opts={}){
      let x=targets.find(x=>discard.includes(x)&&!has(x)&&!payload.has(x));if(!x)break;take(discard,x);hand.push(x);note("legacy recover",x)
    }return true;
  }
- function banked(){let b=reg();return turn===1&&b&&b.energy.length>0&&has(N.S)&&(attackPaid(b.energy)||handE().some(x=>attackPaid([...b.energy,x])))&&!missingDonor()&&!needACE()&&mobility()}
+ function banked(){if(scenario==='temple')return false;let b=reg();return turn===1&&b&&b.energy.length>0&&has(N.S)&&(attackPaid(b.energy)||handE().some(x=>attackPaid([...b.energy,x])))&&!missingDonor()&&!needACE()&&mobility()}
  function step(){
    let b=reg();
+   // When the opposing Temple is active, clearing it first restores the
+   // Dragon multi-type contribution before our attack/payment decisions.
+   if(templeActive&&canItem()&&has('Field Blower')){
+     play('Field Blower');templeActive=false;
+     note('temple removed','Field Blower');return true;
+   }
+   if(templeActive&&!stadiumPlayed){
+     const ownStadium=[N.SW,N.HE].find(has);
+     if(ownStadium){
+       if(stad)discard.push(stad);
+       stad=take(hand,ownStadium);stadiumPlayed=true;templeActive=false;
+       note('stadium',stad);note('temple removed',stad);return true;
+     }
+   }
    if(b&&b.name===N.V&&active()!==b&&canItem()&&has(N.EL)&&needsEnergy()&&(turn===1||!manual||!handE().some(x=>attackPaid([...b.energy,x])))){
      play(N.EL);let top=deck.splice(0,6),es=top.filter(x=>x===N.GR||x===N.FI),e=chooseEnergyNow(b.energy,es);if(e)b.energy.push(take(top,e));deck.push(...top);shuffle(deck,rng);note("elixir",e??null);return true;
    }
@@ -280,7 +295,7 @@ function one(rows,seed,opts={}){
    }
    if(b&&active()!==b&&!retreated&&turn===2&&!free(active())){
      const a=active(),r=R[a.name]??3;
-     if(energyUnits(a.energy)>=r){let paid=0;while(paid<r){let e=a.energy.pop();paid+=e===N.DD?2:1;discard.push(e)}retreated=true;swap(b);return true}
+     if(energyUnits(a.energy)>=r){let paid=0;while(paid<r){let e=a.energy.pop();paid+=e===N.DD&&!templeActive?2:1;discard.push(e)}retreated=true;swap(b);return true}
      if(manual&&attackPaid(b.energy)&&r===1&&handE().some(x=>x!==N.DD)){attach(a,handE().find(x=>x!==N.DD));manual=false;return true}
    }
    if(b&&active()!==b&&!retreated&&turn===2&&free(active())){retreated=true;swap(b);return true}
@@ -294,6 +309,11 @@ function one(rows,seed,opts={}){
  }
  let first={};
  for(turn=1;turn<=2;turn++){
+   if(scenario==='temple'&&(turn===2||second&&turn===1)){
+     if(turn===2&&stad){discard.push(stad);stad=null}
+     templeActive=true;
+     note('opponent stadium','Temple of Sinnoh');
+   }
    manual=true;supp=false;retreated=false;stadiumPlayed=false;hearthUsed=false;draw(1);loops=0;
    while(step()){if(++loops>80)throw Error("loop cap "+seed)}
    if(turn===1){
