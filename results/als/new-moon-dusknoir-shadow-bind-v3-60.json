@@ -1,0 +1,241 @@
+{
+  "schema": "new-moon-dusknoir-shadow-bind-v3-fixed60",
+  "as_of": "2026-11-28",
+  "parent": "results/als/new-moon-lockbreak-english-proxy-60.json",
+  "comparison": "results/als/new-moon-tool-jammer-v2-60.json",
+  "status": "Unqualified structural challenger. Replaces second Sky Field of New Moon v1 with Dusknoir SFA 20 instead of the Tool Jammer of v2. Stage 2 Shadow Bind attacks through rank-15 BUS Vileplume Basic-attack lock and Hood protection, without Cursed Blast self-KOs. Requires actual evolution chronology and three Energy. No native/game qualification, policy competence, or win-rate claim.",
+  "change_from_parent": {
+    "Sky Field ROS 89": -1,
+    "Dusknoir SFA 20": 1
+  },
+  "change_from_v2": {
+    "Tool Jammer BST 136": -1,
+    "Dusknoir SFA 20": 1
+  },
+  "counts": {
+    "total": 60,
+    "unique": 35,
+    "Pokémon": 20,
+    "Trainer": 34,
+    "Energy": 6
+  },
+  "entries": [
+    {
+      "id": "sm11-71",
+      "name": "Mewtwo & Mew-GX",
+      "count": 2,
+      "type": "Pokémon"
+    },
+    {
+      "id": "sm9-53",
+      "name": "Gengar & Mimikyu-GX",
+      "count": 1,
+      "type": "Pokémon"
+    },
+    {
+      "id": "smp-SM217",
+      "name": "Trevenant & Dusknoir-GX",
+      "count": 1,
+      "type": "Pokémon"
+    },
+    {
+      "id": "sm2-60",
+      "name": "Tapu Lele-GX",
+      "count": 1,
+      "type": "Pokémon"
+    },
+    {
+      "id": "swsh6-58",
+      "name": "Galarian Articuno V",
+      "count": 1,
+      "type": "Pokémon"
+    },
+    {
+      "id": "sv8-76",
+      "name": "Latias ex",
+      "count": 1,
+      "type": "Pokémon"
+    },
+    {
+      "id": "sv9-56",
+      "name": "Lillie's Clefairy ex",
+      "count": 1,
+      "type": "Pokémon"
+    },
+    {
+      "id": "sv2-169",
+      "name": "Squawkabilly ex",
+      "count": 1,
+      "type": "Pokémon"
+    },
+    {
+      "id": "xy7-30",
+      "name": "Unown",
+      "count": 3,
+      "type": "Pokémon"
+    },
+    {
+      "id": "sv6pt5-19",
+      "name": "Dusclops",
+      "count": 2,
+      "type": "Pokémon"
+    },
+    {
+      "id": "sv6pt5-20",
+      "name": "Dusknoir",
+      "count": 1,
+      "type": "Pokémon"
+    },
+    {
+      "id": "swsh4-69",
+      "name": "Duskull",
+      "count": 2,
+      "type": "Pokémon"
+    },
+    {
+      "id": "sm7-62",
+      "name": "Solrock",
+      "count": 1,
+      "type": "Pokémon"
+    },
+    {
+      "id": "sv3-92",
+      "name": "Lunatone",
+      "count": 1,
+      "type": "Pokémon"
+    },
+    {
+      "id": "sv1-96",
+      "name": "Klefki",
+      "count": 1,
+      "type": "Pokémon"
+    },
+    {
+      "id": "swsh8-225",
+      "name": "Battle VIP Pass",
+      "count": 4,
+      "type": "Trainer"
+    },
+    {
+      "id": "swsh6-140",
+      "name": "Fog Crystal",
+      "count": 4,
+      "type": "Trainer"
+    },
+    {
+      "id": "sm6-113",
+      "name": "Mysterious Treasure",
+      "count": 2,
+      "type": "Trainer"
+    },
+    {
+      "id": "swsh10-146",
+      "name": "Hisuian Heavy Ball",
+      "count": 2,
+      "type": "Trainer"
+    },
+    {
+      "id": "swsh7-154",
+      "name": "Rescue Carrier",
+      "count": 2,
+      "type": "Trainer"
+    },
+    {
+      "id": "xy4-92",
+      "name": "Battle Compressor Team Flare Gear",
+      "count": 2,
+      "type": "Trainer"
+    },
+    {
+      "id": "sm8-167",
+      "name": "Adventure Bag",
+      "count": 1,
+      "type": "Trainer"
+    },
+    {
+      "id": "swsh5-125",
+      "name": "Escape Rope",
+      "count": 1,
+      "type": "Trainer"
+    },
+    {
+      "id": "sv4-160",
+      "name": "Counter Catcher",
+      "count": 1,
+      "type": "Trainer"
+    },
+    {
+      "id": "sv6-163",
+      "name": "Secret Box",
+      "count": 1,
+      "type": "Trainer"
+    },
+    {
+      "id": "sv6pt5-63",
+      "name": "Powerglass",
+      "count": 2,
+      "type": "Trainer"
+    },
+    {
+      "id": "swsh12-156",
+      "name": "Forest Seal Stone",
+      "count": 1,
+      "type": "Trainer"
+    },
+    {
+      "id": "me1-119",
+      "name": "Lillie's Determination",
+      "count": 2,
+      "type": "Trainer"
+    },
+    {
+      "id": "xy7-69",
+      "name": "Ace Trainer",
+      "count": 2,
+      "type": "Trainer"
+    },
+    {
+      "id": "xy6-89",
+      "name": "Sky Field",
+      "count": 1,
+      "type": "Trainer"
+    },
+    {
+      "id": "swsh6-148",
+      "name": "Path to the Peak",
+      "count": 2,
+      "type": "Trainer"
+    },
+    {
+      "id": "sm2-125",
+      "name": "Field Blower",
+      "count": 2,
+      "type": "Trainer"
+    },
+    {
+      "id": "swsh10-136",
+      "name": "Canceling Cologne",
+      "count": 2,
+      "type": "Trainer"
+    },
+    {
+      "id": "me3-88",
+      "name": "Telepathic Psychic Energy",
+      "count": 3,
+      "type": "Energy"
+    },
+    {
+      "id": "swsh12pt5-156",
+      "name": "Basic Psychic Energy",
+      "count": 3,
+      "type": "Energy"
+    }
+  ],
+  "legality": {
+    "format": "paper Expanded, Black & White onward",
+    "dusknoir": "SFA 20 is marked Expanded Legal in the bundled English card corpus",
+    "note": "Derived from the 60-card New Moon v2 by a one-for-one Expanded-legal Trainer-to-Pokémon substitution; all other printings and counts unchanged."
+  },
+  "competitiveQualified": false,
+  "claim99Point5": false
+}
