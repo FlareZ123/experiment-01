@@ -575,3 +575,30 @@ test('pinned TM Evolution missing Stage1 completes via native min-zero empty sel
   assert.deepEqual(checkedDecision(req),{
     kind:'select-choice',token:'empty'});
 });
+
+test('Guzma & Hala mode-one now funds Active Bunnelby with TM held, Jet missing',()=>{
+  const own=player({active:pokemon('Bunnelby PRC 121',{energies:[]}),
+    bench:[pokemon('Oddish UNB 5')],prizeCount:6});
+  const req=rootRequest({ownHand:['Guzma & Hala CEC 193',
+    'Technical Machine: Evolution PAR 178','Artazon PAL 171',
+    'Pidgeotto TEU 123','Tag Call CEC 206'],
+    ownPublic:own,items:[
+      {token:'hala',kind:'play-card',actorPrinting:'Guzma & Hala CEC 193',
+        publicMetadata:{cardType:'trainer',handIndex:0}},
+      {token:'artazon',kind:'use-stadium',actorPrinting:'Artazon PAL 171'},
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'hala'});
+});
+test('Guzma & Hala does not consume a Supporter solely to find redundant Jet',()=>{
+  const own=player({active:pokemon('Bunnelby PRC 121',{energies:[]}),
+    bench:[pokemon('Oddish UNB 5')],prizeCount:6});
+  const req=rootRequest({ownHand:['Guzma & Hala CEC 193',
+    'Technical Machine: Evolution PAR 178','Capture Energy RCL 171',
+    'Artazon PAL 171','Pidgeotto TEU 123'],
+    ownPublic:own,items:[
+      {token:'hala',kind:'play-card',actorPrinting:'Guzma & Hala CEC 193',
+        publicMetadata:{cardType:'trainer',handIndex:0}},
+      {token:'artazon',kind:'use-stadium',actorPrinting:'Artazon PAL 171'},
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'artazon'});
+});
