@@ -143,10 +143,49 @@ function choosePaleMoonEscapeGuzmaPrompt(view, prompt) {
     reason:'PUBLIC_PALE_MOON_GUZMA_EXACT_SINGLE_BENCH_PROMPT'};
 }
 
+/**
+ * Integration-safe root fallback. The upstream candidate worker retains
+ * all its normal sequencing and only calls this BEFORE dispatching a Pass.
+ * A public, terminal Pale Moon queue makes Pass lose immediately. Select
+ * one distinct proven rescue (retreat, Ranger or Guzma) offered in the FULL
+ * genuine native frontier; do not require the entire frontier to be tiny.
+ * If several rescues compete, abstain rather than silently rank their costs.
+ *
+ * No synthetic action is constructed: the chosen token is an offered token.
+ * All non-Pass, winning attack, setup and unknown-policy decisions stay with
+ * the caller.
+ */
+function rescuePaleMoonTerminalPass(view,items,originalToken) {
+  if(!Array.isArray(items) ||
+      view?.decisionKind!=='owner-root' ||
+      view?.ownPublic?.active?.publicRestrictions?.pendingPaleMoonGXKnockOut!==true ||
+      view?.opponentPublic?.prizeCount!==1)return null;
+  const passes=items.filter(item=>item?.kind==='pass');
+  if(passes.length!==1 || passes[0].token!==originalToken)return null;
+  const saves=[];
+  for(const item of items){
+    if(item?.kind==='retreat') {
+      const choice=choosePaleMoonEscapeRetreat(view,[passes[0],item]);
+      if(choice)saves.push(choice);
+    }else if(item?.kind==='play-card') {
+      const choice=item.actorPrinting==='Pokemon Ranger STS'?
+        choosePaleMoonEscapeRanger(view,[passes[0],item]):
+        item.actorPrinting==='Guzma BUS'?
+          choosePaleMoonEscapeGuzmaRoot(view,[passes[0],item]):null;
+      if(choice)saves.push(choice);
+    }
+  }
+  if(saves.length!==1)return null;
+  return {token:saves[0].token,
+    reason:'PUBLIC_PALE_MOON_TERMINAL_PASS_OVERRIDE',
+    selectedSourceReason:saves[0].reason};
+}
+
 module.exports = {
   pendingPaleMoonGXKnockOut,
   choosePaleMoonEscapeRetreat,
   choosePaleMoonEscapeRanger,
   choosePaleMoonEscapeGuzmaRoot,
-  choosePaleMoonEscapeGuzmaPrompt
+  choosePaleMoonEscapeGuzmaPrompt,
+  rescuePaleMoonTerminalPass
 };
