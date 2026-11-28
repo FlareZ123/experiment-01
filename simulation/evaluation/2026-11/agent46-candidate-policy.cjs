@@ -1460,7 +1460,7 @@ function scoreTrainerPlay(item, view, receipt) {
       receipt?.priorOpponentTurnKO?.any === true) return 980;
   if (hasName(name, 'Teammates PRC') && !supporterUsed &&
       receipt?.priorOpponentTurnKO?.any === true &&
-      view.ownPublic.deckCount > 1) return 945;
+      view.ownPublic.deckCount > 0) return 945;
   if (hasName(name, 'VS Seeker') && !supporterUsed &&
       !handHas(view, 'Arven') && !handHas(view, "Lillie's Determination") &&
       view.ownPublic.discard.some(printing =>
