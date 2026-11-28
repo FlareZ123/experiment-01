@@ -48,18 +48,22 @@ function buildSourcePrintingMap(sourceDeck,nativeOrdered60){
 const label=(value,map)=>typeof value==='string'&&map instanceof Map?
   map.get(value)??value:value;
 const mapped=(list,map)=>Array.isArray(list)?list.map(x=>label(x,map)):list;
-function mapPokemon(p,map){
+function mapPokemon(p,map,opponentMap){
   if(!p||p.concealed===true)return p;
   return {...p,
     printing:label(p.printing,map),
     evolutionPrintings:mapped(p.evolutionPrintings,map),
-    energies:mapped(p.energies,map),tools:mapped(p.tools,map)};
+    energies:mapped(p.energies,map),tools:mapped(p.tools,map),
+    abilitySuppressions:Array.isArray(p.abilitySuppressions)?
+      p.abilitySuppressions.map(a=>({...a,
+        sourcePrinting:uniqueVisibleLabel(a.sourcePrinting,
+          map,opponentMap??new Map())})):p.abilitySuppressions};
 }
-function mapPlayer(p,map){
+function mapPlayer(p,map,opponentMap){
   if(!p)return p;
   return {...p,
-    active:mapPokemon(p.active,map),
-    bench:Array.isArray(p.bench)?p.bench.map(x=>mapPokemon(x,map)):p.bench,
+    active:mapPokemon(p.active,map,opponentMap),
+    bench:Array.isArray(p.bench)?p.bench.map(x=>mapPokemon(x,map,opponentMap)):p.bench,
     stadium:mapped(p.stadium,map),discard:mapped(p.discard,map),
     lostZone:mapped(p.lostZone,map),
     resolvingSupporter:mapped(p.resolvingSupporter,map),
@@ -142,8 +146,8 @@ function projectSourcePrintings(observation,frontier,sourceMapsBySeat,options={}
   const mine=sourceMapsBySeat[seat],other=sourceMapsBySeat[1-seat];
   const view={...observation,
     ownHand:mapped(observation.ownHand,mine),
-    ownPublic:mapPlayer(observation.ownPublic,mine),
-    opponentPublic:mapPlayer(observation.opponentPublic,other),
+    ownPublic:mapPlayer(observation.ownPublic,mine,other),
+    opponentPublic:mapPlayer(observation.opponentPublic,other,mine),
     ownerK1:mapOwnerK1(observation.ownerK1,mine)};
   let mappedFrontier=frontier;
   if(frontier){
