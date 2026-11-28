@@ -1301,3 +1301,29 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['b','t']});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Guzma Snorlax escape chooses Budew over funded Mega after own-target prompt',()=>{
+  const fundedMega=mon('Mega Absol ex MEG 86',{energies:[
+   'Darkness Energy MEE 15','Darkness Energy MEE 15','Darkness Energy MEE 15']});
+  const board=own({active:mon('Crobat V DAA 104'),bench:[
+   mon('Budew ASC 16'),fundedMega]});
+  const their=opp({active:mon('Snorlax PGO 55',{
+   abilitySuppressions:[{abilityName:'Block',suppressed:false}]}),
+   bench:[mon('Mimikyu PAL 97')]});
+  const q=prompt(seat,{promptType:'ChoosePokemonPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Guzma BUS 115',effectName:'Guzma'},
+   publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+   choices:[{kind:'pokemon',token:'budew',printing:'Budew ASC 16',
+    publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0}},
+    {kind:'pokemon',token:'mega',printing:'Mega Absol ex MEG 86',
+    publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:1}}]},
+   {ownPublic:board,opponentPublic:their});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['budew']});
+  their.active=mon('Mimikyu PAL 97',{abilitySuppressions:[
+   {abilityName:'Safeguard',suppressed:false}]});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['budew']});
+  their.active=mon('Dedenne-GX UNB 57',{hp:160});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['mega']});
+ });
+}
