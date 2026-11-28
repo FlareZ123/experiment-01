@@ -36,6 +36,8 @@ const P = Object.freeze({
   float: /^Float Stone BKT(?: 137)?\b/i,
   guzma: /^Guzma BUS(?: 115)?\b/i,
   marnie: /^Marnie SSH(?: 169)?\b/i,
+  raihan: /^Raihan EVS(?: 152)?\b/i,
+  lele: /^Tapu Lele-GX GRI(?: 60)?\b/i,
   quickBall: /^Quick Ball FST(?: 237)?\b/i,
   blower: /^Field Blower GRI(?: 125)?\b/i,
   compressor: /^Battle Compressor PHF(?: 92)?\b/i,
@@ -95,7 +97,9 @@ const PUBLIC_ABORT = Object.freeze({
   R30_ENGINE_SETUP_NO_BASIC:'NO_LEGAL_CARD_SET',
   R30_ENGINE_SETUP_NO_EMPTY:'NO_LEGAL_CARD_SET',
   R30_BLOWER_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
-  R30_BLOWER_NO_UNIQUE_TARGET:'NO_LEGAL_CARD_SET'
+  R30_BLOWER_NO_UNIQUE_TARGET:'NO_LEGAL_CARD_SET',
+  R30_LELE_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
+  R30_LELE_NO_SUPPORTER:'NO_LEGAL_CARD_SET'
 });
 const no = reasonCode => ({kind:'abstain',reasonCode:PUBLIC_ABORT[reasonCode]??reasonCode});
 const act = x => ({kind:'select-action',token:x.token});
@@ -1088,6 +1092,52 @@ function skyFieldHandExpansionKO(o) {
     currentDamage:ro.damage,expectedDamage:ro.damage+additionalNeeded*increment,
     targetRemaining:ro.remaining};
 }
+function leleAbilityAccessIsSafe(o) {
+  const stadiums=[...arr(o?.ownPublic?.stadium),...arr(o?.opponentPublic?.stadium)];
+  if(stadiums.some(x=>/^(?:Path to the Peak|Silent Lab)\b/i.test(text(x))))
+    return false;
+  const oppActive=o?.opponentPublic?.active;
+  if(/^Iron Thorns ex TWM(?: 77)?\b/i.test(text(oppActive))&&
+    arr(oppActive.abilities).includes('Initialization')&&
+    !arr(oppActive.abilitySuppressions).some(row=>row?.abilityName==='Initialization'&&
+      row.suppressed===true))return false;
+  if(slots(o?.ownPublic).some(p=>arr(p.abilitySuppressions).some(row=>
+      row?.suppressed===true&&
+      ['ABILITY_LOCKED','STADIUM_LOCKED'].includes(row.reasonCode))))
+    return false;
+  return true;
+}
+function needWonderTag(o) {
+  if(!o||o.ownTurnResources?.supporterPlayedTurn!==0||
+     !safeInt(o.ownPublic?.deckCount)||o.ownPublic.deckCount<=0||
+     !leleAbilityAccessIsSafe(o))return false;
+  const holdingSupporter=arr(o.ownHand).some(c=>
+    has(c,P.guzma)||has(c,P.marnie)||has(c,P.raihan));
+  return !holdingSupporter&&
+    (arr(o.ownHand).length<=3||guzmaOpportunity(o)!==null);
+}
+function wonderTagPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(!sameSource(p,P.lele)||p.promptType!=='ChooseCardsPrompt'||
+     m.selectionType!=='card-combination'||m.sourceZone!=='deck'||
+     m.ownerSeat!=='actor'||m.isOwnerVisible!==true||
+     !safeInt(m.minimumCount)||!safeInt(m.maximumCount)||
+     m.minimumCount>1||m.maximumCount!==1)
+    return no('R30_LELE_PROMPT_UNSUPPORTED');
+  const offered=arr(p.choices).filter(c=>c.kind==='card'&&
+    typeof c.token==='string');
+  const gust=guzmaOpportunity(o);
+  const priorKO=request.publicEventReceipt?.priorOpponentTurnKO?.any===true;
+  const preference=gust?[P.guzma,P.marnie,P.raihan]:
+    priorKO?[P.raihan,P.marnie,P.guzma]:
+    [P.marnie,P.guzma,P.raihan];
+  const picked=preference.flatMap(pat=>offered.filter(c=>has(c,pat)))[0];
+  if(picked)return picks([picked]);
+  const empty=arr(p.choices).find(c=>c.kind==='empty-selection'&&
+    typeof c.token==='string');
+  return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
+    no('R30_LELE_NO_SUPPORTER');
+}
 function rootDecision(request,{enablePatchProjection=false}={}) {
   const o=request.observation, items=availableCards(request);
   if(!items.length)return no('R30_NO_OFFERED_ROOT');
@@ -1107,6 +1157,17 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
     const retrievedGuzma=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.vsSeeker));
     if(retrievedGuzma&&supporterAvailable(o)&&
        arr(o.ownPublic?.discard).some(x=>has(x,P.guzma)))return act(retrievedGuzma);
+  }
+  // Lele's on-play Wonder Tag is an executable supporter-access axis,
+  // not merely a two-Prize Bench filler. Under public Ability lock preserve it.
+  if(needWonderTag(o)){
+    const wonder=items.find(a=>a.kind==='use-ability'&&
+      a.publicMetadata?.abilityName==='Wonder Tag'&&has(ownPrinting(a),P.lele));
+    if(wonder)return act(wonder);
+    if(benchCount(o.ownPublic)<(stadium(o)?8:5)){
+      const playLele=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.lele));
+      if(playLele)return act(playLele);
+    }
   }
   // Strip a unique opposing Snorlax Float Stone before the prepared
   // Minior Far-Flying Meteor / Gravitational Tackle counter sequence.
@@ -1213,6 +1274,7 @@ function createPolicy({role,seat,policyVersion,config}) {
     if(request.prompt!==null){
       if(request.prompt?.source?.sourceKind==='engine')
         return rank30EngineSetupPrompt(request);
+      if(sameSource(request.prompt,P.lele))return wonderTagPrompt(request);
       if(sameSource(request.prompt,P.blower))return fieldBlowerPrompt(request);
       if(sameSource(request.prompt,P.box))return boxPrompt(request);
       if(sameSource(request.prompt,P.ultra))return ultraBallPrompt(request);
@@ -1237,4 +1299,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
+  leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
