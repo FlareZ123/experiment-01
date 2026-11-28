@@ -1572,6 +1572,19 @@ function scoreTrainerPlay(item, view, receipt) {
       ownBoard(view).some(slot => slot.damage > 0 &&
         prizeLiability(slot) >= 2 &&
         slot.hp - slot.damage <= 140)) return 890;
+  // The pinned Pokémon Ranger STS Supporter removes attack-imposed
+  // player/Pokémon effects, not Vileplume's passive Item-lock Ability.
+  // Only spend it when the public previous-turn Budew Itchy Pollen attack
+  // caused the current Item lock and an otherwise usable Item is in hand.
+  if (name === 'Pokémon Ranger STS 104' && !supporterUsed &&
+      view.ownPublic.publicTurnRestrictions.itemPlayLocked === true &&
+      view.ownHand.some(printing => isItem(printing)) &&
+      Array.isArray(receipt?.opponentLastTurnAttacks) &&
+      receipt.opponentLastTurnAttacks.some(row =>
+        row?.attackName === 'Itchy Pollen' &&
+        hasName(row.sourcePrinting,'Budew')) &&
+      !opponentBoard(view).some(slot => hasName(slot.printing,'Vileplume')))
+    return 1070;
   if (name === 'Iono PAL 185' && !supporterUsed &&
       view.ownPublic.deckCount > 0 &&
       view.opponentPublic.handCount >= 5 &&
