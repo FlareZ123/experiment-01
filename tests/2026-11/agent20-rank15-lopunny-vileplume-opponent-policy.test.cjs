@@ -664,3 +664,53 @@ test('Grand Tree respects exact owner deck membership without pretending K0 zero
     {printing:'Vileplume AOR 3',copies:2}];
   assert.deepEqual(decision(r),{kind:'select-action',token:'tree'});
 });
+
+function karenRoot(seat=0) {
+  const r=ghRoot(seat);r.observation.globalTurn=5;
+  r.observation.ownTurnResources={supporterPlayedTurn:1,energyPlayedTurn:0};
+  r.observation.ownHand=['Karen XYP 177'];
+  r.observation.ownPublic=p(pokemon('Bunnelby PRC 121',{hp:60}));
+  r.observation.opponentPublic=p(pokemon('Regidrago VSTAR SIT 136',{hp:280,
+    energies:['Grass Energy MEE 9','Grass Energy MEE 9','Fire Energy MEE 2']}),
+    [pokemon('Regidrago V SIT 135',{hp:220})],{discard:[
+      'Dragapult ex TWM 130','Dialga-GX UPR 100']});
+  r.actionFrontier.items=[src('Karen XYP 177','play-card','karen'),
+    {kind:'pass',token:'pass'}];return r;
+}
+for(const seat of [0,1]){
+  test('seat '+seat+': Karen removes public Regidrago Phantom Dive and Timeless payloads',()=>{
+    const r=karenRoot(seat);
+    assert.deepEqual(decision(r),{kind:'select-action',token:'karen'});
+    r.observation.opponentPublic.discard=['Kyurem SFA 47','Noivern ex PAL 153'];
+    assert.deepEqual(decision(r),{kind:'select-action',token:'karen'});
+  });
+}
+test('Karen declines non-Regidrago, no payloads or Supporter contention',()=>{
+  const r=karenRoot();
+  r.observation.opponentPublic.active=pokemon('Shadow Rider Calyrex VMAX CRE 75',{hp:320});
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  r.observation.opponentPublic.active=pokemon('Regidrago VSTAR SIT 136',{hp:280});
+  r.observation.opponentPublic.discard=[];
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  r.observation.opponentPublic.discard=['Dragapult ex TWM 130','Dialga-GX UPR 100'];
+  r.observation.ownTurnResources.supporterPlayedTurn=5;
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+});
+test('Karen one remaining Timeless-GX payload depends on opponent actual GX-use state',()=>{
+  const r=karenRoot();r.observation.opponentPublic.discard=['Dialga-GX UPR 100'];
+  r.observation.opponentPublic.publicTurnRestrictions={gxUsed:false};
+  assert.deepEqual(decision(r),{kind:'select-action',token:'karen'});
+  r.observation.opponentPublic.publicTurnRestrictions={gxUsed:true};
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  r.observation.opponentPublic.discard=['Dragapult ex TWM 130'];
+  r.observation.opponentPublic.publicTurnRestrictions={gxUsed:false};
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+});
+test('Karen acts against funded Bench Regidrago threat but not unpowered future Bench',()=>{
+  const r=karenRoot();r.observation.opponentPublic.active=pokemon(MIMIKYU,{hp:70});
+  r.observation.opponentPublic.bench=[pokemon('Regidrago VSTAR SIT 136',{hp:280,
+    energies:['Grass Energy MEE 9','Fire Energy MEE 2']})];
+  assert.deepEqual(decision(r),{kind:'select-action',token:'karen'});
+  r.observation.opponentPublic.bench[0].energies=[];
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+});
