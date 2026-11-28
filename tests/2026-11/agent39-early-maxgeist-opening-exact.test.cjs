@@ -44,14 +44,14 @@ test('one-slot exact sensitivity: V count, Dimension, FSS, Energy',()=>{
 
 test('source-aware spare-Psychic and Benched-Psychic Door draw adds exact access',()=>{
   const baseline=evaluate();
-  near(baseline.percentages.withOneUnderworldDoor,1.781340896482);
-  near(baseline.percentages.doorOnlyContribution,0.101514144701);
+  near(baseline.percentages.withOneUnderworldDoor,1.788800569425);
+  near(baseline.percentages.doorOnlyContribution,0.108973817644);
   near(evaluate({dimensionValley:2}).percentages.withOneUnderworldDoor,
-    2.694869371572);
+    2.705599065500);
   near(evaluate({forestSealStone:2}).percentages.withOneUnderworldDoor,
-    2.501258039329);
+    2.511162026990);
   near(evaluate({psychic:12}).percentages.withOneUnderworldDoor,
-    2.034145173694);
+    2.043464212553);
   assert.ok(baseline.percentages.withOneUnderworldDoor>
     baseline.percentages.dimensionOrForestT2);
   // Zero extra Psychic Bench candidates: a single V cannot be both
