@@ -1571,17 +1571,17 @@ for(const seat of [0,1]) {
       promptType:'AttachEnergyPrompt',
       source:{sourcePrinting:'Raihan EVS 152',effectName:'Raihan'},
       publicMetadata:{selectionType:'energy-attachment',ownerSeat:'actor',
-        isOwnerVisible:true,sourceZone:'discard',minimumCount:1,maximumCount:1},
+        isOwnerVisible:true,sourceZone:'discard',energyType:'BASIC',zone:'bench,active',minimumCount:1,maximumCount:1},
       choices:[
         {kind:'energy',printing:'Telepathic Psychic Energy POR 88',token:'special-active',
           publicMetadata:{sourceZone:'discard',ownerSeat:'actor',
-            isOwnerVisible:true,targetZone:'active',targetSeat:'actor'}},
+            isOwnerVisible:true,energyType:'BASIC',zone:'active',slotIndex:0,targetSeat:'actor'}},
         {kind:'energy',printing:psychic,token:'active-energy',
           publicMetadata:{sourceZone:'discard',ownerSeat:'actor',
             isOwnerVisible:true,targetZone:'active',targetSeat:'actor'}},
         {kind:'energy',printing:psychic,token:'bench-energy',
           publicMetadata:{sourceZone:'discard',ownerSeat:'actor',
-            isOwnerVisible:true,targetZone:'bench',benchIndex:0,targetSeat:'actor'}}
+            isOwnerVisible:true,energyType:'BASIC',zone:'bench',benchIndex:0,targetSeat:'actor'}}
       ]
     };
     assert.deepEqual(policy(seat).decide(r),
