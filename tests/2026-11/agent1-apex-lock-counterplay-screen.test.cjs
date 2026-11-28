@@ -28,6 +28,16 @@ test("printed Garbotoxin Tool replay and AOR Item lock are different bottlenecks
  assert.deepEqual(ranks(r,"garbodorToolRestartRanks"),[8,11,16,22]);
  assert.deepEqual(ranks(r,"megatonItemLockPotentialRanks"),[2,15]);
 });
+test("special-only opponents can remove our Double Dragon despite our Special lock",()=>{
+ const r=analyze(original);
+ assert.deepEqual(r.summary.allSpecialWithMegatonCounter,[6,7,24,29]);
+ assert.deepEqual(r.summary.allSpecialWithPlumeriaCounter,[6,7,24,29]);
+ const expect={6:[1,1,4,2,1,4,2,2],24:[1,2,4,2,1,0,2,2],29:[1,1,4,2,1,4,1,2]};
+ for(const [rank,ns] of Object.entries(expect)){
+  const c=r.rows.find(x=>x.rank===Number(rank)).channels;
+  assert.deepEqual([c.megatonBlower,c.handheldFan,c.plumeria,c.flareGrunt,c.faba,c.crushingHammer,c.enhancedHammer,c.lusamine],ns);
+ }
+});
 test("rank6 stops being all-Special upon one Basic substitution",()=>{
  const j=clone(),d=j.decks.find(x=>x.rank===6);
  const speed=d.cards.find(x=>x.name==="Speed Lightning Energy");
