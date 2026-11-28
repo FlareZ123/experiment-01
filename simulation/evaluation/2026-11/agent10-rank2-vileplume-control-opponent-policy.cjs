@@ -459,6 +459,21 @@ function scoreAttack(item, observation) {
   return 20;
 }
 
+
+function actionTargetPokemon(item, observation) {
+  const meta = item?.publicMetadata ?? {};
+  if (meta.targetSeat !== 'actor' || meta.isOwnerVisible !== true ||
+      !Number.isSafeInteger(meta.targetIndex) || meta.targetIndex < 0) return null;
+  const own = observation?.ownPublic ?? {};
+  let pokemon;
+  if (meta.targetZone === 'active' && meta.targetIndex === 0) {
+    pokemon = own.active;
+  } else if (meta.targetZone === 'bench') {
+    pokemon = list(own.bench)[meta.targetIndex] ?? null;
+  } else return null;
+  return pokemon && samePrinting(pokemon.printing, item.targetPrinting) ? pokemon : null;
+}
+
 function scoreAction(item, request) {
   const observation = request.observation;
   const own = observation.ownPublic;
@@ -544,12 +559,15 @@ function scoreAction(item, request) {
     return targetReady && (onActiveBunnelby || onBenchedBunnelby) ? 178 : 0;
   }
   if (matches(card, PRINT.jetEnergy)) {
-    const targetIsBunnelby = matches(target, PRINT.bunnelby);
-    const targetIsStoutland = matches(target, PRINT.stoutland);
-    const hasTm = boardSlots(own).some(row =>
-      list(row.pokemon.tools).some(tool => matches(tool, PRINT.tmEvolution)));
-    if (targetIsBunnelby && hasTm) return 225;
-    if (targetIsStoutland && !matches(own.active?.printing ?? '', PRINT.stoutland)) return 198;
+    const recipient = actionTargetPokemon(item, observation);
+    if (!recipient) return 0;
+    const toBench = metadata.targetZone === 'bench';
+    const targetIsBunnelby = matches(recipient.printing, PRINT.bunnelby);
+    const targetIsStoutland = matches(recipient.printing, PRINT.stoutland);
+    const hasTm = list(recipient.tools).some(tool => matches(tool, PRINT.tmEvolution));
+    if (toBench && targetIsBunnelby && hasTm &&
+        hasK0PossibleBenchEvolutionTarget(observation)) return 225;
+    if (toBench && targetIsStoutland) return 198;
     return 80;
   }
   if (matches(card, PRINT.captureEnergy)) {
@@ -561,17 +579,23 @@ function scoreAction(item, request) {
       samePrinting(target, own.active?.printing) ? 190 : 0;
   }
   if (matches(card, PRINT.memoryEnergy)) {
-    return boardHas(own, PRINT.stoutland) && !boardSlots(own).some(row =>
-      list(row.pokemon.energies).some(energy => matches(energy, PRINT.memoryEnergy))) ? 116 : 50;
+    const recipient = actionTargetPokemon(item, observation);
+    if (!recipient) return 0;
+    const previousEvolution = list(recipient.evolutionPrintings).some(printing =>
+      matches(printing, PRINT.lillipup));
+    const alreadyEquipped = list(recipient.energies).some(energy =>
+      matches(energy, PRINT.memoryEnergy));
+    if (matches(recipient.printing, PRINT.stoutland) &&
+        previousEvolution && !alreadyEquipped) {
+      // Memory Energy unlocks Lillipup CEC's Baby-Doll Eyes on the
+      // Active Sentinel locker (and prepares the same lock on the Bench).
+      return metadata.targetZone === 'active' ? 218 : 178;
+    }
+    return 0;
   }
   if (matches(card, PRINT.stealthyHood)) {
-    const row = metadata.targetSeat === 'actor' &&
-      (metadata.targetZone === 'active' || metadata.targetZone === 'bench') &&
-      Number.isSafeInteger(metadata.targetIndex) ?
-      (metadata.targetZone === 'active' && metadata.targetIndex === 0 ?
-        own.active : metadata.targetZone === 'bench' ?
-        list(own.bench)[metadata.targetIndex] : null) : null;
-    if (!row || !samePrinting(row.printing, target)) return 0;
+    const row = actionTargetPokemon(item, observation);
+    if (!row) return 0;
     const lockCarrier = matches(row.printing, PRINT.vileplume) ||
       matches(row.printing, PRINT.gloom);
     const pidgeotEngine = matches(row.printing, PRINT.pidgeot);
