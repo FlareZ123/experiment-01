@@ -426,7 +426,8 @@ for(const seat of [0,1]){
       // Both complete source inventories are public tournament decklists;
       // never log the physical concealed Prize/hand/deck arrangement.
       const sha=value=>createHash('sha256').update(
-        typeof value==='string'?value:JSON.stringify(value)).digest('hex');
+        Buffer.isBuffer(value)?value:
+          typeof value==='string'?value:JSON.stringify(value)).digest('hex');
       const publicInventory=deck=>deck.cards.map(row=>({
         name:row.name,count:row.count,set:row.printing.set,
         number:row.printing.number
