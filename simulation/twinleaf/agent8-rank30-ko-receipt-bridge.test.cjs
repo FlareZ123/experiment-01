@@ -122,3 +122,46 @@ for(const seat of [0,1]){
     assert.notDeepEqual(decision(enriched),{kind:'select-action',token:'raihan'});
   });
 }
+
+for(const seat of [0,1]){
+  const owner=seat===0?'Alice':'Bob',opponent=seat===0?'Bob':'Alice';
+  test('seat '+seat+' nonattack opponent-turn KO is sufficient for Raihan',()=>{
+    const t=createKnockoutTurnTracker(0);
+    t.record({turn:2,victimPlayerId:owner,
+      attackerPlayerId:opponent,byAttack:false});
+    t.completeTurn(2,opponent);
+    const req=request(seat,3,{any:true,byAttack:false});
+    const enriched=bindHostVerifiedLastOpponentKO(req,{
+      tracker:t,ownerPlayerId:owner,opponentPlayerId:opponent});
+    const cert=enriched.publicEventReceipt.hostAuthenticatedPriorOpponentTurnKO;
+    assert.deepEqual([cert.any,cert.byAttack],[true,false]);
+    assert.deepEqual(decision(enriched),{kind:'select-action',token:'raihan'});
+  });
+  test('seat '+seat+' KO with indeterminate attack provenance still supports any-KO Raihan',()=>{
+    const t=createKnockoutTurnTracker(0);
+    t.record({turn:2,victimPlayerId:owner,
+      attackerPlayerId:opponent,byAttack:null});
+    t.completeTurn(2,opponent);
+    const req=request(seat,3,{any:true,byAttack:null});
+    const enriched=bindHostVerifiedLastOpponentKO(req,{
+      tracker:t,ownerPlayerId:owner,opponentPlayerId:opponent});
+    assert.equal(enriched.publicEventReceipt.hostAuthenticatedPriorOpponentTurnKO.any,true);
+    assert.equal(enriched.publicEventReceipt.hostAuthenticatedPriorOpponentTurnKO.byAttack,false);
+    assert.deepEqual(decision(enriched),{kind:'select-action',token:'raihan'});
+  });
+  test('seat '+seat+' multiple opponent-turn KOs do not imply extra Supporter use',()=>{
+    const t=createKnockoutTurnTracker(0);
+    t.record({turn:2,victimPlayerId:owner,
+      attackerPlayerId:opponent,byAttack:true});
+    t.record({turn:2,victimPlayerId:owner,
+      attackerPlayerId:opponent,byAttack:false});
+    t.completeTurn(2,opponent);
+    const req=request(seat,3,{any:true,byAttack:true});
+    const enriched=bindHostVerifiedLastOpponentKO(req,{
+      tracker:t,ownerPlayerId:owner,opponentPlayerId:opponent});
+    assert.equal(enriched.publicEventReceipt.hostAuthenticatedPriorOpponentTurnKO.any,true);
+    assert.deepEqual(decision(enriched),{kind:'select-action',token:'raihan'});
+    enriched.observation.ownTurnResources.supporterPlayedTurn=3;
+    assert.notDeepEqual(decision(enriched),{kind:'select-action',token:'raihan'});
+  });
+}
