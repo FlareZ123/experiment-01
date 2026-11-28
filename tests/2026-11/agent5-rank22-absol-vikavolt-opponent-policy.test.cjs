@@ -340,3 +340,50 @@ test('Battle Compressor declines empty selection despite pinned native min zero'
   assert.deepEqual(policy.promptDecision({observation:o,prompt}),
     {kind:'abstain',reasonCode:'RANK22_COMPRESSOR_NO_SAFE_PAYLOAD'});
 });
+
+test('Ultra Ball ranks evolved Garbodor ahead of extra Basic, unlike Quick Ball', () => {
+  const o=observation({globalTurn:4,
+    ownPublic:player({active:poke(P.trubbishFst)}),
+    ownHand:['Ultra Ball MEG 131','Battle VIP Pass FST 225','Battle VIP Pass FST 225']
+  });
+  const ultra={kind:'play-card',actorPrinting:'Ultra Ball MEG 131'};
+  assert.equal(policy.scoreAction(ultra,root([],o)),185);
+  const cards=[choice('mega',P.mega),choice('garb',P.garbodor)];
+  const ultraPrompt={promptType:'ChooseCardsPrompt',source:{
+    sourcePrinting:'Ultra Ball MEG 131',effectName:'Ultra Ball'
+  },choices:cards};
+  assert.deepEqual(policy.promptDecision({observation:o,prompt:ultraPrompt}),
+    {kind:'select-choice',token:'garb'});
+  const quickPrompt={...ultraPrompt,source:{
+    sourcePrinting:'Quick Ball FST 237',effectName:'Quick Ball'
+  }};
+  assert.deepEqual(policy.promptDecision({observation:o,prompt:quickPrompt}),
+    {kind:'select-choice',token:'mega'});
+});
+test('Ultra Ball root declines two protected singleton payment cards', () => {
+  const o=observation({globalTurn:4,
+    ownPublic:player({active:poke(P.trubbishNvi)}),
+    ownHand:['Ultra Ball MEG 131',P.garbodor,'Tapu Koko ♢ TEU 51']
+  });
+  assert.equal(policy.scoreAction({kind:'play-card',
+    actorPrinting:'Ultra Ball MEG 131'},root([],o)),0);
+});
+test('real card-combination and Pokémon prompts yield multi-selection worker shape', () => {
+  const worker=policy.createPolicy({role:'opponent',seat:0,
+    policyVersion:policy.POLICY_VERSION,config:{}});
+  const o=observation({ownPublic:player({active:poke(P.trubbishFst)})});
+  const cardPrompt={promptType:'ChooseCardsPrompt',
+    source:{sourcePrinting:'Ultra Ball MEG 131',effectName:'Ultra Ball'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:1,maximumCount:1},
+    choices:[choice('garb',P.garbodor)]};
+  assert.deepEqual(worker.decide({...root([],o),prompt:cardPrompt}),
+    {kind:'select-choices',tokens:['garb']});
+  const holder=player({active:poke(P.garbodor,{tools:[]})});
+  const targetPrompt={promptType:'ChoosePokemonPrompt',
+    source:{sourcePrinting:'Float Stone BKT 137',effectName:'Float Stone'},
+    publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+    choices:[{kind:'pokemon',token:'holder',printing:P.garbodor,
+      publicMetadata:{ownerSeat:'actor',targetZone:'active'}}]};
+  assert.deepEqual(worker.decide({...root([],observation({ownPublic:holder})),
+    prompt:targetPrompt}),{kind:'select-choices',tokens:['holder']});
+});
