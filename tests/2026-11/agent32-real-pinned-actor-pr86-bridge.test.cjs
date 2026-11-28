@@ -80,13 +80,17 @@ for(const seat of [0,1]){
 
   test('real pinned BASIC and native/source printing split in rank3 root; seat '+seat,()=>{
     const x=stage(seat),manager=initializeCards();
-    const sourceDeck=JSON.parse(fs.readFileSync(path.resolve(__dirname,
-      '../../results/aichi-2026/full-decklists.json'),'utf8'))
-      .decks.find(d=>d.rank===3);
-    const resolved=planAichi(1,{
+    const sourceDeckRows=JSON.parse(fs.readFileSync(path.resolve(__dirname,
+      '../../results/aichi-2026/full-decklists.json'),'utf8')).decks;
+    const sourceDeck=sourceDeckRows.find(d=>d.rank===3);
+    const opponentDeck=sourceDeckRows.find(d=>d.rank===1);
+    const sourcePlan=planAichi(1,{
       allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true
-    }).opponents.find(d=>d.rank===3);
+    });
+    const resolved=sourcePlan.opponents.find(d=>d.rank===3);
+    const opponentResolved=sourcePlan.opponents.find(d=>d.rank===1);
     assert.equal(resolved.status,'ready');
+    assert.equal(opponentResolved.status,'ready');
     const sourcePool=resolved.cards.map(name=>createCard(manager,name));
     const take=name=>{
       const i=sourcePool.findIndex(card=>card.fullName===name);
@@ -124,8 +128,33 @@ for(const seat of [0,1]){
     assert.deepEqual(actual60.map(c=>c.fullName).sort(),
       resolved.cards.slice().sort(),
       'actual pinned physical rank3 side must contain exactly its frozen 60');
+    // Opponent side also consists of its ENTIRE actual Aichi rank1 source 60.
+    // It is not a synthetic 30-Energy deck or a guessed opponent print pool.
+    const opposingPool=opponentResolved.cards.map(name=>createCard(manager,name));
+    const oppActiveIndex=opposingPool.findIndex(c=>
+      c.fullName==='Shadow Rider Calyrex V CRE');
+    assert.ok(oppActiveIndex>=0);
+    const oppActive=opposingPool.splice(oppActiveIndex,1)[0];
+    replaceActive(x.opponent,[oppActive]);
+    for(const slot of x.opponent.bench){
+      slot.cards.length=0;slot.energies.cards.length=0;slot.damage=0;
+    }
+    x.opponent.hand.cards.length=0;
+    x.opponent.hand.cards.push(...opposingPool.splice(0,7));
     x.opponent.deck.cards.length=0;
-    for(let i=0;i<30;i++)x.opponent.deck.cards.push(createCard(manager,'Psychic Energy SVE'));
+    for(const prize of x.opponent.prizes)prize.cards.length=0;
+    for(const prize of x.opponent.prizes)prize.cards.push(opposingPool.pop());
+    x.opponent.deck.cards.push(...opposingPool);
+    const opponentActual60=[
+      ...x.opponent.active.cards,
+      ...x.opponent.bench.flatMap(slot=>slot.cards),
+      ...x.opponent.hand.cards,...x.opponent.deck.cards,
+      ...x.opponent.prizes.flatMap(prize=>prize.cards)
+    ];
+    assert.equal(opponentActual60.length,60);
+    assert.deepEqual(opponentActual60.map(c=>c.fullName).sort(),
+      opponentResolved.cards.slice().sort(),
+      'opponent must also be an exact source-60 native identity multiset');
     // Keep a nonempty Bench as a possible Active replacement; this is not
     // itself a native PlayCardAction validation.
     assert.ok(x.owner.bench.some(slot=>slot.cards.length>0));
@@ -207,7 +236,10 @@ for(const seat of [0,1]){
     // which must retain its exact native ID, not collide with BWP 28.
     assert.equal(printMap.get('Tropical Beach BWP 50'),'Tropical Beach BWP 50');
     assert.equal(printMap.has('Tropical Beach BWP'),false);
-    const maps=seat===0?[printMap,new Map()]:[new Map(),printMap];
+    const opponentMap=buildSourcePrintingMap(opponentDeck,opponentResolved.cards);
+    assert.equal(opponentMap.get('Shadow Rider Calyrex V CRE'),
+      'Shadow Rider Calyrex V CRE 74');
+    const maps=seat===0?[printMap,opponentMap]:[opponentMap,printMap];
 
     const realFrontier=buildNativeActionFrontier({
       state:x.state,actorSeat:seat,native:frontierNative()
@@ -228,6 +260,8 @@ for(const seat of [0,1]){
       actionFrontier:mapped.actionFrontier};
     assert.equal(mapped.observation.ownHand.includes('Penny SVI 183'),true);
     assert.equal(mapped.observation.ownPublic.active.printing,'Snorlax PGO 55');
+    assert.equal(mapped.observation.opponentPublic.active.printing,
+      'Shadow Rider Calyrex V CRE 74');
     assert.equal(mapped.observation.ownPublic.prizeSlots.every(p=>
       p.printing===undefined),true);
     const nativeRequest={...request,requestId:'agent32-real-printed-'+seat,
