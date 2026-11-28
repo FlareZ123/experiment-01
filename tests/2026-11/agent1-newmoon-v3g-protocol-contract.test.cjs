@@ -126,7 +126,8 @@ const hand=[remove('Gladion'),...Array.from({length:6},()=>pool.shift())];
 const known=Object.entries(pool.reduce((m,x)=>{
  m[x]=(m[x]??0)+1;return m;},{})).map(([printing,copies])=>({printing,copies}));
 const a=slot(active,'Mewtwo & Mew-GX',['Perfection']);
-const b=slot(stage1,'Dusclops',['Cursed Blast']);b.evolutionPrintings=[beneath];
+const b=slot(stage1,'Dusclops',['Cursed Blast']);b.evolutionPrintings=[beneath,stage1];
+a.evolutionPrintings=[active];
 const obs=view({active:a,bench:[b],bus:bus(),oppBench:[],
  ownPrize:6,oppPrize:3,ownHandCount:hand.length,hand});
 obs.globalTurn=4;
