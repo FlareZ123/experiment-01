@@ -1869,3 +1869,36 @@ paired('Agent7: an authenticated opponent Tropical Beach draws instead of passin
   view.ownHand=[V];view.ownPublic.handCount=1;
   assert.deepEqual(select([beach,play('bench',V,null,target('bench',0))]),sel('bench'));
 });
+
+paired('Agent46: Mist Energy does not prevent direct final-Prize damage, unlike unknown reactive Energy',(seat,profile)=>{
+  const victim=defender({hp:280,damage:0,energies:['Mist Energy TEF']});
+  const view=observation(seat,{active:vmax(Array(9).fill(P)),
+    opponentActive:victim,ownHand:[P]});
+  view.globalTurn=8;view.ownPublic.prizeCount=2;
+  const attackItem={token:'max',kind:'attack',attackName:'Max Geist'};
+  const energy=play('energy',P,M,target('active',0));
+  const policy=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile});
+  const selected=()=>policy.decideWithAudit(root(seat,view,[energy,attackItem]));
+  const receipt=selected();
+  assert.deepEqual(receipt.decision,sel('max'));
+  assert.equal(receipt.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+  // Other special Energy is intentionally not generalized: it might retaliate.
+  view.opponentPublic.active.energies=['Spiky Energy JTG'];
+  assert.notEqual(selected().policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+  // Mist is safe on a non-target Benched Pokemon as well.
+  view.opponentPublic.active.energies=[P];
+  view.opponentPublic.bench[0]=pokemon({printing:'Kyurem SFA',name:'Kyurem',
+    energies:['Mist Energy TEF']});
+  assert.equal(selected().policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+  // This addition never makes effect-based Astral counters penetrate Mist.
+  view.ownPublic.active=v([P,P,P]);
+  view.opponentPublic.active=defender({hp:280});
+  view.opponentPublic.bench=[
+    pokemon({printing:'Kyurem SFA',name:'Kyurem',hp:130,energies:['Mist Energy TEF']}),
+    pokemon({printing:'Kyurem SFA',name:'Kyurem',hp:130,energies:['Mist Energy TEF']}),
+    null,null,null
+  ];
+  const barrage={token:'barrage',kind:'attack',attackName:'Astral Barrage'};
+  const mist={token:'mist',kind:'attack',attackName:'Shadow Mist'};
+  assert.deepEqual(decide(profile,root(seat,view,[barrage,mist])),sel('mist'));
+});

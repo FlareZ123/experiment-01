@@ -4011,7 +4011,11 @@ function cleanPublicTerminalView(view,direct=false,extraHarmlessAbility=null){
     (direct&&slot===view.opponentPublic.active&&isDragon(slot)&&hasName(t,'Stealthy Hood'))) &&
   (slot.energies??[]).every(p=>
     isBasicEnergyPrinting(p) ||
-    (direct&&hasName(p,'Double Dragon Energy')&&isDragon(slot))))&&
+    (direct && (
+      (hasName(p,'Double Dragon Energy')&&isDragon(slot)) ||
+      // Mist prevents effects of attacks, not directly dealt damage.
+      // This is deliberately direct-only, never an Astral effect bypass.
+      hasName(p,'Mist Energy')))))&&
     !(view.ownPublic.active.specialConditions??[]).length&&
     !(view.opponentPublic.active.specialConditions??[]).length&&
     [...view.ownPublic.stadium,...view.opponentPublic.stadium].every(p=>hasAnyName(p,['Sky Field','Dimension Valley','Temple of Sinnoh']));
