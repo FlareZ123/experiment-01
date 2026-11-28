@@ -1473,7 +1473,7 @@ function currentActiveCanRetreat(view) {
     /ASLEEP|PARALYZED/i.test(String(condition)));
 }
 
-function toolsKnownLive(view) {
+function toolsKnownLive(view, recipient) {
   const own = view.ownPublic.publicTurnRestrictions
     .stadiumAndToolHaveNoEffectTurnsRemaining;
   const opp = view.opponentPublic.publicTurnRestrictions
@@ -1518,7 +1518,7 @@ function scoreTrainerPlay(item, view, receipt) {
     const target = ownedToolRecipient(item, view);
     const vstarUsed = view.ownPublic.publicTurnRestrictions.vstarUsed;
     if (target && hasName(target.printing, 'Shadow Rider Calyrex V') &&
-        vstarUsed === false && toolsKnownLive(view) &&
+        vstarUsed === false && toolsKnownLive(view, target) &&
         view.ownPublic.deckCount > 0 && stoneSearchNeed(view) &&
         !hasName(view.opponentPublic.active?.printing, 'Iron Thorns ex')) {
       return 680;
@@ -1531,7 +1531,7 @@ function scoreTrainerPlay(item, view, receipt) {
       view.ownPublic.bench.some(slot => slot &&
         bestAttackForSlot(slot, view, view.opponentPublic.active));
     if (target && target === view.ownPublic.active && fundedSuccessor &&
-        toolsKnownLive(view) && currentActiveCanRetreat(view) &&
+        toolsKnownLive(view, target) && currentActiveCanRetreat(view) &&
         !freeRetreatKnown(view)) return 650;
     return -Infinity;
   }
@@ -1733,11 +1733,11 @@ function chooseRoot(view, request) {
         view.ownPublic.publicTurnRestrictions.vstarUsed !== false ||
         !stoneSearchNeed(view) ||
         view.ownPublic.deckCount <= 0 ||
-        !toolsKnownLive(view) ||
         hasName(view.opponentPublic.active?.printing, 'Iron Thorns ex')) return false;
     return ownBoard(view).some(slot =>
       hasName(slot.printing, 'Shadow Rider Calyrex V') &&
-      slot.tools.some(tool => hasName(tool, 'Forest Seal Stone')));
+      slot.tools.some(tool => hasName(tool, 'Forest Seal Stone')) &&
+      toolsKnownLive(view, slot));
   });
   if (starAlchemy) {
     setPolicyAuditRule('ROOT_FOREST_SEAL_STONE_STAR_ALCHEMY',
