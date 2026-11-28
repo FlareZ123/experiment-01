@@ -1556,7 +1556,7 @@ function canGuzmaForAttack(view, receipt) {
   }));
 }
 
-function scoreTrainerPlay(item, view, receipt) {
+function scoreTrainerPlay(item, view, receipt, items=[]) {
   const name = item.actorPrinting ?? '';
   const supporterUsed = view.ownTurnResources.supporterPlayedTurn > 0;
   if (name === 'Forest Seal Stone SIT 156') {
@@ -1681,7 +1681,13 @@ function scoreTrainerPlay(item, view, receipt) {
     // Spend the one mobility Tool only when it unlocks an actually payable
     // Bench attack. A no-cost Active retreat is available next decision;
     // preserve other Tools and the only copy of Float Stone otherwise.
-    if (freeRetreatKnown(view)) return -Infinity;
+    // A native-retreat action with an isolated effective-cost certificate
+    // dominates spending Float Stone, even when the printed Skyliner Ability
+    // has unknown suppression status in the actor observation.
+    if (freeRetreatKnown(view) || items.some(action =>
+      action.kind === 'retreat' &&
+      action.publicMetadata?.freeRetreat === true &&
+      action.publicMetadata?.retreatEnergyCost === 0)) return -Infinity;
     const current = bestAttackForSlot(active, view, view.opponentPublic.active,
       {publicEventReceipt: receipt});
     const bestBench = view.ownPublic.bench.filter(Boolean).map(slot =>
@@ -1728,13 +1734,27 @@ function freeRetreatKnown(view) {
 }
 
 function chooseRetreat(view, items, receipt) {
-  if (!freeRetreatKnown(view) || !view.opponentPublic.active) return null;
+  if (!view.opponentPublic.active) return null;
   const current = bestAttackForSlot(view.ownPublic.active, view,
     view.opponentPublic.active, { publicEventReceipt: receipt });
   const retreats = items.filter(item => item.kind === 'retreat');
   let best = null;
   for (const item of retreats) {
-    const index = item.publicMetadata?.benchIndex;
+    const m=item.publicMetadata ?? {};
+    const costMetadataPresent=m.retreatEnergyCost!==undefined ||
+      m.freeRetreat!==undefined;
+    // The actual native Cost certificate, when present, supersedes a
+    // speculative printed Ability status. A malformed/inconsistent partial
+    // certificate cannot enable retreat. Without one, preserve the existing
+    // conservative public printed Tool/Skyliner logic.
+    const zeroCost=costMetadataPresent ?
+      Number.isSafeInteger(m.retreatEnergyCost)&&m.retreatEnergyCost===0&&
+      m.freeRetreat===true : freeRetreatKnown(view);
+    if(!zeroCost){
+      recordPolicyAuditUnscored(item.token,'RETREAT_COST_NOT_PROVEN_ZERO');
+      continue;
+    }
+    const index = m.benchIndex;
     if (!Number.isSafeInteger(index)) continue;
     const target = view.ownPublic.bench[index];
     if (!target || (item.targetPrinting && item.targetPrinting !== target.printing)) {
@@ -1780,7 +1800,7 @@ function chooseRoot(view, request) {
     const basic = scoreBasicPlay(item, view, request.publicEventReceipt);
     const evolution = scoreEvolutionPlay(item);
     const energy = scoreEnergyPlay(item, view, request.publicEventReceipt, items);
-    const trainer = scoreTrainerPlay(item, view, request.publicEventReceipt);
+    const trainer = scoreTrainerPlay(item, view, request.publicEventReceipt, items);
     const score = Math.max(basic, evolution, energy, trainer);
     recordPolicyAuditScore(item.token, score, 'NO_ELIGIBLE_PLAY_COMPONENT', [
       { name: 'basic-play', score: basic },
