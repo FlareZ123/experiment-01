@@ -840,10 +840,23 @@ function singleSelectContract(prompt) {
     choice.kind !== 'cancel' && choice.kind !== 'empty-selection');
   if ((allowCancel && cancelChoices.length !== 1) ||
       (!allowCancel && cancelChoices.length !== 0)) fail('BAD_SINGLE_SELECT_CANCEL_CHOICE');
-  if (emptyChoices.length !== 0) fail('BAD_SINGLE_SELECT_EMPTY_CHOICE');
+  // The pinned Handheld Fan uses a single-select AttachEnergyPrompt with
+  // min=0/max=1. Its native [] result is a genuine legal no-transfer choice
+  // when the attacker has no eligible Energy or Bench. No other owner prompt
+  // gains this exception, and the empty choice remains explicitly typed.
+  const fanNativeEmpty = metadata.selectionType === 'energy-attachment' &&
+    metadata.minimumCount === 0 && metadata.maximumCount === 1 &&
+    prompt.promptType === 'AttachEnergyPrompt' &&
+    prompt.source?.sourceKind === 'card-effect' &&
+    prompt.source?.sourcePrinting === 'Handheld Fan TWM' &&
+    prompt.source?.effectName === 'Handheld Fan';
+  if (emptyChoices.length !== 0 &&
+      (!fanNativeEmpty || emptyChoices.length !== 1)) fail('BAD_SINGLE_SELECT_EMPTY_CHOICE');
   if (selectableChoices.some(choice => choice.kind !== itemKind)) fail('BAD_SINGLE_SELECT_ITEM_KIND');
-  if (selectableChoices.length === 0 && !allowCancel) fail('BAD_SINGLE_SELECT_CHOICES');
-  return { selectionType: metadata.selectionType, itemKind, allowCancel };
+  if (selectableChoices.length === 0 && !allowCancel && emptyChoices.length === 0)
+    fail('BAD_SINGLE_SELECT_CHOICES');
+  return { selectionType: metadata.selectionType, itemKind, allowCancel,
+    allowEmpty: fanNativeEmpty };
 }
 
 function validatePrompt(prompt, seat) {
@@ -968,7 +981,7 @@ function validateDecision(decision, prompt, actionTokens) {
       if (choice.kind === 'cancel') {
         if (!single.allowCancel) fail('CANCEL_NOT_ALLOWED');
       } else if (choice.kind === 'empty-selection') {
-        fail('EMPTY_SELECTION_NOT_ALLOWED');
+        if (!single.allowEmpty) fail('EMPTY_SELECTION_NOT_ALLOWED');
       } else if (choice.kind !== single.itemKind) {
         fail('BAD_SINGLE_SELECT_ITEM_KIND');
       }
