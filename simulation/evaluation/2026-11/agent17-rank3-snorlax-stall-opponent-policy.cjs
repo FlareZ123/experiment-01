@@ -1357,7 +1357,7 @@ function promptDecision(request) {
     const preSwitchActive = observation.ownPublic?.active ?? null;
     const futureBenchWater = !matches(preSwitchActive?.printing ?? '', PRINT.articuno) &&
       list(preSwitchActive?.energies).some(energy =>
-        /^Water Energy\\b/i.test(valueText(energy)));
+        /^Water Energy\b/i.test(valueText(energy)));
     const acceptAscent = ascentSource && (benchWater || futureBenchWater) && !gxUsed(observation) &&
       !matches(observation.ownPublic?.active?.printing ?? '', PRINT.snorlax) &&
       opponentActiveEnergy(observation) >= 2;
