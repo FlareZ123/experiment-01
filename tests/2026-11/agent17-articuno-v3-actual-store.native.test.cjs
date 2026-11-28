@@ -45,7 +45,7 @@ const { Stage, TrainerType, SpecialCondition, EnergyType, CardType, SuperType } 
   native('game/store/card/card-types');
 const originalRank3 = require('../../results/aichi-2026/full-decklists.json').decks
   .find(entry => entry.rank === 3);
-const { resolvePrintedDeck } = require('../../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
+const { planAichi } = require('../../simulation/evaluation/aichi-pilot.cjs');
 
 
 const bindings = { Store, PlayerType, SlotType, ResolvePromptAction };
@@ -322,21 +322,42 @@ for (const seat of [0, 1]) {
 // constructed, not the result of an original-source shuffled deal.
 // The opponent remains a constructed Regidrago board; this is NOT a game.
 function exactRank3PhysicalScene(seat) {
+  // Use the established immutable-source production plan. The pinned upstream
+  // lacks Japanese 127/S-P Player's Ceremony; planAichi explicitly opts into
+  // its reviewed research-only native hook, retaining the source identity
+  // and substitution receipt. The generic V3 resolver does not have it.
+  const plan = planAichi(1, {
+    allowEquivalentBasicEnergies: true,
+    allowJapanesePromoHooks: true
+  });
+  assert.equal(plan.engineRevision, 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05');
+  const ranked = plan.opponents.find(item => item.rank === 3);
+  assert.equal(ranked?.status, 'ready');
+  assert.equal(ranked.cards.length, 60);
+  assert.ok(ranked.substitutions.some(item =>
+    item.sourceName === "Player's Ceremony" &&
+    item.reason === 'research-only-japanese-promo-implementation'),
+  'the Japanese promo hook must be explicitly admitted');
   const scene = fixture(seat);
   const manager = initializeCards();
-  const resolved = resolvePrintedDeck(originalRank3, manager.getAllCards(), {
-    label: 'exact Aichi original rank-3 actor 60'
-  });
-  assert.equal(resolved.total, 60);
+  const resolved = {
+    total: ranked.cards.length,
+    fullNames: ranked.cards.slice(),
+    categoryCounts: originalRank3.category_counts,
+    substitutions: ranked.substitutions
+  };
   assert.deepEqual(resolved.categoryCounts, { Pokémon: 11, Trainer: 44, Energy: 5 });
   const pool = new Map();
   const allPhysical = [];
   let uniqueId = 10000 + 100 * seat;
-  for (const row of resolved.resolvedRows) {
+  let cursor = 0;
+  for (const row of originalRank3.cards) {
     const copies = [];
     for (let i = 0; i < row.count; i += 1) {
-      const card = manager.getCardByName(row.engineFullName);
-      assert.ok(card, 'source resolver failed physical materialization: ' + row.name);
+      const nativeName = ranked.cards[cursor++];
+      const card = manager.getCardByName(nativeName);
+      assert.ok(card, 'production plan failed physical materialization: ' + row.name + ' ' + nativeName);
+      assert.equal(card.name, row.name, 'research print may not silently change the source card');
       card.id = uniqueId++;
       copies.push(card);
       allPhysical.push(card);
@@ -344,6 +365,7 @@ function exactRank3PhysicalScene(seat) {
     assert.equal(pool.has(row.name), false, 'rank-3 original source duplicate row');
     pool.set(row.name, copies);
   }
+  assert.equal(cursor, 60, 'native ordered source plan did not cover all copies');
   const take = name => {
     const card = pool.get(name)?.shift();
     assert.ok(card, 'rank-3 original physical card not available: ' + name);
