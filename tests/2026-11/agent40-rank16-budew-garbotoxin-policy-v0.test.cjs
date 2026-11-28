@@ -2176,3 +2176,11 @@ for(const seat of [0,1]){
   assert.equal(policy.opponentVileplumeItemLock(q.observation),true);
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Psychic-type fallback preserves both Aichi Garbodor printings',()=>{
+  assert.equal(policy.pokemonIsPsychic(mon('Garbodor LTR 68')),true);
+  assert.equal(policy.pokemonIsPsychic(mon('Garbodor BKP 57')),true);
+  assert.equal(policy.pokemonIsPsychic(mon('Vileplume AOR 3')),false);
+ });
+}
