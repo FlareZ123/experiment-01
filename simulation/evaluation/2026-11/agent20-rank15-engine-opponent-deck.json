@@ -1,0 +1,156 @@
+{
+  "schema": "aichi-original-opponent-60-v1",
+  "source_rank": 15,
+  "source_archetype": "Lopunny/Vileplume",
+  "source_blob_sha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "format": "paper-expanded-BW-onward",
+  "normalization_note": "Exactly two source-printing aliases to canonical entries in the supplied card-list.zip; no card-name/count substitutions.",
+  "aliases": {
+    "Karen XYP 177": "Karen PR-XY XY177",
+    "Grass Energy MEE 9": "Grass Energy BLW 105"
+  },
+  "card_count": 60,
+  "distinct_printings": 35,
+  "cards": [
+    {
+      "printing": "Oddish UNB 5",
+      "count": 2
+    },
+    {
+      "printing": "Gloom UNB 7",
+      "count": 2
+    },
+    {
+      "printing": "Vileplume AOR 3",
+      "count": 2
+    },
+    {
+      "printing": "Vileplume BUS 6",
+      "count": 1
+    },
+    {
+      "printing": "Buneary PFL 83",
+      "count": 2
+    },
+    {
+      "printing": "Mega Lopunny ex PFL 84",
+      "count": 2
+    },
+    {
+      "printing": "Pidgey FLF 75",
+      "count": 2
+    },
+    {
+      "printing": "Pidgeotto TEU 123",
+      "count": 1
+    },
+    {
+      "printing": "Pidgeotto MEW 17",
+      "count": 1
+    },
+    {
+      "printing": "Pidgeot ex OBF 164",
+      "count": 2
+    },
+    {
+      "printing": "Bunnelby PRC 121",
+      "count": 2
+    },
+    {
+      "printing": "Fan Rotom SCR 118",
+      "count": 2
+    },
+    {
+      "printing": "Budew ASC 16",
+      "count": 2
+    },
+    {
+      "printing": "Eldegoss V RCL 19",
+      "count": 1
+    },
+    {
+      "printing": "Tatsugiri TWM 131",
+      "count": 1
+    },
+    {
+      "printing": "Guzma & Hala CEC 193",
+      "count": 3
+    },
+    {
+      "printing": "Guzma BUS 115",
+      "count": 2
+    },
+    {
+      "printing": "Karen PR-XY XY177",
+      "count": 2
+    },
+    {
+      "printing": "N FCO 105",
+      "count": 1
+    },
+    {
+      "printing": "Tag Call CEC 206",
+      "count": 4
+    },
+    {
+      "printing": "Buddy-Buddy Poffin TEF 144",
+      "count": 3
+    },
+    {
+      "printing": "Xtransceiver NVI 96",
+      "count": 2
+    },
+    {
+      "printing": "Technical Machine: Evolution PAR 178",
+      "count": 2
+    },
+    {
+      "printing": "Stealthy Hood UNB 186",
+      "count": 2
+    },
+    {
+      "printing": "Float Stone BKT 137",
+      "count": 1
+    },
+    {
+      "printing": "Choice Belt PAL 176",
+      "count": 1
+    },
+    {
+      "printing": "Artazon PAL 171",
+      "count": 2
+    },
+    {
+      "printing": "Grand Tree SCR 136",
+      "count": 1
+    },
+    {
+      "printing": "Path to the Peak CRE 148",
+      "count": 1
+    },
+    {
+      "printing": "Silent Lab PRC 140",
+      "count": 1
+    },
+    {
+      "printing": "Jet Energy PAL 190",
+      "count": 2
+    },
+    {
+      "printing": "Grass Energy BLW 105",
+      "count": 2
+    },
+    {
+      "printing": "Capture Energy RCL 171",
+      "count": 1
+    },
+    {
+      "printing": "Powerful Colorless Energy DAA 176",
+      "count": 1
+    },
+    {
+      "printing": "Double Colorless Energy SUM 136",
+      "count": 1
+    }
+  ]
+}
