@@ -5,6 +5,8 @@ const {projectCelestialRoarPrompt}=require(
  '../../simulation/evaluation/2026-11/agent2-rank27-celestial-roar-attachment.cjs');
 const {validateDecision,validatePrompt}=require(
  '../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
+const {projectPrompt}=require(
+ '../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
 
 const native={
  PlayerType:{BOTTOM_PLAYER:2,TOP_PLAYER:1},
@@ -172,5 +174,20 @@ test('source-bound host Celestial transfer reaches actual rank27 worker unchange
   const nativeRaw=projected.choiceByToken.get(d.token);
   assert.equal(nativeRaw.length,2);
   assert.equal(input.prompt.validate(input.prompt.decode(nativeRaw)),true);
+ }
+});
+
+test('default-off host integration opens exactly the pinned Celestial prompt',()=>{
+ for(const seat of [0,1]){
+  const input=fixture(seat,2,1);
+  assert.throws(()=>projectPrompt(input),
+    /AttachEnergyPrompt is not from the pinned Underworld Door source/);
+  const opted=projectPrompt({...input,allowRank27CelestialRoarSource:true});
+  const direct=projectCelestialRoarPrompt(input);
+  assert.deepEqual(opted.promptProjection,direct.promptProjection);
+  assert.deepEqual(
+   opted.choiceByToken.get('r27-celestial-all-2'),
+   direct.choiceByToken.get('r27-celestial-all-2'));
+  assert.equal(opted.diagnostics.nativeRequiredEnergyCount,2);
  }
 });
