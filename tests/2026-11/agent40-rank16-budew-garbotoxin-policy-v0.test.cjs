@@ -1,0 +1,103 @@
+'use strict';
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const protocol=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
+const policy=require('../../simulation/evaluation/2026-11/agent40-rank16-budew-garbotoxin-opponent-v0.cjs');
+const P=policy.POLICY_VERSION;
+const pass={kind:'pass',token:'pass'};
+const attack=(name,token,paid=true)=>({kind:'attack',token,attackName:name,publicMetadata:{attackCostPayable:paid}});
+const ability=(name,token)=>({kind:'use-ability',token,publicMetadata:{abilityName:name}});
+const play=(printing,token,metadata={})=>({kind:'play-card',token,actorPrinting:printing,publicMetadata:metadata});
+const tool=play('Float Stone BKT 137','tool',{targetSeat:'actor',targetZone:'bench',targetIndex:0});
+const mon=(printing,over={})=>({printing,hp:200,damage:0,energies:[],tools:[],abilitySuppressions:[],...over});
+const own=(over={})=>({active:mon('Budew ASC 16'),bench:[mon('Garbodor LTR 68')],deckCount:35,discard:[],prizeCount:6,stadium:[],publicTurnRestrictions:{},...over});
+const opp=(over={})=>({active:mon('Shadow Rider Calyrex VMAX CRE 75',{hp:320}),bench:[],stadium:[],...over});
+function root(seat,items,over={}){
+ return{role:'opponent',seat,prompt:null,observation:{
+  actorSeat:seat,phase:2,globalTurn:over.globalTurn??3,ownHand:over.ownHand??[],
+  ownPublic:over.ownPublic??own(),opponentPublic:over.opponentPublic??opp(),
+  ownTurnResources:{supporterPlayedTurn:0,...over.ownTurnResources}
+ },actionFrontier:{items}};
+}
+const choice=(token,printing,zone='deck',meta={})=>({kind:'card',token,printing,label:printing,publicMetadata:{ownerSeat:'actor',sourceZone:zone,...meta}});
+function prompt(seat,opts,over={}){
+ const q=root(seat,[],over);q.observation.phase=over.phase??2;
+ q.prompt={promptType:opts.promptType??'ChooseCardsPrompt',
+  source:opts.source??{sourceKind:'card-effect',sourcePrinting:'Ultra Ball MEG 131',effectName:'Ultra Ball'},
+  publicMetadata:{selectionType:'card-combination',minimumCount:1,maximumCount:1,allowCancel:false,...opts.publicMetadata},
+  choices:opts.choices??[]};
+ return q;
+}
+function decide(seat,req){
+ const out=policy.createPolicy({role:'opponent',seat,policyVersion:P,config:{}}).decide(req);
+ protocol.validateDecision(out,req.prompt,new Set(req.actionFrontier.items.map(x=>x.token)));
+ return out;
+}
+test('exact 60 rank16 source identity and distinct prints',()=>{
+ assert.equal(policy.SOURCE_RANK,16);
+ assert.equal(policy.SOURCE_INVENTORY.reduce((n,x)=>n+x[1],0),60);
+ for(const [printing,count] of [['Trubbish CRI 56',2],['Garbodor LTR 68',2],['Garbodor BKP 57',1],['Budew ASC 16',2],['Dedenne-GX UNB 57',1]])
+  assert(policy.SOURCE_INVENTORY.some(x=>x[0]===printing&&x[1]===count));
+ assert(!policy.SOURCE_INVENTORY.some(x=>x[0]==='Oranguru V ASR 133'));
+});
+for(const seat of [0,1]){
+ test('seat '+seat+' role/observation binding',()=>{
+  const q=root(seat,[pass]);q.observation.actorSeat=1-seat;
+  assert.deepEqual(decide(seat,q),{kind:'abstain',reasonCode:'ROLE_SEAT_BINDING_MISMATCH'});
+ });
+ test('seat '+seat+' setup Ability before Garbotoxin Tool before Budew Item lock',()=>{
+  const q=root(seat,[play('Crobat V DAA 104','crobat'),tool,attack('Itchy Pollen','budew'),pass]);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'crobat'});
+  q.actionFrontier.items=[tool,attack('Itchy Pollen','budew'),pass];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'tool'});
+  q.actionFrontier.items=[attack('Itchy Pollen','budew'),pass];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'budew'});
+ });
+ test('seat '+seat+' do not Dedechange protected only attacker',()=>{
+  const q=root(seat,[play('Dedenne-GX UNB 57','dede'),tool,pass],{ownHand:['Mega Absol ex MEG 86']});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'tool'});
+  q.observation.ownHand=['Darkness Energy MEE 15'];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'dede'});
+ });
+ test('seat '+seat+' Star Alchemy before own Ability lock',()=>{
+  assert.deepEqual(decide(seat,root(seat,[ability('Star Alchemy','star'),tool,pass])),{kind:'select-action',token:'star'});
+ });
+ test('seat '+seat+' suppress Garbotoxin tool under Jamming Tower',()=>{
+  const q=root(seat,[tool,attack('Itchy Pollen','budew'),pass]);
+  q.observation.opponentPublic.stadium=['Jamming Tower TWM 153'];
+  assert.equal(policy.toolEnabled(q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'budew'});
+ });
+ test('seat '+seat+' immediate Terminal Period over lock only at exact 300 damage',()=>{
+  const q=root(seat,[attack('Terminal Period','terminal'),tool,pass],{opponentPublic:opp({active:mon('Mega Lopunny ex PFL 84',{hp:330,damage:300})})});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'terminal'});
+  q.observation.opponentPublic.active.damage=290;
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'tool'});
+ });
+ test('seat '+seat+' unpayable attack never chosen',()=>{
+  assert.deepEqual(decide(seat,root(seat,[attack('Terminal Period','terminal',false),tool,pass])),{kind:'select-action',token:'tool'});
+ });
+ test('seat '+seat+' real pre-deal setup keeps Trubbish and attacker, not Crobat',()=>{
+  const choices=[choice('m','Mega Absol ex MEG 86','hand',{isOwnerVisible:true}),choice('b','Budew ASC 16','hand',{isOwnerVisible:true}),
+   choice('t','Trubbish CRI 56','hand',{isOwnerVisible:true}),choice('c','Crobat V DAA 104','hand',{isOwnerVisible:true})];
+  const q=prompt(seat,{source:{sourceKind:'engine',sourcePrinting:null,effectName:'CHOOSE_STARTING_POKEMONS'},
+   choices,publicMetadata:{minimumCount:1,maximumCount:6}},{phase:1});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['b','t','m']});
+ });
+ test('seat '+seat+' Ultra Ball chooses rank16 Garbodor printing',()=>{
+  const q=prompt(seat,{choices:[choice('g','Garbodor BKP 57'),choice('old','Oranguru V ASR 133'),choice('d','Darkness Energy MEE 15')]},
+   {ownPublic:own({bench:[mon('Trubbish CRI 56')]})});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['g']});
+ });
+ test('seat '+seat+' exact two-card payment protects Secret Box and uses Darkness',()=>{
+  const q=prompt(seat,{choices:[choice('box','Secret Box TWM 163','hand'),choice('g','Garbodor LTR 68','hand'),
+    choice('d1','Darkness Energy MEE 15','hand'),choice('d2','Darkness Energy MEE 15','hand')],
+   publicMetadata:{minimumCount:2,maximumCount:2}});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['d1','d2']});
+ });
+ test('seat '+seat+' unsupported prompt explicitly abstains',()=>{
+  const q=prompt(seat,{source:{sourceKind:'card-effect',sourcePrinting:'Unknown TEST 1',effectName:'Unknown effect'},
+   choices:[choice('x','Darkness Energy MEE 15')]});
+  assert.deepEqual(decide(seat,q),{kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'});
+ });
+}
