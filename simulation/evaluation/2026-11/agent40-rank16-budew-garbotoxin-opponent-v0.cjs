@@ -258,6 +258,17 @@ function plumeriaDenialScore(o){
  return slots(o.opponentPublic).reduce((best,x)=>Math.max(best,
   plumeriaTargetScore(x.pokemon,x.zone)),0);
 }
+function battleCompressorKarenLineScore(o){
+ if(o.ownTurnResources?.supporterPlayedTurn!==0||
+    o.ownPublic?.publicTurnRestrictions?.supporterPlayLocked===true||
+    !list(o.ownHand).some(c=>match(c,PRINT.vs))||
+    list(o.ownHand).some(c=>match(c,PRINT.karen))||
+    list(o.ownPublic?.discard).some(c=>match(c,PRINT.karen))||
+    regidragoPayloadCount(o)<2)return 0;
+ // Karen may be Prized: this is only a feasible *attempt*. Native deck
+ // search will reveal offered cards; a missing Karen is not fabricated.
+ return 690;
+}
 function vsSeekerDenialScore(o,items){
  if(o.ownTurnResources?.supporterPlayedTurn!==0||
     o.ownPublic?.publicTurnRestrictions?.supporterPlayLocked===true||
@@ -509,7 +520,7 @@ function score(action,req){
  }
  if(match(p,PRINT.vip))return o.globalTurn<=2&&benchCount(own)<=3?420:0;
  if(match(p,PRINT.mail))return deckCount(o)>0?255:0;
- if(match(p,PRINT.compressor))return deckCount(o)>0?260:0;
+ if(match(p,PRINT.compressor))return deckCount(o)>0?Math.max(260,battleCompressorKarenLineScore(o)):0;
  if(match(p,PRINT.quick)||match(p,PRINT.ultra)){
   const n=match(p,PRINT.ultra)?2:1;
   return handCanPay(o,p,n)&&deckCount(o)>0?275:0;
@@ -699,7 +710,11 @@ function promptDecision(req){
    return pickRows(p,pool,bd.min,bd.max,c=>cardScore(c,o));
   }
   if(/battle compressor/.test(src)){
-   const s=c=>match(c,PRINT.dark)?100:match(c,PRINT.vip)&&o.globalTurn>2?90:0;
+   const hasVS=list(o.ownHand).some(c=>match(c,PRINT.vs));
+   const deny=regidragoPayloadCount(o)>=2&&hasVS&&
+     !list(o.ownPublic?.discard).some(c=>match(c,PRINT.karen));
+   const s=c=>deny&&match(c,PRINT.karen)?330:
+    match(c,PRINT.dark)?100:match(c,PRINT.vip)&&o.globalTurn>2?90:0;
    return pickRows(p,cards.filter(c=>zone(c)==='deck'),bd.min,bd.max,s);
   }
  }
@@ -836,4 +851,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,regidragoPayloadCount,karenDenialScore,vsSeekerDenialScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,toolEnabled,garbotoxinStatus,liveGarbotoxin};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,regidragoPayloadCount,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,toolEnabled,garbotoxinStatus,liveGarbotoxin};
