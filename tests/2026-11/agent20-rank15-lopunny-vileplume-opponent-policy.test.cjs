@@ -486,6 +486,7 @@ for(const seat of [0,1]){
   test('seat '+seat+': terminal offered Guzma gust targets 3-Prize damaged VMAX then promotes paid Mega',()=>{
     const r=gustRoot(seat);
     assert.deepEqual(decision(r),{kind:'select-action',token:'gust'});
+    r.observation.ownTurnResources.supporterPlayedTurn=7; // Gust Supporter already played.
     r.prompt={promptType:'ChoosePokemonPrompt',source:{sourcePrinting:'Guzma BUS 115',effectName:'Guzma'},
       publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
       choices:[{kind:'pokemon',token:'vmax',printing:'Shadow Rider Calyrex VMAX CRE 75',
