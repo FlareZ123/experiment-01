@@ -886,6 +886,35 @@ test('Megaton Blower strips Legacy Energy to turn same-turn VMAX KO into final 3
 });
 
 
+test('Temple of Sinnoh suppresses Legacy prize shield: attack directly and save Megaton',()=>{
+  const ownPublic=player({
+    active:pokemon(P.regidrago,{energies:[P.energy,P.energy,'Fire Energy MEE 10']}),
+    discard:[{printing:P.dragonite}]
+  });
+  ownPublic.prizeCount=3;
+  const opponentPublic=player({active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{
+    hp:320,damage:0,energies:['Legacy Energy TWM 167'],
+    printed:{subtypes:['VMAX'],weakness:[],resistance:[]}
+  })});
+  const items=[action('blower','play-card','Megaton Blower SSP 182'),
+    action('apex','attack',P.regidrago,{attackName:'Apex Dragon'}),
+    action('pass','pass')];
+  const {prizeValue}=require('../../simulation/evaluation/2026-11/agent3-rank32-regidrago-opponent-policy.cjs');
+  for(const seat of [0,1]){
+    const root=()=>request({seat,ownPublic,opponentPublic,items});
+    assert.equal(prizeValue(opponentPublic.active,root().observation),2);
+    assert.deepEqual(bestAction(root()),{kind:'select-action',token:'blower'});
+    opponentPublic.stadium=['Temple of Sinnoh ASR 155'];
+    assert.equal(prizeValue(opponentPublic.active,root().observation),3);
+    assert.deepEqual(bestAction(root()),{kind:'select-action',token:'apex'});
+    opponentPublic.stadium=[];
+    ownPublic.stadium=['Temple of Sinnoh ASR 155'];
+    assert.equal(prizeValue(opponentPublic.active,root().observation),3);
+    assert.deepEqual(bestAction(root()),{kind:'select-action',token:'apex'});
+    ownPublic.stadium=[];
+  }
+});
+
 test('Crispin on unfunded VSTAR uses distinct Basic Fire and Grass, not two Grass',()=>{
   const ownPublic=player({
     active:pokemon(P.regidrago,{energies:[]}),
