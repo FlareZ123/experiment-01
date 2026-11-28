@@ -1461,6 +1461,26 @@ function scorePlayCard(item, request) {
   const targetZone = item.publicMetadata?.targetZone ?? null;
   const toBench = targetZone === 'bench';
   const toActive = !targetZone || targetZone === 'active';
+  // Native root targetIndex is the physical slot; card names are NOT
+  // identities when multiple Thorns are on the same Bench.
+  const targetMeta=item.publicMetadata??{};
+  const physicalTarget=targetZone==='bench' &&
+      Number.isSafeInteger(targetMeta.targetIndex) &&
+      targetMeta.targetIndex>=0 &&
+      targetMeta.targetIndex<list(own.bench).length ?
+      own.bench[targetMeta.targetIndex] :
+    toActive ? own.active : null;
+  const physicalTargetBound=(targetZone==='active'||targetZone==='bench') &&
+    targetMeta.targetSeat==='actor' && targetMeta.isOwnerVisible===true &&
+    (toActive ? targetMeta.targetIndex===0 :
+      Number.isSafeInteger(targetMeta.targetIndex)) &&
+    physicalTarget?.printing===target;
+  const targetIsAttachment=[
+    PRINT.speedLightning,PRINT.doubleColorless,PRINT.spikyEnergy,
+    PRINT.captureEnergy,PRINT.handheldFan,PRINT.palaceBelt,PRINT.toolJammer
+  ].some(pattern=>matches(card,pattern));
+  if(targetIsAttachment && targetZone!==null && !physicalTargetBound)
+    return 0;
   const supporter = [
     PRINT.plumeria, PRINT.teamFlare, PRINT.guzma, PRINT.guzmaHala,
     PRINT.lusamine, PRINT.handiwork, PRINT.cynthiaCaitlin, PRINT.lillie,
@@ -1497,8 +1517,10 @@ function scorePlayCard(item, request) {
     return energyAvailable(observation) && !specialEnergyLocked(observation) &&
       matches(target || own.active?.printing, PRINT.ironThorns) &&
       !hasStadium(observation, /Temple of Sinnoh/i) &&
-      !list(own.active?.energies).some(energy => matches(energy, PRINT.speedLightning)) ?
-      (toBench ? (energyCount(own.active) === 0 ? 65 : 115) :
+      !list(physicalTarget?.energies).some(energy => matches(energy, PRINT.speedLightning)) ?
+      (toBench ?
+        (energyCount(own.active) === 0 ? 65 : 115) +
+          (energyCount(physicalTarget) === 0 ? 20 : -10 * energyCount(physicalTarget)) :
         (turboDceAttackWindow(request) &&
        (hasStadium(observation, PRINT.thunderMountain) ||
         hand.some(value => matches(value, PRINT.thunderMountain)) ||
@@ -1507,10 +1529,12 @@ function scorePlayCard(item, request) {
        hand.some(value => matches(value, PRINT.doubleColorless)) ? 85 : 155)) : 0;
   }
   if (matches(card, PRINT.doubleColorless)) {
-    const activeHasDce = list(own.active?.energies).some(energy => matches(energy, PRINT.doubleColorless));
+    const targetHasDce=list(physicalTarget?.energies).some(energy =>
+      matches(energy, PRINT.doubleColorless));
     return energyAvailable(observation) && !specialEnergyLocked(observation) &&
-      matches(target || own.active?.printing, PRINT.ironThorns) && !activeHasDce ?
-      (toBench ? (energyCount(own.active) >= 2 ? 90 : 0) :
+      matches(target || own.active?.printing, PRINT.ironThorns) && !targetHasDce ?
+      (toBench ? (energyCount(own.active) >= 2 ?
+        95 - 8 * energyCount(physicalTarget) : 0) :
        turboDceAttackWindow(request) &&
        hasStadium(observation, PRINT.thunderMountain) ? 230 : 125) : 0;
   }
@@ -1763,10 +1787,16 @@ function scoreRetreat(item, observation) {
   const active = ownActive(observation);
   const target = item.targetPrinting ?? '';
   if (!matches(active?.printing, PRINT.ironThorns)) {
-    const targetRow = slots(observation.ownPublic).find(row =>
-      row.zone === 'bench' && matches(row.pokemon.printing, PRINT.ironThorns) &&
-      row.pokemon.printing === target);
-    return targetRow ? 110 + energyCount(targetRow.pokemon) * 20 -
+    const meta=item.publicMetadata??{};
+    const benchIndex=meta.benchIndex??meta.targetIndex;
+    const targetRow=slots(observation.ownPublic).find(row=>
+      row.zone==='bench'&&row.index===benchIndex&&
+      row.pokemon.printing===target&&
+      matches(row.pokemon.printing,PRINT.ironThorns));
+    return meta.targetSeat==='actor'&&meta.targetZone==='bench'&&
+      meta.isOwnerVisible===true&&Number.isSafeInteger(benchIndex)&&
+      meta.targetIndex===benchIndex&&targetRow ?
+      110 + energyCount(targetRow.pokemon) * 20 -
       (targetRow.pokemon.damage ?? 0) : 0;
   }
   // The source strategy values a single Active Initialization lock and does
