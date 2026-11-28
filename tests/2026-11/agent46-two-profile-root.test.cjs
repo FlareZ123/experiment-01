@@ -2493,3 +2493,62 @@ test('Agent46: Compressor-Stretcher turns a real deck VMAX into an immediately p
     assert.deepEqual(decide(profile,root(seat,almostEmpty,[compressor])),sel('pass'));
   }
 });
+
+paired('Agent2: source Snorlax Block mandatory KO promotion chooses a payable next-turn final instead of trapped Latias', (seat,profile)=>{
+  // Real rank-3 printing, 4 attached Energy over preceding opposing turns.
+  // The promoted VMAX will attach the observed Basic Psychic on its next
+  // turn and take the last Prize. This is a public counterfactual, not a game.
+  const energy='Psychic Energy MEE';
+  const lat=latias(),armed=vmax([energy,energy]);
+  lat.printing='Latias ex SSP 76';
+  lat.printed.retreatCost=['Colorless'];
+  armed.printing='Shadow Rider Calyrex VMAX CRE 75';
+  armed.hp=320;
+  armed.printed.retreatCost=['Colorless','Colorless'];
+  const snorlax=pokemon({
+    printing:'Snorlax PGO 55',name:'Snorlax',hp:150,damage:60,
+    types:['Colorless'],abilities:['Block'],
+    energies:['Capture Energy RCL 171','Capture Energy RCL 171',
+      'Water Energy MEE 11','Water Energy MEE 11']
+  });
+  snorlax.specialConditions=['Asleep'];
+  const regirock=pokemon({printing:'Regirock XYP XY49',name:'Regirock',
+    hp:110,types:['Fighting']});
+  const view=observation(seat,{
+    active:null,bench:[lat,armed],opponentActive:snorlax,
+    opponentBench:[regirock],ownHand:[energy],globalTurn:8,
+    decisionKind:'owner-prompt',promptType:'ChoosePokemonPrompt'
+  });
+  view.phase=3;
+  view.ownPublic.prizeCount=1;
+  view.ownPublic.deckCount=20;
+  view.ownTurnResources.energyPlayedTurn=6;
+  const choices=[lat,armed].map((pokemon,index)=>({
+    kind:'pokemon',token:'b'+index,printing:pokemon.printing,
+    label:'Your bench '+(index+1),publicMetadata:{
+      selectionIndex:index,selectedCount:1,selectionType:'pokemon',
+      ownerSeat:'actor',targetZone:'bench',benchIndex:index,
+      isOwnerVisible:true
+    }
+  }));
+  const prompt={
+    actingSeat:seat,promptType:'ChoosePokemonPrompt',
+    description:'CHOOSE_NEW_ACTIVE_POKEMON',
+    source:{classification:'actor-choice',sourceKind:'engine',
+      sourcePrinting:null,effectName:'CHOOSE_NEW_ACTIVE_POKEMON'},
+    choices,publicMetadata:{minimumCount:1,maximumCount:1,
+      allowCancel:false,isSecret:false,selectionType:'pokemon',
+      targetZone:'bench'}
+  };
+  const request=v=>({role:'candidate',seat,observation:v,prompt,
+    publicEventReceipt:null});
+  assert.deepEqual(decide(profile,request(view)),mult('b1'));
+  assert.deepEqual(decide(profile,request({...view,ownHand:[]})),mult('b0'));
+  const disabled={...snorlax,abilitySuppressions:[{abilityName:'Block',
+    suppressed:true,sourcePrinting:'Garbodor BKP'}]};
+  assert.deepEqual(decide(profile,request({...view,
+    opponentPublic:{...view.opponentPublic,active:disabled}})),mult('b0'));
+  assert.deepEqual(decide(profile,request({...view,globalTurn:4})),mult('b0'));
+  assert.deepEqual(decide(profile,request({...view,
+    ownPublic:{...view.ownPublic,prizeCount:2}})),mult('b0'));
+});
