@@ -539,7 +539,10 @@ function score(action,req){
   if(/^Dark Asset$/i.test(a)&&handCount(o)<=4&&deckCount(o)>0)return 660;
   if(/^Wonder Tag$/i.test(a)&&o.ownTurnResources?.supporterPlayedTurn===0&&deckCount(o)>0)return 610;
   if(/^Squawk and Seize$/i.test(a)&&o.globalTurn<=2&&canRiskFullHandDiscard(o))return 625;
-  if(/^Star Alchemy$/i.test(a)&&!o.ownTurnResources?.vstarUsed&&deckCount(o)>0)return 650;
+  if(/^Star Alchemy$/i.test(a)&&!o.ownTurnResources?.vstarUsed&&deckCount(o)>0&&
+     toolEnabled(o)&&benchSupportAbilityUsable('Crobat V DAA 104',o)&&
+     slots(own).some(x=>match(x.pokemon.printing,PRINT.crobat)&&
+      list(x.pokemon.tools).some(t=>match(t,PRINT.forest))))return 650;
   return 0;
  }
  if(action.kind==='attack'){
