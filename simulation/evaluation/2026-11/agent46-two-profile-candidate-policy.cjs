@@ -1321,10 +1321,7 @@ function apexHazard(view,discard=view.opponentPublic.discard,rows=hazardBoard(vi
  * The pair is a tactical priority, never a proof of future attack denial.
  */
 function visibleTempleRegidragoFundingPairBonus(view,names){
-  if(!Array.isArray(names)||names.length!==2||
-     !names.some(n=>hasName(n,'Megaton Blower'))||
-     !names.some(n=>hasName(n,'Crispin'))||
-     templeLive(view)!==true)return 0;
+  if(!Array.isArray(names)||names.length!==2||templeLive(view)!==true)return 0;
   const opp=view?.opponentPublic,active=opp?.active;
   if(!active||!hasName(active.printing,'Regidrago VSTAR')||
      !Array.isArray(active.energies)||active.energies.length!==2||
@@ -1332,19 +1329,13 @@ function visibleTempleRegidragoFundingPairBonus(view,names){
      opp.publicTurnRestrictions?.vstarUsed!==false)return 0;
   const isGrass=e=>/^(?:Basic )?Grass Energy(?: |$)/.test(e);
   if(active.energies.filter(isGrass).length!==1||
-     active.energies.filter(e=>hasName(e,'Double Dragon Energy')).length!==1)
-    return 0;
-  const publicLost=opp.lostZone;
-  if(!publicLost.some(e=>hasName(e,'Silent Lab'))||
-     !publicLost.some(e=>hasName(e,'Parallel City')))return 0;
+     active.energies.filter(e=>hasName(e,'Double Dragon Energy')).length!==1)return 0;
+  if(!opp.lostZone.some(e=>hasName(e,'Silent Lab'))||
+     !opp.lostZone.some(e=>hasName(e,'Parallel City')))return 0;
   if(opp.discard.filter(e=>hasName(e,'Megaton Blower')).length!==1||
      opp.discard.filter(e=>hasName(e,'Crispin')).length!==1)return 0;
-  // Require at least one publicly discarded attack donor. Avoid scoring a
-  // speculative future Regidrago that has no revealed copied-attack payload.
-  if(observedPayloads(opp.discard,view).length===0)return 0;
-  // If Legacy Star was already spent, the discarded ACE SPEC is not a
-  // presently demonstrated retrieval channel. Other visible removal outs
-  // likewise invalidate the rank13-like paired-cut proxy.
+  // Publicly visible other removal channels prevent any paired source-cut
+  // inference from the two exposed Stadiums / Megaton / Crispin alone.
   const otherRemoval=['Marshadow UNB','Faba','Field Blower'];
   if([...opp.discard,...opponentBoard(view).map(p=>p.printing)]
       .some(p=>hasAnyName(p,otherRemoval)))return 0;
@@ -1352,9 +1343,24 @@ function visibleTempleRegidragoFundingPairBonus(view,names){
   if(publicEnergyCanPay(active,apex,view,true)!==false)return 0;
   if((opp.bench??[]).some(slot=>slot&&hasName(slot.printing,'Regidrago VSTAR')&&
        publicEnergyCanPay(slot,apex,view,true)===true))return 0;
-  // Not a claimed guarantee: other hidden Stadiums, other attackers, Raihan
-  // after a KO, draw and non-source escape lines may still exist.
-  return 7000;
+  const beforeDonors=observedPayloads(opp.discard,view);
+  if(!beforeDonors.length)return 0;
+  const remain=opp.discard.slice();
+  for(const name of names){
+    const i=remain.indexOf(name);
+    if(i<0)return 0;
+    remain.splice(i,1);
+  }
+  // Next-turn observable attack potential has two independent gates:
+  // a recoverable funding channel AND an attack donor still in discard.
+  // This protects against blindly favouring a pair of funding counters
+  // over two donors that are themselves the entire visible attack payload.
+  const fundingAfter=remain.some(e=>hasName(e,'Megaton Blower'))||
+     remain.some(e=>hasName(e,'Crispin'));
+  const donorsAfter=observedPayloads(remain,view).length>0;
+  // Upper-bound tactical proxy, not a real-game denial certificate:
+  // unseen donors, outs, hand/deck/Prize draws and Raihan may change access.
+  return !fundingAfter||!donorsAfter?2500:0;
 }
 function getLostPairs(view,rows){
   const before=apexHazard(view);
