@@ -392,3 +392,64 @@ to stay within the connector's per-script tool-call limit.**
 No Node runner, native pinned Store, CI or completed game.
 The 99.5% target is not demonstrated; zero Aichi matchups
 are qualified by this work.
+
+## Garbotoxin: entry-Ability loss and illusory Stealthy Hood demand
+
+Four authenticated Aichi Top 32 lists (**ranks 8, 11,
+16 and 22**) carry Garbodor with **Garbotoxin**:
+`Garbodor LTR68` and/or `Garbodor BKP57`.
+Its live attached-Tool condition makes Abilities in play
+inoperative. The candidate formerly treated **every
+Garbodor** in the opponent's Board as an Ability lock,
+even if no Tool was attached, while the strategic
+Bench entry policy recognized only an **Active Iron
+Thorns ex** as preventing Radiant/Tapu on-play
+effects. This was internally inconsistent on both
+sides of the matchup.
+
+Added opponent-visible `opponentBlocksEntryAbilities`,
+which distinguishes exact Garbotoxin printings equipped
+with a **live attached Tool** on either Active or
+Bench, and known Active-only
+`Iron Thorns ex` / `Galarian Weezing RCL113`.
+The attached Tool has no enabling effect while
+`Jamming Tower` or explicit global Tool suppression
+is live; actor-visible Garbotoxin suppression also
+negates the lock. The candidate no longer burns
+**Radiant Eternatus** (Climactic Gate),
+**Tapu Lele-GX** (Wonder Tag), or
+**Marshadow UNB81** (Resetting Hole) in those
+certified blocked states.
+
+Likewise `hasAbilityLockThreat` formerly scanned
+**both** players' entire Boards for mere presence of
+any `Garbodor`, `Iron Thorns ex`, or
+`Snorlax PGO55`; it could consume Arven or
+the singleton **Stealthy Hood UNB186** against an
+unequipped Garbodor or a Benched,
+non-operational Active-only lock. It now checks
+the actual opposing Ability lock and treats
+Snorlax Block as a real threat only when
+**Snorlax is Active**. Source-operational
+Garbodor with Tool and Active Galarian Weezing
+remain genuine Stealthy Hood opportunities,
+while Jamming Tower suppresses the Hood itself.
+
+`tests/2026-11/agent3-garbotoxin-blocks-entry-abilities-20261128.test.cjs`
+covers 14 entry-state forks × both physical seats:
+**28/28**. Separately
+`tests/2026-11/agent3-hood-real-active-garbotoxin-lock-20261128.test.cjs`
+covers 12 real-vs-illusory lock forks × two seats:
+**24/24**. These source-policy tests are not
+native lock matrix adjudications and do not
+show a field win rate. All novel conclusions
+remain conditional on complete state visibility
+and correct native Tool/Ability suppression flags.
+
+**Candidate research advancement here:** preserving
+engine Abilities and the one-of Hood under four
+actual opposing Garbotoxin rank configurations
+rather than assuming any Pokémon called
+Garbodor always locks. The unchanged fixed
+60 carries one Hood, so false positives have
+a nontrivial opportunity cost.
