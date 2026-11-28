@@ -563,6 +563,18 @@ function attachmentScore(card, recipient, observation, zone) {
       return (opponent.deckCount??99)<=3||(own.deckCount??99)<=3?174:64;
     return 0;
   }
+  if(matches(card,PRINT.counterGain)){
+    // Counter Gain's cost reduction only applies while behind on Prizes.
+    // A native PLAY_CARD_ACTION often carries no recipient; root must score
+    // a viable currently Tool-free Pokémon then settle the physical target.
+    if(!ownBehindOnPrizes(observation)||list(recipient.tools).length>0)return 0;
+    const unfunded=list(recipient.energies).length===0;
+    const bunnelby=matches(recipient.printing,PRINT.bunnelby);
+    if(bunnelby&&zone==='active'&&unfunded)return 210;
+    if(bunnelby&&zone==='bench'&&unfunded)return 95;
+    if(zone==='active'&&unfunded)return 88;
+    return 12;
+  }
   if(matches(card,PRINT.stealthyHood)){
     if(list(recipient.tools).length>0)return 0;
     const itemLock=matches(recipient.printing,PRINT.vileplume)||
@@ -599,7 +611,8 @@ function attachmentCardFromPrompt(prompt){
   if(matches(printing,PRINT.tmEvolution)&&
     String(source.effectName??'').toLowerCase()!=='evolution')return printing;
   if(matches(printing,PRINT.jetEnergy)||matches(printing,PRINT.memoryEnergy)||
-    matches(printing,PRINT.stealthyHood)||matches(printing,PRINT.captureEnergy))
+    matches(printing,PRINT.stealthyHood)||matches(printing,PRINT.captureEnergy)||
+    matches(printing,PRINT.counterGain))
     return printing;
   return null;
 }
@@ -689,12 +702,8 @@ function scoreAction(item, request) {
   }
   if (matches(card, PRINT.tmEvolution) || matches(card, PRINT.jetEnergy) ||
       matches(card, PRINT.memoryEnergy) || matches(card, PRINT.stealthyHood) ||
-      matches(card, PRINT.captureEnergy))
+      matches(card, PRINT.captureEnergy) || matches(card, PRINT.counterGain))
     return scoredAttachmentRoot(item, observation);
-  if (matches(card, PRINT.counterGain)) {
-    return ownBehindOnPrizes(observation) &&
-      samePrinting(target, own.active?.printing) ? 190 : 0;
-  }
   if (matches(card, PRINT.grandTree)) {
     const liveEvolution = hasUnevolvedBasicFromPriorTurn(own, observation.globalTurn) &&
       hasK0PossibleGrandTreeTarget(observation) && missingLinePriority(observation) > 0;
