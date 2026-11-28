@@ -2,6 +2,10 @@
 
 **UTC:** 2026-11-28 03:15Z. **Decision:** same bounded New Moon 60 architecture comparison already sent; this is **one materially different tactical option**, not an additional frozen paper acceptance case or authority to implement/dispatch games.
 
+## One owner decision, not another paper suite
+
+**Compare one exact root + source reply before keeping v2:** source rank15 has AOR Bench + Hooded BUS Active; candidate has a **funded Active Mewtwo & Mew-GX, live Perfection, Trevenant & Dusknoir-GX donor**. A single **Boss's Orders** gusts 130-HP AOR Active and uses **Night Watch 150 + random-two hand disruption** to remove the Item-lock source with **zero self-KO Prizes**. v2's double-Dusclops + Tool Jammer route self-KOs **two** Stage-1 Pokémon, requires two manual Psychic attachments to a Jammer-bearing Dusclops (cannot wear Powerglass), and its two-Dusclops+Jammer three-card **pre-Prize unprized gate is only 72.36%** in Basic-valid starts. The exact first-eight, limited-channel card availability census is **Boss 24.06% vs Jammer 14.27%** because Tapu Lele's Wonder Tag can reach Boss, not Jammer; these are not action/win rates. Boss must also survive a **Karen/Bunnelby double-TM Evolution AOR re-lock** response, and against source Path/Silent Lab its Night Watch donor may be disabled. Existing Agent13 **Guzma/Sky** challenger has the same Lele Supporter access; Boss's unique gain in this root is **preserving the already funded Active Mewtwo** (Guzma must switch one's own Active). **No new exact 60, policy suite, CI dispatch or winner claim is authorized by this note.** The attached detail below is source-cost and reply accounting for this one decision.
+
 I checked the uploaded English card corpus rather than relying on a generic gust analogy:
 - `Vileplume AOR 3`: **130 HP**, `Irritating Pollen` locks **Items**, not Supporters.
 - `Vileplume BUS 6`: **140 HP**, `Disgusting Pollen` prevents the opponent's Basic Pokémon from attacking **only while BUS is Active**.
