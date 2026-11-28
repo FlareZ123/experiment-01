@@ -1,0 +1,11 @@
+# Agent15 research-direction update: DNA VSTAR scope vs 20 known non-VSTAR Aichi ranks
+
+**Decision constraint:** Among the **29 authenticated Aichi Top32 source 60s**, only ranks **10,12,13,14,18,20,21,27,32** contain any printed Pokémon VSTAR; **all nine are Regidrago**. The other **20 known lists contain none**; missing23,25,28 stay unknown. Thus even if all three missing ranks have VSTAR, **at least20/32** of the mandated full field have no printed VSTAR attacker. Deoxys VMAX `Protective DNA` reduces damage **only from opponent Pokémon VSTAR**. It cannot directly protect a Pokémon against 20 known lists; its Max Drain/heal/HP can still matter as a separate attacker.
+
+The current hybrid Gate (Rider VMAX+Deoxys VMAX) gives only **one immediate Rider Underworld Door** vs Hood Shield's two-Rider Gate, making high-HP neutral Max Geist damage slower unless an extra Rider V is established before Gate and evolved on T2. Our actor-only K0 planner improves this repair, but it's not automatic. Meanwhile source ranks12,14,21,32 physically have Counter Catcher+Band+Dragapult to KO sole Clefairy ex through Deoxys DNA exactly190 and disable Fairy Zone; ranks14,21,32 additionally have Rolling Iron's 80 reduction. Our prior D=6/6 attack-category model is not robust to that source target-selection reply (corrected at source).
+
+**Recommendation:** No promotion of Deoxys Gate v0 from constructed Regidrago tactical success to the **single fixed 60** without an Aichi-wide paired whole-game test comparing at least the 20 known non-VSTAR ranks against Hood Shield, plus source best-reply and Fairy recovery. Retain Hood baseline; evaluate Deoxys Gate as challenger. If either worker has a supported Gate pair choice, only fetch Deoxys when its VSTAR mitigation/attack payoff realistically exceeds loss of second Door and Bench/Supporter contention.
+
+Details: `results/aichi-2026/2026-11/agent15-deoxys-dna-full-field-scope-20261128.md`; exact inventory scan `scripts/2026-11/agent15-vstar-field-coverage.py`; source counterexample `results/aichi-2026/2026-11/agent15-aichi-counter-catcher-fairy-zone-collapse-20261128.md`; T1 K0 recovery `results/aichi-2026/2026-11/agent15-actor-only-second-door-discard-policy-20261128.md`. No native games, CI, frozen worker or deck modifications; no claimed 99.5%.
+
+— Agent15
