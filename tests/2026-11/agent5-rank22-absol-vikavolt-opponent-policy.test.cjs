@@ -106,3 +106,59 @@ test('source rank/physical seat binding is fail closed', () => {
   assert.deepEqual(instance.decide(root([pass],o)),
     {kind:'abstain',reasonCode:'ROLE_SEAT_BINDING_MISMATCH'});
 });
+
+function setupPrompt(cards, min = 1, max = 4) {
+  return {
+    promptType: 'ChooseCardsPrompt',
+    source: { sourceKind: 'engine', sourcePrinting: null, effectName: 'choose_starting_pokemons' },
+    description: 'choose_starting_pokemons',
+    publicMetadata: {
+      ownerSeat: 'actor', sourceZone: 'hand', isOwnerVisible: true,
+      selectionType: 'card-combination', minimumCount: min, maximumCount: max
+    },
+    choices: cards.map(([token, printing]) => ({
+      token, kind: 'card', printing,
+      publicMetadata: { ownerSeat: 'actor', sourceZone: 'hand', isOwnerVisible: true }
+    }))
+  };
+}
+test('initial setup chooses Vikavolt Active with Lightning and Trubbish without it', () => {
+  const cards = [['mega', P.mega], ['vikavolt', P.vikavolt], ['trubbish', P.trubbishFst]];
+  const prompt = setupPrompt(cards);
+  const decision = ownHand => policy.promptDecision({
+    prompt, observation: { ...observation({ ownHand }), phase: 1 }
+  });
+  assert.deepEqual(decision([P.lightning]), {
+    kind: 'select-choices', tokens: ['vikavolt', 'trubbish', 'mega']
+  });
+  assert.deepEqual(decision([P.dark]), {
+    kind: 'select-choices', tokens: ['trubbish', 'vikavolt', 'mega']
+  });
+});
+test('post-mulligan bonus preserves existing Active and respects three-Bench budget', () => {
+  const prompt = setupPrompt([['trubbish',P.trubbishNvi],['mega',P.mega],
+    ['vikavolt',P.vikavolt]],0,3);
+  const o={...observation({ownPublic:player({
+    active:poke(P.vikavolt),bench:[poke(P.trubbishFst)]
+  })}),phase:1};
+  const decision=policy.promptDecision({observation:o,prompt});
+  assert.deepEqual(decision,{kind:'select-choices',tokens:['mega']});
+});
+test('engine setup refuses a card not actually included in the source 60', () => {
+  const prompt=setupPrompt([['foreign','Iron Thorns ex TWM 77']]);
+  const decision=policy.promptDecision({
+    observation:{...observation(),phase:1},prompt
+  });
+  assert.deepEqual(decision,{kind:'abstain',reasonCode:'RANK22_UNKNOWN_SETUP_BASIC'});
+});
+test('engine chooses maximum lawful opponent mulligan bonus draw', () => {
+  const prompt={
+    promptType:'SelectPrompt',
+    source:{sourceKind:'engine',sourcePrinting:null,effectName:'want_to_draw_cards'},
+    description:'want_to_draw_cards',
+    choices:[{token:'0',label:'0'},{token:'1',label:'1'},{token:'2',label:'2'}]
+  };
+  assert.deepEqual(policy.promptDecision({
+    prompt,observation:{...observation(),phase:1}
+  }),{kind:'select-choice',token:'2'});
+});
