@@ -856,7 +856,8 @@ function resolveHostOnlyPrompt({
 }
 
 function projectPrompt({ prompt, state, actorSeat, native, store,
-  provenanceHook, allowPinnedKoPrizeEngineSource = false } = {}) {
+  provenanceHook, allowPinnedKoPrizeEngineSource = false,
+  allowRank27CelestialRoarSource = false } = {}) {
   assert.ok(prompt && state && native);
   assert.ok(actorSeat === 0 || actorSeat === 1);
   const actor = state.players[actorSeat];
@@ -868,6 +869,19 @@ function projectPrompt({ prompt, state, actorSeat, native, store,
   const provenance = provenanceHook?.getPromptProvenance?.(prompt) ?? null;
   const hostOnly = hostOnlyPrompt(prompt, provenance);
   if (hostOnly) return { ...hostOnly, choiceByToken: new Map() };
+  // The pinned SIT135 attack opens an all-Energy AttachEnergyPrompt that the
+  // canonical Underworld Door-only projector cannot handle. This branch-only
+  // gate remains OFF by default and does not change frozen V3 behavior.
+  if(allowRank27CelestialRoarSource===true &&
+     prompt.constructor?.name==='AttachEnergyPrompt' &&
+     provenance?.sourceCard?.name==='Regidrago V') {
+    const {projectCelestialRoarPrompt}=
+      require('./agent2-rank27-celestial-roar-attachment.cjs');
+    return projectCelestialRoarPrompt({
+      prompt,state,actorSeat,native,store,provenanceHook,
+      testProjectionApi:module.exports
+    });
+  }
 
   const source = makeSource(prompt,state,actorSeat,provenance,
     {allowPinnedKoPrizeEngineSource});
