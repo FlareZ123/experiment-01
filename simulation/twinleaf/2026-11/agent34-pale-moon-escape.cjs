@@ -198,27 +198,32 @@ function choosePaleMoonEscapeGuzmaPrompt(view, prompt) {
  * We abstain when any known lock, Tool suppression, alternate Tool, or
  * ambiguous physical Bench target could invalidate the continuation.
  */
-function choosePaleMoonFloatStonePreparation(view,items) {
-  if(view?.decisionKind!=='owner-root'||
-     view?.ownPublic?.active?.publicRestrictions?.pendingPaleMoonGXKnockOut!==true ||
-     !terminalPaleMoonPrizeRisk(view) || !Array.isArray(items))return null;
+function canPaleMoonFloatStoneEscape(view) {
+  if(!terminalPaleMoonPrizeRisk(view))return false;
   const player=view.ownPublic,active=player.active,opponent=view.opponentPublic;
   if(!Array.isArray(player.bench) || player.bench.filter(Boolean).length!==1 ||
      !Array.isArray(active?.tools) || active.tools.length!==0 ||
      !Array.isArray(active?.specialConditions) || active.specialConditions.length!==0 ||
      !Array.isArray(active?.printed?.retreatCost) || active.printed.retreatCost.length===0 ||
      view.ownTurnResources?.retreatedTurn!==0 ||
-     view.ownTurnResources?.toolPlayLocked!==false)return null;
+     view.ownTurnResources?.toolPlayLocked!==false)return false;
   const r=active.publicRestrictions??{};
   if(r.cannotRetreat!==false || r.cannotRetreatNextTurn!==false ||
-     r.cannotRetreatWhileActive!==false)return null;
+     r.cannotRetreatWhileActive!==false)return false;
   if(player.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining!==0 ||
      opponent.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining!==0)
-    return null;
+    return false;
   const stadiums=[...(player.stadium??[]),...(opponent.stadium??[])];
-  if(stadiums.some(p=>typeof p==='string' && p.includes('Jamming Tower')))return null;
+  if(stadiums.some(p=>typeof p==='string' && p.includes('Jamming Tower')))return false;
   if((opponent.active?.tools??[]).some(p=>
-      typeof p==='string' && p.includes('Tool Jammer')))return null;
+      typeof p==='string' && p.includes('Tool Jammer')))return false;
+  return true;
+}
+
+function choosePaleMoonFloatStonePreparation(view,items) {
+  if(view?.decisionKind!=='owner-root'||!Array.isArray(items)||
+     !canPaleMoonFloatStoneEscape(view))return null;
+  const active=view.ownPublic.active;
   const stones=items.filter(item=>item?.kind==='play-card'&&
      ['Float Stone PLF','Float Stone BKT'].includes(item.actorPrinting)&&
      item.publicMetadata?.targetSeat==='actor'&&
@@ -296,6 +301,63 @@ function choosePaleMoonVSSeekerPrompt(view,prompt) {
     reason:'PUBLIC_PALE_MOON_VS_SEEKER_RANGER_GUZMA_PROMPT'};
 }
 
+/**
+ * Higher-contention but potentially real emergency tutor:
+ * printed Arven SVI 166, then the authenticated owner deck-search prompt,
+ * then a legal Float Stone Tool attachment and genuine retreat. In contrast
+ * to VS Seeker, the owner has no visibility into the deck until the actual
+ * card-effect search prompt, so this root is a *chance* of rescue, not
+ * guaranteed access. Never peek at physical deck identities in root logic.
+ */
+function choosePaleMoonArvenPreparation(view,items) {
+  if(view?.decisionKind!=='owner-root'||!Array.isArray(items)||
+     !canPaleMoonFloatStoneEscape(view)||
+     view.ownTurnResources?.supporterPlayedTurn!==0 ||
+     view.ownTurnResources?.supporterPlayLocked!==false ||
+     view.ownPublic?.publicTurnRestrictions?.supporterPlayLocked!==false ||
+     !Number.isSafeInteger(view.ownPublic?.deckCount) ||
+     view.ownPublic.deckCount<=0 ||
+     !Array.isArray(view.ownHand) ||
+     view.ownHand.some(name=>name==='Float Stone BKT'||name==='Float Stone PLF'))
+    return null;
+  const arvens=items.filter(item=>item?.kind==='play-card'&&
+    item.actorPrinting==='Arven SVI'&&
+    (typeof item.token==='string'||Number.isSafeInteger(item.token)));
+  if(arvens.length!==1)return null;
+  return {token:arvens[0].token,
+    reason:'PUBLIC_PALE_MOON_ARVEN_TRY_TOOL_SEARCH'};
+}
+function choosePaleMoonArvenPrompt(view,prompt) {
+  if(view?.decisionKind!=='owner-prompt' ||
+     !canPaleMoonFloatStoneEscape(view) ||
+     prompt?.promptType!=='ChooseCardsPrompt' ||
+     prompt?.source?.classification!=='actor-choice' ||
+     prompt.source.sourceKind!=='card-effect' ||
+     prompt.source.sourcePrinting!=='Arven SVI' ||
+     prompt?.publicMetadata?.selectionType!=='card-combination' ||
+     prompt.publicMetadata.minimumCount!==0 ||
+     !Number.isSafeInteger(prompt.publicMetadata.maximumCount)||
+     prompt.publicMetadata.maximumCount<1 ||
+     prompt.publicMetadata.maximumCount>2 ||
+     prompt.publicMetadata.allowCancel!==false ||
+     prompt.publicMetadata.sourceZone!=='deck' ||
+     prompt.publicMetadata.ownerSeat!=='actor' ||
+     prompt.publicMetadata.isOwnerVisible!==true ||
+     !Array.isArray(prompt.choices))return null;
+  const stones=prompt.choices.filter(item=>item?.kind==='card'&&
+    ['Float Stone BKT','Float Stone PLF'].includes(item.printing) &&
+    item.publicMetadata?.ownerSeat==='actor'&&
+    item.publicMetadata?.sourceZone==='deck'&&
+    item.publicMetadata?.isOwnerVisible===true&&
+    (typeof item.token==='string'||Number.isSafeInteger(item.token)));
+  if(stones.length!==1)return null;
+  // A single Tool is within the printed maxTools=1 constraint; an optional
+  // Item is consciously declined so this line cannot waste time or
+  // introduce unmodeled discard/connectivity dependencies.
+  return {tokens:[stones[0].token],
+    reason:'PUBLIC_PALE_MOON_ARVEN_ONE_TOOL_CHOICE'};
+}
+
 function rescuePaleMoonTerminalPass(view,items,originalToken) {
   if(!Array.isArray(items) ||
       view?.decisionKind!=='owner-root' ||
@@ -321,7 +383,8 @@ function rescuePaleMoonTerminalPass(view,items,originalToken) {
     reason:'PUBLIC_PALE_MOON_TERMINAL_PASS_OVERRIDE',
     selectedSourceReason:saves[0].reason};
   const setup=choosePaleMoonFloatStonePreparation(view,items) ??
-    choosePaleMoonVSSeekerPreparation(view,items);
+    choosePaleMoonVSSeekerPreparation(view,items) ??
+    choosePaleMoonArvenPreparation(view,items);
   return setup?{token:setup.token,
     reason:'PUBLIC_PALE_MOON_TERMINAL_PASS_PREPARATION',
     selectedSourceReason:setup.reason}:null;
@@ -339,5 +402,8 @@ module.exports = {
   terminalPaleMoonPrizeRisk,
   preferredPaleMoonDiscardSupporter,
   choosePaleMoonVSSeekerPreparation,
-  choosePaleMoonVSSeekerPrompt
+  choosePaleMoonVSSeekerPrompt,
+  canPaleMoonFloatStoneEscape,
+  choosePaleMoonArvenPreparation,
+  choosePaleMoonArvenPrompt
 };
