@@ -236,3 +236,35 @@ test('dependency-injected install is idempotent, patches clones, and truly resto
   again();
   assert.equal(FakeManager.single.template.attacks[1].name,NATIVE_ATTACK);
 });
+
+
+
+test('failed install on an unexpected CES48 template restores previously edited cards atomically',()=>{
+  class Expected {
+    constructor(){
+      this.fullName=PRINTING;
+      this.attacks=[{name:'Electro Ball'},{
+        name:NATIVE_ATTACK,gxAttack:true,damage:30
+      }];
+    }
+    reduceEffect(store,state,effect){return state}
+  }
+  class Manager {
+    constructor(){this.good=new Expected();
+      this.bad={fullName:PRINTING,attacks:[{name:'Electro Ball'}]}}
+    getAllCards(){return [this.good,this.bad]}
+    getCardByName(){return this.good}
+    static getInstance(){return Manager.instance}
+  }
+  Manager.instance=new Manager();
+  const beforeReducer=Expected.prototype.reduceEffect;
+  const beforeGet=Manager.prototype.getCardByName;
+  assert.throws(()=>installElectrodeGXCrushBurnWithDependencies({
+    ElectrodeGX:Expected,CardManager:Manager,
+    AttackEffect,DiscardEnergyPrompt,GameMessage
+  }),/Unexpected pinned CES48 attack shape/);
+  assert.equal(Manager.instance.good.attacks[1].name,NATIVE_ATTACK,
+    'a pre-validation failure must rollback the already-modified template');
+  assert.equal(Expected.prototype.reduceEffect,beforeReducer);
+  assert.equal(Manager.prototype.getCardByName,beforeGet);
+});
