@@ -52,11 +52,27 @@ const P = Object.freeze({
   carrier: /^Rescue Carrier EVS(?: 154)?\b/i,
   unown: /^Unown AOR(?: 30)?\b/i,
   mimikyu: /^Mimikyu GRI(?: 58)?\b/i,
+  empoleon: /^Empoleon V BST(?: 40)?\b/i,
+  dialga: /^Dialga(?:-GX| GX) UPR(?: 100)?\b/i,
   minior: /^Minior PAR(?: 99)?\b/i,
   snorlax: /^Snorlax PGO(?: 55)?\b/i,
   mail: /^Trainers' Mail ROS(?: 92)?\b/i,
   ultra: /^Ultra Ball MEG(?: 131)?\b/i
 });
+const HEAVY_BALL_BASIC = Object.freeze([
+  {pattern:P.clefairy,copies:3,kind:'clefairy'},
+  {pattern:P.unown,copies:3,kind:'unown'},
+  {pattern:P.latias,copies:1,kind:'latias'},
+  {pattern:P.lele,copies:1,kind:'lele'},
+  {pattern:P.dedenne,copies:1,kind:'dedenne'},
+  {pattern:P.squawk,copies:1,kind:'squawk'},
+  {pattern:P.crobat,copies:1,kind:'crobat'},
+  {pattern:P.fez,copies:1,kind:'fez'},
+  {pattern:P.empoleon,copies:1,kind:'empoleon'},
+  {pattern:P.mimikyu,copies:1,kind:'mimikyu'},
+  {pattern:P.dialga,copies:1,kind:'dialga'},
+  {pattern:P.minior,copies:1,kind:'minior'}
+]);
 const {previousTurnResponseOptions}=require('../../twinleaf/agent8-ko-supporter-options.cjs');
 const arr = value => Array.isArray(value) ? value : [];
 const text = value => typeof value === 'string' ? value : value?.printing ?? value?.fullName ?? value?.label ?? '';
@@ -1395,39 +1411,41 @@ function raihanPrompt(request) {
   if(p.promptType==='ChooseCardsPrompt')return raihanSearchPrompt(request);
   return no('R30_RAIHAN_ATTACH_UNSUPPORTED');
 }
+function countOwnedHeavyBallBasic(o,pattern) {
+  const hand=arr(o?.ownHand),board=slots(o?.ownPublic),
+    discard=arr(o?.ownPublic?.discard);
+  return hand.filter(c=>has(c,pattern)).length+
+    board.filter(c=>has(c,pattern)).length+
+    discard.filter(c=>has(c,pattern)).length;
+}
 function hisuianHeavyBallOpportunity(o,request) {
   const own=o?.ownPublic;
   if(!own||!safeInt(own.prizeCount)||own.prizeCount<=0)return false;
-  const hand=arr(o.ownHand),board=slots(own),discard=arr(own.discard);
-  const owned=pattern=>hand.some(c=>has(c,pattern))||
-    board.some(c=>has(c,pattern))||discard.some(c=>has(c,pattern));
-  const clefairyCount=hand.filter(c=>has(c,P.clefairy)).length+
-    board.filter(c=>has(c,P.clefairy)).length+
-    discard.filter(c=>has(c,P.clefairy)).length;
-  return clefairyCount<2||
-    (!owned(P.latias)&&benchCount(own)<5)||
-    (!owned(P.fez)&&hasFreshPriorOpponentTurnKO(request)&&hand.length<=3)||
-    (!owned(P.crobat)&&hand.length<=3)||
-    (!owned(P.lele)&&hand.some(c=>has(c,P.guzma)||has(c,P.marnie)));
+  return HEAVY_BALL_BASIC.some(row=>
+    countOwnedHeavyBallBasic(o,row.pattern)<row.copies);
 }
 function hisuianHeavyBallPriority(choice,o,request) {
-  const hand=arr(o.ownHand),board=slots(o.ownPublic),
-    discard=arr(o.ownPublic?.discard);
-  const owned=pattern=>hand.some(c=>has(c,pattern))||
-    board.some(c=>has(c,pattern))||discard.some(c=>has(c,pattern));
-  const clefairyCount=hand.filter(c=>has(c,P.clefairy)).length+
-    board.filter(c=>has(c,P.clefairy)).length+
-    discard.filter(c=>has(c,P.clefairy)).length;
-  if(has(choice,P.clefairy)&&clefairyCount<2)return 125-clefairyCount*5;
-  if(has(choice,P.fez)&&!owned(P.fez)&&hand.length<=3&&
-     hasFreshPriorOpponentTurnKO(request))return 120;
-  if(has(choice,P.latias)&&!owned(P.latias)&&benchCount(o.ownPublic)<5)return 110;
-  if(has(choice,P.crobat)&&!owned(P.crobat)&&hand.length<=3)return 100;
-  if(has(choice,P.lele)&&!owned(P.lele)&&
-     hand.some(c=>has(c,P.guzma)||has(c,P.marnie)))return 90;
-  if(has(choice,P.unown)&&!owned(P.unown)&&benchCount(o.ownPublic)<5)return 80;
-  if(has(choice,P.minior)&&!owned(P.minior)&&benchCount(o.ownPublic)<5)return 75;
-  return 0;
+  const hand=arr(o.ownHand),kind=HEAVY_BALL_BASIC.find(row=>
+    has(choice,row.pattern))?.kind;
+  if(!kind)return 0;
+  const row=HEAVY_BALL_BASIC.find(x=>x.kind===kind);
+  if(countOwnedHeavyBallBasic(o,row.pattern)>=row.copies)return 0;
+  if(kind==='clefairy')
+    return 125-countOwnedHeavyBallBasic(o,row.pattern)*5;
+  if(kind==='fez'&&hand.length<=3&&hasFreshPriorOpponentTurnKO(request))
+    return 120;
+  if(kind==='latias'&&benchCount(o.ownPublic)<5)return 110;
+  if(kind==='crobat'&&hand.length<=3)return 100;
+  if(kind==='dedenne'&&hand.length<=2&&handIsSafeToReset(o))
+    return 98;
+  if(kind==='squawk'&&!isLaterTurn(o)&&hand.length<=2)return 95;
+  if(kind==='minior'&&miniorStallOpportunity(o)?.knockout)return 92;
+  if(kind==='lele'&&hand.some(c=>has(c,P.guzma)||has(c,P.marnie)))return 90;
+  if(kind==='mimikyu'&&slots(o.opponentPublic).some(c=>
+    /(?:-GX| GX|\\bex\\b)/i.test(text(c))))return 88;
+  if(kind==='unown'&&benchCount(o.ownPublic)<5)return 80;
+  const fallback=startingActiveRank(choice);
+  return fallback>0?30+fallback/10:0;
 }
 function hisuianHeavyBallPrompt(request) {
   const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
@@ -1436,10 +1454,11 @@ function hisuianHeavyBallPrompt(request) {
      m.ownerSeat!=='actor'||m.isOwnerVisible!==true||
      m.minimumCount!==0||m.maximumCount!==1)
     return no('R30_HEAVYBALL_PROMPT_UNSUPPORTED');
-  // Only owner-visible Basic Pokémon from the actor's own Prize list are
-  // eligible. The empty choice is legal because the native prompt is 0..1.
+  // Twinleaf has already filtered this Prize collection to Basic Pokémon.
+  // Trust only the actor-visible offered cards; the empty choice is legal
+  // because the native prompt permits 0..1.
   const offered=arr(p.choices).filter(c=>c.kind==='card'&&
-    typeof c.token==='string'&&benchBasicRole(c)!==null);
+    typeof c.token==='string');
   const ranked=offered.map((c,index)=>({c,index,
     score:hisuianHeavyBallPriority(c,o,request)}))
     .filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.index-b.index);
