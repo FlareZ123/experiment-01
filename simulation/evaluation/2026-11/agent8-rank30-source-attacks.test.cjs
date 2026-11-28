@@ -157,3 +157,78 @@ for(const seat of [0,1]){
       r.observation),null);
   });
 }
+
+for(const seat of [0,1]){
+  const ps='Psychic Energy MEE 13';
+  const sky=[{abilityName:'Skyliner',suppressed:false,
+    reasonCode:null,sourcePrinting:null}];
+  const active={printing:'Unown AOR 30',printed:{stage:'BASIC'},energies:[]};
+  function chain({target,bench,finisherIndex=0,attachIndex=0}){
+    const hand=[ps];
+    const items=[{kind:'play-card',actorPrinting:ps,token:'attach',
+      targetPrinting:bench[attachIndex].printing,
+      publicMetadata:{targetSeat:'actor',targetZone:'bench',
+        targetIndex:attachIndex,isOwnerVisible:true}},
+      ...bench.map((row,i)=>({kind:'retreat',token:'retreat'+i,
+        targetPrinting:row.printing,
+        publicMetadata:{targetSeat:'actor',targetZone:'bench',benchIndex:i}})),
+      {kind:'pass',token:'pass'}];
+    return {role:'opponent',seat,observation:{
+      actorSeat:seat,globalTurn:6,ownHand:hand,
+      ownTurnResources:{supporterPlayedTurn:0,energyPlayedTurn:0,
+        attackLocked:false,vstarUsed:true},
+      ownPublic:{active:{...active},bench,stadium:[],discard:[],
+        deckCount:20,prizeCount:3,
+        publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:0}},
+      opponentPublic:{active:target,bench:[],deckCount:20,prizeCount:3}},
+      prompt:null,actionFrontier:{items}};
+  }
+  test('seat '+seat+' complete funded Latias Dragon KO chain attach → retreat → attack',()=>{
+    const r=chain({target:drago,bench:[
+      {printing:LATIAS,energies:[ps,ps],abilities:['Skyliner'],
+        abilitySuppressions:sky},
+      {printing:CLEF,energies:[],abilities:['Fairy Zone'],
+        abilitySuppressions:LIVE}]});
+    const decide=policy(seat).decide;
+    assert.deepEqual(decide(r),{kind:'select-action',token:'attach'});
+    r.observation.ownPublic.bench[0].energies.push(ps);
+    r.observation.ownHand.pop();
+    r.actionFrontier.items.shift();
+    assert.deepEqual(decide(r),{kind:'select-action',token:'retreat0'});
+    const oldActive=r.observation.ownPublic.active;
+    r.observation.ownPublic.active=r.observation.ownPublic.bench[0];
+    r.observation.ownPublic.bench[0]=oldActive;
+    r.actionFrontier.items=[
+      {kind:'attack',actorPrinting:LATIAS,attackName:'Eon Blade',token:'blade'},
+      {kind:'pass',token:'pass'}];
+    assert.deepEqual(decide(r),{kind:'select-action',token:'blade'});
+  });
+  test('seat '+seat+' complete Tapu Lele VMAX KO chain attach → retreat → attack',()=>{
+    const r=chain({target:{...vmax,energies:Array(5).fill(ps)},bench:[
+      {printing:LATIAS,energies:[],abilities:['Skyliner'],
+        abilitySuppressions:sky},
+      {printing:LELE,energies:[ps]}],attachIndex:1,finisherIndex:1});
+    const decide=policy(seat).decide;
+    assert.deepEqual(decide(r),{kind:'select-action',token:'attach'});
+    r.observation.ownPublic.bench[1].energies.push(ps);
+    r.observation.ownHand.pop();
+    r.actionFrontier.items.shift();
+    assert.deepEqual(decide(r),{kind:'select-action',token:'retreat1'});
+    const oldActive=r.observation.ownPublic.active;
+    r.observation.ownPublic.active=r.observation.ownPublic.bench[1];
+    r.observation.ownPublic.bench[1]=oldActive;
+    r.actionFrontier.items=[
+      {kind:'attack',actorPrinting:LELE,attackName:'Energy Drive',token:'drive'},
+      {kind:'pass',token:'pass'}];
+    assert.deepEqual(decide(r),{kind:'select-action',token:'drive'});
+  });
+  test('seat '+seat+' refuses attachment aimed at a Bench finisher without legal retreat root',()=>{
+    const r=chain({target:drago,bench:[
+      {printing:LATIAS,energies:[ps,ps],abilities:['Skyliner'],
+        abilitySuppressions:sky},
+      {printing:CLEF,abilities:['Fairy Zone'],abilitySuppressions:LIVE}]});
+    r.actionFrontier.items=r.actionFrontier.items.filter(x=>x.kind!=='retreat');
+    assert.equal(w.manualEnergyCompletesPrintedKO(
+      r.actionFrontier.items,r.observation),null);
+  });
+}
