@@ -109,7 +109,23 @@ function textOf(value) {
   if (typeof value?.label === 'string') return value.label;
   return '';
 }
-function matches(value, pattern) { return pattern.test(textOf(value)); }
+function matches(value, pattern) {
+  const raw = textOf(value);
+  if (pattern.test(raw)) return true;
+  // Twinleaf's pinned card.fullName frequently omits the card number.
+  // Bind only to an exact source rank-22 identity and matching native set,
+  // not to a similarly named printing from a different set.
+  for (const [canonical] of SOURCE_INVENTORY) {
+    if (!pattern.test(canonical)) continue;
+    const parts = /^(.*) ([A-Z0-9]{2,5}) ([A-Z0-9]+)$/i.exec(canonical);
+    if (!parts) continue;
+    const [, name, set, number] = parts;
+    if (raw === name || raw === name + ' ' + set) return true;
+    if (set === 'MEG' && (raw === name + ' M1L' ||
+        raw === name + ' M1S')) return true;
+  }
+  return false;
+}
 function slots(player) {
   return [{ zone: 'active', index: 0, pokemon: player?.active ?? null },
     ...list(player?.bench).map((pokemon, index) => ({ zone: 'bench', index, pokemon }))]
