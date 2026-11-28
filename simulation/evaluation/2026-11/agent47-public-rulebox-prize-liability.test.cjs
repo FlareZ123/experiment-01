@@ -23,10 +23,12 @@ function request(seat,first,second) {
   return {role:'candidate',seat,
     observation:{
       actorSeat:seat,globalTurn:3,decisionKind:'owner-prompt',
-      ownPublic:{active:constantAttacker,bench:[],
-        publicTurnRestrictions:{gxUsed:false}},
+      ownPublic:{active:constantAttacker,bench:[],stadium:[],
+        publicTurnRestrictions:{gxUsed:false,
+          stadiumAndToolHaveNoEffectTurnsRemaining:0}},
       opponentPublic:{active:target('Dummy Active',{},90),
-        bench:source}
+        stadium:[],bench:source,
+        publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:0}}
     },
     prompt:{actingSeat:seat,promptType:'ChoosePokemonPrompt',
       source:{classification:'actor-choice',sourceKind:'card-effect',
