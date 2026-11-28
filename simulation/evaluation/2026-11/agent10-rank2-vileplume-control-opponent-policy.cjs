@@ -755,13 +755,28 @@ function scorePokemonChoice(choice, observation, context) {
   const printing = choicePrinting(choice);
   const owner = choiceOwner(choice);
   const zone = choiceZone(choice);
-  const opponentChoice = context.includes('guzma') || context.includes('irresistible aroma');
-  if (owner && owner !== (opponentChoice ? 'opponent' : 'actor')) return -100;
+  const guzmaPrompt = context.includes('guzma') && !context.includes('guzma & hala');
+  const opponentChoice = context.includes('irresistible aroma');
+  // Guzma has two different prompts: opposing Bench first, then own Bench.
+  if (guzmaPrompt ? !['actor', 'opponent'].includes(owner) :
+      (owner && owner !== (opponentChoice ? 'opponent' : 'actor'))) return -100;
   if (zone && zone !== 'bench' && !context.includes('irresistible aroma') &&
       !context.includes('cassius') && !context.includes('grand tree')) return -100;
-  if (context.includes('guzma')) {
+  if (guzmaPrompt) {
     const target = choiceBoardPokemon(choice, observation);
-    if (!target) return -100;
+    if (!target || zone !== 'bench') return -100;
+    if (owner === 'actor') {
+      // On the mandatory self-switch, preserve the main lock when its
+      // Ability is live. Otherwise prefer a Bunnelby attack/mill pivot.
+      if (matches(printing, PRINT.stoutland)) {
+        return opponentHasGarbotoxin(observation.opponentPublic) ? 20 : 190;
+      }
+      if (matches(printing, PRINT.bunnelby)) {
+        return observation.opponentPublic?.deckCount <= 8 ? 180 : 160;
+      }
+      if (matches(printing, PRINT.budew)) return 80;
+      return 30;
+    }
     const hp = remainingHp(target);
     const multiPrize = /(?:-GX|\b(?:V|VMAX|VSTAR|ex)\b)/i.test(printing) ? 2 : 1;
     return 100 + (hp > 0 && hp <= 90 ? 50 : 0) + multiPrize * 8;
