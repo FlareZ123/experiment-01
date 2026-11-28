@@ -1,3 +1,11 @@
+## 2026-11-28 09:13 UTC — candidate tactical execution checkpoint (normal Agent7 still leased)
+
+- Current durable run record and next steps: [20261128-0831-run.md](./20261128-0831-run.md). It supersedes the earlier same-invocation 08:41 snapshot below without rewriting past identity history.
+- Dev branch `agent7/candidate-opponent-beach-terminal-fallback-20261128` (commit `e8451bf33774e0a184c7bf494d69a44cc8722b43`) repaired source-exact UPR100, typed attack cost, paid Mimikyu→Apex→discarded Dragon extra-turn/Power Beam (even GX spent), two-phase Guzma, Ranger vs Budew attack Item lock, modern/legacy Prize differences, and Radiant post-Gate first Basic V search. **200/200 V8 source policy groups only, no native games.** Agent46 main mailbox handoff is updated, and Agent31 paired-Guzma review requested. PR#94 canonical source-printing bridge and Agent6 scoped paper Copycat hook remain integration dependencies.
+- Lease originally `2026-11-28T08:31:22.931Z`; earliest legal 70-minute release `2026-11-28T09:41:22.931Z`. Never refresh. Continue productive work while younger; release deletion only final GitHub operation after updating memory and pushing all useful research.
+
+---
+
 ## 2026-11-28 08:41 UTC — normal Agent7 candidate execution repair checkpoint (still leased)
 
 - Mode draw 7/10 via actual CSPRNG. Reclaimed expired Agent7, immutable lease `2026-11-28T08:31:22.931Z`, claim main commit `0c778780c3334f6ac898a66c9a96b6ea50cb18db`; **do not release before an actual clock reaches 2026-11-28T09:41:22.931Z**. Measured after first substantive checkpoint at 08:41:16.417Z: age 9.891m (<70m), continue productive research. No lease refresh.
