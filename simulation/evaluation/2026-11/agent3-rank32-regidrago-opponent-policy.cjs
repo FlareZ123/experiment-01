@@ -235,13 +235,27 @@ function strategicGustPriority(pokemon,observation,attacker) {
   return ordinary>0 && readyMimikyuCounterAls(pokemon,observation)
     ? Math.max(350,ordinary) : ordinary;
 }
+function projectedBudewRetreatTax(observation) {
+  // Conservative, public, printed-card gates. The automatic retreat-cost
+  // effects survive the mandatory Guzma self-switch. These costs must not
+  // be mistaken for free merely because Budew's *printed* cost is empty.
+  const own=observation?.ownPublic??{},opp=observation?.opponentPublic??{};
+  const stadium=list(own.stadium).concat(list(opp.stadium));
+  let tax=0;
+  if(stadium.some(s=>/^Galar Mine RCL 160\b/i.test(print(s))))tax+=2;
+  if(stadium.some(s=>/^Calamitous Wasteland PAL 175\b/i.test(print(s))))
+    tax+=1; // Budew is Basic non-Fighting.
+  tax+=slots(opp).filter(p=>/^Spidops ex SVI (?:19|223|243)\b/i.test(print(p))).length;
+  return tax;
+}
 function zeroRetreatGuzmaPivot(observation) {
   const own=observation?.ownPublic??{}, resources=observation?.ownTurnResources??{};
   if(!canAttackNow(own.active,observation) ||
       !Number.isSafeInteger(observation?.globalTurn) ||
       !Number.isSafeInteger(resources.retreatedTurn) ||
       resources.retreatedTurn===observation.globalTurn ||
-      own.publicTurnRestrictions?.cannotRetreat===true)return null;
+      own.publicTurnRestrictions?.cannotRetreat===true ||
+      projectedBudewRetreatTax(observation)>0)return null;
   return list(own.bench).find(p=>
     /^Budew ASC 16\b/i.test(print(p)) &&
     Array.isArray(p?.printed?.retreatCost) && p.printed.retreatCost.length===0 &&
@@ -1182,4 +1196,5 @@ module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
   aceSpecBlowerPriority,muscleBandPriority,evolveRegidragoPriority,retreatToAttackerPriority,
   prizeValue,crispinAccelerationPriority,crispinDeckEnergyChoice,
   chooseTrifrostTargets,protectedDdeInHand,seekerSupporterPriority,
-  readyMimikyuCounterAls,raihanAttachPriority,raihanSearchPriority};
+  readyMimikyuCounterAls,raihanAttachPriority,raihanSearchPriority,
+  projectedBudewRetreatTax};
