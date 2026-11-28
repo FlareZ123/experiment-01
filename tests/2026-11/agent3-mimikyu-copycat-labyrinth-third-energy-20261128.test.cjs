@@ -65,6 +65,7 @@ function prompt(seat,opts={},kind='door'){
      sourcePrinting:'Raihan EVS 152',effectName:'Raihan'},
     choices:[M,MAX].map((printing,i)=>({
      kind:'pokemon',token:i===0?'mimikyu':'vmax',printing,
+     label:'Your bench '+(i+1)+': '+printing,
      publicMetadata:{ownerSeat:'actor',isOwnerVisible:true,
       targetZone:'bench',benchIndex:i}})),
     publicMetadata:{selectionType:'pokemon',
