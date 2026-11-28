@@ -124,5 +124,5 @@ for(const tweak of [
  assert.equal(s.decide(root),null);checks++;
  assert.equal(s.peek(),null);checks++;
 }
-assert.equal(checks,42);
+assert.equal(checks,56);
 console.log('Agent22 actor-countercatcher exact multi-prompt slice: '+checks+' synthetic checks passed');
