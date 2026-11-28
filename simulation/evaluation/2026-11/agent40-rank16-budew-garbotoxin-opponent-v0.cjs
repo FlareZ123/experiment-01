@@ -459,6 +459,7 @@ function score(action,req){
   return 0;
  }
  if(action.kind==='retreat'){
+  if(opponentSnorlaxBlock(o))return 0;
   const target=name(action.targetPrinting);
   if(match(target,PRINT.budew)&&!match(own.active?.printing,PRINT.budew)){
    // Only a mobility preference; does not assert that Itchy Pollen will be funded.
