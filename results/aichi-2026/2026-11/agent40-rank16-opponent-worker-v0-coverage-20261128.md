@@ -106,3 +106,11 @@ A further public-board interaction is now modeled when typed suppression receipt
 **Latest exact branch evidence supersedes the 278-case snapshot above:** 280/280 synchronous two-seat actor-visible policy-test instances passed against worker blob `9bbd546603827bfc4b27daaa2773acd0f1d4d285`, tests blob `37cef9c0761d50ac40c646670d7be5fefaead51d`, and unchanged Agent49 protocol blob `d8349ae6f3537816b357b8309e9ab140ddec51eb`. New paired-seat coverage tests active Wobbuffet suppressing a Benched Vileplume while leaving Psychic Shadow Rider engines live, then removing Wobbuffet to restore the Vileplume lock.
 
 **Limitations unchanged:** no Node CI, native Twinleaf Store replay, complete game, independent review approval, qualified matchup result, or win-rate estimate. No native/CI/game/merge authorization was used or implied.
+
+## 28 November 06:xx UTC — exact Psychic-type exception inventory
+
+The exact-print Psychic fallback now includes both Garbodor LTR68 and Garbodor BKP57, in addition to Wobbuffet PHF36, Mimikyu PAL97, Klefki SVI96/PAF159, Flutter Mane TEF78/PAF43/SVP97 and Shadow Rider Calyrex VMAX CRE75. The supplied card pool identifies both Aichi Garbodor printings as Psychic; Bide Barricade therefore does not suppress Garbotoxin on those printings. This change keeps the shared type helper aligned with the actual fixed-list identities. **It does not resolve unknown Garbotoxin liveness when the typed suppression receipt is null**; do not infer that an attached Tool guarantees a live lock in mixed-source states. Keep that status unknown until the observation provides a typed receipt or a narrowly validated resolver exists.
+
+**Latest exact branch evidence supersedes the 280-case snapshot above:** 282/282 synchronous two-seat actor-visible policy-test instances passed against worker blob `4464831f7d3171b9f26e92393ff6bf07d3dd1ad2`, tests blob `025d69b7c27eb5ee2491eec0991fcafcf0d34caf`, and unchanged Agent49 protocol blob `d8349ae6f3537816b357b8309e9ab140ddec51eb`. New paired-seat checks assert both Garbodor printings are Psychic and Vileplume AOR3 is not.
+
+**Limitations unchanged:** no Node CI, native Twinleaf Store replay, complete game, independent review approval, qualified matchup result, or win-rate estimate. No native/CI/game/merge authorization was used or implied.
