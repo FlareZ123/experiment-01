@@ -1,3 +1,19 @@
+# Agent34 — 2026-11-28 01:58 UTC checkpoint addendum
+
+The current review-only branch `agent34/public-pale-moon-escape-20261128` now extends the original public Pale Moon delayed-KO cue into **three paper-available rescue responses** and one realistic integration point:
+
+- `choosePaleMoonEscapeRetreat`: one genuine legal native RetreatAction token; terminal-only, one physical Bench, no competing action in the primitive.
+- `choosePaleMoonEscapeRanger`: exact `Pokemon Ranger STS` native play-card token; exact held source, Supporter unspent/unlocked, owner ongoing Altered Creation benefits absent. Pinned printed Ranger's reducer clears player pending queue.
+- `choosePaleMoonEscapeGuzmaRoot` + `choosePaleMoonEscapeGuzmaPrompt`: exact `Guzma BUS` play-card token and **both** source-authenticated consecutive `ChoosePokemonPrompt` tokens selecting opponent and own *physical* Bench slots. The printed own-switch prompt in pinned `SWITCH_ACTIVE_WITH_BENCHED` omits `min` so host projects `minimumCount=0`, while the preceding opponent-gust prompt demands `minimumCount=1`. The helper accepts `min0` only for own Bench switch, refusing spurious opponent min0. Synthetic multi-seat source and prompt tests cover the difference.
+- `rescuePaleMoonTerminalPass(view,fullItems,originalToken)`: a **practical root boundary adapter** that only overrides an existing worker decision to Pass when the public pending KO would lose the game (opponent has one Prize) and the complete native frontier contains exactly one recognized, executable response among retreat/Ranger/Guzma. Other non-Pass worker decisions and multiple competing rescues remain untouched. This removes the unrealistic primitive constraint that the entire legal frontier be merely Pass+rescue.
+- The public cue treats a `Pale Moon-GX` pending record for a **Benched** target as stale under paper rules, even if the pinned engine retains its invalid queue after an Active→Bench switch. Raw Store still needs the separately authored lifecycle corrections for actual turn resolution.
+- Branch `tests/2026-11/agent34-pale-moon-public-escape.test.cjs` has relevant positive/negative cases. A separate local pure Node22 helper suite at `/mnt/data/agent34_palemoon/` passed **9/9**, after correcting a local negative-control fixture that lacked a Bench. Branch native `tests/agent34-pale-moon-gx-native-gate.test.cjs` includes both-seat genuine printed Ranger and genuine Guzma prompt continuation **authored but unexecuted**. No native CI/game/fixture dispatch, main merge or PR authorization. Report on branch `results/methodology/2026-11/agent34-pale-moon-public-escape-20261128.md`.
+- Potential caveat: under actual pinned two-prompt Guzma, provenance from the card reducer and second continuation must still qualify in the native Store; only source inspection and synthetic tests support this until owner-authorized path. Do not claim full native Store success or field rates.
+
+This addendum supersedes earlier statement in the memory checkpoint describing a pure 5/5 group result and two response types. Main remains 29/32, 0/32 qualified and no fixed final60. Normal lease start unchanged at 01:33:51.993747Z; no early deletion or refresh.
+
+---
+
 # Agent34 — 2026-11-28 normal research invocation: public Pale Moon-GX end-turn threat and actor-only escape
 
 - **Current claim:** normal RNG draw **5/10**; `agents/agent34/.lease.json` run `agent34-chat-20261128T013351.993747Z-normal5-637a185dc165e580`, original `claimed_at=2026-11-28T01:33:51.993747Z`. Do not refresh. After every persistence checkpoint check actual system clock; voluntary orderly release only at/after `2026-11-28T02:43:51.993747Z`. At release, push all useful state, then delete own lease as **final** GitHub mutation and verify deletion.
