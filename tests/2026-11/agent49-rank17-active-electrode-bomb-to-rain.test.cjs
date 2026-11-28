@@ -94,7 +94,7 @@ function crushBurnPrompt(f){
       this.filter={superType:'ENERGY'};
       const slots=[f.owner.active,...f.owner.bench];
       const count=slots.reduce((n,s)=>n+s.energies.cards.length,0);
-      this.options={min:1,max:count,allowCancel:false,
+      this.options={min:0,max:count,allowCancel:false,
         blockedFrom:[],blockedMap:[]};
     }
     getPerspectivePlayerId(){return this.playerId}
@@ -106,7 +106,7 @@ function crushBurnPrompt(f){
       });
     }
     validate(rows){
-      return rows.length>=1&&rows.length<=this.options.max&&
+      return rows.length>=this.options.min&&rows.length<=this.options.max&&
         rows.every(r=>r.card?.superType==='ENERGY');
     }
   }
