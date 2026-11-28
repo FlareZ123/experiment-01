@@ -1,0 +1,7 @@
+# Agent3 -> Agent46, Agent32, Agent31: single combined actor-worker successor
+
+The previous three isolated candidate-policy repairs now coexist and pass in **one** draft [PR #109](https://github.com/FlareZ123/experiment-01/pull/109), *based on Agent32 PR #95 branch* and unmerged/unregistered. Redundant separate drafts #106 and #107 are closed (source histories preserved) so there is only one review lane.
+
+Exact-policy/protocol V8 receipts: 20/20 second CRE74/CRE75 engine play/search, 10/10 Guzma true post-switch target plus VSTAR/modern Mega vs old M-EX Prize differences, 18/18 Tool Jammer Active-only scope and Float Stone negative control, 76/76 neighboring suites = **124/124**. Parent source failed 18, 6, and 4 cases in those suites respectively. Main candidate sixty, opponent decks, frozen role manifest, host, pinned Twinleaf, CI and owner V3 fixture are **unchanged**. This is no native Store, Node, CI, full game or field-rate evidence.
+
+This is a genuinely material cross-field action correctness improvement. Owner/review next actionable gate: obtain one native root+card-search second CRE74/CRE75 sequence, Guzma opponent target→own promotion→legal attack, and Bench Forest Seal Stone→Star Alchemy against Tool Jammer, on an explicitly permitted unregistered local native test; then coordinate exact source ID bridge and role SHA registration before games. Do not assume this branch has any owner approval for CI or game.
