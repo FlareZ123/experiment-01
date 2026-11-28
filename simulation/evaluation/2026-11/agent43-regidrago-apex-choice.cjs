@@ -119,6 +119,18 @@ function maxBenchPrizeValueWithCounters(bench, counters) {
   { prizes: 0, kos: 0, spent: 0 });
 }
 
+function maxPrizeValueForSingleBenchHit(bench, damage) {
+  // Dragon Laser and Frost Spear hit exactly one Benched target, unlike
+  // Phantom Dive's freely allocated damage counters or Trifrost's 3 targets.
+  // The chosen Benched target can award 0, 1, 2 or 3 Prizes on Knock Out.
+  const eligible = occupiedBench({ bench }).filter(pokemon =>
+    remainingHp(pokemon) > 0 && remainingHp(pokemon) <= damage);
+  return {
+    prizes: eligible.reduce((value, pokemon) => Math.max(value, prizeValue(pokemon)), 0),
+    knockout: eligible.length > 0
+  };
+}
+
 function maxPrizeValueForThreeTargets(observation, activeDamageAmount, benchDamageAmount) {
   const opponent = observation?.opponentPublic ?? {};
   const rows = [];
@@ -329,15 +341,17 @@ function evaluateApexAttackChoice(choice, observation) {
   if (name === 'Dragon Laser') {
     const damage = activeDamage(130, observation);
     const knockout = targetHp > 0 && damage >= targetHp;
-    const benchKo = occupiedBench(opponent).some(pokemon => remainingHp(pokemon) > 0 && remainingHp(pokemon) <= 30);
-    const prizesTaken = (knockout ? prizeValue(target) : 0) + (benchKo ? 1 : 0);
+    const bench = maxPrizeValueForSingleBenchHit(opponent.bench, 30);
+    const prizesTaken = (knockout ? prizeValue(target) : 0) + bench.prizes;
     const immediateWin = winNow(prizesTaken, own);
     return {
       attackName: name,
-      score: immediateWin ? 300 : (88 + (knockout ? 38 : 0) + (benchKo ? 14 : 0)),
+      score: immediateWin ? 300 : (88 + (knockout ? 38 : 0) +
+        (bench.knockout ? 14 : 0) + bench.prizes * 12),
       damage,
       activeKnockout: knockout,
-      benchKnockoutPotential: benchKo,
+      benchKnockoutPotential: bench.knockout,
+      benchPrizeValue: bench.prizes,
       immediateWin,
       reason: 'ACTIVE_130_PLUS_BENCH_30'
     };
@@ -346,15 +360,17 @@ function evaluateApexAttackChoice(choice, observation) {
   if (name === 'Frost Spear') {
     const damage = activeDamage(100, observation);
     const knockout = targetHp > 0 && damage >= targetHp;
-    const benchKo = occupiedBench(opponent).some(pokemon => remainingHp(pokemon) > 0 && remainingHp(pokemon) <= 20);
-    const prizesTaken = (knockout ? prizeValue(target) : 0) + (benchKo ? 1 : 0);
+    const bench = maxPrizeValueForSingleBenchHit(opponent.bench, 20);
+    const prizesTaken = (knockout ? prizeValue(target) : 0) + bench.prizes;
     const immediateWin = winNow(prizesTaken, own);
     return {
       attackName: name,
-      score: immediateWin ? 300 : (82 + (knockout ? 38 : 0) + (benchKo ? 12 : 0)),
+      score: immediateWin ? 300 : (82 + (knockout ? 38 : 0) +
+        (bench.knockout ? 12 : 0) + bench.prizes * 12),
       damage,
       activeKnockout: knockout,
-      benchKnockoutPotential: benchKo,
+      benchKnockoutPotential: bench.knockout,
+      benchPrizeValue: bench.prizes,
       immediateWin,
       reason: 'ACTIVE_100_PLUS_BENCH_20'
     };
