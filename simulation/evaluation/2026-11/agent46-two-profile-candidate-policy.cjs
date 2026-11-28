@@ -1423,11 +1423,27 @@ function getLostPairs(view,rows){
       after=apexHazard(view,remain);cache.set(key,after);
     }
     const needed=view.opponentPublic.prizeCount;
+    // Distinct PUBLIC copied-attack options should break an otherwise
+    // equal-value Get Lost tie. Losing two of three Regidrago V copies
+    // leaves Dragon Laser available; losing the singleton Noivern ex
+    // actually reduces the *currently revealed* attack repertoire.
+    // This tiny tie breaker is NOT next-turn denial: new donors can be
+    // discarded later from hidden hand/deck, as the Temple-cut guard notes.
+    const beforeAttackIdentities=new Set(observedPayloads(discarded,view)
+      .map(([printing])=>printing));
+    // Reuse the same exact physical-removal identity as apexHazard.
+    const remain=discarded.slice();
+    for(const name of names){const k=remain.indexOf(name);if(k>=0)remain.splice(k,1)}
+    const actualAfterIdentities=new Set(observedPayloads(remain,view)
+      .map(([printing])=>printing));
+    const publicOptionsEliminated=[...beforeAttackIdentities]
+      .filter(printing=>!actualAfterIdentities.has(printing)).length;
     const score=(before.maximum>=needed&&after.maximum<needed?5000:0)+
       (before.maximum-after.maximum)*1800+
       ((before.potential??before.maximum)-(after.potential??after.maximum))*400+
       getLostValue(view,a.printing)+getLostValue(view,b.printing)+controlPairBonus(view,names)+
-      visibleTempleRegidragoFundingPairBonus(view,names);
+      visibleTempleRegidragoFundingPairBonus(view,names)+
+      100*publicOptionsEliminated;
     if(!best||score>best.score)best={rows:[a,b],score,after};
   }
   return best;
