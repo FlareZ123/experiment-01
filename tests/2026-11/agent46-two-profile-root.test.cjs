@@ -1975,10 +1975,9 @@ paired('Agent46: inert source Stadium must not mask a payable direct final Prize
     view.opponentPublic.stadium=[stadium];
     assert.equal(final(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK',stadium);
   }
-  // Wondrous increases the price of a non-Fairy attack. Other unknown
-  // Stadiums may change direct damage or the execution path.
-  for(const stadium of ['Wondrous Labyrinth TEU','Path to the Peak CRE',
-      'UNRECOGNIZED STADIUM']){
+  // The price of Wondrous is now checked by the explicit payment
+  // calculator; other unverified Stadiums remain excluded.
+  for(const stadium of ['Path to the Peak CRE','UNRECOGNIZED STADIUM']){
     view.opponentPublic.stadium=[stadium];
     assert.notEqual(final(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
   }
