@@ -2685,7 +2685,9 @@ test('Pinned Field Blower physical ChoosePokemonPrompt chooses actual opponent T
     const choices=[
       pokemonChoice('empty','Tapu Lele-GX GRI 60','opponent','bench',0),
       pokemonChoice('equipped','Tapu Lele-GX GRI 60','opponent','bench',1),
-      pokemonChoice('actor-tool','Iron Thorns ex TWM 77','actor','active',0)
+      pokemonChoice('actor-tool','Iron Thorns ex TWM 77','actor','active',0),
+      {token:'no-selection',kind:'empty-selection',
+        label:'Choose no Pokémon'}
     ];
     choices[0].publicMetadata.selectionIndex=1;
     choices[1].publicMetadata.selectionIndex=0;
@@ -2743,7 +2745,10 @@ test('Pinned Faba SelectPrompt picks public opponent Special Energy, then exact 
       publicMetadata:{selectionType:'pokemon',minimumCount:0,
         maximumCount:1,allowCancel:false,isSecret:false},
       observation:{ownPublic:owner,opponentPublic:opponent},
-      choices:[choices[1]]
+      choices:[choices[1],{
+        token:'no-selection',kind:'empty-selection',
+        label:'Choose no Pokémon'
+      }]
     });
     assert.deepEqual(checkedDecision(holder,seat),
       {kind:'select-choices',tokens:['with-special']});
