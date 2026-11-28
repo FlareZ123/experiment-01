@@ -25,3 +25,21 @@ test('rank16 no-Budew Float-search event disjoint from direct Budew',()=>{
  assert.equal(85532832+39740253,125273085);
  assert(e.noBudewTrubbishFloatQuickOrVip.probability<e.noBudewOtherBasicFloatQuickOrVip.probability);
 });
+
+test('rank16 first-turn ordinary draw adds independent access resources, exactly',()=>{
+ const d=opening.firstTurnDrawEnvelope();
+ assert.equal(d.denominator,'15916235808');
+ assert.equal(d.direct.count,'4533240096');
+ assert.equal(d.firstDrawBudewPlusFloat.count,'166105128');
+ assert.equal(d.searchFloatNoBudewSeen.count,'2580517989');
+ assert.equal(d.union.count,'7279863213');
+ assert(Math.abs(d.union.probability-0.45738598628583477)<1e-12);
+ assert(Math.abs(d.prizeAdjustedUnion.probability-0.45555192323737254)<1e-12);
+});
+test('first-turn prize chance correctly accounts for 2 unseen Budew',()=>{
+ const d=opening.firstTurnDrawEnvelope();
+ assert(Math.abs(d.chanceBothUnseenBudewPrizeGivenNoBudewSeenEight-30/(52*51))<1e-14);
+ assert(d.prizeAdjustedUnion.probability<d.union.probability);
+ assert(d.prizeAdjustedUnion.probability>0.45);
+ assert(d.direct.probability<d.union.probability);
+});
