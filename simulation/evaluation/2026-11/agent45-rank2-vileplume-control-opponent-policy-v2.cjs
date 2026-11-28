@@ -332,6 +332,21 @@ function opponentSkylinerMayBeLive(player) {
   });
 }
 
+// Aichi 2026 Regidrago ranks 14/20/32 carry Mega Dragonite ex ASC 152.
+// Its Sky Transport Ability can switch an otherwise stranded Active out
+// without Retreating, Items or Supporters. An apparently unpowered target is
+// not a nominal lock while that publicly visible Ability may function.
+function opponentSkyTransportMayBeLive(player) {
+  return boardSlots(player).some(({ pokemon }) => {
+    if (!/^Mega Dragonite ex ASC(?: 152)?\b/i.test(pokemon.printing ?? '')) {
+      return false;
+    }
+    const status = list(pokemon.abilitySuppressions).find(row =>
+      row.abilityName === 'Sky Transport');
+    return status?.suppressed !== true;
+  });
+}
+
 // The proposed lock must survive both switches, not just the state before
 // Guzma. These exact printings gain Active-only Ability denial on promotion.
 // Conservatively avoid targeting them even if a current suppression might
@@ -354,6 +369,7 @@ function nominalGuzmaRetreatTrap(target, opponent) {
     /Float Stone|Air Balloon|Escape Board|U-Turn Board/i.test(printingValue(tool)))) {
     return false;
   }
+  if (opponentSkyTransportMayBeLive(opponent)) return false;
   if (opponentSkylinerMayBeLive(opponent)) {
     // Native actorObservation can expose the engine's numeric Stage enum,
     // whereas isolated actor-view fixtures may use symbolic strings. Never
