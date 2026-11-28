@@ -271,3 +271,24 @@ for(const seat of [0,1]) {
     assert.deepEqual(decide(request),{kind:'select-action',token:'pass'});
   });
 }
+
+for(const seat of [0,1]) {
+  test('source Trubbish CRI Acid Spray attacks when payable, without guaranteed discard seat '+seat,()=>{
+    const request=state(seat,{ownPublic:{active:poke(P.trubbish),bench:[]},
+      opponentPublic:{active:{...poke('Shadow Rider Calyrex VMAX CRE 75'),
+        energies:[{printing:'Psychic Energy MEE 13'}]}},
+      items:[action('attack','acid',{attackName:'Acid Spray',
+        publicMetadata:{attackCostPayable:true}}),action('pass','pass')]
+    });
+    assert.deepEqual(decide(request),{kind:'select-action',token:'acid'});
+  });
+  test('source Trubbish never offers a payable Acid Spray without correct Energy seat '+seat,()=>{
+    const request=state(seat,{ownPublic:{active:poke(P.trubbish),bench:[]},
+      opponentPublic:{active:{...poke('Shadow Rider Calyrex VMAX CRE 75'),
+        energies:[{printing:'Psychic Energy MEE 13'}]}},
+      items:[action('attack','acid',{attackName:'Acid Spray',
+        publicMetadata:{attackCostPayable:false}}),action('pass','pass')]
+    });
+    assert.deepEqual(decide(request),{kind:'select-action',token:'pass'});
+  });
+}
