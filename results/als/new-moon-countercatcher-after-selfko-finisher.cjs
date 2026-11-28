@@ -20,6 +20,8 @@ function counterCatcherAfterSelfKo(v){
  const {public:p,own:o,combat:c}=v;
  if(![p.ownPrizesRemaining,p.opponentPrizesRemaining].every(nat)||
     !Array.isArray(p.benchTargets)||!Array.isArray(o.hand)||
+    !o.hand.every(h=>h&&typeof h.token==='string'&&h.token.length>0&&
+      typeof h.name==='string'&&h.name.length>0)||
     ![o.benchedDusknoirReady,o.itemPlayLocked,o.counterCatcherNativeInHand,
       o.activeAttackerStillPresent,o.gxUsed,
       c.cursedBlastLegal,c.cursedBlastCountersApply,
@@ -38,7 +40,8 @@ function counterCatcherAfterSelfKo(v){
    return {status:'unsupported',reason:'UNCERTIFIED_ACTOR_COUNTERCATCHER_FACTS'};
  if(p.ownPrizesRemaining<1||p.ownPrizesRemaining>6||
     p.opponentPrizesRemaining<1||p.opponentPrizesRemaining>6||
-    new Set(p.benchTargets.map(t=>t.token)).size!==p.benchTargets.length)
+    new Set(p.benchTargets.map(t=>t.token)).size!==p.benchTargets.length||
+    new Set(o.hand.map(h=>h.token)).size!==o.hand.length)
    return {status:'unsupported',reason:'INVALID_PRIZE_OR_BENCH_TOKEN_STATE'};
  if(p.opponentPrizesRemaining===1)
    return blocked('SELF_KO_AWARDS_OPPONENT_LAST_PRIZE');
@@ -50,7 +53,8 @@ function counterCatcherAfterSelfKo(v){
  if(!o.benchedDusknoirReady||!c.cursedBlastLegal||
     !c.cursedBlastCountersApply||!c.reactiveEffectsAccountedFor)
    return blocked('CURSED_BLAST_UNSAFE_OR_UNAVAILABLE');
- if(!o.counterCatcherNativeInHand||o.itemPlayLocked||
+ if(!o.counterCatcherNativeInHand||
+    !o.hand.some(h=>h.name==='Counter Catcher')||o.itemPlayLocked||
     !c.counterCatcherPostKOAllowed)
    return blocked('POST_KO_ITEM_GUST_UNAVAILABLE');
  if(!o.activeAttackerStillPresent||!c.allPostGustEffectsCertified)
