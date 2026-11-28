@@ -30,7 +30,7 @@ const P=Object.freeze({
   quick:'Quick Ball FST 237',treasure:'Mysterious Treasure FLI 113',
   ultra:'Ultra Ball MEG 131',heavy:'Hisuian Heavy Ball ASR 146',
   goodra:'Hisuian Goodra VSTAR LOR 136',
-  ranger:'Pokémon Ranger STS 104',megaton:'Prime Catcher TEF 157',
+  ranger:'Pokémon Ranger STS 104',prime:'Prime Catcher TEF 157',
   sycamore:'Professor Sycamore BKP 107',guzma:'Guzma BUS 115',
   marshadow:'Marshadow UNB 81',latias:'Latias ex SSP 76'
 });
@@ -79,7 +79,7 @@ function sourceDiscardValue(printing,obs){
   if(printing===P.star)return g.star===0?-Infinity:145;
   if(DRAGON_PAYLOADS.has(printing))
     return ownDonors(obs).some(x=>name(x)===printing)?75:330;
-  if(printing===P.megaton)return -Infinity;
+  if(printing===P.prime)return -Infinity;
   if(/^Double Dragon Energy ROS/.test(printing))return -Infinity;
   if(/^Grass Energy |^Fire Energy /.test(printing))return g.v+g.star>0?15:50;
   if(printing===P.vip)return g.firstTurnCandidate?-Infinity:360;
@@ -209,7 +209,7 @@ function promptDecision(request){
     if([P.quick,P.treasure,P.ultra,P.vip,P.heavy].includes(sourcePrinting)){
       const zone=meta.sourceZone;
       if(meta.ownerSeat!=='actor'||meta.isOwnerVisible!==true||
-         !['hand','deck','prize'].includes(zone))
+         !['hand','deck','prizes'].includes(zone))
         return {kind:'abstain',reasonCode:'R18_UNTRUSTED_ZONE'};
       if(zone==='hand'&&[P.quick,P.treasure,P.ultra].includes(sourcePrinting))
         return pick(choices,c=>validOwnerCard(c,'hand')?
@@ -217,8 +217,8 @@ function promptDecision(request){
       if(zone==='deck')
         return pick(choices,c=>validOwnerCard(c,'deck')?
           searchValue(sourcePrinting,name(c),obs):-Infinity,min,max);
-      if(zone==='prize'&&sourcePrinting===P.heavy)
-        return pick(choices,c=>validOwnerCard(c,'prize')?
+      if(zone==='prizes'&&sourcePrinting===P.heavy)
+        return pick(choices,c=>validOwnerCard(c,'prizes')?
           searchValue(P.heavy,name(c),obs):-Infinity,min,max);
       return {kind:'abstain',reasonCode:'R18_SOURCE_ZONE_PAIR'};
     }
