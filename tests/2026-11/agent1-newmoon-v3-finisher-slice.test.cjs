@@ -164,4 +164,67 @@ test('unknown hand declines disruptive Ace but retains lethal attack',()=>{
  f.settle();delete f.obs.ownHand;assert(f.root().token,'night');
 });
 
+
+test('first-turn VIP preserved from v2 shared opening, v3 policy',()=>{
+ const f=make();f.obs.globalTurn=1;f.own.bench=[];
+ f.opp.active.printing='Bunnelby PRC 121';f.opp.active.hp=60;
+ f.items.splice(0,f.items.length,{kind:'play-card',token:'vip',
+  actorPrinting:'Battle VIP Pass FST 225',publicMetadata:{cardType:'trainer',handIndex:0}});
+ assert(f.root().token,'vip');
+});
+test('real active-attachment setup prioritizes TPE before VIP',()=>{
+ const f=make();f.obs.globalTurn=1;f.own.bench=[];f.own.active.energies=[];
+ f.obs.ownTurnResources.energyPlayedTurn=0;
+ f.items.splice(0,f.items.length,
+  {kind:'play-card',token:'vip',actorPrinting:'Battle VIP Pass FST 225',
+    publicMetadata:{cardType:'trainer'}},
+  {kind:'play-card',token:'tpe',actorPrinting:'Telepathic Psychic Energy MEG 88',
+   targetPrinting:f.own.active.printing,
+   publicMetadata:{cardType:'energy',targetZone:'active',targetSeat:'actor'}}
+ );
+ assert(f.root().token,'tpe');
+});
+test('v2 Tool Jammer locked line is not inherited into v3',()=>{
+ const f=make();
+ f.own.active.printing='Dusclops SFA 19';
+ f.own.active.energies=['Basic Psychic Energy','Basic Psychic Energy'];
+ f.own.active.abilities=['Cursed Blast'];
+ f.own.active.abilitySuppressions=[{abilityName:'Cursed Blast',suppressed:false}];
+ f.own.bench=[{printing:'Dusclops SFA 19',tools:[],energies:[],
+   abilities:['Cursed Blast'],abilitySuppressions:[{abilityName:'Cursed Blast',suppressed:false}]}];
+ f.opp.active.printing='Vileplume BUS 6';f.opp.active.hp=140;
+ f.opp.active.tools=['Stealthy Hood UNB 186'];
+ f.opp.active.abilities=['Disgusting Pollen'];
+ f.opp.active.abilitySuppressions=[{abilityName:'Disgusting Pollen',suppressed:false}];
+ f.opp.bench=[{printing:'Vileplume AOR 3',abilities:['Irritating Pollen'],
+   abilitySuppressions:[{abilityName:'Irritating Pollen',suppressed:false}]}];
+ f.own.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining=0;
+ f.opp.publicTurnRestrictions={stadiumAndToolHaveNoEffectTurnsRemaining:0};
+ f.obs.ownHand=['Tool Jammer BST 136'];f.own.stadium=[];f.opp.stadium=[];
+ f.items.splice(0,f.items.length,
+  {kind:'play-card',token:'jam',actorPrinting:'Tool Jammer BST 136',
+   publicMetadata:{targetZone:'active',targetSeat:'actor'}});
+ assert(f.root().kind,'abstain');
+});
+test('Night Watch damage prevention vetoes pre-Blast sacrifice',()=>{
+ const f=make();f.night.publicMetadata.damagePrevented=true;
+ assert(f.root().kind,'abstain');
+});
+test('Night Watch reduced damage vetoes 280 closure',()=>{
+ const f=make();f.night.publicMetadata.damageReduced=20;
+ assert(f.root().kind,'abstain');
+});
+test('printed Miraculous Duo damage reduction vetoes Mega Lopunny',()=>{
+ const f=make('Mega Lopunny ex');f.duo.publicMetadata.damageAfterResistance=180;
+ assert(f.root().kind,'abstain');
+});
+test('Shadow Bind prevention vetoes Hooded BUS claimed KO',()=>{
+ const f=shadowFixture();f.items.at(-1).publicMetadata.damagePrevented=true;
+ assert(f.root().kind,'abstain');
+});
+test('unmodeled Shadow Bind damage modifier veto',()=>{
+ const f=shadowFixture();f.items.at(-1).publicMetadata.hasUnmodeledModifier=true;
+ assert(f.root().kind,'abstain');
+});
+
 console.log('Agent1 v3 research actor tests: '+checks+' assertions passed');
