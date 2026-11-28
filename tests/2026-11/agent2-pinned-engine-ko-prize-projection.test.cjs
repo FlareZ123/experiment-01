@@ -120,3 +120,49 @@ test('Prize-to-discard source requires the actor discard object and correct mess
    allowPinnedKoPrizeEngineSource:true}),
    /Prompt has no trusted card-effect or allowlisted engine source/);
 });
+
+test('opt-in host tokens pass rank-27 worker and strict protocol end-to-end',()=>{
+ const {createPolicy,POLICY_VERSION,SOURCE_BLOB_SHA1}=
+   require('../../simulation/evaluation/2026-11/agent2-rank27-regidrago-opponent-policy.cjs');
+ for(const seat of [0,1]){
+  const {phase,players,actor}=fixture(seat);
+  const ownPublic={
+    active:null,
+    bench:[
+      {printing:'Regidrago VSTAR SIT 136',hp:280,damage:0,
+       energies:[],tools:[],printed:{subtypes:['VSTAR']}},
+      {printing:'Budew ASC 16',hp:30,damage:0,energies:[],tools:[],
+       printed:{subtypes:['Basic']}}
+    ],
+    stadium:[],discard:['Dialga-GX UPR 100'],deckCount:25,
+    publicTurnRestrictions:{vstarUsed:false,gxUsed:false}
+  };
+  const obs={actorSeat:seat,phase,globalTurn:4,ownHand:[],
+    ownPublic,opponentPublic:{
+     active:{printing:'Shadow Rider Calyrex VMAX CRE 75',
+       hp:320,damage:0,energies:[],printed:{subtypes:['VMAX']}},
+     bench:[],discard:[],stadium:[]
+    }};
+  const worker=createPolicy({role:'opponent',seat,
+    policyVersion:POLICY_VERSION,
+    config:{rank:27,sourceBlobSha1:SOURCE_BLOB_SHA1}});
+  const promotion=projectPrompt({
+    prompt:new ChoosePokemonPrompt(actor.id,'CHOOSE_NEW_ACTIVE_POKEMON'),
+    state:{phase,players},actorSeat:seat,native,
+    allowPinnedKoPrizeEngineSource:true
+  }).promptProjection;
+  const r=worker.decide({role:'opponent',seat,observation:obs,prompt:promotion});
+  assert.deepEqual(validateDecision(r,promotion,new Set()),r);
+  assert.equal(r.kind,'select-choices');
+  assert.deepEqual(r.tokens,[promotion.choices[0].token]);
+  const prize=projectPrompt({
+    prompt:new ChoosePrizePrompt(actor.id,'CHOOSE_PRIZE_CARD',
+      {count:2,max:2}),
+    state:{phase,players},actorSeat:seat,native,
+    allowPinnedKoPrizeEngineSource:true
+  }).promptProjection;
+  const d=worker.decide({role:'opponent',seat,observation:obs,prompt:prize});
+  assert.deepEqual(validateDecision(d,prize,new Set()),d);
+  assert.deepEqual(d.tokens,prize.choices.slice(0,2).map(x=>x.token));
+ }
+});
