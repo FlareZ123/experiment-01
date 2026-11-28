@@ -215,5 +215,72 @@ for(const tweak of [
  now.actionFrontier.items[0].publicMetadata.damagePrevented=true;
  assert.equal(bad.decide(now),null);checks++;
 }
-assert.equal(checks,74);
+
+// Five original Aichi ranks carry Mega Absol ex 280 HP, 3 Prizes; a
+// 130+200 selfKO-enabled Counter Catcher route is physical if funded.
+{
+ const a=f();a.observation.opponentPublic.bench[0]={
+  printing:'Mega Absol ex ME1086',hp:280,damage:0,tools:[]};
+ const s=createSlice({seat:0});
+ assert.equal(s.decide(a).decision.token,'blast');checks++;
+ assert.equal(s.decide(prompt(a,'Cursed Blast','bench',0)).decision.tokens[0],
+  'bench-pick');checks++;
+ const after=clone(a);after.observation.opponentPublic.prizeCount=2;
+ after.observation.opponentPublic.bench[0].damage=130;
+ after.actionFrontier.items=[{kind:'play-card',token:'catchAbsol',
+  actorPrinting:'Counter Catcher PAR160',
+  publicMetadata:{cardType:'trainer',handIndex:0}}];
+ assert.equal(s.decide(after).decision.token,'catchAbsol');checks++;
+ assert.equal(s.decide(prompt(after,'Counter Catcher','bench',130)).
+   decision.tokens[0],'bench-pick');checks++;
+ const finish=clone(after);
+ finish.observation.opponentPublic.active=clone(after.observation.opponentPublic.bench[0]);
+ finish.observation.opponentPublic.bench=[after.observation.opponentPublic.active];
+ finish.actionFrontier.items=[clone(a.actionFrontier.items[1])];
+ assert.equal(s.decide(finish).decision.token,'duo');checks++;
+}
+// Dragonite has 370 HP, 3 Prizes. Full HP is not accessible by 130+200
+// unless actor-observed, unsuppressed Fairy Zone changes its Dragon Weakness
+// to Psychic; after gust native 400 damage must still be offered.
+{
+ const dragon=()=>{
+  const a=f();a.observation.opponentPublic.bench[0]={
+   printing:'Mega Dragonite ex ASC152',hp:370,damage:0,tools:[],
+   printed:{types:['Dragon']}};
+  a.observation.ownPublic.bench.push({
+   printing:"Lillie's Clefairy ex JTG056",abilities:['Fairy Zone'],
+   abilitySuppressions:[{abilityName:'Fairy Zone',suppressed:false}]});
+  return a;
+ };
+ const a=dragon(),s=createSlice({seat:0});
+ assert.equal(s.decide(a).decision.token,'blast');checks++;
+ assert.equal(s.decide(prompt(a,'Cursed Blast','bench',0)).decision.tokens[0],
+  'bench-pick');checks++;
+ const after=clone(a);after.observation.opponentPublic.prizeCount=2;
+ after.observation.opponentPublic.bench[0].damage=130;
+ after.actionFrontier.items=[{kind:'play-card',token:'catchDragon',
+  actorPrinting:'Counter Catcher PAR160',
+  publicMetadata:{cardType:'trainer',handIndex:0}}];
+ assert.equal(s.decide(after).decision.token,'catchDragon');checks++;
+ assert.equal(s.decide(prompt(after,'Counter Catcher','bench',130)).
+  decision.tokens[0],'bench-pick');checks++;
+ const finish=clone(after);
+ finish.observation.opponentPublic.active=clone(after.observation.opponentPublic.bench[0]);
+ finish.observation.opponentPublic.bench=[after.observation.opponentPublic.active];
+ finish.actionFrontier.items=[clone(a.actionFrontier.items[1])];
+ finish.actionFrontier.items[0].publicMetadata.damageAfterResistance=400;
+ assert.equal(s.decide(finish).decision.token,'duo');checks++;
+ for(const adjust of [
+  q=>{q.observation.ownPublic.bench[1].abilitySuppressions[0].suppressed=true},
+  q=>{q.observation.ownPublic.bench[1].abilities=[]},
+  q=>{q.observation.opponentPublic.bench[0].printed.types=['Psychic']}
+ ]){
+  const z=createSlice({seat:0}),q=dragon();adjust(q);
+  assert.equal(z.decide(q),null);checks++;
+ }
+ const without=dragon();without.observation.ownPublic.bench.pop();
+ without.observation.opponentPublic.bench[0].damage=40;
+ assert.equal(createSlice({seat:0}).decide(without).decision.token,'blast');checks++;
+}
+assert.equal(checks,88);
 console.log('Agent22 actor-countercatcher exact multi-prompt slice: '+checks+' synthetic checks passed');
