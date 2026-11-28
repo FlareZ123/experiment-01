@@ -17,6 +17,7 @@ on:
           - rank29-camping-pure
           - rank29-camping-native
           - rank29-tagcall-second-paired
+          - agent32-actor-source-print-bridge
 
 permissions:
   contents: read
@@ -49,6 +50,17 @@ jobs:
       - working-directory: vendor/twinleaf/ptcg-server
         if: inputs.study != 'rank29-camping-pure'
         run: npm run compile
+      # A single opt-in two-seat SOURCE->native actor/prompt witness. It stages
+      # original exact physical 60s and a legal root/continuation, but never
+      # starts a match, fixture driver, or any full-game loop.
+      - name: Agent32 source-certified actor and Penny native no-game witness
+        if: inputs.study == 'agent32-actor-source-print-bridge'
+        run: |
+          node --test \
+            tests/2026-11/agent19-pinned-native-actor-contract.test.cjs \
+            tests/2026-11/agent32-source-printing-bridge.test.cjs \
+            tests/2026-11/agent32-rank3-penny-continuation-policy.test.cjs \
+            tests/2026-11/agent32-real-pinned-actor-pr86-bridge.test.cjs
       - name: Native both-seat Tropical Beach held-card and draw-to-seven
         if: inputs.study == 'tropical-beach-stage'
         run: node --test tests/agent33-tropical-beach-pinned-native.test.cjs

@@ -621,7 +621,7 @@ function scoreAction(item, request) {
 
   if (item.kind === 'retreat') {
     if (matches(target, PRINT.snorlax)) {
-      const targetSlot = slots(own).find(row => row.pokemon.printing === target);
+      const targetSlot = publicRootTargetSlot(item,own);
       return hasTool(targetSlot?.pokemon, PRINT.toolJammer) ? 180 :
         opponentHasAnyTool(observation) ? 140 : 110;
     }
@@ -641,7 +641,7 @@ function scoreAction(item, request) {
   }
 
   if (matches(card, PRINT.waterEnergy)) {
-    const targetSlot = slots(own).find(row => row.pokemon.printing === target);
+    const targetSlot = publicRootTargetSlot(item,own);
     if (!targetSlot) return 0;
     if (matches(targetSlot.pokemon.printing, PRINT.articuno)) {
       return energyCount(targetSlot.pokemon) < 2 ?
@@ -657,7 +657,7 @@ function scoreAction(item, request) {
     return 25;
   }
   if (matches(card, PRINT.captureEnergy)) {
-    const targetSlot = slots(own).find(row => row.pokemon.printing === target);
+    const targetSlot = publicRootTargetSlot(item,own);
     if (!targetSlot) return 0;
     if (matches(targetSlot.pokemon.printing, PRINT.bunnelby) ||
         matches(targetSlot.pokemon.printing, PRINT.girafarig)) {
@@ -727,7 +727,27 @@ function scoreAction(item, request) {
     if (matches(card, PRINT.lillie)) return hand.length <= 3 ? 110 : 0;
     if (matches(card, PRINT.gladion)) return 75;
     if (matches(card, PRINT.penny)) {
-      return slots(own).some(row => row.pokemon.damage > 0 && row.pokemon.printed?.stage === 'BASIC') ? 90 : 0;
+      // A root Penny line is executable only if the subsequent Pokémon
+      // prompt would actually select a target. In particular, an Active
+      // Snorlax with damage is intentionally protected by ownPickupScore:
+      // if it is the sole damaged Basic, choosing Penny would dead-end at
+      // NO_VISIBLE_POKEMON_TARGET. Evaluate the same known public features
+      // as ownPickupScore, leaving strict native legality to the Store.
+      const usable = slots(own).some(row => {
+        // Reuse exact downstream prompt scoring with *physical slot identity*.
+        // One protected Active Snorlax and one damaged Bench Snorlax can have
+        // the same source printing; print-only lookup collapses them.
+        if (row.pokemon.printed?.stage !== 'BASIC') return false;
+        return ownPickupScore({
+          printing: row.pokemon.printing,
+          publicMetadata: {
+            ownerSeat: 'actor',
+            targetZone: row.zone,
+            ...(row.zone === 'bench' ? { benchIndex: row.index } : { slotIndex: 0 })
+          }
+        }, observation) > 0;
+      });
+      return usable ? 90 : 0;
     }
   }
 
@@ -841,11 +861,36 @@ function singleChoice(prompt, choices, scoreFn, reasonCode) {
   return { kind: 'select-choice', token: ranked[0].choice.token };
 }
 
+function publicRootTargetSlot(item,player) {
+  const rows = slots(player);
+  const printing = item?.targetPrinting ?? '';
+  const meta = item?.publicMetadata ?? {};
+  if (meta.targetSeat && meta.targetSeat !== 'actor') return null;
+  const row = meta.targetZone === 'active' ?
+    rows.find(entry => entry.zone === 'active') :
+    meta.targetZone === 'bench' && Number.isSafeInteger(meta.targetIndex) ?
+      rows.find(entry => entry.zone === 'bench' && entry.index === meta.targetIndex) :
+      rows.find(entry => entry.pokemon.printing === printing);
+  return row?.pokemon.printing === printing ? row : null;
+}
+
+function publicChoiceSlot(player,choice) {
+  const rows = slots(player);
+  const printing = valueText(choice);
+  const meta = choice?.publicMetadata ?? {};
+  const zone = meta.targetZone ?? meta.sourceZone ?? meta.zone ?? null;
+  const row = zone === 'active' ?
+    rows.find(item => item.zone === 'active') :
+    zone === 'bench' && Number.isSafeInteger(meta.benchIndex) ?
+      rows.find(item => item.zone === 'bench' && item.index === meta.benchIndex) :
+      rows.find(item => item.pokemon.printing === printing);
+  return row?.pokemon.printing === printing ? row : null;
+}
+
 function opponentPokemonScore(choice, observation) {
   if (choiceOwner(choice) !== 'opponent' ||
       !['bench', 'active'].includes(choiceZone(choice))) return 0;
-  const printing = valueText(choice);
-  const row = slots(observation.opponentPublic).find(item => item.pokemon.printing === printing);
+  const row = publicChoiceSlot(observation.opponentPublic,choice);
   const pokemon = row?.pokemon;
   if (!pokemon) return 10;
   return 40 + energyCount(pokemon) * 30 +
@@ -855,8 +900,7 @@ function opponentPokemonScore(choice, observation) {
 
 function ownPickupScore(choice, observation) {
   if (choiceOwner(choice) !== 'actor') return 0;
-  const printing = valueText(choice);
-  const row = slots(observation.ownPublic).find(item => item.pokemon.printing === printing);
+  const row = publicChoiceSlot(observation.ownPublic,choice);
   if (!row) return 0;
   if (row.zone === 'active' && matches(row.pokemon.printing, PRINT.snorlax)) return 0;
   return (row.pokemon.damage ?? 0) * 2 + energyCount(row.pokemon) * 10 +
@@ -865,8 +909,7 @@ function ownPickupScore(choice, observation) {
 
 function ownSwitchScore(choice, observation) {
   if (choiceOwner(choice) !== 'actor' || choiceZone(choice) !== 'bench') return 0;
-  const printing = valueText(choice);
-  const row = slots(observation.ownPublic).find(item => item.pokemon.printing === printing);
+  const row = publicChoiceSlot(observation.ownPublic,choice);
   if (!row) return 0;
   if (matches(row.pokemon.printing, PRINT.snorlax)) {
     return hasTool(row.pokemon, PRINT.toolJammer) ? 260 : 220;
