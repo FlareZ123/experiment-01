@@ -730,17 +730,24 @@ function scorePlayCard(item, request) {
   if (matches(card, PRINT.gladion) || matches(card, PRINT.playersCeremony) ||
       matches(card, PRINT.palaceBook) || matches(card, PRINT.handheldFan)) return 0;
 
-  if (matches(card, PRINT.speedLightning)) {
-    return energyAvailable(observation) && !specialEnergyLocked(observation) &&
-      matches(target || own.active?.printing, PRINT.ironThorns) &&
-      !hasStadium(observation, /Temple of Sinnoh/i) &&
-      !list(own.active?.energies).some(energy => matches(energy, PRINT.speedLightning)) ?
-      155 : 0;
+  // Under Temple each Special Energy still contributes one Colorless.
+  // A second copy is useful when a third Energy completes Volt Cyclone.
+  const temple=hasStadium(observation,/Temple of Sinnoh/i);
+  const activeEnergies=list(own.active?.energies);
+  const completesVoltCycloneUnderTemple=temple && activeEnergies.length===2 &&
+    activeEnergies.some(energy=>/^(?:Basic )?Lightning Energy/i.test(valueText(energy)));
+  if(matches(card,PRINT.speedLightning)){
+    const hadSpeed=activeEnergies.some(energy=>matches(energy,PRINT.speedLightning));
+    return energyAvailable(observation)&&!specialEnergyLocked(observation)&&
+      matches(target||own.active?.printing,PRINT.ironThorns)&&
+      ((!temple&&!hadSpeed)||completesVoltCycloneUnderTemple)?
+      (temple?125:155):0;
   }
-  if (matches(card, PRINT.doubleColorless)) {
-    const activeHasDce = list(own.active?.energies).some(energy => matches(energy, PRINT.doubleColorless));
-    return energyAvailable(observation) && !specialEnergyLocked(observation) &&
-      matches(target || own.active?.printing, PRINT.ironThorns) && !activeHasDce ? 125 : 0;
+  if(matches(card,PRINT.doubleColorless)){
+    const hadDce=activeEnergies.some(energy=>matches(energy,PRINT.doubleColorless));
+    return energyAvailable(observation)&&!specialEnergyLocked(observation)&&
+      matches(target||own.active?.printing,PRINT.ironThorns)&&
+      (!hadDce||completesVoltCycloneUnderTemple)?125:0;
   }
   if (matches(card, PRINT.spikyEnergy) || matches(card, PRINT.captureEnergy)) {
     return energyAvailable(observation) && !specialEnergyLocked(observation) &&
