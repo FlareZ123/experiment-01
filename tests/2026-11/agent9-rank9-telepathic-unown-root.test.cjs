@@ -243,6 +243,41 @@ for(const seat of [0,1]){
     'after physical-search-shaped stage draw before same KO, seat '+seat);
   check(shadow(3,true),'knockout',p());
   check(shadow(6,false),'knockout',p());
+  // This source's four Unown can also be played directly from hand.
+  // Even without Telepath, a fresh Bench Unown can Farewell once before KO.
+  const handheld=shadow();handheld.ownHand=[Un];handheld.ownPublic.bench=[];
+  const handOpts={schema:protocol.FRONTIER_SCHEMA,items:[
+    {kind:'play-card',token:'bench-hand-unown',actorPrinting:Un,
+      publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:0,isOwnerVisible:true}},
+    {kind:'attack',token:'same-claw-ko',actorPrinting:Meg,
+      attackName:'Claw of Darkness',publicMetadata:{attackCostPayable:true}},
+    {kind:'pass',token:'pass'}
+  ]};
+  let handPolicy=p();
+  let result=decide(handPolicy,handheld,1,handOpts);
+  ok(result.token==='bench-hand-unown',
+    'hand-held Unown benches before nonfinal three-Prize KO, seat '+seat);
+  const entered=shadow();entered.ownHand=[];
+  entered.ownPublic.bench=[mon(Un,{hp:60})];
+  const draw={kind:'use-ability',token:'new-unown-farewell',actorPrinting:Un,
+    publicMetadata:{sourceSeat:'actor',sourceZone:'bench',
+      sourceIndex:0,abilityName:'Farewell Letter'}};
+  result=decide(handPolicy,entered,2,{schema:protocol.FRONTIER_SCHEMA,items:[
+    draw,handOpts.items[1],handOpts.items[2]
+  ]});
+  ok(result.token==='new-unown-farewell',
+    'fresh hand-Unown draws before the same KO, seat '+seat);
+  const ending=shadow(3,true);
+  ending.ownHand=[Un];ending.ownPublic.bench=[];
+  result=decide(p(),ending,1,handOpts);
+  ok(result.token==='same-claw-ko',
+    'hand-Unown does not delay final-Prize KO, seat '+seat);
+  const suppressed=shadow();
+  suppressed.ownHand=[Un];suppressed.ownPublic.bench=[];
+  suppressed.opponentPublic.stadium=['Silent Lab PRC 140'];
+  result=decide(p(),suppressed,1,handOpts);
+  ok(result.token==='same-claw-ko',
+    'Silent Lab prevents hand-Unown setup ahead of KO, seat '+seat);
 }
 
 /* Synthetic post-settlement challenge of the original rank-9 four-copy
