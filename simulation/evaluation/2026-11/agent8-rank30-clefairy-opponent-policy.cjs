@@ -595,7 +595,8 @@ function patchPrompt(request) {
 }
 
 function rondoSearchFillerOpportunity(o) {
-  if(!o||!stadium(o)||!rondoBenchFillerDemand(o))return false;
+  if(!o||!stadium(o)||o.ownTurnResources?.pokemonPlayLocked===true||
+    !rondoBenchFillerDemand(o))return false;
   const hand=arr(o.ownHand);
   if(hand.some(c=>benchBasicRole(c)!==null))return false;
   return true;
@@ -818,7 +819,8 @@ function selectBasicBenchRoot(items,o) {
   const ro=projectedRondo(o);
   const makesKo=ro && ro.damage<ro.remaining && ro.damage+rondoIncrement(o)>=ro.remaining;
   const smallHand=arr(o.ownHand).length<=3;
-  const fill=rondoBenchFillerDemand(o);
+  const fill=o.ownTurnResources?.pokemonPlayLocked===true?null:
+    rondoBenchFillerDemand(o);
   const priority=({kind})=>{
     // When an already-live Sky Field creates a multi-Bench KO path, every
     // Basic body can matter, including Minior outside its Snorlax matchup.
@@ -1102,7 +1104,8 @@ function fieldBlowerPrompt(request) {
 }
 function skyFieldHandExpansionKO(o) {
   const own=o?.ownPublic,ro=projectedRondo(o);
-  if(!ro||stadium(o)||benchCount(own)!==5||
+  if(!ro||stadium(o)||o.ownTurnResources?.pokemonPlayLocked===true||
+     benchCount(own)!==5||
      !safeInt(ro.remaining)||ro.remaining<=ro.damage)return null;
   const increment=rondoIncrement(o);
   if(!safeInt(increment)||increment<=0)return null;
