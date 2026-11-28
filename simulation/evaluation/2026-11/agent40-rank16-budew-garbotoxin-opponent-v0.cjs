@@ -194,6 +194,21 @@ function sourceBasicChoices(rows,o,max){
  }
  return selected;
 }
+function basicSearchDemand(o){
+ const p=o.ownPublic;
+ if(benchCount(p)>=5)return false;
+ if(!onBoard(p,PRINT.mega)||!onBoard(p,PRINT.budew)||
+    !onBoard(p,PRINT.trubbish)&&!onBoard(p,PRINT.garbodor))return true;
+ if(benchSupportFits(o)&&handCount(o)<=3&&
+    benchSupportAbilityUsable('Crobat V DAA 104',o))return true;
+ return false;
+}
+function ultraSearchDemand(o){
+ const p=o.ownPublic;
+ if(onBoard(p,PRINT.trubbish)&&!onBoard(p,PRINT.garbodor))return true;
+ if(basicSearchDemand(o))return true;
+ return false;
+}
 function hasFundedDarkPatchRecipient(o){
  return slots(o.ownPublic).some(({zone,pokemon})=>
   zone==='bench'&&match(pokemon.printing,PRINT.mega)&&list(pokemon.energies).length<3);
@@ -539,7 +554,8 @@ function score(action,req){
  if(match(p,PRINT.compressor))return deckCount(o)>0?Math.max(260,battleCompressorKarenLineScore(o)):0;
  if(match(p,PRINT.quick)||match(p,PRINT.ultra)){
   const n=match(p,PRINT.ultra)?2:1;
-  return handCanPay(o,p,n)&&deckCount(o)>0?275:0;
+  const demand=n===2?ultraSearchDemand(o):basicSearchDemand(o);
+  return demand&&handCanPay(o,p,n)&&deckCount(o)>0?275:0;
  }
  if(match(p,PRINT.secret))return handCanPay(o,p,3)&&deckCount(o)>0?300:0;
  if(match(p,PRINT.vs))return o.ownTurnResources?.supporterPlayedTurn===0&&list(own.discard).some(x=>/Marnie|Carmine|Guzma|Plumeria|Karen|Determination/i.test(name(x)))?Math.max(190,vsSeekerDenialScore(o,items)):0;
@@ -882,4 +898,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,activeMimikyuSafeguard,regidragoPayloadCount,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,opponentSnorlaxBlock,toolEnabled,garbotoxinStatus,liveGarbotoxin};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,activeMimikyuSafeguard,regidragoPayloadCount,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,liveGarbotoxin};
