@@ -130,16 +130,37 @@ function validRootTarget(target,own){
  return remaining>130&&remaining<=maxAfterBlast?
    {def,remaining,dragonFairyZoneProjected:dragonWeak}:null;
 }
-function certifiedDamage(attack,target){
+function visiblePrintedDuoDamage(own,opp,target){
+ // The pinned action frontier does NOT expose damageAfterResistance, only
+ // attackCostPayable and source. This is a narrow *nominal printed* estimate,
+ // not an actual Store damage receipt: previously imposed effects can persist.
+ if(!has(own?.active?.printing,'Mewtwo & Mew-GX')||
+    !Array.isArray(own.active.attacks)||
+    !own.active.attacks.some(a=>a?.name==='Miraculous Duo-GX'&&a.damage===200)||
+    !Array.isArray(own.stadium)||!Array.isArray(opp?.stadium)||
+    own.stadium.length||opp.stadium.length||
+    !Array.isArray(own.active.tools)||own.active.tools.length||
+    !Array.isArray(target?.tools)||target.tools.length||
+    !Array.isArray(target.printed?.resistance)||
+    target.printed.resistance.some(r=>r?.type==='Psychic')||
+    !['Mega Lopunny ex','Mega Kangaskhan ex','Mega Absol ex',
+      'Mega Dragonite ex'].some(n=>has(target.printing,n)))
+   return null;
+ const dragon=has(target.printing,'Mega Dragonite ex')&&
+   Array.isArray(target.printed.types)&&
+   target.printed.types.includes('Dragon')&&liveFairyZone(own);
+ return 200*(dragon?2:1);
+}
+function certifiedDamage(attack,target,own,opp){
  const m=attack?.publicMetadata;
  if(!m||m.attackCostPayable!==true||
     m.damagePrevented===true||m.hasUnmodeledModifier===true||
     (typeof m.damageReduced==='number'&&m.damageReduced>0)||
-    !Number.isFinite(m.damageAfterResistance)||
-    m.damageAfterResistance<target.hp-target.damage||
     (m.targetHp!==undefined&&m.targetHp!==target.hp)||
     (m.targetDamage!==undefined&&m.targetDamage!==target.damage))return false;
- return true;
+ const dmg=Number.isFinite(m.damageAfterResistance)?
+   m.damageAfterResistance:visiblePrintedDuoDamage(own,opp,target);
+ return Number.isFinite(dmg)&&dmg>=target.hp-target.damage;
 }
 function ownerBenchChoice(p,seat,source,print,index){
  if(!p||p.actingSeat!==seat||p.promptType!=='ChoosePokemonPrompt'||
@@ -255,9 +276,11 @@ function createSlice({seat}){
       pending.phase='perfection-attack-prompt';
       return select(a,'A22_USE_ACTUAL_PERFECTION_FOR_NIGHT_WATCH');
     }
-    if(!certifiedDamage(a,t)){reset();return null;}
+    if(!certifiedDamage(a,t,own,opp)){reset();return null;}
     reset();
-    return select(a,'A22_MIRACULOUS_GX_AFTER_GUST_FOR_FINAL_THREE_PRIZES');
+    return select(a,Number.isFinite(a.publicMetadata?.damageAfterResistance)?
+      'A22_MIRACULOUS_GX_NATIVE_ANNOTATED_TERMINAL':
+      'A22_MIRACULOUS_GX_PRINTED_BASE_CONDITIONAL_TERMINAL');
    }
    reset();return null;
   }
@@ -292,4 +315,5 @@ function createSlice({seat}){
 }
 module.exports={createSlice,validRootTarget,offeredMewtwoAttack,
  abilitySource,ownerBenchChoice,certifiedDamage,
- nightWatchDonor,psychicCostPhysicallyReady,ownerPerfectionNightWatchPrompt};
+ nightWatchDonor,psychicCostPhysicallyReady,ownerPerfectionNightWatchPrompt,
+ visiblePrintedDuoDamage};
