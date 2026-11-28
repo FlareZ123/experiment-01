@@ -13,7 +13,7 @@ const bunnelby = { printing: 'Bunnelby PRC 121', hp: 60, damage: 0 };
 const duplicate = 'Shadow Rider Calyrex V CRE 74';
 function actorView(seat) {
   return {
-    actorSeat: seat, globalTurn: 4, ownHand: ['Guzma BUS 115', 'Cassius XY 123'],
+    actorSeat: seat, globalTurn: 4, ownHand: ['Guzma BUS 115', 'Cassius XY 115'],
     ownPublic: {
       active: bunnelby, bench: [stoutland, bunnelby,
         { printing: 'Vileplume AOR 3', hp: 130, damage: 0,
@@ -49,7 +49,7 @@ function rootRequest(seat, observation, withAlternative = true) {
       publicMetadata: { cardType: 'trainer', handIndex: 0 } }
   ];
   if (withAlternative) items.push({
-    token: 'cassius', kind: 'play-card', actorPrinting: 'Cassius XY 123',
+    token: 'cassius', kind: 'play-card', actorPrinting: 'Cassius XY 115',
     publicMetadata: { cardType: 'trainer', handIndex: 1 }
   });
   return { role: 'opponent', seat, observation, prompt: null, actionFrontier: { items } };
