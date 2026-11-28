@@ -30,7 +30,7 @@ function req(seat,target,{
       ownPublic:{active:c('Vileplume BUS 6'),
         bench:[c(MEGA,[],['Grass Energy BLW 105'],{
           printed:{stage:'STAGE_1'},publicRestrictions:{}
-        })],stadium:[],prizeCount:prizes
+        }),c('Pidgeotto TEU 123')],stadium:[],prizeCount:prizes
       },
       opponentPublic:{
         active:c(target,dew?[DEW]:[],legacy?[LEGACY]:[],{hp,damage}),
@@ -45,7 +45,8 @@ function req(seat,target,{
       publicMetadata:{
         targetSeat:'actor',targetZone:'bench',targetIndex:0,benchIndex:0
       }
-    }]}
+    },{kind:'use-ability',token:'air-mail',actorPrinting:'Pidgeotto TEU 123',
+      publicMetadata:{abilityName:'Air Mail'}}]}
   };
 }
 for(const seat of [0,1]){
@@ -63,7 +64,7 @@ for(const seat of [0,1]){
     test('seat '+seat+': target '+target+' with 3 Prizes plus Bench is nonterminal',()=>{
       assert.equal(rootDecision(req(seat,target,{
         prizes:3,bench:true
-      })).kind,'abstain');
+      })).token,'air-mail');
     });
   }
   for(const [name,options,selected] of [
@@ -82,8 +83,8 @@ for(const seat of [0,1]){
       const target=name.startsWith('unsupported')?
         'Arceus VSTAR BRS 123':'Iron Thorns ex TEF 77';
       const r=rootDecision(req(seat,target,options));
-      assert.equal(r.kind==='select-action',selected);
-      if(selected)assert.equal(r.token,'jet');
+      assert.equal(r.kind,'select-action');
+      assert.equal(r.token,selected?'jet':'air-mail');
     });
   }
 }
@@ -107,4 +108,39 @@ for(const seat of [0,1]){
       });
     });
   }
+}
+
+ // Agent17 independently identified a missed terminal Retreat on a
+ // non-Shadow-Rider plain target when Air Mail is offered. Exercise the
+ // same physical actor slot, both seats, with paid and prevented controls.
+function terminalRetreatRequest(seat,target,{dew=false,resist=false}={}) {
+  const r=req(seat,target,{prizes:2,bench:true,dew});
+  r.observation.ownPublic.active=c('Bunnelby PRC 121');
+  r.publicEventReceipt.ownerActive={
+    printing:'Bunnelby PRC 121',movedFromBenchToActiveThisTurn:false
+  };
+  r.actionFrontier.items=[
+    {kind:'retreat',token:'retreat-mega',targetPrinting:MEGA,
+      publicMetadata:{targetSeat:'actor',targetZone:'bench',
+        targetIndex:0,benchIndex:0}},
+    {kind:'use-ability',token:'air-mail',actorPrinting:'Pidgeotto TEU 123',
+      publicMetadata:{abilityName:'Air Mail'}}
+  ];
+  if(resist)r.observation.opponentPublic.active.printed.resistance=[
+    {type:'Colorless',value:'-30'}
+  ];
+  return r;
+}
+for(const seat of [0,1]) {
+  test('seat '+seat+': certified physical terminal Retreat outranks Air Mail',()=>{
+    for(const target of [
+      'Shadow Rider Calyrex V CRE 74',
+      'Iron Thorns ex TEF 77',
+      'Regidrago V SIT 135'
+    ])assert.equal(rootDecision(terminalRetreatRequest(seat,target)).token,
+      'retreat-mega');
+    for(const options of [{dew:true},{resist:true}])
+      assert.equal(rootDecision(terminalRetreatRequest(seat,
+        'Iron Thorns ex TEF 77',options)).token,'air-mail');
+  });
 }
