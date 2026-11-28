@@ -600,3 +600,42 @@ test('Crispin root funding uses real attacker Energy, not whole-board card count
   assert.equal(scoreRoot(req2.actionFrontier.items[0],req2),40);
  }
 });
+
+test('rank27 consumes a single mandatory source-bound Celestial Roar composite choice',()=>{
+ for(const seat of [0,1]){
+  const obs=observation(seat,{phase:3,ownPublic:{
+   ...observation(seat).ownPublic,
+   active:pokemon('Regidrago V SIT',
+      {energies:['Grass Energy MEE']})
+  }});
+  for(const k of [1,2,3]){
+   const p=promptRequest(seat,obs,'Celestial Roar','Regidrago V SIT',
+    'AttachEnergyPrompt',[{
+     kind:'energy',token:'attach-all-'+k,
+     label:'Attach all '+k+' revealed Basic Energy',
+     publicMetadata:{sourceZone:'effect-revealed',ownerSeat:'actor',
+      isOwnerVisible:true,energyType:'BASIC',zone:'active',
+      choiceIndex:0,selectedCount:k}
+    }],{selectionType:'energy-attachment',count:1,
+      minimumCount:k,maximumCount:k,allowCancel:false,
+      sourceZone:'effect-revealed',ownerSeat:'actor',
+      isOwnerVisible:true,energyType:'BASIC',zone:'active'});
+   const decision=decide(seat,p);
+   assert.deepEqual(decision,
+      {kind:'select-choice',token:'attach-all-'+k});
+   assert.deepEqual(validateDecision(decision,
+      validatePrompt(p.prompt,seat),new Set()),decision);
+   for(const tampered of [
+     {source:{...p.prompt.source,sourcePrinting:'Regidrago V SIT 177'}},
+     {source:{...p.prompt.source,sourceKind:'engine'}},
+     {publicMetadata:{...p.prompt.publicMetadata,minimumCount:k+1}},
+     {publicMetadata:{...p.prompt.publicMetadata,sourceZone:'deck'}},
+     {choices:[{...p.prompt.choices[0],publicMetadata:{
+       ...p.prompt.choices[0].publicMetadata,ownerSeat:'opponent'}}]}
+   ]){
+     const bad=decide(seat,{...p,prompt:{...p.prompt,...tampered}});
+     assert.equal(bad.kind,'abstain');
+   }
+  }
+ }
+});
