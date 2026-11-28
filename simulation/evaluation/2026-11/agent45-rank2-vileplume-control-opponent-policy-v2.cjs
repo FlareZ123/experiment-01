@@ -616,6 +616,26 @@ function cardPriority(printing, observation, context) {
   const own = observation.ownPublic;
   const hand = list(observation.ownHand);
 
+  if (context.includes('grand tree')) {
+    // Pinned SCR Grand Tree emits separate Stage1/Stage2 owner-deck
+    // ChooseCardsPrompts after the Basic target. A path must settle BOTH.
+    // Prefer the AOR Vileplume Item lock over the GX when both are offered.
+    if (matches(printing, PRINT.vileplume) && boardHas(own, PRINT.gloom))
+      return 245;
+    if (matches(printing, PRINT.stoutland) && boardHas(own, PRINT.herdier))
+      return 230;
+    if (matches(printing, PRINT.pidgeot) && boardHas(own, PRINT.pidgeotto))
+      return 210;
+    if (matches(printing, PRINT.vileplumeGx) && boardHas(own, PRINT.gloom))
+      return 105;
+    if (matches(printing, PRINT.gloom) && boardHas(own, PRINT.oddish))
+      return 200;
+    if (matches(printing, PRINT.herdier) && boardHas(own, PRINT.lillipup))
+      return 190;
+    if (matches(printing, PRINT.pidgeotto) && boardHas(own, PRINT.pidgey))
+      return 175;
+    return 0;
+  }
   if (context.includes('tag call')) {
     if (matches(printing, PRINT.guzmaHala)) return 150;
     if (matches(printing, PRINT.bellelba)) return 20;
@@ -933,7 +953,9 @@ function promptDecision(request) {
   if (selectionType === 'card-combination' || selectionType === 'pokemon' ||
       selectionType === 'energy-payment' || selectionType === 'prize-slots' ||
       selectionType === 'card-order') {
-    const recognizedCardSource = context.includes('tag call') ||
+    const grandTreeSearch = matches(prompt.source?.sourcePrinting, PRINT.grandTree) &&
+      String(prompt.source?.effectName ?? '').toLowerCase() === 'grand tree';
+    const recognizedCardSource = grandTreeSearch || context.includes('tag call') ||
       context.includes('fan call') || context.includes('guzma & hala') ||
       context.includes('artazon') || context.includes('rototiller') ||
       context.includes('get lost') || context.includes('quick search') ||
@@ -997,6 +1019,15 @@ function promptDecision(request) {
     }
 
     const tokens = ranked.map(row => row.choice.token);
+    // The pinned reducer emits min=1, allowCancel=true for both owner-deck
+    // Stage searches. If no Stage card is found, native null cancellation
+    // is the legal way to continue, not a zero-length multiselect.
+    if (grandTreeSearch && tokens.length === 0 &&
+        metadata.allowCancel === true) {
+      const cancel = choices.find(choice => choice.kind === 'cancel' &&
+        choice.label === 'Cancel selection');
+      if (cancel) return { kind: 'select-choice', token: cancel.token };
+    }
     const required = selectionType === 'prize-slots' &&
       Number.isSafeInteger(metadata.requiredCount) ? metadata.requiredCount : min;
     if (tokens.length < required) {
