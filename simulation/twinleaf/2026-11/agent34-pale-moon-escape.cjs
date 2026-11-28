@@ -33,7 +33,7 @@ function knownNoPrizeAwardOnPaleMoonKO(view) {
   // These protections subtract only ONE Prize. A known multi-Prize
   // Pokémon would still award at least one and finish a 1-Prize game.
   // Unknown names default to potential protection rather than guessing.
-  return !(/(?:\\bVMAX\\b|\\bVSTAR\\b|\\bV-UNION\\b|\\bGX\\b|\\bEX\\b|\\bex\\b|\\bV\\b)/.test(printing));
+  return !(/(?:\bVMAX\b|\bVSTAR\b|\bV-UNION\b|\bGX\b|\bEX\b|\bex\b|\bV\b)/.test(printing));
 
 }
 function terminalPaleMoonPrizeRisk(view) {
