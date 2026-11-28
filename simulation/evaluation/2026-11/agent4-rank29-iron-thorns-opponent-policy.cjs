@@ -728,7 +728,8 @@ function benchThornsVoltReady(pokemon, observation) {
 function guzmaTargetPrizeValue(pokemon) {
   const subtypes=list(pokemon?.printed?.subtypes).join(' ');
   const printing=valueText(pokemon?.printing);
-  if(/VMAX|Mega Evolution ex/i.test(subtypes+' '+printing))return 3;
+  if(/VMAX|Mega Evolution ex|TAG.?TEAM/i.test(subtypes+' '+printing)||
+    (/\s&\s/i.test(printing)&&/-GX\b/i.test(printing)))return 3;
   if(/\bGX\b|\bVSTAR\b|\bV\b|\bex\b|\bEX\b/i.test(subtypes+' '+printing))
     return 2;
   return 1;
