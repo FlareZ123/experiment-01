@@ -270,5 +270,53 @@ for(const seat of [0,1]){
     r.actionFrontier.items=[{kind:'attack',token:'gale',
       actorPrinting:MEGA,attackName:'Gale Thrust'}];
     assert.equal(rootDecision(r).token,'gale');
+
+    // Five source Special Energy copies also pay a Colorless attack when
+    // attached to *Active* Mega after Guzma. Jet switches only if attached
+    // to a BENCHED recipient; attaching it Active simply funds [C].
+    for(const energy of [
+      'Jet Energy PAL 190','Double Colorless Energy SUM 136',
+      'Capture Energy RCL 171','Powerful Colorless Energy DAA 176'
+    ]){
+      const step=req(seat,'Pidgey FLF 75',{prizes:2,bench:true});
+      const so=step.observation;
+      so.opponentPublic.bench=[c('Iron Thorns ex TEF 77',[],[],{
+        hp:230,damage:10,printed:{stage:'BASIC',
+          weakness:[],resistance:[]}})];
+      so.ownPublic.active=c('Vileplume BUS 6');
+      so.ownPublic.bench[0].energies=[];
+      so.ownHand=['Guzma BUS 115',energy];
+      so.ownTurnResources={supporterPlayedTurn:8,energyPlayedTurn:8,
+        energyPlayLocked:false,specialEnergyPlayLocked:true};
+      step.actionFrontier.items=[
+        {kind:'play-card',token:'guzma',actorPrinting:'Guzma BUS 115'},
+        {kind:'use-ability',token:'air-mail',
+          actorPrinting:'Pidgeotto TEU 123',
+          publicMetadata:{abilityName:'Air Mail'}}
+      ];
+      assert.equal(rootDecision(step).token,'air-mail');
+      so.ownTurnResources.specialEnergyPlayLocked=false;
+      assert.equal(rootDecision(step).token,'guzma');
+      so.ownPublic.active=c(MEGA,[],[],{
+        printed:{stage:'STAGE_1'},publicRestrictions:{
+          cannotUseAttacksNextTurn:[]}});
+      so.ownPublic.bench=[c('Vileplume BUS 6')];
+      so.opponentPublic.active=so.opponentPublic.bench[0];
+      so.opponentPublic.bench=[c('Pidgey FLF 75')];
+      so.ownTurnResources.supporterPlayedTurn=9;
+      step.publicEventReceipt.ownerActive={printing:MEGA,
+        movedFromBenchToActiveThisTurn:true};
+      step.actionFrontier.items=[
+        {kind:'play-card',token:'energy-to-active',
+          actorPrinting:energy,targetPrinting:MEGA,
+          publicMetadata:{targetSeat:'actor',targetZone:'active'}},
+        {kind:'use-ability',token:'air-mail',
+          actorPrinting:'Pidgeotto TEU 123',
+          publicMetadata:{abilityName:'Air Mail'}}
+      ];
+      assert.equal(rootDecision(step).token,'energy-to-active');
+      so.ownTurnResources.specialEnergyPlayLocked=true;
+      assert.equal(rootDecision(step).token,'air-mail');
+    }
   });
 }
