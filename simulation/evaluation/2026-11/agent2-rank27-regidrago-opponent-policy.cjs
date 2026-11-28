@@ -249,8 +249,15 @@ function rank27EnergyAttachScore(item,obs){
 function publicPrizeValue(pokemon){
   const subtypes=arr(pokemon?.printed?.subtypes).map(String);
   const p=name(pokemon?.printing);
+  // Native pinned PokemonCard/Card expose .tags, not .subtypes; the shared
+  // actor-observation projector currently emits [] for printed.subtypes.
+  // Recover *source-identified public printing* categories for actually
+  // published Mega Evolution ex and TAG TEAM-GX names, without hidden data.
+  const sourceMega=/^Mega [^\n]+ ex (?:MEG|PFL|ASC)(?: [0-9]+)?$/i.test(p);
+  const sourceTagTeam=/^[^\n]* & [^\n]+-GX (?:CEC|TEU|SMP|UNM|UNB|HIF)(?: [0-9]+)?$/i.test(p);
   if(subtypes.some(x=>['VMAX','TAG TEAM','V-UNION','MEGA','Mega Evolution'].includes(x))||
-     /(?:VMAX|TAG TEAM|V-UNION|Mega Evolution)/i.test(p))return 3;
+     /(?:VMAX|TAG TEAM|V-UNION|Mega Evolution)/i.test(p)||
+     sourceMega||sourceTagTeam)return 3;
   if(subtypes.some(x=>['V','VSTAR','GX','ex'].includes(x))||
      /(?:-GX|\bVSTAR\b|\bV\b|\bex\b)/i.test(p))return 2;
   return 1;
