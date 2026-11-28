@@ -720,6 +720,66 @@ test('Guzma does not strand a sole powered Active VSTAR on the Bench',()=>{
 });
 
 
+test('Guzma Budew pivot preempts funded Mimikyu Copycat Timeless ALS without sacrificing final-Prize priorities',()=>{
+  const active=pokemon(P.regidrago,{
+    hp:280,energies:[P.energy,P.energy,'Fire Energy MEE 10']});
+  const budew=pokemon('Budew ASC 16',{hp:30,
+    printed:{subtypes:['Basic'],retreatCost:[]}});
+  const mimikyu=pokemon('Mimikyu GRI 58',{hp:70,damage:0,
+    energies:['Psychic Energy CRE 232','Psychic Energy CRE 232'],
+    printed:{subtypes:['Basic'],weakness:[],resistance:[]}});
+  const den=pokemon('Dedenne-GX UNB 57',{hp:160,damage:0,
+    printed:{subtypes:['GX'],weakness:[],resistance:[]}});
+  const vmax=pokemon('Shadow Rider Calyrex VMAX CRE 75',{hp:320,damage:0,
+    printed:{subtypes:['VMAX'],weakness:[],resistance:[]}});
+  const items=[action('guzma','play-card','Guzma BUS 115'),
+    action('apex','attack',P.regidrago,{attackName:'Apex Dragon'}),
+    action('pass','pass')];
+  const gustChoice=(token,printing,zone,index,seat)=>({
+    token,kind:'pokemon',printing,
+    publicMetadata:{ownerSeat:seat,targetZone:zone,
+      ...(zone==='bench'?{benchIndex:index}:{slotIndex:0})}
+  });
+  for(const seat of [0,1]){
+    const ownPublic=player({active,bench:[budew],discard:[{printing:P.goodra}]});
+    ownPublic.prizeCount=4;
+    const opponentPublic=player({
+      active:vmax,bench:[mimikyu,den],discard:[{printing:'Dialga-GX UPR 100'}]
+    });
+    opponentPublic.publicTurnRestrictions={gxUsed:false};
+    const q=()=>{const req=request({seat,ownPublic,opponentPublic,items});
+      req.observation.globalTurn=7;
+      req.observation.ownTurnResources={retreatedTurn:0};
+      return req;};
+    assert.deepEqual(bestAction(q()),{kind:'select-action',token:'guzma'});
+    const promptG=prompt('Guzma BUS 115','Guzma',[
+      gustChoice('den',den.printing,'bench',1,'opponent'),
+      gustChoice('m','Mimikyu GRI 58','bench',0,'opponent'),
+      gustChoice('vmax',vmax.printing,'active',0,'opponent')
+    ],'ChoosePokemonPrompt',[1,1]);
+    promptG.publicMetadata.selectionType='pokemon';
+    assert.deepEqual(promptDecision({...q(),prompt:promptG}),
+      {kind:'select-choices',tokens:['m']});
+    opponentPublic.publicTurnRestrictions.gxUsed=true;
+    assert.deepEqual(bestAction(q()),{kind:'select-action',token:'apex'});
+    opponentPublic.publicTurnRestrictions.gxUsed=false;
+    opponentPublic.discard=[];
+    assert.deepEqual(bestAction(q()),{kind:'select-action',token:'apex'});
+    opponentPublic.discard=[{printing:'Dialga-GX UPR 100'}];
+    mimikyu.energies=['Psychic Energy CRE 232'];
+    assert.deepEqual(bestAction(q()),{kind:'select-action',token:'apex'});
+    mimikyu.energies=['Psychic Energy CRE 232','Psychic Energy CRE 232'];
+    vmax.damage=200;
+    assert.deepEqual(bestAction(q()),{kind:'select-action',token:'apex'});
+    vmax.damage=0;
+    ownPublic.prizeCount=2;
+    assert.deepEqual(bestAction(q()),{kind:'select-action',token:'guzma'});
+    assert.deepEqual(promptDecision({...q(),prompt:promptG}),
+      {kind:'select-choices',tokens:['den']});
+    ownPublic.prizeCount=4;
+  }
+});
+
 test('VS Seeker recovers Lillie instead of dead Guzma and preserves unusable connector',()=>{
   const ownPublic=player({active:pokemon(P.regidrago,{
     energies:[P.energy,P.doubleDragon]}),
