@@ -158,18 +158,19 @@ function printedDamage(item,request) {
       value=moved?230:60;
     }
     if(item.attackName==='Spiky Hopper')value=160;
-    if(value!==null){
-      // Temple of Sinnoh makes Special Energy provide only Colorless;
-      // its other effects (including Powerful Colorless' +20) are disabled.
-      // With no certified Stadium-suppression fact, do not invent an
-      // exception to the visible Temple effect.
-      if(!templeSuppressesSpecialEnergy(o)&&arr(own.energies).some(e=>has(e,P.powerful)))value+=20;
-      if(!toolEffectsSuppressed(o)&&arr(own.tools).some(e=>has(e,P.choiceBelt))&&
-         /\bV(?:MAX|STAR)?\b/i.test(txt(op)))value+=30;
-    }
   }
   if(has(own,P.pidgeot)&&item.attackName==='Blustery Wind')value=120;
   if(has(own,P.pidgey)&&item.attackName==='Peck Off')value=10;
+  // The printed source's Pidgey, Pidgeot ex and Mega Lopunny ex are all
+  // Colorless. Powerful Colorless Energy and Choice Belt modify their attacks,
+  // not just Mega Lopunny's attacks. Apply bonuses after base/conditional
+  // attack damage and before target Weakness/Resistance.
+  if(value!==null&&[P.mega,P.pidgeot,P.pidgey].some(p=>has(own,p))){
+    if(!templeSuppressesSpecialEnergy(o)&&
+      arr(own.energies).some(e=>has(e,P.powerful)))value+=20;
+    if(!toolEffectsSuppressed(o)&&arr(own.tools).some(e=>has(e,P.choiceBelt))&&
+      /\bV(?:MAX|STAR)?\b/i.test(txt(op)))value+=30;
+  }
   return value===null?null:applyColorlessWeaknessResistance(value,op);
 }
 function knockOut(item,request) {
