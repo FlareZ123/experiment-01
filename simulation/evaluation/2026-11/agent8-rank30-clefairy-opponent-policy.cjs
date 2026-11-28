@@ -1333,12 +1333,12 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   // Sky Field opens THREE additional Bench positions; evaluate a funded
   // three-body in-hand Rondo KO, not just the first +20-damage step.
   if(sky && skyFieldHandExpansionKO(o))return act(sky);
+  const stretcher=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.stretcher));
+  if(stretcher&&rescueStretcherTarget(o))return act(stretcher);
   const mail=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.mail));
   if(mail&&Number.isSafeInteger(o.ownPublic?.deckCount)&&o.ownPublic.deckCount>0)return act(mail);
   const vip=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.vip));
   if(vip && benchCount(o.ownPublic)<(stadium(o)?8:5))return act(vip);
-  const stretcher=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.stretcher));
-  if(stretcher&&rescueStretcherTarget(o))return act(stretcher);
   const quick=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.quickBall));
   if(quick && canStartQuickBall(o))return act(quick);
   const carrier=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.carrier));
