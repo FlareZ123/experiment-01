@@ -214,3 +214,74 @@ test('Technical Machine Evolution rejects non-actor Bench target',()=>{
       publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:0}}]};
   assert.equal(decision(r).reasonCode,'NO_SUPPORTED_POKEMON_CHOICE');
 });
+
+function secondBarrageFixture(seat=0,stageCount=2){
+  const r=ghRoot(seat);r.observation.ownPublic.active.tools=[tm];
+  r.observation.ownPublic.active.energies=[jet];
+  r.observation.ownPublic.bench=Array.from({length:stageCount},()=>pokemon('Gloom UNB 7',{hp:80}));
+  r.observation.opponentPublic.active=pokemon(MIMIKYU,{hp:70});
+  r.prompt={promptType:'ConfirmPrompt',source:{sourcePrinting:'Bunnelby PRC 121',effectName:'Omega Barrage'},
+    publicMetadata:{selectionType:'confirm'},choices:[
+      {kind:'confirm',token:'yes',label:'Yes'},
+      {kind:'confirm',token:'no',label:'No'}]};
+  return r;
+}
+for(const seat of [0,1]){
+  test('seat '+seat+': Omega Barrage confirms second TM attack and evolves two Gloom into BUS+AOR',()=>{
+    const r=secondBarrageFixture(seat);
+    assert.deepEqual(decision(r),{kind:'select-choice',token:'yes'});
+    r.prompt=null;r.actionFrontier.items=[{kind:'attack',token:'second',attackName:'Evolution'}];
+    assert.deepEqual(decision(r),{kind:'select-action',token:'second'});
+    selection(r,tm,'deck',[card('Vileplume AOR 3','aor1'),
+      card('Vileplume BUS 6','bus'),card('Vileplume AOR 3','aor2')],0,2);
+    assert.deepEqual(decision(r),{kind:'select-choices',tokens:['bus','aor1']});
+    r.prompt={promptType:'ChoosePokemonPrompt',source:{sourcePrinting:tm,effectName:'Evolution'},
+      publicMetadata:{selectionType:'pokemon',targetZone:'bench',minimumCount:1,maximumCount:1},
+      choices:[{kind:'pokemon',token:'gloom',printing:'Gloom UNB 7',
+        publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0}}]};
+    assert.deepEqual(decision(r),{kind:'select-choices',tokens:['gloom']});
+  });
+}
+test('only one Gloom gives only one legal Stage2 selection',()=>{
+  const r=secondBarrageFixture(0,1);
+  selection(r,tm,'deck',[card('Vileplume AOR 3','aor'),card('Vileplume BUS 6','bus')],0,2);
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['bus']});
+});
+test('Omega Barrage declines without paid TM, supported stage targets or valid source',()=>{
+  const r=secondBarrageFixture();r.observation.ownPublic.active.tools=[];
+  assert.deepEqual(decision(r),{kind:'select-choice',token:'no'});
+  r.observation.ownPublic.active.tools=[tm];r.observation.ownPublic.active.energies=[];
+  assert.deepEqual(decision(r),{kind:'select-choice',token:'no'});
+  r.observation.ownPublic.active.energies=[jet];r.observation.ownPublic.bench=[];
+  assert.deepEqual(decision(r),{kind:'select-choice',token:'no'});
+  r.prompt.source.sourcePrinting='Tatsugiri TWM 131';r.prompt.source.effectName='Other';
+  assert.equal(decision(r).reasonCode,'UNSUPPORTED_PROMPT_TYPE');
+});
+test('after two Stage2, BUS promotion via offered Jet or retreat and owner Bench choice',()=>{
+  const r=secondBarrageFixture();r.prompt=null;
+  r.observation.ownPublic.bench=[pokemon('Vileplume BUS 6',{hp:140}),
+    pokemon('Vileplume AOR 3',{hp:130})];
+  r.actionFrontier.items=[{...src(jet,'play-card','jet-bus'),targetPrinting:'Vileplume BUS 6'},
+    {kind:'retreat',token:'retreat'}];
+  assert.deepEqual(decision(r),{kind:'select-action',token:'jet-bus'});
+  r.actionFrontier.items=[{kind:'retreat',token:'retreat'}];
+  assert.deepEqual(decision(r),{kind:'select-action',token:'retreat'});
+  r.prompt={promptType:'ChoosePokemonPrompt',source:{sourcePrinting:'Bunnelby PRC 121',effectName:'Retreat'},
+    publicMetadata:{selectionType:'pokemon',targetZone:'bench',minimumCount:1,maximumCount:1},
+    choices:[{kind:'pokemon',printing:'Vileplume AOR 3',token:'aor',
+      publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:1}},
+      {kind:'pokemon',printing:'Vileplume BUS 6',token:'bus',
+      publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0}}]};
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['bus']});
+});
+test('do not promote BUS into irrelevant Evolution attacker or when suppressed',()=>{
+  const r=secondBarrageFixture();r.prompt=null;
+  r.observation.ownPublic.bench=[pokemon('Vileplume BUS 6',{hp:140})];
+  r.actionFrontier.items=[{...src(jet,'play-card','jet'),targetPrinting:'Vileplume BUS 6'}];
+  r.observation.opponentPublic.active=pokemon('Shadow Rider Calyrex VMAX CRE 75',{hp:320,
+    printed:{stage:'VMAX',weakness:[],resistance:[]}});
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  r.observation.opponentPublic.active=pokemon(MIMIKYU,{hp:70});
+  r.observation.ownPublic.bench[0].abilitySuppressions=[{abilityName:'Disgusting Pollen',suppressed:true}];
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+});
