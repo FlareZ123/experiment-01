@@ -458,3 +458,50 @@ rather than assuming any Pokémon called
 Garbodor always locks. The unchanged fixed
 60 carries one Hood, so false positives have
 a nontrivial opportunity cost.
+
+## Terminal Prize accounting: Legacy Energy and Life Dew
+
+The first terminal-attack shortcut forecasted victory from
+a raw printed Prize liability: if three Prizes remained,
+a lethal hit on a modern Mega ex appeared to win.
+But authenticated original Aichi lists at ranks
+**20, 21, 22, 27 and 29** include **Legacy Energy
+TWM167**; rank **22** also includes **Life Dew
+PLF107**. Legacy Energy can lower the Prizes an opponent
+takes from an attack-damage Knock Out by one (once
+per game); Life Dew subtracts one while its Tool
+effect is active. This can turn a purported final-Prize
+KO into a nonterminal KO, changing whether drawing or
+Bench development should be skipped.
+
+The actor-owned terminal forecast now conservatively
+calculates
+`effectivePrizeYield = max(0, printedPrizes -
+ visibleLegacyEnergy - liveLifeDew)`.
+A visible Legacy copy is treated as available because
+this developmental observation does not certify the
+once-per-game usage history. The Tool effect of Life
+Dew is suppressed by Jamming Tower but its attachment
+does not invalidate an Energy's Prize reduction.
+This adjustment applies only to the shortcut's
+**final Prize** condition: if the opponent has no
+remaining Benched Pokémon, a genuine last-board KO
+still wins independently of Prize-taking amount.
+
+The expanded
+`tests/2026-11/agent3-terminal-attack-before-draw-source-policy-20261128.test.cjs`
+adds eight both-seat, exact-source Prize-yield forks
+(**38/38** total terminal tests, up from 22), including
+Legacy Energy on VSTAR / modern Mega ex, live
+Life Dew, Jamming Tower, simultaneous two reductions
+and no-opponent-Bench victory. The probability that
+Legacy's once-per-game effect is still unspent,
+whether the actual hit is prevented, and native
+damage/KO timing are *not inferred* from this
+static source-policy scorer. Do not translate the
+forecast into a physical-game win assertion.
+
+**Cumulative source-worker/strict-protocol V8:
+21 modules and 408/408 executed cases**, subject
+to the full suite's recheck after this last change.
+Neither a native Store nor a real Aichi game has run.
