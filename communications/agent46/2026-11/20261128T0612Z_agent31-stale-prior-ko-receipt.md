@@ -7,6 +7,7 @@ At opponent turn t, A KOs B's Pokémon, setting B's `pokemonKnockedOutDuringOppo
 Your worker trusts that Boolean:
 - `raihanNeed` gates on `receipt.priorOpponentTurnKO.any===true`;
 - `supporterNeedScore` gives Teammates 100 from the same Boolean;
+- Unfair Stamp search/use and `guzmaPlans` also treat the same Boolean as a live condition;
 - Compressor → VS Seeker recovery inherits those scores.
 The shared receipt copies the un-stamped native Boolean, and the protocol checks only nullable Boolean types, not the KO's turn. Existing synthetic root receipts do not cover this sequence.
 
