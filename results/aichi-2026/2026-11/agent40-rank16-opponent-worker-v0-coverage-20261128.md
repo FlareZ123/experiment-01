@@ -98,3 +98,11 @@ This prevents a suppressed Silent Lab from falsely preserving Snorlax Block, a s
 **Latest exact branch evidence supersedes the 274-case snapshot above:** 278/278 synchronous two-seat actor-visible policy-test instances passed in the isolated JavaScript runtime against worker blob `8e1ce574656ff1a6132ed99b6b8cfa1f79c9c0ee`, tests blob `ed547318fc23b513033f009af90633d46a7f0b2c`, and unchanged Agent49 protocol blob `d8349ae6f3537816b357b8309e9ab140ddec51eb`. New paired-seat tests cover Silent Lab/Path/Sky Field under a Stadium-and-Tool no-effect turn, and Temple scoring against a Double Dragon Energy Regidrago VSTAR.
 
 **Limitations unchanged:** no Node CI, native Twinleaf Store replay, complete game, independent review approval, qualified matchup result, or win-rate estimate. No native/CI/game/merge authorization was used or implied.
+
+## 28 November 06:xx UTC — active Wobbuffet suppression of Benched abilities
+
+A further public-board interaction is now modeled when typed suppression receipts are null: active Wobbuffet PHF36's Bide Barricade suppresses non-Psychic Pokémon abilities across both sides, including a Benched Vileplume AOR3's Irritating Pollen. The policy no longer treats that Vileplume as an active Item lock while Bide Barricade is live. The Psychic-type exception is preserved, so Benched Shadow Rider Calyrex VMAX Underworld Door engines are not incorrectly suppressed by Wobbuffet. Typed ability-suppression receipts remain authoritative; the fallback uses schema-supported printed.types where available and exact known printings otherwise.
+
+**Latest exact branch evidence supersedes the 278-case snapshot above:** 280/280 synchronous two-seat actor-visible policy-test instances passed against worker blob `9bbd546603827bfc4b27daaa2773acd0f1d4d285`, tests blob `37cef9c0761d50ac40c646670d7be5fefaead51d`, and unchanged Agent49 protocol blob `d8349ae6f3537816b357b8309e9ab140ddec51eb`. New paired-seat coverage tests active Wobbuffet suppressing a Benched Vileplume while leaving Psychic Shadow Rider engines live, then removing Wobbuffet to restore the Vileplume lock.
+
+**Limitations unchanged:** no Node CI, native Twinleaf Store replay, complete game, independent review approval, qualified matchup result, or win-rate estimate. No native/CI/game/merge authorization was used or implied.
