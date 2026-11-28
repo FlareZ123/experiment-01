@@ -188,9 +188,9 @@ function bunnelbyOnBench(observation) {
 }
 
 function bunnelbyHasTool(observation, pattern) {
-  const slots = boardSlots(observation?.ownPublic);
-  const slot = slots.find(row => matches(row.pokemon.printing, PRINT.bunnelby));
-  return Boolean(slot && list(slot.pokemon.tools).some(tool => matches(printingValue(tool), pattern)));
+  return boardSlots(observation?.ownPublic).some(({ pokemon }) =>
+    matches(pokemon.printing, PRINT.bunnelby) &&
+    list(pokemon.tools).some(tool => matches(printingValue(tool), pattern)));
 }
 
 function bunnelbyInPlay(observation) {
@@ -924,10 +924,11 @@ function canUseGuzmaHalaMode1(observation, options = {}) {
   const hasTool = hand.some(printing => matches(printing, PRINT.tmEvolution)) ||
     bunnelbyHasTool(observation, PRINT.tmEvolution);
   const wantTool = !hasTool && sourceCopyPossible(observation, PRINT.tmEvolution);
-  const hasJet = hand.some(printing => matches(printing, PRINT.jetEnergy)) ||
-    bunnelbyHasTool(observation, PRINT.jetEnergy);
+  // Jet is Energy, not a Tool. An already attached Jet cannot trigger
+  // the hand-attachment switch again; a new hand copy may still be needed.
+  const jetInHand = hand.some(printing => matches(printing, PRINT.jetEnergy));
   const wantJet = bunnelbyOnBench(observation) && !bunnelbyActive(observation) &&
-    !hasJet && sourceCopyPossible(observation, PRINT.jetEnergy);
+    !jetInHand && sourceCopyPossible(observation, PRINT.jetEnergy);
   const guzmaAvailable = options.guzmaInHand === true ||
     sourceCopyPossible(observation, PRINT.guzmaHala);
   return guzmaAvailable && (wantTool || wantJet);
