@@ -25,7 +25,8 @@ const SOURCE_COUNTS = Object.freeze([
   ['Psychic Energy MEE 13',5],['Telepathic Psychic Energy POR 88',2]
 ]);
 const P = Object.freeze({
-  clefairy: /^Lillie's Clefairy ex JTG(?: 56)?\b/i,\n  latias: /^Latias ex SSP(?: 76)?\\b/i,
+  clefairy: /^Lillie's Clefairy ex JTG(?: 56)?\b/i,
+  latias: /^Latias ex SSP(?: 76)?\b/i,
   box: /^Secret Box TWM(?: 163)?\b/i,
   basicPsychic: /^(?:Basic )?Psychic Energy(?: MEE(?: 13)?)?\b/i,
   telepathic: /^(?:Telepathic Psychic Energy POR(?: 88)?|Telepath \[P\] Energy M3)\b/i,
