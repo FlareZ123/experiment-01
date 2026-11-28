@@ -352,6 +352,33 @@ function choosePrompt(request){
   const choices=arr(prompt.choices);
   const meta=prompt.publicMetadata??{};
   const kind=prompt.promptType;
+  if(kind==='ConfirmPrompt'&&meta.selectionType==='confirm'){
+    const options={yes:choices.find(x=>x.kind==='confirm'&&x.label==='Yes'),
+      no:choices.find(x=>x.kind==='confirm'&&x.label==='No')};
+    const isSource=(printing,effect)=>
+      src.sourcePrinting===printing&&src.effectName===effect;
+    let useful=null;
+    if(isSource(PREFIX.eldegoss,'Happy Match')){
+      useful=arr(obs.ownPublic?.discard).some(recoverableSourceSupporter);
+    }else if(isSource(PREFIX.crobat,'Dark Asset')){
+      useful=arr(obs.ownHand).length<6;
+    }else if(isSource(PREFIX.dedenne,'Dedechange')){
+      useful=arr(obs.ownHand).length<=3;
+    }else if(isSource(PREFIX.tapu,'Wonder Tag')){
+      useful=!arr(obs.ownHand).some(recoverableSourceSupporter);
+    }else if(isSource(PREFIX.regidragoVstar,'Legacy Star')){
+      useful=obs.ownPublic?.deckCount>=7&&
+        obs.ownPublic?.publicTurnRestrictions?.vstarUsed!==true;
+    }else if(isSource(PREFIX.marshadow,'Resetting Hole')){
+      useful=[...arr(obs.ownPublic?.stadium),...arr(obs.opponentPublic?.stadium)]
+        .some(x=>is(x,PREFIX.path)||/^(?:Silent Lab PRC 140|Parallel City BKT 145)$/.test(name(x)));
+    }
+    if(useful!==null){
+      const selected=useful?options.yes:options.no;
+      return selected?{kind:'select-choice',token:selected.token}:
+        reason('UNRECOGNIZED_SIMPLE_PROMPT');
+    }
+  }
   if(kind==='ChooseAttackPrompt'){
     if(src.sourcePrinting!==PREFIX.regidragoVstar||src.effectName!=='Apex Dragon')return reason('UNSUPPORTED_ATTACK_CHOICE_SOURCE');
     return pick(choices,c=>donorScore(c,obs),1,1,true);
