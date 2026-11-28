@@ -14,7 +14,7 @@ const {reconciledTurnCosts}=require('./shared_turn_costs.cjs');
  * occupant. Otherwise omitted Pokémon fabricate Bench room and invented
  * Pokémon fabricate damage donors. Hand-only copies are still caller-certified.
  */
-function verifyPostPowerProjection(powerFinal, donation){
+function verifyPostPowerProjection(powerInput,powerFinal,donation){
  const fail=reason=>({valid:false,reason});
  if(!powerFinal||!Array.isArray(powerFinal.board)||!donation||
     !['eggs','unown','fixed','handDonors'].every(k=>Array.isArray(donation[k]))||
@@ -28,7 +28,14 @@ function verifyPostPowerProjection(powerFinal, donation){
  const expected=new Map(powerFinal.board.map(p=>[p.id,p]));
  if(expected.size!==powerFinal.board.length)return fail('POWER_BOARD_IDENTITY');
  const accounted=new Set();
+ const beforeIds=new Set([...powerInput.board,...powerInput.handBasics].map(p=>p.id));
+ const handIds=new Set(powerFinal.handBasics.map(p=>p.id));
+ const presentIds=new Set([...expected.keys(),...handIds]);
  for(const entry of entries){
+   if(beforeIds.has(entry.id)&&!presentIds.has(entry.id)&&entry.zone!=='X')
+     return fail('POST_POWER_LOST_ZONE_RESURRECTION');
+   if(handIds.has(entry.id)&&entry.zone!=='H')
+     return fail('POST_POWER_HAND_ZONE_MISMATCH');
    if(!['A','B'].includes(entry.zone))continue;
    const card=expected.get(entry.id);
    if(!card)return fail('INVENTED_POST_POWER_BOARD_CARD');
@@ -66,7 +73,7 @@ function planJointKnownTurn({powerInput,makeDonationInput,physical}={}){
      checks.push({variant,phase:'donation-input',status:'unsupported'});
      continue;
    }
-   const projected=verifyPostPowerProjection(power.final,base);
+   const projected=verifyPostPowerProjection(powerInput,power.final,base);
    if(!projected.valid){
      checks.push({variant,phase:'post-power-projection',status:'unsupported',
        reason:projected.reason});
