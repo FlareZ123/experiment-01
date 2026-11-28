@@ -11,7 +11,7 @@
 const {
  offeredMewtwoAttack,ownerBenchChoice,ownerPerfectionNightWatchPrompt,
  visiblePrintedDuoDamage,psychicCostPhysicallyReady,nightWatchDonor,
- certifiedDamage
+ certifiedDamage,DIRECT_GUST_TARGETS
 }=require('./agent22-newmoon-countercatcher-actor-sequence.cjs');
 const int=x=>Number.isSafeInteger(x)&&x>=0;
 const has=(x,s)=>typeof x==='string'&&x.includes(s);
@@ -19,24 +19,24 @@ const select=(x,reason)=>({decision:{kind:'select-action',token:x.token},reason}
 function targetPrizesAndHp(t){
  if(!t||!int(t.hp)||!int(t.damage)||t.damage>=t.hp||
     !Array.isArray(t.tools)||t.tools.length)return null;
- const known=[
-  ['Mega Lopunny ex',330,3],['Mega Kangaskhan ex',300,3],
-  ['Mega Absol ex',280,3],['Mega Dragonite ex',370,3],
-  ['Regidrago VSTAR',280,2]];
- const k=known.find(([n,h])=>has(t.printing,n)&&t.hp===h);
+ const k=DIRECT_GUST_TARGETS.find(([n,h])=>has(t.printing,n)&&t.hp===h);
  return k?{prize:k[2],remaining:t.hp-t.damage}:null;
 }
 function choosePotentialFinish(own,opp,items,t){
  const current=targetPrizesAndHp(t);
  if(!current||!int(own?.prizeCount)||current.prize<own.prizeCount)return null;
- const night=offeredMewtwoAttack(own,items,'Night Watch',opp);
- if(night&&current.remaining<=150)
-   return {attackName:'Night Watch',rootAction:night,requiredDamage:150};
+ // A terminal paid printed attack is better than Ability-powered copied
+ // damage, especially when gusting Iron Thorns ex into Active turns off
+ // Mewtwo's Perfection ability. GX conservation has no value after a win.
  const printed=offeredMewtwoAttack(own,items,'Miraculous Duo-GX',opp);
  const amount=visiblePrintedDuoDamage(own,opp,t);
  if(printed&&Number.isFinite(amount)&&amount>=current.remaining)
    return {attackName:'Miraculous Duo-GX',rootAction:printed,
     requiredDamage:current.remaining,projectedDamage:amount};
+ if(has(t.printing,'Iron Thorns ex'))return null;
+ const night=offeredMewtwoAttack(own,items,'Night Watch',opp);
+ if(night&&current.remaining<=150)
+   return {attackName:'Night Watch',rootAction:night,requiredDamage:150};
  return null;
 }
 function itemFromOwnHand(view,items){
@@ -129,12 +129,14 @@ function createDirectGustSlice({seat}){
    alternatives.push({index:i,target:t,choice});
   }
   if(!alternatives.length)return null;
-  // Prefer no-GX donor attack if already payable, then target more Prizes,
-  // stable physical Bench index.
+  // Terminal printed attacks avoid extra copy prompts/Ability lock.
+  // Within the same attack family prefer the smallest remaining HP, then
+  // a deterministic owner-visible physical Bench index.
   alternatives.sort((a,b)=>
-    Number(a.choice.attackName!=='Night Watch')-
-    Number(b.choice.attackName!=='Night Watch')||
-    b.target.hp-a.target.hp||a.index-b.index);
+    Number(a.choice.attackName!=='Miraculous Duo-GX')-
+    Number(b.choice.attackName!=='Miraculous Duo-GX')||
+    (a.target.hp-a.target.damage)-(b.target.hp-b.target.damage)||
+    a.index-b.index);
   const picked=alternatives[0];
   state={turn:v.globalTurn,phase:'gust-target',
    index:picked.index,printing:picked.target.printing,hp:picked.target.hp,
