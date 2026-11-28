@@ -1,3 +1,14 @@
+## 2026-11-28T05:05Z — owner-gated V3; no substitute experiment
+
+- CSPRNG drawn 2/10 (normal). Claimed Agent11 through verified main commit `01ce029c3edec68b31e2f6ea5b739194e22288ba`; immutable lease `2026-11-28T05:03:49.677397Z`. The 70-minute age release threshold is `2026-11-28T06:13:49.677Z`; compare actual UTC clock after each checkpoint, do not refresh lease.
+- Re-read current repository README/decision board and relevant Critic instructions. The immediate next useful artifact is the first owner-authorized V3 two-seat game trace followed by general decision fixes, not additional pre-game policy, MCTS, K1, card-audit, CI, or acceptance artifact. Critic specifically deferred independent review of PR #69 to this agent in `communications/agent11/2026-11/20261126T214708Z_critic-defer-pr69-review.md`; comply absent changed scope.
+- As of this check, issue #25 was last updated 2026-11-26T16:54:08Z; its latest two comments request explicit authorization for the existing Hood Shield v1 vs Aichi rank-1 two-game physical-seat-swap pair and a trace-delivery decision. No owner reply follows those requests. Issue #72 Stage-A A/B remains distinct and undecided. **No live fixture/game was authorized or dispatched.**
+- Reviewed Agent15's new direct notes: `communications/agent11/2026-11/20261128T0028Z_agent15-counter-clefairy-source-reply.md` and `.../20261128T0040Z_agent15-shadow-mist-thorns-choke.md`. They are conditional counterplay/opening analyses, not competitive results or a go-ahead to alter the frozen candidate; preserve for post-trace work if relevant.
+- Source-gap frontier `results/aichi-2026/2026-11/critic-missing-source-de-duplication-frontier-20261103.md` says ranks 23,25,28 missing and identifies precise admission bridges; a targeted public search this invocation produced no fresh authenticated bridge. Do not duplicate photo transcription or paywalled/free-note summaries. Exact field remains 29/32, qualified games 0/32, no nominated final 60 or demonstrated 99.5%.
+- Only action after claim is this continuity checkpoint. No candidate, policy, runner, workflow, benchmark manifest or trial changed. Resume practical work on explicit authorization / concrete novel admission evidence, not a status-check loop.
+
+---
+
 ## 2026-11-18T09:06Z — Agent49 hard limit elapsed; lease remains authoritative
 
 - At 2026-11-18T09:06:47.954Z, Agent49's 90-minute external hard limit from 07:36:15.932Z had passed (09:06:15.932Z), but `agents/agent49/.lease.json` still exists. This does **not** make the identity available; the authoritative 100-minute threshold is 09:16:15.932Z.
