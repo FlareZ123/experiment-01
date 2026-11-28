@@ -175,6 +175,25 @@ function boardHas(view, name) {
   return ownBoard(view).some(slot => hasName(slot.printing, name));
 }
 
+// Fixed Hood Shield inventory: these are distinct original printed cards.
+// Substring matching "Shadow Rider Calyrex V" accidentally matches VMAX,
+// and thereby prevents a second Basic/VMAX engine from developing.
+function shadowRiderLine(view) {
+  const board = ownBoard(view);
+  return {
+    basics: board.filter(p =>
+      p.printing === 'Shadow Rider Calyrex V CRE 74').length,
+    vmax: board.filter(p =>
+      p.printing === 'Shadow Rider Calyrex VMAX CRE 75').length
+  };
+}
+
+function needShadowRiderBasic(view) {
+  const line = shadowRiderLine(view);
+  return line.basics + line.vmax < 2 &&
+    !view.ownHand.includes('Shadow Rider Calyrex V CRE 74');
+}
+
 function handHas(view, name) {
   return view.ownHand.some(printing => hasName(printing, name));
 }
@@ -542,8 +561,8 @@ function searchNeedScore(view, printing, effectName = '') {
   const regidrago = opponentHasRegidrago(view);
   const dragon = opponentHasDragon(view);
   const board = ownBoard(view);
-  const hasShadowV = board.some(slot => hasName(slot.printing, 'Shadow Rider Calyrex V'));
-  const hasShadowVmax = board.some(slot => hasName(slot.printing, 'Shadow Rider Calyrex VMAX'));
+  const shadow = shadowRiderLine(view);
+  const shadowTotal = shadow.basics + shadow.vmax;
   const hasMimikyu = board.some(slot => hasName(slot.printing, 'Mimikyu'));
   const hasClefairy = board.some(slot => hasName(slot.printing, "Lillie's Clefairy ex"));
   const hasLatias = board.some(slot => hasName(slot.printing, 'Latias ex'));
@@ -557,12 +576,13 @@ function searchNeedScore(view, printing, effectName = '') {
     if (regidrago && !hasMimikyu && !handHas(view, 'Mimikyu')) return 96;
     return -5;
   }
-  if (hasName(printing, 'Shadow Rider Calyrex VMAX')) {
-    if (hasShadowV && !hasShadowVmax && !handHas(view, 'Shadow Rider Calyrex VMAX')) return 94;
+  if (printing === 'Shadow Rider Calyrex VMAX CRE 75') {
+    if (shadow.basics > 0 && shadow.vmax < 2 &&
+        !view.ownHand.includes('Shadow Rider Calyrex VMAX CRE 75')) return 94;
     return -5;
   }
-  if (hasName(printing, 'Shadow Rider Calyrex V')) {
-    if (!hasShadowV && !hasShadowVmax && !handHas(view, 'Shadow Rider Calyrex V')) return 100;
+  if (printing === 'Shadow Rider Calyrex V CRE 74') {
+    if (needShadowRiderBasic(view)) return 100 - 5 * shadowTotal;
     return -5;
   }
   if (hasName(printing, "Lillie's Clefairy ex")) {
@@ -577,7 +597,7 @@ function searchNeedScore(view, printing, effectName = '') {
     return psychicEnergyCount(view) < 5 ? 45 : 5;
   }
   if (hasName(printing, 'Fog Crystal')) {
-    return (!hasShadowV && !hasShadowVmax) || psychicEnergyCount(view) < 3 ? 60 : 10;
+    return needShadowRiderBasic(view) || psychicEnergyCount(view) < 3 ? 60 : 10;
   }
   if (hasName(printing, 'Stealthy Hood')) {
     const lock = allBoard(view).some(slot =>
@@ -1310,9 +1330,12 @@ function scoreBasicPlay(item, view, receipt) {
     if (currentAttack && currentAttack.score > 350) return -Infinity;
     return 320;
   }
-  if (hasName(printing, 'Shadow Rider Calyrex V') &&
-      !hasName(printing, 'VMAX') &&
-      !boardHas(view, 'Shadow Rider Calyrex V')) return 1000;
+  if (printing === 'Shadow Rider Calyrex V CRE 74') {
+    const line = shadowRiderLine(view);
+    const count = line.basics + line.vmax;
+    if (count === 0) return 1000;
+    if (count === 1) return 720;
+  }
   if (hasName(printing, 'Mimikyu') && opponentHasRegidrago(view) &&
       !boardHas(view, 'Mimikyu')) return 950;
   if (hasName(printing, "Lillie's Clefairy ex") && opponentHasDragon(view) &&
@@ -1525,15 +1548,17 @@ function scoreTrainerPlay(item, view, receipt) {
       !discardHas(view, 'Dialga-GX') && !handHas(view, 'Dialga-GX') &&
       !boardHas(view, 'Dialga-GX') && (boardHas(view, 'Mimikyu') || handHas(view, 'Mimikyu'))) return 860;
   if (hasName(name, 'Fog Crystal') &&
-      (!boardHas(view, 'Shadow Rider Calyrex V') || psychicEnergyCount(view) < 3)) return 820;
+      (needShadowRiderBasic(view) || psychicEnergyCount(view) < 3)) return 820;
   if (hasName(name, 'Mysterious Treasure') && hasDiscardableHand(view, 1, name) &&
-      (opponentHasRegidrago(view) || !boardHas(view, 'Shadow Rider Calyrex V'))) return 800;
+      (opponentHasRegidrago(view) || needShadowRiderBasic(view))) return 800;
   if (hasName(name, 'Quick Ball') && hasDiscardableHand(view, 1, name) &&
-      (!boardHas(view, 'Shadow Rider Calyrex V') ||
+      (needShadowRiderBasic(view) ||
        (opponentHasRegidrago(view) && !boardHas(view, 'Mimikyu')))) return 790;
   if (hasName(name, 'Ultra Ball') && hasDiscardableHand(view, 2, name) &&
-      boardHas(view, 'Shadow Rider Calyrex V') &&
-      !boardHas(view, 'Shadow Rider Calyrex VMAX')) return 780;
+      (() => { const line = shadowRiderLine(view);
+        return line.basics > 0 && line.vmax < 2 &&
+          !view.ownHand.includes('Shadow Rider Calyrex VMAX CRE 75');
+      })()) return 780;
   if (hasName(name, 'Arven') && !supporterUsed &&
       (!boardHas(view, 'Shadow Rider Calyrex V') ||
        (hasAbilityLockThreat(view) && !ownBoard(view).some(slot =>
