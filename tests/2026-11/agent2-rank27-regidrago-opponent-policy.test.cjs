@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {validateDecision,validatePrompt}=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const {POLICY_VERSION,SOURCE_RANK,SOURCE_BLOB_SHA1,SOURCE_PRINTINGS,
   createPolicy,scoreRoot,choosePrompt,donorScore,resolveSourcePrinting,
-  energyCoverage,rank27EnergyAttachScore,finalPrizePrimeTarget}=
+  energyCoverage,rank27EnergyAttachScore,finalPrizePrimeTarget,publicPrizeValue}=
  require('../../simulation/evaluation/2026-11/agent2-rank27-regidrago-opponent-policy.cjs');
 
 const P={
@@ -795,7 +795,7 @@ test('last-Prize Prime Catcher beats immediate Apex only with real ready Bench V
    opponentPublic:opp});
   assert.equal(finalPrizePrimeTarget(noDonor),null);
   assert.equal(tok(root(seat,noDonor,offered)),'apex');
-  const notFinal=observation(seat,{ownPublic:{...own,prizeCount:2},
+  const notFinal=observation(seat,{ownPublic:{...own,prizeCount:3},
    opponentPublic:opp});
   assert.equal(finalPrizePrimeTarget(notFinal),null);
   assert.equal(tok(root(seat,notFinal,offered)),'apex');
@@ -869,5 +869,56 @@ test('rank27 Guzma final-Prize route uses two real physical Bench prompt branche
   const wrongSrc={...opponent,prompt:{...opponent.prompt,
     source:{...opponent.prompt.source,sourcePrinting:'Guzma BUS 999'}}};
   assert.equal(decide(seat,wrongSrc).kind,'abstain');
+ }
+});
+
+test('exact-source final-Prize gust chooses V at two remaining and VMAX at three',()=>{
+ for(const seat of [0,1]){
+  const original=observation(seat);
+  const donorOwn={...original.ownPublic,
+    bench:[pokemon(P.star,{energies:[
+      'Double Dragon Energy ROS','Fire Energy MEE']})],
+    discard:[P.dragapult]};
+  const offered=[
+    action('guzma','play-card','Guzma BUS'),
+    action('prime','play-card','Prime Catcher TEF'),
+    action('apex','attack',P.star,{attackName:'Apex Dragon'}),
+    action('pass','pass','Pass')];
+  const opp={...original.opponentPublic,bench:[
+    pokemon('Mew VMAX FST 114',{hp:310,damage:120,
+      printed:{subtypes:['VMAX']}}),
+    pokemon('Crobat V DAA 104',{hp:180,damage:0,
+      printed:{subtypes:['V']}}),
+    pokemon('Arceus VSTAR BRS 123',{hp:280,damage:0,
+      printed:{subtypes:['VSTAR']}})
+  ]};
+  assert.equal(publicPrizeValue(opp.bench[0]),3);
+  assert.equal(publicPrizeValue(opp.bench[1]),2);
+  assert.equal(publicPrizeValue(opp.bench[2]),2);
+  assert.equal(publicPrizeValue(pokemon(P.budew)),1);
+  assert.equal(publicPrizeValue(pokemon('Mimikyu GRI 58')),1);
+  for(const [remaining,index] of [[1,0],[2,0],[3,0]]){
+    const obs=observation(seat,{ownPublic:{...donorOwn,
+      prizeCount:remaining},opponentPublic:opp});
+    assert.equal(finalPrizePrimeTarget(obs)?.index,index);
+    assert.equal(tok(root(seat,obs,offered)),'prime');
+  }
+  const onlyTwo={...opp,bench:opp.bench.slice(1)};
+  const needTwo=observation(seat,{ownPublic:{...donorOwn,prizeCount:2},
+    opponentPublic:onlyTwo});
+  assert.equal(finalPrizePrimeTarget(needTwo)?.index,0);
+  assert.equal(tok(root(seat,needTwo,offered)),'prime');
+  const needThree=observation(seat,{ownPublic:{...donorOwn,prizeCount:3},
+    opponentPublic:onlyTwo});
+  assert.equal(finalPrizePrimeTarget(needThree),null);
+  assert.equal(tok(root(seat,needThree,offered)),'apex');
+  const protectedOnly={...opp,bench:[pokemon('Mimikyu GRI 58',
+    {hp:70,damage:0,printed:{subtypes:['Basic']}})]};
+  const immune=observation(seat,{ownPublic:{...donorOwn,prizeCount:1},
+    opponentPublic:protectedOnly});
+  assert.equal(finalPrizePrimeTarget(immune),null);
+  const wrongOwner=observation(seat,{ownPublic:{...donorOwn,
+    bench:[]},opponentPublic:opp});
+  assert.equal(finalPrizePrimeTarget(wrongOwner),null);
  }
 });
