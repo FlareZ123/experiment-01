@@ -207,23 +207,48 @@ function stage(seat, withLatias = false, { manualItemLock = true, heldFogCrystal
   };
 }
 
+// Pinned Twinleaf does NOT immediately change activePlayer on PASS_TURN.
+// EndTurnEffect first enters BETWEEN_TURNS and creates a native WaitPrompt;
+// its continuation starts the next turn, which creates a second WaitPrompt
+// for the draw. A headless Store must settle these *automatic* waits only.
+// Reject real choices (coins/prizes/etc.) rather than inventing them.
 function passToCandidate(x, seat) {
-  const before=x.store.state;
-  const pre={activePlayer:before.activePlayer,phase:before.phase,turn:before.turn};
-  const sourceId=x.source.id;
+  const before = x.store.state;
+  const pre = {activePlayer: before.activePlayer, phase: before.phase, turn: before.turn};
+  assert.equal(pre.activePlayer, seat, 'source must own turn before native PassTurnAction');
+  const sourceId = x.source.id;
   x.store.dispatch(new gameActions.PassTurnAction(sourceId));
-  const after=x.store.state;
-  if(after.activePlayer !== 1 - seat){
-    console.log('AGENT25_PASS_DIAGNOSTIC',JSON.stringify({
-      seat,sourceId,before:pre,after:{
-        activePlayer:after.activePlayer,phase:after.phase,turn:after.turn,
-        pendingPrompts:after.prompts?.filter(p=>p.result===undefined)
-          .map(p=>p.constructor?.name)
-      },storeReplacedState:before!==after
+  let waits = 0;
+  for (; waits < 4; waits++) {
+    const pending = x.store.state.prompts.filter(p => p.result === undefined);
+    if (pending.length === 0) break;
+    assert.equal(pending.length, 1, 'native turn transition has unexpected parallel prompts');
+    const prompt = pending[0];
+    assert.equal(prompt.type, 'WaitPrompt',
+      'native turn transition requires a player decision, not an automatic wait: ' +
+        prompt.type);
+    // WaitPrompt<void> needs a defined result. Undefined would leave
+    // Store.reducePrompt's pending.every(result !== undefined) false.
+    x.store.dispatch(new ResolvePromptAction(prompt.id, null));
+  }
+  const after = x.store.state;
+  if (after.activePlayer !== 1 - seat || after.phase !== GamePhase.PLAYER_TURN) {
+    console.log('AGENT25_PASS_DIAGNOSTIC', JSON.stringify({
+      seat, sourceId, before: pre, waits, after: {
+        activePlayer: after.activePlayer, phase: after.phase, turn: after.turn,
+        pendingPrompts: after.prompts?.filter(p => p.result === undefined)
+          .map(p => p.type)
+      }, storeReplacedState: before !== after
     }));
   }
-  assert.equal(after.activePlayer,1-seat,
-    'native PassTurnAction must make the opponent active in the live Store');
+  assert.ok(waits > 0 && waits < 4,
+    'native turn must settle through a bounded number of automatic WaitPrompts');
+  assert.equal(after.activePlayer, 1 - seat,
+    'native wait-prompt continuation must make the opponent active');
+  assert.equal(after.phase, GamePhase.PLAYER_TURN,
+    'native next-turn draw wait must settle before the next action');
+  assert.equal(after.prompts.some(p => p.result === undefined), false,
+    'no unresolved native prompt may precede the candidate action');
 }
 
 function policy(seat) {
