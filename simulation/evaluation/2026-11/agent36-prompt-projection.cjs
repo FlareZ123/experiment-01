@@ -803,7 +803,7 @@ function projectElectrodeCrushBurnDiscard({
     prompt.slots[0]===native.SlotType.ACTIVE&&
     prompt.slots[1]===native.SlotType.BENCH&&
     prompt.filter?.superType===native.SuperType.ENERGY&&
-    opt?.allowCancel===false&&opt?.min===1&&
+    opt?.allowCancel===false&&opt?.min===0&&
     Number.isSafeInteger(opt.max)&&opt.max>=1&&
     Array.isArray(opt.blockedFrom)&&opt.blockedFrom.length===0&&
     Array.isArray(opt.blockedMap)&&opt.blockedMap.length===0&&
@@ -850,7 +850,7 @@ function projectElectrodeCrushBurnDiscard({
   return {
     selectionType:'energy-payment',
     count:list.length,energyCount:list.length,
-    minimumCount:1,maximumCount:list.length,allowCancel:false,
+    minimumCount:0,maximumCount:list.length,allowCancel:false,
     ownerSeat:'actor',isOwnerVisible:true,sourceZone:'energy'
   };
 }
@@ -1314,7 +1314,7 @@ function dispatchPromptChoice({
     const actor=state.players[actorSeat];
     assert.equal(prompt.message,'CHOOSE_ENERGIES_TO_DISCARD');
     assert.equal(prompt.options.allowCancel,false);
-    assert.ok(Array.isArray(rawResult)&&rawResult.length>=1);
+    assert.ok(Array.isArray(rawResult)&&rawResult.length>=0);
     assert.ok(rawResult.length<=prompt.options.max);
     const seen=new Set();
     for(const selection of rawResult){
