@@ -24,6 +24,7 @@ const {initializeCards}=require('../headless.cjs');
 const {actorObservation}=require('../actor-observation-contract.cjs');
 const baseProject=require('../../evaluation/2026-11/agent36-prompt-projection.cjs');
 const rootAdapter=require('../../evaluation/2026-11/agent36-native-action-frontier.cjs');
+const knownCapFree=require('../../evaluation/2026-11/agent3-known-cap-free-action-enumerator.cjs');
 const protocol=require('../../evaluation/2026-11/agent49-policy-protocol.cjs');
 const {installPromptProvenanceHook}=
   require('../../evaluation/2026-11/agent36-prompt-provenance.cjs');
@@ -184,9 +185,18 @@ function playHand(x,printing) {
 function dispatchWorkerRoot(x,policy,wanted,history){
   const view=actorObservation(x.store.state,x.seat);
   assert.equal(view.decisionKind,'owner-root');
+  const fullNative=nativeContext();
+  // The base ActionEnumerator does not attach the necessary attack-source
+  // identity binding; use the same pinned known-cap adapter as the V3 host.
+  const enumerator=knownCapFree.createKnownCapFreeActionEnumerator({
+    native:fullNative,enginePin:PIN
+  });
   const validated=rootAdapter.buildNativeActionFrontier({
-    state:x.store.state,actorSeat:x.seat,native:nativeContext(),
-    maxItems:64
+    state:x.store.state,actorSeat:x.seat,native:fullNative,
+    enumerator,maxItems:64
+  });
+  knownCapFree.assertKnownCapFreeAdapterAdmissionClear({
+    enumerator,enginePin:PIN,frontierDiagnostics:validated.diagnostics
   });
   const request={role:'opponent',seat:x.seat,observation:view,
     prompt:null,actionFrontier:validated.actionFrontier};
