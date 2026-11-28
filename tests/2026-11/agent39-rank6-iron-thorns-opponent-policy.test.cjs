@@ -466,6 +466,29 @@ test('rank6 duplicate Speed Lightning can pay Volt Cyclone attack costs', () => 
   }
 });
 
+test('rank6 prioritizes DCE over Speed when DCE enables an immediate Volt Cyclone', () => {
+  const speed='Speed Lightning Energy RCL 173';
+  const dce='Double Colorless Energy SUM 136';
+  for(const seat of [0,1]){
+    for(const [attached,stadium] of [
+      [[],['Thunder Mountain ♢ LOT 191']],
+      [[speed],[]]
+    ]){
+      const request=rootRequest({seat,globalTurn:4,
+        ownHand:[speed,dce],
+        ownTurnResources:turnResources({energyPlayedTurn:3}),
+        ownPublic:player({active:pokemon('Iron Thorns ex TWM 77',{energies:attached}),stadium}),
+        items:[
+          action('speed','play-card',speed,{cardType:'energy',handIndex:0},{targetPrinting:'Iron Thorns ex TWM 77'}),
+          action('dce','play-card',dce,{cardType:'energy',handIndex:1},{targetPrinting:'Iron Thorns ex TWM 77'}),
+          {token:'pass',kind:'pass'}
+        ]
+      });
+      assert.deepEqual(checkedDecision(request,seat),{kind:'select-action',token:'dce'});
+    }
+  }
+});
+
 test('Plumeria denial outranks deckout when opponent Bench has Energy and payment is available', () => {
   const request = rootRequest({
     ownHand: ['Plumeria BUS 120', "Trainers' Mail ROS 92", 'Captivating Poké Puff STS 99',
