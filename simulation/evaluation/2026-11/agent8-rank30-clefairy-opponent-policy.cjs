@@ -1235,6 +1235,15 @@ function onPlayDrawConfirmPrompt(request) {
   return choice?{kind:'select-choice',token:choice.token}:
     no('R30_DRAW_CONFIRM_UNSUPPORTED');
 }
+function marnieRecoveryOpportunity(o) {
+  const own=o?.ownPublic;
+  if(!supporterAvailable(o)||!safeInt(own?.deckCount)||
+     own.deckCount<5)return false;
+  const remaining=arr(o.ownHand).filter(c=>!has(c,P.marnie));
+  // Prefer a reshuffle only after cheap Basic deployment and manual Energy
+  // have been considered; a protected singleton is not expendable draw fuel.
+  return remaining.length<=2&&remaining.every(c=>discardScore(c,o)>=35);
+}
 function rootDecision(request,{enablePatchProjection=false}={}) {
   const o=request.observation, items=availableCards(request);
   if(!items.length)return no('R30_NO_OFFERED_ROOT');
@@ -1327,9 +1336,6 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   if(freeRetreat)return act(freeRetreat);
   const floatMobility=floatStoneMobilityRoot(items,o);
   if(floatMobility)return act(floatMobility);
-  const marnie=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.marnie));
-  if(marnie && threatenSecondTarget(o) &&
-    !candidateCanUseBoardHeldStarAlchemy(o))return act(marnie);
   if(miniorStallOpportunity(o)?.knockout&&
      arr(o.ownPublic?.bench).some(x=>has(x,P.minior))){
     const attachMinior=items.find(a=>a.kind==='play-card'&&
@@ -1341,6 +1347,9 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   if(bestEnergy)return act(bestEnergy);
   const basic=selectBasicBenchRoot(items,o);
   if(basic)return act(basic);
+  const marnie=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.marnie));
+  if(marnie&&!candidateCanUseBoardHeldStarAlchemy(o)&&
+     (threatenSecondTarget(o)||marnieRecoveryOpportunity(o)))return act(marnie);
   const farewell=items.find(a=>a.kind==='use-ability'&&
     a.publicMetadata?.abilityName==='Farewell Letter'&&
     /^Unown AOR(?: 30)?\b/i.test(text(ownPrinting(a))));
@@ -1402,4 +1411,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
+  marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
