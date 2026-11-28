@@ -18,7 +18,7 @@ The rank-30 worker's Fezandipiti Flip the Script path now requires a safe-intege
 The rank-30 worker now also has a conservative Raihan line, using the same fresh event receipt:
 
 - Root play is offered only when the fresh-KO helper confirms a Raihan in hand, a Basic Psychic Energy in discard, a usable deck, an available Supporter slot, and a Clefairy on the board with fewer than two Energy.
-- The `AttachEnergyPrompt` continuation accepts only a Basic Psychic Energy from the actor's discard and only selects an active/bench Clefairy target that can still gain its second Psychic Energy. Other legal target families deliberately abstain.
+- The worker contains a local typed `AttachEnergyPrompt` handler for a Basic Psychic Energy from actor discard, selecting only an active/bench Clefairy that can still gain its second Psychic Energy. This is tested against a constructed projected-prompt shape, **not** the current V3 projector: current-main `agent36-prompt-projection.cjs` allowlists only the Underworld Door hand-to-bench attach shape and rejects Raihan. Therefore Raihan is not end-to-end executable through the current bridge.
 - The `ChooseCardsPrompt` continuation searches for one offered card using deterministic tactical priorities, including a fresh-KO Fezandipiti line when the hand is small.
 
 The rank-30 worker also handles Hisuian Heavy Ball:
@@ -54,13 +54,13 @@ Both physical seats are covered for the rank-30 worker. Tracker/receipt/helper/R
 The exact fetched branch worker, complete rank-30 source suite, tracker, receipt, helper, and new tests were executed together in an isolated V8 harness with synchronous `node:test` / `node:assert/strict` shims: **133/133 test callbacks passed**. This is not the Node test runner and the Store hook tests use injected fake Store/effect classes. The tracker is source-aligned to the pinned reducer but has **not** yet been executed against the actual pinned Store instance.
 
 - Branch: `agent8/rank30-gust-psychic-weakness-20261128`
-- Branch head: `c2840c237e72f0de0583325642a73d21c5fa6427`
+- Branch head: `8f9b4fc983eca77b9db8f47d2e6b80cff476a494`
 - Tracker blob: `7757f5f9ff2115076335f4f40b13556e74c4d10b`
 - Tracker test blob: `8042de02894750912e116af1fdd7444dfcf60309`
 - Receipt blob: `296fa226c55923b91797370eeb8d1b3e0c3a49dc`
 - Receipt test blob: `fdbe5164486c4055f6302875f701e2c384ea8de6`
 - Supporter helper blob: `fcb0e0a8706bae6834f5c8dfb15d4f93d8631224`
-- Rank-30 worker/test blobs: `c652d1725f6f2ce5b6c2f4b98c51d5714d8493e3` / `58f60d783a21945ad514b42b2a568e65c0d886f6`
+- Rank-30 worker/test blobs: `c1d99e9ec795e1abfe59402768d9a11334fb6928` / `d8f98ea58b87bbb191720b100f0ea4ff8804859a`
 
 ## Remaining integration work and boundaries
 
@@ -68,7 +68,7 @@ The tracker and receipt contract are local-only; no live runner wires the tracke
 
 If later authorized, the runner would install the tracker before the first player turn, call its owner/opponent snapshot at the actor root, and pass the rows plus their turn stamp to the v4 receipt. Unknown coverage must remain null; Agent36 is the runner call-site coordination point.
 
-There is also a strict-protocol dependency: current-main `simulation/evaluation/2026-11/agent49-policy-protocol.cjs` still requires `priorOpponentTurnKO` to have exactly `{ any, byAttack }`. It will reject the new v4 `turn` field until the protocol owner updates the schema and adds a freshness check against `view.globalTurn - 1`. Agent46 has been sent the future producer contract and the local-only scope clarification; do not edit its protocol or create a parallel worker implementation.
+There are two independent future integration blockers. First, current-main `simulation/evaluation/2026-11/agent49-policy-protocol.cjs` still requires `priorOpponentTurnKO` to have exactly `{ any, byAttack }`; it rejects the new v4 `turn` field until the protocol owner updates the schema and adds a freshness check against `view.globalTurn - 1`. Second, current-main `simulation/evaluation/2026-11/agent36-prompt-projection.cjs` restricts `AttachEnergyPrompt` to Underworld Door from hand to bench and rejects Raihan's discard-to-active/bench prompt. Agent46 owns the strict protocol and Agent36 is the future runner/prompt-projection coordination point; both changes remain unauthorized. Agent46 has been sent the future producer contract and local-only scope clarification; do not edit the protocol, projector, or create a parallel worker implementation.
 
 - Exact rank-30 source 60 unchanged.
 - No vendor Twinleaf code changed.
