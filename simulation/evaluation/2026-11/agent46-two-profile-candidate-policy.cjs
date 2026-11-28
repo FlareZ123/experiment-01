@@ -1386,10 +1386,20 @@ function visibleTempleRegidragoFundingPairBonus(view,names){
   if(publicEnergyCanPay(active,apex,view,true)!==false)return 0;
   // An already paid Benched Regidrago V can evolve into VSTAR on the next
   // opponent turn. Count it as a possible paid attacker, not just VSTARs.
-  if((opp.bench??[]).some(slot=>slot&&
-       (hasName(slot.printing,'Regidrago VSTAR')||
-        (/^Regidrago V(?: |$)/.test(slot.printing))) &&
-       publicEnergyCanPay(slot,apex,view,true)===true))return 0;
+  const benchRegidrago= (opp.bench??[]).filter(slot=>slot&&
+    (hasName(slot.printing,'Regidrago VSTAR')||
+     (/^Regidrago V(?: |$)/.test(slot.printing))));
+  if(benchRegidrago.some(slot=>
+    publicEnergyCanPay(slot,apex,view,true)===true))return 0;
+  // The opponent gets a fresh normal attachment next turn. A Regidrago V
+  // on the Bench with G+F+DDE or GG+DDE (Temple makes DDE Colorless) can
+  // evolve and self-fund Apex by manually attaching a single Grass/Fire.
+  // Fail closed rather than mislabelling Megaton+Crispin a funding cut.
+  // This is an actor-visible upper-bound possibility, not hidden hand access.
+  if(benchRegidrago.some(slot=>Array.isArray(slot.energies)&&
+    ['Grass Energy SVE','Fire Energy SVE'].some(energy=>
+      publicEnergyCanPay({...slot,energies:[...slot.energies,energy]},
+        apex,view,true)===true)))return 0;
   const remain=opp.discard.slice();
   for(const name of names){
     const i=remain.indexOf(name);
