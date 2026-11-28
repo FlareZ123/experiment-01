@@ -590,7 +590,7 @@ test('unknown card-combination sources fail closed', () => {
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'abstain',
-    reasonCode: 'UNSUPPORTED_CARD_SELECTION_SOURCE'
+    reasonCode: 'UNSUPPORTED_CARD_COMBINATION_SOURCE'
   });
 });
 
@@ -1188,7 +1188,7 @@ test('Peonia prize-slot prompts remain unsupported without an accepted-only ledg
     choices:[{token:'empty',kind:'empty-selection',label:'Select none'}],
     publicMetadata:{count:0,requiredCount:0,allowCancel:false,isSecret:false,selectionType:'prize-slots'}
   });
-  assert.deepEqual(checkedDecision(request),{kind:'abstain',reasonCode:'UNSUPPORTED_PRIZE_SOURCE_POLICY'});
+  assert.deepEqual(checkedDecision(request),{kind:'abstain',reasonCode:'UNSUPPORTED_PRIZE_SELECTION'});
 });
 
 test('Gladion prize-slot prompts remain unsupported without owner-visible Prize identities', () => {
@@ -1197,5 +1197,5 @@ test('Gladion prize-slot prompts remain unsupported without owner-visible Prize 
     choices:[{token:'empty',kind:'empty-selection',label:'Select none'}],
     publicMetadata:{count:0,requiredCount:0,allowCancel:false,isSecret:false,selectionType:'prize-slots'}
   });
-  assert.deepEqual(checkedDecision(request),{kind:'abstain',reasonCode:'UNSUPPORTED_PRIZE_SOURCE_POLICY'});
+  assert.deepEqual(checkedDecision(request),{kind:'abstain',reasonCode:'UNSUPPORTED_PRIZE_SELECTION'});
 });
