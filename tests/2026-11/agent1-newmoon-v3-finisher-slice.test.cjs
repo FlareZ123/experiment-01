@@ -23,7 +23,7 @@ function make(name='Regidrago VSTAR',seat=0){
      sourceCardFullName:active.printing,attackName:'Miraculous Duo-GX'}}};
  const ace={kind:'play-card',token:'ace',actorPrinting:'Ace Trainer ROS69'};
  const items=[blast,night,duo,ace],obs={actorSeat:seat,globalTurn:5,
-  decisionKind:'owner-root',ownPublic:own,opponentPublic:opp,
+  decisionKind:'owner-root',ownHand:['Ace Trainer ROS 69'],ownPublic:own,opponentPublic:opp,
   ownTurnResources:{supporterPlayedTurn:0}};
  const policy=createPolicy({role:'candidate',seat,policyVersion:POLICY_VERSION,config:{}});
  const root=()=>policy.decide({role:'candidate',seat,observation:obs,prompt:null,actionFrontier:{items}});
@@ -139,6 +139,29 @@ test('unknown opponent Tool damage protection vetoes Shadow Bind',()=>{
 test('status risk vetoes Shadow Bind',()=>{
  const f=shadowFixture();f.own.active.specialConditions=['CONFUSED'];
  assert(f.root().kind,'abstain');
+});
+
+
+test('Ace preserving held singleton Secret Box defers to funded Night Watch',()=>{
+ const f=make();assert(f.root().token,'blast');assert(f.target().tokens[0],'target');
+ f.settle();f.obs.ownHand.push('Secret Box TWM 163');
+ assert(f.root().token,'night');
+});
+test('Ace preserves held unused Forest Seal Stone',()=>{
+ const f=make();f.own.publicTurnRestrictions.vstarUsed=false;
+ assert(f.root().token,'blast');assert(f.target().tokens[0],'target');
+ f.settle();f.obs.ownHand.push('Forest Seal Stone SIT 156');
+ assert(f.root().token,'night');
+});
+test('used Forest Seal Stone no longer blocks Ace',()=>{
+ const f=make();f.own.publicTurnRestrictions.vstarUsed=true;
+ assert(f.root().token,'blast');assert(f.target().tokens[0],'target');
+ f.settle();f.obs.ownHand.push('Forest Seal Stone SIT 156');
+ assert(f.root().token,'ace');
+});
+test('unknown hand declines disruptive Ace but retains lethal attack',()=>{
+ const f=make();assert(f.root().token,'blast');assert(f.target().tokens[0],'target');
+ f.settle();delete f.obs.ownHand;assert(f.root().token,'night');
 });
 
 console.log('Agent1 v3 research actor tests: '+checks+' assertions passed');
