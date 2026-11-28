@@ -654,7 +654,7 @@ function searchCandidates(view, prompt, choices) {
       choice, score: wonderTagSupporterScore(view, choice.printing)
     }));
   } else if (sourceZone === 'discard' && effectName === 'Night Stretcher' &&
-      prompt.source?.sourcePrinting === 'Night Stretcher SFA 61') {
+      prompt.source?.sourcePrinting === 'Night Stretcher ASC 196') {
     rows = choices.map(choice => ({
       choice, score: nightStretcherRecoveryScore(view, choice.printing)
     }));
@@ -705,7 +705,7 @@ function chooseCardCombination(view, prompt) {
     'Climactic Gate': 'Radiant Eternatus CRZ 105',
     'Get Lost': 'Girafarig LOT 94',
     'VS Seeker': 'VS Seeker PHF 109',
-    'Night Stretcher': 'Night Stretcher SFA 61'
+    'Night Stretcher': 'Night Stretcher ASC 196'
   };
   const effect = prompt.source?.effectName;
   if (Object.hasOwn(ownerSourceBindings, effect) &&
