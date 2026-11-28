@@ -1328,7 +1328,8 @@ function visibleTempleRegidragoFundingPairBonus(view,names){
   const opp=view?.opponentPublic,active=opp?.active;
   if(!active||!hasName(active.printing,'Regidrago VSTAR')||
      !Array.isArray(active.energies)||active.energies.length!==2||
-     !Array.isArray(opp.discard)||!Array.isArray(opp.lostZone))return 0;
+     !Array.isArray(opp.discard)||!Array.isArray(opp.lostZone)||
+     opp.publicTurnRestrictions?.vstarUsed!==false)return 0;
   const isGrass=e=>/^(?:Basic )?Grass Energy(?: |$)/.test(e);
   if(active.energies.filter(isGrass).length!==1||
      active.energies.filter(e=>hasName(e,'Double Dragon Energy')).length!==1)
@@ -1341,6 +1342,12 @@ function visibleTempleRegidragoFundingPairBonus(view,names){
   // Require at least one publicly discarded attack donor. Avoid scoring a
   // speculative future Regidrago that has no revealed copied-attack payload.
   if(observedPayloads(opp.discard,view).length===0)return 0;
+  // If Legacy Star was already spent, the discarded ACE SPEC is not a
+  // presently demonstrated retrieval channel. Other visible removal outs
+  // likewise invalidate the rank13-like paired-cut proxy.
+  const otherRemoval=['Marshadow UNB','Faba','Field Blower'];
+  if([...opp.discard,...opponentBoard(view).map(p=>p.printing)]
+      .some(p=>hasAnyName(p,otherRemoval)))return 0;
   const apex={name:'Apex Dragon',cost:['Grass','Grass','Fire']};
   if(publicEnergyCanPay(active,apex,view,true)!==false)return 0;
   if((opp.bench??[]).some(slot=>slot&&hasName(slot.printing,'Regidrago VSTAR')&&
