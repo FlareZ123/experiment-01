@@ -78,3 +78,46 @@ for(const seat of [0,1]){
       {kind:'select-choices',tokens:['bench']});
   });
 }
+
+
+for(const seat of [0,1]){
+  test('rank3 gust ranks identical-print opponent Benches by real slot Energy, seat '+seat,()=>{
+    const policy=rank3.createPolicy({role:'opponent',seat,
+      policyVersion:rank3.POLICY_VERSION,config:{}});
+    const dra=energyCount=>({...pokemon('Regidrago V SIT 135',0),
+      energies:Array(energyCount).fill('Psychic Energy MEE 13')});
+    const req=root(seat,[stunfisk(0)]);
+    req.observation.opponentPublic={
+      active:dra(0),bench:[dra(0),dra(3)],deckCount:40
+    };
+    req.prompt={promptType:'ChoosePokemonPrompt',
+      source:{sourcePrinting:'Guzma BUS 115',effectName:'Guzma'},
+      publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+      choices:[
+        {token:'bench0',kind:'pokemon',printing:'Regidrago V SIT 135',
+          publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:0}},
+        {token:'bench1',kind:'pokemon',printing:'Regidrago V SIT 135',
+          publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:1}}
+      ]};
+    assert.deepEqual(policy.decide(req),
+      {kind:'select-choices',tokens:['bench1']});
+  });
+  test('rank3 own switch ranks identical-print Bench Snorlax by real slot Tool, seat '+seat,()=>{
+    const policy=rank3.createPolicy({role:'opponent',seat,
+      policyVersion:rank3.POLICY_VERSION,config:{}});
+    const req=root(seat,[snorlax(0),{
+      ...snorlax(0),tools:['Tool Jammer BST 136']
+    }]);
+    req.prompt={promptType:'ChoosePokemonPrompt',
+      source:{sourcePrinting:'Guzma BUS 115',effectName:'Guzma'},
+      publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+      choices:[
+        {token:'bench0',kind:'pokemon',printing:'Snorlax PGO 55',
+          publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0}},
+        {token:'bench1',kind:'pokemon',printing:'Snorlax PGO 55',
+          publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:1}}
+      ]};
+    assert.deepEqual(policy.decide(req),
+      {kind:'select-choices',tokens:['bench1']});
+  });
+}
