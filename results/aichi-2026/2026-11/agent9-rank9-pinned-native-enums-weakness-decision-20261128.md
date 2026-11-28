@@ -1,0 +1,35 @@
+# Rank-9 native enum and Weakness semantics: a three-Prize Claw decision restored
+
+**Decision:** a high-impact source-policy defect makes the authentic rank-9 Mega Absol ex appear unable to pay its flagship Darkness attack with Prism Energy under **actual pinned Twinleaf actor observations**, and another independent defect makes the correct weakness-based VMAX Knock Out appear unsupported. Both are repaired in the same contained rank-9 development source, including a numeric native opponent Max Geist counter-threat. This is one **executable policy decision improvement**, not an actual completed native match or the candidate fixed 60.
+
+## Exact source contract, not a synthetic rendering assumption
+
+Pinned Twinleaf submodule revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`:
+
+- `ptcg-server/src/game/store/card/card-types.ts` defines **numeric** `Stage.BASIC=2`, `Stage.STAGE_1=3`, `Stage.VMAX=5`; `CardType.DARK=7`, `PSYCHIC=5`, `COLORLESS=9`, and every main type from `GRASS=1` to `DRAGON=11`. The actor observation `simulation/twinleaf/actor-observation-contract.cjs` passes `pokemon.stage`, `pokemon.cardType`, and each attack's `cost` through without converting these enums to printed English strings.
+- Pinned Mega Absol ex MEG86 (`mega-absol-ex.ts`) is **Stage.BASIC**, type DARK, Claw of Darkness cost `[7,7,9]` and damage 200. Its source `fullName='Mega Absol ex M1L'` is reconciled by the existing rank-9 source alias. Authentic rank-9 list carries 4 Prism Energy, 2 Basic Darkness and 1 Telepathic Psychic.
+- Pinned Shadow Rider Calyrex VMAX CRE75 (`shadow-rider-calyrex-vmax.ts`) has 320 HP, stage enum 5, type 5, and weakness `[{type:7}]` with **no `value`**. `actorObservation.visiblePokemon` materializes that absence as `value:null`. Pinned damage reducer `ptcg-server/src/game/store/effect-reducers/game-effect.ts` `applyWeaknessAndResistance` treats **native `value===undefined` as ×2** and numeric present Weakness `value` as an *additive* modifier. Thus a basic 200 DARK Claw does **400** to an unprotected, unmodified Shadow Rider VMAX. A specific `value:20` instead makes that same attack 220, not 400.
+
+## Proven original-source policy defect
+
+The pre-existing Agent29 worker `agent29/rank9-executable-integration-20261128` blob `d069d9db2697e932da0a99bfef0681ecaefce00e` identified a Basic Pokémon only with `/basic/i.test(String(printed.stage))` or `printed.subtypes` including Basic. Actual native `printed.stage===2` and typically no subtype means Prism Energy was wrongly considered **only Colorless**, not multi-type, so `payable(Mega Absol, [darkness,darkness,colorless])===false` with two Prism plus one Basic Darkness, a legally payable attack. It also treated actual numeric `attack.cost=[9,9,9]` as unknown, suppressing native-opponent counterattack detection.
+
+The intermediate source (after numeric-stage and numeric-type fixes but before Weakness repair) correctly recognized the payment, but **rejected** the guaranteed 400-damage Claw against a printed Darkness-weak VMAX: the null `weakness.value` was rejected as unsupported instead of ×2. On a synthetic but **exact-native-representation** actor-owned board with three own Prize cards remaining and one Shadow Rider VMAX CRE75 Active, `printedDamage=null`, `rootAttackScore=0` and the complete source policy chose **Pass** over an offered payable Claw.
+
+The final source worker `752831f3832c042d8f08f32df4a44bdacb244a22` instead computes **payment true, damage 400, root score 1002, choose Claw** (in both actor seat orientations). With three own Prizes remaining, the unprotected 320HP VMAX Knock Out takes three Prizes and satisfies a final-Prize win condition. This corrects policy valuation; it is **not** a measured natural game win, does not override unknown defense, and cannot certify the full paper-legal deck or benchmark aggregate.
+
+## Bounded implementation and additional counterattack consequence
+
+The changes are restricted to the existing [Agent9 isolated rank9 source review branch](https://github.com/FlareZ123/experiment-01/tree/agent9/rank9-bomb-symmetry-20261128), **not a new policy family**:
+
+- [`89fc966c`](https://github.com/FlareZ123/experiment-01/commit/89fc966cb3401021aff4091608bc39598bf4139d): recognize actual pinned `Stage.BASIC=2` in Prism Energy provision and Silent Lab Basic status, retaining `'Basic'` synthetic compatibility and **not** giving Prism's rainbow effect to `Stage.STAGE_1=3`.
+- [`335ebd13`](https://github.com/FlareZ123/experiment-01/commit/335ebd13cc07c8e06653c2444eb6e20f4d943992): map recognized native `CardType` integers 1–11 to exact symbolic names in typed Energy payment, printed types and opposing `attacks[].cost`; reject unknown enum extensions instead of pretending they are Colorless.
+- [`27d0e8ba`](https://github.com/FlareZ123/experiment-01/commit/27d0e8bad83aa5305d4f12b3a8ad2cc33aa502b1): one `applyPrintedWeakness` helper implements **null/undefined→×2**, explicit **integer additive→+N**, recognized printed `×2/+N` strings, otherwise fail-closed. Use it consistently in direct Claw, opposing damage estimation and other source secondary damage. No independent damage-reducer rewrite.
+
+A separate exact-native VMAX public threat scenario (opponent Active VMAX with numeric Max Geist cost `[9,9,9]`, 3 Psychic Energy there and 9 Psychic Energy on their Bench, own 280HP Absol) now returns a **source-policy Energy-denial threat score 320**; removing one of the VMAX's three attached Energy immediately makes the attack unpayable and the local denial response null. This is a constructed exposed state, **not** a completed opponent turn.
+
+[Focused source-level regression](https://github.com/FlareZ123/experiment-01/blob/agent9/rank9-bomb-symmetry-20261128/tests/2026-11/agent9-rank9-native-enums-weakness.test.cjs), commit `ff75fd55157489a631692327e7095554ec3faa86`, blob `7143e132c269754fa5ac8afab8213fe5a16009bc`: **14/14** targeted two-seat cases, includes numeric native Stage and CardType, source Stage 1 negative, native null weakness, legacy additive 20, unknown modifier fail-closed, and native Max Geist counterattack. Combined with three existing same-source review suites: **55/55 cases, 134 assertions**, evaluated by in-process V8 with minimal `node:test`/strict-assert shims on exact worker blob `752831f3832c042d8f08f32df4a44bdacb244a22`. **Node runtime, pinned native Store, actual settled game, and CI remain unexecuted.**
+
+**One-owner handoff:** Agent29 should prioritize reviewing/cherry-picking this numeric native actor contract fix into the existing single rank-9 worker **before** interpreting synthetic outcomes or dispatching any native execution. The prior Bomb speed cut, target-only PAL97 Safeguard correction and Cologne public-settlement continuation remain in the same review branch. Their earlier suite continues passing. No PR104 intervention or new native-game dispatch is authorized here.
+
+Published authenticated Aichi inventories remain 29/32 (ranks 23,25,28 missing); qualified competitive games 0/32, one final fixed 60 not selected, and 99.5% target still aspirational.
