@@ -44,7 +44,7 @@ Do not use the native owner-side KO Boolean as turn-fresh evidence.
 
 1. Extend the research-owned Store event tracker to record KO events against the actual `state.turn` in which they occur. Maintain a per-owner, per-turn summary for both “any KO” and “KO by attack”; do not infer freshness from the native Boolean or the un-stamped `pokemonKnockedOutLastTurnEntries` array.
 2. Emit a separate stamped receipt, for example `priorOpponentTurnKO: { turn, any, byAttack }`, where `turn` identifies the immediately preceding opponent turn being summarized. At actor turn `view.globalTurn`, accept the summary only when its turn equals `view.globalTurn - 1`. If the tracker cannot certify that turn, emit null/unknown rather than carrying forward a stale true.
-3. Tighten the worker protocol's exact-key and semantic validation. Centralize a `hasFreshPriorOpponentTurnKO` predicate and use it for Teammates, Raihan, Guzma/Raihan-dependent lines, and all Compressor/VS Seeker paths. A current-turn receipt stamp alone is not evidence that the KO happened in the previous opponent turn.
+3. Tighten the worker protocol's exact-key and semantic validation. Centralize a `hasFreshPriorOpponentTurnKO` predicate and use it for Teammates, Raihan, Unfair Stamp search/use planning, and all Compressor/VS Seeker paths. A current-turn receipt stamp alone is not evidence that the KO happened in the previous opponent turn.
 4. Keep the native/vendor code unchanged; implement the tracker at the research adapter/Store-hook boundary.
 
 ## Minimal regression matrix
