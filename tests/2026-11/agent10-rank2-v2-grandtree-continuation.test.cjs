@@ -859,3 +859,52 @@ test('Guzma second prompt avoids suppressed Stoutland and selects funded Bunnelb
       allowCancel:false,isSecret:false}});
   assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:['bunny']});
 });
+
+
+test('Guzma targetless root executes lock line and both native prompts',()=>{
+  const own=player({active:pokemon('Bunnelby PRC 121'),bench:[
+    pokemon('Stoutland BCR 122',{stage:'STAGE2'}),
+    pokemon('Oddish UNB 5')]});
+  const opp=player({active:pokemon('Shadow Rider Calyrex VMAX CRE 75'),bench:[
+    pokemon('Shadow Rider Calyrex V CRE 74'),
+    pokemon('Mimikyu GRI 58',{damage:40,hp:70})]});
+  const root=rootRequest({ownHand:['Guzma BUS 115'],ownPublic:own,
+    opponentPublic:opp,items:[
+      {token:'guzma',kind:'play-card',actorPrinting:'Guzma BUS 115',
+        publicMetadata:{cardType:'trainer',handIndex:0}},
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(root),{kind:'select-action',token:'guzma'});
+  const first=promptRequest({promptType:'ChoosePokemonPrompt',
+    source:actorChoiceSource('Guzma BUS 115','Guzma'),
+    choices:[pokemonChoice('vm','Shadow Rider Calyrex V CRE 74','opponent','bench',0),
+      pokemonChoice('mimikyu','Mimikyu GRI 58','opponent','bench',1)],
+    observation:{ownPublic:own,opponentPublic:opp},
+    publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+      allowCancel:false,isSecret:false}});
+  assert.deepEqual(checkedDecision(first),{kind:'select-choices',tokens:['mimikyu']});
+  const second=promptRequest({promptType:'ChoosePokemonPrompt',
+    description:'CHOOSE_NEW_ACTIVE_POKEMON',
+    source:actorChoiceSource('Guzma BUS 115','Guzma'),
+    choices:[pokemonChoice('stout','Stoutland BCR 122','actor','bench',0),
+      pokemonChoice('oddish','Oddish UNB 5','actor','bench',1)],
+    observation:{ownPublic:own,opponentPublic:opp},
+    publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+      allowCancel:false,isSecret:false}});
+  assert.deepEqual(checkedDecision(second),{kind:'select-choices',tokens:['stout']});
+});
+test('Guzma refuses targetless root when no Bench for gust or Stoutland suppressed',()=>{
+  const own=player({active:pokemon('Bunnelby PRC 121'),bench:[
+    pokemon('Stoutland BCR 122',{stage:'STAGE2'})]});
+  const root=(opponentPublic)=>rootRequest({ownHand:['Guzma BUS 115'],
+    ownPublic:own,opponentPublic,items:[
+      {token:'guzma',kind:'play-card',actorPrinting:'Guzma BUS 115',
+        publicMetadata:{cardType:'trainer',handIndex:0}},
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(root(player({active:pokemon('Budew ASC 16')}))),
+    {kind:'select-action',token:'pass'});
+  const locked=player({active:pokemon('Garbodor BKP 57',{stage:'STAGE1',
+    abilities:['Garbotoxin'],tools:['Float Stone PLF 99']}),
+    bench:[pokemon('Budew ASC 16')]});
+  assert.deepEqual(checkedDecision(root(locked)),
+    {kind:'select-action',token:'pass'});
+});
