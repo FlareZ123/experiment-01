@@ -1504,3 +1504,30 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['budew']});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Boost Shake turn end does not preempt Trainers Mail or Compressor setup',()=>{
+  const equipped=mon('Trubbish CRI 56',{tools:['Float Stone BKT 137']});
+  const board=own({active:mon('Budew ASC 16'),bench:[equipped,
+   mon('Mega Absol ex MEG 86')],deckCount:33});
+  const items=[play('Boost Shake EVS 142','boost'),
+   play("Trainers' Mail ROS 92",'mail'),play('Battle Compressor PHF 92','compressor'),pass];
+  const q=root(seat,items,{globalTurn:4,ownPublic:board,
+   ownHand:['Boost Shake EVS 142',"Trainers' Mail ROS 92",'Battle Compressor PHF 92'],
+   ownTurnResources:{energyPlayedTurn:true}});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'compressor'});
+  q.actionFrontier.items=[items[0],items[1],pass];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'mail'});
+  q.actionFrontier.items=[items[0],pass];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'boost'});
+ });
+ test('seat '+seat+' Boost Shake preserves itself instead of Marnie shuffle with no other safe action',()=>{
+  const board=own({active:mon('Budew ASC 16'),bench:[
+   mon('Trubbish CRI 56',{tools:['Float Stone BKT 137']})]});
+  const q=root(seat,[play('Boost Shake EVS 142','boost'),
+   play('Marnie SSH 169','marnie'),pass],{
+   globalTurn:4,ownPublic:board,ownHand:['Boost Shake EVS 142','Marnie SSH 169'],
+   ownTurnResources:{energyPlayedTurn:true}});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'boost'});
+ });
+}
