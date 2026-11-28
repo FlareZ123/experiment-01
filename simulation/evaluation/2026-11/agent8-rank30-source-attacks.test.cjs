@@ -232,3 +232,54 @@ for(const seat of [0,1]){
       r.actionFrontier.items,r.observation),null);
   });
 }
+
+for(const seat of [0,1]){
+  test('seat '+seat+' Telepathic Psychic may finish Active Latias when no Basic is offered',()=>{
+    const special='Telepathic Psychic Energy POR 88',psy='Psychic Energy MEE 13';
+    const r=request(seat,{attacker:LATIAS,target:drago,
+      attack:'Eon Blade',benchFairy:true,ownEnergy:2,extraRoot:false});
+    r.observation.ownHand=[special];
+    r.actionFrontier.items=[
+      {kind:'play-card',actorPrinting:special,targetPrinting:LATIAS,
+        token:'special',publicMetadata:{
+          targetSeat:'actor',targetZone:'active',isOwnerVisible:true}},
+      {kind:'pass',token:'pass'}];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'special'});
+    r.observation.ownPublic.active.energies.push(special);
+    r.observation.ownHand=[];
+    // Source Special Energy's optional Basic Psychic Bench search.
+    r.prompt={promptType:'ChooseCardsPrompt',
+      source:{sourceKind:'card-effect',sourcePrinting:special,
+        effectName:'Telepathic Psychic Energy'},
+      publicMetadata:{selectionType:'card-combination',sourceZone:'deck',
+        ownerSeat:'actor',isOwnerVisible:true,minimumCount:0,maximumCount:2},
+      choices:[
+        {kind:'card',token:'unown',printing:'Unown AOR 30'},
+        {kind:'card',token:'clef',printing:CLEF},
+        {kind:'empty-selection',token:'empty'}]};
+    const selection=policy(seat).decide(r);
+    assert.equal(selection.kind,'select-choices');
+    assert.ok(selection.tokens.includes('clef'));
+    // After native prompt resolves, attack remains available as a true root.
+    r.prompt=null;r.actionFrontier.items=[
+      {kind:'attack',actorPrinting:LATIAS,attackName:'Eon Blade',token:'blade'},
+      {kind:'pass',token:'pass'}];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'blade'});
+  });
+  test('seat '+seat+' Basic Psychic preferred over special if both give same guaranteed KO',()=>{
+    const psy='Psychic Energy MEE 13',
+      special='Telepathic Psychic Energy POR 88';
+    const r=request(seat,{attacker:LATIAS,target:drago,
+      attack:'Eon Blade',benchFairy:true,ownEnergy:2,extraRoot:false});
+    r.observation.ownHand=[special,psy];
+    r.actionFrontier.items=[
+      {kind:'play-card',actorPrinting:special,targetPrinting:LATIAS,
+        token:'special',publicMetadata:{targetSeat:'actor',
+          targetZone:'active',isOwnerVisible:true}},
+      {kind:'play-card',actorPrinting:psy,targetPrinting:LATIAS,
+        token:'basic',publicMetadata:{targetSeat:'actor',
+          targetZone:'active',isOwnerVisible:true}},
+      {kind:'pass',token:'pass'}];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'basic'});
+  });
+}
