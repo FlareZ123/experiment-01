@@ -189,7 +189,13 @@ function stadiumLocked(observation) {
 }
 
 function energyAvailable(observation) {
-  return observation?.ownTurnResources?.energyPlayedTurn === false &&
+  const usedAt=observation?.ownTurnResources?.energyPlayedTurn;
+  const turn=observation?.globalTurn;
+  // Native actor observation supplies the last-used global turn, not a flag.
+  // Preserve false only for older synthetic decision fixtures.
+  const unspent=usedAt===false ||
+    (Number.isSafeInteger(usedAt)&&Number.isSafeInteger(turn)&&usedAt!==turn);
+  return unspent &&
     observation?.ownTurnResources?.energyPlayLocked !== true &&
     observation?.ownPublic?.publicTurnRestrictions?.energyPlayLocked !== true;
 }
