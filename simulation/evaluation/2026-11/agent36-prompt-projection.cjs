@@ -611,15 +611,24 @@ function projectAttachEnergyPrompt({
   prompt,state,actorSeat,native,store,source,choices,choiceByToken
 }={}){
   const actor=state.players[actorSeat];
-  const supportedSource=source?.sourceKind==='card-effect'&&
+  const underworldDoor=source?.sourceKind==='card-effect'&&
     source.effectName==='Underworld Door'&&
     typeof source.sourcePrinting==='string'&&
     source.sourcePrinting.startsWith('Shadow Rider Calyrex VMAX CRE');
-  if(!supportedSource){
-    throw Object.assign(new Error('AttachEnergyPrompt is not from the pinned Underworld Door source'),{
+  // Pinned Twinleaf DarkPatch ASR139 uses the same prompt from DISCARD,
+  // attaching Basic Darkness to dynamically Darkness-type Benched Pokémon.
+  const darkPatch=source?.sourceKind==='card-effect'&&
+    source.effectName==='Dark Patch'&&
+    /^Dark Patch ASR(?: 139)?$/.test(source.sourcePrinting??'');
+  if(!underworldDoor&&!darkPatch){
+    throw Object.assign(new Error('AttachEnergyPrompt has unsupported pinned source'),{
       code:'UNSUPPORTED_ATTACH_ENERGY_PROMPT_SOURCE'
     });
   }
+  const expectedEnergyName=darkPatch?'Darkness Energy':'Psychic Energy';
+  const expectedType=darkPatch?native.CardType?.DARK:native.CardType?.PSYCHIC;
+  const from=darkPatch?actor.discard:actor.hand;
+  const fromZone=darkPatch?'discard':'hand';
   assert.ok(store&&typeof store.reduceEffect==='function',
     'AttachEnergyPrompt projection requires the native Store dynamic-type evaluator');
   assert.ok(typeof native.CheckPokemonTypeEffect==='function'&&
@@ -627,13 +636,13 @@ function projectAttachEnergyPrompt({
     native.PlayerType&&native.SlotType,
     'pinned AttachEnergyPrompt projection bindings are incomplete');
   const exactPrompt=prompt.message==='ATTACH_ENERGY_TO_BENCH'&&
-    prompt.cardList===actor.hand&&
+    prompt.cardList===from&&
     prompt.playerType===native.PlayerType.BOTTOM_PLAYER&&
     Array.isArray(prompt.slots)&&prompt.slots.length===1&&
     prompt.slots[0]===native.SlotType.BENCH&&
     prompt.filter?.superType===native.SuperType.ENERGY&&
     prompt.filter?.energyType===native.EnergyType.BASIC&&
-    prompt.filter?.name==='Psychic Energy'&&
+    prompt.filter?.name===expectedEnergyName&&
     prompt.options?.min===1&&prompt.options?.max===1;
   if(!exactPrompt){
     throw Object.assign(new Error('AttachEnergyPrompt does not match the pinned Underworld Door contract'),{
@@ -645,21 +654,21 @@ function projectAttachEnergyPrompt({
     const card=entry.card;
     return card instanceof native.EnergyCard&&
       card.energyType===native.EnergyType.BASIC&&
-      card.name==='Psychic Energy'&&
-      Array.isArray(card.provides)&&card.provides.includes(native.CardType.PSYCHIC);
+      card.name===expectedEnergyName&&
+      Array.isArray(card.provides)&&card.provides.includes(expectedType);
   });
-  const psychicBench=[];
+  const eligibleBench=[];
   for(let index=0;index<actor.bench.length;index++){
     const slot=actor.bench[index];
     const pokemon=slot?.getPokemonCard?.();
     if(!pokemon)continue;
     const effect=new native.CheckPokemonTypeEffect(slot);
     store.reduceEffect(state,effect);
-    if(Array.isArray(effect.cardTypes)&&effect.cardTypes.includes(native.CardType.PSYCHIC)){
-      psychicBench.push({index,pokemon});
+    if(Array.isArray(effect.cardTypes)&&effect.cardTypes.includes(expectedType)){
+      eligibleBench.push({index,pokemon});
     }
   }
-  if(energies.length===0||psychicBench.length===0){
+  if(energies.length===0||eligibleBench.length===0){
     if(prompt.options?.allowCancel===true){
       addCancelChoice(choices,choiceByToken,prompt,state);
       if(choices.length>0){
@@ -669,7 +678,7 @@ function projectAttachEnergyPrompt({
           minimumCount:1,
           maximumCount:1,
           allowCancel:true,
-          sourceZone:'hand',
+          sourceZone:fromZone,
           ownerSeat:'actor',
           isOwnerVisible:true,
           energyType:'BASIC',
@@ -680,12 +689,12 @@ function projectAttachEnergyPrompt({
         code:'NO_VALID_ATTACH_ENERGY_CHOICES'
       });
     }
-    throw Object.assign(new Error('Underworld Door AttachEnergyPrompt has no eligible actor-owned Psychic Energy/Bench assignment'),{
+    throw Object.assign(new Error('Supported AttachEnergyPrompt has no eligible actor-owned Psychic Energy/Bench assignment'),{
       code:'NO_ELIGIBLE_ATTACH_ENERGY_CHOICES'
     });
   }
 
-  for(const target of psychicBench){
+  for(const target of eligibleBench){
     for(const energyEntry of energies){
       const energy=energyEntry.card;
       const rawResult=[{
@@ -696,9 +705,9 @@ function projectAttachEnergyPrompt({
         kind:'energy',
         printing:printing(energy)??energy.name,
         label:'Attach '+(printing(energy)??energy.name)+' to Bench '+(target.index+1)+
-          ': '+(printing(target.pokemon)??target.pokemon.name??'Psychic Pokemon'),
+          ': '+(printing(target.pokemon)??target.pokemon.name??'Pokemon'),
         publicMetadata:{
-          sourceZone:'hand',ownerSeat:'actor',isOwnerVisible:true,
+          sourceZone:fromZone,ownerSeat:'actor',isOwnerVisible:true,
           energyType:'BASIC',zone:'bench',benchIndex:target.index,
           choiceIndex:choices.length,selectedCount:1
         }
@@ -709,7 +718,7 @@ function projectAttachEnergyPrompt({
     addCancelChoice(choices,choiceByToken,prompt,state);
   }
   if(choices.length===0){
-    throw Object.assign(new Error('No Underworld Door assignment passed native prompt validation'),{
+    throw Object.assign(new Error('No supported source assignment passed native prompt validation'),{
       code:'NO_VALID_ATTACH_ENERGY_CHOICES'
     });
   }
@@ -719,7 +728,7 @@ function projectAttachEnergyPrompt({
     minimumCount:1,
     maximumCount:1,
     allowCancel:prompt.options?.allowCancel===true,
-    sourceZone:'hand',
+    sourceZone:fromZone,
     ownerSeat:'actor',
     isOwnerVisible:true,
     energyType:'BASIC',
