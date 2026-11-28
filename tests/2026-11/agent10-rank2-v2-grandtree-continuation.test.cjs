@@ -525,3 +525,53 @@ test('rank2 treats invalidated K1 as uncertain K0, not a false zero deck',()=>{
   assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'hala'});
 });
 
+
+test('pinned TM Evolution selects up to two valid distinct Bench evolution targets',()=>{
+  const own=player({active:pokemon('Bunnelby PRC 121'),bench:[
+    pokemon('Oddish UNB 5'),pokemon('Lillipup CEC 174')]});
+  const req=promptRequest({promptType:'ChoosePokemonPrompt',
+    source:actorChoiceSource('Technical Machine: Evolution PAR 178','Evolution'),
+    choices:[pokemonChoice('l','Lillipup CEC 174','actor','bench',1),
+      pokemonChoice('o','Oddish UNB 5','actor','bench',0)],
+    observation:{ownPublic:own},publicMetadata:{
+      selectionType:'pokemon',minimumCount:1,maximumCount:2,
+      allowCancel:false,isSecret:false}});
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-choices',tokens:['o','l']});
+});
+test('pinned TM Evolution first deck search selects Gloom and skips irrelevant Herdier',()=>{
+  const req=promptRequest({promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('Technical Machine: Evolution PAR 178','Evolution'),
+    choices:[cardChoice('wrong','Herdier SUM 104'),cardChoice('stage','Gloom UNB 7'),
+      {token:'empty',kind:'empty-selection',label:'Choose no items'}],
+    observation:{ownPublic:player({active:pokemon('Bunnelby PRC 121'),
+      bench:[pokemon('Oddish UNB 5')]})},
+    publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:1,
+      allowCancel:false,isSecret:false}});
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-choices',tokens:['stage']});
+});
+test('pinned TM Evolution second deck search can evolve Lillipup to Herdier',()=>{
+  const req=promptRequest({promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('Technical Machine: Evolution PAR 178','Evolution'),
+    choices:[cardChoice('wrong','Gloom UNB 7'),cardChoice('stage','Herdier SUM 104'),
+      {token:'empty',kind:'empty-selection',label:'Choose no items'}],
+    observation:{ownPublic:player({active:pokemon('Bunnelby PRC 121'),
+      bench:[pokemon('Lillipup CEC 174')]})},
+    publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:1,
+      allowCancel:false,isSecret:false}});
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-choices',tokens:['stage']});
+});
+test('pinned TM Evolution missing Stage1 completes via native min-zero empty selection',()=>{
+  const req=promptRequest({promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('Technical Machine: Evolution PAR 178','Evolution'),
+    choices:[cardChoice('wrong','Herdier SUM 104'),
+      {token:'empty',kind:'empty-selection',label:'Choose no items'}],
+    observation:{ownPublic:player({active:pokemon('Bunnelby PRC 121'),
+      bench:[pokemon('Oddish UNB 5')]})},
+    publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:1,
+      allowCancel:false,isSecret:false}});
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-choice',token:'empty'});
+});
