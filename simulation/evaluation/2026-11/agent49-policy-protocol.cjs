@@ -849,8 +849,11 @@ function singleSelectContract(prompt) {
     prompt.source?.sourceKind === 'card-effect' &&
     prompt.source?.sourcePrinting === 'Handheld Fan TWM' &&
     prompt.source?.effectName === 'Handheld Fan';
+  // Printed Fan transfer is compulsory when any legal Energy move exists.
+  // Native [] is possible only with zero selectable physical assignments.
   if (emptyChoices.length !== 0 &&
-      (!fanNativeEmpty || emptyChoices.length !== 1)) fail('BAD_SINGLE_SELECT_EMPTY_CHOICE');
+      (!fanNativeEmpty || emptyChoices.length !== 1 ||
+       selectableChoices.length !== 0)) fail('BAD_SINGLE_SELECT_EMPTY_CHOICE');
   if (selectableChoices.some(choice => choice.kind !== itemKind)) fail('BAD_SINGLE_SELECT_ITEM_KIND');
   if (selectableChoices.length === 0 && !allowCancel && emptyChoices.length === 0)
     fail('BAD_SINGLE_SELECT_CHOICES');

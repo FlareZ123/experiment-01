@@ -27,7 +27,6 @@ test('exact Handheld Fan single-select accepts typed empty and Energy choices on
         label:'Move DCE',publicMetadata:{sourceZone:'active',
           ownerSeat:'opponent',zone:'bench',benchIndex:0,
           isOwnerVisible:true,selectedCount:1}},
-      p.choices[0]
     ]});
     assert.doesNotThrow(()=>protocol.validatePrompt(withEnergy,seat));
     assert.deepEqual(protocol.validateDecision(
@@ -46,7 +45,14 @@ test('spoofed Handheld Fan and other single-select empties fail closed',()=>{
       {promptType:'ChooseEnergyPrompt'},
       {publicMetadata:{...p.publicMetadata,minimumCount:1}},
       {publicMetadata:{...p.publicMetadata,maximumCount:2}},
-      {choices:[...p.choices,{...p.choices[0],token:'duplicate'}]}
+      {choices:[...p.choices,{...p.choices[0],token:'duplicate'}]},
+      {choices:[
+        {token:'move',kind:'energy',printing:'Double Colorless Energy SUM 136',
+          label:'Move DCE',publicMetadata:{sourceZone:'active',
+            ownerSeat:'opponent',zone:'bench',benchIndex:0,
+            isOwnerVisible:true,selectedCount:1}},
+        p.choices[0]
+      ]}
     ];
     for(const diff of bad)
       assert.throws(()=>protocol.validatePrompt(prompt(seat,diff)));
