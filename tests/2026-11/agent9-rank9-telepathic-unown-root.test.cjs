@@ -36,7 +36,7 @@ const search=(seat,printing=T)=>({
   description:'Telepathic Psychic Energy',
   source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:printing,
     effectName:'Telepathic Psychic Energy'},
-  choices:[choose('g',Gen),choose('u',Un),
+  choices:[choose('g',Gen),choose('u1',Un),choose('u2',Un),
     {kind:'empty-selection',token:'empty',label:'Choose no Pokemon'}],
   publicMetadata:{selectionType:'card-combination',sourceZone:'deck',ownerSeat:'actor',
     isOwnerVisible:true,allowCancel:false,isSecret:false,minimumCount:0,maximumCount:2}
@@ -60,8 +60,8 @@ for(const seat of [0,1]){
   ok(positive.kind==='select-action'&&positive.token==='attach',
      'choose Telepathic-to-Unown before nonfinal Claw, seat '+seat);
   const answer=decide(pol,o,2,null,search(seat));
-  ok(JSON.stringify(answer.tokens)==='["g","u"]',
-     'search Gengar + Unown with exact source prompt, seat '+seat);
+  ok(JSON.stringify(answer.tokens)==='["u1","u2"]',
+     'search two disposable Unown rather than expose Gengar, seat '+seat);
   const nativeObs=obs(seat);nativeObs.ownHand=[Native];
   const nativePolicy=P.createPolicy({role:'opponent',seat,
     policyVersion:P.POLICY_VERSION,config:{}});
@@ -69,7 +69,7 @@ for(const seat of [0,1]){
   ok(nativeRoot.token==='attach',
      'native pinned M3 printing selects same search line, seat '+seat);
   const nativeSearch=decide(nativePolicy,nativeObs,2,null,search(seat,Native));
-  ok(JSON.stringify(nativeSearch.tokens)==='["g","u"]',
+  ok(JSON.stringify(nativeSearch.tokens)==='["u1","u2"]',
      'native M3 prompt source retained and selected, seat '+seat);
   // Post-search board with a newly Benched Unown. Use Farewell Letter
   // before taking the already-funded attack; this is synthetic, not Store.
@@ -78,7 +78,7 @@ for(const seat of [0,1]){
   after.ownTurnResources.energyPlayedTurn=true;
   after.ownPublic.bench=[
     mon(Un,{hp:60,energies:[T]}),
-    mon(Gen,{hp:240}),
+    mon(Un,{hp:60}),
     mon(Un,{hp:60})
   ];
   const ability={kind:'use-ability',token:'farewell-new-unown',actorPrinting:Un,
@@ -96,6 +96,7 @@ for(const seat of [0,1]){
         ()=>mon(Vol)));return v},T,true],
     ['deck threshold',v=>{v.ownPublic.deckCount=8;return v},T,true],
     ['all Psychic basics exposed',v=>{v.ownPublic.discard=[Un,Un,Un,Gen];return v},T,true],
+    ['only risky Gengar remains',v=>{v.ownPublic.discard=[Un,Un,Un];return v},T,true]
     ['certified remaining basics Prized',v=>{
        v.ownerK1={exactMembershipKnown:true,
          knownPrintings:[{printing:Un,copies:3},{printing:Gen,copies:1}]};
