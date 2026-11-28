@@ -746,7 +746,7 @@ function visibleGustDamageBarrier(target){
     .map(detail=>valueText(detail?.text)).join(' | ');
   if(/(?:Eviolite|Rock Chestplate|Rigid Band|Full Face Guard|Panic Mask)/i
     .test(toolText))return {unknownReduction:true,hpBonus:0};
-  if(/prevent all damage|takes?\\s+\\d+\\s+less damage|damage done to .* reduced/i
+  if(/prevent all damage|takes?\s+\d+\s+less damage|damage done to .* reduced/i
     .test(abilityText))return {unknownReduction:true,hpBonus:0};
   const hpBonus=/(?:Hero's Cape|Luxurious Cape)/i.test(toolText)?100:
     /(?:Bravery Charm|Cape of Toughness)/i.test(toolText)?50:
