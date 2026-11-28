@@ -374,11 +374,7 @@ function cardSearchScore(choice, observation) {
   if (matches(printing, PRINT.lilliesDetermination)) {
     return supporterAvailable(observation) && handCount(observation) <= 3 ? 145 : 0;
   }
-  if (matches(printing, PRINT.vs)) {
-    return supporterAvailable(observation) &&
-      [PRINT.guzma, PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination]
-        .some(pattern => discardHas(observation.ownPublic, pattern)) ? 155 : 0;
-  }
+  if (matches(printing, PRINT.vs)) return rank16HasViableVsTarget(observation)?185:0;
   if (matches(printing, PRINT.temple)) return list(observation.opponentPublic?.stadium).length > 0 ? 95 : 15;
   return 0;
 }
@@ -395,9 +391,7 @@ function discardScore(choice, observation) {
   if (matches(printing, PRINT.guzma) && supporterAvailable(observation) && benchCount(observation.opponentPublic) > 0) return 0;
   if ([PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination, PRINT.crispin, PRINT.wally, PRINT.karen]
     .some(pattern => matches(printing, pattern))) return 0;
-  if (matches(printing, PRINT.vs) &&
-      ![PRINT.guzma, PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination]
-        .some(pattern => discardHas(own, pattern))) return 0;
+  if (matches(printing, PRINT.vs) && !rank16HasViableVsTarget(observation)) return 0;
   if (matches(printing, PRINT.forest) && !observation.ownTurnResources?.vstarUsed &&
       slots(own).some(row => matches(row.pokemon.printing, PRINT.crobat) && list(row.pokemon.tools).length === 0)) return 0;
   if (matches(printing, PRINT.float) && !hasGarbodor(observation) &&
@@ -507,6 +501,30 @@ function scoreAttack(item, observation) {
   if (/^Itchy Pollen$/i.test(attack)) return rank16LockLive(observation)?355:135;
   if (/^Suffocating Gas$/i.test(attack) || /^Venomous Hit$/i.test(attack)) return 25;
   return 0;
+}
+function rank16SourceSupporterScore(card,o) {
+  const base=supporterScore(card,o);
+  if(base>0)return base;
+  if(!supporterAvailable(o))return 0;
+  if(matches(card,PRINT.marnie))
+    return handCount(o)<=3?225:opponentHandCount(o)>=6?200:85;
+  if(matches(card,PRINT.plumeria))
+    return rank16PlumeriaAvailable(o)?(energyCount(o.opponentPublic?.active)>=2?285:245):0;
+  if(matches(card,PRINT.karen)) {
+    const regidrago=slots(o.opponentPublic).some(row=>/Regidrago/i.test(row.pokemon.printing));
+    const discard=list(o.opponentPublic?.discard);
+    const dragonPayload=discard.some(card=>/Dialga|Dragapult|Giratina|Noivern|Kyurem|Goodra|Duraludon|Dragonite|Reshiram|Zekrom/i.test(textOf(card)));
+    const ownPokemons=list(o.ownPublic?.discard).filter(card=>
+      /Garbodor|Trubbish|Budew|Mega Absol|Dedenne|Crobat|Tapu Lele|Squawkabilly/i.test(textOf(card))).length;
+    if(regidrago&&dragonPayload)return 295;
+    if(ownPokemons>=2)return 155;
+    return 0;
+  }
+  return 0;
+}
+function rank16HasViableVsTarget(o) {
+  return list(o.ownPublic?.discard).some(card=>
+    rank16SourceSupporterScore(card,o)>0);
 }
 function supporterScore(card, observation) {
   if (matches(card, PRINT.guzma)) {
@@ -653,11 +671,7 @@ function scoreAction(item, request) {
   }
   if(matches(printing,PRINT.marnie))return supporterAvailable(observation)&&hand.length<=3?220:0;
   if(matches(printing,PRINT.trainersMail))return deckCount(observation)>0?185:0;
-  if (matches(printing, PRINT.vs)) {
-    return supporterAvailable(observation) &&
-      [PRINT.guzma, PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination]
-        .some(pattern => discardHas(own, pattern)) ? 150 : 15;
-  }
+  if (matches(printing, PRINT.vs)) return rank16HasViableVsTarget(observation)?185:0;
   if (matches(printing, PRINT.temple)) return list(opponent.stadium).length > 0 ? 85 : 15;
   return 0;
 }
@@ -702,7 +716,7 @@ function category(printing) {
     .some(pattern => matches(printing, pattern))) return 'item';
   if ([PRINT.float, PRINT.forest, PRINT.muscle].some(pattern => matches(printing, pattern))) return 'tool';
   if ([PRINT.guzma, PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination,
-    PRINT.crispin, PRINT.wally, PRINT.karen].some(pattern => matches(printing, pattern))) return 'supporter';
+    PRINT.crispin, PRINT.wally, PRINT.karen, PRINT.marnie, PRINT.plumeria].some(pattern => matches(printing, pattern))) return 'supporter';
   if (matches(printing, PRINT.temple)) return 'stadium';
   return null;
 }
@@ -771,10 +785,10 @@ function promptDecision(request) {
       c=>cardSearchScore({...c,publicMetadata:{...c.publicMetadata,ownerSeat:'actor',sourceZone:'deck'}},observation),
       'NO_SAFE_TRAINERS_MAIL_ITEM');
     if (/vs seeker/.test(source)) {
-      return singleChoice(prompt, discard, choice => supporterScore(choice, observation), 'NO_VS_SEEKER_SUPPORTER');
+      return singleChoice(prompt, discard, choice => rank16SourceSupporterScore(choice, observation), 'NO_VS_SEEKER_SUPPORTER');
     }
     if (/wonder tag/.test(source)) {
-      return singleChoice(prompt, deck, choice => supporterScore(choice, observation), 'NO_WONDER_TAG_SUPPORTER');
+      return singleChoice(prompt, deck, choice => rank16SourceSupporterScore(choice, observation), 'NO_WONDER_TAG_SUPPORTER');
     }
     if (/secret box/.test(source) && hand.length) {
       return multi ? multiSelect(prompt, hand, choice => discardScore(choice, observation), 'SECRET_BOX_DISCARD_COST_UNAVAILABLE')
