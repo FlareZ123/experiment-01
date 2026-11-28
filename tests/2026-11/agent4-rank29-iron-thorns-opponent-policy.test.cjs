@@ -1610,3 +1610,69 @@ test('unrevealed Eri opponent hand or forged owner-seat and source cannot pass',
   });
   assert.notEqual(checkedDecision(forged).kind,'select-choices');
 });
+
+
+function voltChoice(token, printing, benchIndex, owner='actor', sourceZone='active') {
+  return {
+    token, kind:'energy',printing,label:'Move '+printing+' to Bench '+(benchIndex+1),
+    publicMetadata:{
+      ownerSeat:owner,sourceZone,isOwnerVisible:true,
+      energyType:'SPECIAL',zone:'bench',benchIndex,selectedCount:1
+    }
+  };
+}
+
+test('Volt Cyclone energy-attachment chooses Speed over DCE while preserving active accelerator, both seats', () => {
+  for(const seat of [0,1]) {
+    const req=promptRequest({
+      seat,
+      promptType:'AttachEnergyPrompt',
+      source:actorChoiceSource('Iron Thorns ex TWM','Volt Cyclone'),
+      publicMetadata:{
+        selectionType:'energy-attachment',sourceZone:'active',ownerSeat:'actor',
+        zone:'bench',isOwnerVisible:true,minimumCount:1,maximumCount:1,
+        allowCancel:false,count:2
+      },
+      observation:{ownPublic:player({
+        active:pokemon('Iron Thorns ex TWM 77',{energies:[
+          'Speed Lightning Energy RCL 173','Double Colorless Energy SUM 136'
+        ]}),
+        bench:[pokemon('Iron Thorns ex TWM 77')]
+      })},
+      choices:[
+        voltChoice('dce','Double Colorless Energy SUM 136',0),
+        voltChoice('speed','Speed Lightning Energy RCL 173',0)
+      ]
+    });
+    assert.deepEqual(checkedDecision(req,seat),{kind:'select-choice',token:'speed'});
+  }
+});
+
+test('Volt Cyclone energy-attachment rejects spoofed source, false owner and nonexistent target', () => {
+  const base={
+    promptType:'AttachEnergyPrompt',
+    source:actorChoiceSource('Iron Thorns ex TWM','Volt Cyclone'),
+    publicMetadata:{
+      selectionType:'energy-attachment',sourceZone:'active',ownerSeat:'actor',
+      zone:'bench',isOwnerVisible:true,minimumCount:1,maximumCount:1,
+      allowCancel:false,count:1
+    },
+    observation:{ownPublic:player({
+      active:pokemon('Iron Thorns ex TWM 77'),
+      bench:[pokemon('Iron Thorns ex TWM 77')]
+    })},
+    choices:[voltChoice('dce','Double Colorless Energy SUM 136',0)]
+  };
+  assert.deepEqual(checkedDecision(promptRequest(base)),
+    {kind:'select-choice',token:'dce'});
+  for(const changes of [
+    {source:actorChoiceSource('Handheld Fan TWM','Volt Cyclone')},
+    {source:actorChoiceSource('Iron Thorns ex TWM','Other Move')},
+    {publicMetadata:{...base.publicMetadata,sourceZone:'hand'}},
+    {choices:[voltChoice('dce','Double Colorless Energy SUM 136',0,'opponent')]},
+    {choices:[voltChoice('dce','Double Colorless Energy SUM 136',3)]},
+    {choices:[voltChoice('dce','Double Colorless Energy SUM 136',0,'actor','discard')]}
+  ]){
+    assert.equal(checkedDecision(promptRequest({...base,...changes})).kind,'abstain');
+  }
+});
