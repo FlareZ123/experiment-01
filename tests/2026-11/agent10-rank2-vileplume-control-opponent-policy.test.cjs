@@ -1405,6 +1405,72 @@ test('TM Evolution still supports a Benched Bunnelby when Jet Energy can activat
     kind:'select-action',token:'on-bunnelby'});
 });
 
+
+test('Plumeria completes root, discard-two, opponent target and Energy prompts',()=>{
+ const own=player({active:pokemon('Bunnelby PRC 121')});
+ const opp=player({active:pokemon('Shadow Rider Calyrex V CRE 74',{
+    energies:['Psychic Energy MEE 5']}),
+   bench:[pokemon('Regidrago V SIT 135',{
+    energies:['Double Dragon Energy ROS 97']})]});
+ const ownHand=['Plumeria BUS 120','Tag Call CEC 206','Tag Call CEC 206'];
+ const root=rootRequest({ownHand,ownPublic:own,opponentPublic:opp,
+   items:[{token:'plumeria',kind:'play-card',
+     actorPrinting:'Plumeria BUS 120',
+     publicMetadata:{cardType:'trainer',handIndex:0}},
+    {token:'pass',kind:'pass',label:'Pass turn'}]});
+ assert.deepEqual(checkedDecision(root),{kind:'select-action',token:'plumeria'});
+ const discard=promptRequest({promptType:'ChooseCardsPrompt',
+   source:actorChoiceSource('Plumeria BUS 120','Plumeria'),
+   choices:[cardChoice('first','Tag Call CEC 206','hand'),
+     cardChoice('second','Tag Call CEC 206','hand')],
+   publicMetadata:{selectionType:'card-combination',minimumCount:2,
+     maximumCount:2,isSecret:false,allowCancel:false},
+   observation:{ownHand,ownPublic:own,opponentPublic:opp}});
+ assert.deepEqual(checkedDecision(discard),{
+   kind:'select-choices',tokens:['first','second']});
+ const target=promptRequest({promptType:'ChoosePokemonPrompt',
+   source:actorChoiceSource('Plumeria BUS 120','Plumeria'),
+   choices:[pokemonChoice('basic','Shadow Rider Calyrex V CRE 74',
+     'opponent','active',0),pokemonChoice('special','Regidrago V SIT 135',
+     'opponent','bench',0)],
+   observation:{ownPublic:own,opponentPublic:opp}});
+ assert.deepEqual(checkedDecision(target),{
+   kind:'select-choices',tokens:['special']});
+ const energy=promptRequest({promptType:'ChooseEnergyPrompt',
+   source:actorChoiceSource('Plumeria BUS 120','Plumeria'),
+   choices:[{token:'energy',kind:'energy',
+      printing:'Double Dragon Energy ROS 97',label:'Double Dragon Energy ROS 97',
+      publicMetadata:{selectionIndex:0,selectedCount:1,sourceZone:'active',
+        ownerSeat:'opponent',isOwnerVisible:true,energyType:'Dragon'}}],
+   publicMetadata:{selectionType:'energy-payment',count:1,energyCount:1,
+     energyType:'',allowCancel:false},
+   observation:{ownPublic:own,opponentPublic:opp}});
+ assert.deepEqual(checkedDecision(energy),{
+   kind:'select-choices',tokens:['energy']});
+});
+test('Plumeria waits for two cost-capable cards after paying the Supporter',()=>{
+ const request=rootRequest({
+   ownHand:['Plumeria BUS 120','Vileplume AOR 3'],
+   ownPublic:player({active:pokemon('Bunnelby PRC 121')}),
+   opponentPublic:player({active:pokemon('Regidrago V SIT 135',{
+     energies:['Double Dragon Energy ROS 97']})}),
+   items:[{token:'plumeria',kind:'play-card',
+     actorPrinting:'Plumeria BUS 120',
+     publicMetadata:{cardType:'trainer',handIndex:0}},
+    {token:'pass',kind:'pass',label:'Pass turn'}]});
+ assert.deepEqual(checkedDecision(request),{kind:'select-action',token:'pass'});
+});
+test('Plumeria prompt refuses visible target with no attached Energy',()=>{
+ const request=promptRequest({promptType:'ChoosePokemonPrompt',
+   source:actorChoiceSource('Plumeria BUS 120','Plumeria'),
+   choices:[pokemonChoice('empty','Regidrago V SIT 135',
+     'opponent','bench',0)],
+   observation:{opponentPublic:player({bench:[
+     pokemon('Regidrago V SIT 135',{energies:[]})]})}});
+ assert.deepEqual(checkedDecision(request),{
+   kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'});
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
