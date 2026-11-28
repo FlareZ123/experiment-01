@@ -25,8 +25,8 @@ Loaded the **actual remote CommonJS source bodies** into the V8 tool runtime wit
 | Eri/Arven native Item/Tool corrections | 6 | 0 |
 | Agent32 Penny/physical-slot continuation | 14 | 0 |
 | Strict V3 Counter Catcher/Dialga physical Bench prompt | 4 | 0 |
-| New Articuno native-shaped prompt/physical transfer/Confirm positive and negative controls | 12 | 0 |
-| **Total** | **91** | **0** |
+| New Articuno native-shaped prompt/physical transfer/Confirm positive and negative controls | 14 | 0 |
+| **Total** | **93** | **0** |
 
 **These are V8 CommonJS body tests, NOT a Node CLI native simulator run.** Native `Store.prompt` dispatch, energy movement settlement, subsequent `Cold Crush-GX` payment, full-game win, and matchup-level effect remain unmeasured. The exact added tests can be run with Node's normal runner when dependencies are available:
 
@@ -42,3 +42,14 @@ node --test \
 The next evidence gate is **one** owner-approved pinned native Actor root→Articuno hand-play→ConfirmPrompt→physical MoveEnergyPrompt→Cold Crush-GX (or a recorded nonpayability state) continuation, in both seats if practical. Owners of shared `agent36-prompt-projection.cjs` and `agent49-policy-protocol.cjs` should review this exact-source adapter before merging, because the changes intentionally extend a shared strict protocol used by other workers. No unrelated general MoveEnergyPrompt support or vendor modification is implied.
 
 **Objective evidence remains:** no validated 99.5% rate; 0/32 qualified fixed-candidate matches against Aichi Top32. Making rank3 playable is a prerequisite to credible benchmarking, not evidence that the candidate beats it.
+
+## Subsequent native-interface corrections and prospective test (same invocation)
+
+A deeper source inspection exposed two real integration constraints that the first source-only payload missed:
+
+1. The actual `agent36-prompt-provenance.cjs` `describeEffect(card,effect)` wraps Articuno's `PlayPokemonEffect` and uses the *card name* `Articuno-GX` as `effectName`. The genuine ConfirmPrompt and successor MoveEnergyPrompt therefore need the allowlisted pair `{sourcePrinting:'Articuno-GX CES', effectName:'Articuno-GX'}` as well as the synthetic explicit power-name form. The protocol, projector and worker now accept those **two exact forms only**, with the same physical Water transfer bounds, commits `cf5a2c404f240ac064b1a634ad07d1d7931cbbca`, `62b82410cd86c2ad1f5d2984981bbfdc7e7c4387`, `9b26656ffe47e38de4b4b5cb6ffacf75884b65a4`. V8 fixtures now use the **actual** `Articuno-GX` provenance, not a fabricated power-name source.
+2. The existing research-side paper-rules hook `simulation/twinleaf/articuno-zero-movement-prompt-hook.cjs` (and native test `tests/articuno-zero-movement-prompt-hook.test.cjs`) correctly changes Articuno's post-switch minimum from **1 to 0**: the Active switch already changed the game state, so optional zero transfer is valid. The adapter now admits exact pinned native `min=1` **and** exact hook-corrected `min=0`, with explicit `empty-selection` token only in the latter, commits `3cb7cbfc8ab2898f3adc1f782cd9ac0fc862f261`, `f0074155c8c54d4105a352053e652bcf52d3cbcd`, `b790421cebb49b30cfe24924fa0426bd5a389519`. No generic optional Energy-transfer mode is enabled.
+
+**All 93 source-level test cases now pass** (55+6+14+4+14). **Native engine execution is still not claimed** until the prospective workflow returns. Added constructed true-Store exact-pinned test `tests/2026-11/agent17-articuno-v3-actual-store.native.test.cjs`, commit `1ab7d1973889bc48ec12dde25cf616adb438f9af`: it uses real `Store`, `PlayCardAction`, the shared provenance hook, projected ConfirmPrompt, worker decisions, `dispatchPromptChoice`, native MoveEnergyPrompt physical Energy settlement, and `Cold Crush-GX` in both actor seats and both min=1/min=0 branches. The test does **not** report a game win. One bounded branch-specific CI workflow `.github/workflows/agent17-rank3-articuno-v3-native.yml`, commit `df64509037b52cb369b842a26d2d7ad2ec2f7dc7`, was queued as run `46126966876`. No full-game random seed sweep.
+
+Result is development-only pending that run and an independent owner review. The user-visible candidate's 32 matchup win rates remain unestablished.
