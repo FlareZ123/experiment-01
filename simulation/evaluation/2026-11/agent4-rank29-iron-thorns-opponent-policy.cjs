@@ -794,14 +794,26 @@ function guzmaKnockoutValue(observation, target) {
     (prizes-1)*55;
 }
 
+// Native Pokemon prompt selectionIndex is a token/choice ordinal, NOT a
+// physical Bench slot. Resolve only the real public benchIndex (or Active
+// slotIndex=0), and bind the face-up printing to its physical occupant.
+// Missing/contradictory location evidence is not a license to select the
+// first of multiple same-print Pokemon.
+function physicalPokemonChoiceRow(choice, player) {
+  const zone=choiceZone(choice),meta=choice?.publicMetadata??{};
+  if(choice?.kind!=='pokemon'||meta.isOwnerVisible!==true)return null;
+  const index=zone==='bench'?meta.benchIndex:
+    zone==='active'?meta.slotIndex:null;
+  if(!Number.isSafeInteger(index)||index<0||
+    (zone==='active'&&index!==0))return null;
+  const row=slots(player).find(item=>item.zone===zone&&item.index===index);
+  return row&&row.pokemon.printing===choicePrinting(choice)?row:null;
+}
+
 function opponentPokemonScore(choice, observation, context) {
   if (choiceOwner(choice) !== 'opponent') return 0;
   const zone = choiceZone(choice);
-  const printing = choicePrinting(choice);
-  const slotIndex = choice?.publicMetadata?.selectionIndex ?? choice?.publicMetadata?.benchIndex;
-  const row = slots(observation.opponentPublic).find(item =>
-    item.zone === zone && (Number.isSafeInteger(slotIndex) ? item.index === slotIndex :
-      item.pokemon.printing === printing));
+  const row = physicalPokemonChoiceRow(choice,observation.opponentPublic);
   const pokemon = row?.pokemon;
   if (context === 'guzma' && zone !== 'bench') return 0;
   if (context === 'plumeria' && energyCount(pokemon) === 0) return 0;
@@ -819,10 +831,7 @@ function opponentPokemonScore(choice, observation, context) {
 
 function ownSwitchScore(choice, observation) {
   if (choiceOwner(choice) !== 'actor' || choiceZone(choice) !== 'bench') return 0;
-  const slotIndex = choice?.publicMetadata?.selectionIndex ?? choice?.publicMetadata?.benchIndex;
-  const row = slots(observation.ownPublic).find(item =>
-    item.zone === 'bench' && (Number.isSafeInteger(slotIndex) ? item.index === slotIndex :
-      item.pokemon.printing === choicePrinting(choice)));
+  const row=physicalPokemonChoiceRow(choice,observation.ownPublic);
   if (!row || !matches(row.pokemon.printing, PRINT.ironThorns)) return 0;
   return (benchThornsVoltReady(row.pokemon,observation) ? 350 : 100) +
     energyCount(row.pokemon) * 30 - (row.pokemon.damage ?? 0);
