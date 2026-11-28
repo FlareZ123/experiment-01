@@ -720,6 +720,102 @@ test('Guzma does not strand a sole powered Active VSTAR on the Bench',()=>{
 });
 
 
+test('Guzma zero-retreat Budew pivot executes a staged final-two-Prize route',()=>{
+  const active=pokemon(P.regidrago,{energies:[P.energy,P.energy,'Fire Energy MEE 10']});
+  const budew=pokemon('Budew ASC 16',{hp:30,printed:{subtypes:['Basic'],retreatCost:[]}});
+  const den=pokemon('Dedenne-GX UNB 57',{
+    hp:160,damage:0,printed:{subtypes:['GX'],weakness:[],resistance:[]}});
+  const opponentBasic=pokemon('Budew ASC 16',{hp:30,printed:{subtypes:['Basic']}});
+  const items=[action('guzma','play-card','Guzma BUS 115'),
+    action('apex','attack',P.regidrago,{attackName:'Apex Dragon'}),
+    action('pass','pass')];
+  for(const seat of [0,1]){
+    const ownPublic=player({active,bench:[budew],discard:[{printing:P.goodra}]});
+    ownPublic.prizeCount=2;
+    const opponentPublic=player({active:opponentBasic,bench:[den]});
+    const r=()=>request({seat,ownPublic,opponentPublic,items});
+    const withTurn=req=>{
+      req.observation.globalTurn=7;
+      req.observation.ownTurnResources={retreatedTurn:1};
+      return req;
+    };
+    assert.deepEqual(bestAction(withTurn(r())),{kind:'select-action',token:'guzma'});
+    const opponentPrompt=prompt('Guzma BUS 115','Guzma',[
+      {token:'den',kind:'pokemon',printing:den.printing,
+        publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:0,selectionIndex:1}},
+      {token:'budew',kind:'pokemon',printing:opponentBasic.printing,
+        publicMetadata:{ownerSeat:'opponent',targetZone:'active',selectionIndex:0}}
+    ],'ChoosePokemonPrompt',[1,1]);
+    opponentPrompt.publicMetadata.selectionType='pokemon';
+    assert.deepEqual(promptDecision(withTurn(request({
+      seat,ownPublic,opponentPublic,prompt:opponentPrompt
+    }))),{kind:'select-choices',tokens:['den']});
+    const ownPrompt=prompt('Guzma BUS 115','Guzma',[
+      {token:'budew',kind:'pokemon',printing:budew.printing,
+        publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0,selectionIndex:1}}
+    ],'ChoosePokemonPrompt',[1,1]);
+    ownPrompt.publicMetadata.selectionType='pokemon';
+    assert.deepEqual(promptDecision(withTurn(request({
+      seat,ownPublic,opponentPublic,prompt:ownPrompt
+    }))),{kind:'select-choices',tokens:['budew']});
+    // These state changes model the native Guzma effect; native Store
+    // continuation and full-game competence have NOT been demonstrated.
+    ownPublic.active=budew;
+    ownPublic.bench=[active];
+    opponentPublic.active=den;
+    opponentPublic.bench=[opponentBasic];
+    const retreat=action('retreat','retreat',budew.printing,{
+      targetPrinting:P.regidrago,
+      publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:0}});
+    assert.deepEqual(bestAction(withTurn(request({
+      seat,ownPublic,opponentPublic,items:[retreat,action('pass','pass')]
+    }))),{kind:'select-action',token:'retreat'});
+    ownPublic.active=active;
+    ownPublic.bench=[budew];
+    assert.deepEqual(bestAction(withTurn(request({
+      seat,ownPublic,opponentPublic,items:[items[1],items[2]]
+    }))),{kind:'select-action',token:'apex'});
+  }
+});
+
+test('Guzma zero-retreat pivot refuses used retreat, payable cost, and nonterminal targets',()=>{
+  const attacker=pokemon(P.regidrago,{energies:[P.energy,P.energy,'Fire Energy MEE 10']});
+  const budew=pokemon('Budew ASC 16',{hp:30,
+    printed:{subtypes:['Basic'],retreatCost:[]}});
+  const opp=pokemon('Budew ASC 16',{hp:30,printed:{subtypes:['Basic']}});
+  const den=pokemon('Dedenne-GX UNB 57',{hp:160,printed:{subtypes:['GX']}});
+  const items=[action('guzma','play-card','Guzma BUS 115'),
+    action('apex','attack',P.regidrago,{attackName:'Apex Dragon'}),
+    action('pass','pass')];
+  for(const seat of [0,1]){
+    const ownPublic=player({active:attacker,bench:[budew],
+      discard:[{printing:P.goodra}]});
+    const opponentPublic=player({active:opp,bench:[den]});
+    ownPublic.prizeCount=2;
+    const r=()=>request({seat,ownPublic,opponentPublic,items});
+    const testTurn=retreated=>{const req=r();
+      req.observation.globalTurn=7;
+      req.observation.ownTurnResources={retreatedTurn:retreated};
+      return bestAction(req);
+    };
+    assert.deepEqual(testTurn(7),{kind:'select-action',token:'apex'});
+    assert.deepEqual(testTurn(0),{kind:'select-action',token:'guzma'});
+    budew.printed.retreatCost=['Colorless'];
+    assert.deepEqual(testTurn(0),{kind:'select-action',token:'apex'});
+    budew.printed.retreatCost=[];
+    budew.publicRestrictions={cannotRetreat:true};
+    assert.deepEqual(testTurn(0),{kind:'select-action',token:'apex'});
+    delete budew.publicRestrictions;
+    ownPublic.prizeCount=4;
+    assert.deepEqual(testTurn(0),{kind:'select-action',token:'apex'});
+    ownPublic.prizeCount=2;
+    ownPublic.bench=[pokemon('Latias ex SSP 76')];
+    assert.deepEqual(testTurn(0),{kind:'select-action',token:'apex'});
+    ownPublic.bench=[budew];
+    assert.deepEqual(bestAction(r()),{kind:'select-action',token:'apex'});
+  }
+});
+
 test('one weak opponent Special Energy is not worth a singleton Megaton Blower',()=>{
   const ownPublic=player({
     active:pokemon(P.regidrago,{energies:[P.doubleDragon,P.energy]}),
