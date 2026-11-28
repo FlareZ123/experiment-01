@@ -1088,7 +1088,7 @@ function scoreBasicPlay(item, view) {
     const established = ownBoard(view).filter(slot =>
       hasName(slot.printing, 'Shadow Rider Calyrex V')).length;
     if (established === 0) return 1000;
-    if (established === 1 && countBench(view.ownPublic) === 0) return 995;
+    if (established === 1 && countBench(view.ownPublic) === 0) return 900;
     if (established === 1 && countBench(view.ownPublic) <= 3) return 790;
   }
   if (hasName(printing, 'Mimikyu') && opponentHasRegidrago(view) &&
