@@ -3598,9 +3598,13 @@ function guzmaFreePivotMultiPrize(before,after,index){
   const projected={...returned,ownTurnResources:{
     ...returned.ownTurnResources,retreatedTurn:returned.globalTurn}};
   const target=projected.opponentPublic.active;
+  // This player-wide attack effect survives switching the Active Pokemon.
+  // The corresponding final-Prize projection already rejects it; a
+  // nonterminal Max Geist plan must not silently evade the same constraint.
   if(!target||prizeLiability(target)<2||
      prizeLiability(target)>=projected.ownPublic.prizeCount||
      projected.opponentPublic.prizeCount<=3||
+     (projected.ownPublic.publicTurnRestrictions?.attackMaxEnergyTurnsRemaining??0)>0||
      !cleanPublicTerminalView(projected,true))return null;
   // Use the post-switch projection, not the stale pre-switch Pokémon
   // object, when certifying attack legality and damage.
