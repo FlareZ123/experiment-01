@@ -100,7 +100,10 @@ function occupyFull60(player,physical,role){
     player.active.cards.push(take(c=>c.fullName==='Shadow Rider Calyrex VMAX CRE'));
     player.bench[0].cards.push(take(c=>c.fullName==='Shadow Rider Calyrex V CRE'));
     player.bench[1].cards.push(take(c=>c.fullName==='Mimikyu GRI'));
-    for(let i=0;i<3;i++){
+    // Five already-attached Psychic means the candidate worker does not
+    // rank another MANUAL Active VMAX attachment above accelerating a Bench V.
+    // Its legal manual Bench alternative remains offered for real arbitration.
+    for(let i=0;i<5;i++){
       const energy=take(c=>c.name==='Psychic Energy');
       player.active.cards.push(energy);
       player.active.energies.cards.push(energy);
