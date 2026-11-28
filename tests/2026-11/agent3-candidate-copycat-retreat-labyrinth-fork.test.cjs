@@ -3,6 +3,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createPolicy, POLICY_VERSION } =
   require('../../simulation/evaluation/2026-11/agent46-candidate-policy.cjs');
+const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 
 // Frozen candidate has Mimikyu GRI58 and Psychic Energy only.  Copycat copies
 // the opponent's last non-GX Apex Dragon, then can choose own discarded Dialga
@@ -33,17 +34,36 @@ const publicSide = (active, bench, stadium = [], discard = [], gxUsed = false,
     gxUsed, stadiumAndToolHaveNoEffectTurnsRemaining: suppression
   }
 });
+const apex = {
+  turn: 7, sourcePrinting: 'Regidrago VSTAR SIT 136',
+  attackName: 'Apex Dragon', gxAttack: false, copycatAttack: false
+};
+function eventSlot(pokemon) {
+  return pokemon ? {
+    printing: pokemon.printing, movedFromBenchToActiveThisTurn: false,
+    knownAbilityUse: []
+  } : null;
+}
+function receiptFor(view) {
+  return {
+    version: protocol.EVENT_RECEIPT_VERSION,
+    actorSeat: view.actorSeat, turn: view.globalTurn,
+    ownerActive: eventSlot(view.ownPublic.active),
+    ownerBench: view.ownPublic.bench.map(eventSlot),
+    priorOpponentTurnKO: { any: false, byAttack: false },
+    opponentLastTurnAttack: null, opponentLastTurnTurn: 7,
+    opponentLastTurnAttacks: [{ ...apex }],
+    opponentCopycatChoices: [{ ...apex }],
+    // The Copycat user is still on Bench, so the CURRENT Active is not Copycat.
+    mimikyuCopycatCompatible: false
+  };
+}
 function request(seat, { labyrinth = false, mimicEnergy = 2,
   copycatReceipt = true, gxUsed = false, suppression = 0 } = {}) {
-  return {
-    role: 'candidate', seat, prompt: null,
-    publicEventReceipt: copycatReceipt ? {
-      opponentCopycatChoices: [
-        { attackName: 'Apex Dragon', sourcePrinting: 'Regidrago VSTAR SIT 136' }
-      ]
-    } : null,
+  const request = {
+    role: 'candidate', seat, prompt: null, publicEventReceipt: null,
     observation: {
-      actorSeat: seat, decisionKind: 'owner-root', ownHand: [],
+      actorSeat: seat, globalTurn: 8, decisionKind: 'owner-root', ownHand: [],
       ownPublic: publicSide(vmax(), [mimikyu(mimicEnergy), clefairy()],
         [], ['Dialga-GX UPR 100'], gxUsed, suppression),
       opponentPublic: publicSide(regidrago(), [],
@@ -57,6 +77,8 @@ function request(seat, { labyrinth = false, mimicEnergy = 2,
       { kind: 'pass', token: 'pass' }
     ] }
   };
+  if (copycatReceipt) request.publicEventReceipt = receiptFor(request.observation);
+  return request;
 }
 const cases = [
   ['Apex receipt: paid Mimikyu retreat is discoverable',
@@ -73,6 +95,7 @@ const cases = [
 for (const seat of [0, 1]) for (const [label, config, expected] of cases) {
   test(label + ' seat ' + seat, () => {
     const input = request(seat, config);
+    protocol.validatePublicEventReceipt(input.publicEventReceipt, input.observation);
     const result = createPolicy({
       role: 'candidate', seat, policyVersion: POLICY_VERSION, config: {}
     }).decideWithAudit(input);
