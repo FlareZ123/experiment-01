@@ -3,6 +3,7 @@ const test=require('node:test'),assert=require('node:assert/strict');
 const projector=require('../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
 const protocol=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const R='Raihan EVS 152',E='Psychic Energy MEE 13';
+const NATIVE_R='Raihan EVS';
 class EnergyCard{constructor(){this.fullName=E;this.name='Psychic Energy';
  this.superType=2;this.energyType=0;this.provides=['Psychic'];}}
 const native={EnergyCard,SuperType:{ENERGY:2},EnergyType:{BASIC:0},
@@ -16,7 +17,7 @@ function actor(id=11,includeEnergy=true){
  stadium:{cards:[]},lostzone:{cards:[]},prizes:[],
  active:list(rider),bench:[list(mimikyu)]};
 }
-function scenario(seat,{sourcePrinting=R,wrongZone=false,
+function scenario(seat,{sourcePrinting=NATIVE_R,wrongZone=false,
    wrongFilter=false,badBounds=false,noEnergy=false,opponentCard=false}={}){
  const own=actor(11,!noEnergy),opp=actor(22,opponentCard);
  const state={players:seat===0?[own,opp]:[opp,own],phase:3};
@@ -56,7 +57,7 @@ for(const seat of [0,1]){
     [native.SlotType.ACTIVE,native.SlotType.BENCH]);
  });
  for(const [label,opts] of [
-  ['unknown printing',{sourcePrinting:'Raihan EVS'}],
+  ['unknown printing',{sourcePrinting:'Raihan UNKNOWN'}],
   ['hand instead of discard',{wrongZone:true}],
   ['non-Basic filter',{wrongFilter:true}],
   ['max2 instead of max1',{badBounds:true}],
