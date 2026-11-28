@@ -468,3 +468,46 @@ test('VS Seeker Karen is search-prioritized in a live Regidrago donor board', ()
   assert.deepEqual(policy.promptDecision({observation:o,prompt}),
     {kind:'select-choice',token:'karen'});
 });
+
+test('Secret Box is started only when its three-discard cost is affordable and setup improves', () => {
+  const box={kind:'play-card',actorPrinting:'Secret Box TWM 163'};
+  const viable=observation({globalTurn:4,
+    ownPublic:player({active:poke(P.trubbishFst)}),
+    ownHand:['Secret Box TWM 163','Battle VIP Pass FST 225',
+      'Battle VIP Pass FST 225','Quick Ball FST 237']});
+  assert.equal(policy.scoreAction(box,root([],viable)),340);
+  const protectedHand={...viable,ownHand:['Secret Box TWM 163',P.garbodor,
+    'Tapu Koko ♢ TEU 51','Karen XYP 177']};
+  assert.equal(policy.scoreAction(box,root([],protectedHand)),0);
+});
+test('Secret Box payment discharges three affordable cards, not protected lock pieces', () => {
+  const o=observation({globalTurn:4,ownPublic:player({
+    active:poke(P.trubbishFst)
+  }),ownHand:['Secret Box TWM 163','Battle VIP Pass FST 225',
+    'Battle VIP Pass FST 225','Quick Ball FST 237',P.garbodor]});
+  const prompt={promptType:'ChooseCardsPrompt',
+    source:{sourcePrinting:'Secret Box TWM 163',effectName:'Secret Box'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:3,maximumCount:3},
+    choices:[choice('vip1','Battle VIP Pass FST 225','hand'),
+      choice('vip2','Battle VIP Pass FST 225','hand'),
+      choice('quick','Quick Ball FST 237','hand'),
+      choice('garb',P.garbodor,'hand')]};
+  assert.deepEqual(policy.promptDecision({observation:o,prompt}),
+    {kind:'select-choices',tokens:['vip1','vip2','quick']});
+});
+test('Secret Box search selects one Item, Tool, Supporter, Stadium at actual source rank22', () => {
+  const o=observation({globalTurn:4,ownPublic:player({
+    active:poke(P.trubbishFst)
+  }),ownHand:[]});
+  const prompt={promptType:'ChooseCardsPrompt',
+    source:{sourcePrinting:'Secret Box TWM 163',effectName:'Secret Box'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:4},
+    choices:[choice('quick','Quick Ball FST 237'),
+      choice('float','Float Stone BKT 137'),
+      choice('wally','Wally ROS 94'),
+      choice('temple','Temple of Sinnoh ASR 155'),
+      choice('another-tool','Muscle Band XY 121'),
+      choice('another-supporter','Marnie SSH 169')]};
+  assert.deepEqual(policy.promptDecision({observation:o,prompt}),
+    {kind:'select-choices',tokens:['quick','float','wally','temple']});
+});
