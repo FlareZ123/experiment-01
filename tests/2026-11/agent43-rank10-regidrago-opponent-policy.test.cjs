@@ -113,6 +113,44 @@ test('Battle VIP Pass is the top opening action when no Regidrago V is in play',
   assert.deepEqual(result, { kind: 'select-action', token: 'vip' });
 });
 
+test('VIP establishes Budew and second Regidrago on the second player opening turn', () => {
+  for (const seat of [0,1]) {
+    const vip=item('vip','play-card','Battle VIP Pass FST 225');
+    const budewCard=item('budew','play-card','Budew ASC 16');
+    const scenarios=[
+      {turn:1,active:regidragoV,bench:[],expected:210},
+      {turn:2,active:regidragoV,bench:[],expected:210},
+      {turn:2,active:regidragoV,bench:[regidragoV],expected:210},
+      {turn:2,active:regidragoV,bench:[budew,regidragoV],expected:0},
+      {turn:3,active:regidragoV,bench:[],expected:0}
+    ];
+    for(const scenario of scenarios){
+      const obs=observation({seat,...scenario});
+      assert.equal(scoreAction(vip,{observation:obs}),scenario.expected);
+      if(scenario.expected>0){
+        assert.deepEqual(bestAction(request(obs,[vip,budewCard,item('pass','pass','Pass')])),
+          {kind:'select-action',token:'vip'});
+      }
+    }
+  }
+});
+
+test('Squawk and Seize uses only the actor first-turn window, Dedechange remains available', () => {
+  for(const seat of [0,1]){
+    for(const turn of [1,2,3]){
+      const obs=observation({seat,turn,active:regidragoV,
+        bench:[pokemon('Squawkabilly ex PAL 169')],hand:[]});
+      const squawkAbility=item('ability','use-ability','Squawk and Seize',
+        {sourceEffect:'Squawk and Seize'});
+      const dedeAbility=item('dede','use-ability','Dedechange',{sourceEffect:'Dedechange'});
+      const squawkCard=item('squawk','play-card','Squawkabilly ex PAL 169');
+      assert.equal(scoreAction(squawkAbility,{observation:obs}),turn<=2?160:0);
+      assert.equal(scoreAction(squawkCard,{observation:obs}),turn<=2?155:0);
+      assert.equal(scoreAction(dedeAbility,{observation:obs}),160);
+    }
+  }
+});
+
 test('Budew is prioritized as an early Item-lock setup when absent from the board', () => {
   const obs = observation({ bench: [regidragoV, null, null, null, null] });
   assert.equal(scoreAction(item('budew', 'play-card', 'Budew ASC 16'), { observation: obs }), 190);
