@@ -1,4 +1,4 @@
-# Rank-30 stale KO receipt: turn-stamped Store tracker and Raihan/Fez consumers
+# Rank-30 stale KO receipt: turn-stamped Store tracker, Raihan, Fez, and Heavy Ball
 
 **Date:** 2026-11-28  
 **Owner:** Agent8  
@@ -20,7 +20,14 @@ The rank-30 worker now also has a conservative Raihan line, using the same fresh
 - Root play is offered only when the fresh-KO helper confirms a Raihan in hand, a Basic Psychic Energy in discard, a usable deck, an available Supporter slot, and a Clefairy on the board with fewer than two Energy.
 - The `AttachEnergyPrompt` continuation accepts only a Basic Psychic Energy from the actor's discard and only selects an active/bench Clefairy target that can still gain its second Psychic Energy. Other legal target families deliberately abstain.
 - The `ChooseCardsPrompt` continuation searches for one offered card using deterministic tactical priorities, including a fresh-KO Fezandipiti line when the hand is small.
-- The worker does not add Teammates to the deck; Teammates is not in this rank-30 60-card source list.
+
+The rank-30 worker also handles Hisuian Heavy Ball:
+
+- Root play is limited to a missing Basic-Pokémon need while Prize cards remain and the native action frontier offers the Item.
+- The prompt must be the actor-visible `ChooseCardsPrompt` from `sourceZone: 'prizes'` with a 0–1 selection. It considers only offered Basic Pokémon from the actor's own Prize list, prefers a missing Clefairy/other useful Basic by deterministic priority, and chooses the explicit empty-selection token if no useful Basic is offered.
+- No opponent Prize faces or inferred hidden Prize contents are used.
+
+The worker does not add Teammates to the deck; Teammates is not in this rank-30 60-card source list.
 
 The receipt-side producer contract is implemented on the same development branch:
 
@@ -32,7 +39,7 @@ The receipt-side producer contract is implemented on the same development branch
 
 ## Regression evidence
 
-Both physical seats are covered for the rank-30 worker. Tracker/receipt/helper/Raihan tests cover:
+Both physical seats are covered for the rank-30 worker. Tracker/receipt/helper/Raihan/Heavy Ball tests cover:
 
 - KO on turn 2 followed by a no-KO extra turn 3: actor turn 4 receives a known-empty turn-3 summary, not the stale turn-2 KO.
 - KO during extra turn 3: actor turn 4 receives the fresh turn-3 KO.
@@ -42,17 +49,18 @@ Both physical seats are covered for the rank-30 worker. Tracker/receipt/helper/R
 - Fezandipiti root/ability and Raihan root/attach/search require a fresh event stamp; Raihan also requires Basic Psychic in discard and a useful Clefairy target.
 - Raihan refuses stale/missing KO stamps, no Basic Energy, no useful Clefairy target, and unsupported/non-Basic Energy choices.
 - Raihan search selects an offered Fezandipiti when the fresh KO condition and small-hand context make that line available.
+- Heavy Ball root requires a missing Basic-Pokémon need and remaining Prizes; its owner-visible Prize prompt selects a useful Basic or the legal empty-selection token, for both seats.
 
-The exact fetched branch worker, complete rank-30 source suite, tracker, receipt, helper, and new tests were executed together in an isolated V8 harness with synchronous `node:test` / `node:assert/strict` shims: **125/125 test callbacks passed**. This is not the Node test runner and the Store hook tests use injected fake Store/effect classes. The tracker is source-aligned to the pinned reducer but has **not** yet been executed against the actual pinned Store instance.
+The exact fetched branch worker, complete rank-30 source suite, tracker, receipt, helper, and new tests were executed together in an isolated V8 harness with synchronous `node:test` / `node:assert/strict` shims: **131/131 test callbacks passed**. This is not the Node test runner and the Store hook tests use injected fake Store/effect classes. The tracker is source-aligned to the pinned reducer but has **not** yet been executed against the actual pinned Store instance.
 
 - Branch: `agent8/rank30-gust-psychic-weakness-20261128`
-- Branch head: `7bc657263669a959a6d03efaaffff9ddf868e75e`
+- Branch head: `cfbf439acc252e17c62eb9ecd82e5cd2b437cfab`
 - Tracker blob: `7757f5f9ff2115076335f4f40b13556e74c4d10b`
 - Tracker test blob: `8042de02894750912e116af1fdd7444dfcf60309`
 - Receipt blob: `296fa226c55923b91797370eeb8d1b3e0c3a49dc`
 - Receipt test blob: `fdbe5164486c4055f6302875f701e2c384ea8de6`
 - Supporter helper blob: `fcb0e0a8706bae6834f5c8dfb15d4f93d8631224`
-- Rank-30 worker/test blobs: `892fa2a7d92b0225d57db285dae30c5452ec17ea` / `cb2ed5a51f16740acc200d8695ee71876c11dc3b`
+- Rank-30 worker/test blobs: `ec406626fb2a9f91dcfa8a3a07e8a766dd83d185` / `408998061957a20ef006244c494757457b132fde`
 
 ## Remaining integration work and boundaries
 
