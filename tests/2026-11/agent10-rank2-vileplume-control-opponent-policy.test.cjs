@@ -2226,6 +2226,60 @@ test('Guzma does not trust Hood-protected Stoutland through Jamming Tower',()=>{
 });
 
 
+test('rank2 behind-on-Prizes Counter Gain root settles actual Active Bunnelby',()=>{
+  const own=player({active:pokemon('Bunnelby PRC 121',{energies:[]}),
+    bench:[pokemon('Bunnelby PRC 121',{energies:[]})],prizeCount:6});
+  const opponent=player({prizeCount:4});
+  const root=rootRequest({ownHand:['Counter Gain SSP 169'],
+    ownPublic:own,opponentPublic:opponent,
+    items:[{token:'countergain',kind:'play-card',
+      actorPrinting:'Counter Gain SSP 169',
+      publicMetadata:{cardType:'trainer',handIndex:0}},
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(root),{
+    kind:'select-action',token:'countergain'});
+  const prompt=promptRequest({promptType:'ChoosePokemonPrompt',
+    source:actorChoiceSource('Counter Gain SSP 169','Counter Gain'),
+    choices:[pokemonChoice('bench','Bunnelby PRC 121','actor','bench',0),
+      pokemonChoice('active','Bunnelby PRC 121','actor','active',0)],
+    observation:{ownPublic:own,opponentPublic:opponent}});
+  assert.deepEqual(checkedDecision(prompt),{
+    kind:'select-choices',tokens:['active']});
+});
+test('rank2 Counter Gain declines root when ahead on Prizes',()=>{
+  const req=rootRequest({ownHand:['Counter Gain SSP 169'],
+    ownPublic:player({active:pokemon('Bunnelby PRC 121'),prizeCount:2}),
+    opponentPublic:player({prizeCount:5}),
+    items:[{token:'countergain',kind:'play-card',actorPrinting:'Counter Gain SSP 169',
+      publicMetadata:{cardType:'trainer',handIndex:0}},
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'pass'});
+});
+test('rank2 Counter Gain selects only physically Tool-free duplicate',()=>{
+  const own=player({active:pokemon('Bunnelby PRC 121',{
+    tools:['Technical Machine: Evolution PAR 178']}),
+    bench:[pokemon('Bunnelby PRC 121')] ,prizeCount:6});
+  const req=promptRequest({promptType:'ChoosePokemonPrompt',
+    source:actorChoiceSource('Counter Gain SSP 169','Counter Gain'),
+    choices:[pokemonChoice('bad','Bunnelby PRC 121','actor','active',0),
+      pokemonChoice('ok','Bunnelby PRC 121','actor','bench',0)],
+    observation:{ownPublic:own,opponentPublic:player({prizeCount:4})}});
+  assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:['ok']});
+});
+test('rank2 Counter Gain root does not consume Tool slot when all recipients equipped',()=>{
+  const req=rootRequest({ownHand:['Counter Gain SSP 169'],
+    ownPublic:player({active:pokemon('Bunnelby PRC 121',{
+      tools:['Technical Machine: Evolution PAR 178']}),
+      bench:[pokemon('Oddish UNB 5',{tools:['Stealthy Hood UNB 186']})],
+      prizeCount:6}),
+    opponentPublic:player({prizeCount:4}),
+    items:[{token:'countergain',kind:'play-card',
+      actorPrinting:'Counter Gain SSP 169',
+      publicMetadata:{cardType:'trainer',handIndex:0}},
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'pass'});
+});
+
 function attachmentRoot(token,printing){
  return {token,kind:'play-card',actorPrinting:printing,
   publicMetadata:{cardType:/Energy/i.test(printing)?'energy':'trainer',handIndex:0}};
