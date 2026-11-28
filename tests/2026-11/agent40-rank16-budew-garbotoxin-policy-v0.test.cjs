@@ -600,3 +600,46 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-choice',token:'acid'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' VS Seeker->Karen connector outranks premature Budew lock vs Regidrago',()=>{
+  const items=[play('VS Seeker PHF 109','seeker'),attack('Itchy Pollen','pollen'),pass];
+  const ownBoard=own({active:mon('Budew ASC 16'),discard:['Karen XYP 177']});
+  const enemy=opp({active:mon('Regidrago VSTAR SIT 136'),
+   discard:['Dialga-GX UPR 100','Dragapult ex TWM 130']});
+  const q=root(seat,items,{ownPublic:ownBoard,opponentPublic:enemy,
+   ownHand:['VS Seeker PHF 109','Darkness Energy MEE 15']});
+  assert(policy.vsSeekerDenialScore(q.observation,items)>=700);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'seeker'});
+  const qp=prompt(seat,{source:{sourceKind:'card-effect',sourcePrinting:'VS Seeker PHF 109',effectName:'VS Seeker'},
+   choices:[choice('k','Karen XYP 177','discard'),choice('m','Marnie SSH 169','discard')]},
+   {ownPublic:ownBoard,opponentPublic:enemy});
+  assert.deepEqual(decide(seat,qp),{kind:'select-choices',tokens:['k']});
+  q.observation.ownPublic.discard=[];
+  q.observation.ownHand=['Karen XYP 177','Darkness Energy MEE 15'];
+  q.actionFrontier.items=[play('Karen XYP 177','karen'),attack('Itchy Pollen','pollen'),pass];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'karen'});
+  q.observation.opponentPublic.discard=[];
+  q.actionFrontier.items=[attack('Itchy Pollen','pollen'),pass];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+ });
+ test('seat '+seat+' no VS Seeker detour with no Regidrago discard payload',()=>{
+  const q=root(seat,[play('VS Seeker PHF 109','seeker'),attack('Itchy Pollen','pollen'),pass],{
+   ownPublic:own({active:mon('Budew ASC 16'),discard:['Karen XYP 177']}),
+   opponentPublic:opp({active:mon('Regidrago VSTAR SIT 136'),discard:[]})});
+  assert.equal(policy.vsSeekerDenialScore(q.observation,q.actionFrontier.items),0);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+ });
+ test('seat '+seat+' VS Seeker->Plumeria over early attack with sole DDE and cheap discards',()=>{
+  const q=root(seat,[play('VS Seeker PHF 109','seeker'),attack('Itchy Pollen','pollen'),pass],{
+   ownPublic:own({active:mon('Budew ASC 16'),discard:['Plumeria BUS 120']}),
+   ownHand:['VS Seeker PHF 109','Battle VIP Pass FST 225','Darkness Energy MEE 15'],
+   opponentPublic:opp({active:mon('Regidrago VSTAR SIT 136',
+    {energies:['Double Dragon Energy ROS 97']})}),globalTurn:4});
+  assert(policy.vsSeekerDenialScore(q.observation,q.actionFrontier.items)>530);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'seeker'});
+  q.observation.ownHand=['VS Seeker PHF 109','Secret Box TWM 163','Float Stone BKT 137'];
+  assert.equal(policy.vsSeekerDenialScore(q.observation,q.actionFrontier.items),0);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+ });
+}
