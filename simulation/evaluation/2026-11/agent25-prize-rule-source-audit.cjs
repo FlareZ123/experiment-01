@@ -37,6 +37,16 @@ function canonicalSetCandidates(code, sets) {
   return sets.filter(row => row.ptcgoCode === code).map(row => row.id);
 }
 
+function equivalentPrintedName(sourceName, catalogName) {
+  if(sourceName===catalogName)return true;
+  // The Aichi transcriptions use the suit diamond (♢); the catalogue
+  // uses the lozenge (◇) for Prism Star printings. Accept this ONE suffix
+  // equivalence, but still demand the exact set and printed card number.
+  const suffix=/ [♢◇]$/u;
+  return suffix.test(sourceName) && suffix.test(catalogName) &&
+    sourceName.replace(suffix,' ◇')===catalogName.replace(suffix,' ◇');
+}
+
 function normalizedPromoNumber(code, number) {
   const str=String(number);
   if (code==='SMP' && /^\d{1,3}[a-z]?$/i.test(str))
@@ -66,7 +76,7 @@ function auditPrizeField({decks,sets,loadSet}) {
         const pool=loadSet(id);
         if(!Array.isArray(pool)) throw new Error('UNREADABLE_SET:'+id);
         for(const card of pool) {
-          if(card.name===item.name && alternatives.includes(String(card.number)))
+          if(equivalentPrintedName(item.name,card.name) && alternatives.includes(String(card.number)))
             matches.push(card);
         }
       }
@@ -75,6 +85,7 @@ function auditPrizeField({decks,sets,loadSet}) {
         awards[0]!==null;
       const result={rank:deck.rank,name:item.name,printing:{...printing},
         copies:item.count,matchedIds:matches.map(c=>c.id),
+        symbolAliasUsed:matches.some(c=>c.name!==item.name),
         printedPrizeAward:exactlyOnePrizeRule?awards[0]:null,
         frozenNameHeuristic:frozenPrizeNameHeuristic(item.name),
         status:matches.length===0?'missing':!exactlyOnePrizeRule?'ambiguous':'matched'};
@@ -114,4 +125,5 @@ if(require.main===module){
   if(result.unresolvedRows>0)process.exitCode=2;
 }
 module.exports={basePrizeFromRules,frozenPrizeNameHeuristic,
-  canonicalSetCandidates,normalizedPromoNumber,auditPrizeField,auditCommittedRepo};
+  canonicalSetCandidates,normalizedPromoNumber,equivalentPrintedName,
+  auditPrizeField,auditCommittedRepo};
