@@ -74,4 +74,7 @@ for(const seat of [0,1]){
  test('Wonder Tag optional zero Supporter search chooses empty '+seat,()=>check(
    choose(seat,false,'Tapu Lele-GX GRI 60',['Psychic Energy MEE 13']),
    {kind:'select-choice',token:'empty'}));
+ test('Wrong typed Wonder Tag source is rejected '+seat,()=>check(
+   choose(seat,false,'Mimikyu GRI 58'),
+   {kind:'abstain',reasonCode:'UNTRUSTED_PROMPT_SOURCE'}));
 }
