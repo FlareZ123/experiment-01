@@ -1620,6 +1620,33 @@ function turboDceAttackWindow(request) {
     item.kind === 'attack' && /Volt Cyclone/i.test(item.attackName ?? ''));
 }
 
+// When Temple is removed, Speed Lightning again supplies [L] and DCE
+// supplies [C][C]. A free Stadium replacement is stronger than consuming
+// the one-off ACE SPEC. Return only an owner-visible conditional window,
+// never claim that a future native attack was actually executed.
+function templeThornsAttackUnlock(observation) {
+  if(!hasStadium(observation,/^Temple of Sinnoh\b/i) ||
+      !ownActiveIsThorns(observation))return null;
+  const active=observation.ownPublic?.active;
+  const energies=list(active?.energies);
+  const restrictions=active?.publicRestrictions??{};
+  const ownerLocks=observation.ownPublic?.publicTurnRestrictions??{};
+  if(restrictions.cannotAttackNextTurn===true ||
+      list(restrictions.cannotUseAttacksNextTurn).includes('Volt Cyclone') ||
+      restrictions.blockedAttackNameNextTurn==='Volt Cyclone' ||
+      Number(ownerLocks.attackLockTurnsRemaining??0)>0 ||
+      Number(observation?.ownTurnResources?.attackLockTurnsRemaining??0)>0 ||
+      !energies.some(value=>matches(value,PRINT.speedLightning)) ||
+      !energies.some(value=>matches(value,PRINT.doubleColorless)))return null;
+  const target=opponentActive(observation);
+  const ko=target&&visibleVoltCycloneDamage(target).knockout;
+  const prizeEnd=ko&&guzmaTargetPrizeValue(target)>=
+    (observation.ownPublic?.prizeCount??6);
+  const boardEnd=ko&&!slots(observation.opponentPublic)
+    .some(row=>row.zone==='bench');
+  return {potentialTerminal:prizeEnd||boardEnd};
+}
+
 function scorePlayCard(item, request) {
   const observation = request.observation;
   const own = observation.ownPublic;
@@ -1662,6 +1689,15 @@ function scorePlayCard(item, request) {
     PRINT.captivatingPuff, PRINT.echoingHorn, PRINT.targetWhistle, PRINT.fieldBlower,
     PRINT.vsSeeker
   ].some(pattern => matches(card, pattern));
+  // Replacing Temple with a playable, non-taxing Stadium clears the same
+  // attack lock as Megaton Blower without spending our singleton ACE SPEC.
+  // Wondrous Labyrinth is excluded: it would add a Colorless cost instead.
+  const templeWindow=templeThornsAttackUnlock(observation);
+  if(templeWindow&&!stadiumLocked(observation) &&
+      [PRINT.thunderMountain,PRINT.tropicalBeach,PRINT.playersCeremony]
+        .some(pattern=>matches(card,pattern))){
+    return templeWindow.potentialTerminal?925:245;
+  }
   if (matches(card, PRINT.ironThorns)) {
     const ownBench = slots(own).filter(row => row.zone === 'bench' &&
       matches(row.pokemon.printing, PRINT.ironThorns));
@@ -1824,36 +1860,12 @@ function scorePlayCard(item, request) {
       list(opponent.discard).some(isRegisteredCandidateBasic) ? 75 : 0;
   }
   if (matches(card, PRINT.megatonBlower)) {
-    // Rank29's ACE SPEC also discards a Stadium in play. A Temple of Sinnoh
-    // suppresses both Speed Lightning's type and Double Colorless's extra
-    // unit, but Megaton Blower can clear Temple and unblock [L][C][C].
-    // Wondrous Labyrinth prevents Item effects on itself: never assume
-    // that Stadium can be removed this way.
-    const temple=hasStadium(observation,/^Temple of Sinnoh\b/i);
-    const active=own.active;
-    const energies=list(active?.energies);
-    const restrictions=active?.publicRestrictions??{};
-    const ownerLocks=own.publicTurnRestrictions??{};
-    const locked=restrictions.cannotAttackNextTurn===true ||
-      list(restrictions.cannotUseAttacksNextTurn).includes('Volt Cyclone') ||
-      restrictions.blockedAttackNameNextTurn==='Volt Cyclone' ||
-      Number(ownerLocks.attackLockTurnsRemaining??0)>0 ||
-      Number(observation?.ownTurnResources?.attackLockTurnsRemaining??0)>0;
-    const templeUnlocksAttack=temple && !locked &&
-      ownActiveIsThorns(observation) &&
-      energies.some(value=>matches(value,PRINT.speedLightning)) &&
-      energies.some(value=>matches(value,PRINT.doubleColorless));
-    if(templeUnlocksAttack){
-      const target=opponentActive(observation);
-      const ko=target&&visibleVoltCycloneDamage(target).knockout;
-      const clearsPrizes=ko&&guzmaTargetPrizeValue(target)>=
-        (own.prizeCount??6);
-      const clearsBoard=ko&&!slots(opponent)
-        .some(row=>row.zone==='bench');
-      // Two-step conditional win is preferable to ordinary disruption,
-      // but less certain than an already offered terminal attack (1000).
-      return clearsPrizes||clearsBoard?900:225;
-    }
+    // Megaton also removes an unprotected Stadium. In a Temple-only
+    // line, a newly payable Volt Cyclone can then deliver final Prizes.
+    // Preserve the ACE SPEC if a legal non-taxing Stadium replacement is
+    // in the native action frontier: that free line scores 925/245.
+    const window=templeThornsAttackUnlock(observation);
+    if(window)return window.potentialTerminal?900:225;
     return opponentHasTool(observation) ||
       opponentSpecialEnergyCount(observation)>0 ? 185 : 0;
   }
