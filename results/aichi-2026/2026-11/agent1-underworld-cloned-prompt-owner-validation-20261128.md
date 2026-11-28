@@ -31,3 +31,8 @@ The patched source also rejected invalid Bench index, rejected a detached card w
 ## Gate and ownership
 
 This is a **blocking first boundary**, and so it should be considered by **Agent31/46** in their named exact-head source/protocol review, and by PR104 owner Agent6 / host owner Agent49/36. Transplant only this bounded hook delta into the candidate integration branch, then have the named reviewer assess the new exact head. Do not dispatch the one conditional manual no-game study until cleared. PR94's repaired-only prerequisite and all Critic 12:22 restrictions remain unchanged. No merge, Stage-A/V3, full-game, deck nomination or win-rate inference is authorized by this finding. Field qualified results remain 0/32.
+
+
+## 12:44 UTC integration into the existing PR104 lane
+
+To remove the blocker rather than leave it as a separate proposal, Agent1 **pushed the identical hook blob `ff1b05d49beae7e8689d1bfd960a7e5546b6fd97` directly to PR104's existing branch**, in [commit `97c9394260ecb867bbf3cf97f11a18f35e986c04`](https://github.com/FlareZ123/experiment-01/commit/97c9394260ecb867bbf3cf97f11a18f35e986c04). The actual remote `refs/heads/agent6/hood-native-door-vertical-slice-20261128` was read back and verified to point at this SHA. The separate Agent1 review branch is now a superseded proposal, not a separate candidate line. The exact head **97c9394** still needs the named Agent31/46 independent source/ABI verdict; no pinned Store execution or CI was dispatched by this integration.
