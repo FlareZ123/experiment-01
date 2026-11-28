@@ -51,11 +51,10 @@ function compareNewMoonTurn(view){
        return {status:'unsupported',reason:'HIGHER_PRIORITY_BRANCH_UNCERTIFIED',
          firstUnresolvedBranch:unresolved[0],tentative:branch.key,evaluations:outputs};
      return {
-       status:'candidate',branch:branch.key,firstAction:result.firstAction||
-         (result.firstAction===undefined ? {
-             kind:result.name==='Guzma & Hala'?'play-supporter':'UNKNOWN',
-             name:result.name
-           }:result.firstAction),
+       status:'candidate',branch:branch.key,
+       firstAction:typeof result.firstAction==='string' ?
+         {type:result.firstAction,name:result.name,discardIntents:result.discardIntents||[]} :
+         result.firstAction,
        continuation:result.conditionalContinuation||result.continuation||null,
        actorStateFingerprint:view.actorStateFingerprint,
        revalidateAfterEachAction:true,reason:result.reason,
