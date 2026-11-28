@@ -2754,3 +2754,61 @@ test('Pinned Faba SelectPrompt picks public opponent Special Energy, then exact 
       {kind:'select-choices',tokens:['with-special']});
   }
 });
+
+
+test('Palace Book pinned draw-three may end stalled turn but never preempt attack',()=>{
+  const palace=action('palace','play-card','Palace Book SMP NAN25',
+    {cardType:'item'});
+  const base={
+    ownHand:['Palace Book SMP NAN25',"Trainers' Mail ROS 92"],
+    items:[palace,{token:'pass',kind:'pass'}],
+    ownPublic:player({active:pokemon('Iron Thorns ex TWM 77'),
+      deckCount:25})
+  };
+  assert.deepEqual(checkedDecision(rootRequest(base)),
+    {kind:'select-action',token:'palace'});
+  const attacker=rootRequest({...base,
+    items:[
+      palace,
+      action('attack','attack','Iron Thorns ex TWM 77',{},{
+        attackName:'Volt Cyclone',attackCostPayable:true
+      }),
+      {token:'pass',kind:'pass'}
+    ],
+    ownPublic:player({active:pokemon('Iron Thorns ex TWM 77',{
+      energies:['Double Colorless Energy SUM 136',
+        'Speed Lightning Energy RCL 173']
+    }),deckCount:25}),
+    opponentPublic:player({active:pokemon('Dedenne-GX UNB 57',
+      {hp:160,damage:30})})
+  });
+  assert.deepEqual(checkedDecision(attacker),
+    {kind:'select-action',token:'attack'});
+  assert.deepEqual(checkedDecision(rootRequest({...base,
+    ownPublic:player({active:pokemon('Iron Thorns ex TWM 77'),
+      deckCount:2})
+  })),{kind:'select-action',token:'pass'});
+});
+
+test('Palace Book never truncates a free Energy attachment nor reusable Ceremony draw',()=>{
+  const palace=action('palace','play-card','Palace Book SMP NAN25',{
+    cardType:'item'
+  });
+  const energy=action('energy','play-card','Speed Lightning Energy RCL 173',{
+    cardType:'energy'
+  },{targetPrinting:'Iron Thorns ex TWM 77'});
+  assert.deepEqual(checkedDecision(rootRequest({
+    ownHand:['Palace Book SMP NAN25','Speed Lightning Energy RCL 173'],
+    ownPublic:player({active:pokemon('Iron Thorns ex TWM 77'),deckCount:20}),
+    items:[palace,energy,{token:'pass',kind:'pass'}]
+  })),{kind:'select-action',token:'energy'});
+  const ceremony=action('ceremony','use-stadium',"Player's Ceremony SP 127",{
+    stadiumPrinting:"Player's Ceremony SP 127"
+  });
+  assert.deepEqual(checkedDecision(rootRequest({
+    ownHand:['Palace Book SMP NAN25'],
+    ownPublic:player({active:pokemon('Iron Thorns ex TWM 77'),
+      stadium:["Player's Ceremony SP 127"],deckCount:20}),
+    items:[palace,ceremony,{token:'pass',kind:'pass'}]
+  })),{kind:'select-action',token:'ceremony'});
+});
