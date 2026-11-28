@@ -1961,8 +1961,8 @@ function chooseRoot(view, request) {
   // spend Lillie, Fog Crystal or a Door draw ahead of an already-paid win.
   const terminalAttack=immediatelyWinningKnownAttack(view,items);
   if(terminalAttack){
-    setPolicyAuditRule('ROOT_IMMEDIATE_TERMINAL_MAX_GEIST','FIRST_NATIVE_MATCH');
-    recordPolicyAuditRule(terminalAttack.token,'MAX_GEIST_FINAL_PRIZE_NOW');
+    setPolicyAuditRule('ROOT_IMMEDIATE_TERMINAL_DIRECT_ATTACK','FIRST_NATIVE_MATCH');
+    recordPolicyAuditRule(terminalAttack.token,'DIRECT_ATTACK_FINAL_PRIZE_NOW');
     return {kind:'select-action',token:terminalAttack.token};
   }
   // With exactly two deck cards, Door draws the last two but the empty
