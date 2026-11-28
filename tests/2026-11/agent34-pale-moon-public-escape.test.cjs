@@ -201,10 +201,10 @@ test('terminal Pass override does not preempt an original winning attack or choo
   assert.equal(rescuePaleMoonTerminalPass(choiceView(),[...base,retreat()],'unmatched'),null);
   assert.equal(rescuePaleMoonTerminalPass(choiceView(false),[...base,retreat()],'pass'),null);
   assert.equal(rescuePaleMoonTerminalPass({...choiceView(),opponentPublic:{prizeCount:2}},[...base,retreat()],'pass'),null);
-  assert.equal(rescuePaleMoonTerminalPass(choiceView(),[...base,retreat(),retreat(0,'second')],'pass'),null);
+  assert.equal(rescuePaleMoonTerminalPass(choiceView(),[...base,retreat(),retreat(0,'second')],'pass')?.token,'native:retreat:0');
   const v={...rangerView(),ownPublic:{...rangerView().ownPublic,bench:[{printing:'Mimikyu GRI 58'}]},
     opponentPublic:{prizeCount:1,bench:[{printing:'Regidrago V SIT 135'}]}};
-  assert.equal(rescuePaleMoonTerminalPass(v,[...base,ranger(),{token:'guzma',kind:'play-card',actorPrinting:'Guzma BUS'}],'pass'),null);
+  assert.equal(rescuePaleMoonTerminalPass(v,[...base,ranger(),{token:'guzma',kind:'play-card',actorPrinting:'Guzma BUS'}],'pass')?.token,'ranger1');
   assert.equal(rescuePaleMoonTerminalPass(rangerView(),[...base,ranger(),{...base[0],token:'extra-pass'}],'pass'),null);
 });
 
@@ -430,4 +430,28 @@ test('last Pokemon loss overrides zero Prize protection even if opponent has sev
   const noDoll={...view,ownPublic:{...view.ownPublic,
     active:{...view.ownPublic.active,printing:'Mimikyu GRI 58'}}};
   assert.equal(terminalPaleMoonPrizeRisk(noDoll),true);
+});
+
+test('multiple Bench retreat targets never force a losing Pass; native physical score is deterministic',()=>{
+  const v={...choiceView(),ownPublic:{...choiceView().ownPublic,
+    bench:[{printing:'Mimikyu GRI 58',hp:70,damage:10,energies:[]},
+      null,
+      {printing:'Shadow Rider Calyrex VMAX CRE 75',hp:320,damage:20,
+        energies:['Psychic Energy CRE']}]}};
+  const candidates=[{token:'pass',kind:'pass'},
+    {token:'weak-retreat',kind:'retreat',publicMetadata:{
+      targetSeat:'actor',targetZone:'bench',targetIndex:0,benchIndex:0}},
+    {token:'strong-retreat',kind:'retreat',publicMetadata:{
+      targetSeat:'actor',targetZone:'bench',targetIndex:2,benchIndex:2}}];
+  assert.equal(rescuePaleMoonTerminalPass(v,candidates,'pass')?.token,'strong-retreat');
+  assert.equal(rescuePaleMoonTerminalPass(v,candidates.slice(0,2),'pass')?.token,'weak-retreat');
+  const invalid=[...candidates.slice(0,1),{...candidates[2],
+    targetPrinting:'Mimikyu GRI 58'}];
+  assert.equal(rescuePaleMoonTerminalPass(v,invalid,'pass'),null,
+    'forged card-printing mismatch is not a valid native target');
+});
+test('two separately offered Ranger Supporter roots still rescue instead of losing by abstention',()=>{
+  const v=rangerView();
+  const actions=[{token:'pass',kind:'pass'},ranger('ranger-b'),ranger('ranger-a')];
+  assert.equal(rescuePaleMoonTerminalPass(v,actions,'pass')?.token,'ranger-a');
 });
