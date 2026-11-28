@@ -203,3 +203,56 @@ for(const seat of [0,1]){
    {kind:'select-choices',tokens:['card-0','card-1']});
  });
 }
+
+for(const seat of [0,1]){
+ test('Salamence ex JTG Dragon Impact uses printed 300 into VMAX, seat '+seat,()=>{
+  const v=view(seat);
+  v.ownPublic.stadium=[];
+  v.ownPublic.active=slot('Shadow Rider Calyrex VMAX CRE',
+   ['Psychic Energy SVE'],[['Max Geist',['Colorless','Colorless','Colorless'],10]],
+   ['Psychic'],['VMAX','V']);
+  v.ownPublic.active.hp=320;
+  v.ownPublic.active.damage=50; // 270 remaining, Dragon Impact printed 300.
+  v.opponentPublic.active.energies=[
+   'Grass Energy SVE','Grass Energy SVE','Fire Energy SVE'];
+  v.opponentPublic.discard=['Salamence ex JTG'];
+  const result=policy.__test.apexHazard(v);
+  assert.equal(result.known,true);
+  assert.equal(result.direct,3); // One 3-Prize VMAX, no special KOs.
+  v.opponentPublic.discard=[];
+  assert.equal(policy.__test.apexHazard(v).direct,0);
+ });
+ test('Salamence ex JTG Wide Blast 50 applies to every wounded Bench, seat '+seat,()=>{
+  const v=view(seat);
+  v.ownPublic.stadium=[];
+  v.ownPublic.active=slot('Shadow Rider Calyrex VMAX CRE',
+   ['Psychic Energy SVE'],[['Max Geist',['Colorless','Colorless','Colorless'],10]],
+   ['Psychic'],['VMAX','V']);
+  v.ownPublic.active.hp=320;v.ownPublic.active.damage=0;
+  for(let i=0;i<2;i++){
+   const p=slot('Mimikyu GRI',[],[['Copycat',['Psychic','Colorless'],0]]);
+   p.hp=70;p.damage=30; // 40 remaining, each KO by 50 bench damage.
+   v.ownPublic.bench[i]=p;
+  }
+  v.opponentPublic.active.energies=[
+   'Grass Energy SVE','Grass Energy SVE','Fire Energy SVE'];
+  v.opponentPublic.discard=['Salamence ex JTG'];
+  const result=policy.__test.apexHazard(v);
+  assert.equal(result.known,true);
+  assert.equal(result.direct,2); // Exactly two single-Prize Benched KOs.
+  // A full-health 70HP Mimikyu survives Wide Blast's 50.
+  v.ownPublic.bench[1].damage=0;
+  assert.equal(policy.__test.apexHazard(v).direct,1);
+ });
+ test('Salamence ex absent from discard gives no imagined donor, seat '+seat,()=>{
+  const v=view(seat);
+  v.ownPublic.stadium=[];
+  v.opponentPublic.active.energies=[
+   'Grass Energy SVE','Grass Energy SVE','Fire Energy SVE'];
+  v.opponentPublic.discard=[];
+  v.opponentPublic.lostZone=['Salamence ex JTG'];
+  const result=policy.__test.apexHazard(v);
+  assert.equal(result.known,true);
+  assert.equal(result.direct,0);
+ });
+}
