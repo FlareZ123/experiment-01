@@ -66,6 +66,20 @@ const ownerPrintings=Object.freeze({
   foeBench:'Pidgey MEW'
 });
 
+function makeStagedShuffleRng(seat){
+  // Deterministic local replay of native host-only ShuffleDeckPrompt.
+  // It deliberately isn't a competitive physical RNG or a source deal.
+  const seed=(0x47c13b13 ^ (seat*0x9e3779b9))>>>0;
+  let state=seed||1;
+  return {seed,random(){
+    state^=state<<13;
+    state^=state>>>17;
+    state^=state<<5;
+    state>>>=0;
+    return state/4294967296;
+  }};
+}
+
 function prizesRemaining(player){
   return player.prizes.reduce((count,slot)=>count+slot.cards.length,0);
 }
@@ -120,7 +134,8 @@ function setup(seat) {
   x.owner.usedGX=true; // copied Shred, not extra-turn Timeless-GX
   assert.equal(prizesRemaining(x.owner),1);
   assert.equal(x.opponent.active.getPokemonCard(),mimikyu);
-  return {...x,source:ownerPrintings,card};
+  const shuffle=makeStagedShuffleRng(seat);
+  return {...x,source:ownerPrintings,card,shuffle};
 }
 
 
@@ -236,9 +251,9 @@ function resolveOne(x,policy,provenance,history) {
   const host=baseProject.hostOnlyPrompt(prompt,origin);
   if(host?.hostOnly){
     // Host-only presentation/shuffle: no fabricated owner worker token.
-    // Fixed shuffle sample is intentionally NOT competitive physical RNG.
+    // Seeded replay-only shuffle is intentionally NOT competitive physical RNG.
     const one=baseProject.resolveHostOnlyPrompt({
-      ...context,physicalRandom:()=>0.271828,
+      ...context,physicalRandom:x.shuffle.random,
       enginePin:PIN,dispatch:true});
     history.push({kind:'host-only',promptType:prompt.constructor.name,
       promptedSeat:x.store.state.players.findIndex(p=>p.id===prompt.playerId),
@@ -367,6 +382,7 @@ function runSeat(seat) {
       nativeOwnerPromptHistory:history,
       finalOwnerPrizes:prizesRemaining(x.owner),
       nativeStagedLastPrize:true,strictRoots,
+      stagedShuffleSeed:x.shuffle.seed,
       source60StagedInventory:source60,qualifiedGame:false,
       originalSource60InventoryPreserved:source60!==null,
       sourceDealtFromOpening:false,paperSetupLegal:false};
