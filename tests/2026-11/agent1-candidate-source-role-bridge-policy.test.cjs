@@ -331,3 +331,39 @@ for(const candidateSeat of [0,1])for(const mode of ['lethal','door'])
         projection:projected,decision:response.decision}),realPromptAction,
         'source projection must not fabricate/replace physical prompt result');
   });
+
+test('entire authenticated 29-original-source field has complete bridge maps in both seats',()=>{
+  const decks=fullField.decks;
+  assert.equal(decks.length,29);
+  const ranks=decks.map(x=>x.rank).sort((a,b)=>a-b);
+  assert.deepEqual([23,25,28].filter(r=>ranks.includes(r)),[]);
+  const candidateIds=nativeOrdered60(candidateDeck);
+  assert.equal(candidateIds.length,60);
+  for(const original of decks){
+    const opponentIds=nativeOrdered60(original);
+    assert.equal(opponentIds.length,60);
+    const opponentMap=bridge.buildSourcePrintingMap(original,opponentIds);
+    const candidateMap=bridge.buildSourcePrintingMap(candidateDeck,candidateIds);
+    // Each original row must retain its exact set + card number even when
+    // V3's approved MEE/ASC proxy changes the native printed identifier.
+    let i=0;
+    for(const row of original.cards){
+      const full=row.name+' '+row.printing.set+' '+row.printing.number;
+      assert.equal(opponentMap.get(opponentIds[i]),full,
+        'field rank '+original.rank+' source printing lost');
+      i+=row.count;
+    }
+    for(const seat of [0,1]){
+      const maps=seat===0?[candidateMap,opponentMap]:
+        [opponentMap,candidateMap];
+      const probe={
+        actorSeat:seat,ownHand:[candidateIds[0]],
+        ownPublic:null,opponentPublic:null
+      };
+      const view=bridge.projectSourcePrintings(probe,null,maps).observation;
+      assert.equal(view.ownHand[0],'Shadow Rider Calyrex V CRE 74');
+      assert.equal(maps[seat].get('Psychic Energy SVE 5'),
+        'Psychic Energy MEE 13');
+    }
+  }
+});
