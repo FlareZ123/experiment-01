@@ -68,14 +68,19 @@ function toolEnabled(o){
  const n=o?.ownPublic?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
  return n===null||n===undefined||n===0;
 }
-function liveGarbotoxin(o){
- if(!toolEnabled(o))return false;
- return slots(o.ownPublic).some(({pokemon:p})=>{
-  if(!match(p.printing,PRINT.garbodor)||list(p.tools).length===0)return false;
-  const s=list(p.abilitySuppressions).find(x=>x.abilityName==='Garbotoxin');
-  return s&&s.suppressed===false;
- });
+function garbotoxinStatus(o){
+ if(!toolEnabled(o))return 'inactive';
+ let unknown=false;
+ for(const {pokemon:p} of slots(o.ownPublic)){
+  if(!match(p.printing,PRINT.garbodor)||list(p.tools).length===0)continue;
+  const suppression=list(p.abilitySuppressions).find(x=>x.abilityName==='Garbotoxin');
+  if(suppression?.suppressed===false)return 'live';
+  if(!suppression||suppression.suppressed===null||suppression.suppressed===undefined)unknown=true;
+ }
+ return unknown?'unknown':'inactive';
 }
+function liveGarbotoxin(o){return garbotoxinStatus(o)==='live';}
+function usableOwnAbilities(o){return garbotoxinStatus(o)==='inactive';}
 function hasProtectedHand(o){
  const h=list(o.ownHand),p=o.ownPublic;
  if(h.some(c=>match(c,PRINT.secret)))return true;
@@ -89,7 +94,7 @@ function canRiskFullHandDiscard(o){
  return handCount(o)<=3&&!hasProtectedHand(o)&&deckCount(o)>0;
 }
 function setupAbilityPending(items,o){
- if(liveGarbotoxin(o))return false;
+ if(!usableOwnAbilities(o))return false;
  const h=handCount(o),turn=o.globalTurn;
  return list(items).some(i=>i.kind==='use-ability'&&(
   (/^Dedechange$/i.test(i.publicMetadata?.abilityName||'')&&canRiskFullHandDiscard(o))||
@@ -170,7 +175,7 @@ function score(action,req){
  if(!ROOT_KINDS.has(action.kind))return 0;
  if(action.kind==='pass')return 0;
  if(action.kind==='use-ability'){
-  if(liveGarbotoxin(o))return 0;
+  if(!usableOwnAbilities(o))return 0;
   const a=meta.abilityName||'';
   if(/^Dedechange$/i.test(a)&&canRiskFullHandDiscard(o))return 675;
   if(/^Dark Asset$/i.test(a)&&handCount(o)<=4&&deckCount(o)>0)return 660;
@@ -209,7 +214,7 @@ function score(action,req){
  if(action.kind==='use-stadium')return 0;
  if(action.kind!=='play-card')return 0;
  if(match(p,PRINT.crobat)||match(p,PRINT.dedenne)||match(p,PRINT.tapu)||match(p,PRINT.squawk)){
-  if(benchCount(own)>=5||liveGarbotoxin(o)||own.publicTurnRestrictions?.abilityPokemonPlayLocked===true)return 0;
+  if(benchCount(own)>=5||!usableOwnAbilities(o)||own.publicTurnRestrictions?.abilityPokemonPlayLocked===true)return 0;
   if(match(p,PRINT.crobat))return handCount(o)<=4&&deckCount(o)>0?710:0;
   if(match(p,PRINT.tapu))return o.ownTurnResources?.supporterPlayedTurn===0&&deckCount(o)>0?645:0;
   if(match(p,PRINT.dedenne))return canRiskFullHandDiscard(o)?705:0;
@@ -452,7 +457,7 @@ function promptDecision(req){
   const yes=cs.find(c=>/^yes|confirm|true$/i.test(c.label||''));
   const no=cs.find(c=>/^no|decline|false$/i.test(c.label||''));
   if(/wonder tag|dark asset|dedechange|squawk and seize|star alchemy/.test(src)){
-   const choice=!liveGarbotoxin(o)&&deckCount(o)>0&&(!/dedechange|squawk and seize/.test(src)||canRiskFullHandDiscard(o))?yes:no;
+   const choice=usableOwnAbilities(o)&&deckCount(o)>0&&(!/dedechange|squawk and seize/.test(src)||canRiskFullHandDiscard(o))?yes:no;
    return choice?{kind:'select-choice',token:choice.token}:{kind:'abstain',reasonCode:'UNSUPPORTED_CONFIRMATION_SOURCE'};
   }
  }
@@ -467,4 +472,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,toolEnabled,liveGarbotoxin};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,toolEnabled,garbotoxinStatus,liveGarbotoxin};
