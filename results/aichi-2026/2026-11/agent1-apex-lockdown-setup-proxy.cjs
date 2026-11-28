@@ -47,6 +47,23 @@ function one(rows,seed,opts={}){
  do{deck=shuffle(initial.slice(),rng);hand=deck.splice(0,7);if(!hand.some(x=>basic.has(x)))mulligans++}while(!hand.some(x=>basic.has(x)));
  const prizes=deck.splice(0,6),discard=[],board=[slot(take(hand,starter(hand,second,initial)),0)],log=[];
  let known=false,turn=0,manual=false,supp=false,retreated=false,stadiumPlayed=false,hearthUsed=false,vstar=false,stad=null,squawkUsed=false,dedeUsed=false,crobatUsed=false,usedGuzma=false,loops=0;
+ // Temple-specific Energy accounting applies only when the modeled opposing
+ // Temple survives; other scenario paths must remain byte-for-byte equivalent.
+ let templeActive=scenario==='temple'&&second;
+ const templeOutFirst=opts.templeOutFirst!==false;
+ // Explicit separate policy fork: a turn-1 Chaotic Swell can intercept the
+ // opponent's next Stadium attempt; this is never assumed in hard-adversarial
+ // Temple screens unless the caller opts in.
+ const templePreemptSwell=opts.templePreemptSwell===true;
+ const attackPaid=es=>templeActive?count(es,N.GR)>=2&&count(es,N.FI)>=1:cost(es);
+ const energyUnits=es=>es.reduce((s,x)=>s+(x===N.DD&&!templeActive?2:1),0);
+ const energyLevel=es=>Math.min(3,energyUnits(es))+(attackPaid(es)?3:0);
+ const chooseEnergyNow=(es,choices)=>choices.slice().sort((a,b)=>
+   energyLevel([...es,b])-energyLevel([...es,a])||
+   (templeActive?(a===N.DD?1:b===N.DD?-1:0):(a===N.DD?-1:b===N.DD?1:0))||
+   (a===N.GR?-1:1)
+ )[0];
+
  const has=x=>hand.includes(x), reg=()=>board.find(x=>x.name===N.V||x.name===N.S), active=()=>board[0], handE=()=>hand.filter(x=>energy.has(x)), donors=()=>priority.filter(x=>discard.includes(x)), isLock=()=>scenario==="all-item"||((scenario==="t2-item"||scenario==="t2-both")&&turn===2), canItem=()=>!isLock(), canSupp=x=>!supp&&(turn>1||second||x===N.CA), ruleOff=()=>scenario==="rulebox"||scenario==="t2-both"&&turn===2, allOff=()=>scenario==="garbotoxin"&&turn===2, canAbility=x=>!allOff()&&!(ruleOff()&&rb.has(x))&&!(active().name===N.W&&!psychic.has(x)&&x!==N.W);
  function note(a,x){if(opts.trace)log.push([turn,a,x])}
  function draw(n){let got=deck.splice(0,n);hand.push(...got);note("draw",got)}
@@ -66,14 +83,15 @@ function one(rows,seed,opts={}){
  function needACE(){return opts.goal==="wipe-lock"&&!has(N.MB)}
  function free(b){return b.tool===N.FL||(basic.has(b.name)&&board.some(x=>x.name===N.L)&&canAbility(N.L))||(R[b.name]??3)===0}
  function mobility(){return reg()&&active()===reg()||free(active())||has(N.FL)&&!active().tool||canSupp(N.GZ)&&has(N.GZ)}
- function needsEnergy(){let b=reg();if(!b)return true;return !cost(b.energy)}
- function objective(){let b=reg();return !!b&&b.name===N.S&&active()===b&&cost(b.energy)&&!missingDonor()&&(!needACE()&&(!(opts.goal==="wipe-lock")||canItem()))}
+ function needsEnergy(){let b=reg();if(!b)return true;return !attackPaid(b.energy)}
+ function objective(){let b=reg();return !!b&&b.name===N.S&&active()===b&&attackPaid(b.energy)&&!missingDonor()&&(!needACE()&&(!(opts.goal==="wipe-lock")||canItem()))}
  function value(n){
    let b=reg();
+   if(templeOutFirst&&scenario==='temple'&&[N.SW,N.HE,'Field Blower'].includes(n))return 105;
    if(n===N.MB)return opts.goal==="wipe-lock"?90:20;
    if(n===N.V)return b?15:100;
    if(n===N.S)return b?.name===N.S?15:count(hand,n)>1?34:85;
-   if(energy.has(n))return b&&cost(b.energy)?24:(count(hand,n)>1?45:75)+(n===N.DD?8:0);
+   if(energy.has(n))return b&&attackPaid(b.energy)?24:(count(hand,n)>1?45:75)+(n===N.DD?8:0);
    if(payload.has(n))return discard.includes(n)?2:priority.includes(n)?-10-priority.length+priority.indexOf(n):0;
    if(n===N.FL)return mobility()?22:65;
    if(n===N.FS)return vstar?2:58;
@@ -100,7 +118,9 @@ function one(rows,seed,opts={}){
  function chooseSupp(available){
    let b=reg(),a=available.filter(x=>canSupp(x));
    const have=x=>a.includes(x);
-   if(active()!==b&&b&&!free(active())&&!has(N.FL)&&turn===2&&have(N.GZ)&&cost(b.energy)&&b.name===N.S)return N.GZ;
+   if(templeOutFirst&&templeActive&&have(N.GH)&&hand.length>=3&&[N.HE,N.SW].some(possible))return N.GH;
+   if(templeOutFirst&&templeActive&&canItem()&&have(N.AR)&&possible('Field Blower'))return N.AR;
+   if(active()!==b&&b&&!free(active())&&!has(N.FL)&&turn===2&&have(N.GZ)&&attackPaid(b.energy)&&b.name===N.S)return N.GZ;
    if(opts.policy==="joint"&&b&&needsEnergy()&&have(N.GH)&&!b.energy.includes(N.DD)&&!has(N.DD)&&possible(N.DD)&&hand.length>=3&&(b.energy.length||handE().length))return N.GH;
    if(b&&needsEnergy()&&have(N.CR)&&(possible(N.GR)&&possible(N.FI)))return N.CR;
    if(b&&needsEnergy()&&!has(N.DD)&&!b.energy.includes(N.DD)&&have(N.GH)&&possible(N.DD)&&hand.length>=3)return N.GH;
@@ -115,6 +135,7 @@ function one(rows,seed,opts={}){
  }
  function findItem(){
    let b=reg();
+   if(templeOutFirst&&templeActive&&canItem()&&possible('Field Blower'))return 'Field Blower';
    if(!b){return [N.MT,N.QB,N.UB].find(possible)}
    if(turn===2&&b.name!==N.S&&!has(N.S)){return [N.MT,N.UB].find(possible)}
    if(opts.goal==="wipe-lock"&&needACE()&&possible(N.MB))return N.MB;
@@ -130,13 +151,13 @@ function one(rows,seed,opts={}){
    if(n===N.GH){if(hand.length<3)return false;pay(n,2);supp=true;see();const st=[N.HE,N.SW,"Path to the Peak","Parallel City"].find(x=>deck.includes(x)),t=findTool();search([st,N.DD,t].filter(Boolean));return true}
    if(n===N.CR){if(!b)return false;play(n);supp=true;see();
      const g=deck.includes(N.GR),f=deck.includes(N.FI);if(g&&f){let es=b.energy.slice(),existing=handE(),candidates=[N.GR,N.FI];
-       const best=candidates.sort((a,c)=>Math.max(...[...existing,N.GR,N.FI].map(x=>level([...es,c,x])))-Math.max(...[...existing,N.GR,N.FI].map(x=>level([...es,a,x]))))[0];
+       const best=candidates.sort((a,c)=>Math.max(...[...existing,N.GR,N.FI].map(x=>energyLevel([...es,c,x])))-Math.max(...[...existing,N.GR,N.FI].map(x=>energyLevel([...es,a,x]))))[0];
        const other=best===N.GR?N.FI:N.GR; b.energy.push(take(deck,best));hand.push(take(deck,other));note("crispin",[best,other])
      }else if(g||f){ // Conservative: one surviving type is put into hand, not accelerated.
        hand.push(take(deck,g?N.GR:N.FI));note("crispin one",g?N.GR:N.FI)
      }shuffle(deck,rng);return true}
    if(n===N.AR){play(n);supp=true;see();let i=findItem(),t=findTool();search([i,t].filter(Boolean));return true}
-   if(n===N.CT){play(n);supp=true;see();const st=[N.HE,N.SW,"Path to the Peak","Parallel City"].find(x=>deck.includes(x));let e=chooseEnergy(b?.energy??[],[N.DD,N.GR,N.FI].filter(x=>deck.includes(x)));search([st,e].filter(Boolean));return true}
+   if(n===N.CT){play(n);supp=true;see();const st=[N.HE,N.SW,"Path to the Peak","Parallel City"].find(x=>deck.includes(x));let e=chooseEnergyNow(b?.energy??[],[N.DD,N.GR,N.FI].filter(x=>deck.includes(x)));search([st,e].filter(Boolean));return true}
    if([N.RE,N.SY,N.CA,N.IO,N.MA,N.LD].includes(n)){
      play(n);supp=true;
      if([N.IO,N.MA].includes(n)){shuffle(hand,rng);deck.push(...hand.splice(0));draw(n===N.IO?6:5)}
@@ -147,7 +168,12 @@ function one(rows,seed,opts={}){
    return false
  }
  function targetForSearch(){
-   let b=reg(); if(!b)return N.V;if(turn===2&&b.name===N.V&&!has(N.S))return N.S;
+   let b=reg();
+   if(templeOutFirst&&templeActive){
+     if(canItem()&&possible('Field Blower'))return 'Field Blower';
+     const stadiumOut=[N.SW,N.HE].find(possible);
+     if(stadiumOut)return stadiumOut;
+   } if(!b)return N.V;if(turn===2&&b.name===N.V&&!has(N.S))return N.S;
    if(needsEnergy()&&!handE().length){if(possible(N.DD))return N.DD;if(possible(N.GR))return N.GR;if(possible(N.FI))return N.FI}
    if(needACE()&&possible(N.MB))return N.MB;
    if(active()!==b&&!free(active())&&!has(N.FL)&&possible(N.FL))return N.FL;
@@ -160,7 +186,7 @@ function one(rows,seed,opts={}){
    vstar=true;const milled=deck.splice(0,7);discard.push(...milled);note("legacy mill",milled);
    for(let i=0;i<2;i++){
      let targets=[];
-     if(needsEnergy()&&manual){let e=discard.filter(x=>energy.has(x));if(e.length)targets.push(chooseEnergy(b.energy,e))}
+     if(needsEnergy()&&manual){let e=discard.filter(x=>energy.has(x));if(e.length)targets.push(chooseEnergyNow(b.energy,e))}
      if(needACE())targets.push(N.MB);
      if(active()!==b&&!free(active())&&!has(N.FL))targets.push(N.FL,N.GZ);
      if(missingDonor())targets.push(N.BC);
@@ -169,11 +195,34 @@ function one(rows,seed,opts={}){
      let x=targets.find(x=>discard.includes(x)&&!has(x)&&!payload.has(x));if(!x)break;take(discard,x);hand.push(x);note("legacy recover",x)
    }return true;
  }
- function banked(){let b=reg();return turn===1&&b&&b.energy.length>0&&has(N.S)&&(cost(b.energy)||handE().some(x=>cost([...b.energy,x])))&&!missingDonor()&&!needACE()&&mobility()}
+ function banked(){if(scenario==='temple'&&templeOutFirst)return false;let b=reg();return turn===1&&b&&b.energy.length>0&&has(N.S)&&(attackPaid(b.energy)||handE().some(x=>attackPaid([...b.energy,x])))&&!missingDonor()&&!needACE()&&mobility()}
  function step(){
    let b=reg();
-   if(b&&b.name===N.V&&active()!==b&&canItem()&&has(N.EL)&&needsEnergy()&&(turn===1||!manual||!handE().some(x=>cost([...b.energy,x])))){
-     play(N.EL);let top=deck.splice(0,6),es=top.filter(x=>x===N.GR||x===N.FI),e=chooseEnergy(b.energy,es);if(e)b.energy.push(take(top,e));deck.push(...top);shuffle(deck,rng);note("elixir",e??null);return true;
+   // Going first, place naturally held Chaotic Swell proactively before
+   // the opponent's modeled first Stadium. This consumes our Stadium play,
+   // and the opponent's next Stadium will discard both but not take effect.
+   if(scenario==='temple'&&templePreemptSwell&&turn===1&&!second&&
+      !templeActive&&!stadiumPlayed&&has(N.SW)){
+     if(stad)discard.push(stad);
+     stad=take(hand,N.SW);stadiumPlayed=true;
+     note('stadium',N.SW);note('swell preempt',N.SW);return true;
+   }
+   // When the opposing Temple is active, clearing it first restores the
+   // Dragon multi-type contribution before our attack/payment decisions.
+   if(templeOutFirst&&templeActive&&canItem()&&has('Field Blower')){
+     play('Field Blower');templeActive=false;
+     note('temple removed','Field Blower');return true;
+   }
+   if(templeOutFirst&&templeActive&&!stadiumPlayed){
+     const ownStadium=[N.SW,N.HE].find(has);
+     if(ownStadium){
+       if(stad)discard.push(stad);
+       stad=take(hand,ownStadium);stadiumPlayed=true;templeActive=false;
+       note('stadium',stad);note('temple removed',stad);return true;
+     }
+   }
+   if(b&&b.name===N.V&&active()!==b&&canItem()&&has(N.EL)&&needsEnergy()&&(turn===1||!manual||!handE().some(x=>attackPaid([...b.energy,x])))){
+     play(N.EL);let top=deck.splice(0,6),es=top.filter(x=>x===N.GR||x===N.FI),e=chooseEnergyNow(b.energy,es);if(e)b.energy.push(take(top,e));deck.push(...top);shuffle(deck,rng);note("elixir",e??null);return true;
    }
    if(turn===2&&b&&b.name===N.V&&b.turn<2&&has(N.S)){take(hand,N.S);b.name=N.S;note("evolve",N.S);return true}
    if(turn===2&&objective())return false;
@@ -182,18 +231,18 @@ function one(rows,seed,opts={}){
    if(!b&&board.length<6&&(ball(N.V)||heavy(N.V)))return true;
    b=reg();
    if(turn===2&&b?.name===N.V&&b.turn<2&&!has(N.S)&&ball(N.S))return true;
-   if(b&&canItem()&&has(N.LO)&&needsEnergy()&&!handE().some(x=>cost([...b.energy,x]))&&(!handE().length||turn===2)){
-     play(N.LO);let top=deck.splice(0,7),e=chooseEnergy(b.energy,top.filter(x=>energy.has(x)));if(e)hand.push(take(top,e));deck.push(...top);shuffle(deck,rng);note("energy loto",e??null);return true;
+   if(b&&canItem()&&has(N.LO)&&needsEnergy()&&!handE().some(x=>attackPaid([...b.energy,x]))&&(!handE().length||turn===2)){
+     play(N.LO);let top=deck.splice(0,7),e=chooseEnergyNow(b.energy,top.filter(x=>energy.has(x)));if(e)hand.push(take(top,e));deck.push(...top);shuffle(deck,rng);note("energy loto",e??null);return true;
    }
-   if(b&&canItem()&&has(N.TC)&&(!has(N.GH)&&needsEnergy()||missingDonor()&&possible(N.GG))&&(possible(N.GH)||possible(N.GG))){
+   if(b&&canItem()&&has(N.TC)&&(templeOutFirst&&templeActive||!has(N.GH)&&needsEnergy()||missingDonor()&&possible(N.GG))&&(possible(N.GH)||possible(N.GG))){
      play(N.TC);see();let names=[];if(deck.includes(N.GH)&&!has(N.GH))names.push(N.GH);if(deck.includes(N.GG)&&!has(N.GG)&&!discard.includes(N.GG))names.push(N.GG);if(names.length<2&&deck.filter(x=>x===N.GH).length>names.filter(x=>x===N.GH).length)names.push(N.GH);search(names);return true;
    }
-   if(b&&manual&&handE().length&&!cost(b.energy)){
-     const future=opts.policy==="joint"&&canSupp(N.CR)&&!handE().some(x=>cost([...b.energy,x]))&&(
+   if(b&&manual&&handE().length&&!attackPaid(b.energy)){
+     const future=opts.policy==="joint"&&canSupp(N.CR)&&!handE().some(x=>attackPaid([...b.energy,x]))&&(
        has(N.CR)&&possible(N.GR)&&possible(N.FI)||
        has(N.GH)&&hand.length>=3&&possible(N.DD)&&!b.energy.includes(N.DD)&&!has(N.DD)||
        N.CT&&has(N.CT)&&possible(N.DD)&&!b.energy.includes(N.DD)&&!has(N.DD));
-     if(!future){let e=chooseEnergy(b.energy,handE());attach(b,e);manual=false;return true}
+     if(!future){let e=chooseEnergyNow(b.energy,handE());attach(b,e);manual=false;return true}
    }
    if(b&&active()!==b&&free(active())&&!retreated&&!(turn===1&&second&&active().name===N.B)){retreated=true;swap(b);return true}
    if(b&&active()!==b&&!free(active())&&!active().tool&&has(N.FL)){active().tool=take(hand,N.FL);note("tool",[active().name,N.FL]);return true}
@@ -213,7 +262,7 @@ function one(rows,seed,opts={}){
      if(i){let candidates=[N.S,N.V,N.L,N.T,N.D,N.C,N.Q,...priority].filter(x=>eligible(i,x)&&possible(x)&&!has(x));
        if(pay(i,i===N.UB?2:1)){see();let t=candidates.find(x=>deck.includes(x));search(t?[t]:[]);return true}}
    }
-   if(has(N.HE)&&!stadiumPlayed&&needsEnergy()){if(stad)discard.push(stad);stad=take(hand,N.HE);stadiumPlayed=true;note("stadium",stad);return true}
+   if(has(N.HE)&&!stadiumPlayed&&needsEnergy()){if(stad)discard.push(stad);stad=take(hand,N.HE);stadiumPlayed=true;note("stadium",stad);if(templeActive){templeActive=false;note('temple removed',stad)}return true}
    if(stad===N.HE&&!hearthUsed&&hand.length&&needsEnergy()&&possible(N.FI)){
      let cs=hand.slice().sort((x,y)=>value(x)-value(y));removeHand(cs[0]);hearthUsed=true;see();search([N.FI,N.FI]);return true
    }
@@ -224,7 +273,7 @@ function one(rows,seed,opts={}){
    // Bide Barricade, Garbotoxin) do not switch off this Tool Ability.
    // This proxy has no Tool-effect suppression scenario; such a scenario
    // must gate this branch separately if introduced.
-   if(b&&b.tool===N.FS&&!vstar&&(turn===2||!handE().length&&!cost(b.energy))&&
+   if(b&&b.tool===N.FS&&!vstar&&(turn===2||!handE().length&&!attackPaid(b.energy))&&
       !(opts.policy==="joint"&&turn===1&&chooseSupp(hand.filter(x=>supporter.has(x)))&&[N.GH,N.CR,N.AR,N.CT].includes(chooseSupp(hand.filter(x=>supporter.has(x)))))){
      let x=targetForSearch();if(x&&possible(x)){
        // If a usable Legacy Star can recover discarded ACE/energy, prefer
@@ -268,8 +317,8 @@ function one(rows,seed,opts={}){
    }
    if(b&&active()!==b&&!retreated&&turn===2&&!free(active())){
      const a=active(),r=R[a.name]??3;
-     if(units(a.energy)>=r){let paid=0;while(paid<r){let e=a.energy.pop();paid+=e===N.DD?2:1;discard.push(e)}retreated=true;swap(b);return true}
-     if(manual&&cost(b.energy)&&r===1&&handE().some(x=>x!==N.DD)){attach(a,handE().find(x=>x!==N.DD));manual=false;return true}
+     if(energyUnits(a.energy)>=r){let paid=0;while(paid<r){let e=a.energy.pop();paid+=e===N.DD&&!templeActive?2:1;discard.push(e)}retreated=true;swap(b);return true}
+     if(manual&&attackPaid(b.energy)&&r===1&&handE().some(x=>x!==N.DD)){attach(a,handE().find(x=>x!==N.DD));manual=false;return true}
    }
    if(b&&active()!==b&&!retreated&&turn===2&&free(active())){retreated=true;swap(b);return true}
    if(b&&turn===2&&active()!==b&&has(N.GZ)&&canSupp(N.GZ)&&suppAction(N.GZ))return true;
@@ -282,6 +331,18 @@ function one(rows,seed,opts={}){
  }
  let first={};
  for(turn=1;turn<=2;turn++){
+   if(scenario==='temple'&&(turn===2||second&&turn===1)){
+     if(templePreemptSwell&&stad===N.SW) {
+       // Printed Chaotic Swell: the newly played Stadium has no effect;
+       // discard that attempted Stadium after discarding Chaotic Swell.
+       discard.push(stad);stad=null;templeActive=false;
+       note('temple blocked by swell','Temple of Sinnoh');
+     } else {
+       if(turn===2&&stad){discard.push(stad);stad=null}
+       templeActive=true;
+       note('opponent stadium','Temple of Sinnoh');
+     }
+   }
    manual=true;supp=false;retreated=false;stadiumPlayed=false;hearthUsed=false;draw(1);loops=0;
    while(step()){if(++loops>80)throw Error("loop cap "+seed)}
    if(turn===1){
@@ -294,7 +355,7 @@ function one(rows,seed,opts={}){
    conservation()
  }
  turn=2; // Lock scenario must still apply to the measured T2 frontier.
- const b=reg(),ready=!!b&&b.name===N.S&&active()===b&&cost(b.energy),p=donors(),apex=ready&&p.length>0,ace=has(N.MB)&&canItem(),chaos=p.includes(N.GI),echo=p.includes(N.NO),out={
+ const b=reg(),ready=!!b&&b.name===N.S&&active()===b&&attackPaid(b.energy),p=donors(),apex=ready&&p.length>0,ace=has(N.MB)&&canItem(),chaos=p.includes(N.GI),echo=p.includes(N.NO),out={
  mulligans,first,ready,apex,ace,wipeLock:apex&&ace&&(chaos||echo),toolWipeLock:apex&&ace&&chaos,repeatWipe:apex&&p.includes(N.MD),allEnergy:apex&&p.includes(N.PA),basicKO:apex&&p.includes(N.HA),raw330:apex&&p.includes(N.DN),spread:apex&&p.includes(N.DP),timeless:apex&&p.includes(N.DI),lockAttack:apex&&(chaos||echo),vstarSpent:vstar,supportGust:usedGuzma
  };
  if(opts.trace)out.trace=log;return out
