@@ -511,6 +511,76 @@ function actionTargetPokemon(item, observation) {
   return pokemon && samePrinting(pokemon.printing, item.targetPrinting) ? pokemon : null;
 }
 
+
+function attachmentScore(card, recipient, observation, zone) {
+  if (!recipient || !['active','bench'].includes(zone)) return 0;
+  const own=observation.ownPublic??{},opponent=observation.opponentPublic??{};
+  if (matches(card,PRINT.tmEvolution)) {
+    if(list(recipient.tools).length>0 || !hasK0PossibleBenchEvolutionTarget(observation))return 0;
+    return matches(recipient.printing,PRINT.bunnelby) &&
+      (zone==='active' || (zone==='bench'&&
+      handCount(observation.ownHand,PRINT.jetEnergy)>0))?178:0;
+  }
+  if(matches(card,PRINT.jetEnergy)){
+    if(zone==='bench'&&matches(recipient.printing,PRINT.bunnelby)&&
+      list(recipient.tools).some(tool=>matches(tool,PRINT.tmEvolution))&&
+      hasK0PossibleBenchEvolutionTarget(observation))return 225;
+    if(zone==='bench'&&matches(recipient.printing,PRINT.stoutland))
+      return opposingAbilityLockAppliesTo(recipient,observation)?0:198;
+    return 80;
+  }
+  if(matches(card,PRINT.memoryEnergy)){
+    const previous=list(recipient.evolutionPrintings).some(printing=>
+      matches(printing,PRINT.lillipup));
+    const equipped=list(recipient.energies).some(printing=>
+      matches(printing,PRINT.memoryEnergy));
+    if(matches(recipient.printing,PRINT.stoutland)&&previous&&!equipped)
+      return zone==='active'?218:178;
+    if(zone==='active'&&matches(recipient.printing,PRINT.bunnelby)&&
+      list(recipient.energies).length===0)
+      return (opponent.deckCount??99)<=3||(own.deckCount??99)<=3?174:64;
+    return 0;
+  }
+  if(matches(card,PRINT.stealthyHood)){
+    if(list(recipient.tools).length>0)return 0;
+    const itemLock=matches(recipient.printing,PRINT.vileplume)||
+      matches(recipient.printing,PRINT.gloom);
+    const supporterLock=matches(recipient.printing,PRINT.stoutland);
+    const engine=matches(recipient.printing,PRINT.pidgeot);
+    if(!itemLock&&!supporterLock&&!engine)return 0;
+    if(opponentHasAbilityLock(opponent)){
+      if(itemLock)return 205;
+      if(supporterLock)return zone==='active'?200:175;
+      return 110;
+    }
+    return itemLock?65:0;
+  }
+  return 0;
+}
+
+function scoredAttachmentRoot(item,observation){
+  const meta=item.publicMetadata??{};
+  const recipient=actionTargetPokemon(item,observation);
+  if(recipient)return attachmentScore(item.actorPrinting,recipient,observation,meta.targetZone);
+  if(meta.targetSeat!==undefined||meta.targetZone!==undefined||
+     meta.targetIndex!==undefined||item.targetPrinting!==undefined)return 0;
+  const own=observation.ownPublic??{};
+  const rows=[...(own.active?[{pokemon:own.active,zone:'active'}]:[]),
+    ...list(own.bench).filter(Boolean).map(pokemon=>({pokemon,zone:'bench'}))];
+  const best=Math.max(0,...rows.map(row=>
+    attachmentScore(item.actorPrinting,row.pokemon,observation,row.zone)));
+  return best>0?best-5:0;
+}
+
+function attachmentCardFromPrompt(prompt){
+  const source=prompt?.source??{},printing=source.sourcePrinting;
+  if(matches(printing,PRINT.tmEvolution)&&
+    String(source.effectName??'').toLowerCase()!=='evolution')return printing;
+  if(matches(printing,PRINT.jetEnergy)||matches(printing,PRINT.memoryEnergy)||
+    matches(printing,PRINT.stealthyHood))return printing;
+  return null;
+}
+
 function scoreAction(item, request) {
   const observation = request.observation;
   const own = observation.ownPublic;
@@ -583,36 +653,9 @@ function scoreAction(item, request) {
       excludePatterns: [PRINT.guzmaHala], guzmaInHand: true
     }) ? 215 : 0;
   }
-  if (matches(card, PRINT.tmEvolution)) {
-    const bunnelbyActive = matches(own.active?.printing ?? '', PRINT.bunnelby);
-    const hasJet = handCount(hand, PRINT.jetEnergy) > 0;
-    const targetReady = hasK0PossibleBenchEvolutionTarget(observation);
-    const onActiveBunnelby = matches(target, PRINT.bunnelby) &&
-      metadata.targetSeat === 'actor' && metadata.targetZone === 'active' &&
-      bunnelbyActive;
-    const onBenchedBunnelby = matches(target, PRINT.bunnelby) &&
-      metadata.targetSeat === 'actor' && metadata.targetZone === 'bench' &&
-      bunnelbyOnBench(observation) && hasJet;
-    // The TM expires after this turn. Prefer an executable double-evolution
-    // Bunnelby route over a legal-but-stranded Tool target.
-    return targetReady && (onActiveBunnelby || onBenchedBunnelby) ? 178 : 0;
-  }
-  if (matches(card, PRINT.jetEnergy)) {
-    const recipient = actionTargetPokemon(item, observation);
-    if (!recipient) return 0;
-    const toBench = metadata.targetZone === 'bench';
-    const targetIsBunnelby = matches(recipient.printing, PRINT.bunnelby);
-    const targetIsStoutland = matches(recipient.printing, PRINT.stoutland);
-    const hasTm = list(recipient.tools).some(tool => matches(tool, PRINT.tmEvolution));
-    if (toBench && targetIsBunnelby && hasTm &&
-        hasK0PossibleBenchEvolutionTarget(observation)) return 225;
-    if (toBench && targetIsStoutland) {
-      // Jet Energy's switch is a way to establish the same Active Sentinel
-      // lock as retreat or Guzma; avoid promoting a visibly suppressed one.
-      return opposingAbilityLockAppliesTo(recipient, observation) ? 0 : 198;
-    }
-    return 80;
-  }
+  if (matches(card, PRINT.tmEvolution) || matches(card, PRINT.jetEnergy) ||
+      matches(card, PRINT.memoryEnergy) || matches(card, PRINT.stealthyHood))
+    return scoredAttachmentRoot(item, observation);
   if (matches(card, PRINT.captureEnergy)) {
     return list(own.bench).some(slot => slot === null) &&
       missingLinePriority(observation) > 0 ? 102 : 18;
@@ -620,49 +663,6 @@ function scoreAction(item, request) {
   if (matches(card, PRINT.counterGain)) {
     return ownBehindOnPrizes(observation) &&
       samePrinting(target, own.active?.printing) ? 190 : 0;
-  }
-  if (matches(card, PRINT.memoryEnergy)) {
-    const recipient = actionTargetPokemon(item, observation);
-    if (!recipient) return 0;
-    const previousEvolution = list(recipient.evolutionPrintings).some(printing =>
-      matches(printing, PRINT.lillipup));
-    const alreadyEquipped = list(recipient.energies).some(energy =>
-      matches(energy, PRINT.memoryEnergy));
-    if (matches(recipient.printing, PRINT.stoutland) &&
-        previousEvolution && !alreadyEquipped) {
-      // Memory Energy unlocks Lillipup CEC's Baby-Doll Eyes on the
-      // Active Sentinel locker (and prepares the same lock on the Bench).
-      return metadata.targetZone === 'active' ? 218 : 178;
-    }
-    // Memory Energy is still a Colorless Energy, not a purely combo Tool.
-    // Do not prevent an immediate Burrow/Rototiller merely because the
-    // Sentinel evolution line is currently missing.
-    if (metadata.targetZone === 'active' &&
-        matches(recipient.printing, PRINT.bunnelby) &&
-        list(recipient.energies).length === 0) {
-      return (opponent.deckCount ?? 99) <= 3 || (own.deckCount ?? 99) <= 3 ?
-        174 : 64;
-    }
-    return 0;
-  }
-  if (matches(card, PRINT.stealthyHood)) {
-    const row = actionTargetPokemon(item, observation);
-    if (!row) return 0;
-    const itemLockCarrier = matches(row.printing, PRINT.vileplume) ||
-      matches(row.printing, PRINT.gloom);
-    const supporterLockCarrier = matches(row.printing, PRINT.stoutland);
-    const pidgeotEngine = matches(row.printing, PRINT.pidgeot);
-    if (!itemLockCarrier && !supporterLockCarrier && !pidgeotEngine) return 0;
-    const threatened = opponentHasAbilityLock(opponent);
-    // Pokémon Tools are not Items, even when older printings say Item on top.
-    if (threatened) {
-      if (itemLockCarrier) return 205;
-      if (supporterLockCarrier) {
-        return metadata.targetZone === 'active' ? 200 : 175;
-      }
-      return 110;
-    }
-    return itemLockCarrier ? 65 : 0;
   }
   if (matches(card, PRINT.grandTree)) {
     const liveEvolution = hasUnevolvedBasicFromPriorTurn(own, observation.globalTurn) &&
@@ -911,10 +911,16 @@ function canUseGuzmaHalaMode1(observation, options = {}) {
   return guzmaAvailable && (wantTool || wantJet);
 }
 
-function scorePokemonChoice(choice, observation, context) {
+function scorePokemonChoice(choice, observation, context, attachmentCard = null) {
   const printing = choicePrinting(choice);
   const owner = choiceOwner(choice);
   const zone = choiceZone(choice);
+  if (attachmentCard) {
+    if (owner !== 'actor' || !['active','bench'].includes(zone)) return -100;
+    const recipient = choiceBoardPokemon(choice, observation);
+    return recipient ?
+      attachmentScore(attachmentCard, recipient, observation, zone) : -100;
+  }
   const guzmaPrompt = context.includes('guzma') && !context.includes('guzma & hala');
   const plumeriaPrompt = context.includes('plumeria');
   const fabaPrompt = context.includes('faba');
@@ -1139,7 +1145,8 @@ function promptDecision(request) {
     let ranked;
     if (selectionType === 'pokemon') {
       ranked = rankedChoices(choices,
-        choice => scorePokemonChoice(choice, request.observation, context), max)
+        choice => scorePokemonChoice(choice, request.observation, context,
+          attachmentCardFromPrompt(prompt)), max)
         .filter(row => row.score > 0);
     } else if (selectionType === 'card-combination') {
       const discardPrompt = (context.includes('guzma & hala') ||
