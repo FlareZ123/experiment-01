@@ -847,6 +847,10 @@ const BENCH_BASIC = Object.freeze([
   {pattern:P.clefairy,kind:'clefairy'},
   {pattern:/^Latias ex SSP(?: 76)?\b/i,kind:'latias'},
   {pattern:/^Unown AOR(?: 30)?\b/i,kind:'unown'},
+  {pattern:P.lele,kind:'lele'},
+  {pattern:P.mimikyu,kind:'mimikyu'},
+  {pattern:P.empoleon,kind:'empoleon'},
+  {pattern:P.dialga,kind:'dialga'},
   {pattern:P.minior,kind:'minior'},
   {pattern:/^Crobat V DAA(?: 104)?\b/i,kind:'crobat'},
   {pattern:/^Dedenne(?:-GX| GX) UNB(?: 57)?\b/i,kind:'dedenne'},
@@ -885,6 +889,16 @@ function rondoBenchFillerDemand(o) {
   const needed=Math.ceil((ro.remaining-ro.damage)/increment);
   return needed>=1&&needed<=open?{needed,open}:null;
 }
+// Preserve utility singletons unless their Benching supports an offered,
+// same-turn Full Moon Rondo that ends the game. This covers the four source
+// Basics excluded from ordinary filler without casually burning counter-tech.
+const PROTECTED_BENCH_FILLER=new Set(['lele','mimikyu','empoleon','dialga']);
+function terminalPrizeThreat(o) {
+  const ownPrizes=o?.ownPublic?.prizeCount;
+  return safeInt(ownPrizes)&&ownPrizes>0&&(
+    ownPrizes<=sourcePrizeTarget(o?.opponentPublic?.active)||
+    benchCount(o?.opponentPublic)===0);
+}
 function selectBasicBenchRoot(items,o) {
   const own=o.ownPublic, ownBoard=slots(own);
   const offered=items.filter(a=>a.kind==='play-card'&&benchBasicRole(ownPrinting(a)));
@@ -895,7 +909,13 @@ function selectBasicBenchRoot(items,o) {
   const smallHand=arr(o.ownHand).length<=3;
   const fill=o.ownTurnResources?.pokemonPlayLocked===true?null:
     rondoBenchFillerDemand(o);
+  const protectedAllowed=Boolean(fill&&terminalPrizeThreat(o)&&
+    offered.length>=fill.needed&&
+    items.some(a=>a.kind==='attack'&&a.attackName==='Full Moon Rondo'&&
+      has(ownPrinting(a),P.clefairy)));
   const priority=({kind})=>{
+    if(PROTECTED_BENCH_FILLER.has(kind))
+      return protectedAllowed?(stadium(o)?25:85):0;
     // When an already-live Sky Field creates a multi-Bench KO path, every
     // Basic body can matter, including Minior outside its Snorlax matchup.
     if(fill&&stadium(o)) {
@@ -1261,7 +1281,10 @@ function skyFieldHandExpansionKO(o) {
   const increment=rondoIncrement(o);
   if(!safeInt(increment)||increment<=0)return null;
   const additionalNeeded=Math.ceil((ro.remaining-ro.damage)/increment);
-  const handBodies=arr(o?.ownHand).filter(c=>benchBasicRole(c)!==null);
+  const handBodies=arr(o?.ownHand).filter(c=>{
+    const kind=benchBasicRole(c);
+    return kind!==null&&(!PROTECTED_BENCH_FILLER.has(kind)||terminalPrizeThreat(o));
+  });
   if(additionalNeeded<1||additionalNeeded>3||
      handBodies.length<additionalNeeded)return null;
   return {additionalNeeded,handBodies:handBodies.length,
