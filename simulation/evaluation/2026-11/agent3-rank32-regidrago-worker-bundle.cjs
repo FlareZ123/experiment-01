@@ -1750,33 +1750,7 @@ function promptDecision(request) {
       const enabled=canUseLegacyStar(obs)&&
         (useful||countDonors(obs.ownPublic??{})===0);
       const target=choices.find(c=>c.kind==='confirm' &&
-        new RegExp(enabled?'^yes
-}
-});
-const __rank32Cache = Object.create(null);
-function __rank32Load(id) {
-  if (!Object.prototype.hasOwnProperty.call(__rank32Modules, id)) throw new Error('UNKNOWN_RANK32_MODULE');
-  if (Object.prototype.hasOwnProperty.call(__rank32Cache, id)) return __rank32Cache[id].exports;
-  const internal = {exports: {}};
-  __rank32Cache[id] = internal;
-  __rank32Modules[id](__rank32Load,internal,internal.exports);
-  return internal.exports;
-}
-module.exports = __rank32Load("./agent3-rank32-regidrago-opponent-policy.cjs");
-:'^no
-}
-});
-const __rank32Cache = Object.create(null);
-function __rank32Load(id) {
-  if (!Object.prototype.hasOwnProperty.call(__rank32Modules, id)) throw new Error('UNKNOWN_RANK32_MODULE');
-  if (Object.prototype.hasOwnProperty.call(__rank32Cache, id)) return __rank32Cache[id].exports;
-  const internal = {exports: {}};
-  __rank32Cache[id] = internal;
-  __rank32Modules[id](__rank32Load,internal,internal.exports);
-  return internal.exports;
-}
-module.exports = __rank32Load("./agent3-rank32-regidrago-opponent-policy.cjs");
-,'i').test(c.label??''));
+        new RegExp(enabled?'^yes$':'^no$','i').test(c.label??''));
       return target?{kind:'select-choice',token:target.token}:
         {kind:'abstain',reasonCode:'UNRECOGNIZED_SIMPLE_PROMPT'};
     }
@@ -1831,33 +1805,7 @@ module.exports = __rank32Load("./agent3-rank32-regidrago-opponent-policy.cjs");
     if (p.promptType === 'ConfirmPrompt' && meta.selectionType === 'confirm') {
       const safe=list(obs.ownHand).some(c=>donorScore(c,obs,false)>0);
       const desired=choices.find(c=>c.kind==='confirm'&&
-        new RegExp(safe?'^yes
-}
-});
-const __rank32Cache = Object.create(null);
-function __rank32Load(id) {
-  if (!Object.prototype.hasOwnProperty.call(__rank32Modules, id)) throw new Error('UNKNOWN_RANK32_MODULE');
-  if (Object.prototype.hasOwnProperty.call(__rank32Cache, id)) return __rank32Cache[id].exports;
-  const internal = {exports: {}};
-  __rank32Cache[id] = internal;
-  __rank32Modules[id](__rank32Load,internal,internal.exports);
-  return internal.exports;
-}
-module.exports = __rank32Load("./agent3-rank32-regidrago-opponent-policy.cjs");
-:'^no
-}
-});
-const __rank32Cache = Object.create(null);
-function __rank32Load(id) {
-  if (!Object.prototype.hasOwnProperty.call(__rank32Modules, id)) throw new Error('UNKNOWN_RANK32_MODULE');
-  if (Object.prototype.hasOwnProperty.call(__rank32Cache, id)) return __rank32Cache[id].exports;
-  const internal = {exports: {}};
-  __rank32Cache[id] = internal;
-  __rank32Modules[id](__rank32Load,internal,internal.exports);
-  return internal.exports;
-}
-module.exports = __rank32Load("./agent3-rank32-regidrago-opponent-policy.cjs");
-,'i').test(c.label??''));
+        new RegExp(safe?'^yes$':'^no$','i').test(c.label??''));
       return desired?
         {kind:'select-choice',token:desired.token}:
         {kind:'abstain',reasonCode:'UNRECOGNIZED_SIMPLE_PROMPT'};
