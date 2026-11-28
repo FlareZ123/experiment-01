@@ -195,7 +195,11 @@ for(const seat of [0,1]){
  // target the same paid physical Mega even if a BUS Bench is also offered.
 for(const seat of [0,1]){
   test('seat '+seat+': strict physical terminal Retreat root and engine prompt agree',()=>{
-    const active=pokemon('Bunnelby PRC 121','Bunnelby',{hp:60});
+    // Printed PRC121 Retreat Cost is two Colorless. The source contains
+    // exactly one DCE, so the native-shaped offered Retreat must be funded.
+    const active=pokemon('Bunnelby PRC 121','Bunnelby',{
+      hp:60,energy:['Double Colorless Energy SUM 136']
+    });
     const mega=pokemon('Mega Lopunny ex PFL 84','Mega Lopunny ex',{
       hp:290,stage:'STAGE_1',energy:['Grass Energy BLW 105']});
     const bus=pokemon('Vileplume BUS 6','Vileplume',{hp:140,stage:'STAGE_2'});
