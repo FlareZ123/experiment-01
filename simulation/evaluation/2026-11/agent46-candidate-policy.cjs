@@ -1036,6 +1036,57 @@ const WONDER_TAG_SUPPORTERS=Object.freeze([
   'Teammates PRC 141','Acerola BUS 112'
 ]);
 
+function sourceVsSeeker(prompt){
+  return prompt?.source?.sourceKind==='card-effect' &&
+    prompt.source.sourcePrinting==='VS Seeker PHF 109' &&
+    prompt.source.effectName==='VS Seeker';
+}
+function chooseVsSeekerSupporter(view,prompt,receipt){
+  setPolicyAuditRule('VS_SEEKER_SUPPORTER_FROM_DISCARD',
+    'CURRENT_GAME_PLAN_SUPPORTER_PRIORITY');
+  const meta=prompt.publicMetadata??{};
+  if(!sourceVsSeeker(prompt) ||
+    prompt.description!=='CHOOSE_CARD_TO_HAND' ||
+    meta.selectionType!=='card-combination' ||
+    meta.ownerSeat!=='actor'||meta.sourceZone!=='discard'||
+    meta.isOwnerVisible!==true||meta.minimumCount!==1||
+    meta.maximumCount!==1)
+    return abstain('UNTRUSTED_VS_SEEKER_DISCARD_PROMPT');
+  const needsHood=allBoard(view).some(slot=>
+    hasAnyName(slot.printing,
+      ['Iron Thorns ex','Garbodor','Galarian Weezing'])) &&
+    !ownBoard(view).some(slot=>
+      slot.tools?.some(tool=>hasName(tool,'Stealthy Hood')));
+  const ranking={"Lillie's Determination MEG 119":65,
+    'Iono PAL 185':55,'Arven SVI 166':45,'Guzma BUS 115':40,
+    'Pokémon Ranger STS 104':10,'Raihan EVS 152':20,
+    'Teammates PRC 141':15,'Acerola BUS 112':12};
+  const candidates=prompt.choices.filter(c=>
+    c.kind==='card'&&WONDER_TAG_SUPPORTERS.includes(c.printing) &&
+    view.ownPublic.discard.includes(c.printing) &&
+    c.publicMetadata?.ownerSeat==='actor' &&
+    c.publicMetadata?.sourceZone==='discard' &&
+    c.publicMetadata?.isOwnerVisible===true)
+    .map(c=>{
+      let score=ranking[c.printing]??0;
+      if(c.printing==='Arven SVI 166'&&needsHood)score+=100;
+      if(c.printing==='Guzma BUS 115'&&canGuzmaForAttack(view))score+=120;
+      if(c.printing==="Lillie's Determination MEG 119"&&view.ownHand.length<=3)score+=30;
+      if(c.printing==='Iono PAL 185'&&view.ownHand.length<=2)score+=15;
+      if(receipt?.priorOpponentTurnKO?.any===true &&
+        (c.printing==='Raihan EVS 152'||c.printing==='Teammates PRC 141'))score+=45;
+      return {choice:c,score};
+    }).sort((a,b)=>b.score-a.score||
+      (a.choice.publicMetadata.selectionIndex??9999)-
+       (b.choice.publicMetadata.selectionIndex??9999)||
+      String(a.choice.token).localeCompare(String(b.choice.token)));
+  if(candidates.length){
+    recordPolicyAuditRule(candidates[0].choice.token,'VS_SEEKER_RECOVER_SUPPORTER');
+    return {kind:'select-choices',tokens:[candidates[0].choice.token]};
+  }
+  return abstain('NO_AUTHENTICATED_DISCARDED_SUPPORTER');
+}
+
 function sourceWonderTag(prompt){
   return prompt?.source?.sourceKind==='card-effect' &&
     prompt.source.sourcePrinting==='Tapu Lele-GX GRI 60' &&
@@ -1212,6 +1263,9 @@ function choosePrompt(view, prompt, receipt) {
     case 'AttachEnergyPrompt':
       return chooseUnderworldDoorAttachment(view, prompt);
     case 'ChooseCardsPrompt':
+      if(prompt.source?.sourcePrinting==='VS Seeker PHF 109'||
+         prompt.source?.effectName==='VS Seeker')
+        return chooseVsSeekerSupporter(view,prompt,receipt);
       if(prompt.source?.sourcePrinting==='Tapu Lele-GX GRI 60'||
          prompt.source?.effectName==='Tapu Lele-GX')
         return chooseWonderTagSupporter(view,prompt,receipt);
@@ -1416,6 +1470,15 @@ function scoreTrainerPlay(item, view, receipt) {
   if(['Forest Seal Stone SIT 156','Stealthy Hood UNB 186',
       'Float Stone BKT 137'].includes(name))return -Infinity;
   const supporterUsed = view.ownTurnResources.supporterPlayedTurn > 0;
+  // VS Seeker is an Item, but consumes a finite 2-of Supporter connector.
+  // Do not recover redundantly when a Supporter is already available.
+  if(name==='VS Seeker PHF 109' &&
+     view.ownTurnResources?.supporterPlayedTurn===0 &&
+     Number.isSafeInteger(view.globalTurn)&&view.globalTurn>=2 &&
+     !view.ownHand.some(c=>WONDER_TAG_SUPPORTERS.includes(c)) &&
+     view.ownPublic.discard.some(c=>WONDER_TAG_SUPPORTERS.includes(c)))
+    return 575;
+
   if (hasName(name, 'Unfair Stamp') && receipt?.priorOpponentTurnKO?.any === true) return 980;
   if (hasName(name, 'Field Blower') && hasStadiumRemovalTarget(view)) return 950;
   if (hasName(name, 'Battle Compressor') && opponentHasRegidrago(view) &&
