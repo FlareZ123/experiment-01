@@ -16,7 +16,7 @@ const BUNNELBY = 'Bunnelby PRC 121';
 function state(seat) {
   return {
     actorSeat: seat, globalTurn: 2, ownerK1: null,
-    ownHand: ['Tag Call CEC 206', 'Grass Energy MEE 9', 'Grass Energy MEE 9'],
+    ownHand: ['Tag Call CEC 206', 'Tag Call CEC 206', 'Tag Call CEC 206'],
     ownPublic: {
       active: { printing: 'Fan Rotom SCR 118', hp: 70, damage: 0,
         tools: [], energies: [] },
@@ -92,9 +92,9 @@ for (const seat of [0, 1]) {
       [cardChoice('hala-found', 'Guzma & Hala CEC 193', 'deck')], 1, 1)),
       picks(['hala-found']));
 
-    // 3. Hala is playable going second (turn 2) with two disposable Energy.
-    v.ownHand = ['Guzma & Hala CEC 193', 'Grass Energy MEE 9',
-      'Grass Energy MEE 9'];
+    // 3. Hala is playable going second with the two now-redundant Tag Calls.
+    v.ownHand = ['Guzma & Hala CEC 193', 'Tag Call CEC 206',
+      'Tag Call CEC 206'];
     assert.deepEqual(choose(p, seat, v,
       [pass, rootCard('hala', 'Guzma & Hala CEC 193')]), pick('hala'));
 
@@ -113,12 +113,12 @@ for (const seat of [0, 1]) {
       ]
     }), { kind: 'select-choice', token: 'mode1' });
 
-    // 5. Hala's discard cost uses the two Grass Energy cards.
+    // 5. Hala discards two surplus Tag Calls, real rank2 source cards.
     assert.deepEqual(choose(p, seat, v, [], cardPrompt(
       'Guzma & Hala CEC 193', [
-        cardChoice('grass0', 'Grass Energy MEE 9', 'hand'),
-        cardChoice('grass1', 'Grass Energy MEE 9', 'hand')
-      ], 2, 2)), picks(['grass0', 'grass1']));
+        cardChoice('tag-copy0', 'Tag Call CEC 206', 'hand'),
+        cardChoice('tag-copy1', 'Tag Call CEC 206', 'hand')
+      ], 2, 2)), picks(['tag-copy0', 'tag-copy1']));
 
     // 6. One Stadium, one Tool, one Special Energy from that search.
     v.ownHand = [];
