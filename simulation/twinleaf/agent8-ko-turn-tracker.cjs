@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent8-store-ko-turn-tracker-v1';
+const VERSION='agent8-store-ko-turn-tracker-v2-owner-turn-aware';
 const PINNED='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const BASE=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 
@@ -22,6 +22,7 @@ function createKnockoutTurnTracker(startingTurn){
   const coveredFromTurn=startingTurn+1;
   const eventsByTurn=new Map();
   const completedTurns=new Set();
+  const completedTurnActorIds=new Map();
   const uncertainTurns=new Set();
   let recordedEvents=0;
 
@@ -49,9 +50,41 @@ function createKnockoutTurnTracker(startingTurn){
       assert.ok(safeTurn(turn));
       if(turn>=coveredFromTurn)uncertainTurns.add(turn);
     },
-    completeTurn(turn){
+    completeTurn(turn,actorPlayerId=null){
       assert.ok(safeTurn(turn));
-      if(turn>=coveredFromTurn)completedTurns.add(turn);
+      if(turn<coveredFromTurn)return;
+      assert.ok(actorPlayerId===null||typeof actorPlayerId==='number'||
+        typeof actorPlayerId==='string');
+      if(completedTurnActorIds.has(turn))
+        assert.equal(completedTurnActorIds.get(turn),actorPlayerId,
+          'Completed turn ownership cannot change after receipt');
+      completedTurns.add(turn);
+      completedTurnActorIds.set(turn,actorPlayerId);
+    },
+    // The KO prerequisite is about the last *opponent-owned* turn. When
+    // Timeless-GX or other effects award consecutive turns, that turn is not
+    // necessarily currentTurn-1. Every intervening completed turn must be
+    // authenticated, including turns with no KOs; missing history fails closed.
+    snapshotLastOpponentTurn(ownerPlayerId,opponentPlayerId,currentTurn){
+      if(ownerPlayerId===undefined||opponentPlayerId===undefined||
+         ownerPlayerId===opponentPlayerId||
+         !safeTurn(currentTurn)||currentTurn<=1)return null;
+      for(let turn=currentTurn-1;turn>=coveredFromTurn;turn--){
+        if(!completedTurns.has(turn)||uncertainTurns.has(turn)||
+           !completedTurnActorIds.has(turn))return null;
+        const actor=completedTurnActorIds.get(turn);
+        if(actor===null||(actor!==ownerPlayerId&&actor!==opponentPlayerId))
+          return null;
+        if(actor===opponentPlayerId){
+          return Object.freeze({
+            turn,events:Object.freeze((eventsByTurn.get(turn)??[])
+              .filter(row=>row.victimPlayerId===ownerPlayerId&&
+                row.attackerPlayerId===opponentPlayerId)
+              .map(row=>Object.freeze({...row})))
+          });
+        }
+      }
+      return null;
     },
     snapshot(ownerPlayerId,opponentPlayerId,currentTurn){
       if(ownerPlayerId===undefined||opponentPlayerId===undefined||
@@ -69,6 +102,8 @@ function createKnockoutTurnTracker(startingTurn){
       return Object.freeze({
         version:VERSION,coveredFromTurn,recordedEvents,
         completedTurns:Object.freeze([...completedTurns].sort((a,b)=>a-b)),
+        completedActorKnownTurns:completedTurnActorIds.size-
+          [...completedTurnActorIds.values()].filter(x=>x===null).length,
         uncertainTurns:Object.freeze([...uncertainTurns].sort((a,b)=>a-b))
       });
     }
@@ -148,7 +183,7 @@ function installStoreKnockoutTurnTracker(store,dependencies={}){
     if(effect instanceof EndTurnEffect){
       const afterTurn=safeTurn(result?.turn)?result.turn:state?.turn;
       if(safeTurn(turn)&&safeTurn(afterTurn)&&afterTurn>turn)
-        tracker.completeTurn(turn);
+        tracker.completeTurn(turn,actor?.id??null);
     }
     return result;
   }
