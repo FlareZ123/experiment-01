@@ -1861,6 +1861,51 @@ test('Memory Energy can fuel Bunnelby Rototiller before self deck-out',()=>{
    kind:'select-action',token:'recover-energy'});
 });
 
+
+test('Get Lost root selects Dragon payload denial when opponent discard has no generic Trainers',()=>{
+  const opponent=player({active:pokemon('Regidrago VSTAR SIT 136'),
+    discard:['Dialga-GX UPR 100','Dragapult ex TWM 130'],deckCount:28});
+  const request=rootRequest({ownPublic:player({active:pokemon('Girafarig LOT 94')}),
+    opponentPublic:opponent,items:[
+      {token:'get-lost',kind:'attack',actorPrinting:'Girafarig LOT 94',
+       attackName:'Get Lost',label:'Get Lost'},
+      {token:'burrow',kind:'attack',actorPrinting:'Bunnelby PRC 121',
+       attackName:'Burrow',label:'Burrow'},
+      {token:'pass',kind:'pass',label:'Pass turn'}
+    ]});
+  assert.deepEqual(checkedDecision(request),{
+    kind:'select-action',token:'get-lost'});
+});
+test('Get Lost never overrides terminal Burrow that removes last opponent deck card',()=>{
+ const request=rootRequest({
+   ownPublic:player({active:pokemon('Bunnelby PRC 121'),deckCount:1,
+     discard:['Guzma & Hala CEC 193']}),
+   opponentPublic:player({active:pokemon('Regidrago VSTAR SIT 136'),
+     deckCount:1,discard:['Dialga-GX UPR 100','Dragapult ex TWM 130']}),
+   items:[
+     {token:'rototiller',kind:'attack',actorPrinting:'Bunnelby PRC 121',
+       attackName:'Rototiller',label:'Rototiller'},
+     {token:'burrow',kind:'attack',actorPrinting:'Bunnelby PRC 121',
+       attackName:'Burrow',label:'Burrow'},
+     {token:'get-lost',kind:'attack',actorPrinting:'Girafarig LOT 94',
+       attackName:'Get Lost',label:'Get Lost'}]
+ });
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-action',token:'burrow'});
+});
+test('Get Lost root retains ordinary Trainer removal against non-Regidrago',()=>{
+ const request=rootRequest({
+   ownPublic:player({active:pokemon('Girafarig LOT 94')}),
+   opponentPublic:player({active:pokemon('Iron Thorns ex TWM 77'),
+     deckCount:27,discard:['VS Seeker PHF 109','Guzma BUS 115']}),
+   items:[{token:'get-lost',kind:'attack',actorPrinting:'Girafarig LOT 94',
+     attackName:'Get Lost',label:'Get Lost'},
+     {token:'pass',kind:'pass',label:'Pass turn'}]
+ });
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-action',token:'get-lost'});
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
