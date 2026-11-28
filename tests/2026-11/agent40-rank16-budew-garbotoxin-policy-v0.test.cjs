@@ -1884,3 +1884,65 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Path to the Peak disables Crobat Dedenne and Forest Stone until Temple replaces it',()=>{
+  const crobat=mon('Crobat V DAA 104',{tools:['Forest Seal Stone SIT 156']});
+  const board=own({active:mon('Budew ASC 16'),bench:[crobat]});
+  const their=opp({active:mon('Regidrago VSTAR SIT 136'),
+   stadium:['Path to the Peak CRE 148']});
+  const q=root(seat,[ability('Star Alchemy','star'),
+   play('Temple of Sinnoh ASR 155','temple'),pass],{
+   ownPublic:board,opponentPublic:their,
+   ownHand:['Temple of Sinnoh ASR 155','Dedenne-GX UNB 57'],
+   ownTurnResources:{vstarUsed:false}});
+  assert.equal(policy.pathToThePeakInPlay(q.observation),true);
+  assert.equal(policy.benchSupportAbilityUsable('Crobat V DAA 104',q.observation),false);
+  assert.equal(policy.benchSupportAbilityUsable('Dedenne-GX UNB 57',q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
+  their.stadium=[];
+  assert.equal(policy.pathToThePeakInPlay(q.observation),false);
+  assert.equal(policy.benchSupportAbilityUsable('Dedenne-GX UNB 57',q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
+  // Garbotoxin remains effective through Path; removing Path alone
+  // cannot restore Rule-Box Abilities while another lock is active.
+  their.stadium=['Path to the Peak CRE 148'];
+  board.bench.push(mon('Garbodor LTR 68',{tools:['Float Stone BKT 137'],
+   abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]}));
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+ });
+ test('seat '+seat+' Klefki Basic lock suppresses Dedechange and Star Alchemy until Garbotoxin',()=>{
+  const crobat=mon('Crobat V DAA 104',{tools:['Forest Seal Stone SIT 156']});
+  const board=own({active:mon('Budew ASC 16'),bench:[crobat]});
+  const their=opp({active:mon('Klefki SVI 96')});
+  const q=root(seat,[ability('Star Alchemy','star'),pass],{
+   ownPublic:board,opponentPublic:their,
+   ownTurnResources:{vstarUsed:false}});
+  assert.equal(policy.activeKlefkiLock(q.observation),true);
+  assert.equal(policy.benchSupportAbilityUsable('Crobat V DAA 104',q.observation),false);
+  assert.equal(policy.benchSupportAbilityUsable('Tapu Lele-GX GRI 60',q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  const garb=mon('Garbodor LTR 68',{tools:['Muscle Band XY 121'],
+   abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]});
+  board.bench.push(garb);
+  assert.equal(policy.activeKlefkiLock(q.observation),false);
+  // Our own Garbotoxin also suppresses Crobat's Ability, so Star
+  // remains unusable until that competing lock stops.
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  board.bench.pop();their.active.tools=['Stealthy Hood UNB 186'];
+  board.bench.push(garb);
+  assert.equal(policy.activeKlefkiLock(q.observation),true);
+  their.stadium=['Jamming Tower TWM 153'];
+  assert.equal(policy.activeKlefkiLock(q.observation),false);
+ });
+ test('seat '+seat+' Path removal without live own support gets lower Temple priority',()=>{
+  const board=own({active:mon('Budew ASC 16'),bench:[mon('Mega Absol ex MEG 86')]});
+  const their=opp({stadium:['Path to the Peak CRE 148']});
+  const q=root(seat,[play('Temple of Sinnoh ASR 155','temple'),pass],{
+   ownPublic:board,opponentPublic:their,ownHand:['Temple of Sinnoh ASR 155']});
+  assert.equal(policy.pathToThePeakInPlay(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
+  their.stadium=[];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+ });
+}
