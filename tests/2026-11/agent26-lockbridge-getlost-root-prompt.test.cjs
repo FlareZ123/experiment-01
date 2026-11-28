@@ -218,3 +218,67 @@ for (const seat of [0,1]) {
     })),{kind:'select-choices',tokens:['choice-2','choice-1']});
   });
 }
+
+/* Real research-side V3 projector, with synthetic native object graph and
+ * a fake exact-class ChooseCardsPrompt. Not a compiled pinned Twinleaf Store.
+ * This checks source provenance + opponent-public visibility + token custody.
+ */
+const projection = require('../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
+for (const seat of [0,1]) {
+  test('V3 projector Get Lost opponent-discard tokens map to native indices, seat '+seat,()=>{
+    const printed = (fullName) => ({fullName});
+    const girafarig = printed('Girafarig LOT');
+    const opponentCards = [
+      printed('Dialga-GX UPR'),printed('Crispin SCR'),
+      printed('Megaton Blower SSP'),printed('Kyurem SFA')
+    ];
+    const list = cards => ({cards});
+    const player = id => ({
+      id,hand:list([]),deck:list([]),discard:list([]),lostzone:list([]),
+      stadium:list([]),supporter:list([]),active:{cards:[],energies:list([]),tools:[]},
+      bench:[],prizes:[]
+    });
+    const state={phase:2,players:[player('player-0'),player('player-1')]};
+    state.players[seat].active.cards.push(girafarig);
+    state.players[1-seat].discard.cards.push(...opponentCards);
+    class ChooseCardsPrompt {
+      constructor(){
+        this.playerId='player-'+seat;
+        this.message='CHOOSE_CARD_TO_DISCARD';
+        this.cards=state.players[1-seat].discard;
+        this.options={min:2,max:2};
+      }
+      getPerspectivePlayerId(){ return this.playerId; }
+      decode(indices){return indices;}
+      validate(indices){
+        return Array.isArray(indices) && indices.length===2 &&
+          indices.every(n=>Number.isInteger(n)&&n>=0&&n<4) &&
+          indices[0]!==indices[1];
+      }
+    }
+    const pending=new ChooseCardsPrompt();
+    const projected=projection.projectPrompt({
+      prompt:pending,state,actorSeat:seat,native:{},store:{},
+      provenanceHook:{getPromptProvenance:()=>({
+        sourceKind:'card-effect',sourceCard:girafarig,effectName:'Get Lost'
+      })}
+    });
+    assert.equal(projected.hostOnly,false);
+    assert.equal(projected.promptProjection.source.sourcePrinting,'Girafarig LOT');
+    assert.equal(projected.promptProjection.publicMetadata.sourceZone,'discard');
+    assert.equal(projected.promptProjection.publicMetadata.ownerSeat,'opponent');
+    assert.equal(projected.promptProjection.publicMetadata.isOwnerVisible,true);
+    const view=baseView(seat);
+    const req=request({...view,decisionKind:'owner-prompt',
+      pendingPromptType:'ChooseCardsPrompt'},projected.promptProjection,[]);
+    const chosen=run(req);
+    assert.deepEqual(chosen,{
+      kind:'select-choices',tokens:['prompt-2','prompt-1']
+    });
+    const physical=chosen.tokens.map(token=>projected.choiceByToken.get(token));
+    assert.deepEqual(physical,[2,1]);
+    assert.deepEqual(physical.map(index=>opponentCards[index].fullName),
+      ['Megaton Blower SSP','Crispin SCR']);
+    assert.equal(projection.validateRawPromptResult(pending,physical,state).valid,true);
+  });
+}
