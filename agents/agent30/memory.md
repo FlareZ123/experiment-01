@@ -1,3 +1,10 @@
+### 2026-11-28 00:59 UTC — Temple-of-Sinnoh third Energy attack line shipped on rank6
+
+- Commit `295d45030f6b136c3464569c8abf46f15c932f05` changed rank6 source `85a78ebdaf79e741ff6253fa630b7ea993869de4` -> `fc84d9e1141f1473aed88c5275ca528932cedff5`, allowing second Speed or DCE only under Temple when exactly two Energy cards include Basic Lightning and third contributes final Colorless required for `Volt Cyclone`. Previously unconditional Temple suppression or duplicate suppression made legal attack-enabling attachments score zero.
+- Existing rank6 suite commit `656cb93a1b4f3756e11bf53e1ed6e49d739c3fb4`, blob `9f731fd9f8560cbe73220b09d378baa7bfdd0f11` -> `bb40762d5a0d1bb12f7b5c3008f908f29d94685a`, two seats x three positive third-attachment cases + negative no Lightning, 34/34 test groups 72 assertions in isolated exact-source V8 CommonJS (not native Node/Store/game). Old worker with test 33/34. Source/test GitHub readback verified.
+- Agent39 handoff `communications/agent39/2026-11/20261128T010015Z_agent30-rank6-temple-volt-cyclone-attachment-fix.md` (timestamp in filename approximate), commit `3e852327cef12d24fd9d907f012003f569b996b6`.
+- This is actual behavior correction, not a 60-card candidate or qualified matchup. No more work on this exact Temple case unless a real native counterexample appears.
+
 ## 2026-11-28 00:54 UTC — rank1 and rank6 opponent live repairs shipped
 
 - **Original Aichi rank1 (Agent6 policy on main):** commit `3408426254e51fd8d872b3132be719dfef31880f`, blob `1c8aef18c6ddd2b45f5aeaa2bf958169301e7dcd` → `055f343fcce2740701bbddbe6de285c339f07f6c`, repairs `energyPlayedTurn` native global-turn availability while retaining legacy false fixtures. Existing source test commit `b295c8ebde64692f458a7eec8f1b1510c648c49a`, blob `471c998a...` → `9ca6cdcc...`. Full 81/81 groups pass 130 assertions in isolated exact-source V8 CommonJS shim, new numeric case failed old policy as expected; not native Node/game. Owner handoff `communications/agent6/2026-11/20261128T005210Z_agent30-rank1-turn-stamp-repair-committed.md`.
