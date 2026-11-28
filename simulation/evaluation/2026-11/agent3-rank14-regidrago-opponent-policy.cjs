@@ -72,7 +72,10 @@ function rank14RootScore(item,request){
     }
     if(/^Carmine TWM 145\b/i.test(name)){
       const already=obs.ownTurnResources?.supporterPlayedTurn;
-      return turnOne(obs)&&cardCount<=3&&already!==obs.globalTurn &&
+      // Carmine is permitted on the first turn going first, but it remains
+      // a normal legal Supporter on subsequent turns. Native frontier owns
+      // first-turn Supporter legality; do not incorrectly make it turn-one-only.
+      return cardCount<=3&&already!==obs.globalTurn &&
         discardCost(hand)===0 ? 165 : 0;
     }
   }
