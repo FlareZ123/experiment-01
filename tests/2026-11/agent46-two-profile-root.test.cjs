@@ -2308,7 +2308,7 @@ test('Agent46: attack-effect Ranger opens a guaranteed final and defeats competi
       policyVersion:worker.POLICY_VERSION,config:profiles[0]})
       .decideWithAudit(root(seat,view,opts,koReceipt));
     assert.deepEqual(get().decision,sel('ranger'));
-    assert.equal(get().policyAudit.selectionRuleCode,'ROOT_BEST_SCORED_ACTION');
+    assert.equal(get().policyAudit.selectionRuleCode,'ROOT_PLAY_MAX_COMPONENT_SCORE');
     const after={...view,ownPublic:{...view.ownPublic,
       publicTurnRestrictions:{...view.ownPublic.publicTurnRestrictions,
         attackLockTurnsRemaining:0}}};
