@@ -4,7 +4,7 @@
  * Generated from exact sources; do not edit this bundle directly.
  * agent43-regidrago-apex-choice.cjs 65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b
  * agent1-rank12-regidrago-opponent-policy-v2.cjs bfaee2205ea9d0c3b618948fe24ff81075d4ccda
- * agent3-rank32-regidrago-opponent-policy.cjs d10a2bff2e4f41106f1b6226cfa8ec3b8ef65af9
+ * agent3-rank32-regidrago-opponent-policy.cjs 830233d435c0d864473759ddcf09a33c9e66f0ce
  * agent3-rank14-regidrago-opponent-policy.cjs 3a9a5507f51bc001724558df7a90bd79b9480a98
  */
 const __rank14Modules = Object.freeze({
@@ -1410,6 +1410,14 @@ function scoreAction(action, request) {
   if(action.kind==='retreat') return retreatToAttackerPriority(action,obs);
   if(action.kind==='play-card'&&/^Regidrago VSTAR SIT 136\b/i.test(name))
     return evolveRegidragoPriority(action,obs);
+  if(action.kind==='play-card'&&/^Regidrago V SIT 135\b/i.test(name)) {
+    const attackers=slots(own).filter(p=>/^Regidrago V(?:STAR)? SIT 13[56]\b/i.test(print(p)));
+    // The inherited rank-12 worker declines a second Basic V while the
+    // first is still unevolved. Establish a backup once, not a Bench clog.
+    if(attackers.length===1 &&
+        /^Regidrago V SIT 135\b/i.test(print(attackers[0])))return 175;
+    if(attackers.length>=2)return 0;
+  }
   const gustScore=tacticalGustScore(action,obs);
   if(gustScore !== null) return gustScore;
   if(action.kind==='play-card'&&/^Megaton Blower SSP 182\b/i.test(name))
@@ -1504,7 +1512,9 @@ function scoreAction(action, request) {
     }
     // Stage-2 Mega Dragonite has no evolution chain in the original 60:
     // it is an Apex donor, never proactively benched/evolved by this policy.
-    if (DONOR.dragonite.test(name) || DONOR.goodra.test(name)) return 0;
+    if (DONOR.dragonite.test(name) || DONOR.goodra.test(name) ||
+        DONOR.dialga.test(name) || DONOR.kyurem.test(name) ||
+        DONOR.noivern.test(name) || DONOR.dragapult.test(name)) return 0;
   }
   return family.scoreAction(action, request);
 }
