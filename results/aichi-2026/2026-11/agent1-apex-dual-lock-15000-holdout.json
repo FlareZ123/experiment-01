@@ -1,0 +1,115 @@
+{
+  "schema": "agent1-apex-dual-lock-source-causal-proxy-v1",
+  "caveat": "Causal two-own-turn restricted setup model, not played games, opponent policies, or matchup rates",
+  "scenarioMeaning": {
+    "clean": "No imposed Item/Supporter lock",
+    "t2-dual": "On own T2, Item and Supporter play prohibited (AOR Vileplume + Active Stoutland hypothetical); no Hood/Bide or actual opponent play"
+  },
+  "trialsPerCell": 15000,
+  "seed": 9944783,
+  "variantIds": [
+    "apex-v1",
+    "md2-cut-field-blower"
+  ],
+  "observations": [
+    {
+      "variant": "apex-v1",
+      "scenario": "clean",
+      "second": false,
+      "n": 15000,
+      "seed": 9944783,
+      "ready": 7924,
+      "apex": 7703,
+      "megaDragalgeDonorPaid": 5671,
+      "anyLockDonorPaid": 5969,
+      "t1Donor": 11345
+    },
+    {
+      "variant": "apex-v1",
+      "scenario": "clean",
+      "second": true,
+      "n": 15000,
+      "seed": 9944783,
+      "ready": 10032,
+      "apex": 9872,
+      "megaDragalgeDonorPaid": 7752,
+      "anyLockDonorPaid": 7929,
+      "t1Donor": 13154
+    },
+    {
+      "variant": "apex-v1",
+      "scenario": "t2-dual",
+      "second": false,
+      "n": 15000,
+      "seed": 9944783,
+      "ready": 3767,
+      "apex": 3374,
+      "megaDragalgeDonorPaid": 1606,
+      "anyLockDonorPaid": 2052,
+      "t1Donor": 11345
+    },
+    {
+      "variant": "apex-v1",
+      "scenario": "t2-dual",
+      "second": true,
+      "n": 15000,
+      "seed": 9944783,
+      "ready": 6765,
+      "apex": 6326,
+      "megaDragalgeDonorPaid": 3353,
+      "anyLockDonorPaid": 4145,
+      "t1Donor": 13154
+    },
+    {
+      "variant": "md2-cut-field-blower",
+      "scenario": "clean",
+      "second": false,
+      "n": 15000,
+      "seed": 9944783,
+      "ready": 7899,
+      "apex": 7742,
+      "megaDragalgeDonorPaid": 6681,
+      "anyLockDonorPaid": 5465,
+      "t1Donor": 11645
+    },
+    {
+      "variant": "md2-cut-field-blower",
+      "scenario": "clean",
+      "second": true,
+      "n": 15000,
+      "seed": 9944783,
+      "ready": 10047,
+      "apex": 9899,
+      "megaDragalgeDonorPaid": 8872,
+      "anyLockDonorPaid": 7220,
+      "t1Donor": 13354
+    },
+    {
+      "variant": "md2-cut-field-blower",
+      "scenario": "t2-dual",
+      "second": false,
+      "n": 15000,
+      "seed": 9944783,
+      "ready": 3786,
+      "apex": 3474,
+      "megaDragalgeDonorPaid": 2215,
+      "anyLockDonorPaid": 1949,
+      "t1Donor": 11645
+    },
+    {
+      "variant": "md2-cut-field-blower",
+      "scenario": "t2-dual",
+      "second": true,
+      "n": 15000,
+      "seed": 9944783,
+      "ready": 6731,
+      "apex": 6360,
+      "megaDragalgeDonorPaid": 4303,
+      "anyLockDonorPaid": 3833,
+      "t1Donor": 13354
+    }
+  ],
+  "sourceDeckIdentitySha256": "f04a8793b11b8a76e414e0f4d21ff77be38820a63801b142edb048b85dddf8d6",
+  "modelFile": "results/aichi-2026/2026-11/agent1-apex-lockdown-setup-proxy.cjs",
+  "runnerFile": "results/aichi-2026/2026-11/agent1-apex-dual-lock-structural-screen.cjs"
+}
