@@ -6,6 +6,8 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const protocol=require(
   '../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
+const {projectNativeAction}=require(
+  '../../simulation/evaluation/2026-11/agent36-native-action-frontier.cjs');
 const {POLICY_VERSION,createPolicy}=require(
   '../../simulation/evaluation/2026-11/agent20-rank15-lopunny-vileplume-opponent-policy.cjs');
 
@@ -204,19 +206,28 @@ for(const seat of [0,1]){
       hp:290,stage:'STAGE_1',energy:['Grass Energy BLW 105']});
     const bus=pokemon('Vileplume BUS 6','Vileplume',{hp:140,stage:'STAGE_2'});
     const opp=pokemon('Iron Thorns ex TEF 77','Iron Thorns ex',{hp:230});
-    const r=envelope(seat,active,[mega,bus],opp,[],'owner-root');
-    r.actionFrontier.items=[
-      {kind:'retreat',token:'retreat-mega',
-        targetPrinting:mega.printing,
-        publicMetadata:{targetSeat:'actor',targetZone:'bench',
-          targetIndex:0,benchIndex:0,isOwnerVisible:true}},
+    const pidgeotto=pokemon('Pidgeotto TEU 123','Pidgeotto',{
+      hp:80,stage:'STAGE_1'});
+    const owned=[mega,bus,pidgeotto];
+    const r=envelope(seat,active,owned,opp,[],'owner-root');
+    // Reuse the exact host production RETREAT_ACTION projector with physical
+    // benchIndex. Bunnelby's one source DCE satisfies its printed [C][C]
+    // Retreat Cost while the Bench Mega retains its Basic Grass Energy.
+    const nativeSlot=x=>({getPokemonCard:()=>({fullName:x.printing})});
+    const state={players:[null,null],phase:2};
+    state.players[seat]={active:nativeSlot(active),bench:owned.map(nativeSlot)};
+    state.players[1-seat]={active:nativeSlot(opp),bench:[]};
+    const hostChoices=owned.map((_,i)=>projectNativeAction({
+      type:'RETREAT_ACTION',benchIndex:i
+    },state,seat,{},'retreat-'+i));
+    r.actionFrontier.items=[...hostChoices,
       {kind:'use-ability',token:'air-mail',actorPrinting:'Pidgeotto TEU 123',
         publicMetadata:{abilityName:'Air Mail'}}
     ];
     assert.deepEqual(checkedDecision(r,seat),{
-      kind:'select-action',token:'retreat-mega'
+      kind:'select-action',token:'retreat-0'
     });
-    const continuation=envelope(seat,active,[mega,bus],opp,[],'owner-prompt');
+    const continuation=envelope(seat,active,owned,opp,[],'owner-prompt');
     continuation.prompt={
       schema:protocol.PROMPT_SCHEMA,actingSeat:seat,
       promptType:'ChoosePokemonPrompt',description:null,
@@ -226,7 +237,9 @@ for(const seat of [0,1]){
         {kind:'pokemon',token:'mega-0',printing:mega.printing,
           publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0}},
         {kind:'pokemon',token:'bus-1',printing:bus.printing,
-          publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:1}}
+          publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:1}},
+        {kind:'pokemon',token:'pidgeotto-2',printing:pidgeotto.printing,
+          publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:2}}
       ],
       publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
         allowCancel:false,ownerSeat:'actor',targetZone:'bench'}
