@@ -388,6 +388,31 @@ function choosePaidPressure(view,items){
    typeof x.publicMetadata.attackSource.sourceCardName==='string');
   if(shadow)return select(shadow,'V3_PAID_SHADOW_BIND_TO_SET_UP_TWO_HIT_KO');
  }
+ // Full Moon Rondo uses only public Bench counts for its positive base damage.
+ // Prefer a paid two-Energy Basic attacker over ending the turn with no attack.
+ const benchCount=own.bench.filter(Boolean).length+
+   (Array.isArray(opp.bench)?opp.bench.filter(Boolean).length:0);
+ if(has(own.active.printing,"Lillie's Clefairy ex")&&benchCount>0){
+  const rondo=items.find(x=>x.attackName==='Full Moon Rondo'&&
+   actualOwnedAttack(own,x)&&
+   typeof x.publicMetadata.attackSource.sourceCardName==='string'&&
+   x.publicMetadata?.hasUnmodeledModifier!==true&&
+   x.publicMetadata?.damagePrevented!==true&&
+   !(Number.isFinite(x.publicMetadata?.damageReduced)&&
+     x.publicMetadata.damageReduced>0));
+  if(rondo)return select(rondo,'V3_PAID_TWO_ENERGY_FULL_MOON_RONDO_PUBLIC_BENCH_DAMAGE');
+ }
+ // Joust's before-damage effect strips the opposing Active's Tool. A real
+ // Active BUS Disgusting Pollen still forbids a Basic Klefki attack.
+ if(has(own.active.printing,'Klefki')&&Array.isArray(opp.active.tools)&&
+  opp.active.tools.some(x=>['Stealthy Hood','Forest Seal Stone','Powerglass',
+   'Tool Jammer','Float Stone'].some(n=>has(x,n)))&&
+  !(has(opp.active.printing,'Vileplume BUS')&&
+   live(opp.active,'Disgusting Pollen'))) {
+  const joust=items.find(x=>x.attackName==='Joust'&&actualOwnedAttack(own,x)&&
+   typeof x.publicMetadata.attackSource.sourceCardName==='string');
+  if(joust)return select(joust,'V3_PAID_JOUST_DISCARDS_OPPONENT_ACTIVE_TOOL');
+ }
  if(rem>50){
   const willow=items.find(x=>x.attackName==='Will-O-Wisp'&&
    actualOwnedAttack(own,x)&&has(own.active.printing,'Dusclops')&&
