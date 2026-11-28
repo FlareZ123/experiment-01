@@ -2738,4 +2738,10 @@ paired('Agent2: Guzma switch clears on-Pokemon next-turn attack prohibition befo
   // continuous Energy-payment requirement or global attack lock.
   view.ownPublic.publicTurnRestrictions.attackLockTurnsRemaining=1;
   assert.deepEqual(decide(profile,root(seat,view,guzmaOnly)),sel('pass'));
+  view.ownPublic.publicTurnRestrictions.attackLockTurnsRemaining=0;
+  // A player-wide effective Energy-count cap imposed by an attack
+  // survives moving the Active Pokemon to the Bench. Unlike the
+  // Pokemon-affixed prohibition above, Guzma cannot clear this cap.
+  view.ownPublic.publicTurnRestrictions.attackMaxEnergyTurnsRemaining=1;
+  assert.deepEqual(decide(profile,root(seat,view,guzmaOnly)),sel('pass'));
 });
