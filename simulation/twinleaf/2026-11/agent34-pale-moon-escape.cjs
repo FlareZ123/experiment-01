@@ -37,9 +37,15 @@ function knownNoPrizeAwardOnPaleMoonKO(view) {
 
 }
 function terminalPaleMoonPrizeRisk(view) {
-  return view?.opponentPublic?.prizeCount===1 &&
-    view?.ownPublic?.active?.publicRestrictions?.pendingPaleMoonGXKnockOut===true &&
+  if(view?.ownPublic?.active?.publicRestrictions?.pendingPaleMoonGXKnockOut!==true)
+    return false;
+  // A last-Pokémon KO ends the game even if the KO awards zero Prizes.
+  // Only a fully observed empty Bench establishes this additional hazard.
+  const bench=view?.ownPublic?.bench;
+  const allPokemonLoss=Array.isArray(bench)&&bench.every(slot=>!slot);
+  const finalPrizeLoss=view?.opponentPublic?.prizeCount===1 &&
     !knownNoPrizeAwardOnPaleMoonKO(view);
+  return allPokemonLoss || finalPrizeLoss;
 }
 
 function pendingPaleMoonGXKnockOut(player, slot) {
