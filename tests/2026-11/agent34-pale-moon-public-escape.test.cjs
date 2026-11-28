@@ -139,7 +139,7 @@ const guzmaOffers=[{token:'pass',kind:'pass'},
   {token:'guzma-root',kind:'play-card',actorPrinting:'Guzma BUS'}];
 const guzmaPrompt=(who,slot,printing)=>({
   promptType:'ChoosePokemonPrompt',
-  source:{sourceKind:'card-effect',effectName:'Guzma',sourcePrinting:'Guzma BUS'},
+  source:{classification:'actor-choice',sourceKind:'card-effect',effectName:'Guzma',sourcePrinting:'Guzma BUS'},
   publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,allowCancel:false},
   choices:[{token:'prompt-0',kind:'pokemon',printing,
     publicMetadata:{ownerSeat:who,targetZone:'bench',benchIndex:slot,selectionIndex:0}}]
@@ -166,7 +166,7 @@ test('Guzma negatives: extra options, wrong card, forged target and nonterminal 
   forgedOpponentZero.publicMetadata.minimumCount=0;
   assert.equal(choosePaleMoonEscapeGuzmaPrompt(base,forgedOpponentZero),null);
   assert.equal(choosePaleMoonEscapeGuzmaPrompt(base,guzmaPrompt('opponent',2,'Mimikyu GRI 58')),null);
-  assert.equal(choosePaleMoonEscapeGuzmaPrompt(base,{...guzmaPrompt('opponent',2,'Regidrago V SIT 135'),source:{sourceKind:'card-effect',effectName:'Guzma',sourcePrinting:'Guzma GRI'}}),null);
+  assert.equal(choosePaleMoonEscapeGuzmaPrompt(base,{...guzmaPrompt('opponent',2,'Regidrago V SIT 135'),source:{classification:'actor-choice',sourceKind:'card-effect',effectName:'Guzma',sourcePrinting:'Guzma GRI'}}),null);
   const multiple=guzmaPrompt('actor',4,'Mimikyu GRI 58');
   multiple.choices.push({...multiple.choices[0],token:'prompt-1'});
   assert.equal(choosePaleMoonEscapeGuzmaPrompt(base,multiple),null);
