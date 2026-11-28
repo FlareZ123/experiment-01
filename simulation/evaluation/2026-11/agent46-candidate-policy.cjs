@@ -984,6 +984,58 @@ function chooseEngineSetupPrompt(view, prompt) {
   return abstain('UNSUPPORTED_ENGINE_SETUP_PROMPT');
 }
 
+/**
+ * Native Underworld Door is one AttachEnergyPrompt with one physically
+ * addressed Energy-to-Bench assignment, NOT ChooseCards + ChoosePokemon.
+ * Trust only the typed, source-certified, actor-visible native choices,
+ * retaining their opaque token and exact Bench index.
+ */
+function chooseUnderworldEnergyAssignment(view, prompt) {
+  setPolicyAuditRule('UNDERWORLD_ENERGY_TO_PSYCHIC_BENCH', 'SCORE_DESC_INDEX_ASC');
+  const meta=prompt.publicMetadata;
+  const source=prompt.source;
+  if (source?.sourceKind !== 'card-effect' ||
+      source.effectName !== 'Underworld Door' ||
+      source.sourcePrinting !== 'Shadow Rider Calyrex VMAX CRE 75' ||
+      meta?.selectionType !== 'energy-attachment' ||
+      meta.ownerSeat !== 'actor' || meta.isOwnerVisible !== true ||
+      meta.sourceZone !== 'hand' || meta.zone !== 'bench' ||
+      meta.energyType !== 'BASIC' ||
+      meta.minimumCount !== 1 || meta.maximumCount !== 1) {
+    return abstain('UNTRUSTED_PROMPT_SOURCE');
+  }
+  const eligible=[];
+  for(const choice of prompt.choices) {
+    const m=choice.publicMetadata;
+    const i=m?.benchIndex;
+    const slot=Number.isSafeInteger(i)&&i>=0?
+      view.ownPublic.bench[i]:null;
+    if(choice.kind !== 'energy' ||
+        !hasName(choice.printing, 'Psychic Energy') ||
+        m?.sourceZone !== 'hand' || m.ownerSeat !== 'actor' ||
+        m.isOwnerVisible !== true || m.energyType !== 'BASIC' ||
+        m.zone !== 'bench' || !slot ||
+        !slot.printed?.types?.includes('Psychic')) {
+      recordPolicyAuditUnscored(choice.token, 'UNTRUSTED_ENERGY_SELECTION');
+      continue;
+    }
+    let score=120-slotEnergyCount(slot)*10;
+    if (hasName(slot.printing, 'Shadow Rider Calyrex VMAX')) score+=420;
+    if (hasName(slot.printing, 'Shadow Rider Calyrex V')) score+=220;
+    if (opponentHasRegidrago(view) &&
+        hasName(slot.printing, 'Mimikyu') && slotEnergyCount(slot)<2) score+=1000;
+    if (opponentHasDragon(view) &&
+        hasName(slot.printing, "Lillie's Clefairy ex") &&
+        slotEnergyCount(slot)<2) score+=700;
+    recordPolicyAuditScore(choice.token,score);
+    eligible.push({choice,score,benchIndex:i});
+  }
+  eligible.sort((a,b)=>b.score-a.score||a.benchIndex-b.benchIndex||
+    a.choice.token.localeCompare(b.choice.token));
+  return eligible.length ? {kind:'select-choice',token:eligible[0].choice.token} :
+    abstain('NO_VISIBLE_ENERGY_CHOICE');
+}
+
 function choosePrompt(view, prompt, receipt) {
   if (!prompt || prompt.actingSeat !== view.actorSeat ||
       prompt.source?.classification !== 'actor-choice') {
@@ -996,6 +1048,8 @@ function choosePrompt(view, prompt, receipt) {
     return abstain('UNTRUSTED_PROMPT_SOURCE');
   }
   switch (prompt.promptType) {
+    case 'AttachEnergyPrompt':
+      return chooseUnderworldEnergyAssignment(view,prompt);
     case 'ChooseCardsPrompt':
       return chooseCardCombination(view, prompt);
     case 'ChoosePokemonPrompt':
