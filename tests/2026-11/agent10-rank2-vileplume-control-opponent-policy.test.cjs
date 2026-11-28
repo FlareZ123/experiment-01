@@ -1471,6 +1471,58 @@ test('Plumeria prompt refuses visible target with no attached Energy',()=>{
    kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'});
 });
 
+
+test('Faba follows printed opponent Tool target into an exact discard-or-Lost-Zone choice',()=>{
+ const own=player({active:pokemon('Bunnelby PRC 121')});
+ const opp=player({active:pokemon('Regidrago V SIT 135',{tools:[]}),
+   bench:[pokemon('Regidrago V SIT 135',{tools:['Stealthy Hood UNB 186']})]});
+ const root=rootRequest({ownHand:['Faba LOT 173'],ownPublic:own,opponentPublic:opp,
+   items:[{token:'faba',kind:'play-card',actorPrinting:'Faba LOT 173',
+     publicMetadata:{cardType:'trainer',handIndex:0}},
+     {token:'pass',kind:'pass',label:'Pass turn'}]});
+ assert.deepEqual(checkedDecision(root),{kind:'select-action',token:'faba'});
+ const target=promptRequest({promptType:'ChoosePokemonPrompt',
+   source:actorChoiceSource('Faba LOT 173','Faba'),
+   choices:[pokemonChoice('empty-active','Regidrago V SIT 135',
+     'opponent','active',0),
+     pokemonChoice('tool-bench','Regidrago V SIT 135',
+       'opponent','bench',0)],
+   observation:{ownPublic:own,opponentPublic:opp}});
+ assert.deepEqual(checkedDecision(target),{
+   kind:'select-choices',tokens:['tool-bench']});
+ const removal=promptRequest({promptType:'ChooseCardsPrompt',
+   source:actorChoiceSource('Faba LOT 173','Faba'),
+   choices:[cardChoice('hood','Stealthy Hood UNB 186','tool','opponent')],
+   observation:{ownPublic:own,opponentPublic:opp},
+   publicMetadata:{selectionType:'card-combination',minimumCount:1,
+     maximumCount:1,isSecret:false,allowCancel:false}});
+ assert.deepEqual(checkedDecision(removal),{
+   kind:'select-choices',tokens:['hood']});
+});
+test('Faba prefers Special Energy holder over Tool-only opponent',()=>{
+ const request=promptRequest({promptType:'ChoosePokemonPrompt',
+   source:actorChoiceSource('Faba LOT 173','Faba'),
+   choices:[pokemonChoice('tool','Bunnelby PRC 121','opponent','bench',0),
+     pokemonChoice('special','Regidrago V SIT 135','opponent','bench',1)],
+   observation:{opponentPublic:player({bench:[
+     pokemon('Bunnelby PRC 121',{tools:['Stealthy Hood UNB 186']}),
+     pokemon('Regidrago V SIT 135',{energies:['Double Dragon Energy ROS 97']})
+   ]})}});
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-choices',tokens:['special']});
+});
+test('Faba card selection rejects Basic Energy misclassified as Special',()=>{
+ const request=promptRequest({promptType:'ChooseCardsPrompt',
+   source:actorChoiceSource('Faba LOT 173','Faba'),
+   choices:[cardChoice('grass','Grass Energy MEE 9','energy','opponent')],
+   observation:{opponentPublic:player({active:pokemon('Bunnelby PRC 121',{
+     energies:['Grass Energy MEE 9']})})},
+   publicMetadata:{selectionType:'card-combination',minimumCount:1,
+     maximumCount:1,allowCancel:false,isSecret:false}});
+ assert.deepEqual(checkedDecision(request),{
+   kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'});
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
