@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {buildSourcePrintingMap,projectSourcePrintings,projectAdmittedWorkerParts,wrapSourcePrintedObserver,createCertifiedSourcePrintedHostBridge}=
+const {buildSourcePrintingMap,projectSourcePrintings,projectAdmittedWorkerParts,wrapSourcePrintedObserver,createCertifiedSourcePrintedHostBridge,createCertifiedRoleSourcePrintedHostBridge}=
   require('../../simulation/evaluation/2026-11/agent32-source-printing-bridge.cjs');
 
 const source={cards:[
@@ -410,4 +410,40 @@ test('single two-seat adapter binds frozen driver SHA to exact projected worker 
     sourceDecksBySeat:[source,otherDeck],
     nativeOrdered60BySeat:[ids,ids.slice(0,59)]
   }),/60/);
+});
+
+
+test('V3 candidate/opponent role adapter is stable under both physical seat permutations',()=>{
+  const otherSource={cards:[
+    {name:'Penny',count:1,printing:{set:'SVI',number:'999'}},
+    {name:'Psychic Energy',count:59,printing:{set:'SVE',number:'5'}}]};
+  const otherIds=['Penny SVI',...Array(59).fill('Psychic Energy SVE')];
+  const protocol={validateActorObservation(view,seat){assert.equal(view.actorSeat,seat);},
+    validatePrompt(){},validatePublicEventReceipt(){},
+    validateFrontier(frontier){return new Set(frontier.items.map(i=>i.token));}};
+  const native={observe(_state,seat){return {actorSeat:seat,
+    ownHand:['Penny SVI'],ownPublic:null,opponentPublic:null};}};
+  for(const candidateSeat of [0,1]){
+    const bridge=createCertifiedRoleSourcePrintedHostBridge({
+      native,protocol,candidateSeat,opponentSeat:1-candidateSeat,
+      candidateSourceDeck:source,opponentSourceDeck:otherSource,
+      candidateNativeOrdered60:ids,opponentNativeOrdered60:otherIds
+    });
+    for(const seat of [0,1]){
+      const observed=bridge.native.observe({},seat);
+      assert.equal(observed.ownHand[0],seat===candidateSeat?
+        'Penny SVI 183':'Penny SVI 999');
+      const actual=bridge.projectWorkerParts({observation:observed,
+        prompt:null,publicEventReceipt:null,
+        actionFrontier:{schema:'fixture',items:[
+          {kind:'play-card',token:'p',actorPrinting:'Penny SVI'}]}});
+      assert.equal(actual.actionFrontier.items[0].actorPrinting,
+        observed.ownHand[0]);
+    }
+  }
+  assert.throws(()=>createCertifiedRoleSourcePrintedHostBridge({
+    native,protocol,candidateSeat:0,opponentSeat:0,
+    candidateSourceDeck:source,opponentSourceDeck:otherSource,
+    candidateNativeOrdered60:ids,opponentNativeOrdered60:otherIds
+  }),/different physical seats/);
 });
