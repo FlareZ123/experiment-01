@@ -113,7 +113,7 @@ function choosePaleMoonEscapeGuzmaPrompt(view, prompt) {
      prompt.source.effectName!=='Guzma' ||
      prompt.source.sourcePrinting!=='Guzma BUS' ||
      prompt?.publicMetadata?.selectionType!=='pokemon' ||
-     prompt.publicMetadata.minimumCount!==1 ||
+     !([0,1].includes(prompt.publicMetadata.minimumCount)) ||
      prompt.publicMetadata.maximumCount!==1 ||
      prompt.publicMetadata.allowCancel!==false ||
      !Array.isArray(prompt.choices)) return null;
@@ -131,6 +131,10 @@ function choosePaleMoonEscapeGuzmaPrompt(view, prompt) {
   });
   if(valid.length!==1 || prompt.choices.some(choice=>
       choice?.kind==='pokemon'&&!valid.includes(choice)))return null;
+  // Pinned own-switch prompt omits min (projected as 0), though printed
+  // Guzma still requires switching after a successful opposing gust.
+  if(prompt.publicMetadata.minimumCount===0 &&
+     valid[0].publicMetadata.ownerSeat!=='actor')return null;
   return {token:valid[0].token,
     reason:'PUBLIC_PALE_MOON_GUZMA_EXACT_SINGLE_BENCH_PROMPT'};
 }
