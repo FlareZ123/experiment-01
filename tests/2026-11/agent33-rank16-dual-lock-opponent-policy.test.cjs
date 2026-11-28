@@ -143,3 +143,27 @@ test('rejects unknown prompt rather than fabricating a native token', () => {
     promptType: 'UnknownPrompt', source: { effectName: 'Unknown' }, choices: [] } })),
   { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' });
 });
+
+for(const seat of [0,1]){
+  test('rank16 Bench AMR reserves fifth physical slot for missing Budew seat '+seat,()=>{
+    const request=state(seat,{ownPublic:{active:poke(P.absol),bench:[
+      poke(P.trubbish),poke(P.crobat),poke('Dedenne-GX UNB 57'),
+      poke('Tapu Lele-GX GRI 60')]},items:[
+      action('play-card','crobat',{actorPrinting:P.crobat}),
+      action('pass','pass')]});
+    assert.deepEqual(decide(request),{kind:'select-action',token:'pass'});
+  });
+  test('rank16 scarce Bench basic search takes Budew over extra support seat '+seat,()=>{
+    const request=state(seat,{ownPublic:{active:poke(P.absol),bench:[
+      poke(P.trubbish),poke(P.crobat),poke('Dedenne-GX UNB 57'),
+      poke('Tapu Lele-GX GRI 60')]},prompt:{
+      promptType:'ChooseCardsPrompt',
+      source:{sourcePrinting:'Quick Ball FST 237',effectName:'Quick Ball'},
+      publicMetadata:{selectionType:'card-combination',minimumCount:1,maximumCount:1,allowCancel:false},
+      choices:[{kind:'card',token:'budew',printing:P.budew,
+        publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}},
+        {kind:'card',token:'crobat',printing:P.crobat,
+        publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}}]}});
+    assert.deepEqual(decide(request),{kind:'select-choices',tokens:['budew']});
+  });
+}
