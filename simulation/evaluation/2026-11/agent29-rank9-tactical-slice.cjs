@@ -819,7 +819,13 @@ function bombPlanner(o,sourceBenchIndex){
       if(mega(x)&&!ownHas(o,mega))return 410;
       if(isVol(x)&&!ownHas(o,isVol)&&!ownHas(o,elec))return 395;
       if(isToed(x)&&!ownHas(o,isToed)&&!ownHas(o,cruel))return 250;
-      if(isUn(x)&&!liveStadium(o,/Silent Lab/i)&&Number(o.ownPublic?.deckCount)>8)return 310;
+      if(isUn(x)&&!liveStadium(o,/Silent Lab/i)&&Number(o.ownPublic?.deckCount)>8){
+        // Farewell Letter is available immediately on a freshly Benched
+        // Unown. Do not surrender that draw to a non-final Claw KO.
+        const ko=mega(o.ownPublic?.active)&&usable(o.ownPublic?.active,'Claw of Darkness',o)?
+          knockoutScore(o,o.ownPublic.active,o.opponentPublic?.active,'Claw of Darkness'):0;
+        return ko>0&&ko<1000?ko+13:310;
+      }
       if(isDedenne(x)&&drawEngineLive(o)&&!ownHas(o,isDedenne)&&protectedReset(o,x))return 290;
       if(isSquawk(x)&&first(o)&&drawEngineLive(o)&&!ownHas(o,isSquawk)&&protectedReset(o,x))return 285;
       if(sableye(x)&&!ownHas(o,sableye)&&Number(o.opponentPublic?.active?.damage)>=30)return 240;
@@ -1170,7 +1176,8 @@ function bombPlanner(o,sourceBenchIndex){
           // Unowned Telepathic search is not a speculative draw reset:
           // it preserves the already funded direct, non-final attack.
           development.kind==='play-card'&&/^Telepathic Psychic Energy POR 88\b/i.test(name(development))&&
-          developmentScore>directScore
+          developmentScore>directScore||
+          development.kind==='play-card'&&isUn(development)&&developmentScore>directScore
         ))return {kind:'select-action',token:development.token};
         return {kind:'select-action',token:direct.token};
       }
