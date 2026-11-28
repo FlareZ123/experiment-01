@@ -35,6 +35,70 @@ function intersectAllPresent(groupSizes,excluded=0){
  }
  return favorable;
 }
+function firstTurnDrawEnvelope(){
+ // Starting 7 are checked for the at-least-one-Basic setup rule.
+ // After six Prizes are dealt, the ordinary turn draw is uniformly one
+ // of the 53 remaining cards *marginally*. We enumerate this 7+1 event
+ // exactly, without making the player's six Prize identities visible.
+ const kinds=[2,9,4,6,39]; // Budew, other Basics, Float, Quick/VIP, other
+ const subsets={direct:0n,drawBudewWithFloat:0n,searchFloatWithoutBudew:0n};
+ for(let b=0;b<=2;b++){
+  for(let a=0;a<=Math.min(9,7-b);a++){
+   for(let f=0;f<=Math.min(4,7-b-a);f++){
+    for(let q=0;q<=Math.min(6,7-b-a-f);q++){
+     const other=7-b-a-f-q;
+     if(other<0||other>39||b+a<1)continue;
+     const selected=[b,a,f,q,other];
+     let ways=1n;
+     selected.forEach((n,i)=>{ways*=choose(kinds[i],n)});
+     for(let drawn=0;drawn<5;drawn++){
+      const rem=kinds[drawn]-selected[drawn];
+      if(rem<1)continue;
+      const count=ways*BigInt(rem);
+      if(b>0){
+       subsets.direct+=count;
+      }else if(drawn===0&&f>0){
+       // Budew arrives in the ordinary turn draw; Float already in seven.
+       subsets.drawBudewWithFloat+=count;
+      }else if(drawn!==0&&(f+(drawn===2?1:0))>0&&(q+(drawn===3?1:0))>0){
+       // Budew absent among eight seen; Quick/VIP can search it *unless*
+       // both Budew are sequestered among the six face-down Prizes.
+       subsets.searchFloatWithoutBudew+=count;
+      }
+     }
+    }
+   }
+  }
+ }
+ const denominator=(choose(60,7)-choose(49,7))*53n;
+ const total=subsets.direct+subsets.drawBudewWithFloat+subsets.searchFloatWithoutBudew;
+ // Conditional on all 8 seen excluding Budew: 6 Prizes are uniformly a
+ // subset of the 52 unseen cards, 2 of which are Budew. Both inaccessible:
+ // C(50,4)/C(52,6) = 6*5/(52*51). Full calculation uses exact integers.
+ const prizeDen=choose(52,6);
+ const prizeBoth=choose(50,4);
+ const prizedAdjustedNumerator=
+  (subsets.direct+subsets.drawBudewWithFloat)*prizeDen+
+  subsets.searchFloatWithoutBudew*(prizeDen-prizeBoth);
+ const fraction=n=>Number(n)/Number(denominator);
+ return{
+  denominator:denominator.toString(),
+  direct:{count:subsets.direct.toString(),probability:fraction(subsets.direct)},
+  firstDrawBudewPlusFloat:{count:subsets.drawBudewWithFloat.toString(),
+    probability:fraction(subsets.drawBudewWithFloat)},
+  searchFloatNoBudewSeen:{count:subsets.searchFloatWithoutBudew.toString(),
+    probability:fraction(subsets.searchFloatWithoutBudew)},
+  union:{count:total.toString(),probability:fraction(total)},
+  chanceBothUnseenBudewPrizeGivenNoBudewSeenEight:
+   Number(prizeBoth)/Number(prizeDen),
+  prizeAdjustedUnion:{
+   numerator:prizedAdjustedNumerator.toString(),
+   denominator:(denominator*prizeDen).toString(),
+   probability:Number(prizedAdjustedNumerator)/Number(denominator*prizeDen)
+  },
+  interpretation:'resource-presence upper envelope; does not model Quick Ball discard or available tools/attack effects, may miss other search routes'
+ };
+}
 function calculate(){
  const deckSize=SOURCE_INVENTORY.reduce((a,b)=>a+b[1],0);
  if(deckSize!==60||SOURCE_INVENTORY.length!==29)throw Error('source inventory changed');
@@ -60,6 +124,7 @@ function calculate(){
   unconditionalMulliganProbability:1-Number(legal)/Number(denominator),
   denominator:count(denominator),
   validOpenings:count(legal),
+  firstTurnDrawResourceEnvelope:firstTurnDrawEnvelope(),
   conditionalOnValidOpening:{
    directBudew:{count:count(directBudew),probability:proportion(directBudew)},
    budewAndTrubbish:{count:count(budewAndTrubbish),probability:proportion(budewAndTrubbish)},
@@ -73,4 +138,4 @@ function calculate(){
  });
 }
 if(require.main===module)process.stdout.write(JSON.stringify(calculate(),null,2)+'\n');
-module.exports={HAND,basicNames,choose,intersectAllPresent,calculate};
+module.exports={HAND,basicNames,choose,intersectAllPresent,firstTurnDrawEnvelope,calculate};
