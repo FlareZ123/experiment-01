@@ -536,8 +536,7 @@ function getLostPressure(view) {
 // Supporter search (native ChooseCardsPrompt, not a Yes/No confirmation).
 function wonderTagSupporterScore(view, printing) {
   if (hasName(printing, 'Arven')) {
-    return !boardHas(view, 'Shadow Rider Calyrex V') ||
-      !boardHas(view, 'Shadow Rider Calyrex VMAX') ? 1350 : 520;
+    return needShadowRiderBasic(view) || needShadowRiderVMAX(view) ? 1350 : 520;
   }
   if (hasName(printing, "Lillie's Determination"))
     return view.ownPublic.handCount <= 5 ? 1200 : 520;
@@ -556,13 +555,10 @@ function nightStretcherRecoveryScore(view, printing) {
   if (!isText(printing)) return 0;
   if (hasName(printing, 'Mimikyu') && opponentHasRegidrago(view) &&
       !boardHas(view, 'Mimikyu') && !handHas(view, 'Mimikyu')) return 1050;
-  if (hasName(printing, 'Shadow Rider Calyrex VMAX') &&
-      boardHas(view, 'Shadow Rider Calyrex V') &&
-      !boardHas(view, 'Shadow Rider Calyrex VMAX') &&
-      !handHas(view, 'Shadow Rider Calyrex VMAX')) return 950;
-  if (hasName(printing, 'Shadow Rider Calyrex V') &&
-      !hasName(printing, 'VMAX') && !boardHas(view, 'Shadow Rider Calyrex V') &&
-      !handHas(view, 'Shadow Rider Calyrex V')) return 920;
+  if (printing === 'Shadow Rider Calyrex VMAX CRE 75' &&
+      needShadowRiderVMAX(view)) return 950;
+  if (printing === 'Shadow Rider Calyrex V CRE 74' &&
+      needShadowRiderBasic(view)) return 920;
   if (hasName(printing, "Lillie's Clefairy ex") && opponentHasDragon(view) &&
       !boardHas(view, "Lillie's Clefairy ex") &&
       !handHas(view, "Lillie's Clefairy ex")) return 850;
@@ -1250,8 +1246,8 @@ function chooseUnderworldEnergyAssignment(view, prompt) {
       continue;
     }
     let score=120-slotEnergyCount(slot)*10;
-    if (hasName(slot.printing, 'Shadow Rider Calyrex VMAX')) score+=420;
-    if (hasName(slot.printing, 'Shadow Rider Calyrex V')) score+=220;
+    if (slot.printing === 'Shadow Rider Calyrex VMAX CRE 75') score+=420;
+    else if (slot.printing === 'Shadow Rider Calyrex V CRE 74') score+=220;
     if (opponentHasRegidrago(view) &&
         hasName(slot.printing, 'Mimikyu') && slotEnergyCount(slot)<2) score+=1000;
     if (opponentHasDragon(view) &&
@@ -1472,13 +1468,11 @@ function canGuzmaForAttack(view, receipt) {
 }
 
 function stoneSearchNeed(view) {
-  const hasVMAX = ownBoard(view).some(slot =>
-    hasName(slot.printing, 'Shadow Rider Calyrex VMAX'));
   const needsCounter = opponentHasRegidrago(view) &&
     !boardHas(view, 'Mimikyu') && !handHas(view, 'Mimikyu');
   const needsEnergy = psychicEnergyCount(view) < 3 &&
     !handHas(view, 'Psychic Energy');
-  return (!hasVMAX && !handHas(view, 'Shadow Rider Calyrex VMAX')) ||
+  return needShadowRiderBasic(view) || needShadowRiderVMAX(view) ||
     needsCounter || needsEnergy;
 }
 
@@ -1593,7 +1587,7 @@ function scoreTrainerPlay(item, view, receipt) {
   if (hasName(name, 'Ultra Ball') && hasDiscardableHand(view, 2, name) &&
       needShadowRiderVMAX(view)) return 780;
   if (hasName(name, 'Arven') && !supporterUsed &&
-      (!boardHas(view, 'Shadow Rider Calyrex V') ||
+      (needShadowRiderBasic(view) || needShadowRiderVMAX(view) ||
        (hasAbilityLockThreat(view) && !ownBoard(view).some(slot =>
          slot.tools.some(tool => hasName(tool, 'Stealthy Hood')))))) return 760;
   if (hasName(name, 'Guzma') && !supporterUsed && canGuzmaForAttack(view, receipt)) return 750;
@@ -1605,7 +1599,7 @@ function scoreTrainerPlay(item, view, receipt) {
         slot.hp - slot.damage <= 150)) return 850;
   if (hasName(name, "Lillie's Determination") && !supporterUsed &&
       (view.ownPublic.handCount <= 5 ||
-       (!boardHas(view, 'Shadow Rider Calyrex V') &&
+       (needShadowRiderBasic(view) &&
         view.ownPublic.handCount <= 8) ||
        view.ownPublic.deckCount <= 10)) return 700;
   if (hasName(name, 'Iono PAL') && !supporterUsed) {
