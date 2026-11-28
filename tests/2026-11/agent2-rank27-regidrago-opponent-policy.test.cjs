@@ -765,8 +765,7 @@ test('last-Prize Prime Catcher beats immediate Apex only with real ready Bench V
   const oppPrompt=promptRequest(seat,obs,'Prime Catcher','Prime Catcher TEF',
    'ChoosePokemonPrompt',[
      promptChoice('healthy','opponent',1),
-     promptChoice('wounded','opponent',0),
-     promptChoice('wrong-owner','actor',0)
+     promptChoice('wounded','opponent',0)
    ],{selectionType:'pokemon',minimumCount:1,maximumCount:1,
      allowCancel:false});
   const oppDecision=decide(seat,oppPrompt);
@@ -812,5 +811,63 @@ test('last-Prize Prime Catcher beats immediate Apex only with real ready Bench V
    ],{selectionType:'pokemon',minimumCount:1,maximumCount:1,
      allowCancel:false});
   assert.equal(decide(seat,wrong).kind,'abstain');
+ }
+});
+
+test('rank27 Guzma final-Prize route uses two real physical Bench prompt branches',()=>{
+ for(const seat of [0,1]){
+  const base=observation(seat),own={...base.ownPublic,
+    prizeCount:1,bench:[
+      pokemon(P.star,{energies:['Double Dragon Energy ROS',
+         'Fire Energy MEE']}),
+      pokemon(P.budew)
+    ],discard:[P.dragapult]
+  };
+  const opp={...base.opponentPublic,bench:[
+    pokemon('Crobat V DAA 104',{hp:180,damage:0}),
+    pokemon('Pidgeot ex OBF 164',{hp:280,damage:30})
+  ]};
+  const obs=observation(seat,{ownPublic:own,opponentPublic:opp});
+  const actions=[
+    action('guzma','play-card','Guzma BUS'),
+    action('apex','attack',P.star,{attackName:'Apex Dragon'}),
+    action('pass','pass','Pass')];
+  assert.equal(tok(root(seat,obs,actions)),'guzma');
+  const ch=(token,ownerSeat,index)=>({
+    kind:'pokemon',token,label:token,
+    publicMetadata:{targetZone:'bench',ownerSeat,
+       benchIndex:index,isOwnerVisible:true}
+  });
+  const opponent=promptRequest(seat,obs,'Guzma','Guzma BUS',
+     'ChoosePokemonPrompt',[
+      ch('healthy','opponent',1),ch('knockout','opponent',0)
+     ],{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+       allowCancel:false});
+  const dec1=decide(seat,opponent);
+  assert.deepEqual(dec1,{kind:'select-choices',tokens:['knockout']});
+  assert.deepEqual(validateDecision(dec1,
+    validatePrompt(opponent.prompt,seat),new Set()),dec1);
+  const next=observation(seat,{ownPublic:own,opponentPublic:{
+    ...opp,active:opp.bench[0],bench:[opp.active,opp.bench[1]]
+  }});
+  const ally=promptRequest(seat,next,'Guzma','Guzma BUS',
+     'ChoosePokemonPrompt',[
+       ch('budew','actor',1),ch('vstar','actor',0)
+     ],{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+       allowCancel:false});
+  const dec2=decide(seat,ally);
+  assert.deepEqual(dec2,{kind:'select-choices',tokens:['vstar']});
+  assert.deepEqual(validateDecision(dec2,
+    validatePrompt(ally.prompt,seat),new Set()),dec2);
+  const noReady=observation(seat,{ownPublic:{
+    ...own,bench:[pokemon(P.star,{energies:['Grass Energy MEE']})]
+  },opponentPublic:opp});
+  assert.equal(tok(root(seat,noReady,actions)),'apex');
+  const forged={...opponent,prompt:{...opponent.prompt,
+    choices:[ch('actor','actor',0),ch('opp','opponent',0)]}};
+  assert.equal(decide(seat,forged).kind,'abstain');
+  const wrongSrc={...opponent,prompt:{...opponent.prompt,
+    source:{...opponent.prompt.source,sourcePrinting:'Guzma BUS 999'}}};
+  assert.equal(decide(seat,wrongSrc).kind,'abstain');
  }
 });
