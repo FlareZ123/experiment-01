@@ -88,6 +88,35 @@ for(const seat of [0,1]){
     request.prompt=prompt(seat);
     assert.deepEqual(policy.decide(request),{kind:'select-choices',tokens:['arven']});
   });
+  test('discarded Guzma is recovered and played for a paid-Bench knockout seat='+seat,()=>{
+    const {policy,request,view}=fixture(seat,{discard:[G,L]});
+    view.ownPublic.bench=[{...pokemon('Shadow Rider Calyrex VMAX CRE 75'),
+      hp:320,printed:{types:['Psychic'],subtypes:['VMAX','V'],retreatCost:['Colorless']},
+      energies:Array(3).fill('Psychic Energy MEE 13'),
+      attacks:[{name:'Max Geist',cost:['Colorless','Colorless','Colorless'],
+        damage:10,damageCalculation:'+',
+        text:'This attack does 30 more damage for each Psychic Energy attached to all of your Pokémon.'}]}];
+    view.opponentPublic.active={...pokemon('Regidrago VSTAR SIT 136'),hp:280};
+    view.opponentPublic.bench=[{...pokemon('Mimikyu GRI 58'),hp:70}];
+    assert.deepEqual(policy.decide(request),{kind:'select-action',token:'seeker'});
+    view.decisionKind='owner-prompt';
+    const p=prompt(seat);
+    p.choices=p.choices.filter(c=>c.token!=='arven'&&c.token!=='iono'&&c.token!=='item');
+    p.choices.push({token:'guzma',kind:'card',printing:G,
+      publicMetadata:{selectionIndex:4,selectedCount:1,
+        sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true}});
+    assert.doesNotThrow(()=>protocol.validatePrompt(p,seat));
+    request.prompt=p;
+    const selection=policy.decide(request);
+    assert.deepEqual(selection,{kind:'select-choices',tokens:['guzma']});
+    assert.deepEqual(protocol.validateDecision(selection,p,new Set()),selection);
+    view.decisionKind='owner-root';
+    view.ownHand=[G];view.ownPublic.handCount=1;view.ownPublic.discard=[VS,L];
+    request.prompt=null;
+    request.actionFrontier.items=[{kind:'play-card',token:'guzma',
+      actorPrinting:G,publicMetadata:{cardType:'trainer'}},{kind:'pass',token:'pass'}];
+    assert.deepEqual(policy.decide(request),{kind:'select-action',token:'guzma'});
+  });
   test('wrong source and spoofed discard Item rejected seat='+seat,()=>{
     const {policy,request,view}=fixture(seat);
     view.decisionKind='owner-prompt';
