@@ -1224,6 +1224,9 @@ const APEX_PAYLOADS=[
   // and simultaneous Prize resolution are not modeled by this optimistic
   // incoming-damage hazard scorer.
   ['Koraidon ex TEF','Kaiser Tackle',280],
+  // Retribution Strike is 20 + 10 for each damage counter on *the attacker*.
+  // Via Apex Dragon, 'this Pokemon' is the Regidrago currently attacking.
+  ['Koraidon ex TEF','Retribution Strike',20],
   // The source all-nine Regidrago Basic V (SIT 135) is itself Dragon type.
   // Its Dragon Laser is 130 to Active plus 30 to one Bench target.
   ['Regidrago V SIT','Dragon Laser',130],
@@ -1286,6 +1289,13 @@ function hazardVariants(view,rows,activeKey,payload){
   // still omits defensive bench prevention, so this is an optimistic hazard.
   if(name==='Wide Blast')return [{name,alteredPrizeKey:null,
     hits:rows.filter(row=>row.key!==activeKey).map(row=>[row.key,base])}];
+  if(name==='Retribution Strike'){
+    const counters=Number.isSafeInteger(view.opponentPublic.active?.damage) &&
+      view.opponentPublic.active.damage>=0?
+      Math.floor(view.opponentPublic.active.damage/10):0;
+    return [{name,alteredPrizeKey,
+      hits:[[active.key,modified(active)+10*counters]]}];
+  }
   if(name==='Dragon Laser'){
     const bench=rows.filter(row=>row.key!==activeKey);
     return (bench.length?bench:[null]).map(row=>({
