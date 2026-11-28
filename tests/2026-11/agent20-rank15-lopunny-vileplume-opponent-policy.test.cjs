@@ -114,9 +114,102 @@ test('Poffin opponent-zone, missing bounds and unsupported effect fail closed',(
   r.prompt.publicMetadata.ownerSeat='actor';delete r.prompt.publicMetadata.maximumCount;
   assert.equal(decision(r).reasonCode,'UNSUPPORTED_CARD_COMBINATION_SOURCE');
   r.prompt.source.sourcePrinting='Tag Call CEC 206';
-  assert.equal(decision(r).reasonCode,'UNSUPPORTED_PROMPT_TYPE');
+  assert.equal(decision(r).reasonCode,'UNSUPPORTED_CARD_COMBINATION_SOURCE');
 });
 test('wrong seat and source config cannot choose offered tokens',()=>{
   const r=root(0);r.seat=1;
   assert.equal(policy(0).decide(r).reasonCode,'ROLE_SEAT_BINDING_MISMATCH');
+});
+
+const tag='Tag Call CEC 206',gh='Guzma & Hala CEC 193';
+const tm='Technical Machine: Evolution PAR 178',jet='Jet Energy PAL 190';
+const xt='Xtransceiver NVI 96';
+const grand='Grand Tree SCR 136';
+const selection=(r,source,zone,choices,min,max)=>{
+  r.prompt={promptType:'ChooseCardsPrompt',source:{sourcePrinting:source,effectName:source.split(' CEC')[0]},
+    publicMetadata:{selectionType:'card-combination',ownerSeat:'actor',isOwnerVisible:true,
+      sourceZone:zone,minimumCount:min,maximumCount:max},choices};return r;
+};
+function ghRoot(seat){
+  const r=root(seat);r.observation.ownPublic=p(pokemon('Bunnelby PRC 121',{hp:70}),
+    [pokemon(oddish,{hp:50})]);
+  r.observation.opponentPublic=p(pokemon('Shadow Rider Calyrex VMAX CRE 75',{hp:320}));
+  r.observation.ownTurnResources={supporterPlayedTurn:0,energyPlayedTurn:0};
+  r.observation.ownHand=[tag,xt,xt,'Buneary PFL 83'];
+  r.actionFrontier.items=[src(tag,'play-card','tag'),src('Gloom UNB 7','pass','pass')];
+  return r;
+}
+for(const seat of [0,1]){
+  test('seat '+seat+': Tag Call -> Guzma&Hala paid mode -> 3-category retrieval -> TM Bunnelby Evolution attack',()=>{
+    const r=ghRoot(seat);
+    assert.deepEqual(decision(r),{kind:'select-action',token:'tag'});
+    selection(r,tag,'deck',[card(gh,'gh'),card('Guzma BUS 115','not-tag')],0,2);
+    assert.deepEqual(decision(r),{kind:'select-choices',tokens:['gh']});
+    r.prompt=null;r.observation.ownHand=[gh,xt,xt];
+    r.actionFrontier.items=[src(gh,'play-card','play-gh')];
+    assert.deepEqual(decision(r),{kind:'select-action',token:'play-gh'});
+    r.observation.ownHand=[xt,xt];
+    r.prompt={promptType:'SelectOptionPrompt',source:{sourcePrinting:gh,effectName:'Guzma & Hala'},
+      publicMetadata:{selectionType:'option'},choices:[
+        {kind:'option',token:'zero',label:'Do not discard 2 cards',publicMetadata:{choiceIndex:0}},
+        {kind:'option',token:'one',label:'Discard 2 cards from hand',publicMetadata:{choiceIndex:1}}]};
+    assert.deepEqual(decision(r),{kind:'select-choice',token:'one'});
+    selection(r,gh,'hand',[card(xt,'x1'),card(xt,'x2'),card('Buneary PFL 83','valuable')],2,2);
+    assert.deepEqual(decision(r),{kind:'select-choices',tokens:['x1','x2']});
+    r.observation.ownHand=[];
+    selection(r,gh,'deck',[card(grand,'s'),card('Artazon PAL 171','a'),
+      card(tm,'t'),card('Stealthy Hood UNB 186','h'),card(jet,'j'),
+      card('Double Colorless Energy SUM 136','d')],3,3);
+    assert.deepEqual(decision(r),{kind:'select-choices',tokens:['t','j','s']});
+    r.prompt=null;r.observation.ownHand=[grand,tm,jet];
+    r.actionFrontier.items=[{...src(tm,'play-card','attach-tm'),targetPrinting:'Bunnelby PRC 121'}];
+    assert.deepEqual(decision(r),{kind:'select-action',token:'attach-tm'});
+    r.observation.ownPublic.active.tools=[tm];r.observation.ownHand=[grand,jet];
+    r.actionFrontier.items=[{...src(jet,'play-card','attach-jet'),targetPrinting:'Bunnelby PRC 121'}];
+    assert.deepEqual(decision(r),{kind:'select-action',token:'attach-jet'});
+    r.observation.ownPublic.active.energies=[jet];r.observation.ownHand=[grand];
+    r.actionFrontier.items=[src('Bunnelby PRC 121','attack','evo','Evolution')];
+    assert.deepEqual(decision(r),{kind:'select-action',token:'evo'});
+    selection(r,tm,'deck',[card('Gloom UNB 7','gloom'),
+      card('Vileplume AOR 3','stage2')],0,2);
+    assert.deepEqual(decision(r),{kind:'select-choices',tokens:['gloom']});
+    r.prompt={promptType:'ChoosePokemonPrompt',source:{sourcePrinting:tm,effectName:'Evolution'},
+      publicMetadata:{selectionType:'pokemon',targetZone:'bench',minimumCount:1,maximumCount:1},
+      choices:[{kind:'pokemon',token:'oddish',printing:oddish,
+        publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0}}]};
+    assert.deepEqual(decision(r),{kind:'select-choices',tokens:['oddish']});
+  });
+}
+test('Tag Call not initiated without two disposable costs and an evolution target',()=>{
+  const r=ghRoot(0);r.observation.ownHand=[tag,xt,'Buneary PFL 83',jet];
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  r.observation.ownHand=[tag,xt,xt];r.observation.ownPublic.bench=[];
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+});
+test('Guzma&Hala declines payment mode when one of two safe cards disappears',()=>{
+  const r=ghRoot(0);r.observation.ownHand=[xt];
+  r.prompt={promptType:'SelectOptionPrompt',source:{sourcePrinting:gh,effectName:'Guzma & Hala'},
+    publicMetadata:{selectionType:'option'},choices:[
+      {kind:'option',token:'zero',label:'No',publicMetadata:{choiceIndex:0}},
+      {kind:'option',token:'one',label:'Discard 2 cards from hand',publicMetadata:{choiceIndex:1}}]};
+  assert.deepEqual(decision(r),{kind:'select-choice',token:'zero'});
+});
+test('Guzma&Hala refuses opponent-owned deck retrieval and underpayment',()=>{
+  const r=ghRoot(0);
+  selection(r,gh,'deck',[card(tm,'tm'),card(jet,'j'),card(grand,'g')],3,3);
+  r.prompt.publicMetadata.ownerSeat='opponent';
+  assert.equal(decision(r).reasonCode,'UNSUPPORTED_CARD_COMBINATION_SOURCE');
+  r.prompt.publicMetadata.ownerSeat='actor';r.prompt.choices=[card(tm,'tm')];
+  assert.equal(decision(r).reasonCode,'NO_LEGAL_CARD_SET');
+  r.observation.ownHand=[xt];
+  selection(r,gh,'hand',[card(xt,'x1'),card(xt,'x2')],2,2);
+  assert.equal(decision(r).reasonCode,'NO_LEGAL_CARD_SET');
+});
+test('Technical Machine Evolution rejects non-actor Bench target',()=>{
+  const r=ghRoot(0);
+  r.prompt={promptType:'ChoosePokemonPrompt',source:{sourcePrinting:tm,effectName:'Evolution'},
+    publicMetadata:{selectionType:'pokemon',targetZone:'bench',minimumCount:1,maximumCount:1},
+    choices:[{kind:'pokemon',token:'o',printing:oddish,
+      publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:0}}]};
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_POKEMON_CHOICE');
 });
