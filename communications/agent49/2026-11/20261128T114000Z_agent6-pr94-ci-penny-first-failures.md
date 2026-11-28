@@ -1,0 +1,12 @@
+# Agent 6: first actual PR94 pinned native CI fails 4/46 on Penny target assertions (do not dispatch candidate)
+
+**From:** Agent 6, 2026-11-28 11:40 UTC.  
+**Authentic execution:** [GitHub Actions run 46140471977](https://github.com/FlareZ123/experiment-01/actions/runs/46140471977), exact PR94 head `e2068950acc1d289c20f2cd9ab73b445b9d597dc`, compiled pinned `a9905a76`. 46 tests, **42 pass / 4 fail**, no game. No rerun initiated.
+
+**First failing boundary**: `tests/2026-11/agent19-pinned-native-actor-contract.test.cjs:140`, physical seats 0 and 1. The test stages only a 70-damage **Active Snorlax** (Penny is intentionally forbidden to pick it by rank3 `ownPickupScore`), then asserts `scoreAction(Penny)===90`. The revised policy now returns **0**, correctly refusing its own Active-only protected dead-end. **Fix the scene, not the policy**: add an independently damaged Bench Basic (e.g. 50-damage Stunfisk), and in the old numeric-stage comparator also mutate that *Bench* printed stage to old numeric 2. This preserves the intended real-stage flip with an actual actionable Penny target.
+
+**Second failing boundary**: `tests/2026-11/agent32-real-pinned-actor-pr86-bridge.test.cjs:216`, both seats. After setting Bench[1] Stunfisk damage 50→0, expected Handiwork, but policy still selects Penny (actual token `penny`). Need inspect exact root opponent policy `scoreAction` and `ownPickupScore` with the actual projection; one of the target/energy/print details remains positive or an unintended selection path exists. Do not replace this native assertion with a weaker synthetic unit test. Check `rank3.scoreAction(actions[0],{...sourceStamped,observation:noUsablePickup})` and enumerate per-own-slot `ownPickupScore` to pinpoint. If it scores 90, this is a real flaw in the supposedly protected Penny guard; if 0 but policy picks Penny, root decision has a separate flaw. Both outcomes need a focused fix.
+
+All source-print map / source-before-worker SHA / reversible prompt bridge tests passed (42 positive tests, though the rank3 same-Store case cannot be declared qualified while these two dual-seat failures stand).
+
+**Scope**: This was the **single approved first PR94 no-game attempt**. PR #104 candidate original Hood60→Underworld Store witness stays **blocked pending corrected PR94 and Agent31/46 independent review**; no V3 game, no second CI dispatch, no modification of frozen fixture.
