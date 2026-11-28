@@ -27,6 +27,22 @@ The existing fixed New Moon 60 contains several **Psychic-type attacks**:
 
 Seven source lists including Noivern prove only **availability in the 60**. Noivern may be Prized, in hand, not discarded, or source may choose a different attack for a better board outcome. A source that actually used Covert Flight must be modeled with its turn-specific effect active; the copied attack is not automatically always in effect.
 
+## A second, lower-Bench attack solution under Parallel City: Cursed Blast130 + doubled Rondo80
+
+The same matchups have a **distinct same-turn Dusknoir Ability + Clefairy attack** line when the source's **Parallel City** reduces our maximum Bench to three and six combined Bench spots are unrealistic. **Seven of nine Regidrago ranks (10/12/13/20/21/27/32) carry one Parallel City**. A source may play its Bench-reducing side toward us; the exact direction and live Bench limit must be checked, not inferred from a card in deck.
+
+With **Regidrago VSTAR280 Active**, **Fairy Zone live**, a **Benched ready Dusknoir Cursed Blast**, **no active Covert Flight damage protection** on that target, a paid **Active Clefairy ex Full Moon Rondo [P][C]**, and *at least three combined Bench occupants at the actual subsequent attack time*:
+
+1. Dusknoir uses **Cursed Blast130** on Regidrago, self-KOs and awards opponent **one Prize** (do not choose if opponent was on final Prize). This *decreases* own Bench occupancy by one.
+2. If needed, **refill Dusknoir's vacated Bench slot before the attack**: with one Basic Psychic previously attached to Active Clefairy and the manual Energy attachment unused, attaching **Telepathic Psychic Energy from hand to Active Clefairy** supplies its second attack Energy and may search one eligible Basic Psychic from the actual deck to its now-open Bench slot. Under own Solrock+Lunatone live New Moon, a source Path does not suppress Fairy Zone; under source Parallel's Bench3 cap, the self-KO creates a legal slot. If TPE had already been attached, a Basic played from hand or prior Bench count must supply the third post-KO occupant.
+3. **Full Moon Rondo at combined Bench3** deals base **20+20×3=80**, with **Psychic Weakness ×2 =160**, taking the damaged VSTAR to **130+160=290** and Knocking Out **280HP Regidrago for two opposing Prizes**. This is only **two attacking Energy on Clefairy**, no GX, and no paid Stage2 attack, but **one own Stage2 self-KO Prize**; Dusknoir's Cursed Blast counters themselves are **not doubled** by Weakness.
+
+The Bench threshold algebra is exact: after 130 damage counters, Rondo must do ≥150 attack damage; with live Fairy Zone its attack damage is **40+40N** for combined Bench N, so **N≥3**. Without Blast, Rondo alone must reach280 and requires **N≥6**. One Dusclops CursedBlast50 + Rondo instead requires **N≥5**; two Dusclops50+50 require **N≥4** while conceding **two self-KO Prizes** and removing two Bench occupants. The single new Stage2 130 effect is a meaningful *discrete payoff threshold* at N3, not merely a broad win-rate proxy.
+
+**Failure envelope:** if source VSTAR actually used **Noivern Covert Flight** in its prior turn, the Basic Clefairy attack's damage is prevented entirely and the 130 counters do **not** make the 160 follow-up work; attack damage is zero. If source ranks12/13/20/21/27/32 have **Path/Silent Lab** suppressing Fairy Zone without live New Moon protection, Rondo is only **80**, so 130+80=210 and no KO. Rank32 may attach Stealthy Hood to the target and block one or both Ability effects; another source KO/retreat/attack-stopping action can prevent the turn from occurring, and 2-Prize Clefairy remains exposed. The source has no response **between** two effects on our same turn (although reactive effects still resolve normally), so this is a real sequencing advantage when the turn is legal.
+
+**Policy implication:** check an *already payable Stage2 Shadow Bind300 no-selfKO* or **paid, unprotected one-hit Rondo≥280** first. Only if those are not available should the policy consider **Blast130 → refill Bench → Rondo160** under Parallel constraints, and it must reject the line if the post-selfKO combined Bench is only two or the opponent takes their final Prize from the self-KO.
+
 ## Exact source-list class and hard blockers
 
 The canonical 29 authenticated Top32 ranks containing 3 Regidrago VSTAR each are:
