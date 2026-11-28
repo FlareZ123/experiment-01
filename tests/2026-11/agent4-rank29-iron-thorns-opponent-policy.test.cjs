@@ -1704,3 +1704,60 @@ test('Volt Cyclone energy-attachment rejects spoofed source, false owner and non
     assert.equal(checkedDecision(promptRequest({...base,...changes})).kind,'abstain');
   }
 });
+
+
+test('Peonia requires a certifiably Prized singleton, not merely a certified K1 deck', () => {
+  const hand=['Peonia CRE 149',"Trainers' Mail ROS 92",
+    'Camping Gear BST 122','Captivating Poké Puff STS 99'];
+  const items=[
+    action('peonia','play-card','Peonia CRE 149',{cardType:'supporter'}),
+    {token:'pass',kind:'pass'}
+  ];
+  const dce='Double Colorless Energy SUM 136';
+  const thunder='Thunder Mountain ♢ LOT 191';
+  const megaton='Megaton Blower SSP 182';
+  const k1=(entries)=>({epoch:2,exactMembershipKnown:true,
+    knownPrintings:entries.map(printing=>({printing,copies:1})),
+    invalidationReason:null});
+  const base={ownHand:hand,items};
+  assert.deepEqual(checkedDecision(rootRequest({...base,
+    ownerK1:k1([dce,thunder,megaton])
+  })),{kind:'select-action',token:'pass'});
+  assert.deepEqual(checkedDecision(rootRequest({...base,
+    ownerK1:k1([thunder,megaton]),
+    ownPublic:player({active:pokemon(),discard:[dce]})
+  })),{kind:'select-action',token:'pass'});
+  assert.deepEqual(checkedDecision(rootRequest({...base,
+    ownerK1:k1([thunder,megaton]),
+    ownPublic:player({active:pokemon(),lostZone:[dce]})
+  })),{kind:'select-action',token:'pass'});
+  assert.deepEqual(checkedDecision(rootRequest({...base,
+    ownerK1:k1([thunder,megaton]),
+    ownPublic:player({active:pokemon('Iron Thorns ex TWM 77',{energies:[dce]})})
+  })),{kind:'select-action',token:'pass'});
+  assert.deepEqual(checkedDecision(rootRequest({...base,
+    ownerK1:k1([thunder,megaton])
+  })),{kind:'select-action',token:'peonia'});
+  assert.deepEqual(checkedDecision(rootRequest({...base,
+    ownerK1:{...k1([thunder,megaton]),exactMembershipKnown:false}
+  })),{kind:'select-action',token:'pass'});
+});
+
+test('Peonia rescues confirmed Prized Thunder when DCE remains in deck, but ignores unused Megaton', () => {
+  const base={
+    ownHand:['Peonia CRE 149',"Trainers' Mail ROS 92",
+      'Camping Gear BST 122','Captivating Poké Puff STS 99'],
+    items:[
+      action('peonia','play-card','Peonia CRE 149',{cardType:'supporter'}),
+      {token:'pass',kind:'pass'}
+    ]
+  };
+  const k1=(entries)=>({exactMembershipKnown:true,
+    knownPrintings:entries.map(printing=>({printing,copies:1}))});
+  assert.deepEqual(checkedDecision(rootRequest({...base,
+    ownerK1:k1(['Double Colorless Energy SUM 136','Megaton Blower SSP 182'])
+  })),{kind:'select-action',token:'peonia'});
+  assert.deepEqual(checkedDecision(rootRequest({...base,
+    ownerK1:k1(['Double Colorless Energy SUM 136','Thunder Mountain ♢ LOT 191'])
+  })),{kind:'select-action',token:'pass'});
+});
