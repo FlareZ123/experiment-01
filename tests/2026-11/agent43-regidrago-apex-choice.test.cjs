@@ -33,6 +33,7 @@ function observation(options = {}) {
         hp: 280, subtypes: ['VSTAR'], energies: ['Double Dragon Energy XY 97']
       }),
       bench: options.ownBench ?? [],
+      stadium: options.ownStadium ?? [],
       deckCount: options.deckCount ?? 20,
       publicTurnRestrictions: { gxUsed: options.gxUsed ?? false },
       prizeCount: options.ownPrizeCount ?? 6
@@ -42,6 +43,7 @@ function observation(options = {}) {
         hp: 320, subtypes: ['VMAX'], types: ['Psychic'], weakness: [{ type: 'Darkness', value: '×2' }]
       }),
       bench: options.opponentBench ?? [],
+      stadium: options.opponentStadium ?? [],
       prizeCount: options.opponentPrizeCount ?? 6
     }
   };
@@ -205,6 +207,78 @@ test('Celestial Roar is a fallback acceleration line when Regidrago has little E
     })
   });
   assert.equal(evaluateApexAttackChoice(choice('c', 'Celestial Roar'), obs).score, 68);
+});
+
+test('Jet Headbutt is a supported 70-damage Dragon payload and values an Active Knock Out', () => {
+  const ordinary = evaluateApexAttackChoice(choice('j', 'Jet Headbutt'), observation());
+  assert.equal(ordinary.damage, 70);
+  assert.equal(ordinary.score, 85);
+  const knockout = evaluateApexAttackChoice(choice('j', 'Jet Headbutt'), observation({
+    opponentActive: pokemon('Basic low-HP Pokémon', { hp: 70, subtypes: ['Basic'], types: ['Colorless'] })
+  }));
+  assert.equal(knockout.activeKnockout, true);
+  assert.equal(knockout.score, 123);
+});
+
+test('Covert Flight values its Basic-attack protection only when the current Active is Basic', () => {
+  const basic = evaluateApexAttackChoice(choice('c', 'Covert Flight'), observation({
+    opponentActive: pokemon('Basic attacker', { hp: 180, subtypes: ['Basic'], types: ['Colorless'] })
+  }));
+  const evolved = evaluateApexAttackChoice(choice('c', 'Covert Flight'), observation({
+    opponentActive: pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+      hp: 320, subtypes: ['VMAX'], types: ['Psychic']
+    })
+  }));
+  assert.equal(basic.protectedAgainstBasic, true);
+  assert.equal(basic.score, 130);
+  assert.equal(evolved.protectedAgainstBasic, false);
+  assert.equal(evolved.score, 60);
+});
+
+test('Dominating Echo values visible Stadium or Special Energy use as lock targets', () => {
+  const noVisibleTarget = evaluateApexAttackChoice(choice('d', 'Dominating Echo'), observation());
+  const opponentOwnedStadium = evaluateApexAttackChoice(choice('d', 'Dominating Echo'), observation({
+    opponentStadium: ['Path to the Peak']
+  }));
+  const attackerOwnedStadium = evaluateApexAttackChoice(choice('d', 'Dominating Echo'), observation({
+    ownStadium: ['Path to the Peak']
+  }));
+  const specialEnergyTarget = evaluateApexAttackChoice(choice('d', 'Dominating Echo'), observation({
+    opponentBench: [pokemon('Opponent Pokémon', { energies: ['Double Dragon Energy XY 97'] })]
+  }));
+  assert.equal(noVisibleTarget.score, 185);
+  assert.equal(opponentOwnedStadium.stadiumInPlay, true);
+  assert.equal(opponentOwnedStadium.score, 260);
+  assert.equal(attackerOwnedStadium.stadiumInPlay, true);
+  assert.equal(attackerOwnedStadium.score, 260);
+  assert.equal(specialEnergyTarget.opponentHasSpecialEnergy, true);
+  assert.equal(specialEnergyTarget.score, 260);
+});
+
+test('Ryuno Glide values a 330-damage Knock Out while recording its two-Energy resource cost', () => {
+  const knockout = evaluateApexAttackChoice(choice('r', 'Ryuno Glide'), observation({
+    opponentActive: pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+      hp: 320, subtypes: ['VMAX'], types: ['Psychic']
+    })
+  }));
+  const noKnockout = evaluateApexAttackChoice(choice('r', 'Ryuno Glide'), observation({
+    opponentActive: pokemon('Large Pokémon', { hp: 400, subtypes: ['VMAX'], types: ['Psychic'] })
+  }));
+  assert.equal(knockout.damage, 330);
+  assert.equal(knockout.activeKnockout, true);
+  assert.equal(knockout.energyDiscard, 2);
+  assert.equal(knockout.energyDiscardPenalty, 30);
+  assert.equal(knockout.score, 270);
+  assert.equal(noKnockout.activeKnockout, false);
+  assert.equal(noKnockout.score, 150);
+});
+
+test('all newly supported Dragon payloads still fail closed when native cost is not payable', () => {
+  for (const name of ['Jet Headbutt', 'Covert Flight', 'Dominating Echo', 'Ryuno Glide']) {
+    const result = evaluateApexAttackChoice(choice(name, name, { attackCostPayable: false }), observation());
+    assert.equal(result.score, -1, name);
+    assert.equal(result.reason, 'ATTACK_COST_NOT_PAYABLE', name);
+  }
 });
 
 test('unknown or non-Apex attack choices fail closed', () => {

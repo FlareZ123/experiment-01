@@ -129,6 +129,21 @@ function attackName(choice) {
   return choice?.publicMetadata?.sourceAttack ?? choice?.attackName ?? choice?.label ?? '';
 }
 
+function hasStadiumInPlay(own, opponent) {
+  // Twinleaf stores the Stadium in the Player who played it; either player's
+  // public view can therefore contain the one shared in-play Stadium.
+  return list(own?.stadium).length > 0 || list(opponent?.stadium).length > 0;
+}
+
+function hasOpponentSpecialEnergy(opponent) {
+  const knownSpecialEnergy = /Special Energy|Double Dragon Energy|Double Colorless Energy|Jet Energy|Speed Lightning Energy|Aurora Energy|Capture Energy/i;
+  return [opponent?.active, ...occupiedBench(opponent)].some(pokemon =>
+    list(pokemon?.energies).some(energy => {
+      const subtypes = list(energy?.printed?.subtypes ?? energy?.subtypes).map(String);
+      return subtypes.includes('Special') || knownSpecialEnergy.test(printingValue(energy));
+    }));
+}
+
 function evaluateApexAttackChoice(choice, observation) {
   const name = attackName(choice);
   const own = observation?.ownPublic ?? {};
@@ -140,6 +155,78 @@ function evaluateApexAttackChoice(choice, observation) {
   const gxUsed = own.publicTurnRestrictions?.gxUsed;
   const payable = choice?.publicMetadata?.attackCostPayable;
   if (payable === false) return { attackName: name, score: -1, reason: 'ATTACK_COST_NOT_PAYABLE' };
+
+  if (name === 'Jet Headbutt') {
+    const damage = activeDamage(70, observation);
+    const knockout = targetHp > 0 && damage >= targetHp;
+    const immediateWin = knockout && winNow(prizeValue(target), own);
+    return {
+      attackName: name,
+      score: immediateWin ? 300 : (85 + (knockout ? 38 : 0)),
+      damage,
+      activeKnockout: knockout,
+      immediateWin,
+      reason: 'PLAIN_70_DAMAGE'
+    };
+  }
+
+  if (name === 'Covert Flight') {
+    const damage = activeDamage(70, observation);
+    const knockout = targetHp > 0 && damage >= targetHp;
+    const protectedAgainstBasic = list(target?.printed?.subtypes).includes('Basic');
+    const immediateWin = knockout && winNow(prizeValue(target), own);
+    return {
+      attackName: name,
+      score: immediateWin ? 300 : ((protectedAgainstBasic ? 130 : 60) + (knockout ? 38 : 0)),
+      damage,
+      activeKnockout: knockout,
+      protectedAgainstBasic,
+      immediateWin,
+      reason: '70_DAMAGE_PLUS_BASIC_ATTACK_PREVENTION'
+    };
+  }
+
+  if (name === 'Dominating Echo') {
+    const damage = activeDamage(140, observation);
+    const knockout = targetHp > 0 && damage >= targetHp;
+    const stadiumInPlay = hasStadiumInPlay(own, opponent);
+    const opponentHasSpecialEnergy = hasOpponentSpecialEnergy(opponent);
+    // Any in-play Stadium is stored on its owner's Player. Visible Stadium or
+    // Special Energy use is a proxy for lock value, not hidden-hand knowledge.
+    const lockRelevant = stadiumInPlay || opponentHasSpecialEnergy;
+    const immediateWin = knockout && winNow(prizeValue(target), own);
+    return {
+      attackName: name,
+      score: immediateWin ? 300 : ((lockRelevant ? 260 : 185) + (knockout ? 35 : 0)),
+      damage,
+      activeKnockout: knockout,
+      stadiumInPlay,
+      opponentHasSpecialEnergy,
+      lockRelevant,
+      immediateWin,
+      reason: '140_DAMAGE_PLUS_SPECIAL_ENERGY_STADIUM_LOCK'
+    };
+  }
+
+  if (name === 'Ryuno Glide') {
+    const damage = activeDamage(330, observation);
+    const knockout = targetHp > 0 && damage >= targetHp;
+    const immediateWin = knockout && winNow(prizeValue(target), own);
+    // The printed effect discards two Energy. Keep a fixed, explicit future-resource
+    // penalty rather than assuming how a particular Special Energy card is counted.
+    const energyDiscardPenalty = immediateWin ? 0 : 30;
+    const baseScore = knockout ? 300 : 180;
+    return {
+      attackName: name,
+      score: immediateWin ? 300 : (baseScore - energyDiscardPenalty),
+      damage,
+      activeKnockout: knockout,
+      energyDiscard: 2,
+      energyDiscardPenalty,
+      immediateWin,
+      reason: '330_DAMAGE_WITH_TWO_ENERGY_DISCARD'
+    };
+  }
 
   if (name === 'Timeless-GX') {
     if (gxUsed !== false) return { attackName: name, score: -1, reason: 'GX_STATUS_NOT_KNOWN_UNUSED' };
