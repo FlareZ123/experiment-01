@@ -26,10 +26,35 @@ const EXACT_PAPER_PRINTING_ALIASES=Object.freeze({
     nativeName:'Pokemon Ranger STS',set:'STS',number:'104'
   })
 });
+
+// Reprint semantics, not an exact-printing alias. Pinned actor-only Lillie
+// studies use the M1L registration; the published Hood 60 uses MEG 119.
+// Accept only if the actual native card text is independently equivalent to
+// the supplied paper wording. Otherwise keep a quarantined opaque identity.
+// No unverified full-game or original-printing equivalence is claimed.
+function tryVerifiedLillieReprint(manager,row,requested){
+  if(requested!=="Lillie's Determination MEG" ||
+     String(row.printing?.number)!=='119')return null;
+  const native=manager.getCardByName("Lillie's Determination M1L");
+  if(!native)return null;
+  const wording=String(native.text??'');
+  if(!/shuffle your hand into your deck/i.test(wording) ||
+     !/draw 6 cards/i.test(wording) ||
+     !/6 Prize cards remaining/i.test(wording) ||
+     !/draw 8 cards instead/i.test(wording))return null;
+  return {card:native,alias:Object.freeze({
+    sourcePrinting:requested,nativePrinting:native.fullName,
+    sourcePrintId:'MEG 119',aliasKind:'verified-semantic-reprint',
+    nativeEffectText:wording
+  })};
+}
+
 function resolvePaperPrintedCard(manager,row){
   const requested=row.name+' '+row.printing.set;
   const exact=manager.getCardByName(requested);
   if(exact)return {card:exact,alias:null};
+  const verifiedReprint=tryVerifiedLillieReprint(manager,row,requested);
+  if(verifiedReprint)return verifiedReprint;
   const known=EXACT_PAPER_PRINTING_ALIASES[requested];
   if(!known)return {card:null,alias:null};
   const candidate=manager.getCardByName(known.nativeName);
