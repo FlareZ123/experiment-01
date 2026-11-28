@@ -129,3 +129,28 @@ test('unverified no-Prize lookalike remains ordinary one-Prize in absence of a p
   assert.deepEqual(decision(0, targets, 1).decision,
     { kind: 'select-choices', tokens: ['target-0'] });
 });
+
+
+test('rank10 VSTAR is two Prizes; Guzma targets Regidrago VSTAR before Wobbuffet for final two', () => {
+  const targets = [
+    pokemon('Regidrago VSTAR SIT 136', 280, 0, ['VSTAR']),
+    pokemon('Wobbuffet PHF 36', 110, 0, ['Basic'])
+  ];
+  for (const seat of [0, 1]) {
+    const out = decision(seat, targets, 2);
+    assert.deepEqual(out.decision, { kind: 'select-choices', tokens: ['target-0'] });
+    assert.ok(out.policyAudit.evaluations[0].score > out.policyAudit.evaluations[1].score);
+  }
+});
+
+test('rank19 legacy Ho-Oh-EX gives two Prizes and outranks one-Prize Marshadow', () => {
+  const targets = [
+    pokemon('Ho-Oh-EX DRX 22', 160, 0, ['Basic', 'EX']),
+    pokemon('Marshadow UNB 81', 70, 0, ['Basic'])
+  ];
+  for (const seat of [0, 1]) {
+    const out = decision(seat, targets, 2);
+    assert.deepEqual(out.decision, { kind: 'select-choices', tokens: ['target-0'] });
+    assert.ok(out.policyAudit.evaluations[0].score > out.policyAudit.evaluations[1].score);
+  }
+});
