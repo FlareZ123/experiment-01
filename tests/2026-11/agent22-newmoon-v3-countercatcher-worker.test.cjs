@@ -167,5 +167,46 @@ r=bridge.decideWithAudit(full);
 check(r.decision.token,'blast');
 check(r.policyAudit.selectionRuleCode,
  'A22_BEGIN_BLAST_TO_DAMAGE_FOR_ALREADY_LEGAL_COUNTERCATCHER');
-assert.equal(assertions,28);
+// Rank7 single-Prize stall has no certified two-/three-Prize Item target.
+// When Cursed Blast can KO opponent's ONLY Active and selfKO will not give
+// opponent their final Prize, end by no opponent Pokemon in play even with
+// own five Prizes left. Actual effect resolution remains conditional.
+const finalSolo=base();
+finalSolo.observation.ownPublic.prizeCount=5;
+finalSolo.observation.opponentPublic.prizeCount=2;
+finalSolo.observation.opponentPublic.active={
+ printing:'Mimikyu PAL',hp:70,damage:0,tools:[]};
+finalSolo.observation.opponentPublic.bench=[];
+const aSolo=createPolicy({role:'candidate',seat:0,
+ policyVersion:POLICY_VERSION,config:{}});
+r=aSolo.decideWithAudit(finalSolo);
+check(r.decision.token,'blast');
+check(r.policyAudit.selectionRuleCode,'A22_BLAST_LAST_OPPONENT_POKEMON_WIN');
+const soloPrompt=benchPrompt(finalSolo,'Dusknoir SFA020','Cursed Blast');
+soloPrompt.prompt.choices[0].printing='Mimikyu PAL';
+soloPrompt.prompt.choices[0].publicMetadata.targetZone='active';
+r=aSolo.decideWithAudit(soloPrompt);
+check(r.decision.tokens[0],'target-0');
+check(r.policyAudit.selectionRuleCode,
+ 'A22_BLAST_LAST_OPPONENT_POKEMON_WIN_PROMPT');
+const avoidTie=clone(finalSolo);
+avoidTie.observation.opponentPublic.prizeCount=1;
+const noDusk=createPolicy({role:'candidate',seat:0,
+ policyVersion:POLICY_VERSION,config:{}});
+r=noDusk.decideWithAudit(avoidTie);
+check(r.policyAudit.selectionRuleCode==='A22_BLAST_LAST_OPPONENT_POKEMON_WIN',false);
+// With other opposing Pokemon, the Ability can still take our final three
+// Prizes from a 3Prize Mega if no certified payable direct attack exists.
+const allPrize=base();
+allPrize.observation.ownPublic.prizeCount=3;
+allPrize.observation.opponentPublic.prizeCount=2;
+allPrize.observation.opponentPublic.active={
+ printing:'Mega Absol ex MEG',hp:280,damage:150,tools:[]};
+allPrize.actionFrontier.items=[allPrize.actionFrontier.items[0]];
+const aPrize=createPolicy({role:'candidate',seat:0,
+ policyVersion:POLICY_VERSION,config:{}});
+r=aPrize.decideWithAudit(allPrize);
+check(r.decision.token,'blast');
+check(r.policyAudit.selectionRuleCode,'A22_BLAST_FINAL_PRIZE_WIN');
+assert.equal(assertions,35);
 console.log('Agent22 v3 Counter Catcher worker overlay: '+assertions+' checked decisions passed');
