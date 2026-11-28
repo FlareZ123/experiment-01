@@ -36,15 +36,22 @@ At a public Shadow Rider Calyrex V CRE74 with **180 remaining HP**, no defender 
 
 An unambiguous source-only decision improvement is not a full game: it does not prove the whole turn's subsequently offered attack or establish a matchup win. An isolated native Store promotion → follow-on attack is the next admissibility requirement.
 
+## Colorless source attackers beyond Mega Lopunny
+
+The exact source 60 also carries **Pidgey FLF75** (Peck Off, 10 damage) and **Pidgeot ex OBF164** (Blustery Wind, 120 damage). Both are printed **Colorless Pokémon**. Earlier `printedDamage()` mistakenly granted Powerful Colorless Energy's +20 and Choice Belt's +30 *only* to Mega Lopunny ex. The fix now computes printed/base damage first, then attaches any *live* Colorless-source damage modifiers before target Weakness/Resistance for all three currently modeled attackers: Mega Lopunny ex, Pidgey and Pidgeot ex. It does **not** infer a modifier if suppression or other unknown damage conditions prevent certification.
+
+A live PCE + Choice Belt yields **60 Peck Off** and **170 Blustery Wind** into an unprotected Pokémon V; Jamming Tower reduces the latter to **140**, Temple of Sinnoh reduces it to **150**; a global Stadium-and-Tool-nullifying effect reduces it to **140** irrespective of Jamming/Temple. All examples use card text and actor-visible board modifiers; they are not full attacked-turn / Knock Out receipts. They matter because these cards belong to the *same fixed rank15 source opponent*, rather than being optional speculative off-archetype additions.
+
 ## Reproducible assets
 
 - Policy: `simulation/evaluation/2026-11/agent20-rank15-lopunny-vileplume-opponent-policy.cjs`
 - Physical-object tests: `tests/2026-11/agent20-rank15-physical-slot-continuation-heldout.test.cjs` (**10** cases)
 - Tool/Stadium tests: `tests/2026-11/agent20-rank15-jamming-belt-terminal-heldout.test.cjs` (**16** cases)
 - Terminal Mega promotion: `tests/2026-11/agent20-rank15-terminal-gale-promotion-heldout.test.cjs` (**12** cases)
-- Exact final policy blob: `f8d9250e96e5c6e979f03710883192a6864e51c1`
-- Exact test blobs: `04aa7326f3d2c3bf18b115ca48d6988021c511cb`, `99418a2ca86cc651773af5cf3248979e4563317c`, `5d99721052439eb84849b4094ad98e0c6bd16132`
-- Executed both committed test files against the exact policy blob with a JavaScript CommonJS V8 shim for `node:test`, `node:assert/strict`, and the policy module: **38 passed / 0 failed**. This confirms synchronous decision assertions only. The V8 shim is not Node CLI, pinned Twinleaf Store, native protocol, source-deck game, or competitive qualification.
+- Colorless source damage: `tests/2026-11/agent20-rank15-colorless-modifiers-heldout.test.cjs` (**12** cases)
+- Exact final policy blob: `97d324098b6719d14195be9160e9b33086cff7a2`
+- Exact test blobs: `04aa7326f3d2c3bf18b115ca48d6988021c511cb`, `99418a2ca86cc651773af5cf3248979e4563317c`, `5d99721052439eb84849b4094ad98e0c6bd16132`, `fea7ca06fc33741301619f13dd8782a2ccfcd57a`
+- Executed both committed test files against the exact policy blob with a JavaScript CommonJS V8 shim for `node:test`, `node:assert/strict`, and the policy module: **50 passed / 0 failed**. This confirms synchronous decision assertions only. The V8 shim is not Node CLI, pinned Twinleaf Store, native protocol, source-deck game, or competitive qualification.
 
 The original PR90 head reproduced the wrong Jet and TM selections and the absent correct Hood decision before the follow-on patch. Neither PR90 nor PR93 should be treated as an admission to main or a frozen policy. Both may be challenged through independent actor-visible native continuation before any owner-approved game. No CI or V3 dispatch was performed here.
 
