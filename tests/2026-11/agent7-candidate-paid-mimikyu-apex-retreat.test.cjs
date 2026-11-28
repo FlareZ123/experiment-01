@@ -107,6 +107,23 @@ for(const seat of [0,1]){
     ];
     assert.deepEqual(policy.decide(request),{kind:'select-action',token:'copycat'});
   });
+  test('spent GX still allows copied Radiant Power Beam final knockout, seat='+seat,()=>{
+    const {policy,request,view}=fixture(seat,{donor:false,usedGX:true});
+    view.ownPublic.discard=['Radiant Eternatus CRZ 105'];
+    view.ownPublic.prizeCount=2;
+    view.opponentPublic.active=mon('Mew ex MEW 151',{
+      hp:180,type:'Psychic',subtypes:['Basic','ex']});
+    assert.deepEqual(policy.decide(request),{kind:'select-action',token:'retreat'});
+    const mimikyu=view.ownPublic.bench[0];
+    view.ownPublic.bench=[{...view.ownPublic.active,energies:[]}];
+    view.ownPublic.active=mimikyu;
+    request.publicEventReceipt.mimikyuCopycatCompatible=true;
+    request.actionFrontier.items=[
+      {token:'copycat',kind:'attack',actorPrinting:M,attackName:'Copycat'},
+      {token:'pass',kind:'pass'}
+    ];
+    assert.deepEqual(policy.decide(request),{kind:'select-action',token:'copycat'});
+  });
   test('no Dialga discard, GX spent, missing Apex, unfunded Mimikyu veto, seat='+seat,()=>{
     for(const opts of [
       {donor:false},{usedGX:true},{priorApex:false},{mimikyuEnergy:1}
