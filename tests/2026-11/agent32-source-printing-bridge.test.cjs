@@ -125,3 +125,24 @@ test('certified map is fail-closed against post-build mutations',()=>{
   assert.throws(()=>projectSourcePrintings(view,null,[m,new Map()]),
     /nonempty source-printing map must be created/);
 });
+
+
+test('visible ability suppression source is unique or stays native',()=>{
+  const ours=buildSourcePrintingMap(source,ids);
+  const otherSource={cards:[
+    {name:'Penny',count:1,printing:{set:'SVI',number:'999'}},
+    {name:'Psychic Energy',count:59,printing:{set:'SVE',number:'5'}}]};
+  const other=buildSourcePrintingMap(otherSource,
+    ['Penny SVI',...Array(59).fill('Psychic Energy SVE')]);
+  const p={printing:'Penny SVI',abilitySuppressions:[
+    {abilityName:'Lock',suppressed:true,reasonCode:'TEST',sourcePrinting:'Penny SVI'},
+    {abilityName:'Lock2',suppressed:true,reasonCode:'TEST',sourcePrinting:'Psychic Energy SVE'}]};
+  const view={actorSeat:0,ownHand:[],ownPublic:{active:p,bench:[]},opponentPublic:null};
+  const out=projectSourcePrintings(view,null,[ours,other]);
+  assert.equal(out.observation.ownPublic.active.abilitySuppressions[0].sourcePrinting,
+    'Penny SVI','conflicting source IDs must not be guessed');
+  assert.equal(out.observation.ownPublic.active.abilitySuppressions[1].sourcePrinting,
+    'Psychic Energy SVE 5');
+  assert.equal(out.observation.ownPublic.active.printing,'Penny SVI 183');
+  assert.equal(p.abilitySuppressions[0].sourcePrinting,'Penny SVI');
+});
