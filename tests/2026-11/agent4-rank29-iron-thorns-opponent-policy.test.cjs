@@ -2178,3 +2178,74 @@ test('VS Seeker winning gust root chain beats premature active KO but only with 
   assert.deepEqual(checkedDecision(alreadySupported),
     {kind:'select-action',token:'attack'});
 });
+
+
+test('Volt Cyclone direct attack calculation respects weakness and resistance before ending the turn',()=>{
+  const own=player({
+    active:pokemon('Iron Thorns ex TWM 77',{
+      energies:['Double Colorless Energy SUM 136']}),
+    stadium:['Thunder Mountain ♢ LOT 191']
+  });
+  const actions=[
+    action('ceremony','use-stadium',"Player's Ceremony SP 127",{
+      stadiumPrinting:"Player's Ceremony SP 127"
+    }),
+    action('attack','attack','Iron Thorns ex TWM 77',{},
+      {attackName:'Volt Cyclone'}),
+    {token:'pass',kind:'pass'}
+  ];
+  const makeRequest=target=>rootRequest({
+    ownHand:["Player's Ceremony SP 127"],ownPublic:own,
+    opponentPublic:player({active:target}),items:actions
+  });
+  // 140 × 2 = 280, not a harmless 140 into a 230-HP Water weak target.
+  const weak=pokemon('Water Basic EVS 10',{hp:230,damage:0,
+    weakness:[{type:'Lightning',value:'×2'}]});
+  assert.deepEqual(checkedDecision(makeRequest(weak)),
+    {kind:'select-action',token:'attack'});
+  // 140 - 40 = 100 into 110 remaining HP; drawing is preferable.
+  const resistant=pokemon('Resistant Basic PAR 9',{hp:110,damage:0,
+    resistance:[{type:'Lightning',value:'-40'}]});
+  assert.deepEqual(checkedDecision(makeRequest(resistant)),
+    {kind:'select-action',token:'ceremony'});
+});
+
+test('Volt Cyclone direct terminal KO beats VS Seeker winning gust and is not a false Cape KO',()=>{
+  const own=player({
+    prizeCount:2,
+    active:pokemon('Iron Thorns ex TWM 77',{
+      energies:['Double Colorless Energy SUM 136']}),
+    bench:[pokemon('Iron Thorns ex TWM 77',{
+      energies:['Double Colorless Energy SUM 136']})],
+    discard:['Guzma BUS 115'],
+    stadium:['Thunder Mountain ♢ LOT 191']
+  });
+  const actions=[
+    action('seeker','play-card','VS Seeker PHF 109',{cardType:'item'}),
+    action('attack','attack','Iron Thorns ex TWM 77',{},
+      {attackName:'Volt Cyclone'}),
+    {token:'pass',kind:'pass'}
+  ];
+  const direct=rootRequest({
+    ownHand:['VS Seeker PHF 109'],ownPublic:own,items:actions,
+    opponentPublic:player({
+      active:pokemon('Dedenne-GX UNB 57',{hp:160,damage:30,
+        subtypes:['GX','Basic']}),
+      bench:[pokemon('Trevenant & Dusknoir-GX SMP 180',{
+        hp:270,damage:160,subtypes:['TAG_TEAM','GX']})]
+    })
+  });
+  assert.deepEqual(checkedDecision(direct),
+    {kind:'select-action',token:'attack'});
+  const cape=rootRequest({
+    ownHand:['VS Seeker PHF 109'],ownPublic:own,items:actions,
+    opponentPublic:player({
+      active:pokemon('Dedenne-GX UNB 57',{hp:160,damage:30,
+        tools:["Hero's Cape TEF 152"],subtypes:['GX','Basic']}),
+      bench:[pokemon('Trevenant & Dusknoir-GX SMP 180',{
+        hp:270,damage:160,subtypes:['TAG_TEAM','GX']})]
+    })
+  });
+  assert.deepEqual(checkedDecision(cape),
+    {kind:'select-action',token:'seeker'});
+});
