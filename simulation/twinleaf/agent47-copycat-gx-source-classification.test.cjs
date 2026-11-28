@@ -106,3 +106,23 @@ for(const seat of [0,1]){
     assert.strictEqual(choices[0].attack,row.attack);
   });
 }
+
+const alreadyFlagged=[
+  'Tapu Cure-GX','Timeless-GX','Allergic Explosion-GX',
+  'Cold Crush-GX','Crash and Burn-GX','Horror House-GX'
+];
+for(const name of alreadyFlagged){
+  test('native gxAttack true remains GX under source fallback: '+name,()=>{
+    assert.equal(classifyPrintedGXAttack({name,gxAttack:true}),true);
+    assert.equal(isMimikyuCopycatEligibleAttack({attackName:name,
+      gxAttack:false,attack:{name,gxAttack:true}}),false);
+  });
+}
+
+test('Foul Play remains a non-GX copy attack, including copycatAttack:true',()=>{
+  assert.equal(isMimikyuCopycatEligibleAttack({
+    attackName:'Foul Play',gxAttack:false,
+    sourceCardName:'Zoroark BREAK',
+    attack:{name:'Foul Play',copycatAttack:true}
+  }),true);
+});
