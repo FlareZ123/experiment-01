@@ -304,6 +304,54 @@ function chooseStage2StarPrompt(view,prompt){
   reason:'V3_STAR_SEARCH_' +missing.toUpperCase()}:null;
 }
 
+
+function actualOwnedAttack(own,row){
+ const src=row?.publicMetadata?.attackSource,active=own?.active;
+ if(!src||!active||row.kind!=='attack'||row.attackName!==src.attackName||
+  row.publicMetadata?.attackCostPayable!==true)return false;
+ if(src.sourceKind==='active-pokemon'){
+  return src.sourceSlot==='ACTIVE'&&src.sourceIndex===0&&
+   src.sourceCardFullName===active.printing&&row.actorPrinting===active.printing;
+ }
+ if(src.sourceKind==='bench-pokemon'){
+  if(!has(active.printing,'Mewtwo & Mew-GX')||
+   !live(active,'Perfection')||src.sourceSlot!=='BENCH'||
+   !isInt(src.sourceIndex)||!Array.isArray(own.bench))return false;
+  const donor=own.bench[src.sourceIndex];
+  return !!donor&&src.sourceCardFullName===donor.printing&&
+   row.actorPrinting===donor.printing&&
+   (has(donor.printing,'-GX')||has(donor.printing,'-EX'));
+ }
+ return false;
+}
+function chooseCertifiedLethal(view,items){
+ const own=view?.ownPublic,opp=view?.opponentPublic;
+ if(!own||!opp||!own.active||!opp.active||
+  !attackSafe(own.active)||!Array.isArray(items)||
+  !isInt(opp.active.hp)||!isInt(opp.active.damage)||
+  opp.active.hp<=opp.active.damage)return null;
+ const remaining=opp.active.hp-opp.active.damage;
+ const legal=items.filter(x=>{
+  if(!actualOwnedAttack(own,x))return false;
+  const m=x.publicMetadata;
+  if(!Number.isFinite(m.damageAfterResistance)||
+    m.damageAfterResistance<remaining||
+    m.damagePrevented===true||m.hasUnmodeledModifier===true||
+    (Number.isFinite(m.damageReduced)&&m.damageReduced>0))return false;
+  if(m.targetHp!==undefined&&m.targetHp!==opp.active.hp)return false;
+  if(m.targetDamage!==undefined&&m.targetDamage!==opp.active.damage)return false;
+  const gx=has(x.attackName,'-GX');
+  return !gx||own.publicTurnRestrictions?.gxUsed===false;
+ });
+ legal.sort((a,b)=>{
+  const x=has(a.attackName,'-GX')?1:0,y=has(b.attackName,'-GX')?1:0;
+  if(x!==y)return x-y;
+  return b.publicMetadata.damageAfterResistance-
+    a.publicMetadata.damageAfterResistance;
+ });
+ return select(legal[0],'V3_CERTIFIED_PAID_LETHAL_ATTACK_NO_SELF_KO');
+}
+
 function treasureNeed(view){
  const own=view?.ownPublic,hand=view?.ownHand;
  if(!own||!Array.isArray(hand)||!Array.isArray(own.bench))return null;
@@ -464,7 +512,7 @@ function createPolicy({role,seat,policyVersion,config}) {
      return select(attack,'V3_FINISH_ATTACK_AFTER_SETTLED_BLAST');
    }
    const p=ready(v,items);
-   if(!p)return shadowBindBus(v,items)??chooseStage2BusEscape(v,items)??chooseStage2StarRoot(v,items)??chooseTreasureRoot(v,items);
+   if(!p)return shadowBindBus(v,items)??chooseStage2BusEscape(v,items)??chooseStage2StarRoot(v,items)??chooseTreasureRoot(v,items)??chooseCertifiedLethal(v,items);
    pending={
      turn:v.globalTurn,phase:'target',target:opp.active.printing,
      hp:opp.active.hp,initialDamage:opp.active.damage,
@@ -493,4 +541,4 @@ function createPolicy({role,seat,policyVersion,config}) {
  }
  return {decide:r=>decideWithAudit(r).decision,decideWithAudit};
 }
-module.exports={POLICY_VERSION,DECK_PATH,DECK_SHA,createPolicy,ready,validTarget,sourceAttack,shadowBindBus,aceSafe,verifiedAttackDamage,preservedCommonSetup,COMMON_SETUP_REASONS,chooseStage2BusEscape,treasureNeed,chooseTreasureRoot,chooseTreasurePrompt,stage2MissingUnderBus,chooseStage2StarRoot,chooseStage2StarPrompt};
+module.exports={POLICY_VERSION,DECK_PATH,DECK_SHA,createPolicy,ready,validTarget,sourceAttack,shadowBindBus,aceSafe,verifiedAttackDamage,preservedCommonSetup,COMMON_SETUP_REASONS,chooseStage2BusEscape,treasureNeed,chooseTreasureRoot,chooseTreasurePrompt,stage2MissingUnderBus,chooseStage2StarRoot,chooseStage2StarPrompt,actualOwnedAttack,chooseCertifiedLethal};
