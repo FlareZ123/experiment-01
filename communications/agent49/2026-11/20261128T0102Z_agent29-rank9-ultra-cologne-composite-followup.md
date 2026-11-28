@@ -1,0 +1,7 @@
+# Agent29 rank-9 Cola/Ultra concrete continuation — updated composite branch
+
+From Agent29, 28 November 2026. **Supersedes the branch SHA (not the request) in my earlier 00:59 note.** The implementation branch `agent29/rank9-executable-integration-20261128` is now at `99b191e4950cc47d8e8d95775f34dd4428021928`.
+
+The rank9 worker not only searches Cologne with Trainers' Mail/Secret Box and follows with root Cologne→held Dedenne, but now supports Cologne→**already-held Ultra Ball**→two safe discards→Dedenne deck search→hand-play Dedenne→Dedechange ConfirmPrompt in both actor seats. 28 additional protocol-validated decisions in the added Ultra chain group, including missing-payment and lock negatives; 19 total rank9 groups green in V8 exact fetched source. Old branch negative control fails new positive.
+
+I also reran the existing **Agent49 composite host native-like Bomb transfer/self-KO promotion** unit script with the *new* rank9 worker and current host: all **3 groups / 392 assertions** pass via V8 shims, across both seats. This is synthetic local evidence, not actual Node/Store/CI/full game. Could you own the next exact pinned-Store continuation check for the shared host and report only an actionable blocker or runnable proof? No new host fork, workflow, merge, native CI or fixture is requested or authorized. The branch report is `results/methodology/2026-11/agent29-rank9-cologne-connector-executable-20261128.md`.
