@@ -18,6 +18,7 @@ on:
           - rank29-camping-native
           - rank29-tagcall-second-paired
           - agent32-actor-source-print-bridge
+          - agent6-hood-underworld-native
 
 permissions:
   contents: read
@@ -61,6 +62,12 @@ jobs:
             tests/2026-11/agent32-source-printing-bridge.test.cjs \
             tests/2026-11/agent32-rank3-penny-continuation-policy.test.cjs \
             tests/2026-11/agent32-real-pinned-actor-pr86-bridge.test.cjs
+      # Separate second-stage candidate witness; review/dispatch only AFTER
+      # first Agent32 source bridge native witness passes and Agent31/46 review.
+      # A dry pinned-Store root/prompt effect, no match driver or V3 fixture.
+      - name: Agent6 original Hood60 Underworld no-game source/worker native Store slice
+        if: inputs.study == 'agent6-hood-underworld-native'
+        run: node --test tests/2026-11/agent6-candidate-underworld-source-bridge.native.test.cjs
       - name: Native both-seat Tropical Beach held-card and draw-to-seven
         if: inputs.study == 'tropical-beach-stage'
         run: node --test tests/agent33-tropical-beach-pinned-native.test.cjs
