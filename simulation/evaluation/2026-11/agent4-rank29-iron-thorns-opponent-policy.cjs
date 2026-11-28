@@ -761,21 +761,31 @@ function visibleGustDamageBarrier(target){
   return {unknownReduction:false,hpBonus};
 }
 
-function guzmaKnockoutValue(observation, target) {
-  if(!target || !slots(observation?.ownPublic).some(row=>
-      row.zone==='bench'&&benchThornsVoltReady(row.pokemon,observation)))return 0;
+function visibleVoltCycloneDamage(target) {
   const protection=visibleGustDamageBarrier(target);
-  if(protection.unknownReduction)return 0;
+  if(protection.unknownReduction)return {knockout:false,damage:0,hp:Infinity};
   const hp=remainingHp(target)+protection.hpBonus;
-  if(hp<=0)return 0;
-  const lightningModifiers=modifier=>list(modifier).filter(row=>/Lightning/i.test(row?.type));
+  if(hp<=0)return {knockout:false,damage:0,hp};
+  const modifiers=modifier=>list(modifier).filter(row=>/Lightning/i.test(row?.type));
   let damage=140;
-  if(lightningModifiers(target.printed?.weakness).length>0)damage*=2;
-  for(const resistance of lightningModifiers(target.printed?.resistance)){
+  // Paper attack damage: applying Weakness before Resistance, then
+  // target-side prevention (whose known public text is fail-closed above).
+  for(const weakness of modifiers(target.printed?.weakness)){
+    const parsed=Number.parseInt(String(weakness.value??'×2').replace(/[×x]/g,''),10);
+    damage*=Number.isSafeInteger(parsed)&&parsed>=2&&parsed<=4?parsed:2;
+  }
+  for(const resistance of modifiers(target.printed?.resistance)){
     const value=Number.parseInt(String(resistance.value??'-30').replace(/[−–]/g,'-'),10);
     damage-=Number.isFinite(value)?Math.abs(value):30;
   }
-  if(hp>damage)return 0;
+  damage=Math.max(0,damage);
+  return {knockout:hp<=damage,damage,hp};
+}
+
+function guzmaKnockoutValue(observation, target) {
+  if(!target || !slots(observation?.ownPublic).some(row=>
+      row.zone==='bench'&&benchThornsVoltReady(row.pokemon,observation)))return 0;
+  if(!visibleVoltCycloneDamage(target).knockout)return 0;
   const prizes=guzmaTargetPrizeValue(target);
   return (prizes >= (observation?.ownPublic?.prizeCount ?? 6) ? 440 : 230)+
     (prizes-1)*55;
@@ -1401,9 +1411,14 @@ function scoreAttack(item, request) {
   const observation = request.observation;
   const target = opponentActive(observation);
   if (!target) return 20;
-  const hp = remainingHp(target);
-  if (matches(target.printing, PRINT.budew)) return 220;
-  if (hp > 0 && hp <= 140) return 150;
+  const visible=visibleVoltCycloneDamage(target);
+  if(visible.knockout){
+    const prizes=guzmaTargetPrizeValue(target);
+    if(prizes >= (observation?.ownPublic?.prizeCount ?? 6))
+      return 800; // direct win is safer than staging an unnecessary search
+    if(matches(target.printing,PRINT.budew))return 220;
+    return 150+(prizes-1)*30;
+  }
   if (opponentActiveEnergy(observation) >= 3 &&
       !list(request.actionFrontier?.items).some(action =>
         action.kind === 'play-card' &&
