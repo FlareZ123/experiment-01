@@ -512,3 +512,31 @@ test('Secret Box search selects one Item, Tool, Supporter, Stadium at actual sou
   assert.deepEqual(policy.promptDecision({observation:o,prompt}),
     {kind:'select-choices',tokens:['quick','float','wally','temple']});
 });
+
+test('pinned Twinleaf unnumbered fullNames are recognized as the exact source printings', () => {
+  const o=observation({ownPublic:player({active:poke('Trubbish NVI')})});
+  const play=actorPrinting=>policy.scoreAction({
+    kind:'play-card',actorPrinting
+  },root([],o));
+  assert.equal(play('Garbodor BKP'),240);
+  assert.equal(play('Wally ROS'),260);
+  assert.ok(play('Mega Absol ex M1L')>0);
+  assert.ok(play('Vikavolt V DAA')>0);
+  assert.ok(play('Float Stone BKT')>0);
+  assert.equal(play('Garbodor LTR'),0,
+    'never collapse another Garbodor printing into the source BKP');
+  assert.equal(play('Trubbish PAR'),0,
+    'never collapse another Trubbish set into source FST/NVI');
+});
+test('native unnumbered attached Energy and opponent special print are recognized', () => {
+  const o=observation({ownPublic:player({active:poke('Vikavolt V DAA',{
+    energies:['Lightning Energy MEE']
+  })}),opponentPublic:player({active:poke('Regidrago VSTAR SIT 136',{
+    energies:['Double Dragon Energy ROS 97']
+  })})});
+  const dark={kind:'play-card',actorPrinting:'Darkness Energy MEE',
+    targetPrinting:'Vikavolt V DAA'};
+  const hammer={kind:'play-card',actorPrinting:'Enhanced Hammer TWM'};
+  assert.ok(policy.scoreAction(dark,root([],o))>=190);
+  assert.ok(policy.scoreAction(hammer,root([],o))>=200);
+});
