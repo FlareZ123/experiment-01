@@ -1058,7 +1058,7 @@ function chooseBattleCompressorDragonPayload(view,prompt){
     (boardHas(view,'Mimikyu')||handHas(view,'Mimikyu'));
   const dragon=needsDialga?prompt.choices.filter(choice=>
     choice.kind==='card' &&
-    choice.printing==='Dialga-GX UPR 82' &&
+    choice.printing==='Dialga-GX UPR 100' &&
     choice.publicMetadata?.ownerSeat==='actor' &&
     choice.publicMetadata?.sourceZone==='deck' &&
     choice.publicMetadata?.isOwnerVisible===true)
