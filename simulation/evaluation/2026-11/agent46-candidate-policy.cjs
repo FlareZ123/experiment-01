@@ -569,6 +569,78 @@ function searchCandidates(view, prompt, choices) {
   return rows;
 }
 
+/* Agent26 bounded Lockbridge Get Lost source-to-choice developmental slice.
+ * Native Girafarig LOT creates a ChooseCardsPrompt over the opponent's
+ * PUBLIC discard pile; this one prompt intentionally has ownerSeat=opponent.
+ * Do not generalize the exception to any other opponent-owned zone/prompt.
+ */
+function agent26GetLostSource(prompt) {
+  return prompt?.source?.classification === 'actor-choice' &&
+    prompt.source.sourceKind === 'card-effect' &&
+    prompt.source.effectName === 'Get Lost' &&
+    /^Girafarig LOT(?: 94)?$/.test(prompt.source.sourcePrinting ?? '');
+}
+
+function agent26TempleGetLostContext(view) {
+  if (!view || !view.ownPublic || !view.opponentPublic ||
+      !Array.isArray(view.ownPublic.stadium) ||
+      !Array.isArray(view.opponentPublic.stadium) ||
+      !Array.isArray(view.opponentPublic.discard)) return false;
+  if (![...view.ownPublic.stadium, ...view.opponentPublic.stadium]
+      .some(name => hasName(name, 'Temple of Sinnoh'))) return false;
+  if (!opponentBoard(view).some(slot => hasName(slot.printing, 'Regidrago VSTAR')))
+    return false;
+  return view.opponentPublic.discard.some(name => hasName(name, 'Megaton Blower')) &&
+    view.opponentPublic.discard.some(name => hasName(name, 'Crispin'));
+}
+
+function agent26ChooseGetLostPublicCut(view, prompt) {
+  setPolicyAuditRule('GET_LOST_OPPONENT_PUBLIC_TWO_CARD_CUT',
+    'MEGATON_THEN_CRISPIN_NATIVE_FIRST');
+  const meta = prompt.publicMetadata;
+  if (!meta || meta.selectionType !== 'card-combination' ||
+      meta.sourceZone !== 'discard' || meta.ownerSeat !== 'opponent' ||
+      meta.isOwnerVisible !== true ||
+      meta.minimumCount !== 2 || meta.maximumCount !== 2) {
+    return abstain('GET_LOST_UNTRUSTED_OPPONENT_DISCARD');
+  }
+  if (!agent26TempleGetLostContext(view)) {
+    return abstain('GET_LOST_UNSUPPORTED_TACTICAL_CONTEXT');
+  }
+  const cards = prompt.choices.filter(choice => choice.kind === 'card' &&
+    isText(choice.printing) &&
+    choice.publicMetadata?.sourceZone === 'discard' &&
+    choice.publicMetadata?.ownerSeat === 'opponent' &&
+    choice.publicMetadata?.isOwnerVisible === true &&
+    Number.isSafeInteger(choice.publicMetadata.selectionIndex) &&
+    choice.publicMetadata.selectionIndex >= 0);
+  if (cards.length !== prompt.choices.filter(choice => choice.kind === 'card').length)
+    return abstain('GET_LOST_CARD_VISIBILITY_MISMATCH');
+  const megaton = cards.find(choice => hasName(choice.printing, 'Megaton Blower'));
+  const crispin = cards.find(choice => hasName(choice.printing, 'Crispin') &&
+    choice.token !== megaton?.token);
+  if (!megaton || !crispin) return abstain('GET_LOST_CUT_TARGETS_NOT_OFFERED');
+  recordPolicyAuditRule(megaton.token, 'GET_LOST_PUBLIC_MEGATON_TARGET');
+  recordPolicyAuditRule(crispin.token, 'GET_LOST_PUBLIC_CRISPIN_TARGET');
+  return { kind: 'select-choices', tokens: [megaton.token, crispin.token] };
+}
+
+function agent26GetLostRootPassOverride(view, items, pass) {
+  if (!pass || !/^Girafarig LOT(?: 94)?$/.test(view.ownPublic.active?.printing ?? '') ||
+      !agent26TempleGetLostContext(view)) return null;
+  // Preserve the principal Shadow Rider engine and manual attachment decisions.
+  if (items.some(item => item.kind === 'use-ability' &&
+      item.publicMetadata?.abilityName === 'Underworld Door')) return null;
+  const attacks = items.filter(item => item.kind === 'attack' &&
+    item.attackName === 'Get Lost' &&
+    /^Girafarig LOT(?: 94)?$/.test(item.actorPrinting ?? ''));
+  if (attacks.length !== 1) return null;
+  setPolicyAuditRule('GET_LOST_VISIBLE_CUT_OVER_ROOT_PASS',
+    'UNIQUE_OFFERED_GET_LOST_ATTACK');
+  recordPolicyAuditRule(attacks[0].token, 'GET_LOST_CUT_ATTACK_AVAILABLE');
+  return { kind: 'select-action', token: attacks[0].token };
+}
+
 function chooseCardCombination(view, prompt) {
   setPolicyAuditRule('CARD_COMBINATION_SEARCH_SCORE', 'SCORE_DESC_PRINTING_ASC');
   const metadata = prompt.publicMetadata;
@@ -987,6 +1059,10 @@ function choosePrompt(view, prompt, receipt) {
   if (prompt.source.sourceKind !== 'card-effect') {
     return abstain('UNTRUSTED_PROMPT_SOURCE');
   }
+  if (agent26GetLostSource(prompt)) {
+    if (prompt.promptType !== 'ChooseCardsPrompt') return abstain('GET_LOST_WRONG_PROMPT_TYPE');
+    return agent26ChooseGetLostPublicCut(view, prompt);
+  }
   switch (prompt.promptType) {
     case 'ChooseCardsPrompt':
       return chooseCardCombination(view, prompt);
@@ -1230,6 +1306,9 @@ function chooseRoot(view, request) {
     setPolicyAuditRule('ROOT_RESETTING_HOLE_RULE', 'FIRST_FRONTIER_MATCH');
     return { kind: 'select-action', token: usefulAbility.token };
   }
+
+  const getLostInsteadOfPass = agent26GetLostRootPassOverride(view, items, pass);
+  if (getLostInsteadOfPass) return getLostInsteadOfPass;
 
   if (pass) {
     setPolicyAuditRule('ROOT_PASS_FALLBACK', 'FIRST_FRONTIER_MATCH');
