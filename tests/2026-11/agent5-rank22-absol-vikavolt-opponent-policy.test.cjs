@@ -241,3 +241,40 @@ test('energy plans distinguish colored costs from interchangeable Colorless', ()
   assert.equal(s(P.mega,[P.lightning],P.lightning),0,
     'two Lightning without Darkness do not satisfy either Mega Absol attack');
 });
+
+test('Crobat draw beats attaching Float Stone to Garbodor before self-Garbotoxin', () => {
+  const garb=poke(P.garbodor,{tools:[]});
+  const o=observation({ownPublic:player({active:garb}),
+    ownHand:['Crobat V DAA 104','Float Stone BKT 137']});
+  const crobat={kind:'play-card',actorPrinting:'Crobat V DAA 104'};
+  const float={kind:'play-card',actorPrinting:'Float Stone BKT 137',targetPrinting:P.garbodor};
+  assert.ok(policy.scoreAction(crobat,root([],o))>policy.scoreAction(float,root([],o)));
+  assert.deepEqual(policy.bestAction(root([
+    {...crobat,token:'crobat'},{...float,token:'garb-lock'},pass
+  ],o)),{kind:'select-action',token:'crobat'});
+  const after={...o,ownHand:['Float Stone BKT 137']};
+  assert.ok(policy.scoreAction(float,root([],after))>0,
+    'lock is not permanently postponed after Crobat leaves hand');
+});
+test('Garbodor suppresses draw only when a Tool is attached', () => {
+  const toolLess=observation({ownPublic:player({active:poke(P.garbodor)})});
+  const equipped=observation({ownPublic:player({active:poke(P.garbodor,{
+    tools:['Float Stone BKT 137']})})});
+  const asset={kind:'use-ability',publicMetadata:{abilityName:'Dark Asset'}};
+  const crobat={kind:'play-card',actorPrinting:'Crobat V DAA 104'};
+  assert.ok(policy.scoreAction(asset,root([],toolLess))>0);
+  assert.equal(policy.scoreAction(asset,root([],equipped)),0);
+  assert.equal(policy.scoreAction(crobat,root([],
+    {...equipped,ownHand:['Crobat V DAA 104']})),0);
+});
+test('opponent Garbotoxin also blocks source hand-play Ability payoffs', () => {
+  const o=observation({ownPublic:player({active:poke(P.mega)}),
+    opponentPublic:player({active:poke(P.garbodor,{tools:['Float Stone BKT 137']})}),
+    ownHand:['Crobat V DAA 104','Tapu Lele-GX GRI 60']});
+  assert.equal(policy.scoreAction({
+    kind:'play-card',actorPrinting:'Crobat V DAA 104'
+  },root([],o)),0);
+  assert.equal(policy.scoreAction({
+    kind:'play-card',actorPrinting:'Tapu Lele-GX GRI 60'
+  },root([],o)),0);
+});
