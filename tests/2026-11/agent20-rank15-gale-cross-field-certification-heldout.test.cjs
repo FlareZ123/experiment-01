@@ -6,7 +6,7 @@
 // Gale damage; actual HP and prize values remain public-state requirements.
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {rootDecision}=require(
+const {rootDecision,retreatPrompt}=require(
   '../../simulation/evaluation/2026-11/agent20-rank15-lopunny-vileplume-opponent-policy.cjs');
 const MEGA='Mega Lopunny ex PFL 84', JET='Jet Energy PAL 190';
 const LEGACY='Legacy Energy TWM 167', DEW='Life Dew PLF 107';
@@ -142,5 +142,33 @@ for(const seat of [0,1]) {
     for(const options of [{dew:true},{resist:true}])
       assert.equal(rootDecision(terminalRetreatRequest(seat,
         'Iron Thorns ex TEF 77',options)).token,'air-mail');
+  });
+}
+
+ // The same decision must remain physically aligned *if* the native
+ // Retreat action is continued with an engine ChoosePokemonPrompt.
+for(const seat of [0,1]) {
+  test('seat '+seat+': terminal physical Retreat prompt keeps funded Mega over BUS',()=>{
+    const r=terminalRetreatRequest(seat,'Iron Thorns ex TEF 77');
+    r.observation.ownPublic.bench.push(c('Vileplume BUS 6',[],[],{
+      printed:{stage:'STAGE_2'}
+    }));
+    assert.equal(rootDecision(r).token,'retreat-mega');
+    r.prompt={
+      promptType:'ChoosePokemonPrompt',
+      source:{classification:'actor-choice',sourceKind:'engine',
+        sourcePrinting:null,effectName:'Retreat'},
+      publicMetadata:{selectionType:'pokemon',
+        minimumCount:1,maximumCount:1,ownerSeat:'actor',targetZone:'bench'},
+      choices:[
+        {kind:'pokemon',token:'mega-slot0',printing:MEGA,
+          publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0}},
+        {kind:'pokemon',token:'bus-slot2',printing:'Vileplume BUS 6',
+          publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:2}}
+      ]
+    };
+    assert.deepEqual(retreatPrompt(r),{
+      kind:'select-choices',tokens:['mega-slot0']
+    });
   });
 }
