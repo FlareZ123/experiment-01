@@ -835,6 +835,52 @@ function candidateCanUseBoardHeldStarAlchemy(observation) {
   return slots(opponent).some(p=>arr(p.tools).some(t=>has(t,P.fss)));
 }
 
+// Mimikyu GRI 58 has two ordinary printed attacks: Filch and Copycat.
+// Pinned native Copycat can resolve ordinary non-GX non-copy attacks, but
+// presently refuses copied Apex Dragon; never fabricate that blocked route.
+// Only use a Copycat attack when authenticated actor-visible last-opponent-turn
+// history proves a deterministic knockout with a native offered root.
+function guaranteedMimikyuCopycatKO(request) {
+  const o=request?.observation,r=request?.publicEventReceipt;
+  if(!o||!r||r.actorSeat!==o.actorSeat||r.turn!==o.globalTurn||
+     !has(o.ownPublic?.active,P.mimikyu)||
+     o.opponentPublic?.active?.effectUnknown===true||
+     o.opponentPublic?.active?.damageModifiersUnknown===true||
+     !safeInt(o.opponentPublic?.active?.hp)||
+     !safeInt(o.opponentPublic?.active?.damage)||
+     r.mimikyuCopycatCompatible!==true||
+     !Array.isArray(r.opponentCopycatChoices)||
+     r.opponentCopycatChoices.length!==1||
+     !Array.isArray(r.opponentLastTurnAttacks)||
+     !safeInt(r.opponentLastTurnTurn)||
+     r.opponentLastTurnTurn>=o.globalTurn)return null;
+  const selected=r.opponentCopycatChoices[0];
+  if(!selected||selected.gxAttack!==false||selected.copycatAttack!==false||
+     selected.turn!==r.opponentLastTurnTurn||
+     !r.opponentLastTurnAttacks.some(x=>
+       x.turn===selected.turn&&x.sourcePrinting===selected.sourcePrinting&&
+       x.attackName===selected.attackName&&x.gxAttack===false&&
+       x.copycatAttack===false))return null;
+  let base=null;
+  if(selected.attackName==='Full Moon Rondo'&&
+      has(selected.sourcePrinting,P.clefairy))
+    base=20*(1+benchCount(o.ownPublic)+benchCount(o.opponentPublic));
+  if(selected.attackName==='Max Geist'&&
+      /^Shadow Rider Calyrex VMAX CRE(?: 75)?\b/i.test(selected.sourcePrinting)) {
+    // A conservative lower bound: count only Basic Psychic Energy units.
+    // Special Energy may provide Psychic (unless Temple changes it) but is
+    // never needed to certify the knockout in this restricted slice.
+    const basics=slots(o.ownPublic).reduce((sum,p)=>
+      sum+arr(p.energies).filter(e=>has(e,P.basicPsychic)).length,0);
+    base=10+30*basics;
+  }
+  if(base===null)return null;
+  const damage=clefairyRondoDamage(o,o.opponentPublic.active,base);
+  const remaining=o.opponentPublic.active.hp-o.opponentPublic.active.damage;
+  return safeInt(damage)&&remaining>0&&damage>=remaining?
+    Object.freeze({sourcePrinting:selected.sourcePrinting,
+      attackName:selected.attackName,damage,remaining}):null;
+}
 function miniorStallOpportunity(o) {
   const active=o?.opponentPublic?.active;
   if(!has(active,P.snorlax)||!safeInt(active?.hp)||!safeInt(active?.damage))return null;
@@ -1647,6 +1693,10 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
     !(a.kind==='play-card'&&[P.guzma,P.marnie,P.raihan].some(p=>
       has(ownPrinting(a),p))));
   if(!items.length)return no('R30_NO_OFFERED_ROOT');
+  const mimikyuCopycat=items.find(a=>a.kind==='attack'&&
+    a.attackName==='Copycat'&&has(ownPrinting(a),P.mimikyu));
+  if(mimikyuCopycat&&guaranteedMimikyuCopycatKO(request))
+    return act(mimikyuCopycat);
   const miniorAttack=items.find(a=>a.kind==='attack'&&
     a.attackName==='Gravitational Tackle'&&has(ownPrinting(a),P.minior));
   if(miniorAttack&&miniorStallOpportunity(o)?.knockout)return act(miniorAttack);
@@ -1771,6 +1821,12 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
     /^Unown AOR(?: 30)?\b/i.test(text(ownPrinting(a))));
   if(farewell&&farewellOpportunity(o))return act(farewell);
   if(attack)return act(attack);
+  // When the single Mimikyu tech is stranded Active, its printed Filch draws
+  // two cards without a prompt; this is preferable to an unsupported pass.
+  const filch=items.find(a=>a.kind==='attack'&&a.attackName==='Filch'&&
+    has(ownPrinting(a),P.mimikyu));
+  if(filch&&safeInt(o.ownPublic?.deckCount)&&o.ownPublic.deckCount>=2)
+    return act(filch);
   // Only an exclusively passive native frontier can be safely passed.
   // Never mask an unsupported legal source action (notably Copycat) as a pass.
   if(items.every(x=>x.kind==='pass'))return act(items[0]);
@@ -1830,4 +1886,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,sourceCardPatternCoverage,heavyBallBasicCoverage,createPolicy,
-  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,certifiedPsychicBenchTargets,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,minimumPrizesOnAttackKnockout,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy,hasFreshPriorOpponentTurnKO,raihanOpportunity,raihanAttachPrompt,raihanSearchPrompt,raihanPrompt,hisuianHeavyBallOpportunity,hisuianHeavyBallPrompt};
+  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,certifiedPsychicBenchTargets,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,minimumPrizesOnAttackKnockout,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,guaranteedMimikyuCopycatKO,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy,hasFreshPriorOpponentTurnKO,raihanOpportunity,raihanAttachPrompt,raihanSearchPrompt,raihanPrompt,hisuianHeavyBallOpportunity,hisuianHeavyBallPrompt};
