@@ -1203,7 +1203,8 @@ function getLostValue(view,printing) {
   const regidrago=opponentHasRegidrago(view);
   if(regidrago&&hasAnyName(printing,['Dialga-GX','Dragapult ex','Giratina VSTAR','Goodra VSTAR',
     'Hisuian Goodra VSTAR','Noivern ex','Haxorus','Flygon ex','Altaria-GX','Dragonite ex',
-    'Garchomp ex','Alolan Exeggutor ex','Duraludon VMAX','Kyurem']))return 500;
+    'Alolan Exeggutor ex','Duraludon VMAX','Kyurem','Salamence ex JTG',
+    'Koraidon ex TEF','Regidrago V SIT']))return 500;
   if(regidrago&&hasName(printing,'Regidrago VSTAR'))return 300;
   if(hasAnyName(printing,['ACE SPEC','Computer Search','Dowsing Machine','Unfair Stamp','Secret Box',
     'Legacy Energy','Double Dragon Energy','Double Colorless Energy','Pokémon Ranger',
@@ -1217,10 +1218,16 @@ function getLostValue(view,printing) {
 const APEX_PAYLOADS=[
   ['Kyurem SFA','Trifrost',110],['Dragapult ex TWM','Phantom Dive',200],
   ['Dialga-GX UPR','Timeless-GX',150],['Giratina VSTAR LOR','Lost Impact',280],
-  ['Mega Dragonite ex ASC','Ryuno Glide',330],['Koraidon SSP','Unrelenting Onslaught',180],
+  ['Mega Dragonite ex ASC','Ryuno Glide',330],
+  ['Koraidon ex TEF','Kaiser Tackle',280],
+  // 20 + 10 per damage counter *on the Pokemon using this attack*.
+  ['Koraidon ex TEF','Retribution Strike',20],
+  ['Regidrago V SIT','Dragon Laser',130],
+  ['Salamence ex JTG','Dragon Impact',300],
+  ['Salamence ex JTG','Wide Blast',50],
   ['Alolan Exeggutor ex SSP','Tropical Frenzy',150],
   ['Hisuian Goodra VSTAR LOR','Rolling Iron',200],['Noivern ex PAL','Covert Flight',70],
-  ['Garchomp & Giratina-GX UNM','Calamitous Slash',160],['Garchomp ex PAR','Hydro Lander',160]
+  ['Garchomp & Giratina-GX UNM','Calamitous Slash',160]
 ];
 function observedPayloads(discard,view){
   return APEX_PAYLOADS.filter(([printing,name])=>discard.some(p=>hasName(p,printing))&&
@@ -1268,6 +1275,26 @@ function hazardVariants(view,rows,activeKey,payload){
     for(const row of bench)variants.push({name,alteredPrizeKey,
       hits:[[active.key,modified(active)],[row.key,60]]});
     return variants;
+  }
+  // A Salamence ex copy of Wide Blast hits every Bench but not Active.
+  if(name==='Wide Blast')return [{name,alteredPrizeKey:null,
+    hits:rows.filter(row=>row.key!==activeKey).map(row=>[row.key,base])}];
+  // A damaged Regidrago copies Koraidon's Retribution Strike; its own
+  // damage counters, not the discarded Koraidon's counters, count.
+  if(name==='Retribution Strike'){
+    const counters=Number.isSafeInteger(view.opponentPublic.active?.damage)&&
+      view.opponentPublic.active.damage>=0?
+      Math.floor(view.opponentPublic.active.damage/10):0;
+    return [{name,alteredPrizeKey,
+      hits:[[active.key,modified(active)+10*counters]]}];
+  }
+  // Regidrago V's Dragon Laser hits Active and exactly one Bench if present.
+  if(name==='Dragon Laser'){
+    const bench=rows.filter(row=>row.key!==activeKey);
+    return (bench.length?bench:[null]).map(row=>({
+      name,alteredPrizeKey,hits:[[active.key,modified(active)],
+        ...(row?[[row.key,30]]:[])]
+    }));
   }
   if(name==='Calamitous Slash')return [{name,alteredPrizeKey,
     hits:[[active.key,modified(active)+(active.damaged?80:0)]]}];
@@ -4899,7 +4926,7 @@ Object.defineProperty(module.exports, '__test', {
     hasOpponentAbilityLockOnFairyZoneHolder, hasOwnFairyZoneHolderLockThreat,
     viewAfterRemovingAbilityStadiums, fieldBlowerHoodBlocksFairyZone,
     paleMoonExtraPsychicAvailable, paleMoonRetreatStatus, paleMoonScore,
-    publicEnergySupply, publicEnergyCanPay,
+    publicEnergySupply, publicEnergyCanPay, apexHazard,
     projectedStadium, usefulCandidateStadium, chooseEnergyPayment, weaknessMultiplier, stealthyHoodTargetScore
   })
 });
