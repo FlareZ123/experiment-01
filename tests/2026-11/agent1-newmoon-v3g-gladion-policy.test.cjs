@@ -111,15 +111,15 @@ test('singleton Dusknoir in actual deck not Prized',()=>{
  f.obs.ownPublic.deckCount++;
  check(f.root().kind,'abstain');
 });
-test('can't play Gladion if already Supporter-played',()=>{
+test("can't play Gladion if already Supporter-played",()=>{
  const f=fixture();f.obs.ownTurnResources.supporterPlayedTurn=1;
  check(f.root().kind,'abstain');
 });
-test('can't play Gladion from non-hand actor action',()=>{
+test("can't play Gladion from non-hand actor action",()=>{
  const f=fixture();f.gladion.publicMetadata.handIndex=3;
  check(f.root().kind,'abstain');
 });
-test('can't Gladion through Supporter lock',()=>{
+test("can't Gladion through Supporter lock",()=>{
  const f=fixture();f.obs.ownPublic.publicTurnRestrictions.supporterPlayLocked=true;
  check(f.root().kind,'abstain');
 });
