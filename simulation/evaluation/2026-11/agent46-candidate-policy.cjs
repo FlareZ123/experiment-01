@@ -1995,12 +1995,13 @@ function candidateTerminalAttack(view, items, receipt) {
   // source-policy fast path must not convert such a guarded hit into a
   // claimed final-Prize or last-board victory. Conservatively defer even
   // when Ability suppression status is not fully certified by this view.
-  const attackerClasses = (attacker.printed?.subtypes ?? []).map(x =>
-    String(x).toUpperCase());
-  const ruleBoxAttacker = attackerClasses.some(x =>
-    ['EX', 'V', 'VMAX', 'VSTAR', 'MEGA', 'V-UNION'].includes(x)) ||
-    /(?: ex| VMAX| VSTAR| V)(?: |$)/i.test(attacker.printing ?? '');
-  if (defender.printing === 'Mimikyu PAL 97' && ruleBoxAttacker)
+  const attackerClasses = attacker.printed?.subtypes ?? [];
+  const modernExOrV = attackerClasses.includes('ex') ||
+    attackerClasses.some(x => ['V', 'VMAX', 'VSTAR', 'V-UNION'].includes(x)) ||
+    /(?: ex| VMAX| VSTAR| V)(?: |$)/.test(attacker.printing ?? '');
+  // Historical Pokémon-EX and Pokémon-GX are NOT modern Pokémon ex;
+  // the PAL97 text does not grant blanket protection against those.
+  if (defender.printing === 'Mimikyu PAL 97' && modernExOrV)
     return null;
   const remaining = defender.hp - defender.damage;
   if (!Number.isFinite(remaining) || remaining <= 0) return null;
