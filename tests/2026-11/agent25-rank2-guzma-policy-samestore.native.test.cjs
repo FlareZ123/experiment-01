@@ -16,7 +16,7 @@ const { reportCoverage, normalizeNumber } = require('../../simulation/twinleaf/c
 const { actorObservation } = require('../../simulation/twinleaf/actor-observation-contract.cjs');
 const { installPromptProvenanceHook } =
   require('../../simulation/evaluation/2026-11/agent36-prompt-provenance.cjs');
-const { projectPrompt, validateRawPromptResult } =
+const { projectPrompt, validateRawPromptResult, resolveHostOnlyPrompt } =
   require('../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
 const protocol =
   require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
@@ -622,6 +622,20 @@ for (const seat of [0, 1]) {
     const promptHook=installPromptProvenanceHook(x.store);
     try {
       x.store.dispatch(selectedNativeAction(starFrontier,star.token));
+      // Pinned Store animates Pokemon VSTAR Power through WaitPrompt BEFORE
+      // issuing the actual user-selectable Star Alchemy deck-search prompt.
+      // Never treat animation continuation as an actor choice.
+      let animationWaits=0;
+      while(animationWaits<4){
+        const pending=x.state.prompts.filter(p=>p.result===undefined);
+        assert.equal(pending.length,1,
+          'Star Alchemy native animation must present only one pending prompt');
+        if(pending[0].type!=='WaitPrompt')break;
+        x.store.dispatch(new ResolvePromptAction(pending[0].id,null));
+        animationWaits++;
+      }
+      assert.ok(animationWaits>0 && animationWaits<4,
+        'Star Alchemy must settle a bounded native VSTAR animation wait');
       const prompt=x.state.prompts.find(p=>p.result===undefined);
       assert.equal(prompt?.constructor?.name,'ChooseCardsPrompt');
       const projected=projectPrompt({
@@ -640,6 +654,32 @@ for (const seat of [0, 1]) {
       const validation=validateRawPromptResult(prompt,[chosen],x.state);
       assert.equal(validation.valid,true);
       x.store.dispatch(new ResolvePromptAction(prompt.id,validation.decoded));
+      // Native Forest Seal Stone queues a mandatory ShuffleDeckPrompt AFTER
+      // moving the searched card into hand. It must be settled by the trusted
+      // host using physical RNG, not exposed as a deck-order policy choice.
+      const shuffle=x.state.prompts.filter(p=>p.result===undefined);
+      assert.equal(shuffle.length,1);
+      assert.equal(shuffle[0].type,'ShuffleDeckPrompt',
+        'Star Alchemy must produce a native ShuffleDeckPrompt after search');
+      // Deterministic no-game pseudo-RNG: reproducible card-order witness,
+      // never a competitive draw or adversarial stochastic estimate.
+      let randomState=(0x25f05a11 ^ seat)>>>0;
+      const physicalRandom=()=>{
+        randomState^=(randomState<<13)>>>0;
+        randomState^=randomState>>>17;
+        randomState^=(randomState<<5)>>>0;
+        return (randomState>>>0)/4294967296;
+      };
+      const resolvedShuffle=resolveHostOnlyPrompt({
+        prompt:shuffle[0],state:x.state,store:x.store,
+        native:{ResolvePromptAction},physicalRandom,
+        provenanceHook:promptHook,enginePin:EXPECTED_ENGINE_PIN
+      });
+      assert.equal(resolvedShuffle.summary.kind,'ShuffleDeckPrompt');
+      assert.equal(resolvedShuffle.summary.validationHookId,
+        'agent12-twinleaf-shuffle-deck-numeric-permutation-validation-v1');
+      assert.equal(x.state.prompts.some(p=>p.result===undefined),false,
+        'next native root must not run during pending shuffle');
     } finally {
       promptHook.restore();
     }
