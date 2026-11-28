@@ -1946,3 +1946,35 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Silent Lab stops Basic Rule-Box draw and FSS, Temple restores abilities',()=>{
+  const crobat=mon('Crobat V DAA 104',{tools:['Forest Seal Stone SIT 156']});
+  const board=own({active:mon('Budew ASC 16'),bench:[crobat]});
+  const their=opp({active:mon('Regidrago VSTAR SIT 136'),
+   stadium:['Silent Lab PRC 140']});
+  const q=root(seat,[ability('Star Alchemy','star'),
+   play('Temple of Sinnoh ASR 155','temple'),pass],{
+   ownPublic:board,opponentPublic:their,
+   ownHand:['Temple of Sinnoh ASR 155','Dedenne-GX UNB 57'],
+   ownTurnResources:{vstarUsed:false}});
+  assert.equal(policy.silentLabInPlay(q.observation),true);
+  assert.equal(policy.pathToThePeakInPlay(q.observation),false);
+  assert.equal(policy.benchSupportAbilityUsable('Tapu Lele-GX GRI 60',q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
+  their.stadium=[];
+  assert.equal(policy.benchSupportAbilityUsable('Tapu Lele-GX GRI 60',q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'star'});
+ });
+ test('seat '+seat+' Stage1 Garbotoxin stays active under Silent Lab',()=>{
+  const garb=mon('Garbodor LTR 68',{tools:['Float Stone BKT 137'],
+   abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]});
+  const board=own({active:mon('Budew ASC 16'),bench:[garb]});
+  const their=opp({stadium:['Silent Lab PRC 140'],
+   active:mon('Snorlax PGO 55')});
+  const q=root(seat,[pass],{ownPublic:board,opponentPublic:their});
+  assert.equal(policy.silentLabInPlay(q.observation),true);
+  assert.equal(policy.garbotoxinStatus(q.observation),'live');
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),false);
+ });
+}
