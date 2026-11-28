@@ -1892,13 +1892,42 @@ function finalMaxGeistAssessment(view,items) {
   }
   return {hp,current,afterDoor};
 }
-function immediatelyWinningMaxGeist(view,items){
-  const a=finalMaxGeistAssessment(view,items);
-  return a!==null && a.current>=a.hp ?
-    items.find(item=>item.kind==='attack' &&
-      item.attackName==='Max Geist' &&
-      item.publicMetadata?.attackCostPayable!==false &&
-      item.publicMetadata?.hasUnmodeledModifier!==true) ?? null : null;
+// The fixed original 60 has four direct-damage finishers. These are
+// source-identified, printed-attack-only exceptions; do not promote a
+// hypothetical Copycat/GX attack, arbitrary printed damage, or absent token.
+// Final Prize/last Pokemon means another draw/search cannot improve the game.
+const DIRECT_TERMINAL_ATTACKS=Object.freeze([
+  ['Shadow Rider Calyrex VMAX CRE 75','Max Geist'],
+  ['Latias ex SSP 76','Eon Blade'],
+  ['Trevenant & Dusknoir-GX SMP 217','Night Watch'],
+  ["Lillie's Clefairy ex JTG 56",'Full Moon Rondo']
+]);
+function immediatelyWinningKnownAttack(view,items){
+  const active=view.ownPublic?.active;
+  const target=view.opponentPublic?.active;
+  if(!active || !target ||
+      !Number.isFinite(target.hp) || !Number.isFinite(target.damage) ||
+      !Array.isArray(target.printed?.weakness) ||
+      !Array.isArray(target.printed?.resistance))return null;
+  const remaining=target.hp-target.damage;
+  if(remaining<=0)return null;
+  const finalPrizes=Number.isSafeInteger(view.ownPublic.prizeCount) &&
+    view.ownPublic.prizeCount>0 &&
+    view.ownPublic.prizeCount<=prizeLiability(target);
+  const finalNoBench=Array.isArray(view.opponentPublic.bench) &&
+    view.opponentPublic.bench.every(p=>p===null);
+  if(!finalPrizes&&!finalNoBench)return null;
+  const accepted=DIRECT_TERMINAL_ATTACKS.find(row=>row[0]===active.printing);
+  if(!accepted)return null;
+  const attack=active.attacks?.find(a=>a.name===accepted[1]);
+  if(!attack||!canPayAttack(active,attack,view))return null;
+  const offered=items.find(item=>item.kind==='attack' &&
+    item.attackName===accepted[1] &&
+    item.publicMetadata?.attackCostPayable!==false &&
+    item.publicMetadata?.hasUnmodeledModifier!==true);
+  if(!offered)return null;
+  const damage=estimatedDamage(active,attack,view,target);
+  return Number.isFinite(damage)&&damage>=remaining?offered:null;
 }
 function doorMakesFinalMaxGeist(view,items){
   const a=finalMaxGeistAssessment(view,items);
@@ -1930,7 +1959,7 @@ function chooseRoot(view, request) {
 
   // A final-Prize or final-in-play KO settles the game now. Do not
   // spend Lillie, Fog Crystal or a Door draw ahead of an already-paid win.
-  const terminalAttack=immediatelyWinningMaxGeist(view,items);
+  const terminalAttack=immediatelyWinningKnownAttack(view,items);
   if(terminalAttack){
     setPolicyAuditRule('ROOT_IMMEDIATE_TERMINAL_MAX_GEIST','FIRST_NATIVE_MATCH');
     recordPolicyAuditRule(terminalAttack.token,'MAX_GEIST_FINAL_PRIZE_NOW');
