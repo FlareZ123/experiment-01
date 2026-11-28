@@ -163,6 +163,22 @@ for(const seat of [0,1]){
   decision=decide(pol(),o,1,options);
   ok(decision.token==='unown-recipient',
     'Gengar already has Energy; avoid redundant Telepath, seat '+seat);
+  // Gengar alone is sufficient: the searched Unown can enter an empty Bench.
+  const isolated=obs(seat);
+  isolated.ownPublic.bench=[mon(Gen,{hp:240})];
+  const isolatedOptions={schema:protocol.FRONTIER_SCHEMA,items:[
+    {kind:'play-card',token:'gengar-search',actorPrinting:T,
+      publicMetadata:{targetSeat:'actor',targetZone:'bench',
+        targetIndex:0,isOwnerVisible:true}},
+    frontier().items[1],{kind:'pass',token:'pass'}
+  ]};
+  decision=decide(pol(),isolated,1,isolatedOptions);
+  ok(decision.token==='gengar-search',
+    'already-Benched Gengar searches first Unown without an Unown target, seat '+seat);
+  isolated.ownPublic.bench[0].energies=[T];
+  decision=decide(pol(),isolated,1,isolatedOptions);
+  ok(decision.token!=='gengar-search',
+    'same Gengar cannot receive duplicate search priority, seat '+seat);
 }
 
 /* Synthetic post-settlement challenge of the original rank-9 four-copy
