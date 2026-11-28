@@ -820,9 +820,11 @@ function chooseCardCombination(view, prompt) {
   }
 
   if (metadata.sourceZone === 'prizes' && choices.length === 0) {
-    // A valid Heavy Ball may find no Basic; its optional empty selection
-    // must complete so the ball is discarded. Hidden prize identities,
-    // however, must never be reconstructed from public card counts.
+    // A genuinely empty Prize search may complete. If the host supplied
+    // card choices but withheld their identities or mislabeled ownership,
+    // abstain rather than silently surrendering a valuable singleton Item.
+    if (prompt.choices.some(choice => choice.kind === 'card'))
+      return abstain('HIDDEN_PRIZE_IDENTITY');
     const empty = prompt.choices.find(choice =>
       choice.kind === 'empty-selection');
     if (prompt.source?.effectName === 'Hisuian Heavy Ball' &&
