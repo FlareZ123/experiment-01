@@ -76,8 +76,8 @@ for (const seat of [0, 1]) {
   const cases = [
     ['last Psychic, Active 1/3, Bench 6, genuine Door competition',
       { activeEnergy: 1, handPsychic: 1 }, 'z-active', 895],
-    ['last Psychic, Active 0/3, Bench 6, genuine Door competition',
-      { activeEnergy: 0, handPsychic: 1 }, 'z-active', 895],
+    ['last Psychic, Active 0/3, no immediate next-turn attack: preserve Door',
+      { activeEnergy: 0, handPsychic: 1 }, 'door', 600],
     ['two held Psychic preserve Door-then-manual option',
       { activeEnergy: 1, handPsychic: 2 }, 'door', 600],
     ['last Psychic, one card from payable Active, existing 1120 branch',
