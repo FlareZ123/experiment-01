@@ -1794,3 +1794,52 @@ for(const seat of [0,1]){
   assert.equal(policy.opponentSnorlaxBlock(q.observation),false);
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' full Bench frees stale Quick and late Squawk to pay Ultra for Garbodor',()=>{
+  const board=own({active:mon('Budew ASC 16'),bench:[
+   mon('Trubbish CRI 56'),mon('Mega Absol ex MEG 86'),
+   mon('Crobat V DAA 104'),mon('Dedenne-GX UNB 57'),
+   mon('Tapu Lele-GX GRI 60')]});
+  const hand=['Ultra Ball MEG 131','Quick Ball FST 237','Squawkabilly ex PAL 169'];
+  const q=root(seat,[play('Ultra Ball MEG 131','ultra'),pass],{
+   globalTurn:5,ownPublic:board,ownHand:hand});
+  assert.equal(policy.basicSearchDemand(q.observation),false);
+  assert.equal(policy.ultraSearchDemand(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'ultra'});
+  const disc=prompt(seat,{promptType:'ChooseCardsPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Ultra Ball MEG 131',effectName:'Ultra Ball'},
+   publicMetadata:{minimumCount:2,maximumCount:2,selectionType:'card-combination'},
+   choices:[{kind:'card',token:'quick',printing:'Quick Ball FST 237',
+    publicMetadata:{ownerSeat:'actor',sourceZone:'hand'}},
+    {kind:'card',token:'squawk',printing:'Squawkabilly ex PAL 169',
+     publicMetadata:{ownerSeat:'actor',sourceZone:'hand'}}]},
+   {globalTurn:5,ownPublic:board,ownHand:hand});
+  assert.deepEqual(decide(seat,disc),{kind:'select-choices',tokens:['squawk','quick']});
+  board.bench=board.bench.slice(0,2);
+  assert.equal(policy.basicSearchDemand(q.observation),true);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  assert.deepEqual(decide(seat,disc),{kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'});
+ });
+ test('seat '+seat+' completed Garbotoxin unlocks dead Boost Shake discard, unused FSS stays protected',()=>{
+  const garb=mon('Garbodor LTR 68',{tools:['Float Stone BKT 137'],
+   abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]});
+  const board=own({active:mon('Budew ASC 16'),bench:[
+   garb,mon('Mega Absol ex MEG 86'),mon('Crobat V DAA 104')]});
+  const hand=['Ultra Ball MEG 131','Boost Shake EVS 142',
+   'Forest Seal Stone SIT 156','Darkness Energy MEE 15'];
+  const disc=prompt(seat,{promptType:'ChooseCardsPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Ultra Ball MEG 131',effectName:'Ultra Ball'},
+   publicMetadata:{minimumCount:2,maximumCount:2,selectionType:'card-combination'},
+   choices:[{kind:'card',token:'boost',printing:'Boost Shake EVS 142',
+    publicMetadata:{ownerSeat:'actor',sourceZone:'hand'}},
+    {kind:'card',token:'forest',printing:'Forest Seal Stone SIT 156',
+     publicMetadata:{ownerSeat:'actor',sourceZone:'hand'}},
+    {kind:'card',token:'dark',printing:'Darkness Energy MEE 15',
+     publicMetadata:{ownerSeat:'actor',sourceZone:'hand'}}]},
+   {globalTurn:4,ownPublic:board,ownHand:hand,ownTurnResources:{energyPlayedTurn:true,vstarUsed:false}});
+  assert.deepEqual(decide(seat,disc),{kind:'select-choices',tokens:['boost','dark']});
+  disc.observation.ownTurnResources.vstarUsed=true;
+  assert.deepEqual(decide(seat,disc),{kind:'select-choices',tokens:['boost','forest']});
+ });
+}
