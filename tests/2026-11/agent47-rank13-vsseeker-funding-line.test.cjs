@@ -2,7 +2,8 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { chooseRank13VsSeekerFundingLine: choose,
-  assessRank13CrispinEnergyPair: assess } =
+  assessRank13CrispinEnergyPair: assess,
+  assessSourceCountCrispinEnergyPair: assessSource } =
   require('../../simulation/evaluation/2026-11/agent47-rank13-vsseeker-funding-line.cjs');
 const rank13 =
   require('../../simulation/evaluation/2026-11/agent24-rank13-regidrago-opponent-policy.cjs');
@@ -164,4 +165,21 @@ test('source MEE 9/10 and pinned native MEE 1/2 equivalent Basic Energy aliases 
   assert.deepEqual(assess(view),before);
   assert.deepEqual(choose({...base(),observation:view}),
     {kind:'select-choices',tokens:['crispin']});
+});
+
+test('same Crispin source-text adapter serves ranks 13/14/20; ONLY rank13 4G/3F has this K0 Fire guarantee',()=>{
+  const view=base().observation;
+  const thirteen=assessSource(view,{grass:4,fire:3});
+  assert.equal(thirteen.status,'certified-k0-lower-bound');
+  assert.deepEqual(thirteen.lowerBounds,{grass:2,fire:1});
+  // Authenticated source rank14 and rank20 each have 4 Grass but only 2 Fire.
+  // With a Grass+Fire already attached and one Prize remaining, the single
+  // unaccounted Fire may be the last Prize; no invisible-source assumption
+  // can certify its presence in the deck without a fresh owner K1 search.
+  const fourteen=assessSource(view,{grass:4,fire:2});
+  const twenty=assessSource(view,{grass:4,fire:2});
+  assert.equal(fourteen.status,'possible-k0');
+  assert.deepEqual(fourteen.lowerBounds,{grass:2,fire:0});
+  assert.deepEqual(twenty,fourteen);
+  assert.equal(assessSource(view,{grass:65,fire:2}).status,'invalid');
 });
