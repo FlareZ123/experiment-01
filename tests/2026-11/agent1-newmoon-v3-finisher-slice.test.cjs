@@ -227,4 +227,72 @@ test('unmodeled Shadow Bind damage modifier veto',()=>{
  assert(f.root().kind,'abstain');
 });
 
+
+function busDevelopment(){
+ const f=make();
+ f.opp.active.printing='Vileplume BUS 006';f.opp.active.hp=140;
+ f.opp.active.tools=['Stealthy Hood UNB 186'];
+ f.opp.active.abilities=['Disgusting Pollen'];
+ f.opp.active.abilitySuppressions=[{abilityName:'Disgusting Pollen',suppressed:false}];
+ f.own.active.printing='Dusclops SFA 019';
+ f.own.active.abilities=['Cursed Blast'];
+ f.own.active.energies=['Basic Psychic Energy','Telepathic Psychic Energy'];
+ f.obs.ownHand=['Dusknoir SFA 020','Basic Psychic Energy'];
+ f.items.splice(0,f.items.length,
+  {kind:'play-card',token:'evolve',actorPrinting:'Dusknoir SFA 020',
+   publicMetadata:{cardType:'pokemon',targetZone:'active',targetSeat:'actor'}},
+  {kind:'play-card',token:'charge',actorPrinting:'Basic Psychic Energy',
+   targetPrinting:'Dusclops SFA 019',
+   publicMetadata:{cardType:'energy',targetZone:'active',targetSeat:'actor'}} );
+ f.obs.ownTurnResources.energyPlayedTurn=0;
+ return f;
+}
+test('Stage2 evolution of an established Active Dusclops through BUS',()=>{
+ const f=busDevelopment();assert(f.root().token,'evolve');
+});
+test('Stage2 cannot evolve from source-unrelated target slot',()=>{
+ const f=busDevelopment();f.items[0].publicMetadata.targetZone='bench';
+ assert(f.root().token,'charge');
+});
+test('energy Stage1 if Stage2 not in hand',()=>{
+ const f=busDevelopment();f.obs.ownHand=['Basic Psychic Energy'];
+ assert(f.root().token,'charge');
+});
+test('do not attach second energy when manual attachment already used',()=>{
+ const f=busDevelopment();f.obs.ownHand=[];
+ f.obs.ownTurnResources.energyPlayedTurn=1;assert(f.root().kind,'abstain');
+});
+test('do not charge Dusclops if Vileplume lock is not live',()=>{
+ const f=busDevelopment();f.obs.ownHand=[];
+ f.opp.active.abilitySuppressions[0].suppressed=true;
+ assert(f.root().kind,'abstain');
+});
+test('promote paid Bench Stage2 Dusknoir through live BUS lock',()=>{
+ const f=busDevelopment();f.own.active.printing='Mewtwo & Mew-GX UNM 71';
+ f.own.bench=[{printing:'Dusknoir SFA 020',
+   energies:['Basic Psychic Energy','Basic Psychic Energy','Basic Psychic Energy']}];
+ f.items.splice(0,f.items.length,{kind:'retreat',token:'retreat-stage2',
+  targetPrinting:'Dusknoir SFA 020',publicMetadata:{
+   targetSeat:'actor',targetZone:'bench',targetIndex:0}});
+ assert(f.root().token,'retreat-stage2');
+});
+test('do not promote unfunded Bench Stage2 prematurely',()=>{
+ const f=busDevelopment();f.own.active.printing='Mewtwo & Mew-GX UNM 71';
+ f.own.bench=[{printing:'Dusknoir SFA 020',
+   energies:['Basic Psychic Energy']}];
+ f.items.splice(0,f.items.length,{kind:'retreat',token:'retreat-stage2',
+  targetPrinting:'Dusknoir SFA 020',publicMetadata:{
+   targetSeat:'actor',targetZone:'bench',targetIndex:0}});
+ assert(f.root().kind,'abstain');
+});
+test('do not promote Stage2 if target bench slot mismatches',()=>{
+ const f=busDevelopment();f.own.active.printing='Mewtwo & Mew-GX UNM 71';
+ f.own.bench=[{printing:'Dusknoir SFA 020',
+   energies:['Basic Psychic Energy','Basic Psychic Energy','Basic Psychic Energy']}];
+ f.items.splice(0,f.items.length,{kind:'retreat',token:'wrong-bench',
+  targetPrinting:'Dusknoir SFA 020',publicMetadata:{
+   targetSeat:'actor',targetZone:'bench',targetIndex:2}});
+ assert(f.root().kind,'abstain');
+});
+
 console.log('Agent1 v3 research actor tests: '+checks+' assertions passed');
