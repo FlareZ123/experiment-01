@@ -37,9 +37,9 @@ const P = Object.freeze({
   guzma: /^Guzma BUS(?: 115)?\b/i,
   marnie: /^Marnie SSH(?: 169)?\b/i,
   raihan: /^Raihan EVS(?: 152)?\b/i,
-  lele: /^Tapu Lele-GX GRI(?: 60)?\b/i,
+  lele: /^Tapu Lele(?:-GX| GX) GRI(?: 60)?\b/i,
   crobat: /^Crobat V DAA(?: 104)?\b/i,
-  dedenne: /^Dedenne-GX UNB(?: 57)?\b/i,
+  dedenne: /^Dedenne(?:-GX| GX) UNB(?: 57)?\b/i,
   squawk: /^Squawkabilly ex PAL(?: 169)?\b/i,
   fez: /^Fezandipiti ex ASC(?: 142)?\b/i,
   quickBall: /^Quick Ball FST(?: 237)?\b/i,
@@ -118,7 +118,7 @@ function basicDiscard(own) {return arr(own?.discard).some(c=>has(c,P.basicPsychi
 function hasBenchedPsychic(own) {
   return arr(own?.bench).some(c=>c&&(
     has(c,P.clefairy)||/^Latias ex SSP(?: 76)?\b/i.test(text(c))||
-    /^Tapu Lele-GX GRI(?: 60)?\b/i.test(text(c))||
+    /^Tapu Lele(?:-GX| GX) GRI(?: 60)?\b/i.test(text(c))||
     /^Mimikyu GRI(?: 58)?\b/i.test(text(c))));
 }
 function availableCards(request) {return arr(request?.actionFrontier?.items).filter(a=>typeof a?.token==='string'&&a.token.length>0);}
@@ -247,7 +247,7 @@ function telepathPrompt(request) {
   }
   if(result.length<m.maximumCount&&result.length===0){
     const x=get(/^Unown AOR(?: 30)?\b/i)??get(/^Mimikyu GRI(?: 58)?\b/i)??
-      get(/^Tapu Lele-GX GRI(?: 60)?\b/i);
+      get(/^Tapu Lele(?:-GX| GX) GRI(?: 60)?\b/i);
     if(x)result.push(x);
   }
   if(result.length<m.minimumCount)return no('R30_TELEPATH_NO_TARGET');
@@ -586,7 +586,7 @@ function patchPrompt(request) {
   const best=options.map(c=>{
     const target=o.ownPublic?.bench?.[c.publicMetadata.benchIndex];
     return {c,score:has(target,P.clefairy)?4:
-      /^Tapu Lele-GX GRI(?: 60)?\b/i.test(text(target))?3:
+      /^Tapu Lele(?:-GX| GX) GRI(?: 60)?\b/i.test(text(target))?3:
       /^Mimikyu GRI(?: 58)?\b/i.test(text(target))?2:
       /^Latias ex SSP(?: 76)?\b/i.test(text(target))?1:0};
   }).filter(r=>r.score>0).sort((a,b)=>b.score-a.score)[0];
@@ -774,7 +774,7 @@ const BENCH_BASIC = Object.freeze([
   {pattern:/^Unown AOR(?: 30)?\b/i,kind:'unown'},
   {pattern:P.minior,kind:'minior'},
   {pattern:/^Crobat V DAA(?: 104)?\b/i,kind:'crobat'},
-  {pattern:/^Dedenne-GX UNB(?: 57)?\b/i,kind:'dedenne'},
+  {pattern:/^Dedenne(?:-GX| GX) UNB(?: 57)?\b/i,kind:'dedenne'},
   {pattern:/^Squawkabilly ex PAL(?: 169)?\b/i,kind:'squawk'},
   {pattern:/^Fezandipiti ex ASC(?: 142)?\b/i,kind:'fez'}
 ]);
@@ -982,11 +982,11 @@ function startingActiveRank(printing) {
   if(has(printing,P.mimikyu))return 70;
   if(/^Empoleon V BST(?: 40)?\b/i.test(text(printing)))return 60;
   if(/^Crobat V DAA(?: 104)?\b/i.test(text(printing)))return 55;
-  if(/^Dedenne-GX UNB(?: 57)?\b/i.test(text(printing)))return 50;
+  if(/^Dedenne(?:-GX| GX) UNB(?: 57)?\b/i.test(text(printing)))return 50;
   if(/^Squawkabilly ex PAL(?: 169)?\b/i.test(text(printing)))return 45;
   if(/^Fezandipiti ex ASC(?: 142)?\b/i.test(text(printing)))return 40;
-  if(/^Tapu Lele-GX GRI(?: 60)?\b/i.test(text(printing)))return 35;
-  if(/^Dialga-GX UPR(?: 100)?\b/i.test(text(printing)))return 30;
+  if(/^Tapu Lele(?:-GX| GX) GRI(?: 60)?\b/i.test(text(printing)))return 35;
+  if(/^Dialga(?:-GX| GX) UPR(?: 100)?\b/i.test(text(printing)))return 30;
   return 0;
 }
 function startingBenchRank(printing) {
