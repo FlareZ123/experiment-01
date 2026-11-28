@@ -333,4 +333,86 @@ function createCertifiedRoleSourcePrintedHostBridge({
   });
 }
 
-module.exports={buildSourcePrintingMap,projectSourcePrintings,projectAdmittedWorkerParts,wrapSourcePrintedObserver,createCertifiedSourcePrintedHostBridge,createCertifiedRoleSourcePrintedHostBridge};
+
+/**
+ * Opt-in composition at createV3WorkerDecisionResolver's dependency boundary.
+ * These are all ordinary existing V3 injected dependencies:
+ *   native, actionFrontier, promptProjection, eventReceipt.
+ *
+ * Leave ActionEnumerator, cloned-Store validation, native token-to-Action,
+ * root/prompt dispatch, worker trace hashing, and the external seed unchanged.
+ * The source-certified observer runs BEFORE the fixture driver hashes it.
+ * When V3 later builds a frontier, receipt, or prompt, this adapter publishes
+ * the same source labels. Every component is still admitted by the strict
+ * worker protocol BEFORE session.decide.
+ */
+function createCertifiedV3RoleAdapters({
+  native,protocol,candidateSeat,opponentSeat,candidateSourceDeck,
+  opponentSourceDeck,candidateNativeOrdered60,opponentNativeOrdered60,
+  actionFrontier,promptProjection,eventReceipt
+}={}){
+  assert.ok(actionFrontier&&
+    typeof actionFrontier.buildNativeActionFrontier==='function'&&
+    typeof actionFrontier.dispatchSelectedNativeAction==='function',
+    'native root action frontier and dispatch binding required');
+  assert.ok(promptProjection&&
+    typeof promptProjection.projectPrompt==='function'&&
+    typeof promptProjection.dispatchPromptChoice==='function'&&
+    typeof promptProjection.resolveHostOnlyPrompt==='function',
+    'native prompt projector and host-only settlement binding required');
+  assert.equal(typeof eventReceipt,'function',
+    'native public event receipt function required');
+  const bridge=createCertifiedRoleSourcePrintedHostBridge({
+    native,protocol,candidateSeat,opponentSeat,
+    candidateSourceDeck,opponentSourceDeck,
+    candidateNativeOrdered60,opponentNativeOrdered60
+  });
+  const emptyFrontier={schema:protocol.FRONTIER_SCHEMA,items:[]};
+  const view=(state,seat)=>bridge.native.observe(state,seat);
+  const rootAdapter={...actionFrontier,
+    buildNativeActionFrontier(args){
+      const raw=actionFrontier.buildNativeActionFrontier.call(actionFrontier,args);
+      assert.ok(raw&&raw.actionFrontier&&raw.actionByToken instanceof Map,
+        'native action frontier must retain its physical token map');
+      const originalTokens=raw.actionFrontier.items.map(item=>item.token);
+      const rendered=bridge.projectWorkerParts({
+        observation:view(args.state,args.actorSeat),prompt:null,
+        publicEventReceipt:null,actionFrontier:raw.actionFrontier
+      });
+      assert.deepEqual(rendered.actionFrontier.items.map(item=>item.token),
+        originalTokens,'source presentation may not change physical action tokens');
+      return {...raw,actionFrontier:rendered.actionFrontier};
+    }
+  };
+  const promptAdapter={...promptProjection,
+    projectPrompt(args){
+      const raw=promptProjection.projectPrompt.call(promptProjection,args);
+      if(raw?.hostOnly)return raw;
+      assert.ok(raw&&raw.promptProjection&&raw.choiceByToken instanceof Map,
+        'native prompt projector must preserve physical choice token map');
+      const rendered=bridge.projectWorkerParts({
+        observation:view(args.state,args.actorSeat),
+        prompt:raw.promptProjection,publicEventReceipt:null,
+        actionFrontier:emptyFrontier
+      });
+      return {...raw,promptProjection:rendered.prompt};
+    }
+  };
+  const eventAdapter=(state,seat,...rest)=>{
+    const nativeReceipt=eventReceipt(state,seat,...rest);
+    const rendered=bridge.projectWorkerParts({
+      observation:view(state,seat),
+      prompt:null,publicEventReceipt:nativeReceipt,
+      actionFrontier:emptyFrontier
+    });
+    return rendered.publicEventReceipt;
+  };
+  return Object.freeze({
+    native:bridge.native,
+    actionFrontier:Object.freeze(rootAdapter),
+    promptProjection:Object.freeze(promptAdapter),
+    eventReceipt:eventAdapter
+  });
+}
+
+module.exports={buildSourcePrintingMap,projectSourcePrintings,projectAdmittedWorkerParts,wrapSourcePrintedObserver,createCertifiedSourcePrintedHostBridge,createCertifiedRoleSourcePrintedHostBridge,createCertifiedV3RoleAdapters};
