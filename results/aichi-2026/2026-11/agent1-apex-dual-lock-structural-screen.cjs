@@ -28,10 +28,13 @@ function buildVariant(base,cut){
   throw Error("Exceeded four of non-energy card");
  return filtered;
 }
-function run(cards,{trials=2000,seed=182736,scenarios=["clean","t2-dual"]}={}){
+function run(cards,{trials=2000,seed=182736,scenarios=["clean","t2-dual"],
+ variantIds=VARIANTS.map(v=>v.id)}={}){
  if(!Number.isInteger(trials)||trials<1)throw Error("Bad trials");
+ if(!Array.isArray(variantIds)||new Set(variantIds).size!==variantIds.length||
+  variantIds.some(id=>!VARIANTS.some(v=>v.id===id)))throw Error("Bad selected variants");
  const observations=[];
- for(const variant of VARIANTS)for(const scenario of scenarios){
+ for(const variant of VARIANTS.filter(v=>variantIds.includes(v.id)))for(const scenario of scenarios){
   const rows=buildVariant(cards,variant.cut);
   for(const second of [false,true]){
    const r=batch(rows,{trials,seed,scenario,second,goal:"repeat-wipe",policy:"joint"});
@@ -48,7 +51,7 @@ function run(cards,{trials=2000,seed=182736,scenarios=["clean","t2-dual"]}={}){
   scenarioMeaning:{
    clean:"No imposed Item/Supporter lock",
    "t2-dual":"On own T2, Item and Supporter play prohibited (AOR Vileplume + Active Stoutland hypothetical); no Hood/Bide or actual opponent play"
-  },trialsPerCell:trials,seed,observations};
+  },trialsPerCell:trials,seed,variantIds,observations};
 }
 if(require.main===module){
  const f=path.join(__dirname,"agent1-apex-lockdown-v1.json"),
