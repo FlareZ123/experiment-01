@@ -232,6 +232,70 @@ function choosePaleMoonFloatStonePreparation(view,items) {
     reason:'PUBLIC_PALE_MOON_FLOAT_STONE_PREPARE_ZERO_RETREAT'};
 }
 
+/**
+ * Recover exactly one public discard Supporter using the genuine VS Seeker
+ * item and its source-authenticated discard search prompt. A Ranger
+ * continuation avoids needing a Bench; otherwise Guzma is allowed only
+ * if there is exactly one visible Bench on both sides. No hidden deck or
+ * Prize identity is consulted.
+ */
+function preferredPaleMoonDiscardSupporter(view) {
+  if(!terminalPaleMoonPrizeRisk(view) ||
+     view?.ownTurnResources?.supporterPlayedTurn!==0 ||
+     view?.ownTurnResources?.supporterPlayLocked!==false ||
+     !Array.isArray(view?.ownPublic?.discard))return null;
+  const known=view.ownPublic.discard;
+  const own=view.ownPublic,opp=view.opponentPublic;
+  if(known.includes('Pokemon Ranger STS')&&
+      own.publicTurnRestrictions?.alteredCreationDamage===false&&
+      own.publicTurnRestrictions?.usedAlteredCreation===false)
+    return 'Pokemon Ranger STS';
+  if(known.includes('Guzma BUS')&&
+     Array.isArray(own.bench)&&own.bench.filter(Boolean).length===1&&
+     Array.isArray(opp?.bench)&&opp.bench.filter(Boolean).length===1)
+    return 'Guzma BUS';
+  return null;
+}
+function choosePaleMoonVSSeekerPreparation(view,items) {
+  if(view?.decisionKind!=='owner-root' ||
+     !terminalPaleMoonPrizeRisk(view) ||
+     view?.ownTurnResources?.itemPlayLocked!==false ||
+     view?.ownPublic?.publicTurnRestrictions?.itemPlayLocked!==false ||
+     !Array.isArray(items) || !preferredPaleMoonDiscardSupporter(view))
+    return null;
+  const eligible=items.filter(item=>item?.kind==='play-card'&&
+    item.actorPrinting==='VS Seeker PHF'&&
+    (typeof item.token==='string'||Number.isSafeInteger(item.token)));
+  if(eligible.length!==1)return null;
+  return {token:eligible[0].token,
+    reason:'PUBLIC_PALE_MOON_VS_SEEKER_PREPARE_DISCARD_SUPPORTER'};
+}
+function choosePaleMoonVSSeekerPrompt(view,prompt) {
+  const desired=preferredPaleMoonDiscardSupporter(view);
+  if(view?.decisionKind!=='owner-prompt' || !desired ||
+     prompt?.promptType!=='ChooseCardsPrompt' ||
+     prompt?.source?.classification!=='actor-choice' ||
+     prompt.source.sourceKind!=='card-effect' ||
+     prompt.source.sourcePrinting!=='VS Seeker PHF' ||
+     prompt?.publicMetadata?.selectionType!=='card-combination' ||
+     prompt.publicMetadata.minimumCount!==1 ||
+     prompt.publicMetadata.maximumCount!==1 ||
+     prompt.publicMetadata.allowCancel!==false ||
+     prompt.publicMetadata.sourceZone!=='discard' ||
+     prompt.publicMetadata.ownerSeat!=='actor' ||
+     prompt.publicMetadata.isOwnerVisible!==true ||
+     !Array.isArray(prompt.choices))return null;
+  const matching=prompt.choices.filter(item=>item?.kind==='card'&&
+    item.printing===desired&&
+    item.publicMetadata?.ownerSeat==='actor'&&
+    item.publicMetadata?.sourceZone==='discard'&&
+    item.publicMetadata?.isOwnerVisible===true&&
+    (typeof item.token==='string'||Number.isSafeInteger(item.token)));
+  if(matching.length===0)return null;
+  return {tokens:[matching[0].token],
+    reason:'PUBLIC_PALE_MOON_VS_SEEKER_RANGER_GUZMA_PROMPT'};
+}
+
 function rescuePaleMoonTerminalPass(view,items,originalToken) {
   if(!Array.isArray(items) ||
       view?.decisionKind!=='owner-root' ||
@@ -256,7 +320,8 @@ function rescuePaleMoonTerminalPass(view,items,originalToken) {
   if(saves.length===1)return {token:saves[0].token,
     reason:'PUBLIC_PALE_MOON_TERMINAL_PASS_OVERRIDE',
     selectedSourceReason:saves[0].reason};
-  const setup=choosePaleMoonFloatStonePreparation(view,items);
+  const setup=choosePaleMoonFloatStonePreparation(view,items) ??
+    choosePaleMoonVSSeekerPreparation(view,items);
   return setup?{token:setup.token,
     reason:'PUBLIC_PALE_MOON_TERMINAL_PASS_PREPARATION',
     selectedSourceReason:setup.reason}:null;
@@ -271,5 +336,8 @@ module.exports = {
   rescuePaleMoonTerminalPass,
   choosePaleMoonFloatStonePreparation,
   knownNoPrizeAwardOnPaleMoonKO,
-  terminalPaleMoonPrizeRisk
+  terminalPaleMoonPrizeRisk,
+  preferredPaleMoonDiscardSupporter,
+  choosePaleMoonVSSeekerPreparation,
+  choosePaleMoonVSSeekerPrompt
 };
