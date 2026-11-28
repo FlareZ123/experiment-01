@@ -88,7 +88,10 @@ function optimizedTransfer(actor,prompt,native,state,actorSeat){
  const temple=templeActive(state,actorSeat);
  let best={score:0,indices:[],target:null,after:0};
  for(const target of targets){
-  const attached=arr(target.slot.cards).map(card=>normalizeAttached(card,native))
+  // Pinned PokemonCardList.energies.cards is the authoritative attached
+  // Energy collection; CardList.cards can also include evolution stacks,
+  // tools and transiently inconsistent duplicate attachment references.
+  const attached=arr(target.slot.energies?.cards).map(card=>normalizeAttached(card,native))
     .filter(Boolean);
   const before=energyCoverage(attached,temple);
   const tries=[[]];
@@ -162,7 +165,9 @@ function projectMotivatePrompt(options={}){
    arr(prompt.options?.blockedTo).length===0&&
    prompt.options?.validCardTypes===undefined&&
    prompt.options?.maxPerType===undefined&&
-   Array.isArray(actor.bench)&&Array.isArray(prompt.cardList?.cards)&&
+   Array.isArray(actor.bench)&&actor.bench.every(slot=>
+     Array.isArray(slot?.energies?.cards))&&
+   Array.isArray(prompt.cardList?.cards)&&
    typeof native?.EnergyCard==='function'&&
    native?.CardType&&native?.SuperType&&native?.EnergyType;
  if(!expected)
