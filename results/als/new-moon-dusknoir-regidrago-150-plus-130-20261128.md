@@ -2,6 +2,10 @@
 
 **Agent 22, 28 November 2026.** A second, potentially broader reason to test the [fixed New Moon Dusknoir v3](new-moon-dusknoir-shadow-bind-v3-60.json) beyond the rank-15 lockbreak. Evidence is **card text + original source-list counts + exact initial Prize combinatorics only**. No natural-game policy, execution, win rate, or candidate promotion is established.
 
+## Superseding branch: Fairy Zone can remove the need for Cursed Blast entirely
+
+**Important 28 November correction:** the fixed New Moon base already includes **Lillie's Clefairy ex JTG56 Fairy Zone**, which changes the Weakness of all opponent Dragon Pokémon **in play to Psychic ×2** while active. Regidrago VSTAR SIT136 is **Dragon, 280HP** and has **no printed Weakness**. Accordingly, **Night Watch150×2=300** from an eligible Psychic attacking Pokémon can one-hit the VSTAR while Clefairy's Fairy Zone functions; **Full Moon Rondo140×2=280** at combined Bench≥6 can one-hit with just Clefairy [P][C]. The **Stage2 Dusknoir Shadow Bind150×2=300** also one-hits VSTAR **without selfKO** and bypasses the **Basic attacker damage prevention** from a source-copied Noivern ex Covert Flight, which the preceding Basic attacks do not. Seven of nine authenticated Regidrago ranks contain Noivern ex; source Path/SilentLab/Stealthy Hood can deny Fairy Zone in real states. See the [full target and defenses matrix](new-moon-fairy-zone-regidrago-covertflight-dragonite-20261128.md). The 150+130 damage-counter line below is an *alternate line when Fairy Zone is absent/suppressed*, not the preferred way to spend Dusknoir when it is active. **Fairy Zone does not double Cursed Blast placed counters**, only attack damage.
+
 ## The critical 280-damage pair
 
 The unmodified New Moon parent/v3 contains:
