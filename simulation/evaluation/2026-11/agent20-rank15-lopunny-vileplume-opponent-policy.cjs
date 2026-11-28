@@ -141,7 +141,13 @@ function printedDamage(item,request) {
     }
     if(item.attackName==='Spiky Hopper')value=160;
     if(value!==null){
-      if(arr(own.energies).some(e=>has(e,P.powerful)))value+=20;
+      // Temple of Sinnoh makes Special Energy provide only Colorless;
+      // its other effects (including Powerful Colorless' +20) are disabled.
+      // With no certified Stadium-suppression fact, do not invent an
+      // exception to the visible Temple effect.
+      const templeInPlay=[...arr(o.ownPublic?.stadium),...arr(o.opponentPublic?.stadium)]
+        .some(s=>/^Temple of Sinnoh ASR(?: 155)?\b/i.test(txt(s)));
+      if(!templeInPlay&&arr(own.energies).some(e=>has(e,P.powerful)))value+=20;
       if(arr(own.tools).some(e=>has(e,P.choiceBelt))&&/\bV(?:MAX|STAR)?\b/i.test(txt(op)))value+=30;
     }
   }
