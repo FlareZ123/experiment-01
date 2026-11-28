@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 
-const VERSION='agent8-public-event-receipt-v3-turn-stamped';
+const VERSION='agent8-public-event-receipt-v4-ko-turn-stamped';
 
 /**
  * Only face-up cards and native public-use markers enter this detached
@@ -84,6 +84,36 @@ function publicEventReceipt(state,seat,previousOpponentTurnAttacks=null,
       'Unavailable previous-turn history cannot carry a turn stamp');
   }
 
+  let priorOpponentTurnKO=Object.freeze({turn:null,any:null,byAttack:null});
+  if(previousOpponentTurnKOs!==null){
+    assert.ok(Array.isArray(previousOpponentTurnKOs));
+    const snapshotTurn=previousOpponentTurnKOTurn;
+    assert.ok(Number.isSafeInteger(snapshotTurn)&&snapshotTurn>=0,
+      'Known previous-turn KO history requires its snapshot turn stamp');
+    for(const row of previousOpponentTurnKOs){
+      assert.equal(row.turn,snapshotTurn,
+        'All previous-turn KO events must share the snapshot turn');
+      assert.equal(row.victimPlayerId,owner.id,
+        'KO victim must be the receipt owner');
+      assert.equal(row.attackerPlayerId,opponent.id,
+        'KO actor must be the opponent');
+      assert.ok(row.byAttack===true||row.byAttack===false||
+        row.byAttack===null);
+    }
+    if(Number.isSafeInteger(state.turn)&&state.turn>1&&
+       snapshotTurn===state.turn-1){
+      const byAttack=previousOpponentTurnKOs.some(row=>row.byAttack===true)?
+        true:previousOpponentTurnKOs.every(row=>row.byAttack===false)?
+          false:null;
+      priorOpponentTurnKO=Object.freeze({
+        turn:snapshotTurn,any:previousOpponentTurnKOs.length>0,byAttack
+      });
+    }
+  }else{
+    assert.equal(previousOpponentTurnKOTurn,null,
+      'Unavailable previous-turn KO history cannot carry a turn stamp');
+  }
+
   /** @param {object} slot @returns {object|null} */
   const view=slot=>{
     const pokemon=slot.getPokemonCard();
@@ -140,12 +170,7 @@ function publicEventReceipt(state,seat,previousOpponentTurnAttacks=null,
     ownerBench:Object.freeze(owner.bench.map(slot=>clone(view(slot)))),
     // Last-opponent-turn copied attack history is intentionally unknown:
     // pinned playerLastAttack has no turn stamp and can outlive a Pass.
-    priorOpponentTurnKO:Object.freeze({
-      any:typeof owner.pokemonKnockedOutDuringOpponentsLastTurn==='boolean'?
-        owner.pokemonKnockedOutDuringOpponentsLastTurn:null,
-      byAttack:typeof owner.pokemonKnockedOutByAttackDuringOpponentsLastTurn==='boolean'?
-        owner.pokemonKnockedOutByAttackDuringOpponentsLastTurn:null
-    }),
+    // Never use the native owner-side KO Boolean: it can survive a skipped turn.\n    priorOpponentTurnKO,
     // Legacy single-record field stays unknown; the turn-stamped list below
     // is supplied only by the research-owned Store event tracker.
     opponentLastTurnAttack:null,
