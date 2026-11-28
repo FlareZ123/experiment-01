@@ -140,4 +140,55 @@ for (const seat of [0, 1]) {
     const active = action('active', 'Counter Gain SSP 140', BUNNELBY, 'active', 0);
     assert.equal(score(active, obs), 0);
   });
+  function tmDecisionView() {
+    const obs = state(seat);
+    obs.ownPublic.bench[1].tools = [];
+    obs.ownPublic.bench[3] = {
+      printing: 'Oddish UNB 5', hp: 50, damage: 0,
+      lastPlayedOrEvolvedTurn: 3, // TM attack CAN evolve a newly played Basic.
+      printed: { stage: 'BASIC' }, tools: []
+    };
+    obs.ownHand.unshift(TM);
+    return obs;
+  }
+
+  test('seat ' + seat + ': TM Evolution attaches to real Bunnelby instead of Fan Rotom', () => {
+    const obs = tmDecisionView();
+    const rotom = action('rotom', TM, 'Fan Rotom SCR 118', 'active', 0);
+    const bunnelby = action('bunnelby', TM, BUNNELBY, 'bench', 0);
+    assert.equal(score(rotom, obs), 88);
+    assert.equal(score(bunnelby, obs), 178);
+    assert.deepEqual(chosen(seat, obs, [rotom, bunnelby]), pick('bunnelby'));
+  });
+
+  test('seat ' + seat + ': after the TM target is established Jet follows that same copy', () => {
+    const obs = tmDecisionView();
+    obs.ownPublic.bench[0].tools = [TM];
+    const correct = action('tm-holder', 'Jet Energy PAL 190', BUNNELBY, 'bench', 0);
+    const wrong = action('no-tm', 'Jet Energy PAL 190', BUNNELBY, 'bench', 1);
+    assert.equal(score(correct, obs), 225);
+    assert.equal(score(wrong, obs), 80);
+    assert.deepEqual(chosen(seat, obs, [wrong, correct]), pick('tm-holder'));
+  });
+
+  test('seat ' + seat + ': TM on Active Bunnelby can be useful without Jet hand', () => {
+    const obs = tmDecisionView();
+    obs.ownHand = [TM];
+    obs.ownPublic.active = { printing: BUNNELBY, hp: 70, damage: 0, tools: [] };
+    const tm = action('active', TM, BUNNELBY, 'active', 0);
+    assert.equal(score(tm, obs), 178);
+  });
+
+  test('seat ' + seat + ': TM lacks double-evolution priority with no matching Basic line', () => {
+    const obs = tmDecisionView();
+    // Unlike normal evolution, TM: Evolution is an attack and can evolve a
+    // freshly played Oddish. Remove Oddish entirely rather than change age.
+    obs.ownPublic.bench[3] = {
+      printing: VILEPLUME, hp: 130, damage: 0,
+      printed: { stage: 'STAGE2' }, tools: []
+    };
+    const tm = action('no-line', TM, BUNNELBY, 'bench', 0);
+    assert.equal(score(tm, obs), 88);
+  });
+
 }
