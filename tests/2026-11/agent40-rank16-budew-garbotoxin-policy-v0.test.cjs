@@ -2207,13 +2207,13 @@ for(const seat of [0,1]){
  test('seat '+seat+' ConfirmPrompt respects active Wobbuffet setup Ability suppression',()=>{
   const wob=mon('Wobbuffet PHF 36',{abilitySuppressions:null});
   const dede=prompt(seat,{promptType:'ConfirmPrompt',
-   source:{sourceKind:'ability',sourceAbilityName:'Dedechange'},
+   source:{sourceKind:'card-effect',sourcePrinting:'Dedenne-GX UNB 57',effectName:'Dedechange'},
    choices:[choice('yes','Yes','confirm'),choice('no','No','confirm')]},{
    ownPublic:own({active:mon('Budew ASC 16'),bench:[mon('Dedenne-GX UNB 57')]}),
    opponentPublic:opp({active:wob}),ownHand:['Darkness Energy MEE 15']});
   assert.deepEqual(decide(seat,dede),{kind:'select-choice',token:'no'});
   const tapu=prompt(seat,{promptType:'ConfirmPrompt',
-   source:{sourceKind:'ability',sourceAbilityName:'Wonder Tag'},
+   source:{sourceKind:'card-effect',sourcePrinting:'Tapu Lele-GX GRI 60',effectName:'Wonder Tag'},
    choices:[choice('yes','Yes','confirm'),choice('no','No','confirm')]},{
    ownPublic:own({active:mon('Budew ASC 16'),bench:[mon('Tapu Lele-GX GRI 60')]}),
    opponentPublic:opp({active:wob}),ownHand:['Darkness Energy MEE 15']});
