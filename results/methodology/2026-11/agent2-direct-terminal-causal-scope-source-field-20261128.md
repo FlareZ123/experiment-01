@@ -55,6 +55,8 @@ The source-qualified pairs above were inspected against the supplied card databa
 
 The class list is **not** a general assertion that these Abilities are harmless in all actions or matchups. `sourceAbilityDirectFinalHarmless` is only callable as part of a currently offered *direct, Prize-ending* attack. It intentionally does not address effect attacks such as Astral Barrage, guessed future hits, other Pokémon/tool effects, or unknown source printings.
 
+**Executable reproducer:** [agent2-direct-terminal-causal-scope-reproduce.cjs](agent2-direct-terminal-causal-scope-reproduce.cjs) is a self-contained JavaScript module accepting the actual trusted worker source and applying the bounded patch in memory. Verified after committing it against exact worker blob `813f22634f8f162d1da3659ad5c5d2d6da32103b`: **44 paired groups, 88 actual policy calls, 24 desired changes, 20 preserved controls, zero errors**. It does not import a game engine, modify the worker branch, or launch CI.
+
 ## Executed exact-worker A/B matrix
 
 Compiled the exact fetched source twice with `new Function('module','exports',source)` in one V8 environment, replacing only the above helper and predicate in the patched source. Every case used both exact Hood Shield and Lockbridge profiles, both physical seats, candidate Active Shadow Rider Calyrex VMAX with **three Basic Psychic Energies**, an offered `Max Geist`, an optional manual Psychic attachment, pass, and one Prize left. All defender remaining HP values were set explicitly.
