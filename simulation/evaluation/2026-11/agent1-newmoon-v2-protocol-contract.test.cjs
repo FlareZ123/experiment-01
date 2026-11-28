@@ -104,8 +104,14 @@ function cardPrompt(effectName,sourcePrinting,choices){
    allowCancel:false,isSecret:false}};
 }
 let seq=0;
-const policy=createPolicy({role:'candidate',seat:0,policyVersion:POLICY_VERSION,
- config:{deckIdentityHash:DECK_SHA}});
+// Production init forbids policy-specific config: deck identity is source/role bound.
+const init={schema:P.INIT_SCHEMA,type:'init',role:'candidate',seat:0,
+ policyVersion:POLICY_VERSION,bundleSha256:'a'.repeat(64),config:{}};
+P.validateInit(init);
+must(DECK_SHA==='aebe9a142e8492be929316bff4b871375e3e478945e01f8c5844037332634fe6',
+ 'fixed New Moon Tool Jammer v2 module identity drift');
+const policy=createPolicy({role:init.role,seat:init.seat,
+ policyVersion:init.policyVersion,config:init.config});
 const receipts=[];
 function run(v,items,prompt=null) {
  const observation={...v,decisionKind:prompt?'owner-prompt':'owner-root',
@@ -115,7 +121,7 @@ function run(v,items,prompt=null) {
   sequence:seq++,role:'candidate',seat:0,observationSchema:P.OBSERVATION_SCHEMA,
   observation,prompt,publicEventReceipt:null,
   actionFrontier:{schema:P.FRONTIER_SCHEMA,items}};
- const validated=P.validateRequest(request,{role:'candidate',seat:0},
+ const validated=P.validateRequest(request,init,
   request.sequence,new Set());
  const response=policy.decideWithAudit(request);
  const decision=P.validateDecision(response.decision,validated.prompt,

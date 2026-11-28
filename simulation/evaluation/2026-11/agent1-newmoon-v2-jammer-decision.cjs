@@ -137,8 +137,11 @@ function choosePrompt(view,prompt) {
 }
 function createPolicy({role,seat,policyVersion,config}) {
   if (role!=='candidate' || ![0,1].includes(seat) ||
-      policyVersion!==POLICY_VERSION || config?.deckIdentityHash!==DECK_SHA ||
-      Object.keys(config).length!==1) throw Error('NEWMOON_V2_PROFILE_MISMATCH');
+      policyVersion!==POLICY_VERSION || !config || typeof config!=='object' ||
+      Array.isArray(config) || Object.keys(config).length!==0)
+    throw Error('NEWMOON_V2_PROFILE_MISMATCH'); // production init requires config:{};
+  // The exact 60-card DECK_SHA is a source/role-manifest identity, not an IPC
+  // configuration parameter. Host must bind actual deck and policy bundles.
   const evaluate=request=>{
     if (request?.role!==role || request.seat!==seat ||
         request.observation?.actorSeat!==seat) return null;

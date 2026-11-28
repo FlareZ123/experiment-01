@@ -22,7 +22,7 @@ const willow=()=>action('attack','willow',{}, {attackName:'Will-O-Wisp'});
 const star=()=>action('use-ability','star',{abilityName:'Star Alchemy'});
 const pass=()=>action('pass','pass');
 const policy=createPolicy({role:'candidate',seat:0,policyVersion:POLICY_VERSION,
-  config:{deckIdentityHash:DECK_SHA}});
+  config:{}});
 function root(v,items) {return policy.decideWithAudit({role:'candidate',seat:0,
   observation:v,prompt:null,actionFrontier:{items}});}
 function prompt(v,effect,type,meta,choices) {
@@ -35,9 +35,9 @@ const target=(token,printing,ownerSeat,targetZone='active')=>({token,kind:'pokem
 const sel=o=>o.decision.token??o.decision.tokens?.join(',')??o.decision.kind;
 let checks=0;
 function check(name,fn){fn(); checks++; console.log('PASS',name);}
-check('exact v2 profile bind',()=>{
+check('production worker empty-config and role bind',()=>{
  assert.throws(()=>createPolicy({role:'candidate',seat:0,policyVersion:POLICY_VERSION,config:{deckIdentityHash:'other'}}));
- assert.throws(()=>createPolicy({role:'opponent',seat:0,policyVersion:POLICY_VERSION,config:{deckIdentityHash:DECK_SHA}}));
+ assert.throws(()=>createPolicy({role:'opponent',seat:0,policyVersion:POLICY_VERSION,config:{}}));
 });
 check('Jammer root attach before Item-locked BUS',()=>{
  const r=root(view(),[play(),pass()]);assert.equal(sel(r),'play-jammer');

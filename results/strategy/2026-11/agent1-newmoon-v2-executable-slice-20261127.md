@@ -4,9 +4,9 @@
 
 ## Executable artifact and local reproduction
 
-- Module: `simulation/evaluation/2026-11/agent1-newmoon-v2-jammer-decision.cjs`; policy `agent1-newmoon-tool-jammer-v2-slice-v0`; pure role/seat/exact-profile-bound `createPolicy`, with `decide` / `decideWithAudit`, opaque selected frontier tokens, no native Store access, no deck/Prize observation beyond the actor's provided view.
+- Module: `simulation/evaluation/2026-11/agent1-newmoon-v2-jammer-decision.cjs`; policy `agent1-newmoon-tool-jammer-v2-slice-v0`; pure role/seat/production empty-config-bound `createPolicy`, with `decide` / `decideWithAudit`, opaque selected frontier tokens, no native Store access, no deck/Prize observation beyond the actor's provided view.
 - Test: `simulation/evaluation/2026-11/agent1-newmoon-v2-jammer-decision.test.cjs`.
-- Run `node simulation/evaluation/2026-11/agent1-newmoon-v2-jammer-decision.test.cjs` (local Node run: **29 checks passed**). Module blob `d9a324a0b31be5b25b12406ec9574ba424e654c4`; test blob `0591005305a94c2f62a60156c72acfe9214986ec`.
+- Run `node simulation/evaluation/2026-11/agent1-newmoon-v2-jammer-decision.test.cjs` (local Node run: **29 checks passed**). Module blob `b901667534fbc5a44e57f7c91491848edc2fb866`; test blob `6e1466130a31eb586c15f9e690c77811f5a8632e`.
 
 ## Decision sequence from genuinely executable worker decisions
 
@@ -47,3 +47,9 @@ A separate executable Node module, `simulation/evaluation/2026-11/agent1-newmoon
 Run from repository root: `node simulation/evaluation/2026-11/agent1-newmoon-v2-protocol-contract.test.cjs`. The 15 independently policy-audited requests cover native-style **own Active Tool target versus Bench**, malformed Bench-only route refusal, optional Tool targeting prompt, Benched Cursed Blast root and opponent Active target, Ace Trainer post-self-KO versus next attack, direct damage knockout versus self-knockout, both named Confusion and unknown numeric Special Conditions, no surviving Bench, the opponent's final Prize, Stadium Tool blanking, Forest Seal Stone Star Alchemy root and typed deck selection. Every policy choice is confined to the synthetic frontier's exposed opaque tokens.
 
 **Strict evidence boundary:** These are real protocol-validator executions over *invented actor-visible observations and legal-looking frontiers*, not native `Store`-derived frontiers, not source-verified actual `PlayCardAction` settlements, not a headless match, and not evidence of winning rank15. A synthetic prompt's label may be protocol-valid even if no corresponding native card ever produces that prompt. No V3 owner-gated fixture, CI dispatch, or full-game registration was attempted.
+
+### A real initialization blocker, corrected
+
+The first research implementation incorrectly required `config: {deckIdentityHash: <hash>}` when constructing `createPolicy`. The **actual** production `agent49-policy-protocol.cjs` initialization validator requires `config: {}` (no keys); the initial slice would therefore have failed before any decision request reached it. The corrected policy factory now requires exactly an empty configuration and exposes the exact v2 `DECK_SHA` as a module-level constant for an external role/manifest binding. The production-protocol contract test now validates the `aichi-policy-worker-init-v2` message as well as the **15 decision requests, chosen tokens and policy-audit traces**. Synthetic `bundleSha256` used by this *test* validates schema shape only, not an actual bundle digest, installed worker, or exact-game deck association.
+
+The absence of a registered role manifest is an explicit remaining deployment gate. Merely exporting `DECK_SHA` does **not** prove that a game runner will bind the correct 60-card list. The suite is not yet a full worker process or a native game.
