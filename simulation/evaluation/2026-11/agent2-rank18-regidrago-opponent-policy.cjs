@@ -99,6 +99,29 @@ function sourceDiscardValue(printing,obs){
   if(printing===P.sudowoodo)return 35;
   return 85;
 }
+function carmineScore(obs){
+  // Source Carmine TWM145 discards the *rest* of the hand and draws five.
+  // Unique Dragon attack payloads are often better in discard for Apex, but
+  // Carmine also consumes the turn's Supporter and can burn a protected ACE,
+  // scarce Double Dragon or the only Basic Regidrago V before it is benched.
+  const g=goal(obs),hand=arr(obs?.ownHand).map(name);
+  const other=hand.slice();
+  const self=other.indexOf('Carmine TWM 145');
+  if(self>=0)other.splice(self,1);
+  const donorNames=new Set(ownDonors(obs).map(name));
+  const payloads=new Set(other.filter(x=>DRAGON_PAYLOADS.has(x)&&
+    x!==P.v&&!donorNames.has(x)));
+  let score=payloads.size?320+Math.min(2,payloads.size)*18:
+    g.hand<=3?245:65;
+  if(other.includes(P.prime))score=Math.min(score,50);
+  if(other.includes(P.v)&&g.v+g.star===0)score=Math.min(score,60);
+  if(other.some(x=>/^Double Dragon Energy ROS(?: 97)?$/.test(x))&&
+     !board(obs?.ownPublic).some(p=>
+       (name(p)===P.v||name(p)===P.star)&&
+       common.energyCoverage(p.energies,false)>=2))
+    score=Math.min(score,85);
+  return score;
+}
 function searchValue(source,printing,obs){
   if(!SOURCE_SET.has(printing))return -Infinity;
   if([P.quick,P.vip,P.heavy].includes(source)&&!BASIC.has(printing))return -Infinity;
@@ -157,7 +180,7 @@ function scoreRoot(item,request){
     if(p==='Pokémon Ranger STS 104')return 75;
     if(p==='Lillie\'s Determination MEG 119')return g.hand<=3?235:105;
     if(p==='Iono PAL 185')return g.hand<=3?205:85;
-    if(p==='Carmine TWM 145')return g.firstTurnCandidate&&g.hand<=3?240:45;
+    if(p==='Carmine TWM 145')return carmineScore(obs);
   }
   if(item.kind==='use-ability'){
     const ability=item?.publicMetadata?.sourceEffect??item?.publicMetadata?.abilityName??item?.label??'';
@@ -286,4 +309,4 @@ function createPolicy({role,seat,policyVersion,config}={}){
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_BLOB_SHA1,
  SOURCE_PRINTINGS,createPolicy,scoreRoot,promptDecision,searchValue,
- sourceDiscardValue,benchOpen,pickAttack,templeUnlocksApex,resolveSourcePrinting:name};
+ sourceDiscardValue,benchOpen,pickAttack,templeUnlocksApex,carmineScore,resolveSourcePrinting:name};
