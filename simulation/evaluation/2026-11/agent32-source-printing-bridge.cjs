@@ -1,7 +1,14 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const certifiedMaps=new WeakSet();
+const certifiedMaps=new WeakMap();
+function certifiedMapUnchanged(map){
+  if(!(map instanceof Map))return false;
+  if(map.size===0)return true;
+  const snap=certifiedMaps.get(map);
+  return snap instanceof Map&&snap.size===map.size&&[...snap].every(
+    ([nativePrinting,sourcePrinting])=>map.get(nativePrinting)===sourcePrinting);
+}
 
 /**
  * Use a precommitted source-60/native-60 pairing, not a guessed alias:
@@ -34,7 +41,7 @@ function buildSourcePrintingMap(sourceDeck,nativeOrdered60){
     index+=row.count;
   }
   assert.equal(index,60);
-  certifiedMaps.add(byNative);
+  certifiedMaps.set(byNative,new Map(byNative));
   return byNative;
 }
 
@@ -129,8 +136,7 @@ function mapOwnerK1(snapshot,map){
 function projectSourcePrintings(observation,frontier,sourceMapsBySeat,options={}){
   assert.ok(observation?.actorSeat===0||observation?.actorSeat===1);
   assert.ok(Array.isArray(sourceMapsBySeat)&&sourceMapsBySeat.length===2);
-  assert.ok(sourceMapsBySeat.every(m=>m instanceof Map &&
-    (m.size===0||certifiedMaps.has(m))),
+  assert.ok(sourceMapsBySeat.every(m=>certifiedMapUnchanged(m)),
     'nonempty source-printing map must be created from a complete resolved 60');
   const seat=observation.actorSeat;
   const mine=sourceMapsBySeat[seat],other=sourceMapsBySeat[1-seat];
