@@ -2448,6 +2448,8 @@ test('Root retreat scoring resolves exact same-print Bench recipient not first m
         targetIndex:1,isOwnerVisible:true}},
       {token:'pass',kind:'pass'}]
   });
+  // Injured-slot retreat score is negative; do not retreat merely because
+  // a different physical slot would have been profitable.
   assert.deepEqual(checkedDecision(wrong),
-    {kind:'select-action',token:'injured'});
+    {kind:'select-action',token:'pass'});
 });
