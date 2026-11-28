@@ -872,9 +872,7 @@ function chooseCardCombination(view, prompt) {
       prompt.source?.sourcePrinting === 'Radiant Eternatus CRZ 105') {
     // Radiant is already Benched at this native prompt; do not choose more
     // VMAX than the remaining ordinary Bench slots (Sky Field can expand it).
-    const skyField = [...view.ownPublic.stadium, ...view.opponentPublic.stadium]
-      .some(name => hasName(name, 'Sky Field'));
-    const cap = skyField ? 8 : 5;
+    const cap = candidateBenchCapacity(view);
     maximum = Math.min(maximum, Math.max(0, cap - countBench(view.ownPublic)));
   }
 
@@ -1556,13 +1554,22 @@ function choosePrompt(view, prompt, receipt) {
   }
 }
 
+function candidateBenchCapacity(view) {
+  const skyField = [...view.ownPublic.stadium, ...view.opponentPublic.stadium]
+    .some(stadium => hasName(stadium, 'Sky Field'));
+  return skyField ? 8 : 5;
+}
+
 function scoreBasicPlay(item, view, receipt) {
   const metadata = item.publicMetadata ?? {};
   if (metadata.targetSeat !== 'actor' || metadata.targetZone !== 'bench') return -Infinity;
   const printing = item.actorPrinting ?? '';
   if (hasName(printing, 'Tapu Lele-GX GRI')) {
+    // Leave at least one open slot after Tapu for the attacker engine.
+    // With Sky Field's eight slots, a five-/six-Pokémon Bench still has
+    // room for Wonder Tag; a fixed >=4 gate silently stranded Tapu.
     if (view.ownTurnResources.supporterPlayedTurn > 0 ||
-        countBench(view.ownPublic) >= 4 ||
+        countBench(view.ownPublic) >= candidateBenchCapacity(view) - 1 ||
         boardHas(view, 'Tapu Lele-GX') ||
         hasName(view.opponentPublic.active?.printing, 'Iron Thorns ex') ||
         handHas(view, "Lillie's Determination") ||
@@ -1580,10 +1587,8 @@ function scoreBasicPlay(item, view, receipt) {
     // *for itself* and another slot for at least one VMAX. Sky Field
     // increases the legal Bench capacity from five to eight, so the old
     // fixed ">3" gate needlessly blocked live six-/seven-card benches.
-    const skyField = [...view.ownPublic.stadium, ...view.opponentPublic.stadium]
-      .some(stadium => hasName(stadium, 'Sky Field'));
-    const benchCapacity = skyField ? 8 : 5;
-    const slotsAfterRadiant = benchCapacity - countBench(view.ownPublic) - 1;
+    const slotsAfterRadiant =
+      candidateBenchCapacity(view) - countBench(view.ownPublic) - 1;
     if (slotsAfterRadiant < 1 ||
         ownBoard(view).filter(slot =>
           hasName(slot.printing, 'Shadow Rider Calyrex VMAX')).length >= 2) {
