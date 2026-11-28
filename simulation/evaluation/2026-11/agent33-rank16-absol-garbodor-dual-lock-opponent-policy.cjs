@@ -796,6 +796,11 @@ function scoreAction(item, request) {
     const n=energyCount(opponent?.active);
     return n>=2?280:n===1?245:195;
   }
+  // Karen shuffles every Pokémon out of both discard piles, disrupting
+  // Regidrago VSTAR Apex Dragon's live copy-attack source.
+  // No additional source card-choice prompt is required for Karen itself.
+  if(matches(printing,PRINT.karen))
+    return rank16SourceSupporterScore({printing},observation);
   if(matches(printing,PRINT.marnie))return supporterAvailable(observation)&&hand.length<=3?220:0;
   if(matches(printing,PRINT.trainersMail))return deckCount(observation)>0?185:0;
   if (matches(printing, PRINT.vs)) return rank16HasViableVsTarget(observation)?185:0;
