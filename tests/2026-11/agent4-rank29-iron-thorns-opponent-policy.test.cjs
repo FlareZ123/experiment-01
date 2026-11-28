@@ -2931,3 +2931,62 @@ test('Camping Gear root preserves exact next-turn DCE and does not preempt immed
       {token:'pass',kind:'pass'}]
   })),{kind:'select-action',token:'energy'});
 });
+
+test('Wondrous Labyrinth requires four paid units, not an absolute Bench-Guzma attack veto',()=>{
+  const items=[
+    action('guzma','play-card','Guzma BUS 115',{cardType:'supporter'}),
+    action('plumeria','play-card','Plumeria BUS 120',{cardType:'supporter'}),
+    {token:'pass',kind:'pass'}
+  ];
+  for(const seat of [0,1]){
+    const opponent=player({
+      active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{
+        hp:320,subtypes:['VMAX'],
+        energies:['Psychic Energy CRE 232']
+      }),
+      bench:[pokemon('Tapu Lele-GX GRI 60',{
+        hp:170,damage:60,subtypes:['GX'],retreatCost:[]
+      })],
+      prizeCount:4
+    });
+    const base={
+      seat,items,opponentPublic:opponent,
+      ownHand:['Guzma BUS 115','Plumeria BUS 120',
+        'Target Whistle Team Flare Gear PHF 106','Field Blower GRI 125']
+    };
+    const withBenchEnergy=energies=>rootRequest({
+      ...base,
+      ownPublic:player({
+        active:pokemon('Iron Thorns ex TWM 77'),
+        bench:[pokemon('Iron Thorns ex TWM 77',{energies})],
+        stadium:['Wondrous Labyrinth ◇ TEU 158'],
+        prizeCount:2
+      })
+    });
+    // Wondrous taxes Volt Cyclone [L,C,C] to [L,C,C,C].
+    // Speed supplies [L], DCE two [C], Capture the fourth [C].
+    const fourAndLightning=withBenchEnergy([
+      'Speed Lightning Energy RCL 173',
+      'Double Colorless Energy SUM 136',
+      'Capture Energy RCL 171'
+    ]);
+    assert.deepEqual(checkedDecision(fourAndLightning,seat),
+      {kind:'select-action',token:'guzma'});
+    const audit=makePolicy(seat).decideWithAudit(fourAndLightning);
+    assert.equal(audit.policyAudit.evaluations.find(row=>
+      row.token==='guzma').score>190,true);
+
+    // Three units cannot pay Wondrous's extra [C].
+    assert.deepEqual(checkedDecision(withBenchEnergy([
+      'Speed Lightning Energy RCL 173',
+      'Double Colorless Energy SUM 136'
+    ]),seat),{kind:'select-action',token:'plumeria'});
+
+    // Four Colorless units without any Lightning still cannot pay [L].
+    assert.deepEqual(checkedDecision(withBenchEnergy([
+      'Double Colorless Energy SUM 136',
+      'Capture Energy RCL 171',
+      'Spiky Energy JTG 159'
+    ]),seat),{kind:'select-action',token:'plumeria'});
+  }
+});

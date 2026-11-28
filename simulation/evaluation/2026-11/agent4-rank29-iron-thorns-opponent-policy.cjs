@@ -781,10 +781,13 @@ function benchThornsVoltReady(pokemon, observation) {
     Number(own?.publicTurnRestrictions?.attackLockTurnsRemaining??0)>0||
     Number(observation?.ownTurnResources?.attackLockTurnsRemaining??0)>0)
     return false;
-  // Temple removes the rank29 Special Energy type benefit; Wondrous
-  // Labyrinth's extra attack cost is outside this conservative ready check.
-  if(stadiumsInPlay(observation).some(card=>/Temple of Sinnoh|Wondrous Labyrinth/i
-    .test(valueText(card))))return false;
+  // Temple strips the Special Energy Lightning units entirely, while
+  // Wondrous Labyrinth only adds one Colorless to this non-Fairy attacker.
+  // A four-unit Bench Thorns can still attack under Wondrous and may win
+  // immediately after Guzma. Treating Wondrous as an absolute lock misses
+  // that forced-own-switch knockout line.
+  if(hasStadium(observation,/^Temple of Sinnoh\b/i))return false;
+  const wondrous=hasStadium(observation,PRINT.wondrousLabyrinth);
   let total=0,lightning=0;
   for(const energy of list(pokemon.energies)){
     if(matches(energy,PRINT.doubleColorless)){total+=2;continue;}
@@ -793,7 +796,7 @@ function benchThornsVoltReady(pokemon, observation) {
       /^(?:Basic )?Lightning Energy\b/i.test(valueText(energy)))lightning++;
   }
   const mountain=hasStadium(observation,PRINT.thunderMountain);
-  return total >= (mountain?2:3) && (mountain || lightning>0);
+  return total >= (mountain?2:wondrous?4:3) && (mountain || lightning>0);
 }
 
 function guzmaTargetPrizeValue(pokemon) {
