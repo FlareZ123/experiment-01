@@ -629,14 +629,11 @@ function searchNeedScore(view, printing, effectName = '') {
     return needShadowRiderBasic(view) || psychicEnergyCount(view) < 3 ? 60 : 10;
   }
   if (hasName(printing, 'Stealthy Hood')) {
-    const lock = allBoard(view).some(slot =>
-      hasName(slot.printing, 'Iron Thorns ex') ||
-      hasName(slot.printing, 'Garbodor') ||
-      hasName(slot.printing, 'Snorlax PGO'));
     const protectedTarget = board.some(slot =>
-      hasName(slot.printing, 'Shadow Rider Calyrex V') ||
-      hasName(slot.printing, 'Shadow Rider Calyrex VMAX'));
-    return lock && protectedTarget ? 70 : 0;
+      (slot.printing === 'Shadow Rider Calyrex V CRE 74' ||
+       slot.printing === 'Shadow Rider Calyrex VMAX CRE 75') &&
+      !(slot.tools ?? []).length && toolsKnownLive(view, slot));
+    return hasAbilityLockThreat(view) && protectedTarget ? 70 : 0;
   }
   if (hasName(printing, 'Field Blower')) {
     return view.opponentPublic.stadium.some(name =>
@@ -1922,8 +1919,12 @@ function scoreTrainerPlay(item, view, receipt) {
   if (hasName(name, 'Dimension Valley') &&
       dimensionValleyStatus(view) === false &&
       ownBoard(view).some(slot => slot.printed.types.includes('Psychic'))) return 600;
-  if (isTool(name) && hasName(name, 'Stealthy Hood') && hasAbilityLockThreat(view) &&
-      ownBoard(view).some(slot => hasName(slot.printing, 'Shadow Rider Calyrex V'))) return 580;
+  if (isTool(name) && hasName(name, 'Stealthy Hood') &&
+      hasAbilityLockThreat(view) &&
+      ownBoard(view).some(slot =>
+        (slot.printing === 'Shadow Rider Calyrex V CRE 74' ||
+         slot.printing === 'Shadow Rider Calyrex VMAX CRE 75') &&
+        !(slot.tools ?? []).length && toolsKnownLive(view, slot))) return 580;
   return -Infinity;
 }
 
