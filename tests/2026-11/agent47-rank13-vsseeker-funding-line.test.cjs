@@ -32,7 +32,8 @@ function base(seat = 0, shorthand = false) {
       promptType: 'ChooseCardsPrompt',
       source: { classification: 'actor-choice', sourceKind: 'card-effect',
         sourcePrinting: 'VS Seeker PHF 109', effectName: 'VS Seeker choose Supporter' },
-      publicMetadata: { selectionType: 'card-combination', minimumCount: 1, maximumCount: 1 },
+      publicMetadata: { selectionType: 'card-combination', minimumCount: 1, maximumCount: 1,
+        ownerSeat: 'actor', sourceZone: 'discard', isOwnerVisible: true, allowCancel: false },
       choices: [
         { token: 'guzma', kind: 'card', printing: shorthand ? 'Guzma BUS' : 'Guzma BUS 115' },
         { token: 'crispin', kind: 'card', printing: shorthand ? 'Crispin SCR' : 'Crispin SCR 133' }
@@ -76,7 +77,10 @@ test('fail-closed: no Dialga payload, already powered, already used Supporter or
     r => { r.observation.ownPublic.active.energies.push({ printing: 'Grass Energy MEE 9' }); },
     r => { r.observation.ownTurnResources.supporterPlayedTurn = 5; },
     r => { r.observation.ownPublic.prizeCount = 2; },
-    r => { r.observation.opponentPublic.active.damage = 70; }
+    r => { r.observation.opponentPublic.active.damage = 70; },
+    r => { r.observation.ownPublic.discard.push('Grass Energy MEE 9','Grass Energy MEE 9','Grass Energy MEE 9'); },
+    r => { r.observation.ownPublic.discard.push('Fire Energy MEE 10','Fire Energy MEE 10'); },
+    r => { r.prompt.publicMetadata.sourceZone = 'opponent-discard'; }
   ];
   for (const mutation of variants) {
     const request = base(); mutation(request); assert.equal(choose(request), null);
