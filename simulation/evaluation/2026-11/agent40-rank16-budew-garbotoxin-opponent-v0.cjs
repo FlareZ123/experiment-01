@@ -388,6 +388,25 @@ function cardScore(c,o){
  if(match(c,PRINT.lillie)||match(c,PRINT.marnie))return handCount(o)<=3?65:20;
  return 0;
 }
+function opponentHandDiscardScore(c,o){
+ if(c.kind!=='card'||owner(c)!=='opponent'||zone(c)!=='hand'||
+   c.publicMetadata?.isOwnerVisible!==true)return 0;
+ const p=name(c);
+ if(/^Battle VIP Pass\b/i.test(p)&&o.globalTurn>2)return 3;
+ if(/^(?:Computer Search|Secret Box|Prime Catcher|Brilliant Blender|Dowsing Machine)\b/i.test(p))return 250;
+ if(/^Regidrago VSTAR\b/i.test(p)&&onBoard(o.opponentPublic,/^Regidrago V\b/i))return 235;
+ if(/^Vileplume\b/i.test(p)&&onBoard(o.opponentPublic,/^Oddish\b/i))return 235;
+ if(/^Shadow Rider Calyrex VMAX\b/i.test(p)&&onBoard(o.opponentPublic,/^Shadow Rider Calyrex V\b/i))return 235;
+ if(/^Forest Seal Stone\b/i.test(p)&&slots(o.opponentPublic).some(x=>/\bV\b/i.test(name(x.pokemon.printing))))return 220;
+ if(/^(?:Double Dragon Energy|Double Colorless Energy|Double Turbo Energy)\b/i.test(p))return 205;
+ if(/^(?:Guzma|Boss.s Orders|Counter Catcher|Serena)\b/i.test(p))return 190;
+ if(/^(?:Arven|Crispin|Guzma & Hala|Steven.s Resolve)\b/i.test(p))return 185;
+ if(/\bEnergy\b/i.test(p)&&onBoard(o.opponentPublic,/^Shadow Rider Calyrex\b/i))return 155;
+ if(/^(?:Ultra Ball|Quick Ball|Battle Compressor|VS Seeker|Dark Patch)\b/i.test(p))return 145;
+ if(/\bEnergy\b/i.test(p))return 110;
+ if(/^(?:Marnie|Iono|Professor.s Research)\b/i.test(p))return 135;
+ return 65;
+}
 function discardScore(c,o){
  if(owner(c)!=='actor'||zone(c)!=='hand')return 0;
  if(match(c,PRINT.vip))return o.globalTurn>2?200:0;
@@ -444,6 +463,10 @@ function promptDecision(req){
   }
  }
  if(p.promptType==='ChooseCardsPrompt'){
+  if(/claw of darkness/.test(src)){
+   return pickRows(p,cs.filter(c=>owner(c)==='opponent'&&zone(c)==='hand'),bd.min,bd.max,
+    c=>opponentHandDiscardScore(c,o));
+  }
   const cards=cs.filter(c=>c.kind==='card'&&owner(c)==='actor');
   if(/quick ball|ultra ball|secret box/.test(src)&&cards.some(c=>zone(c)==='hand')){
    const n=/secret box/.test(src)?3:(/ultra ball/.test(src)?2:1);
