@@ -263,7 +263,7 @@ test('Handheld Fan zero-source native [] and shape/source negative controls',()=
   const unattached=fanFixture();
   unattached.actor.active.tools.length=0;
   assert.throws(()=>runProjection(unattached),e=>
-    e.code==='UNSUPPORTED_HANDHELD_FAN_ATTACH_ENERGY_SHAPE');
+    e.code==='PROMPT_SOURCE_NOT_ACTOR_VISIBLE');
   const noBench=fanFixture({hasBench:false});
   assert.equal(runProjection(noBench).promptProjection.choices[0].kind,'empty-selection');
 });
