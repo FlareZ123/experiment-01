@@ -1354,14 +1354,24 @@ function promptDecision(request) {
 
   if (prompt.promptType === 'ChoosePrizePrompt') {
     if (matches(sourcePrinting, PRINT.peonia) &&
+        prompt.source?.sourceKind==='card-effect' &&
+        prompt.source?.effectName==='Peonia' &&
         prompt.publicMetadata?.selectionType === 'prize-slots' &&
-        prompt.publicMetadata?.requiredCount === 3) {
-      const slots = choices.filter(choice => choice.kind === 'prize' &&
-        choiceOwner(choice) === 'actor' && (
-          choiceZone(choice) === 'prize' ||
-          choice?.publicMetadata?.sourceZone === 'prize'));
-      return multiSelectDecision(prompt, rankedChoices(slots, choice => {
-        const index = choice?.publicMetadata?.slotIndex;
+        prompt.publicMetadata?.requiredCount === 3 &&
+        prompt.publicMetadata?.sourceZone === 'prizes' &&
+        prompt.publicMetadata?.ownerSeat === 'actor' &&
+        prompt.publicMetadata?.isOwnerVisible === false) {
+      // Native projectChoosePrize emits sourceZone='prizes' and a physical
+      // filtered selectionIndex; there is NO slotIndex and NEVER any
+      // secretly revealed card printing. Peonia's exact-three branch
+      // chooses three distinct, face-down actor-owned Prize slots.
+      const eligible = choices.filter(choice =>
+        choice.kind === 'prize' && choiceOwner(choice) === 'actor' &&
+        choice?.publicMetadata?.sourceZone === 'prizes' &&
+        choice?.publicMetadata?.isOwnerVisible === false &&
+        choice?.publicMetadata?.requiredCount === 3);
+      return multiSelectDecision(prompt, rankedChoices(eligible, choice => {
+        const index = choice?.publicMetadata?.selectionIndex;
         return Number.isSafeInteger(index) && index >= 0 && index < 6 ?
           100 - index : 0;
       }, 3), 3, 3);
