@@ -29,12 +29,21 @@ const targets=[
  {name:'Iron Thorns ex',hp:230,attack:'Miraculous Duo-GX',damage:200}
 ];
 const select=(item,why)=>item?{decision:{kind:'select-action',token:item.token},reason:why}:null;
+function verifiedAttackDamage(x,expected) {
+ const m=x?.publicMetadata;
+ if(!m||m.attackCostPayable!==true||
+    m.damagePrevented===true || m.hasUnmodeledModifier===true ||
+    (Number.isFinite(m.damageReduced)&&m.damageReduced>0) ||
+    (Number.isFinite(m.damageAfterResistance)&&m.damageAfterResistance<expected)) return false;
+ return true;
+}
+
 function sourceAttack(items,own,attackName) {
  const active=own.active;
  if(!active||!attackSafe(active))return null;
  return items.find(x=>{
    if(x.kind!=='attack'||x.attackName!==attackName||
-       x.publicMetadata?.attackCostPayable!==true)return false;
+       !verifiedAttackDamage(x,attackName==='Night Watch'?150:200))return false;
    const s=x.publicMetadata?.attackSource;
    if(attackName==='Miraculous Duo-GX'){
      return has(active.printing,'Mewtwo & Mew-GX') &&
@@ -106,8 +115,8 @@ function shadowBindBus(view,items) {
    !Array.isArray(target.tools)||!target.tools.every(x=>has(x,'Stealthy Hood')))
    return null;
  const attack=items.find(x=>x.kind==='attack'&&x.attackName==='Shadow Bind'&&
-   x.actorPrinting===active.printing&&x.publicMetadata?.attackCostPayable===true&&
-   x.publicMetadata?.attackSource?.sourceKind==='active-pokemon'&&
+   x.actorPrinting===active.printing&&verifiedAttackDamage(x,150)&&
+   x.publicMetadata?.attackSource?.sourceKind='active-pokemon'&&
    x.publicMetadata.attackSource.sourceSlot==='ACTIVE'&&
    x.publicMetadata.attackSource.sourceCardFullName===active.printing);
  return select(attack,'V3_PAID_STAGE2_SHADOW_BIND_KOS_HOODED_BUS_WITHOUT_SELF_KO');
@@ -245,4 +254,4 @@ function createPolicy({role,seat,policyVersion,config}) {
  }
  return {decide:r=>decideWithAudit(r).decision,decideWithAudit};
 }
-module.exports={POLICY_VERSION,DECK_PATH,DECK_SHA,createPolicy,ready,validTarget,sourceAttack,shadowBindBus,aceSafe,preservedCommonSetup,COMMON_SETUP_REASONS};
+module.exports={POLICY_VERSION,DECK_PATH,DECK_SHA,createPolicy,ready,validTarget,sourceAttack,shadowBindBus,aceSafe,verifiedAttackDamage,preservedCommonSetup,COMMON_SETUP_REASONS};
