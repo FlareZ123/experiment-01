@@ -394,5 +394,36 @@ for(const tweak of [
    'Basic Psychic Energy SVE005','Basic Psychic Energy SVE005'];
  assert.equal(createSlice({seat:0}).decide(notEnough),null);checks++;
 }
-assert.equal(checks,108);
+
+// Already-behind 3-2: Counter Catcher is technically legal before Blast,
+// but a full-HP Mega 330 survives direct printed 200. Cursed Blast first
+// sets up 130, awards opponent only their second-to-last Prize (now 3-1),
+// and then Item gust + 200 takes our final three. This is an additional
+// tactical branch, not a claim the selfKO newly enabled the Item.
+{
+ const q=f(),s=createSlice({seat:0});
+ q.observation.opponentPublic.prizeCount=2;
+ q.actionFrontier.items.unshift({
+  kind:'play-card',token:'ccAlreadyLegal',
+  actorPrinting:'Counter Catcher PAR',
+  publicMetadata:{cardType:'trainer',handIndex:0}});
+ const action=s.decide(q);
+ assert.equal(action.decision.token,'blast');checks++;
+ assert.equal(action.reason,
+  'A22_BEGIN_BLAST_TO_DAMAGE_FOR_ALREADY_LEGAL_COUNTERCATCHER');checks++;
+ assert.equal(s.decide(prompt(q,'Cursed Blast','bench',0)).
+  decision.tokens[0],'bench-pick');checks++;
+ const post=clone(q);post.observation.opponentPublic.prizeCount=1;
+ post.observation.opponentPublic.bench[0].damage=130;
+ post.actionFrontier.items=[q.actionFrontier.items[0]];
+ assert.equal(s.decide(post).decision.token,'ccAlreadyLegal');checks++;
+ assert.equal(s.decide(prompt(post,'Counter Catcher','bench',130)).
+  decision.tokens[0],'bench-pick');checks++;
+ const end=clone(post);
+ end.observation.opponentPublic.active=clone(post.observation.opponentPublic.bench[0]);
+ end.observation.opponentPublic.bench=[post.observation.opponentPublic.active];
+ end.actionFrontier.items=[clone(q.actionFrontier.items[2])];
+ assert.equal(s.decide(end).decision.token,'duo');checks++;
+}
+assert.equal(checks,114);
 console.log('Agent22 actor-countercatcher exact multi-prompt slice: '+checks+' synthetic checks passed');
