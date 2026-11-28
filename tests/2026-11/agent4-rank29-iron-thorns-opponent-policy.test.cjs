@@ -1854,3 +1854,106 @@ test('Guzma own switch selects electrically ready Benched Thorns over colorless-
   assert.deepEqual(checkedDecision(req),{
     kind:'select-choices',tokens:['ready']});
 });
+
+
+function checkedAudited(request, seat=0, policy=makePolicy(seat)) {
+  const init = {
+    schema:protocol.INIT_SCHEMA,type:'init',role:'opponent',seat,
+    policyVersion:POLICY_VERSION,bundleSha256:'b'.repeat(64),config
+  };
+  const validated=protocol.validateRequest(request,init,request.sequence,new Set());
+  const result=policy.decideWithAudit(request);
+  protocol.validateDecision(result.decision,validated.prompt,validated.actionTokens);
+  protocol.validatePolicyAudit(result.policyAudit,request,result.decision,POLICY_VERSION);
+  return result;
+}
+
+test('rank29 V3 policyAudit records actual root scores, input order, and selected root token',()=>{
+  for(const seat of [0,1]) {
+    const policy=makePolicy(seat);
+    const req=rootRequest({
+      seat,items:[
+        action('low','play-card','Spiky Energy JTG 159',{cardType:'energy'},
+          {targetPrinting:'Iron Thorns ex TWM 77'}),
+        action('high','play-card','Speed Lightning Energy RCL 173',
+          {cardType:'energy'},{targetPrinting:'Iron Thorns ex TWM 77'}),
+        {token:'pass',kind:'pass'}
+      ],
+      ownHand:['Speed Lightning Energy RCL 173','Spiky Energy JTG 159']
+    });
+    const {decision,policyAudit:audit}=checkedAudited(req,seat,policy);
+    assert.deepEqual(decision,{kind:'select-action',token:'high'});
+    assert.equal(audit.schema,protocol.POLICY_AUDIT_SCHEMA);
+    assert.equal(audit.selectionRuleCode,'RANK29_SCORED_SELECTION');
+    assert.equal(audit.tieBreakCode,'FRONTIER_ORDER');
+    assert.deepEqual(audit.selectedTokens,['high']);
+    assert.deepEqual(audit.evaluations.map(row=>row.token),['low','high','pass']);
+    assert.ok(audit.evaluations.every(row=>row.status==='scored'&&
+      typeof row.score==='number'&&Number.isFinite(row.score)));
+    assert.ok(audit.evaluations[1].score>audit.evaluations[0].score);
+  }
+});
+
+test('rank29 V3 policyAudit covers opposing Fan prompt and legal empty selection',()=>{
+  const policy=makePolicy();
+  const fields={
+    promptType:'AttachEnergyPrompt',
+    source:actorChoiceSource('Handheld Fan TWM','Handheld Fan'),
+    publicMetadata:{selectionType:'energy-attachment',count:2,
+      minimumCount:0,maximumCount:1,allowCancel:false,
+      sourceZone:'active',ownerSeat:'opponent',isOwnerVisible:true,zone:'bench'},
+    observation:{opponentPublic:player({
+      active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{energies:[
+        'Double Colorless Energy SUM 136'
+      ]}),
+      bench:[pokemon('Tapu Lele-GX GRI 60')]
+    })},
+    choices:[
+      {token:'move',kind:'energy',printing:'Double Colorless Energy SUM 136',
+        publicMetadata:{sourceZone:'active',ownerSeat:'opponent',isOwnerVisible:true,
+          zone:'bench',benchIndex:0,selectedCount:1}},
+      {token:'empty',kind:'empty-selection',label:'Move no Energy'}
+    ]
+  };
+  const withMove=checkedAudited(promptRequest(fields),0,policy);
+  assert.deepEqual(withMove.decision,{kind:'select-choice',token:'move'});
+  assert.equal(withMove.policyAudit.evaluations[0].status,'scored');
+  assert.equal(withMove.policyAudit.evaluations[1].status,'not-evaluated');
+  const withoutMove=checkedAudited(promptRequest({
+    ...fields,choices:[fields.choices[1]],
+    publicMetadata:{...fields.publicMetadata,count:1},
+    observation:{opponentPublic:player({bench:[pokemon('Tapu Lele-GX GRI 60')]})}
+  }),0,policy);
+  assert.deepEqual(withoutMove.decision,{kind:'select-choice',token:'empty'});
+  assert.equal(withoutMove.policyAudit.selectionRuleCode,'RANK29_DIRECT_SELECTION');
+  assert.equal(withoutMove.policyAudit.evaluations[0].status,'rule-selected');
+  assert.equal(withoutMove.policyAudit.evaluations[0].reasonCode,
+    'SELECTED_BY_UNSCORED_POLICY_RULE');
+});
+
+test('rank29 V3 policyAudit resolves engine setup and abstention without replayed score state',()=>{
+  const policy=makePolicy();
+  const setup=promptRequest({
+    promptType:'ConfirmPrompt',
+    source:actorChoiceSource(null,'GO_FIRST'),
+    observation:{phase:1,globalTurn:0},
+    publicMetadata:{selectionType:'confirm',minimumCount:1,
+      maximumCount:1,allowCancel:false},
+    choices:[
+      {token:'yes',kind:'confirm',label:'Yes',
+        publicMetadata:{choiceIndex:0}},
+      {token:'no',kind:'confirm',label:'No',
+        publicMetadata:{choiceIndex:1}}
+    ]
+  });
+  // Deciding on a valid engine setup prompt is direct rather than scored.
+  const state=checkedAudited(setup,0,policy);
+  assert.equal(state.policyAudit.evaluations.length,2);
+  assert.equal(state.policyAudit.evaluations.filter(row=>
+    row.status==='rule-selected').length,1);
+  const nothing=rootRequest({items:[]});
+  const abstain=checkedAudited(nothing,0,policy);
+  assert.equal(abstain.decision.kind,'abstain');
+  assert.deepEqual(abstain.policyAudit.evaluations,[]);
+  assert.equal(abstain.policyAudit.selectionRuleCode,'RANK29_ABSTAIN');
+});
