@@ -1786,10 +1786,11 @@ test('Memory Energy targets Stoutland with Lillipup beneath it over unrelated Bu
  assert.deepEqual(checkedDecision(request),{
    kind:'select-action',token:'correct'});
 });
-test('Memory Energy is preserved if Stoutland is absent and only Bunnelby offered',()=>{
+test('Memory Energy is saved when active Bunnelby already has attack Energy',()=>{
  const request=rootRequest({ownHand:['Memory Energy LOT 194'],
-   ownPublic:player({active:pokemon('Bunnelby PRC 121')}),
-   items:[energyRootAction('wrong','Memory Energy LOT 194',
+   ownPublic:player({active:pokemon('Bunnelby PRC 121',{
+     energies:['Capture Energy RCL 171']})}),
+   items:[energyRootAction('extra','Memory Energy LOT 194',
       'Bunnelby PRC 121','active',0),
      {token:'pass',kind:'pass',label:'Pass turn'}]});
  assert.deepEqual(checkedDecision(request),{
@@ -1831,6 +1832,33 @@ test('Jet Energy no longer gets high TM score when attached to Bench Bunnelby wi
  // A routine Energy attachment still has value, but no double Evolution turbo bonus.
  assert.deepEqual(checkedDecision(request),{
    kind:'select-action',token:'bench'});
+});
+
+
+test('Memory Energy is a live Colorless attachment for immediate Bunnelby Burrow',()=>{
+ const request=rootRequest({
+   ownHand:['Memory Energy LOT 194'],
+   ownPublic:player({active:pokemon('Bunnelby PRC 121',{energies:[]})}),
+   opponentPublic:player({deckCount:1}),
+   items:[energyRootAction('mill-energy','Memory Energy LOT 194',
+     'Bunnelby PRC 121','active',0),
+    {token:'pass',kind:'pass',label:'Pass turn'}]
+ });
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-action',token:'mill-energy'});
+});
+test('Memory Energy can fuel Bunnelby Rototiller before self deck-out',()=>{
+ const request=rootRequest({
+   ownHand:['Memory Energy LOT 194'],
+   ownPublic:player({active:pokemon('Bunnelby PRC 121',{energies:[]}),
+     deckCount:1,discard:['Guzma & Hala CEC 193']}),
+   opponentPublic:player({deckCount:25}),
+   items:[energyRootAction('recover-energy','Memory Energy LOT 194',
+      'Bunnelby PRC 121','active',0),
+     {token:'pass',kind:'pass',label:'Pass turn'}]
+ });
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-action',token:'recover-energy'});
 });
 
 test('role and seat binding mismatch abstains', () => {
