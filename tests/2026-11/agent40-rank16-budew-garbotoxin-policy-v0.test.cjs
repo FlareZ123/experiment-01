@@ -856,3 +856,47 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' PAL97 Safeguard prevents fake 200 Claw damage but leaves hand-discard mode',()=>{
+  const mega=mon('Mega Absol ex MEG 86',{energies:[
+   'Darkness Energy MEE 15','Darkness Energy MEE 15','Darkness Energy MEE 15']});
+  const mimikyu=mon('Mimikyu PAL 97',{hp:70,
+   abilitySuppressions:[{abilityName:'Safeguard',suppressed:false}]});
+  const c=attack('Claw of Darkness','claw');
+  const q=root(seat,[c,pass],{ownPublic:own({active:mega}),opponentPublic:opp({active:mimikyu})});
+  assert.equal(policy.activeMimikyuSafeguard(q.observation),true);
+  assert.equal(policy.projectedClawDamage(c,q.observation),0);
+  assert.equal(policy.clawProjectedKnockoutScore(c,q.observation),145);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'claw'});
+  mimikyu.abilitySuppressions=[{abilityName:'Safeguard',suppressed:true}];
+  assert.equal(policy.activeMimikyuSafeguard(q.observation),false);
+  assert.equal(policy.projectedClawDamage(c,q.observation),200);
+  assert.equal(policy.clawProjectedKnockoutScore(c,q.observation),770);
+ });
+ test('seat '+seat+' GRI58 Copycat Mimikyu does not inherit PAL97 Safeguard',()=>{
+  const mega=mon('Mega Absol ex MEG 86');
+  const q=root(seat,[attack('Claw of Darkness','claw'),pass],{
+    ownPublic:own({active:mega}),opponentPublic:opp({active:mon('Mimikyu GRI 58',{hp:70})})});
+  assert.equal(policy.activeMimikyuSafeguard(q.observation),false);
+  assert.equal(policy.projectedClawDamage(q.actionFrontier.items[0],q.observation),200);
+ });
+ test('seat '+seat+' Guzma avoids Safeguard PAL Mimikyu when Dedenne is KO-able instead',()=>{
+  const mega=mon('Mega Absol ex MEG 86',{energies:[
+   'Darkness Energy MEE 15','Darkness Energy MEE 15','Darkness Energy MEE 15']});
+  const mime=mon('Mimikyu PAL 97',{hp:70,
+   abilitySuppressions:[{abilityName:'Safeguard',suppressed:false}]});
+  const dede=mon('Dedenne-GX UNB 57',{hp:160,printed:{subtypes:['GX']}});
+  const board=own({active:mon('Budew ASC 16'),bench:[mega]});
+  const other=opp({active:mon('Snorlax PGO 55',{hp:150}),bench:[mime,dede]});
+  const q=prompt(seat,{promptType:'ChoosePokemonPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Guzma BUS 115',effectName:'Guzma'},
+   publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+   choices:[{kind:'pokemon',token:'mime',printing:'Mimikyu PAL 97',
+    publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:0}},
+   {kind:'pokemon',token:'dede',printing:'Dedenne-GX UNB 57',
+    publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:1}}]},
+   {ownPublic:board,opponentPublic:other});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['dede']});
+ });
+}
