@@ -514,9 +514,9 @@ function wonderTagSupporterScore(view, printing, receipt = null) {
     return ownBoard(view).some(slot => slot.damage > 0)
       ? (ownBoard(view).some(slot => slot.damage >= 80) ? 850 : 400)
       : -Infinity;
-  if (hasName(printing, 'Iono')) return
+  if (hasName(printing, 'Iono')) return (
     view.opponentPublic.handCount >= 5 &&
-      view.ownPublic.handCount <= 3 ? 680 : -Infinity;
+      view.ownPublic.handCount <= 3 ? 680 : -Infinity);
   if (hasName(printing, 'Pokémon Ranger'))
     return view.ownPublic.publicTurnRestrictions.itemPlayLocked === true &&
       view.ownHand.some(isItem) &&
