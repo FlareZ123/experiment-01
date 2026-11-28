@@ -113,6 +113,8 @@ function one(rows,seed,opts={}){
  function chooseSupp(available){
    let b=reg(),a=available.filter(x=>canSupp(x));
    const have=x=>a.includes(x);
+   if(templeActive&&have(N.GH)&&hand.length>=3&&[N.HE,N.SW].some(possible))return N.GH;
+   if(templeActive&&canItem()&&have(N.AR)&&possible('Field Blower'))return N.AR;
    if(active()!==b&&b&&!free(active())&&!has(N.FL)&&turn===2&&have(N.GZ)&&attackPaid(b.energy)&&b.name===N.S)return N.GZ;
    if(opts.policy==="joint"&&b&&needsEnergy()&&have(N.GH)&&!b.energy.includes(N.DD)&&!has(N.DD)&&possible(N.DD)&&hand.length>=3&&(b.energy.length||handE().length))return N.GH;
    if(b&&needsEnergy()&&have(N.CR)&&(possible(N.GR)&&possible(N.FI)))return N.CR;
@@ -128,6 +130,7 @@ function one(rows,seed,opts={}){
  }
  function findItem(){
    let b=reg();
+   if(templeActive&&canItem()&&possible('Field Blower'))return 'Field Blower';
    if(!b){return [N.MT,N.QB,N.UB].find(possible)}
    if(turn===2&&b.name!==N.S&&!has(N.S)){return [N.MT,N.UB].find(possible)}
    if(opts.goal==="wipe-lock"&&needACE()&&possible(N.MB))return N.MB;
@@ -160,7 +163,12 @@ function one(rows,seed,opts={}){
    return false
  }
  function targetForSearch(){
-   let b=reg(); if(!b)return N.V;if(turn===2&&b.name===N.V&&!has(N.S))return N.S;
+   let b=reg();
+   if(templeActive){
+     if(canItem()&&possible('Field Blower'))return 'Field Blower';
+     const stadiumOut=[N.SW,N.HE].find(possible);
+     if(stadiumOut)return stadiumOut;
+   } if(!b)return N.V;if(turn===2&&b.name===N.V&&!has(N.S))return N.S;
    if(needsEnergy()&&!handE().length){if(possible(N.DD))return N.DD;if(possible(N.GR))return N.GR;if(possible(N.FI))return N.FI}
    if(needACE()&&possible(N.MB))return N.MB;
    if(active()!==b&&!free(active())&&!has(N.FL)&&possible(N.FL))return N.FL;
@@ -212,7 +220,7 @@ function one(rows,seed,opts={}){
    if(b&&canItem()&&has(N.LO)&&needsEnergy()&&!handE().some(x=>attackPaid([...b.energy,x]))&&(!handE().length||turn===2)){
      play(N.LO);let top=deck.splice(0,7),e=chooseEnergyNow(b.energy,top.filter(x=>energy.has(x)));if(e)hand.push(take(top,e));deck.push(...top);shuffle(deck,rng);note("energy loto",e??null);return true;
    }
-   if(b&&canItem()&&has(N.TC)&&(!has(N.GH)&&needsEnergy()||missingDonor()&&possible(N.GG))&&(possible(N.GH)||possible(N.GG))){
+   if(b&&canItem()&&has(N.TC)&&(templeActive||!has(N.GH)&&needsEnergy()||missingDonor()&&possible(N.GG))&&(possible(N.GH)||possible(N.GG))){
      play(N.TC);see();let names=[];if(deck.includes(N.GH)&&!has(N.GH))names.push(N.GH);if(deck.includes(N.GG)&&!has(N.GG)&&!discard.includes(N.GG))names.push(N.GG);if(names.length<2&&deck.filter(x=>x===N.GH).length>names.filter(x=>x===N.GH).length)names.push(N.GH);search(names);return true;
    }
    if(b&&manual&&handE().length&&!attackPaid(b.energy)){
