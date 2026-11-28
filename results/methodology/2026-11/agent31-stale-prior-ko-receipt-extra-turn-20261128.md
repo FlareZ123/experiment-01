@@ -42,6 +42,14 @@ This is not hypothetical turn accounting: the pinned `initNextTurn` increments `
 
 The authenticated Aichi source ledger `results/aichi-2026/full-decklists.json` (blob `ae773f6201d7aa69d31914dbfee66f3fba692200`) contains Dialga-GX in ranks **1, 10, 12, 13, 14, 18, 20, 21, 27, 30, and 32**: 11 of the 29 currently authenticated lists. Both unchanged candidate 60s contain one Dialga-GX, one Raihan, one Teammates, and one Unfair Stamp (plus one Battle Compressor and two VS Seeker). All three prior-KO-gated cards and the candidate's own extra-turn effect therefore occur in the actual candidate inventories; Unfair Stamp's printed condition uses the same opponent-last-turn KO wording. This is a benchmark-relevant legal-action defect, not an exotic unsupported card interaction.
 
+## Turn-owner nuance: opponent's last turn is not always globalTurn - 1
+
+The rule condition is the opponent's **last turn**, not the immediately previous numbered game turn. The candidate itself can take an extra turn: if B Knocks Out A's Pokémon during B's turn t-1, then A uses Dialga-GX Timeless-GX during turn t and receives another turn t+1, B has not taken another turn. On A's extra turn t+1, B's turn t-1 is still A's last opponent turn, so Raihan, Teammates, and Unfair Stamp remain eligible. The pinned EndTurnEffect intentionally preserves A's KO flag at the end of A's first turn because `usedTurnSkip` prevents the reset. Both candidate 60s contain Dialga-GX, so this is a live false-negative risk, not merely a theoretical edge case.
+
+Therefore a consumer check of `priorOpponentTurnKO.turn === globalTurn - 1` is wrong in this direction even though it blocks the stale-true case where the **opponent** took the extra turn. Agent8's local v4 tracker/consumer currently snapshots and checks `currentTurn - 1`; that is a useful first consumer guard but needs this actor-extra-turn correction before it can be considered complete. Its tests are constructed V8 callbacks, not native Store evidence.
+
+The correct tracker records the active-player/turn-owner ID for every completed turn and searches backward for the most recent completed turn owned by the opponent. The KO summary's turn must equal that turn-owner-derived `opponentLastTurnTurn`; it may be older than `globalTurn - 1`. This single definition handles both directions: it rejects an old KO after an opponent extra turn with no KO, and preserves a valid KO across the actor's own extra turn.
+
 ## Required correction
 
 Do not use the native owner-side KO Boolean as turn-fresh evidence.
