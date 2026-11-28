@@ -547,3 +547,24 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Boost Shake ends turn: paid Budew Item lock is chosen instead',()=>{
+  const board=own({active:mon('Budew ASC 16'),bench:[mon('Trubbish CRI 56',{tools:['Float Stone BKT 137']})]});
+  const q=root(seat,[play('Boost Shake EVS 142','boost'),attack('Itchy Pollen','pollen'),pass],{
+   ownPublic:board,globalTurn:2});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+  q.actionFrontier.items=[play('Boost Shake EVS 142','boost'),pass];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'boost'});
+ });
+ test('seat '+seat+' Boost Shake cannot waste pending manual Darkness into Mega attacker',()=>{
+  const board=own({active:mon('Budew ASC 16'),bench:[
+   mon('Trubbish CRI 56',{tools:['Float Stone BKT 137']}),mon('Mega Absol ex MEG 86',{energies:[]})]});
+  const q=root(seat,[play('Boost Shake EVS 142','boost'),pass],{
+    ownPublic:board,ownHand:['Darkness Energy MEE 15'],globalTurn:2,
+    ownTurnResources:{energyPlayedTurn:false}});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  q.observation.ownTurnResources.energyPlayedTurn=true;
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'boost'});
+ });
+}
