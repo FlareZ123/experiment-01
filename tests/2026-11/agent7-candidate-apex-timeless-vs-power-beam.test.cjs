@@ -69,6 +69,23 @@ for(const seat of [0,1]){
     const {policy,request}=fixture(seat,{hasDialga:false});
     assert.deepEqual(policy.decide(request),{kind:'select-choice',token:'power'});
   });
+  test('Mega Absol ex ME1 is THREE Prizes and Power Beam wins final three, seat='+seat,()=>{
+    const {policy,request}=fixture(seat,{remaining:180,prizes:3});
+    request.observation.opponentPublic.active=card('Mega Absol ex ME1 86',{
+      hp:280,damage:100,
+      printed:{types:['Darkness'],subtypes:['Basic','MEGA','ex'],
+        retreatCost:['Colorless'],weakness:[],resistance:[]}
+    });
+    assert.deepEqual(policy.decide(request),{kind:'select-choice',token:'power'});
+    // Ordinary ex is only two Prizes; extra-turn Timeless beats nominal
+    // 200 unless those two actually end our three-Prize game.
+    request.observation.opponentPublic.active=card('Absol ex OBF 135',{
+      hp:280,damage:100,
+      printed:{types:['Darkness'],subtypes:['Basic','ex'],
+        retreatCost:['Colorless'],weakness:[],resistance:[]}
+    });
+    assert.deepEqual(policy.decide(request),{kind:'select-choice',token:'timeless'});
+  });
   test('Power Beam instant final Prize beats nonlethal Timeless, seat='+seat,()=>{
     const {policy,request}=fixture(seat,{remaining:180,prizes:1});
     assert.deepEqual(policy.decide(request),{kind:'select-choice',token:'power'});
