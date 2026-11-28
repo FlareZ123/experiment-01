@@ -40,6 +40,7 @@ const PRINT=Object.freeze({
  karen:/^Karen XYP 177\b/i,
  temple:/^Temple of Sinnoh ASR 155\b/i,
  jamming:/^Jamming Tower TWM 153\b/i,
+ toolJammer:/^Tool Jammer BRS 136\b/i,
  skyField:/^Sky Field ROS 89\b/i,
  path:/^Path to the Peak (?:CRE 148|ASR 213)\b/i,
  silentLab:/^Silent Lab PRC 140\b/i,
@@ -84,6 +85,17 @@ function toolEnabled(o){
  const stadium=[...list(o?.ownPublic?.stadium),...list(o?.opponentPublic?.stadium)];
  if(stadium.some(x=>match(x,PRINT.jamming)))return false;
  return stadiumEffectEnabled(o);
+}
+function forestSealToolEnabledForZone(o,zone){
+ if(!toolEnabled(o))return false;
+ // Tool Jammer only blanks Tools on the opponent's Active Pokémon.
+ return !(zone==='active'&&list(o?.opponentPublic?.active?.tools).some(t=>match(t,PRINT.toolJammer)));
+}
+function forestSealStoneUsable(o){
+ if(o?.ownTurnResources?.vstarUsed)return false;
+ const host=slots(o?.ownPublic).find(x=>match(x.pokemon.printing,PRINT.crobat)&&
+  list(x.pokemon.tools).some(t=>match(t,PRINT.forest)));
+ return Boolean(host)&&forestSealToolEnabledForZone(o,host.zone);
 }
 function garbotoxinStatusForSide(o,player){
  // Jamming Tower disables a Tool's effect, not its attachment.
@@ -248,10 +260,11 @@ function benchSupportAbilityUsable(printing,o){
  return true;
 }
 function forestSealLinePending(o){
- if(o.ownTurnResources?.vstarUsed||!benchSupportAbilityUsable('Crobat V DAA 104',o))return false;
+ if(o.ownTurnResources?.vstarUsed||!toolEnabled(o))return false;
  const crobat=slots(o.ownPublic).find(x=>match(x.pokemon.printing,PRINT.crobat)&&
   list(x.pokemon.tools).length===0);
- return Boolean(crobat)&&list(o.ownHand).some(c=>match(c,PRINT.forest));
+ return Boolean(crobat)&&forestSealToolEnabledForZone(o,crobat.zone)&&
+  list(o.ownHand).some(c=>match(c,PRINT.forest));
 }
 function toolAttachAllowed(o){
  return o?.ownPublic?.publicTurnRestrictions?.toolPlayLocked!==true;
@@ -294,7 +307,6 @@ function setupAbilitySourcePrinting(abilityName){
  if(/^Dark Asset$/i.test(abilityName))return 'Crobat V DAA 104';
  if(/^Wonder Tag$/i.test(abilityName))return 'Tapu Lele-GX GRI 60';
  if(/^Squawk and Seize$/i.test(abilityName))return 'Squawkabilly ex PAL 169';
- if(/^Star Alchemy$/i.test(abilityName))return 'Crobat V DAA 104';
  return null;
 }
 function setupAbilityPending(items,o){
@@ -682,19 +694,17 @@ function score(action,req){
  if(!ROOT_KINDS.has(action.kind))return 0;
  if(action.kind==='pass')return 0;
  if(action.kind==='use-ability'){
-  if(!usableOwnAbilities(o))return 0;
   const a=meta.abilityName||'';
+  // Star Alchemy belongs to Forest Seal Stone (a Pokémon Tool), not Crobat's
+  // Pokémon Ability. Pokémon Ability locks do not suppress the Tool's effect.
+  if(/^Star Alchemy$/i.test(a))return forestSealStoneUsable(o)&&deckCount(o)>0?650:0;
+  if(!usableOwnAbilities(o))return 0;
   const abilitySource=setupAbilitySourcePrinting(a);
   if(abilitySource&&!benchSupportAbilityUsable(abilitySource,o))return 0;
   if(/^Dedechange$/i.test(a)&&canRiskFullHandDiscard(o))return 675;
   if(/^Dark Asset$/i.test(a)&&handCount(o)<=4&&deckCount(o)>0)return 660;
   if(/^Wonder Tag$/i.test(a)&&o.ownTurnResources?.supporterPlayedTurn===0&&deckCount(o)>0)return 610;
   if(/^Squawk and Seize$/i.test(a)&&o.globalTurn<=2&&canRiskFullHandDiscard(o))return 625;
-  if(/^Star Alchemy$/i.test(a)&&!o.ownTurnResources?.vstarUsed&&deckCount(o)>0&&
-     toolEnabled(o)&&benchSupportAbilityUsable('Crobat V DAA 104',o)&&
-     slots(own).some(x=>match(x.pokemon.printing,PRINT.crobat)&&
-      list(x.pokemon.tools).some(t=>match(t,PRINT.forest))&&
-      !(x.zone==='active'&&activeFlutterManeLock(o))))return 650;
   return 0;
  }
  if(action.kind==='attack'){
@@ -758,8 +768,7 @@ function score(action,req){
  if(match(p,PRINT.float)||match(p,PRINT.muscle)||match(p,PRINT.forest)){
   if(!canAttachTool||!t||list(t.pokemon.tools).length!==0)return 0;
   if(match(p,PRINT.forest)&&canTool&&match(t.pokemon.printing,PRINT.crobat)&&
-     !o.ownTurnResources?.vstarUsed&&benchSupportAbilityUsable(p,o)&&
-     !(t.zone==='active'&&activeFlutterManeLock(o)))return 570;
+     !o.ownTurnResources?.vstarUsed&&forestSealToolEnabledForZone(o,t.zone))return 570;
   if(match(p,PRINT.float)&&t.zone==='active'&&!opponentSnorlaxBlock(o)&&!match(t.pokemon.printing,PRINT.budew)&&
      o.globalTurn<=4&&canTool&&onBoard(own,PRINT.budew)&&
      o.ownTurnResources?.retreatedTurn!==o.globalTurn&&
@@ -935,7 +944,7 @@ function cardScore(c,o){
  if(match(c,PRINT.mega))return onBoard(o.ownPublic,PRINT.mega)?10:105;
  if(match(c,PRINT.budew))return onBoard(o.ownPublic,PRINT.budew)?15:(readyToPivotIntoBudew(o)?200:100);
  if(match(c,PRINT.float))return onBoard(o.ownPublic,PRINT.garbodor)?100:45;
- if(match(c,PRINT.forest))return onBoard(o.ownPublic,PRINT.crobat)&&!o.ownTurnResources?.vstarUsed?145:25;
+ if(match(c,PRINT.forest))return forestSealLinePending(o)?145:25;
  if(match(c,PRINT.muscle))return onBoard(o.ownPublic,PRINT.mega)?80:20;
  if(match(c,PRINT.temple))return slots(o.opponentPublic).some(x=>list(x.pokemon.energies).some(e=>!/^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal) Energy\b/i.test(name(e))))?95:25;
  if(match(c,PRINT.guzma))return benchCount(o.opponentPublic)>0?80:20;
@@ -1288,7 +1297,8 @@ function promptDecision(req){
     /dedechange/.test(src)?'Dedechange':
     /squawk and seize/.test(src)?'Squawk and Seize':'Star Alchemy';
    const source=setupAbilitySourcePrinting(abilityName);
-   const abilityUsable=source?benchSupportAbilityUsable(source,o):usableOwnAbilities(o);
+   const abilityUsable=/^Star Alchemy$/i.test(abilityName)?forestSealStoneUsable(o):
+    source?benchSupportAbilityUsable(source,o):false;
    const choice=abilityUsable&&deckCount(o)>0&&(!/dedechange|squawk and seize/.test(src)||canRiskFullHandDiscard(o))?yes:no;
    return choice?{kind:'select-choice',token:choice.token}:{kind:'abstain',reasonCode:'UNSUPPORTED_CONFIRMATION_SOURCE'};
   }
@@ -1304,4 +1314,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,prizeYield,activeMimikyuSafeguard,regidragoPayloadCount,karenOwnRecoveryScore,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,drawSupporterScore,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,opponentGarbotoxinStatus,liveGarbotoxin,benchCapacity,replacingJammingRestoresHoodedLock,pathToThePeakInPlay,silentLabInPlay,activeKlefkiLock,activeFlutterManeLock,urgentShadowRiderGarbotoxin,pokemonIsPsychic};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,prizeYield,activeMimikyuSafeguard,regidragoPayloadCount,karenOwnRecoveryScore,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,forestSealStoneUsable,drawSupporterScore,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,opponentGarbotoxinStatus,liveGarbotoxin,benchCapacity,replacingJammingRestoresHoodedLock,pathToThePeakInPlay,silentLabInPlay,activeKlefkiLock,activeFlutterManeLock,urgentShadowRiderGarbotoxin,pokemonIsPsychic};
