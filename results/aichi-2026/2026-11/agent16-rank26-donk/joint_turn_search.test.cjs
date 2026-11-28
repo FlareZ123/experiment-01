@@ -64,3 +64,22 @@ test('partial-Prize state needs zero donated Prizes and burns no Pump or Dowsing
  assert.equal(r.physical.spent.pump??0,0);
  assert.equal(r.physical.dowsingUsed,false);
 });
+
+test('donation projection cannot omit real Bench occupant and invent free space',()=>{
+ const s=scenario({float:true});const orig=s.makeDonationInput;
+ s.makeDonationInput=(final,actions)=>{
+  const d=orig(final,actions);d.fixed=d.fixed.filter(x=>x.id!=='S');return d;
+ };
+ const r=planJointKnownTurn(s);
+ assert.equal(r.status,'no-verified-joint-resource-trace');
+ assert.ok(r.checks.some(x=>x.reason==='MISSING_POST_POWER_BOARD_CARD'));
+});
+test('donation projection cannot fabricate a benched two-counter donor',()=>{
+ const s=scenario({float:true});const orig=s.makeDonationInput;
+ s.makeDonationInput=(final,actions)=>{
+  const d=orig(final,actions);d.fixed.push(e('phantom','B',2));return d;
+ };
+ const r=planJointKnownTurn(s);
+ assert.equal(r.status,'no-verified-joint-resource-trace');
+ assert.ok(r.checks.some(x=>x.reason==='INVENTED_POST_POWER_BOARD_CARD'));
+});
