@@ -783,6 +783,12 @@ function cardPriority(printing, observation, context) {
     }
     return 0;
   }
+  if (context.includes('technical machine: evolution')) {
+    if (matches(printing, PRINT.gloom) && boardHas(own, PRINT.oddish)) return 195;
+    if (matches(printing, PRINT.herdier) && boardHas(own, PRINT.lillipup)) return 188;
+    if (matches(printing, PRINT.pidgeotto) && boardHas(own, PRINT.pidgey)) return 175;
+    return 0;
+  }
   if (context.includes('artazon')) {
     if (matches(printing, PRINT.oddish) && !boardHas(own, PRINT.oddish)) return 130;
     if (matches(printing, PRINT.lillipup) && !boardHas(own, PRINT.lillipup)) return 125;
@@ -1131,7 +1137,9 @@ function promptDecision(request) {
   if (selectionType === 'card-combination' || selectionType === 'pokemon' ||
       selectionType === 'energy-payment' || selectionType === 'prize-slots' ||
       selectionType === 'card-order') {
-    const recognizedCardSource = context.includes('tag call') ||
+    const tmEvolutionAttack = matches(prompt.source?.sourcePrinting, PRINT.tmEvolution) &&
+      String(prompt.source?.effectName ?? '').toLowerCase() === 'evolution';
+    const recognizedCardSource = tmEvolutionAttack || context.includes('tag call') ||
       context.includes('fan call') || context.includes('guzma & hala') ||
       context.includes('artazon') || context.includes('rototiller') ||
       context.includes('get lost') || context.includes('quick search') ||
