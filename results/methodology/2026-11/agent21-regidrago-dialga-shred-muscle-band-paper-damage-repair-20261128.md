@@ -33,6 +33,10 @@ Twinleaf revision: **`a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`**.
 
 This failure can affect Shred paths across **all nine** exact-source Regidrago variants, though **there are no measured affected-game frequencies or validated competitive outcomes**.
 
+## Why forced board smokes are the correct initial evidence gate
+
+For a uniformly randomized **60-card, 8-card raw observation window** with no mulligan conditioning, search or accessibility weighting, the exact chance to physically see at least one Muscle Band is **13.3333%** with one copy and **25.0847%** with two copies: `1 - C(60-M,8)/C(60,8)`, `M=1,2`. These are *only* raw-location combinatorics, not frequencies of a live Muscle Band attached to a Regidrago that is copying Shred. That is why a deliberately constructed exact 80-versus-100 native attack test (and an actual copycat smoke) should precede any expensive natural-deal competitive comparison.
+
 ## Implemented bounded, opt-in compatibility repair
 
 - [Reversible engine hook](../../../simulation/twinleaf/agent21-regidrago-dialga-shred-paper-hook.cjs)
