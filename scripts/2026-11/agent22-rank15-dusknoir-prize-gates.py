@@ -82,6 +82,20 @@ cases = [
         ("Dusknoir", 1, False), ("Mewtwo", 2, True),
         ("other basic", 13, True), ("other nonbasic", 40, False)
     ], {"Duskull": 2, "Dusclops": 2, "Dusknoir": 1, "Mewtwo": 1}),
+    ("v3 Dusknoir + Ace Trainer + Night Watch same-turn named roles", [
+        ("Duskull", 2, True), ("Dusclops", 2, False),
+        ("Dusknoir", 1, False), ("Mewtwo", 2, True),
+        ("TrevGX", 1, True), ("AceTrainer", 2, False),
+        ("other basic", 12, True), ("other nonbasic", 38, False)
+    ], {"Duskull": 1, "Dusclops": 1, "Dusknoir": 1,
+        "Mewtwo": 1, "TrevGX": 1, "AceTrainer": 1}),
+    ("v3 Dusknoir + Ace Trainer + Miraculous Duo same-turn roles", [
+        ("Duskull", 2, True), ("Dusclops", 2, False),
+        ("Dusknoir", 1, False), ("Mewtwo", 2, True),
+        ("TrevGX", 1, True), ("AceTrainer", 2, False),
+        ("other basic", 12, True), ("other nonbasic", 38, False)
+    ], {"Duskull": 1, "Dusclops": 1, "Dusknoir": 1,
+        "Mewtwo": 1, "AceTrainer": 1}),
 ]
 expected = [
     Fraction(13813723731137, 15627986902094),
@@ -92,6 +106,8 @@ expected = [
     Fraction(31045383146866, 39069967255235),
     Fraction(27389106032389, 31255973804188),
     Fraction(17941935171135, 31255973804188),
+    Fraction(634024466607825, 812655318908888),
+    Fraction(705718383423173, 812655318908888),
 ]
 for (label, categories, required), exact in zip(cases, expected):
     p = gate_probability(categories, required)
