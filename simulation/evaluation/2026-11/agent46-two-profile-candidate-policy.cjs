@@ -3610,12 +3610,16 @@ function guzmaFreePivotMultiPrize(before,after,index){
     (target?.abilities??[]).includes('Irritating Pollen')&&
     effectiveAbilityStatus(target,'Irritating Pollen','opponent',projected)===true&&
     itemLocked(before)&&!liveOther('Irritating Pollen');
-  // A live Garbotoxin suppresses Latias ex's Skyliner. Require an
-  // independent, live Float Stone on the actual temporary Active pivot;
-  // otherwise the apparent free-retreat line is not physically playable.
+  // A live Garbotoxin suppresses Latias ex's Skyliner. Demand a
+  // source-guaranteed escape: an effective Float Stone *or* a live
+  // Stealthy Hood that shields Skyliner against the opponent's Ability.
+  // Mere stale 'Skyliner unsuppressed' metadata without either protected
+  // path must not be treated as a payable free retreat.
   const garbPivot=after.ownPublic.active;
-  const guaranteedToolPivot=(garbPivot?.tools??[]).some(tool=>hasName(tool,'Float Stone'))&&
-    toolsEffectiveForRetreat(after,garbPivot,'actor')===true;
+  const guaranteedToolPivot=((garbPivot?.tools??[]).some(tool=>hasName(tool,'Float Stone'))&&
+    toolsEffectiveForRetreat(after,garbPivot,'actor')===true)||
+    (hasEffectiveStealthyHood(garbPivot,after,'actor')===true&&
+      effectiveAbilityStatus(garbPivot,'Skyliner','actor',after)===true);
   const garbBreak=prizeLiability(target)===1&&
     (hasName(target?.printing,'Garbodor BKP')||
      hasName(target?.printing,'Garbodor LTR'))&&
