@@ -650,8 +650,15 @@ function discardValue(view, printing) {
   if (hasName(printing, 'Psychic Energy')) {
     return psychicEnergyCount(view) >= 5 ? 2 : 80;
   }
-  if (hasName(printing, 'Dialga-GX')) {
-    return opponentHasRegidrago(view) && !discardHas(view, 'Dialga-GX') ? 1000 : 35;
+  if (printing === 'Dialga-GX UPR 100') {
+    // Psychic-only Hood Shield cannot pay Dialga-GX's own Metal attacks.
+    // Against Regidrago, it is a *discard payload* for Mimikyu GRI58's
+    // Copycat -> Apex Dragon -> Timeless-GX line. Its first discard is
+    // strategically desirable, not UDP. Protecting it with DCI=1000
+    // made every one-card discard connector fail AMR with only Dialga
+    // plus protected singleton cards in hand.
+    return opponentHasRegidrago(view) && !discardHas(view, 'Dialga-GX')
+      ? 0 : 35;
   }
   if (hasName(printing, 'Mimikyu')) {
     return opponentHasRegidrago(view) && !boardHas(view, 'Mimikyu') ? 1000 : 30;
