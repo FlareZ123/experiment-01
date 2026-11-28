@@ -1343,10 +1343,21 @@ function scoreEnergyPlay(item, view, receipt) {
   return -Infinity;
 }
 
-function hasDiscardableHand(view, required = 1) {
-  const ranked = view.ownHand.map(printing => discardValue(view, printing))
+function hasDiscardableHand(view, required = 1, playingPrinting = null) {
+  // The Item being played leaves the hand *before* its discard-cost prompt;
+  // counting it as a discard target overstates Ultra/Quick/Mysterious AMR.
+  let omittedPlayedCard = false;
+  const available = view.ownHand.filter(printing => {
+    if (!omittedPlayedCard && printing === playingPrinting) {
+      omittedPlayedCard = true;
+      return false;
+    }
+    return true;
+  });
+  const ranked = available.map(printing => discardValue(view, printing))
     .sort((a, b) => a - b);
-  return ranked.length >= required && ranked.slice(0, required).every(value => value < 800);
+  return ranked.length >= required &&
+    ranked.slice(0, required).every(value => value < 800);
 }
 
 function hasAbilityLockThreat(view) {
@@ -1474,12 +1485,12 @@ function scoreTrainerPlay(item, view, receipt) {
       !boardHas(view, 'Dialga-GX') && (boardHas(view, 'Mimikyu') || handHas(view, 'Mimikyu'))) return 860;
   if (hasName(name, 'Fog Crystal') &&
       (!boardHas(view, 'Shadow Rider Calyrex V') || psychicEnergyCount(view) < 3)) return 820;
-  if (hasName(name, 'Mysterious Treasure') && hasDiscardableHand(view, 1) &&
+  if (hasName(name, 'Mysterious Treasure') && hasDiscardableHand(view, 1, name) &&
       (opponentHasRegidrago(view) || !boardHas(view, 'Shadow Rider Calyrex V'))) return 800;
-  if (hasName(name, 'Quick Ball') && hasDiscardableHand(view, 1) &&
+  if (hasName(name, 'Quick Ball') && hasDiscardableHand(view, 1, name) &&
       (!boardHas(view, 'Shadow Rider Calyrex V') ||
        (opponentHasRegidrago(view) && !boardHas(view, 'Mimikyu')))) return 790;
-  if (hasName(name, 'Ultra Ball') && hasDiscardableHand(view, 2) &&
+  if (hasName(name, 'Ultra Ball') && hasDiscardableHand(view, 2, name) &&
       boardHas(view, 'Shadow Rider Calyrex V') &&
       !boardHas(view, 'Shadow Rider Calyrex VMAX')) return 780;
   if (hasName(name, 'Arven') && !supporterUsed &&
