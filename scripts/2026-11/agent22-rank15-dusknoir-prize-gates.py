@@ -122,6 +122,35 @@ for (label, categories, required), exact in zip(cases, expected):
     assert p == exact, (label, p, exact)
     print(f"{label}: {100*float(p):.9f}% = {p}")
 
+# v4 (one Clefairy Basic) vs v8 (two Clefairy Basics, one less Item).
+# Track only opening-Prize structural access; no Heavy Ball, searching, turns,
+# damage or source policies can be inferred from these numbers.
+clefairy_pairs=[
+    ("v4 single Clefairy outside initial Prizes",
+        [("Clefairy",1,True),("Duskull",2,True),("Dusclops",2,False),
+         ("Dusknoir",1,False),("other basic",14,True),("other",40,False)],
+        {"Clefairy":1}, Fraction(444935177,493712861)),
+    ("v8 >=1/2 Clefairy outside initial Prizes",
+        [("Clefairy",2,True),("Duskull",2,True),("Dusclops",2,False),
+         ("Dusknoir",1,False),("other basic",14,True),("other",39,False)],
+        {"Clefairy":1}, Fraction(13802057,13917482)),
+    ("v4 Clefairy and Dusknoir evolution chain outside Prizes",
+        [("Clefairy",1,True),("Duskull",2,True),("Dusclops",2,False),
+         ("Dusknoir",1,False),("other basic",14,True),("other",40,False)],
+        {"Clefairy":1,"Duskull":1,"Dusclops":1,"Dusknoir":1},
+        Fraction(31045383146866,39069967255235)),
+    ("v8 Clefairy and Dusknoir evolution chain outside Prizes",
+        [("Clefairy",2,True),("Duskull",2,True),("Dusclops",2,False),
+         ("Dusknoir",1,False),("other basic",14,True),("other",39,False)],
+        {"Clefairy":1,"Duskull":1,"Dusclops":1,"Dusknoir":1},
+        Fraction(7720710980659,8810879504560))
+]
+for label,categories,required,expected_fraction in clefairy_pairs:
+    result=gate_probability(categories,required)
+    assert result==expected_fraction,(label,result,expected_fraction)
+    print(f"{label}: {100*float(result):.9f}% = {result}")
+
+
 def first_eight_probability(categories, successful):
     """A legal initial 7 plus one ordinary draw; no opponent mulligan bonuses.
 
@@ -161,7 +190,13 @@ first_eight_tests = [
         ("Duskull", 2, True), ("other basic", 15, True),
         ("Hood", 1, False), ("other", 42, False)
     ], lambda h: h["Hood"] >= 1 and h["Duskull"] >= 1,
-       Fraction(15884666, 493712861)),
+       Fraction(15884666, 493712861)),,
+    ("v4 raw first 8 contains singleton Clefairy", [
+       ("Clefairy",1,True),("other basic",16,True),("other",43,False)
+    ], lambda h:h["Clefairy"]>=1,Fraction(70972933,493712861)),
+    ("v8 raw first 8 contains one of 2 Clefairy", [
+       ("Clefairy",2,True),("other basic",16,True),("other",42,False)
+    ], lambda h:h["Clefairy"]>=1,Fraction(1856956,6958741)),
 ]
 for label, cats, event, exact in first_eight_tests:
     actual = first_eight_probability(cats, event)
