@@ -147,7 +147,7 @@ function run(source){
   const opponentChoice=promptToken(patched,config,seat,base,'opponent');
   continuations++;
   if(opponentChoice!=='opponent-0')errors.push({where:'opponent-choice',seat,profile:config.profileId,got:opponentChoice});
-  const gusted={...base,ownHand:[],ownTurnResources:{...base.ownTurnResources,supporterPlayedTurn:1},
+  const gusted={...base,ownHand:[],ownPublic:{...base.ownPublic,handCount:0,discard:[...base.ownPublic.discard,GUZMA]},ownTurnResources:{...base.ownTurnResources,supporterPlayedTurn:1},
    opponentPublic:{...base.opponentPublic,active:base.opponentPublic.bench[0],
    bench:base.opponentPublic.bench.map((p,i)=>i===0?base.opponentPublic.active:p)}};
   const actorChoice=promptToken(patched,config,seat,gusted,'actor');
