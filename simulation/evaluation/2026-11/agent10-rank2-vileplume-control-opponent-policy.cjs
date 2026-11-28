@@ -253,7 +253,7 @@ function opponentHasSpecialEnergy(player) {
   return boardSlots(player).some(({ pokemon }) =>
     list(pokemon.energies).some(energy =>
       /Energy/i.test(energy) &&
-      !/^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal) Energy\b/i.test(energy)));
+      !/^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy\b/i.test(energy)));
 }
 
 function opponentHasGarbotoxin(player) {
