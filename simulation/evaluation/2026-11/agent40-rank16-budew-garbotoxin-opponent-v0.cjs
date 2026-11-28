@@ -200,6 +200,25 @@ function plumeriaDenialScore(o){
  return slots(o.opponentPublic).reduce((best,x)=>Math.max(best,
   plumeriaTargetScore(x.pokemon,x.zone)),0);
 }
+function vsSeekerDenialScore(o,items){
+ if(o.ownTurnResources?.supporterPlayedTurn!==0||
+    o.ownPublic?.publicTurnRestrictions?.supporterPlayLocked===true||
+    o.ownTurnResources?.supporterPlayLocked===true)return 0;
+ const discards=list(o.ownPublic?.discard);
+ if(discards.some(x=>match(x,PRINT.karen))&&
+    !list(o.ownHand).some(x=>match(x,PRINT.karen))){
+  const karen=karenDenialScore(o,items);
+  if(karen>=590)return Math.max(0,karen-10);
+ }
+ if(discards.some(x=>match(x,PRINT.plumeria))&&
+    !list(o.ownHand).some(x=>match(x,PRINT.plumeria))){
+  const remaining=list(o.ownHand).filter(x=>!match(x,PRINT.vs));
+  const pay=remaining.map(x=>({kind:'card',printing:name(x),
+   publicMetadata:{ownerSeat:'actor',sourceZone:'hand'}}));
+  if(safeDiscardRows(pay,o,2))return Math.max(0,plumeriaDenialScore(o)-55);
+ }
+ return 0;
+}
 function karenDenialScore(o,items){
  const n=regidragoPayloadCount(o);
  if(n===0)return 0;
@@ -410,7 +429,7 @@ function score(action,req){
   if(!ready||setupAbilityPending(items,o)||onBoard(own,PRINT.garbodor))return 0;
   if(items.some(i=>i.kind==='attack'&&i.publicMetadata?.attackCostPayable===true&&
      (i.attackName==='Itchy Pollen'||i.attackName==='Terminal Period')))return 0;
-  const canAttach=own.ownTurnRestrictions?.energyPlayLocked!==true&&
+  const canAttach=own.publicTurnRestrictions?.energyPlayLocked!==true&&
      o.ownTurnResources?.energyPlayedTurn!==true&&
      list(o.ownHand).some(x=>match(x,PRINT.dark))&&
      slots(own).some(x=>match(x.pokemon.printing,PRINT.mega)&&
@@ -430,7 +449,7 @@ function score(action,req){
   return handCanPay(o,p,n)&&deckCount(o)>0?275:0;
  }
  if(match(p,PRINT.secret))return handCanPay(o,p,3)&&deckCount(o)>0?300:0;
- if(match(p,PRINT.vs))return o.ownTurnResources?.supporterPlayedTurn===0&&list(own.discard).some(x=>/Marnie|Carmine|Guzma|Plumeria|Karen|Determination/i.test(name(x)))?190:0;
+ if(match(p,PRINT.vs))return o.ownTurnResources?.supporterPlayedTurn===0&&list(own.discard).some(x=>/Marnie|Carmine|Guzma|Plumeria|Karen|Determination/i.test(name(x)))?Math.max(190,vsSeekerDenialScore(o,items)):0;
  if(match(p,PRINT.karen)&&o.ownTurnResources?.supporterPlayedTurn===0)return karenDenialScore(o,items);
  if(match(p,PRINT.plumeria)&&o.ownTurnResources?.supporterPlayedTurn===0&&handCanPay(o,p,2))
   return plumeriaDenialScore(o);
@@ -750,4 +769,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,regidragoPayloadCount,karenDenialScore,plumeriaDenialScore,templeStrandsApexDragon,guzmaRootScore,guzmaTargetScore,toolEnabled,garbotoxinStatus,liveGarbotoxin};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,regidragoPayloadCount,karenDenialScore,vsSeekerDenialScore,plumeriaDenialScore,templeStrandsApexDragon,guzmaRootScore,guzmaTargetScore,toolEnabled,garbotoxinStatus,liveGarbotoxin};
