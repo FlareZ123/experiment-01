@@ -199,7 +199,7 @@ test('temporary prototype is restored on work exception and async return',()=>{
     /injected fixture error/);
   assert.deepEqual(Object.getOwnPropertyDescriptor(
     MegaLopunnyex.prototype,'reduceEffect'),before);
-  assert.throws(()=>inHook(()=>Promise.resolve('unsafe')),/async/);
+  assert.throws(()=>inHook(()=>Promise.resolve('unsafe')),/Do not await/);
   assert.deepEqual(Object.getOwnPropertyDescriptor(
     MegaLopunnyex.prototype,'reduceEffect'),before);
 });
