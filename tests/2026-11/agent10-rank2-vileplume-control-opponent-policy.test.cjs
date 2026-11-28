@@ -1764,6 +1764,75 @@ test('Get Lost demotes spent Timeless-GX after opponent publicly used GX attack'
    kind:'select-choices',tokens:['dragapult','vs']});
 });
 
+
+function energyRootAction(token, printing, targetPrinting, zone, index) {
+  return {token, kind: 'play-card', actorPrinting: printing,
+    targetPrinting, publicMetadata: {
+      cardType: 'energy', handIndex: 0, targetSeat: 'actor',
+      targetZone: zone, targetIndex: index, isOwnerVisible: true
+    }};
+}
+test('Memory Energy targets Stoutland with Lillipup beneath it over unrelated Bunnelby',()=>{
+ const own=player({active:pokemon('Stoutland BCR 122', {
+   stage:'STAGE2',subtypes:['Stage 2'],abilities:['Sentinel'],
+   evolutionPrintings:['Lillipup CEC 174','Herdier SUM 104','Stoutland BCR 122']
+ }),bench:[pokemon('Bunnelby PRC 121')]});
+ const request=rootRequest({ownHand:['Memory Energy LOT 194'],ownPublic:own,
+   items:[energyRootAction('wrong','Memory Energy LOT 194',
+      'Bunnelby PRC 121','bench',0),
+     energyRootAction('correct','Memory Energy LOT 194',
+      'Stoutland BCR 122','active',0),
+     {token:'pass',kind:'pass',label:'Pass turn'}]});
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-action',token:'correct'});
+});
+test('Memory Energy is preserved if Stoutland is absent and only Bunnelby offered',()=>{
+ const request=rootRequest({ownHand:['Memory Energy LOT 194'],
+   ownPublic:player({active:pokemon('Bunnelby PRC 121')}),
+   items:[energyRootAction('wrong','Memory Energy LOT 194',
+      'Bunnelby PRC 121','active',0),
+     {token:'pass',kind:'pass',label:'Pass turn'}]});
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-action',token:'pass'});
+});
+test('Memory Energy requires known prior Lillipup evolution on recipient',()=>{
+ const request=rootRequest({ownHand:['Memory Energy LOT 194'],
+   ownPublic:player({active:pokemon('Stoutland BCR 122',{
+     evolutionPrintings:['Stoutland BCR 122']})}),
+   items:[energyRootAction('stoutland','Memory Energy LOT 194',
+      'Stoutland BCR 122','active',0),
+     {token:'pass',kind:'pass',label:'Pass turn'}]});
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-action',token:'pass'});
+});
+test('Jet Energy targets Benched Bunnelby carrying TM, not Active duplicate Bunnelby',()=>{
+ const request=rootRequest({ownHand:['Jet Energy PAL 190'],
+   ownPublic:player({active:pokemon('Bunnelby PRC 121',{
+     tools:['Technical Machine: Evolution PAR 178']
+   }),bench:[pokemon('Bunnelby PRC 121',{
+     tools:['Technical Machine: Evolution PAR 178']
+   }),pokemon('Oddish UNB 5')]}),
+   items:[energyRootAction('active','Jet Energy PAL 190',
+      'Bunnelby PRC 121','active',0),
+     energyRootAction('bench','Jet Energy PAL 190',
+      'Bunnelby PRC 121','bench',0),
+     {token:'pass',kind:'pass',label:'Pass turn'}]});
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-action',token:'bench'});
+});
+test('Jet Energy no longer gets high TM score when attached to Bench Bunnelby without Tool',()=>{
+ const request=rootRequest({ownHand:['Jet Energy PAL 190'],
+   ownPublic:player({active:pokemon('Bunnelby PRC 121',{
+     tools:['Technical Machine: Evolution PAR 178']
+   }),bench:[pokemon('Bunnelby PRC 121'),pokemon('Oddish UNB 5')]}),
+   items:[energyRootAction('bench','Jet Energy PAL 190',
+      'Bunnelby PRC 121','bench',0),
+     {token:'pass',kind:'pass',label:'Pass turn'}]});
+ // A routine Energy attachment still has value, but no double Evolution turbo bonus.
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-action',token:'bench'});
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
