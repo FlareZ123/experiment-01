@@ -48,7 +48,8 @@ for(const seat of [0,1]){
     ['TAG TEAM-GX inherently yields three',TAG,[],[],[],3,'spiky'],
     ['Island Amulet reduces TAG TEAM-GX to two',TAG,[AMULET],[],[],3,'eldegoss'],
     ['V-UNION inherently yields three',VUNION,[],[],[],3,'spiky'],
-    ['Life Dew and Legacy are conservative together',SHADOW,[DEW],[LEGACY],[],2,'eldegoss'],
+    ['legal Legacy and Island Amulet discount TAG TEAM by two',
+      TAG,[AMULET],[LEGACY],[],2,'eldegoss'],
     ['single-Prize Pidgey with live Life Dew gives zero', 'Pidgey FLF 75',
       [DEW],[],[],1,'eldegoss']
   ]){
