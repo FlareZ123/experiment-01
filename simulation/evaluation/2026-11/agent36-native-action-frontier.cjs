@@ -1,6 +1,7 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const { printing: sourcePrinting } = require('../../twinleaf/actor-observation-contract.cjs');
 const protocol = require('./agent49-policy-protocol.cjs');
 const { createStoreStateSnapshotter } = require('./agent49-native-fixture-game.cjs');
 
@@ -15,7 +16,7 @@ function enumName(enumeration, value) {
 
 function cardPrinting(card) {
   return typeof card?.fullName === 'string' && card.fullName.length > 0
-    ? card.fullName : null;
+    ? sourcePrinting(card) : null;
 }
 
 function slotPokemon(slot) {

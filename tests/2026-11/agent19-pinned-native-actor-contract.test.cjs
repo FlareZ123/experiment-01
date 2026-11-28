@@ -191,3 +191,74 @@ for(const seat of [0,1]){
   assert.deepEqual(policy.decide(previous),{kind:'select-action',token:'wondrous'});
  });
 }
+
+// Genuine pinned-card shape: fullName excludes the collector number, while
+// public name / set / setNumber together establish the selected printing.
+// This is a host -> strict protocol -> source-bound worker unit boundary,
+// not a pinned Store/game or a full policy competence receipt.
+const nativeFrontier=require('../../simulation/evaluation/2026-11/agent36-native-action-frontier.cjs');
+for(const seat of [0,1]){
+  test('rank3 real-native printing fields reach Penny decision and exclude alternate art, seat '+seat,()=>{
+    class NativeTrainer {}
+    const trainer=(name,set,setNumber,fullName=name+' '+set)=>
+      Object.assign(new NativeTrainer(),{name,set,setNumber,fullName});
+    const own=player(seat,true),other=player(1-seat,false);
+    own.active=pokemon({fullName:'Snorlax PGO',name:'Snorlax',hp:150,
+      stage:2,tags:[],types:[9],retreat:[9,9,9,9],damage:70});
+    Object.assign(own.active.cards[0],{set:'PGO',setNumber:'55'});
+    own.hand.cards=[
+      trainer('Penny','SVI','183'),
+      trainer("Team Rocket's Handiwork",'FCO','112')
+    ];
+    own.deck.cards=Array.from({length:20},(_,i)=>card('owner deck '+i));
+    other.deck.cards=Array.from({length:30},(_,i)=>card('opponent deck '+i));
+    const state={players:seat===0?[own,other]:[other,own],
+      activePlayer:seat,turn:4,phase:2,prompts:[]};
+    const view=observe.actorObservation(state,seat);
+    assert.deepEqual(view.ownHand,['Penny SVI 183',
+      "Team Rocket's Handiwork FCO 112"]);
+    assert.equal(view.ownPublic.active.printing,'Snorlax PGO 55');
+    const makeItem=(i,token)=>nativeFrontier.projectNativeAction(
+      {type:'PLAY_CARD_ACTION',handIndex:i},state,seat,
+      {TrainerCard:NativeTrainer},token);
+    const penny=makeItem(0,'penny'),handi=makeItem(1,'handi');
+    assert.equal(penny.actorPrinting,'Penny SVI 183');
+    assert.equal(handi.actorPrinting,"Team Rocket's Handiwork FCO 112");
+    const pass={token:'pass',kind:'pass'};
+    const frontier={schema:protocol.FRONTIER_SCHEMA,items:[penny,handi,pass]};
+    const message={schema:protocol.REQUEST_SCHEMA,type:'decision',
+      requestId:'native-printing-'+seat,sequence:0,role:'opponent',seat,
+      observationSchema:protocol.OBSERVATION_SCHEMA,observation:view,
+      prompt:null,publicEventReceipt:null,actionFrontier:frontier};
+    const allowed=protocol.validateRequest(message,{role:'opponent',seat,
+      policyVersion:rank3.POLICY_VERSION,config:{}},0,new Set());
+    const root={role:'opponent',seat,observation:view,prompt:null,
+      publicEventReceipt:null,actionFrontier:frontier};
+    const policy=rank3.createPolicy({role:'opponent',seat,
+      policyVersion:rank3.POLICY_VERSION,config:{}});
+    const chosen=policy.decide(root);
+    assert.deepEqual(chosen,{kind:'select-action',token:'penny'});
+    assert.deepEqual(protocol.validateDecision(chosen,null,allowed.actionTokens),chosen);
+    // Same English name and set, DIFFERENT native collector number: never
+    // promote SVI 239 to the exact source's SVI 183 even though fullName
+    // and name share prefixes.
+    own.hand.cards[0]=trainer('Penny','SVI','239','Penny2 SVI');
+    const altView=observe.actorObservation(state,seat);
+    const altPenny=makeItem(0,'penny');
+    assert.equal(altPenny.actorPrinting,'Penny SVI 239');
+    const altRoot={...root,observation:altView,
+      actionFrontier:{schema:protocol.FRONTIER_SCHEMA,items:[altPenny,handi,pass]}};
+    assert.equal(rank3.scoreAction(altPenny,altRoot),0);
+    assert.deepEqual(policy.decide(altRoot),{kind:'select-action',token:'handi'});
+    // Missing printed number is an unqualified engine key, not a license
+    // to attribute the source's exact collector number from its name.
+    own.hand.cards[0]=trainer('Penny','SVI',null);
+    const missingView=observe.actorObservation(state,seat);
+    const missingPenny=makeItem(0,'penny');
+    assert.equal(missingPenny.actorPrinting,'Penny SVI');
+    const missingRoot={...root,observation:missingView,
+      actionFrontier:{schema:protocol.FRONTIER_SCHEMA,items:[missingPenny,handi,pass]}};
+    assert.equal(rank3.scoreAction(missingPenny,missingRoot),0);
+    assert.deepEqual(policy.decide(missingRoot),{kind:'select-action',token:'handi'});
+  });
+}

@@ -42,6 +42,19 @@ function canonicalPokemonSubtypes(pokemon){
 /** @param {object} card @returns {string} */
 const printing=card=>{
   assert.ok(typeof card?.fullName==='string'&&card.fullName.length>0);
+  // The pinned CardManager's fullName is a unique engine lookup key, but
+  // it deliberately omits the collector number: Penny SVI / Penny2 SVI.
+  // Source-bound workers use English name + set + printed collector number.
+  // Construct that actor-visible identity only from the actual card instance;
+  // never infer a printing from a bare name or a source-deck expectation.
+  const name=card.name, set=card.set, number=card.setNumber;
+  if(typeof name==='string'&&name.length>0&&
+     typeof set==='string'&&/^[A-Za-z0-9-]{2,12}$/.test(set)&&
+     typeof number==='string'&&/^[A-Za-z0-9/.-]{1,12}$/.test(number)){
+    return name+' '+set+' '+number;
+  }
+  // An identity without a collector number remains visibly unqualified.
+  // Number-specific worker predicates must fail closed rather than guessing.
   return card.fullName;
 };
 
