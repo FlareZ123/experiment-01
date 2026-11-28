@@ -118,6 +118,29 @@ function sourceItem(printing){
  return [PRINT.quick,PRINT.ultra,PRINT.mail,PRINT.compressor,PRINT.vs,
   PRINT.patch,PRINT.vip,PRINT.boost,PRINT.secret].some(x=>match(printing,x));
 }
+function drawSupporterScore(printing,o){
+ const own=o.ownPublic,opp=o.opponentPublic;
+ if(o.ownTurnResources?.supporterPlayedTurn!==0||
+    own?.publicTurnRestrictions?.supporterPlayLocked===true||
+    handCount(o)>3||opponentStoutlandSupporterLock(o))return 0;
+ const oppHand=Number.isSafeInteger(opp?.handCount)?opp.handCount:null;
+ const coreMissing=!onBoard(own,PRINT.mega)||!onBoard(own,PRINT.garbodor)||
+   !onBoard(own,PRINT.budew);
+ if(match(printing,PRINT.lillie)){
+  if(own?.prizeCount===6&&coreMissing)return 360; // draw 8 rather than 6
+  return handCount(o)<=2?280:230;
+ }
+ if(match(printing,PRINT.marnie)){
+  if(oppHand!==null&&oppHand>=8)return 390;
+  if(oppHand!==null&&oppHand>=6)return 315;
+  return coreMissing?225:270;
+ }
+ if(match(printing,PRINT.carmine)){
+  if(hasProtectedHand(o))return 0;
+  return handCount(o)<=2?245:215;
+ }
+ return 0;
+}
 function sourceSupporter(printing){
  return [PRINT.marnie,PRINT.lillie,PRINT.carmine,PRINT.guzma,
   PRINT.plumeria,PRINT.karen].some(x=>match(printing,x));
@@ -616,11 +639,8 @@ function score(action,req){
  if(match(p,PRINT.karen)&&o.ownTurnResources?.supporterPlayedTurn===0)return karenDenialScore(o,items);
  if(match(p,PRINT.plumeria)&&o.ownTurnResources?.supporterPlayedTurn===0&&handCanPay(o,p,2))
   return plumeriaDenialScore(o);
- if(match(p,PRINT.marnie)||match(p,PRINT.lillie)||match(p,PRINT.carmine)){
-  if(o.ownTurnResources?.supporterPlayedTurn!==0||handCount(o)>3)return 0;
-  if(match(p,PRINT.carmine)&&hasProtectedHand(o))return 0;
-  return 225;
- }
+ if(match(p,PRINT.marnie)||match(p,PRINT.lillie)||match(p,PRINT.carmine))
+  return drawSupporterScore(p,o);
  if(match(p,PRINT.guzma))return guzmaRootScore(o);
  if(match(p,PRINT.temple)){
   const opposingStadium=[...list(opp.stadium),...list(own.stadium)];
@@ -952,4 +972,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,prizeYield,activeMimikyuSafeguard,regidragoPayloadCount,karenOwnRecoveryScore,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,liveGarbotoxin};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,prizeYield,activeMimikyuSafeguard,regidragoPayloadCount,karenOwnRecoveryScore,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,drawSupporterScore,opponentVileplumeItemLock,opponentStoutlandSupporterLock,opponentSnorlaxBlock,basicSearchDemand,ultraSearchDemand,toolEnabled,garbotoxinStatus,liveGarbotoxin};
