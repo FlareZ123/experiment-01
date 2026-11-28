@@ -2337,7 +2337,15 @@ test('Duplicate Gust prompt uses physical benchIndex, never reversed selectionIn
     assert.deepEqual(checkedDecision(req,seat),
       {kind:'select-choices',tokens:['injured-slot-one']});
     const forged=promptRequest({
-      ...req,seat,choices:[{
+      seat,promptType:'ChoosePokemonPrompt',
+      source:actorChoiceSource('Guzma BUS 115','Guzma'),
+      publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+        allowCancel:false,isSecret:false},
+      observation:{
+        ownPublic:req.observation.ownPublic,
+        opponentPublic:req.observation.opponentPublic
+      },
+      choices:[{
         ...req.prompt.choices[0],
         publicMetadata:{...req.prompt.choices[0].publicMetadata,benchIndex:8}
       },req.prompt.choices[1]]
