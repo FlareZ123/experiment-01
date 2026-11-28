@@ -2131,3 +2131,33 @@ for(const seat of [0,1]){
   assert.equal(policy.activeFlutterManeLock(q.observation),true);
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Stadium no-effect turns disable Path and Silent Lab lock assumptions',()=>{
+  const board=own({publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:1}});
+  const enemy=opp({active:mon('Snorlax PGO 55'),stadium:['Silent Lab PRC 140']});
+  const q=root(seat,[pass],{ownPublic:board,opponentPublic:enemy});
+  assert.equal(policy.silentLabInPlay(q.observation),false);
+  assert.equal(policy.opponentSnorlaxBlock(q.observation),true);
+  enemy.active=mon('Shadow Rider Calyrex VMAX CRE 75');
+  enemy.bench=[mon('Shadow Rider Calyrex VMAX CRE 75')];
+  enemy.stadium=['Path to the Peak CRE 148'];
+  assert.equal(policy.pathToThePeakInPlay(q.observation),false);
+  assert.equal(policy.urgentShadowRiderGarbotoxin(q.observation),true);
+  enemy.stadium=['Sky Field ROS 89'];
+  enemy.bench=Array.from({length:8},()=>mon('Shadow Rider Calyrex VMAX CRE 75'));
+  assert.equal(policy.benchCapacity(q.observation),5);
+ });
+ test('seat '+seat+' Temple denial has no score while Stadium effects are suppressed',()=>{
+  const enemy=opp({active:mon('Regidrago VSTAR SIT 136',{energies:[
+   'Double Dragon Energy NXD 92','Grass Energy','Fire Energy']})});
+  const board=own({publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:1}});
+  const q=root(seat,[play('Temple of Sinnoh ASR 155','temple'),pass],{
+   ownPublic:board,opponentPublic:enemy,ownHand:['Temple of Sinnoh ASR 155']});
+  assert.equal(policy.templeStrandsApexDragon(q.observation),false);
+  assert.equal(policy.score(q.actionFrontier.items[0],q),0);
+  board.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining=0;
+  assert.equal(policy.templeStrandsApexDragon(q.observation),true);
+  assert.equal(policy.score(q.actionFrontier.items[0],q),670);
+ });
+}
