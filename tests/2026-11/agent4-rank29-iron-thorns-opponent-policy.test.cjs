@@ -685,7 +685,7 @@ test('typed Player Ceremony confirmation chooses draw only if hand and deck just
   assert.deepEqual(checkedDecision(rich),{kind:'select-choice',token:'no'});
 });
 
-test('Handheld Fan root is withheld until native AttachEnergyPrompt owner projection is supported', () => {
+test('Handheld Fan root plays with visible energized attacker plus Bench, but not with occupied Tool slot', () => {
   const items=[
     action('fan','play-card','Handheld Fan TWM 150',{cardType:'tool'},
       {targetPrinting:'Iron Thorns ex TWM 77'}),
@@ -697,7 +697,7 @@ test('Handheld Fan root is withheld until native AttachEnergyPrompt owner projec
   });
   assert.deepEqual(checkedDecision(rootRequest({
     ownHand:['Handheld Fan TWM 150'],opponentPublic:opponent,items
-  })),{kind:'select-action',token:'pass'});
+  })),{kind:'select-action',token:'fan'});
   assert.deepEqual(checkedDecision(rootRequest({
     ownHand:['Handheld Fan TWM 150'],opponentPublic:opponent,items,
     ownPublic:player({active:pokemon('Iron Thorns ex TWM 77',{tools:['Palace Belt BWP 153']})})
@@ -846,22 +846,52 @@ test('Guzma & Hala root retains free Stadium path with protected hand and skips 
     {kind:'select-action',token:'gh'});
 });
 
-test('actual Fan AttachEnergyPrompt is explicitly unsupported, not fabricated as ChooseEnergyPrompt', () => {
-  const req=promptRequest({
+test('Handheld Fan native owner prompt moves opposing DCE to exposed draw support rather than attacker', () => {
+  for (const seat of [0,1]) {
+    const req=promptRequest({
+      seat,promptType:'AttachEnergyPrompt',
+      source:actorChoiceSource('Handheld Fan TWM','Handheld Fan'),
+      publicMetadata:{selectionType:'energy-attachment',count:3,
+        minimumCount:0,maximumCount:1,allowCancel:false,
+        sourceZone:'active',ownerSeat:'opponent',isOwnerVisible:true,zone:'bench'},
+      observation:{opponentPublic:player({
+        active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{energies:[
+          'Double Colorless Energy SUM 136','Psychic Energy CRE 232']}),
+        bench:[pokemon('Tapu Lele-GX GRI 60'),
+          pokemon('Shadow Rider Calyrex V CRE 74',{energies:['Psychic Energy CRE 232']})]
+      })},
+      choices:[
+        {token:'psychic-shadow',kind:'energy',printing:'Psychic Energy CRE 232',
+          publicMetadata:{ownerSeat:'opponent',sourceZone:'active',
+            zone:'bench',benchIndex:1,isOwnerVisible:true,selectedCount:1}},
+        {token:'dce-lele',kind:'energy',printing:'Double Colorless Energy SUM 136',
+          publicMetadata:{ownerSeat:'opponent',sourceZone:'active',
+            zone:'bench',benchIndex:0,isOwnerVisible:true,selectedCount:1}},
+        {token:'none',kind:'empty-selection',label:'Move no Energy'}
+      ]
+    });
+    assert.deepEqual(checkedDecision(req,seat),{kind:'select-choice',token:'dce-lele'});
+  }
+});
+
+test('Handheld Fan native min-zero is a typed no-transfer decision, not a fake Energy card', () => {
+  const base={
     promptType:'AttachEnergyPrompt',
-    source:actorChoiceSource('Handheld Fan TWM 150','Handheld Fan'),
+    source:actorChoiceSource('Handheld Fan TWM','Handheld Fan'),
     publicMetadata:{selectionType:'energy-attachment',count:1,
-      minimumCount:1,maximumCount:1,allowCancel:false,
-      sourceZone:'active',ownerSeat:'opponent',isOwnerVisible:true,
-      zone:'bench'},
-    choices:[{token:'unsafe-synthetic-assignment',kind:'energy',
-      printing:'Psychic Energy CRE 232',
-      publicMetadata:{ownerSeat:'opponent',sourceZone:'active',
-        targetZone:'bench',benchIndex:0}}]
-  });
-  assert.deepEqual(checkedDecision(req),{
-    kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'
-  });
+      minimumCount:0,maximumCount:1,allowCancel:false,
+      sourceZone:'active',ownerSeat:'opponent',isOwnerVisible:true,zone:'bench'},
+    choices:[{token:'none',kind:'empty-selection',label:'Move no Energy'}]
+  };
+  assert.deepEqual(checkedDecision(promptRequest(base)),
+    {kind:'select-choice',token:'none'});
+  const malicious=promptRequest({...base,source:actorChoiceSource('Handheld Fan TWM','Max Geist')});
+  assert.deepEqual(checkedDecision(malicious),{
+    kind:'abstain',reasonCode:'UNTRUSTED_ENERGY_SELECTION'});
+  const falsePositive=promptRequest({...base,
+    source:actorChoiceSource('Handheld Fan TWM 150','Handheld Fan')});
+  assert.deepEqual(checkedDecision(falsePositive),{
+    kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'});
 });
 
 test('Guzma native ChoosePokemonPrompt returns select-choices for one trapped Bench target', () => {
