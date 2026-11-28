@@ -54,3 +54,26 @@ Both mismatches are true. PR95 `choosePrompt` handles an unfamiliar `ConfirmProm
 Pinned Dedenne-GX UNB / Dedechange and Crobat V DAA / Dark Asset also trigger from `PlayPokemonEffect`, so the underlying **class** warrants a design solution. Neither card is in the current fixed Hood 60. An implementer should make an explicit, reviewed entry-Ability allowlist in **host provenance**, keyed by exact pinned card and `effect.pokemonCard === current card`, rather than a Radiant-only unrelated workaround or dropping strict worker provenance. Start with **Radiant CRZ 105 and Tapu Lele GRI 60**, preserve the exact independent native prompt classes and continuation. The frozen Underworld PR104 native no-game witness has no authority to change this other prompt family.
 
 Evidence remains source/static execution of `describeEffect`, not compiled Store or game: native event chaining and actual promise/continuation behavior must still receive a later, separately authorized no-game witness. This new finding advances **source-to-policy integration design**, not a measured matchup.
+
+
+## Bounded future patch specimen (source only, not deployed)
+
+The smallest allowlisted change to `describeEffect` in `agent36-prompt-provenance.cjs`, **after the frozen PR104 witness**, is:
+
+```js
+const ENTER_PLAY_ABILITY_BY_NATIVE_FULL_NAME = Object.freeze({
+  'Radiant Eternatus CRZ': 'Climactic Gate',
+  'Tapu Lele-GX GRI': 'Wonder Tag'
+});
+
+function knownEntryAbilityName(card, effect) {
+  if (effect?.constructor?.name !== 'PlayPokemonEffect' ||
+      effect.pokemonCard !== card) return null;
+  return ENTER_PLAY_ABILITY_BY_NATIVE_FULL_NAME[card?.fullName] ?? null;
+}
+
+// Insert knownEntryAbilityName(card,effect) after effect.trainerCard?.name
+// but BEFORE card?.name in describeEffect's existing firstString array.
+```
+
+This is deliberately an **explicit pinned native card instance + event type allowlist**, not a global `powers[0].name` guess. It retains actual `effect?.attack?.name` and `effect?.power?.name` precedence for attacks and ordinary activated Abilities. Required narrow future regression contrasts: the two real source entry effects map to printed Ability names; same-fullName but `effect.pokemonCard !== card` must not spoof an Ability; non-entry effects preserve old semantics; ordinary Underworld Door PowerEffect still names itself `Underworld Door`. Only after an owner-reviewed code change should actual pinned Store/host project the first native prompt and independently verify continuation custody. Until then this is a **development proposal**, not executable deployed code.
