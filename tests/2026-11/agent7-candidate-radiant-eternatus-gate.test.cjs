@@ -106,7 +106,8 @@ for(const seat of [0,1]){
     const query=deck(seat);
     query.source.effectName='Climactic Gate';
     request.prompt=query;
-    assert.deepEqual(policy.decide(request),{kind:'select-choice',token:'empty'});
+    assert.deepEqual(policy.decide(request),
+      {kind:'abstain',reasonCode:'UNTRUSTED_RADIANT_GATE_VMAX_PROMPT'});
   });
   test('voluntary Gate declines when Bench full or VMAX already established, seat='+seat,()=>{
     const {policy,request,view}=setup(seat);

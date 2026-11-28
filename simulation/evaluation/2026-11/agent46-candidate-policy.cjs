@@ -1121,7 +1121,10 @@ function choosePrompt(view, prompt, receipt) {
     case 'AttachEnergyPrompt':
       return chooseUnderworldDoorAttachment(view, prompt);
     case 'ChooseCardsPrompt':
-      return sourceRadiantGate(prompt)
+      // A malformed Radiant provenance must never fall through to generic
+      // deck search, where a superficially useful VMAX could be selected.
+      return prompt.source?.sourcePrinting==='Radiant Eternatus CRZ 105'||
+        prompt.source?.effectName==='Radiant Eternatus'
         ? chooseRadiantGateVmax(view,prompt)
         : chooseCardCombination(view,prompt);
     case 'ChoosePokemonPrompt':
