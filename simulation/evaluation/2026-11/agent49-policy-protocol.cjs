@@ -900,7 +900,7 @@ function validatePrompt(prompt, seat) {
     const meta = prompt.publicMetadata;
     if (source.sourceKind !== 'card-effect' ||
         !/^Articuno-GX CES(?: 31)?$/.test(source.sourcePrinting ?? '') ||
-        source.effectName !== 'Legendary Ascent' ||
+        !['Legendary Ascent', 'Articuno-GX'].includes(source.effectName) ||
         meta.selectionType !== 'energy-transfer' ||
         meta.ownerSeat !== 'actor' || meta.sourceZone !== 'bench' ||
         meta.targetZone !== 'active' || meta.allowCancel !== false ||
