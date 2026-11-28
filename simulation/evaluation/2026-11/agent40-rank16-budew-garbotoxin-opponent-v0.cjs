@@ -329,11 +329,18 @@ function secretBoxSearch(prompt,cards,min,max,o){
   {kind:'select-choices',tokens:chosen.map(c=>c.token)}:
   pickRows(prompt,[],min,max,()=>0);
 }
+function activeMimikyuSafeguard(o){
+ const p=o.opponentPublic?.active;
+ if(!match(p?.printing,/^Mimikyu PAL 97\b/i))return false;
+ const suppression=list(p.abilitySuppressions).find(x=>x.abilityName==='Safeguard');
+ return suppression?.suppressed!==true;
+}
 function projectedClawDamage(action,o){
  const meta=action.publicMetadata||{},active=o.ownPublic?.active,target=o.opponentPublic?.active;
  if(!active||!match(active.printing,PRINT.mega)||!target||
     meta.attackCostPayable!==true||meta.hasPrevention===true||
     meta.hasUnmodeledModifier===true)return null;
+ if(activeMimikyuSafeguard(o))return 0;
  if(Number.isFinite(meta.damageAfterWeakness))return meta.damageAfterWeakness;
  let d=Number.isFinite(meta.damage)?meta.damage:200;
  if(!Number.isFinite(meta.damage)&&toolEnabled(o)&&
@@ -357,6 +364,7 @@ function prizeYield(p){
 function clawProjectedKnockoutScore(action,o){
  const damage=projectedClawDamage(action,o),target=o.opponentPublic?.active;
  const hp=target&&Number.isFinite(target.hp)&&Number.isFinite(target.damage)?target.hp-target.damage:null;
+ if(activeMimikyuSafeguard(o))return 145; // Claw's hand discard may still resolve
  if(damage===null||hp===null||hp<=0||damage<hp)return 295;
  const liability=prizeYield(target);
  if(liability>=o.ownPublic?.prizeCount)return 965;
@@ -861,4 +869,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,regidragoPayloadCount,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,toolEnabled,garbotoxinStatus,liveGarbotoxin};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,activeMimikyuSafeguard,regidragoPayloadCount,karenDenialScore,vsSeekerDenialScore,battleCompressorKarenLineScore,plumeriaDenialScore,templeStrandsApexDragon,templeStrandsIronThorns,guzmaRootScore,guzmaTargetScore,benchSupportAbilityUsable,benchSupportFits,benchSupportOnceThisTurnAlreadyUsed,forestSealLinePending,toolEnabled,garbotoxinStatus,liveGarbotoxin};
