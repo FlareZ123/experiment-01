@@ -23,6 +23,7 @@ const PRINT = Object.freeze({
   budew: /^Budew ASC 16\b/i,
   lilliesDetermination: /^Lillie's Determination MEG 119\b/i,
   carmine: /^Carmine TWM 145\b/i,
+  marnie: /^Marnie SSH 169\b/i,
   iono: /^Iono PAL 185\b/i,
   roxanne: /^Roxanne ASR 150\b/i,
   guzma: /^Guzma BUS 115\b/i,
@@ -309,6 +310,9 @@ function cardSearchScore(choice, observation) {
   if (matches(printing, PRINT.iono)) {
     return supporterAvailable(observation) && opponentHandCount(observation) >= 4 ? 150 : 0;
   }
+  if (matches(printing, PRINT.marnie)) {
+    return supporterScore(printing, observation);
+  }
   if (matches(printing, PRINT.roxanne)) {
     return supporterAvailable(observation) && (observation.opponentPublic?.prizeCount ?? 6) <= 3 ? 175 : 0;
   }
@@ -317,7 +321,7 @@ function cardSearchScore(choice, observation) {
   }
   if (matches(printing, PRINT.vs)) {
     return supporterAvailable(observation) &&
-      [PRINT.guzma, PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination]
+      [PRINT.guzma, PRINT.marnie, PRINT.wally, PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination]
         .some(pattern => discardHas(observation.ownPublic, pattern)) ? 155 : 0;
   }
   if (matches(printing, PRINT.temple)) return list(observation.opponentPublic?.stadium).length > 0 ? 95 : 15;
@@ -335,6 +339,7 @@ function discardScore(choice, observation) {
   if (matches(printing, PRINT.tapuKoko) && !hasTapuKoko(observation)) return 0;
   if (matches(printing, PRINT.dedenne) && !hasGarbodor(observation) && handCount(observation) <= 4) return 0;
   if (matches(printing, PRINT.guzma) && supporterAvailable(observation) && benchCount(observation.opponentPublic) > 0) return 0;
+  if (matches(printing, PRINT.marnie) && supporterScore(printing, observation) > 0) return 0;
   if ([PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination, PRINT.crispin, PRINT.wally, PRINT.karen]
     .some(pattern => matches(printing, pattern))) return 0;
   if (matches(printing, PRINT.vs) &&
@@ -360,6 +365,7 @@ function discardScore(choice, observation) {
 function protectedHandCard(card, observation) {
   const printing = textOf(card);
   const patterns = [PRINT.secret, PRINT.garbodor, PRINT.tapuKoko, PRINT.guzma, PRINT.carmine,
+    PRINT.marnie,
     PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination, PRINT.crispin, PRINT.wally, PRINT.karen,
     PRINT.vs, PRINT.forest, PRINT.float, PRINT.boost];
   if (patterns.some(pattern => matches(printing, pattern))) return true;
@@ -429,6 +435,13 @@ function wallyLineReady(observation) {
     !hasGarbodor(observation) && deckCount(observation) > 0;
 }
 function supporterScore(card, observation) {
+  if (matches(card, PRINT.marnie)) {
+    const opponentHand = opponentHandCount(observation);
+    const ownHand = handCount(observation);
+    return supporterAvailable(observation) && deckCount(observation) > 0 &&
+      (opponentHand >= 5 && ownHand <= 4) ?
+      (opponentHand >= 7 ? 240 : 185) : 0;
+  }
   if (matches(card, PRINT.wally)) return wallyLineReady(observation) ?
     (observation.globalTurn <= 2 ? 330 : 260) : 0;
   if (matches(card, PRINT.guzma)) {
@@ -543,7 +556,7 @@ function scoreAction(item, request) {
       matches(row.pokemon.printing, PRINT.trubbish) && row.pokemon.lastPlayedOrEvolvedTurn <= observation.globalTurn);
     return target && !hasGarbodor(observation) ? 170 : 0;
   }
-  if ([PRINT.guzma, PRINT.wally, PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination]
+  if ([PRINT.guzma, PRINT.wally, PRINT.marnie, PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination]
     .some(pattern => matches(printing, pattern))) return supporterScore(printing, observation);
   if (matches(printing, PRINT.dark)) {
     const row = slots(own).find(value => value.pokemon.printing === item.targetPrinting);
@@ -631,7 +644,7 @@ function category(printing) {
     PRINT.rod, PRINT.pokemonCommunication, PRINT.heavyBall, PRINT.fieldBlower, PRINT.vs, PRINT.vip]
     .some(pattern => matches(printing, pattern))) return 'item';
   if ([PRINT.float, PRINT.forest, PRINT.muscle].some(pattern => matches(printing, pattern))) return 'tool';
-  if ([PRINT.guzma, PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination,
+  if ([PRINT.guzma, PRINT.marnie, PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination,
     PRINT.crispin, PRINT.wally, PRINT.karen].some(pattern => matches(printing, pattern))) return 'supporter';
   if (matches(printing, PRINT.temple)) return 'stadium';
   return null;
