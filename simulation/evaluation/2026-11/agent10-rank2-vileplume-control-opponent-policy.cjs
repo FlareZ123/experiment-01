@@ -1208,10 +1208,59 @@ function engineSetupDecision(request) {
       matches(card,PRINT.jetEnergy)||matches(card,PRINT.captureEnergy)||
       matches(card,PRINT.memoryEnergy)||matches(card,PRINT.grassEnergy));
     const immediateEvolutionRoute=tm&&energy&&(hasStageBasic||hasFanCall);
-    // Budew's Itchy Pollen is a guaranteed zero-Energy one-turn Item lock.
-    // Prefer it to an idle Bunnelby only with a complete observed hand and no
-    // directly funded TM Evolution attack route for the opening turn.
-    const budewLockLead=setupHand.length>=7&&!immediateEvolutionRoute&&
+    const halaHeld=setupHand.some(card=>matches(card,PRINT.guzmaHala));
+    const accessibleHala=halaHeld||
+      (setupHand.some(card=>matches(card,PRINT.tagCall))&&
+       sourceCopyPossible(request.observation,PRINT.guzmaHala));
+    let fundedViaHala=false;
+    // A direct TM/Jet pair is not the only T1 Evolution line: Guzma & Hala
+    // can fetch both, and Tag Call can find that Supporter. Check payment
+    // after the exact proposed setup to avoid optimistic connector counting.
+    if(accessibleHala&&meta.maximumCount>=2&&(hasStageBasic||hasFanCall)&&
+       (tm||sourceCopyPossible(request.observation,PRINT.tmEvolution))&&
+       (energy||sourceCopyPossible(request.observation,PRINT.jetEnergy))){
+      const active=selected.find(row=>matches(row.printing,PRINT.bunnelby));
+      if(active){
+        const chosen=[active],used=new Set([active.token]);
+        for(const pattern of [PRINT.oddish,PRINT.lillipup,PRINT.pidgey,
+          PRINT.fanRotom,PRINT.relicanth,PRINT.bunnelby]){
+          if(chosen.length>=Math.min(meta.maximumCount,5))break;
+          if(matches(active.printing,pattern))continue;
+          const next=selected.find(row=>!used.has(row.token)&&
+            matches(row.printing,pattern));
+          if(next){chosen.push(next);used.add(next.token);}
+        }
+        const hasTarget=chosen.slice(1).some(row=>
+          [PRINT.oddish,PRINT.lillipup,PRINT.pidgey,PRINT.fanRotom].some(p=>
+            matches(row.printing,p)));
+        if(hasTarget){
+          const remaining=setupHand.slice();
+          for(const row of chosen){
+            const i=remaining.findIndex(card=>samePrinting(card,row.printing));
+            if(i>=0)remaining.splice(i,1);
+          }
+          const source=halaHeld?PRINT.guzmaHala:PRINT.tagCall;
+          const sourceIndex=remaining.findIndex(card=>matches(card,source));
+          if(sourceIndex>=0)remaining.splice(sourceIndex,1);
+          let reserveTool=false,reserveEnergy=false;
+          const expendable=remaining.filter(card=>{
+            if(!reserveTool&&matches(card,PRINT.tmEvolution)){
+              reserveTool=true;return false;
+            }
+            if(!reserveEnergy&&[PRINT.jetEnergy,PRINT.captureEnergy,
+              PRINT.memoryEnergy,PRINT.grassEnergy].some(p=>matches(card,p))){
+              reserveEnergy=true;return false;
+            }
+            return discardPriority({printing:card},request.observation)>=48;
+          });
+          fundedViaHala=expendable.length>=2;
+        }
+      }
+    }
+    // Budew's Itchy Pollen costs no Energy, but funded T1 Evolution can be
+    // more valuable. An unpayable Hala connector is not a real line.
+    const budewLockLead=setupHand.length>=7&&
+      !immediateEvolutionRoute&&!fundedViaHala&&
       selected.some(row=>matches(row.printing,PRINT.budew))&&
       selected.some(row=>matches(row.printing,PRINT.bunnelby));
     const activeRank=printing=>
