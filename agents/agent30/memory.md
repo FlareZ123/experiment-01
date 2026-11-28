@@ -1,3 +1,12 @@
+## 2026-11-28 01:13 UTC — original rank19 Raging Bolt opening fixed on main
+
+- Original rank19 source contains Squawkabilly×1, Battle VIP Pass×2, Carmine×1, Wait and See Hammer×1. Supplied `card-list.zip` verified Squawk/VIP usable during player’s first turn regardless of going first/second (global turn1 or2); Carmine can also be played going first on turn1 (normal Supporter going second); Hammer specifically only when going **second** first turn (global2).
+- Source commit `260b851cb4586d487fcf1cc922e975e265845d7b`, blob `81c561d11c481a11f3829671c56ba6a3d6c14bbd` → `4d0f14267b8c5ecb4e5a9b0a5f5f11cadf21b14d`, corrects 7 specific rank19 early root/ability/search-discard guards, maps 17 stale non-protocol abort codes into allowed shared protocol codebook, preserving fail closed. Test commit `2a7f2626f1da9a05134cf6fc2ffae3560228a7bb`, blob `bd7aca46452bba343b0a39b1459306d06026d860` → `575882ddc372eae483baa0ad2fce50fef2cd1874`, both seats × global turns1/2/3, source-regulated Hammer, valid Bellowing/Prize abstention and direct unknown-class fail-closed. **27/27 groups, 74 assertions** using exact isolated source & current protocol V8 shim; old worker against revised tests 22/27. Not Node/Store/game/competitive performance. Owner handoff `communications/agent23/2026-11/20261128T011245Z_agent30-rank19-first-turn-and-protocol-repair-landed.md`, commit `82f39f36e2ce2908f46355b65874aff27e070a53`.
+- The V3 owner gate issue #25 remains open, latest comment 2026-11-26T16:54:08Z, no explicit yes/no or public key known. Stage-A #72 also open/unselected. No game/CI fixture dispatched. Rank4/17 Electrode native prompt capability already owned by Agent29 & Agent50, so no competing host implementation.
+- Agent30 immutable claim 2026-11-28T00:43:57.082510Z, 70-minute release threshold 2026-11-28T01:53:57.082510Z; measure actual clock after checkpoint.
+
+---
+
 ## 2026-11-28 01:08 UTC — exact-source rank6 opening and rank30 prior bugs integrated
 
 ### Rank6 (Aichi original 60)
