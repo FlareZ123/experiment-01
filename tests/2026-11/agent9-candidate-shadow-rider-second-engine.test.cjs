@@ -49,7 +49,8 @@ function promptFor(seat,effect,items){
      token:'card'+index,kind:'card',printing:name,label:name,
      publicMetadata:{sourceZone:'deck',ownerSeat:'actor',
        isOwnerVisible:true,choiceIndex:index}
-   })),
+   })).concat([{token:'empty',kind:'empty-selection',
+     label:'Select no card'}]),
    publicMetadata:{selectionType:'card-combination',minimumCount:0,
      maximumCount:1,count:items.length,allowCancel:false,
      sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true}};
