@@ -723,7 +723,7 @@ function cardPriority(printing, observation, context) {
     // The published Aichi Regidrago lists repeatedly use these Dragon
     // attack payloads in discard; Apex Dragon loses access if they are Lost.
     if (regidragoEstablished) {
-      if (/^Dialga-GX UPR(?: \\d+)?/i.test(printing)) return 250;
+      if (/^Dialga-GX UPR(?: \\d+)?/i.test(printing)) return observation.opponentPublic?.publicTurnRestrictions?.gxUsed === true ? 70 : 250;
       if (/^Dragapult ex TWM(?: \\d+)?/i.test(printing)) return 245;
       if (/^(?:Kyurem SFA|Noivern ex PAL|Hisuian Goodra VSTAR LOR|Koraidon ex TEF|Mega Dragonite ex ASC|Salamence ex JTG)(?: \\d+)?/i.test(printing)) return 215;
     }
