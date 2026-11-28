@@ -705,7 +705,8 @@ function chooseCardCombination(view, prompt) {
     'Climactic Gate': 'Radiant Eternatus CRZ 105',
     'Get Lost': 'Girafarig LOT 94',
     'VS Seeker': 'VS Seeker PHF 109',
-    'Night Stretcher': 'Night Stretcher SFA 61'
+    'Night Stretcher': 'Night Stretcher SFA 61',
+    'Star Alchemy': 'Forest Seal Stone SIT 156'
   };
   const effect = prompt.source?.effectName;
   if (Object.hasOwn(ownerSourceBindings, effect) &&
@@ -1390,6 +1391,28 @@ function canGuzmaForAttack(view, receipt) {
 function scoreTrainerPlay(item, view, receipt) {
   const name = item.actorPrinting ?? '';
   const supporterUsed = view.ownTurnResources.supporterPlayedTurn > 0;
+  if (name === 'Forest Seal Stone SIT 156') {
+    const m = item.publicMetadata ?? {};
+    const target = m.targetSeat === 'actor' &&
+      m.isOwnerVisible === true &&
+      m.targetZone === 'active' ? view.ownPublic.active :
+      m.targetSeat === 'actor' && m.isOwnerVisible === true &&
+        m.targetZone === 'bench' && Number.isSafeInteger(m.targetIndex) ?
+        view.ownPublic.bench[m.targetIndex] : null;
+    const stageTags = target?.printed?.subtypes ?? [];
+    const isPokemonV = stageTags.some(tag =>
+      ['V', 'VMAX', 'VSTAR', 'V-UNION', 'POKEMON_V', 'POKEMON_VMAX',
+        'POKEMON_VSTAR'].includes(tag)) ||
+      /(?:\bV\b|\bVMAX\b|\bVSTAR\b)/.test(target?.printing ?? '');
+    if (!target || !isPokemonV || item.targetPrinting !== target.printing ||
+        (target.tools ?? []).length > 0 ||
+        view.ownPublic.publicTurnRestrictions.vstarUsed !== false ||
+        view.ownTurnResources.vstarUsed !== false ||
+        view.ownPublic.deckCount < 1) return -Infinity;
+    // A once-per-game flexible search is valuable once the V can hold the
+    // Tool; do not attach it to a non-V or sacrifice an occupied Tool slot.
+    return 905;
+  }
   if (hasName(name, 'Unfair Stamp') && receipt?.priorOpponentTurnKO?.any === true) return 980;
   if (hasName(name, 'VS Seeker') && !supporterUsed &&
       !handHas(view, 'Arven') && !handHas(view, "Lillie's Determination") &&
@@ -1527,6 +1550,43 @@ function chooseRoot(view, request) {
     return { kind: 'select-action', token: scoredPlays[0].item.token };
   }
 
+  // Exact pinned Forest Seal Stone VSTAR Power is a Tool-sourced ability,
+  // offered by the native frontier on a Pokémon V. Its follow-up deck prompt
+  // is already handled by chooseCardCombination; the root was unreachable.
+  const star = items.find(item => {
+    const meta = item.publicMetadata ?? {};
+    if (item.kind !== 'use-ability' ||
+        meta.abilityName !== 'Star Alchemy' ||
+        meta.sourceSeat !== 'actor' ||
+        !['active', 'bench'].includes(meta.sourceZone) ||
+        view.ownPublic.publicTurnRestrictions.vstarUsed !== false ||
+        view.ownTurnResources.vstarUsed !== false ||
+        view.ownPublic.deckCount < 1) return false;
+    const slot = meta.sourceZone === 'active' ? view.ownPublic.active :
+      Number.isSafeInteger(meta.sourceIndex) ?
+        view.ownPublic.bench[meta.sourceIndex] : null;
+    if (!slot || item.actorPrinting !== slot.printing ||
+        !(slot.tools ?? []).some(tool => tool === 'Forest Seal Stone SIT 156')) return false;
+    return true;
+  });
+  // Star Alchemy is once per game: use while a meaningful missing piece
+  // remains, not simply because a native ability root is offered.
+  const missingVmax = view.ownPublic.bench.some(p => p &&
+      hasName(p.printing, 'Shadow Rider Calyrex V CRE')) &&
+      !boardHas(view, 'Shadow Rider Calyrex VMAX') &&
+      !handHas(view, 'Shadow Rider Calyrex VMAX');
+  const missingV = !boardHas(view, 'Shadow Rider Calyrex V CRE') &&
+    !handHas(view, 'Shadow Rider Calyrex V CRE');
+  const missingMimikyu = opponentHasRegidrago(view) &&
+    !boardHas(view, 'Mimikyu') && !handHas(view, 'Mimikyu');
+  const needPsychic = psychicEnergyCount(view) < 3 && !handHas(view, 'Psychic Energy');
+  if (star && (missingVmax || missingV || missingMimikyu || needPsychic)) {
+    setPolicyAuditRule('ROOT_STAR_ALCHEMY_SEARCH_MISSING_RESOURCE',
+      'FIRST_CERTIFIED_POKEMON_V_TOKEN');
+    recordPolicyAuditRule(star.token, 'FOREST_SEAL_STONE_VSTAR_POWER');
+    return {kind: 'select-action', token: star.token};
+  }
+  
   const retreat = chooseRetreat(view, items, request.publicEventReceipt);
   if (retreat) {
     setPolicyAuditRule('ROOT_RETREAT_ATTACK_IMPROVEMENT', 'SCORE_DESC_NATIVE_FRONTIER_ORDER');
