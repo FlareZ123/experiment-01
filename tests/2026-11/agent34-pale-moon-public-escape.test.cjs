@@ -63,6 +63,23 @@ test('exact pending-target flag changes independently of an identical printed bo
   assert.equal(safe.ownPublic.active.publicRestrictions.pendingPaleMoonGXKnockOut,false);
   validateActorObservation(safe,0);
 });
+test('stale native queued KO on Bench is not a live public Pale Moon threat',()=>{
+  for(const seat of [0,1]) {
+    const players=[player(17,'Shadow Rider Calyrex VMAX CRE 75'),
+      player(19,'Regidrago VSTAR SIT 136')];
+    const owner=players[seat];
+    const moved=owner.active;
+    owner.bench=[moved];
+    owner.active=slot('Mimikyu GRI 58');
+    owner.pendingEndOfTurnEffects=[effect(moved)];
+    const state={players,activePlayer:seat,turn:6,phase:2,prompts:[]};
+    const observation=actorObservation(state,seat);
+    assert.equal(observation.ownPublic.active.publicRestrictions.pendingPaleMoonGXKnockOut,false);
+    assert.equal(observation.ownPublic.bench[0].publicRestrictions.pendingPaleMoonGXKnockOut,false);
+    assert.equal(pendingPaleMoonGXKnockOut(owner,moved),false);
+    validateActorObservation(observation,seat);
+  }
+});
 test('one real native retreat token selected under pending KO and no competing attack',()=>{
   const offered=[{token:'pass',kind:'pass'},retreat(0,'retreat-action-123')];
   assert.deepEqual(choosePaleMoonEscapeRetreat(choiceView(),offered),{
