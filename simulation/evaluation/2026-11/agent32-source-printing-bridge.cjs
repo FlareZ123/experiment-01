@@ -175,4 +175,46 @@ function projectSourcePrintings(observation,frontier,sourceMapsBySeat,options={}
       options.publicEventReceipt??null,mine,other)};
 }
 
-module.exports={buildSourcePrintingMap,projectSourcePrintings};
+
+/**
+ * Host-only admission wrapper: the authenticated native source is validated
+ * before and after source-printing projection. Keep this before the first
+ * worker-input SHA computation, not after a driver request is hashed.
+ *
+ * The caller supplies the already pinned strict protocol; native actions and
+ * physical RNG remain outside this function. This does NOT relax the worker
+ * schema or let the policy see a raw Store, and NEVER changes a native token.
+ */
+function projectAdmittedWorkerParts(parts,sourceMapsBySeat,protocol){
+  const {observation,prompt,publicEventReceipt,actionFrontier}=parts??{};
+  assert.ok(observation&&typeof observation==='object');
+  assert.ok(actionFrontier&&Array.isArray(actionFrontier.items));
+  assert.ok(protocol&&[
+    'validateActorObservation','validatePublicEventReceipt',
+    'validatePrompt','validateFrontier'
+  ].every(k=>typeof protocol[k]==='function'),'strict worker protocol required');
+  const seat=observation.actorSeat;
+  assert.ok(seat===0||seat===1,'actor physical seat must be authoritative');
+  // The raw producer is not allowed to smuggle unclassified fields through
+  // the relabeling boundary. All protocol admission errors propagate.
+  protocol.validateActorObservation(observation,seat);
+  protocol.validatePrompt(prompt??null,seat);
+  protocol.validatePublicEventReceipt(publicEventReceipt??null,observation);
+  const beforeTokens=protocol.validateFrontier(actionFrontier);
+  const projected=projectSourcePrintings(observation,actionFrontier,
+    sourceMapsBySeat,{prompt,publicEventReceipt});
+  protocol.validateActorObservation(projected.observation,seat);
+  protocol.validatePrompt(projected.prompt,seat);
+  protocol.validatePublicEventReceipt(projected.publicEventReceipt,
+    projected.observation);
+  const afterTokens=protocol.validateFrontier(projected.actionFrontier);
+  assert.deepEqual([...beforeTokens],[...afterTokens],
+    'relabeling may not alter the native action token whitelist');
+  assert.deepEqual(
+    projected.actionFrontier.items.map(item=>item.token),
+    actionFrontier.items.map(item=>item.token),
+    'relabeling may not reorder physical native actions');
+  return projected;
+}
+
+module.exports={buildSourcePrintingMap,projectSourcePrintings,projectAdmittedWorkerParts};
