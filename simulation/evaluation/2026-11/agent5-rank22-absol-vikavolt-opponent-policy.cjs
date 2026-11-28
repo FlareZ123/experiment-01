@@ -130,6 +130,17 @@ function supporterAvailable(observation) {
 function energyCount(pokemon) { return list(pokemon?.energies).length; }
 function discardCount(player, pattern) { return list(player?.discard).filter(card => matches(card, pattern)).length; }
 function hasGarbodor(observation) { return count(observation?.ownPublic, PRINT.garbodor) > 0; }
+function garbotoxinLive(observation) {
+  return [observation?.ownPublic, observation?.opponentPublic].some(player =>
+    slots(player).some(row => matches(row.pokemon.printing, PRINT.garbodor) &&
+      list(row.pokemon.tools).length > 0));
+}
+function supportWindowBeforeSelfLock(observation) {
+  if (garbotoxinLive(observation) || benchCount(observation?.ownPublic) >= 5) return false;
+  const hand = list(observation.ownHand);
+  return hand.length <= 4 && hand.some(card => matches(card, PRINT.crobat)) ||
+    supporterAvailable(observation) && hand.some(card => matches(card, PRINT.tapuLele));
+}
 function hasTrubbish(observation) { return count(observation?.ownPublic, PRINT.trubbish) > 0; }
 function hasMegaAbsol(observation) { return count(observation?.ownPublic, PRINT.mega) > 0; }
 function hasTapuKoko(observation) { return count(observation?.ownPublic, PRINT.tapuKoko) > 0; }
@@ -235,10 +246,10 @@ function basicScore(choice, observation) {
   if (matches(printing, PRINT.trubbish)) return !hasGarbodor(observation) && count(own, PRINT.trubbish) < 2 ? 320 : 20;
   if (matches(printing, PRINT.vikavolt)) return count(own, PRINT.vikavolt) < 1 ? 305 : 45;
   if (matches(printing, PRINT.mega)) return count(own, PRINT.mega) < 2 ? 275 : 25;
-  if (matches(printing, PRINT.dedenne)) return !hasGarbodor(observation) && handCount(observation) <= 4 ? 190 : 35;
-  if (matches(printing, PRINT.crobat)) return handCount(observation) <= 4 ? 175 : 35;
+  if (matches(printing, PRINT.dedenne)) return !garbotoxinLive(observation) && handCount(observation) <= 4 ? 190 : 35;
+  if (matches(printing, PRINT.crobat)) return !garbotoxinLive(observation) && handCount(observation) <= 4 ? 175 : 35;
   if (matches(printing, PRINT.squawk)) return observation.globalTurn <= 2 && handCount(observation) <= 2 ? 155 : 15;
-  if (matches(printing, PRINT.tapuLele)) return supporterAvailable(observation) ? 135 : 35;
+  if (matches(printing, PRINT.tapuLele)) return !garbotoxinLive(observation) && supporterAvailable(observation) ? 135 : 35;
   if (matches(printing, PRINT.tapuKoko)) return !hasTapuKoko(observation) && discardCount(own, PRINT.lightning) >= 2 ? 145 : 45;
   if (matches(printing, PRINT.budew)) return count(own, PRINT.budew) === 0 && observation.globalTurn <= 3 ? 75 : 10;
   return 0;
@@ -334,7 +345,7 @@ function protectedHandCard(card, observation) {
   if (matches(printing, PRINT.trubbish)) return !hasGarbodor(observation) && count(observation.ownPublic, PRINT.trubbish) < 2;
   if (matches(printing, PRINT.mega)) return count(observation.ownPublic, PRINT.mega) < 2;
   if (matches(printing, PRINT.vikavolt)) return count(observation.ownPublic, PRINT.vikavolt) < 1;
-  if (matches(printing, PRINT.dedenne)) return !hasGarbodor(observation) && handCount(observation) <= 4;
+  if (matches(printing, PRINT.dedenne)) return !garbotoxinLive(observation) && handCount(observation) <= 4;
   return false;
 }
 function safeToDiscardHand(observation) {
@@ -425,18 +436,18 @@ function scoreAction(item, request) {
   if (item.kind === 'use-ability') {
     const ability = metadata.abilityName ?? '';
     if (/^Dedechange$/i.test(ability)) {
-      return !hasGarbodor(observation) && hand.length <= 4 && deckCount(observation) > 0 &&
+      return !garbotoxinLive(observation) && hand.length <= 4 && deckCount(observation) > 0 &&
         safeToDiscardHand(observation) ? 235 : 0;
     }
     if (/^Star Alchemy$/i.test(ability)) {
       const crobatHasStone = slots(own).some(row =>
         matches(row.pokemon.printing, PRINT.crobat) && list(row.pokemon.tools).some(tool => matches(tool, PRINT.forest)));
-      return crobatHasStone && !observation.ownTurnResources?.vstarUsed && deckCount(observation) > 0
+      return crobatHasStone && !garbotoxinLive(observation) && !observation.ownTurnResources?.vstarUsed && deckCount(observation) > 0
         ? (hasTrubbish(observation) && !hasGarbodor(observation) ? 255 : 205) : 0;
     }
-    if (/^Dark Asset$/i.test(ability)) return hand.length < 6 && deckCount(observation) > 0 ? 180 : 0;
+    if (/^Dark Asset$/i.test(ability)) return !garbotoxinLive(observation) && hand.length < 6 && deckCount(observation) > 0 ? (hasGarbodor(observation) ? 310 : 180) : 0;
     if (/^Squawk and Seize$/i.test(ability)) {
-      return observation.globalTurn <= 2 && hand.length <= 2 && safeToDiscardHand(observation) ? 220 : 0;
+      return !garbotoxinLive(observation) && observation.globalTurn <= 2 && hand.length <= 2 && safeToDiscardHand(observation) ? 220 : 0;
     }
     /* Dance of the Ancients is deliberately held out until its two-recipient
        native prompt sequence and Lost Zone settlement are source-verified. */
@@ -468,10 +479,10 @@ function scoreAction(item, request) {
   if (matches(printing, PRINT.vikavolt)) return count(own, PRINT.vikavolt) < 1 ? 205 : 30;
   if (matches(printing, PRINT.garbodor)) return hasTrubbish(observation) && !hasGarbodor(observation) ? 240 : 55;
   if (matches(printing, PRINT.mega)) return count(own, PRINT.mega) < 2 ? 190 : 35;
-  if (matches(printing, PRINT.dedenne)) return !hasGarbodor(observation) && hand.length <= 4 ? 165 : 30;
-  if (matches(printing, PRINT.crobat)) return hand.length <= 4 ? 125 : 30;
-  if (matches(printing, PRINT.squawk)) return observation.globalTurn <= 2 && hand.length <= 2 ? 100 : 10;
-  if (matches(printing, PRINT.tapuLele)) return supporterAvailable(observation) ? 120 : 30;
+  if (matches(printing, PRINT.dedenne)) return !garbotoxinLive(observation) && hand.length <= 4 && safeToDiscardHand(observation) ? 165 : 0;
+  if (matches(printing, PRINT.crobat)) return !garbotoxinLive(observation) && hand.length <= 4 ? (hasGarbodor(observation) ? 310 : 125) : 0;
+  if (matches(printing, PRINT.squawk)) return !garbotoxinLive(observation) && observation.globalTurn <= 2 && hand.length <= 2 && safeToDiscardHand(observation) ? 100 : 0;
+  if (matches(printing, PRINT.tapuLele)) return !garbotoxinLive(observation) && supporterAvailable(observation) ? (hasGarbodor(observation) ? 305 : 120) : 0;
   if (matches(printing, PRINT.tapuKoko)) return !hasTapuKoko(observation) ? 105 : 0;
   if (matches(printing, PRINT.budew)) return count(own, PRINT.budew) === 0 ? 65 : 0;
   if (matches(printing, PRINT.vip)) return observation.globalTurn <= 2 && benchCount(own) < 5 ? 240 : 0;
@@ -542,7 +553,8 @@ function scoreAction(item, request) {
   if ([PRINT.float, PRINT.forest, PRINT.muscle].some(pattern => matches(printing, pattern))) {
     const row = slots(own).find(value => value.pokemon.printing === item.targetPrinting);
     if (!row || list(row.pokemon.tools).length > 0) return 0;
-    if (matches(printing, PRINT.float) && matches(row.pokemon.printing, PRINT.garbodor)) return 270;
+    if (matches(printing, PRINT.float) && matches(row.pokemon.printing, PRINT.garbodor))
+      return supportWindowBeforeSelfLock(observation) ? 60 : 270;
     if (matches(printing, PRINT.float) && matches(row.pokemon.printing, PRINT.trubbish) && !hasGarbodor(observation)) return 225;
     if (matches(printing, PRINT.forest) && matches(row.pokemon.printing, PRINT.crobat)) return 180;
     if (matches(printing, PRINT.muscle) && matches(row.pokemon.printing, PRINT.mega)) return 150;
@@ -854,10 +866,10 @@ function promptDecision(request) {
   if (['ConfirmPrompt', 'SelectPrompt', 'SelectOptionPrompt'].includes(prompt.promptType)) {
     const yes = choices.find(choice => /^(yes|true|confirm)$/i.test(choice.label ?? ''));
     const no = choices.find(choice => /^(no|false|decline|cancel)$/i.test(choice.label ?? ''));
-    const accept = (/dedechange/.test(source) && !hasGarbodor(observation) &&
+    const accept = (/dedechange/.test(source) && !garbotoxinLive(observation) &&
       handCount(observation) <= 4 && safeToDiscardHand(observation)) ||
-      (/dark asset/.test(source) && handCount(observation) < 6 && deckCount(observation) > 0) ||
-      (/squawk and seize/.test(source) && observation.globalTurn <= 2 &&
+      (/dark asset/.test(source) && !garbotoxinLive(observation) && handCount(observation) < 6 && deckCount(observation) > 0) ||
+      (/squawk and seize/.test(source) && !garbotoxinLive(observation) && observation.globalTurn <= 2 &&
         handCount(observation) <= 2 && safeToDiscardHand(observation));
     if (accept && yes) return { kind: 'select-choice', token: yes.token };
     if (no) return { kind: 'select-choice', token: no.token };
