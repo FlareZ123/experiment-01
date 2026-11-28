@@ -212,10 +212,13 @@ for(const seat of [0,1]){
       'no invented action: worker token resolves to original host physical Action');
     const handEnergy=owner.hand.cards[0];
     const beforeDeck=owner.deck.cards.length;
+    const beforeHand=owner.hand.cards.length;
+    const beforeBenchVEnergy=owner.bench[0].energies.cards.length;
     const beforeTurn=state.turn;
     const beforeEnergyStamp=owner.energyPlayedTurn;
     const hook=installPromptProvenanceHook(store);
     let projectedPrompt=null,chosenPromptToken=null,promptCount=0;
+    let promptDecisionAudit=null;
     try{
       store.dispatch(physicalAction);
       for(let i=0;i<32;i++){
@@ -248,6 +251,7 @@ for(const seat of [0,1]){
         assert.ok(req.prompt.choices.every(choice=>
           choice.printing==='Psychic Energy MEE 13'));
         const answer=checkedDecision(worker,req,init,1);
+        promptDecisionAudit=answer.policyAudit;
         assert.equal(answer.decision.kind,'select-choice');
         const chosen=req.prompt.choices.find(c=>c.token===answer.decision.token);
         assert.equal(chosen?.publicMetadata?.benchIndex,0,
@@ -297,7 +301,8 @@ for(const seat of [0,1]){
         publicEventReceipt:adapters.eventReceipt(state,seat),
         actionFrontier:post.actionFrontier
       };
-      const postDecision=checkedDecision(worker,postReq,init,2).decision;
+      const postResult=checkedDecision(worker,postReq,init,2);
+      const postDecision=postResult.decision;
       assert.ok(['select-action','abstain'].includes(postDecision.kind),
         'spent Door must cause a strict worker alternate root or typed abstention');
       if(postDecision.kind==='select-action'){
@@ -323,13 +328,45 @@ for(const seat of [0,1]){
           count:row.count,name:row.name,printing:row.printing
         })),
         competingManualEnergyActions:competing.length,
+        competingManualEnergyTokens:competing.map(item=>item.token),
+        nativeLegalRootTokens:available.map(item=>({
+          token:item.token,kind:item.kind,actorPrinting:item.actorPrinting??null
+        })),
+        actorProjection:{
+          decisionKind:initial.decisionKind,active:initial.ownPublic.active?.printing,
+          benched:initial.ownPublic.bench.map(slot=>slot?.printing??null),
+          ownHand:initial.ownHand.slice(),
+          opponentActive:initial.opponentPublic.active?.printing,
+          ownPrizeSlotCount:initial.ownPublic.prizeSlots.length,
+          opponentPrizeSlotCount:initial.opponentPublic.prizeSlots.length
+        },
+        strictRootDecision:{
+          kind:rootDecision.decision.kind,selectedTokens:rootDecision.policyAudit.selectedTokens,
+          auditRule:rootDecision.policyAudit.selectionRuleCode,
+          tieBreak:rootDecision.policyAudit.tieBreakCode
+        },
         selectedRootToken:rootDecision.decision.token,
         selectedPromptToken:chosenPromptToken,
         promptType:projectedPrompt?.promptType,
+        promptSource:projectedPrompt?.source??null,
+        promptChoices:projectedPrompt?.choices??[],
+        strictPromptDecision:{
+          selectedTokens:promptDecisionAudit?.selectedTokens??[],
+          auditRule:promptDecisionAudit?.selectionRuleCode??null,
+          tieBreak:promptDecisionAudit?.tieBreakCode??null
+        },
         postDoorDecisionKind:postDecision.kind,
+        postDoorAuditRule:postResult.policyAudit.selectionRuleCode,
         postDoorSelectedToken:postDecision.kind==='select-action'?postDecision.token:null,
         postDoorRemainingLegal:false,
         drawnCards:beforeDeck-owner.deck.cards.length,
+        physicalDelta:{
+          deckBefore:beforeDeck,deckAfter:owner.deck.cards.length,
+          handBefore:beforeHand,handAfter:owner.hand.cards.length,
+          benchVEnergyBefore:beforeBenchVEnergy,
+          benchVEnergyAfter:owner.bench[0].energies.cards.length,
+          turnBefore:beforeTurn,turnAfter:state.turn
+        },
         manualEnergyStampPreserved:true,
         settledNative:true,
         gamesPlayed:0
