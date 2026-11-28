@@ -934,6 +934,12 @@ function chooseAttackPrompt(view, prompt, receipt) {
     if (effectName === 'Apex Dragon' && attackName === 'Timeless-GX' &&
         hasDialga && gxUnused && dragonTarget &&
         fairyZoneStatus(view) === true) score = 50000;
+    else if (effectName === 'Apex Dragon' && attackName === 'Timeless-GX' &&
+        hasDialga && gxUnused) {
+      // The extra-turn effect is a discrete tempo resource, not merely
+      // Timeless-GX's 150 written damage; preserve it without Fairy Zone.
+      score = 3000;
+    }
     else if (effectName === 'Copycat' && attackName === 'Apex Dragon' &&
         Array.isArray(receipt?.opponentCopycatChoices) &&
         receipt.opponentCopycatChoices.some(row =>
