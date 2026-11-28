@@ -376,6 +376,23 @@ function guzmaTargetWouldDisableOwnLock(target) {
     matches(target?.printing, /^Galarian Weezing RCL(?: \d+)?\b/i);
 }
 
+// Tool reductions are not all "no Retreat Cost". U-Turn Board and
+// Escape Board only remove one Colorless, and Air Balloon removes two;
+// on an unpowered 2- or 3-cost target they may leave an unaffordable
+// residual Retreat Cost. Float Stone grants no Retreat Cost outright.
+// Other live effects can still modify the actual value; this deliberately
+// calculates only the nominal printed value (not a Store legality claim).
+function nominalToolGrantsFreeRetreat(target) {
+  const cost = list(target?.printed?.retreatCost).length;
+  return list(target?.tools).some(tool => {
+    const name = printingValue(tool);
+    if (/^Float Stone\b/i.test(name)) return true;
+    if (/^Air Balloon\b/i.test(name)) return cost <= 2;
+    if (/^(?:Escape Board|U-Turn Board)\b/i.test(name)) return cost <= 1;
+    return false;
+  });
+}
+
 function nominalGuzmaRetreatTrap(target, opponent) {
   if (!target || guzmaTargetWouldDisableOwnLock(target) ||
       list(target.energies).length > 0 ||
@@ -385,10 +402,7 @@ function nominalGuzmaRetreatTrap(target, opponent) {
   if (opponentGarbotoxinStatus(opponent) === 'live' &&
       list(target.tools).some(tool =>
         /^Tool Jammer BST(?: \d+)?\b/i.test(printingValue(tool)))) return false;
-  if (list(target.tools).some(tool =>
-    /Float Stone|Air Balloon|Escape Board|U-Turn Board/i.test(printingValue(tool)))) {
-    return false;
-  }
+  if (nominalToolGrantsFreeRetreat(target)) return false;
   if (opponentSkyTransportMayBeLive(opponent)) return false;
   if (opponentFarFlyingMeteorMayBeLive(opponent)) return false;
   if (opponentSkylinerMayBeLive(opponent)) {
