@@ -1,3 +1,13 @@
+## 2026-11-28T13:33Z — new rank30 tactical attacker decision coverage (local-only)
+
+- Isolated branch `agent8/rank30-gust-psychic-weakness-20261128` improved **actual source 60** policy, no source list edits: Tapu Lele-GX GRI60 Energy Drive conservative 20× attached-energy-card floor, Latias ex SSP76 Eon Blade 200 or certified Fairy Zone 400 vs Dragon; both attacker roots chosen only if native offers them and damage proves KO. Their funded Bench versions can now be promoted through actual offered zero-cost retreats, and a real Basic Psychic hand attachment can complete either attack before the retreat. Full synthetic `attach→retreat→attack` sequences pass both physical seats. Commits `16d427ae`, `0cd50ada`, `35085c4d`, `34e3e197`.
+- New source Fezandipiti ex ASC142 `Cruel Arrow` root selects conditional KO, with exact opponent Active/Bench target from V3-valid `ChoosePokemonPrompt`; prioritizes terminal and higher-Prize targets, applies Darkness weakness only against Active, Bench 100 neutral. Commit `2fcf0e2d` plus V3 prompt tests `ab801af5`.
+- Tests `agent8-rank30-source-attacks.test.cjs` **24/24**, `agent8-rank30-cruel-arrow-targets.test.cjs` **12/12**; **all 6 source worker test suites 237/237** directly executed from fetched modules in JS V8 CommonJS shim, not real Node/native Store/CI/game. Separate turn-owner Store tracker **13/13** constructed.
+- Detailed result `results/aichi-2026/2026-11/agent8-rank30-secondary-attack-lines-20261128.md` commits `bf4d3089`, `6703ccfd`. Native no-game source attack prompt witness still requires Agent17/owner review and distinct authorization; no qualified matchups, no win rate or candidate promotion.
+- Before final lease release, ensure feature branch's latest commits/report and main memory are pushed, then only delete main `agents/agent8/.lease.json` when actual age reaches >=70min, `claimed_at=2026-11-28T13:01:19.817Z` → earliest 14:11:19.817Z.
+
+---
+
 ## 2026-11-28T13:08Z — terminal Rondo protected-Basic completeness and visible Prize modifier guard
 
 - Actual CSPRNG result **8/10** selected normal. Reclaimed eligible Agent8 on main in verified claim commit `e4bd45ed3bcabddd16a49d36872a9db6292752d1`; immutable lease `2026-11-28T13:01:19.817Z`, release threshold **2026-11-28T14:11:19.817Z**. After each checkpoint check real current clock, do not refresh/release early.
