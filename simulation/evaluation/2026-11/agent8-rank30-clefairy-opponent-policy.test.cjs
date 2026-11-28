@@ -1104,3 +1104,34 @@ for(const seat of [0,1]) {
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' Pokemon-play lock prevents Sky Field and Quick Ball phantom KO',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active={printing:clef,energies:[psychic,psychic]};
+    r.observation.opponentPublic.active={printing:'Iron Thorns ex TWM 77',
+      hp:230,damage:0};
+    r.observation.ownPublic.bench=[
+      b('Unown AOR 30'),b('Unown AOR 30'),b('Latias ex SSP 76'),
+      b('Crobat V DAA 104'),b('Squawkabilly ex PAL 169')];
+    r.observation.opponentPublic.bench=[
+      b('Iron Thorns ex TWM 77'),b('Iron Thorns ex TWM 77'),
+      b('Iron Thorns ex TWM 77')];
+    r.observation.ownHand=['Sky Field ROS 89','Unown AOR 30',
+      'Minior PAR 99','Unown AOR 30'];
+    r.actionFrontier.items=[root('play-card','Sky Field ROS 89','sky')];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'sky'});
+    r.observation.ownTurnResources.pokemonPlayLocked=true;
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    r.observation.ownPublic.stadium=['Sky Field ROS 89'];
+    r.observation.ownPublic.bench.push(b('Dedenne-GX UNB 57'));
+    r.observation.opponentPublic.bench.push(b('Iron Thorns ex TWM 77'));
+    r.observation.ownHand=['Quick Ball FST 237',vip];
+    r.observation.globalTurn=4;
+    r.actionFrontier.items=[root('play-card','Quick Ball FST 237','qb')];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+    r.observation.ownTurnResources.pokemonPlayLocked=false;
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'qb'});
+  });
+}
