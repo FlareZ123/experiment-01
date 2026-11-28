@@ -2230,6 +2230,49 @@ test('Artazon recognizes missing initial Basic even without partial evolution li
    kind:'select-action',token:'artazon'});
 });
 
+
+test('Guzma & Hala plays Stadium-only mode with zero discard cards for Grand Tree',()=>{
+  const own=player({active:pokemon('Bunnelby PRC 121'),
+    bench:[pokemon('Oddish UNB 5',{lastPlayedOrEvolvedTurn:1})]});
+  const root=rootRequest({ownHand:['Guzma & Hala CEC 193'],
+    ownPublic:own,globalTurn:3,
+    items:[{token:'hala',kind:'play-card',actorPrinting:'Guzma & Hala CEC 193',
+      publicMetadata:{cardType:'trainer',handIndex:0}},
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(root),{kind:'select-action',token:'hala'});
+  const mode=promptRequest({promptType:'SelectOptionPrompt',
+    source:actorChoiceSource('Guzma & Hala CEC 193','Guzma & Hala'),
+    choices:[{token:'stadium-only',kind:'option',label:'Do not discard 2 cards',
+      publicMetadata:{choiceIndex:0,selectionType:'option'}},
+      {token:'full',kind:'option',label:'Discard 2 cards from your hand',
+      publicMetadata:{choiceIndex:1,selectionType:'option'}}],
+    publicMetadata:{count:2,minimumCount:1,maximumCount:1,
+      allowCancel:false,isSecret:false,selectionType:'option'},
+    observation:{ownHand:[],ownPublic:own}});
+  assert.deepEqual(checkedDecision(mode),{
+    kind:'select-choice',token:'stadium-only'});
+});
+test('Guzma & Hala Stadium-only mode establishes Artazon without development Basics',()=>{
+  const request=rootRequest({ownHand:['Guzma & Hala CEC 193'],
+    ownPublic:player({active:pokemon('Fan Rotom SCR 118')}),
+    items:[{token:'hala',kind:'play-card',actorPrinting:'Guzma & Hala CEC 193',
+      publicMetadata:{cardType:'trainer',handIndex:0}},
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(request),{
+    kind:'select-action',token:'hala'});
+});
+test('Guzma & Hala is held if all remaining Stadiums are already visible in hand/discard',()=>{
+  const request=rootRequest({ownHand:[
+      'Guzma & Hala CEC 193','Grand Tree SCR 136'],
+    ownPublic:player({active:pokemon('Fan Rotom SCR 118'),discard:[
+      'Artazon PAL 171','Artazon PAL 171']}),
+    items:[{token:'hala',kind:'play-card',actorPrinting:'Guzma & Hala CEC 193',
+      publicMetadata:{cardType:'trainer',handIndex:0}},
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(request),{
+    kind:'select-action',token:'pass'});
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
