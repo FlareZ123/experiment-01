@@ -164,3 +164,51 @@ test('VS Seeker terminal Pass root uses exact source Item and preserves strict a
   protocol.validatePolicyAudit(out.policyAudit,request,out.decision,version);
   assert.equal(out.policyAudit.selectionRuleCode,'PUBLIC_PALE_MOON_TERMINAL_ESCAPE');
 });
+
+test('Arven owner-deck Tool recovery is an opt-in selected-root plus audited multi-select',()=>{
+  const active={printing:'Shadow Rider Calyrex VMAX CRE 75',
+    tools:[],specialConditions:[],
+    printed:{retreatCost:['Colorless','Colorless']},
+    publicRestrictions:{pendingPaleMoonGXKnockOut:true,cannotRetreat:false,
+      cannotRetreatNextTurn:false,cannotRetreatWhileActive:false}};
+  const observation={...rootView(),ownPublic:{
+    ...rootView().ownPublic,active,bench:[{printing:'Mimikyu GRI 58'}],
+    deckCount:29,stadium:[],
+    publicTurnRestrictions:{alteredCreationDamage:false,usedAlteredCreation:false,
+      supporterPlayLocked:false,stadiumAndToolHaveNoEffectTurnsRemaining:0}},
+    opponentPublic:{prizeCount:1,active:{tools:[]},stadium:[],
+      publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:0}},
+    ownTurnResources:{supporterPlayedTurn:0,supporterPlayLocked:false,
+      toolPlayLocked:false,retreatedTurn:0},
+    ownHand:['Arven SVI']};
+  const request={observation,actionFrontier:{items:[pass,...other,
+    {token:'arven-native-root',kind:'play-card',actorPrinting:'Arven SVI'}]}};
+  const wrapped=withPaleMoonTerminalEscapePolicy(policy());
+  const root=wrapped.decideWithAudit(request);
+  assert.deepEqual(root.decision,{kind:'select-action',token:'arven-native-root'});
+  protocol.validatePolicyAudit(root.policyAudit,request,root.decision,version);
+  const selected={token:'tool-choice',kind:'card',printing:'Float Stone BKT',
+    publicMetadata:{sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true}};
+  const irrelevant={token:'item-choice',kind:'card',printing:'Fog Crystal CRE',
+    publicMetadata:{sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true}};
+  const promptRequest={observation:{...observation,decisionKind:'owner-prompt'},
+    prompt:{promptType:'ChooseCardsPrompt',actingSeat:0,
+      source:{classification:'actor-choice',sourceKind:'card-effect',
+        sourcePrinting:'Arven SVI',effectName:'Arven'},
+      publicMetadata:{selectionType:'card-combination',
+        minimumCount:0,maximumCount:2,allowCancel:false,
+        sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true},
+      choices:[irrelevant,selected,{token:'none',kind:'empty-selection'}]}};
+  const base={
+    decide(){return {kind:'select-choices',tokens:['item-choice']};},
+    decideWithAudit(req){const decision=this.decide(req);
+      return {decision,policyAudit:auditFor(req,decision)};}
+  };
+  const promptPolicy=withPaleMoonTerminalEscapePolicy(base);
+  const out=promptPolicy.decideWithAudit(promptRequest);
+  assert.deepEqual(out.decision,{kind:'select-choices',tokens:['tool-choice']});
+  protocol.validatePolicyAudit(out.policyAudit,promptRequest,out.decision,version);
+  assert.deepEqual(out.policyAudit.selectedTokens,['tool-choice']);
+  assert.equal(out.policyAudit.evaluations.find(x=>x.token==='item-choice').status,'not-evaluated');
+  assert.equal(out.policyAudit.evaluations.find(x=>x.token==='tool-choice').status,'rule-selected');
+});
