@@ -296,10 +296,6 @@ function promptDecision(req){
    }
    return {kind:'select-choices',tokens:selected.map(x=>x.token)};
   }
-  if(p.promptType==='ConfirmPrompt'&&p.source.effectName==='GO_FIRST'){
-   const yes=cs.find(x=>/^yes$/i.test(x.label||''));
-   return yes?{kind:'select-choice',token:yes.token}:{kind:'abstain',reasonCode:'BAD_GO_FIRST_CONFIRM_CHOICES'};
-  }
  }
  if(p.promptType==='ChooseCardsPrompt'){
   const cards=cs.filter(c=>c.kind==='card'&&owner(c)==='actor');
