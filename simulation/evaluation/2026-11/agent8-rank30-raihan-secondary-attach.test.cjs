@@ -105,3 +105,66 @@ for(const seat of [0,1]){
     assert.equal(decide(r).kind,'abstain');
   });
 }
+
+for(const seat of [0,1]){
+  const blank={schema:protocol.PROMPT_SCHEMA,actingSeat:seat,
+    promptType:'ChooseCardsPrompt',description:'CHOOSE_CARD_TO_HAND',
+    source:{classification:'actor-choice',sourceKind:'card-effect',
+      sourcePrinting:'Raihan EVS 152',effectName:'Raihan'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:1,
+      maximumCount:1,allowCancel:false,sourceZone:'deck',
+      ownerSeat:'actor',isOwnerVisible:true}};
+  test('seat '+seat+' Raihan offered root now enables immediate Latias/Lele secondary KO',()=>{
+    const req=request(seat);
+    req.prompt=null;
+    req.observation.decisionKind='owner-root';
+    req.observation.ownHand=['Raihan EVS 152'];
+    req.observation.ownTurnResources.supporterPlayedTurn=0;
+    req.actionFrontier.items=[
+      {kind:'play-card',actorPrinting:'Raihan EVS 152',token:'raihan'},
+      {kind:'pass',token:'pass'}];
+    assert.deepEqual(decide(req),{kind:'select-action',token:'raihan'});
+    req.observation.opponentPublic.active={printing:'Shadow Rider Calyrex VMAX CRE 75',
+      hp:320,damage:180,energies:Array(5).fill(PSY)};
+    req.observation.ownPublic.active={printing:LELE,energies:[PSY]};
+    req.observation.ownPublic.bench=[];
+    assert.deepEqual(decide(req),{kind:'select-action',token:'raihan'});
+    req.observation.opponentPublic.active.damage=40;
+    assert.notDeepEqual(decide(req),{kind:'select-action',token:'raihan'});
+  });
+  test('seat '+seat+' Sky Field is highest Raihan search when it completes full-field Rondo KO',()=>{
+    const req=request(seat),le=CLEF;
+    req.observation.ownPublic.active={printing:le,
+      energies:[PSY,PSY],hp:190,damage:0};
+    req.observation.ownPublic.bench=[
+      {printing:'Unown AOR 30'}, {printing:'Latias ex SSP 76'},
+      {printing:'Dedenne-GX UNB 57'}, {printing:'Crobat V DAA 104'},
+      {printing:'Fezandipiti ex ASC 142'}];
+    req.observation.ownPublic.prizeCount=3;
+    req.observation.ownHand=['Mimikyu GRI 58','Dialga-GX UPR 100',
+      'Empoleon V BST 40'];
+    req.observation.opponentPublic.active={
+      printing:'Shadow Rider Calyrex VMAX CRE 75',hp:220,damage:0,
+      energies:[PSY,PSY]};
+    req.observation.opponentPublic.bench=[
+      {printing:'Regidrago V SIT 135'}, {printing:'Regidrago VSTAR SIT 136'}];
+    req.prompt={...blank,choices:[
+      {kind:'card',token:'sky',printing:'Sky Field ROS 89'},
+      {kind:'card',token:'clefairy',printing:le},
+      {kind:'card',token:'guzma',printing:'Guzma BUS 115'}]};
+    protocol.validatePrompt(req.prompt,seat);
+    const choice=decide(req);
+    assert.deepEqual(choice,{kind:'select-choices',tokens:['sky']});
+    protocol.validateDecision(choice,req.prompt,new Set());
+    req.observation.ownHand=['Mimikyu GRI 58'];
+    assert.notDeepEqual(decide(req),{kind:'select-choices',tokens:['sky']});
+  });
+  test('seat '+seat+' search phase refuses stale KO certificate',()=>{
+    const req=request(seat);
+    req.prompt={...blank,choices:[
+      {kind:'card',token:'sky',printing:'Sky Field ROS 89'},
+      {kind:'card',token:'clefairy',printing:CLEF}]};
+    req.publicEventReceipt.priorOpponentTurnKO.turn=3;
+    assert.equal(decide(req).kind,'abstain');
+  });
+}
