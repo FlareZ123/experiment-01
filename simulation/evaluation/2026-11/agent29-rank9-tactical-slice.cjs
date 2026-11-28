@@ -80,10 +80,13 @@ module.exports = (function build() {
     if(!p||!/^Mimikyu PAL(?: 97)?$/i.test(name(p))||
        !isBasicStage(p)||!liveStadium(o,/^Silent Lab/i)||
        L(p.tools).length>0)return false;
-    // Lunatone's New Moon prevents Stadium effects on its owner's Pokémon,
-    // even if the other Stadium would ordinarily shut Basic Abilities off.
-    // A visible uncertain New Moon is enough to keep this route closed.
-    if(slots(o.opponentPublic).some(row=>L(row.p.abilityDetails).some(a=>
+    // Pinned Lunatone OBF92 New Moon requires a Solrock actually in play
+    // on the same side. A lone Lunatone doesn't block Stadium effects.
+    // A live New Moon keeps the route closed even through Silent Lab's own
+    // Basic Ability lock (pinned StadiumEffect skipAbilityLockCheck order).
+    const opponent=slots(o.opponentPublic);
+    const hasSolrock=opponent.some(row=>/^Solrock(?:\\s|$)/i.test(name(row.p)));
+    if(hasSolrock&&opponent.some(row=>L(row.p.abilityDetails).some(a=>
        a.name==='New Moon'&&
        !L(row.p.abilitySuppressions).some(x=>
          x.abilityName===a.name&&x.suppressed===true))))return false;
