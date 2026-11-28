@@ -82,6 +82,9 @@ function printingValue(value) {
 
 const SOURCE_COPIES = Object.freeze([
   [PRINT.guzmaHala, 4],
+  [PRINT.oddish, 2],
+  [PRINT.lillipup, 2],
+  [PRINT.pidgey, 2],
   [PRINT.gloom, 2],
   [PRINT.vileplume, 2],
   [PRINT.vileplumeGx, 1],
@@ -363,6 +366,14 @@ function missingLinePriority(observation) {
   return 0;
 }
 
+
+function basicSetupWanted(observation) {
+  const own=observation.ownPublic??{},hand=list(observation.ownHand);
+  return [PRINT.oddish,PRINT.lillipup,PRINT.pidgey].some(pattern=>
+    !boardHas(own,pattern)&&!hand.some(printing=>matches(printing,pattern))&&
+    sourceCopyPossible(observation,pattern));
+}
+
 function scoreEvolution(card, target, observation) {
   const own = observation.ownPublic;
   const hand = list(observation.ownHand);
@@ -521,6 +532,17 @@ function attachmentScore(card, recipient, observation, zone) {
       (zone==='active' || (zone==='bench'&&
       handCount(observation.ownHand,PRINT.jetEnergy)>0))?178:0;
   }
+  if(matches(card,PRINT.captureEnergy)){
+    const openSlot=list(own.bench).some(slot=>slot===null);
+    const setup=basicSetupWanted(observation)||
+      missingLinePriority(observation)>0;
+    const activeBunnelby=zone==='active'&&
+      matches(recipient.printing,PRINT.bunnelby)&&
+      list(recipient.energies).length===0;
+    if(openSlot&&setup)return activeBunnelby?136:120;
+    if(activeBunnelby&&(opponent.deckCount??99)<=3)return 174;
+    return 22;
+  }
   if(matches(card,PRINT.jetEnergy)){
     if(zone==='bench'&&matches(recipient.printing,PRINT.bunnelby)&&
       list(recipient.tools).some(tool=>matches(tool,PRINT.tmEvolution))&&
@@ -577,7 +599,8 @@ function attachmentCardFromPrompt(prompt){
   if(matches(printing,PRINT.tmEvolution)&&
     String(source.effectName??'').toLowerCase()!=='evolution')return printing;
   if(matches(printing,PRINT.jetEnergy)||matches(printing,PRINT.memoryEnergy)||
-    matches(printing,PRINT.stealthyHood))return printing;
+    matches(printing,PRINT.stealthyHood)||matches(printing,PRINT.captureEnergy))
+    return printing;
   return null;
 }
 
@@ -654,12 +677,9 @@ function scoreAction(item, request) {
     }) ? 215 : 0;
   }
   if (matches(card, PRINT.tmEvolution) || matches(card, PRINT.jetEnergy) ||
-      matches(card, PRINT.memoryEnergy) || matches(card, PRINT.stealthyHood))
+      matches(card, PRINT.memoryEnergy) || matches(card, PRINT.stealthyHood) ||
+      matches(card, PRINT.captureEnergy))
     return scoredAttachmentRoot(item, observation);
-  if (matches(card, PRINT.captureEnergy)) {
-    return list(own.bench).some(slot => slot === null) &&
-      missingLinePriority(observation) > 0 ? 102 : 18;
-  }
   if (matches(card, PRINT.counterGain)) {
     return ownBehindOnPrizes(observation) &&
       samePrinting(target, own.active?.printing) ? 190 : 0;
@@ -676,7 +696,7 @@ function scoreAction(item, request) {
   }
   if (matches(card, PRINT.artazon)) {
     const canUseNow = list(own.bench).some(slot => slot === null) &&
-      missingLinePriority(observation) > 0;
+      (basicSetupWanted(observation) || missingLinePriority(observation) > 0);
     if (canUseNow) return 128;
     const disruptiveStadium = [...list(own.stadium), ...list(opponent.stadium)]
       .some(printing => /Path to the Peak|Jamming Tower|Silent Lab/i.test(printing));
@@ -789,7 +809,7 @@ function cardPriority(printing, observation, context) {
     if (matches(printing, PRINT.pidgeotto) && boardHas(own, PRINT.pidgey)) return 175;
     return 0;
   }
-  if (context.includes('artazon')) {
+  if (context.includes('artazon') || context.includes('capture energy')) {
     if (matches(printing, PRINT.oddish) && !boardHas(own, PRINT.oddish)) return 130;
     if (matches(printing, PRINT.lillipup) && !boardHas(own, PRINT.lillipup)) return 125;
     if (matches(printing, PRINT.pidgey) && !boardHas(own, PRINT.pidgey)) return 115;
@@ -1141,7 +1161,8 @@ function promptDecision(request) {
       String(prompt.source?.effectName ?? '').toLowerCase() === 'evolution';
     const recognizedCardSource = tmEvolutionAttack || context.includes('tag call') ||
       context.includes('fan call') || context.includes('guzma & hala') ||
-      context.includes('artazon') || context.includes('rototiller') ||
+      context.includes('artazon') || context.includes('capture energy') ||
+      context.includes('rototiller') ||
       context.includes('get lost') || context.includes('quick search') ||
       context.includes('air mail') || context.includes('treasure hunt') ||
       context.includes('team yell') || context.includes('lusamine') ||
