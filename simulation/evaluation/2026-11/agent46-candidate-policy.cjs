@@ -1231,6 +1231,42 @@ function chooseRoot(view, request) {
     return { kind: 'select-action', token: usefulAbility.token };
   }
 
+  // Tropical Beach is a globally usable Stadium: the physical opponent may
+  // own the Stadium in play, yet the candidate can still use its optional
+  // effect. The actor frontier already vouches for native playability.
+  // Source-print identity must be certified before this rule is admitted:
+  // all available Aichi Beach lists (ranks 3, 6, 29) use BWP 50; a raw engine
+  // "Tropical Beach BWP" or unmatched print is not promoted by name alone.
+  //
+  // Beach draws toward seven and ENDS this turn. Therefore use it only as a
+  // fallback after playable card development, mobility, attacks and ability
+  // lines have been considered, never before an available profitable attack.
+  const stadiumItems = items.filter(item => item.kind === 'use-stadium');
+  const visibleStadium = [
+    ...view.ownPublic.stadium,
+    ...view.opponentPublic.stadium
+  ];
+  const beach = stadiumItems.find(item =>
+    item.actorPrinting === 'Tropical Beach BWP 50' &&
+    item.publicMetadata?.stadiumEffectLive === true &&
+    visibleStadium.includes(item.actorPrinting) &&
+    Array.isArray(view.ownHand) && view.ownHand.length <= 5 &&
+    Number.isSafeInteger(view.ownPublic.deckCount) &&
+    // Preserve at least two cards in deck AFTER drawing toward seven.
+    view.ownPublic.deckCount >= 9 - view.ownHand.length
+  );
+  for (const item of stadiumItems) {
+    if (beach && item.token === beach.token) {
+      recordPolicyAuditRule(item.token, 'BEACH_AFTER_OTHER_ACTIONS');
+    } else {
+      recordPolicyAuditUnscored(item.token, 'UNSUPPORTED_OR_UNFUNDED_STADIUM_USE');
+    }
+  }
+  if (beach) {
+    setPolicyAuditRule('ROOT_TERMINAL_BEACH_DRAW_FALLBACK', 'FIRST_SOURCE_STAMPED_LEGAL_BEACH');
+    return { kind: 'select-action', token: beach.token };
+  }
+
   if (pass) {
     setPolicyAuditRule('ROOT_PASS_FALLBACK', 'FIRST_FRONTIER_MATCH');
     recordPolicyAuditRule(pass.token, 'PASS_FALLBACK');
