@@ -39,7 +39,8 @@ function prompt(x,source,zone,damage){
    {kind:'pokemon',token:'wrong-active',printing:'Galarian Zigzagoon SSH117',
     publicMetadata:{isOwnerVisible:true,ownerSeat:'opponent',
      targetZone:'active',slotIndex:0}},
-   {kind:'pokemon',token:'bench-pick',printing:'Mega Lopunny ex PFL084',
+   {kind:'pokemon',token:'bench-pick',
+    printing:q.observation.opponentPublic.bench[0].printing,
     publicMetadata:{isOwnerVisible:true,ownerSeat:'opponent',
      targetZone:zone,benchIndex:0}}]
  };
@@ -124,5 +125,64 @@ for(const tweak of [
  assert.equal(s.decide(root),null);checks++;
  assert.equal(s.peek(),null);checks++;
 }
-assert.equal(checks,56);
+
+// Separate two-Prize tactical branch: tied 2-2 -> Cursed Blast selfKO
+// makes source go 1 Prize; Item-gust a Benched 280 HP Regidrago VSTAR,
+// then Perfection copies a Bench Trevenant & Dusknoir-GX Night Watch 150.
+const regidrago=()=>{
+ const q=f();
+ q.observation.ownPublic.prizeCount=2;
+ q.observation.opponentPublic.prizeCount=2;
+ q.observation.ownPublic.publicTurnRestrictions.gxUsed=true;
+ q.observation.ownPublic.active.abilities=['Perfection'];
+ q.observation.ownPublic.active.abilitySuppressions=[
+  {abilityName:'Perfection',suppressed:false}];
+ q.observation.ownPublic.bench.push({
+  printing:'Trevenant & Dusknoir-GX SMP SM217',
+  abilities:[],abilitySuppressions:[],tools:[],energies:[]});
+ q.observation.opponentPublic.bench=[{
+  printing:'Regidrago VSTAR SIT136',hp:280,damage:0,tools:[]}];
+ q.actionFrontier.items[1]={
+  kind:'attack',token:'night',attackName:'Night Watch',
+  actorPrinting:'Trevenant & Dusknoir-GX SMP SM217',
+  publicMetadata:{attackCostPayable:true,damageAfterResistance:150,
+   attackSource:{sourceKind:'bench-pokemon',sourceSlot:'BENCH',
+    sourceIndex:1,sourceCardFullName:'Trevenant & Dusknoir-GX SMP SM217',
+    attackName:'Night Watch'}}
+ };
+ return q;
+};
+const s2=createSlice({seat:0}),r2=regidrago();
+let d=s2.decide(r2);
+assert.equal(d.decision.token,'blast');checks++;
+const dp=prompt(r2,'Cursed Blast','bench',0);
+d=s2.decide(dp);assert.deepEqual(d.decision.tokens,['bench-pick']);checks++;
+const after=clone(r2);after.observation.opponentPublic.prizeCount=1;
+after.observation.opponentPublic.bench[0].damage=130;
+after.actionFrontier={items:[{
+ kind:'play-card',token:'cc2',actorPrinting:'Counter Catcher PAR160',
+ publicMetadata:{cardType:'trainer',handIndex:0}}]};
+d=s2.decide(after);assert.equal(d.decision.token,'cc2');checks++;
+const dp2=prompt(after,'Counter Catcher','bench',130);
+d=s2.decide(dp2);assert.deepEqual(d.decision.tokens,['bench-pick']);checks++;
+const end=clone(after);
+end.observation.opponentPublic.active=clone(after.observation.opponentPublic.bench[0]);
+end.observation.opponentPublic.bench=[after.observation.opponentPublic.active];
+end.actionFrontier={items:[clone(r2.actionFrontier.items[1])]};
+d=s2.decide(end);assert.equal(d.decision.token,'night');checks++;
+assert.equal(s2.peek(),null);checks++;
+// Stop before spending the Stage2 if Perfection is suppressed or donor
+// provenance is not an actual supported Benched Trev-Dusk GX.
+for(const tweak of [
+ q=>{q.observation.ownPublic.active.abilitySuppressions[0].suppressed=true},
+ q=>{q.observation.ownPublic.bench[1].printing='Gengar & Mimikyu-GX'},
+ q=>{q.actionFrontier.items[1].publicMetadata.attackSource.sourceIndex=0},
+ q=>{q.actionFrontier.items[1].publicMetadata.attackCostPayable=false},
+ q=>{q.observation.opponentPublic.bench[0].damage=150},
+ q=>{q.observation.ownPublic.prizeCount=1}
+]){
+ const z=createSlice({seat:0}),q=regidrago();tweak(q);
+ assert.equal(z.decide(q),null);checks++;
+}
+assert.equal(checks,68);
 console.log('Agent22 actor-countercatcher exact multi-prompt slice: '+checks+' synthetic checks passed');
