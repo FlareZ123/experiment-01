@@ -1826,7 +1826,9 @@ function scorePlayCard(item, request) {
     // EndTurnEffect. Use it only to repair a stalled low-hand turn, NEVER
     // before an immediately playable Volt Cyclone or free Energy attachment.
     // In contrast Player's Ceremony is a reusable Stadium draw-3 endpoint.
-    if(!Number.isSafeInteger(own.deckCount)||own.deckCount<3||
+    // Palace Book draws 3 and ends the turn: leave a card for the next
+    // mandatory draw rather than forcing a deck-out loss on our next turn.
+    if(!Number.isSafeInteger(own.deckCount)||own.deckCount<4||
         hand.length>4||hasStadium(observation,PRINT.playersCeremony))
       return 0;
     const frontier=list(request?.actionFrontier?.items);
@@ -1921,8 +1923,13 @@ function scorePlayCard(item, request) {
       nonFairy && !sourceCanAttack && opponentActiveEnergy(observation) >= 2 ? 95 : 0;
   }
   if (matches(card, PRINT.tropicalBeach)) {
+    // After playing Beach from hand, the hand shrinks by one before its
+    // optional draw-to-seven endpoint. Keep at least one card for our next
+    // own-turn mandatory draw, even if we use the Stadium immediately.
+    const drawCount=Math.max(0,8-hand.length);
     return !stadiumLocked(observation) && !hasStadium(observation, PRINT.tropicalBeach) &&
-      hand.length <= 4 && ownDeckCount(observation) > 4 ? 85 : 0;
+      hand.length>=1 && hand.length<=4 &&
+      ownDeckCount(observation)>drawCount ? 85 : 0;
   }
 
   if (matches(card, PRINT.peonia)) {
@@ -2092,7 +2099,9 @@ function scorePlayCard(item, request) {
     // Pinned Camping Gear: own-deck unrestricted exact-one search, then
     // EndTurnEffect. It is not an arbitrary draw engine; its value is the
     // precise next-turn resource it can preserve on a stalled turn.
-    if(ownDeckCount(observation)===null||ownDeckCount(observation)<1||
+    // This unrestricted exact-one search ends our turn. At deckCount=1
+    // it empties the deck, losing at the next mandatory draw step.
+    if(ownDeckCount(observation)===null||ownDeckCount(observation)<2||
        hand.length>4)return 0;
     const actions=list(request.actionFrontier?.items);
     if(actions.some(action=>action.kind==='attack' &&
@@ -2138,7 +2147,9 @@ function scoreStadiumUse(item, request) {
     return canUsePlayerCeremony(request) ? 120 : 0;
   }
   if (matches(card, PRINT.tropicalBeach)) {
-    return ownHand(observation).length <= 4 && ownDeckCount(observation) > 0 &&
+    const count=ownHand(observation).length;
+    const drawCount=Math.max(0,7-count);
+    return count<=4 && ownDeckCount(observation)>drawCount &&
       (observation.ownTurnResources?.supporterPlayedTurn === 1 ||
        !supporterAvailable(observation)) ? 120 : 0;
   }

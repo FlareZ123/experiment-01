@@ -2910,12 +2910,20 @@ test('Camping Gear root preserves exact next-turn DCE and does not preempt immed
   };
   assert.deepEqual(checkedDecision(rootRequest(base)),
     {kind:'select-action',token:'camp'});
-  const k1MissingDce=rootRequest({...base,
+  // An exact K1 singleton must match the physically remaining deck:
+  // searching its last card with turn-ending Camping Gear causes our
+  // next-turn mandatory draw to fail before the card can be used.
+  const lastCard=rootRequest({...base,
+    ownPublic:player({active:pokemon('Iron Thorns ex TWM 77'),deckCount:1}),
+    opponentPublic:player({active:pokemon('Shadow Rider Calyrex V CRE 74')}),
     ownerK1:{epoch:4,exactMembershipKnown:true,invalidationReason:null,
       knownPrintings:[{printing:'Guzma BUS 115',copies:1}]}
   });
-  assert.deepEqual(checkedDecision(k1MissingDce),
+  assert.deepEqual(checkedDecision(lastCard),
     {kind:'select-action',token:'pass'});
+  assert.deepEqual(checkedDecision(rootRequest({...base,
+    ownPublic:player({active:pokemon('Iron Thorns ex TWM 77'),deckCount:1})
+  })),{kind:'select-action',token:'pass'});
   assert.deepEqual(checkedDecision(rootRequest({...base,
     items:[camping,
       action('attack','attack','Iron Thorns ex TWM 77',{},
@@ -3155,4 +3163,51 @@ test('bounded terminal Stadium root oracle: neutral, Temple, Wondrous and Chaoti
               oracleCases++;
             }
   assert.equal(oracleCases,910);
+});
+
+test('turn-ending draw/search refuses self-deckout: Palace Book and Tropical Beach',()=>{
+  for(const seat of [0,1]){
+    const palace=action('palace','play-card','Palace Book',{cardType:'item'});
+    const root=(deckCount,items,hand)=>rootRequest({
+      seat,ownHand:hand,items,
+      ownPublic:player({
+        active:pokemon('Iron Thorns ex TWM 77'),deckCount
+      })
+    });
+    const palaceItems=[palace,{token:'pass',kind:'pass'}];
+    assert.deepEqual(checkedDecision(root(3,palaceItems,['Palace Book']),seat),
+      {kind:'select-action',token:'pass'});
+    assert.deepEqual(checkedDecision(root(4,palaceItems,['Palace Book']),seat),
+      {kind:'select-action',token:'palace'});
+
+    const beachItems=[
+      action('beach','play-card','Tropical Beach BCR 147',{cardType:'stadium'}),
+      {token:'pass',kind:'pass'}
+    ];
+    // Playing Beach leaves 0 hand cards, so draw-to-seven uses seven.
+    assert.deepEqual(checkedDecision(root(7,beachItems,['Tropical Beach BCR 147']),seat),
+      {kind:'select-action',token:'pass'});
+    assert.deepEqual(checkedDecision(root(8,beachItems,['Tropical Beach BCR 147']),seat),
+      {kind:'select-action',token:'beach'});
+
+    const stadiumUse=(deckCount)=>rootRequest({
+      seat,
+      ownHand:['Field Blower GRI 125','Guzma BUS 115',
+        'Captivating Poké Puff STS 99','Lusamine CIN 96'],
+      ownPublic:player({
+        active:pokemon('Iron Thorns ex TWM 77'),
+        stadium:['Tropical Beach BCR 147'],deckCount
+      }),
+      ownTurnResources:turnResources({supporterPlayedTurn:1}),
+      items:[
+        action('draw','use-stadium','Tropical Beach BCR 147'),
+        {token:'pass',kind:'pass'}
+      ]
+    });
+    // Four cards in hand => draw 3, so 3 would leave an empty deck.
+    assert.deepEqual(checkedDecision(stadiumUse(3),seat),
+      {kind:'select-action',token:'pass'});
+    assert.deepEqual(checkedDecision(stadiumUse(4),seat),
+      {kind:'select-action',token:'draw'});
+  }
 });
