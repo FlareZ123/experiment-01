@@ -1331,14 +1331,22 @@ function promptDecision(request) {
           !matches(recipient?.printing, PRINT.ironThorns))
         return 0;
       const printing=choicePrinting(choice);
-      // Preserve DCE on the Active attacker where an alternative Energy
-      // can satisfy the compulsory transfer; prefer a prepared Bench Thorns.
+      // Volt Cyclone is an attack-sequencing move, not merely a disposable
+      // Energy handoff: if transferring DCE into a Bench Thorns carrying
+      // Lightning produces [L, C, C], that is strategically superior to
+      // transferring Speed and leaving both attackers unpowered. Score the
+      // *resulting public board* before protecting any named Energy type.
+      const recipientAfter={
+        ...recipient,energies:[...list(recipient.energies),printing]
+      };
+      const nextAttackerReady=benchThornsVoltReady(recipientAfter,observation);
       const priority = matches(printing, PRINT.speedLightning) ? 300 :
         matches(printing, PRINT.captureEnergy) ? 275 :
         matches(printing, PRINT.spikyEnergy) ? 250 :
         matches(printing, PRINT.doubleColorless) ? 120 :
         isBasicEnergy(printing) ? 285 : 90;
-      return priority + 10 * energyCount(recipient) -
+      return (nextAttackerReady ? 850 : 0) + priority +
+        10 * energyCount(recipient) -
         Math.min(40, recipient.damage ?? 0) / 10;
     }, 'NO_VISIBLE_ENERGY_CHOICE');
   }
