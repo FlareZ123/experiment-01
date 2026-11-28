@@ -5,7 +5,7 @@
  * Pin the bundle blob after independent review before any native worker use.
  * agent43-regidrago-apex-choice.cjs 65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b
  * agent1-rank12-regidrago-opponent-policy-v2.cjs bfaee2205ea9d0c3b618948fe24ff81075d4ccda
- * agent3-rank32-regidrago-opponent-policy.cjs af0475962dbcef40a8751371537c1cbb8e1b4811
+ * agent3-rank32-regidrago-opponent-policy.cjs d047d86f906fe563b7aaaf70dff4b272240c0424
  */
 const __rank32Modules = Object.freeze({
 "./agent43-regidrago-apex-choice.cjs": function(require, module, exports) {
@@ -1868,6 +1868,32 @@ function chooseTrifrostTargets(prompt,observation) {
     return {kind:'abstain',reasonCode:'RANK32_TRIFROST_POKEMON_CHOICE_UNAVAILABLE'};
   return {kind:'select-choices',tokens:ranked.slice(0,needed).map(row=>row.choice.token)};
 }
+function raihanAttachPriority(choice,observation) {
+  const meta=choice?.publicMetadata??{},own=observation?.ownPublic??{};
+  if(choice?.kind!=='energy'||typeof choice.token!=='string'||
+      meta.sourceZone!=='discard'||meta.ownerSeat!=='actor' ||
+      meta.isOwnerVisible!==true)return 0;
+  const target=meta.zone==='active'?own.active:
+    (meta.zone==='bench'&&Number.isSafeInteger(meta.benchIndex)?
+      list(own.bench)[meta.benchIndex]:null);
+  if(!target)return 0;
+  const card=print(choice);
+  if(!/^(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy\b/i.test(card))
+    return 0;
+  const action={
+    kind:'play-card',actorPrinting:card,targetPrinting:print(target),
+    publicMetadata:{targetSeat:'actor',targetZone:meta.zone,
+      ...(meta.zone==='bench'?{targetIndex:meta.benchIndex}:{})}
+  };
+  const scored=scoreEnergyAttachment(action,observation);
+  if(scored>0)return scored;
+  if(/^Regidrago V(?:STAR)? SIT 13[56]\b/i.test(print(target)))
+    return 95;
+  // Native selection can require an otherwise suboptimal attachment.
+  // Choose from the actor's actual targets rather than abstaining or
+  // inventing an illegal typed-energy assignment.
+  return 15;
+}
 function promptDecision(request) {
   const p = request?.prompt ?? {};
   const choices = list(p.choices);
@@ -1968,6 +1994,19 @@ function promptDecision(request) {
         {kind:'abstain',reasonCode:'UNRECOGNIZED_SIMPLE_PROMPT'};
     }
     return {kind:'abstain',reasonCode:'RANK32_CYNTHIA_PROMPT_UNPROJECTED'};
+  }
+  if (/raihan/.test(source) &&
+      p.promptType==='AttachEnergyPrompt' &&
+      meta.selectionType==='energy-attachment'&&
+      meta.sourceZone==='discard'&&meta.ownerSeat==='actor') {
+    // energy-attachment is a strict single-select prompt. Collection
+    // multi-select would be rejected by the frozen protocol.
+    const ranked=choices.map((choice,index)=>({
+      choice,index,score:raihanAttachPriority(choice,obs)
+    })).sort((a,b)=>b.score-a.score||a.index-b.index);
+    return ranked[0]?.score>0?
+      {kind:'select-choice',token:ranked[0].choice.token}:
+      {kind:'abstain',reasonCode:'RANK32_RAIHAN_NO_SAFE_PUBLIC_ASSIGNMENT'};
   }
   if (/vs seeker/.test(source) &&
       p.promptType==='ChooseCardsPrompt' &&
@@ -2086,7 +2125,7 @@ module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
   aceSpecBlowerPriority,muscleBandPriority,evolveRegidragoPriority,retreatToAttackerPriority,
   prizeValue,crispinAccelerationPriority,crispinDeckEnergyChoice,
   chooseTrifrostTargets,protectedDdeInHand,seekerSupporterPriority,
-  readyMimikyuCounterAls};
+  readyMimikyuCounterAls,raihanAttachPriority};
 
 }
 });
