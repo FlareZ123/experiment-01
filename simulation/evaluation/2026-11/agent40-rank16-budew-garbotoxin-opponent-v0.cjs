@@ -219,7 +219,7 @@ function score(action,req){
   const hp=Number.isFinite(target?.hp)&&Number.isFinite(target?.damage)?target.hp-target.damage:null;
   const payable=meta.attackCostPayable===true;
   if(!payable)return 0;
-  if(a==='Terminal Period'&&target?.damage===300)return 1000;
+  if(a==='Terminal Period'&&target?.damage===60)return 1000;
   if(a==='Claw of Darkness'){
    const d=Number.isFinite(meta.damageAfterWeakness)?meta.damageAfterWeakness:(Number.isFinite(meta.damage)?meta.damage:null);
    if(hp!==null&&d!==null&&hp<=d)return own.prizeCount<=2?980:870;
@@ -495,7 +495,7 @@ function promptDecision(req){
   }
   const pr=attacks.slice().sort((a,b)=>{
    const rank=c=>/terminal period/i.test(c.publicMetadata?.sourceAttack||'')?
-    (o.opponentPublic?.active?.damage===300?100:0):
+    (o.opponentPublic?.active?.damage===60?100:0):
     /claw of darkness/i.test(c.publicMetadata?.sourceAttack||'')?65:
     /itchy pollen/i.test(c.publicMetadata?.sourceAttack||'')?80:0;
    return rank(b)-rank(a);
