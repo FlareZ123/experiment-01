@@ -1638,6 +1638,30 @@ for(const seat of [0,1]) {
     assert.deepEqual(policy(seat).decide(r),
       {kind:'select-choices',tokens:['prize-clef']});
   });
+  test('seat '+seat+' Heavy Ball ignores Basics already recovered to hand, board, or discard',()=>{
+    const r=request(seat);
+    r.observation.ownHand=[
+      'Hisuian Heavy Ball ASR 146',clef,'Latias ex SSP 76',
+      'Fezandipiti ex ASC 142','Crobat V DAA 104','Tapu Lele-GX GRI 60'
+    ];
+    r.observation.ownPublic.discard=[clef];
+    r.prompt={
+      promptType:'ChooseCardsPrompt',
+      source:{sourcePrinting:'Hisuian Heavy Ball ASR 146',effectName:'HisuianHeavyBall'},
+      publicMetadata:{selectionType:'card-combination',sourceZone:'prizes',
+        ownerSeat:'actor',isOwnerVisible:true,minimumCount:0,maximumCount:1},
+      choices:[
+        card(clef,'prize-clef'),
+        card('Latias ex SSP 76','prize-latias'),
+        card('Fezandipiti ex ASC 142','prize-fez'),
+        card('Crobat V DAA 104','prize-crobat'),
+        card('Tapu Lele-GX GRI 60','prize-lele'),
+        {kind:'empty-selection',token:'empty'}
+      ]
+    };
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choice',token:'empty'});
+  });
   test('seat '+seat+' Heavy Ball chooses the legal empty selection when no useful Basic is offered',()=>{
     const r=request(seat);
     r.prompt={
