@@ -66,6 +66,10 @@ const ownerPrintings=Object.freeze({
   foeBench:'Pidgey MEW'
 });
 
+function prizesRemaining(player){
+  return player.prizes.reduce((count,slot)=>count+slot.cards.length,0);
+}
+
 function setup(seat) {
   const x=stage(seat),manager=initializeCards();
   let nextId=50000+seat*1000;
@@ -114,7 +118,7 @@ function setup(seat) {
   x.owner.supporterTurn=0;
   x.owner.usedVSTAR=true; // fixed game: no VSTAR-power divergence
   x.owner.usedGX=true; // copied Shred, not extra-turn Timeless-GX
-  assert.equal(x.owner.prizes.length,1);
+  assert.equal(prizesRemaining(x.owner),1);
   assert.equal(x.opponent.active.getPokemonCard(),mimikyu);
   return {...x,source:ownerPrintings,card};
 }
@@ -350,7 +354,7 @@ function runSeat(seat) {
     if(strictRoots)dispatchWorkerRoot(x,policy,'attack:Apex Dragon',history);
     else x.store.dispatch(new AttackAction(x.owner.id,'Apex Dragon'));
     settlePrompts(x,policy,provenance,history);
-    const won=x.owner.prizes.length===0;
+    const won=prizesRemaining(x.owner)===0;
     assert.ok(x.opponent.active.damage>=before+80 || won,
       'copied Shred must settle 80 damage or KO final-prize opponent');
     assert.equal(won,true,'staged native owner must take its last Prize');
@@ -361,10 +365,11 @@ function runSeat(seat) {
       row.selected.some(x=>x?.startsWith('Grass Energy'))));
     return {seat,nativeStoreActionSeq:['VS Seeker','Crispin','Apex Dragon'],
       nativeOwnerPromptHistory:history,
-      finalOwnerPrizes:x.owner.prizes.length,
+      finalOwnerPrizes:prizesRemaining(x.owner),
       nativeStagedLastPrize:true,strictRoots,
       source60StagedInventory:source60,qualifiedGame:false,
-      originalFull60:false,paperSetupLegal:false};
+      originalSource60InventoryPreserved:source60!==null,
+      sourceDealtFromOpening:false,paperSetupLegal:false};
   }finally{
     provenance.restore();
   }
