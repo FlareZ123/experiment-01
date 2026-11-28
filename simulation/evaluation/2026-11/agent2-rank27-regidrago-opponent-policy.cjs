@@ -138,6 +138,11 @@ function pick(choices,score,min=1,max=1,singleSelect=false){
   const ranked=arr(choices).map((c,index)=>({c,index,score:score(c)}))
     .filter(x=>Number.isFinite(x.score)&&x.score>0&&typeof x.c.token==='string')
     .sort((a,b)=>b.score-a.score||a.index-b.index).slice(0,max);
+  if(ranked.length===0 && min===0){
+    const empty=arr(choices).find(choice=>choice.kind==='empty-selection');
+    return empty?{kind:'select-choice',token:empty.token}:
+      reason('NO_SUPPORTED_CARD_SELECTION');
+  }
   if(ranked.length<min)return reason('NO_SUPPORTED_CARD_SELECTION');
   // Native card-combination prompts require select-choices even for exactly
   // one card; ChooseAttackPrompt is a genuine single-select protocol.
