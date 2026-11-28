@@ -485,6 +485,96 @@ function projectChooseEnergy(prompt, state, actorSeat, choices, choiceByToken) {
   };
 }
 
+// Exact pinned Articuno-GX CES Legendary Ascent transfer domain.
+// Unlike ChooseEnergyPrompt, each choice decodes to the native
+// {from: CardTarget, to: CardTarget, index} record. The host dispatches
+// selected transfers together; card printings are never used as raw targets.
+function projectMoveEnergy(prompt, state, actorSeat, native, source, choices, choiceByToken) {
+  if (source.sourceKind !== 'card-effect' ||
+      !/^Articuno-GX CES(?: 31)?$/.test(source.sourcePrinting ?? '') ||
+      source.effectName !== 'Legendary Ascent' ||
+      enumName(native.PlayerType, prompt.playerType) !== 'BOTTOM_PLAYER' ||
+      !Array.isArray(prompt.slots) ||
+      !prompt.slots.some(x => enumName(native.SlotType, x) === 'ACTIVE') ||
+      !prompt.slots.some(x => enumName(native.SlotType, x) === 'BENCH') ||
+      prompt.filter?.name !== 'Water Energy' ||
+      prompt.options?.allowCancel !== false ||
+      prompt.options?.min !== 1 ||
+      (prompt.options?.max !== undefined && prompt.options?.max !== null) ||
+      (prompt.options?.blockedMap?.length ?? 0) !== 0) {
+    throw Object.assign(new Error('Uncertified native MoveEnergyPrompt contract'), {
+      code: 'UNSUPPORTED_ENERGY_TRANSFER_PROMPT'
+    });
+  }
+  const player = state.players[actorSeat];
+  if (!player.active?.cards?.length ||
+      !/^Articuno-GX CES(?: 31)?$/.test(printing(player.active.getPokemonCard?.()) ?? '')) {
+    throw Object.assign(new Error('Articuno is not physically Active'), {
+      code: 'ENERGY_TRANSFER_ACTIVE_MISMATCH'
+    });
+  }
+  const key = t => [t.player, t.slot, t.index].join('|');
+  const blockedFrom = new Set((prompt.options?.blockedFrom ?? []).map(key));
+  const blockedTo = new Set((prompt.options?.blockedTo ?? []).map(key));
+  const target = {
+    player: native.PlayerType.BOTTOM_PLAYER,
+    slot: native.SlotType.ACTIVE,
+    index: 0
+  };
+  if (blockedTo.has(key(target))) {
+    throw Object.assign(new Error('Legendary Ascent cannot move Energy to Active'), {
+      code: 'ENERGY_TRANSFER_DESTINATION_BLOCKED'
+    });
+  }
+  for (let benchIndex = 0; benchIndex < player.bench.length; benchIndex += 1) {
+    const slot = player.bench[benchIndex];
+    if (!slot?.cards?.length) continue;
+    const from = {
+      player: native.PlayerType.BOTTOM_PLAYER,
+      slot: native.SlotType.BENCH,
+      index: benchIndex
+    };
+    if (blockedFrom.has(key(from))) continue;
+    const energies = cardListCards(slot.energies);
+    for (let energyIndex = 0; energyIndex < energies.length; energyIndex += 1) {
+      const card = energies[energyIndex];
+      if (card?.name !== 'Water Energy') continue;
+      const printed = printing(card) ?? 'Water Energy';
+      addSelectableItem(choices, choiceByToken, {
+        from, to: target, index: energyIndex
+      }, {
+        kind: 'energy',
+        printing: printed,
+        label: 'Bench ' + (benchIndex + 1) + ' Water Energy ' + (energyIndex + 1),
+        publicMetadata: {
+          selectionIndex: choices.length,
+          selectedCount: 1,
+          ownerSeat: 'actor',
+          sourceZone: 'bench',
+          targetZone: 'active',
+          benchIndex,
+          energyType: 'Water',
+          isOwnerVisible: true
+        }
+      });
+    }
+  }
+  if (!choices.length) {
+    throw Object.assign(new Error('Articuno native transfer has no actor-visible Water Energy'), {
+      code: 'NO_ELIGIBLE_ENERGY_TRANSFERS'
+    });
+  }
+  return {
+    selectionType: 'energy-transfer',
+    minimumCount: 1,
+    maximumCount: choices.length,
+    allowCancel: false,
+    ownerSeat: 'actor',
+    sourceZone: 'bench',
+    targetZone: 'active'
+  };
+}
+
 function projectChooseAttack(prompt, state, actorSeat, choices, choiceByToken) {
   const visibility = cardCollectionVisibility(state, actorSeat, prompt.cards ?? []);
   const blocked = new Set((prompt.options?.blocked ?? []).map(item =>
@@ -875,6 +965,11 @@ function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook
     case 'ChooseEnergyPrompt':
       publicMetadata = projectChooseEnergy(prompt, state, actorSeat, choices, choiceByToken);
       break;
+    case 'MoveEnergyPrompt':
+      publicMetadata = projectMoveEnergy(
+        prompt, state, actorSeat, native, source, choices, choiceByToken
+      );
+      break;
     case 'ChooseAttackPrompt':
       publicMetadata = projectChooseAttack(prompt, state, actorSeat, choices, choiceByToken);
       break;
@@ -1022,7 +1117,7 @@ function dispatchPromptChoice({
     const unique = new Set(selected.tokens);
     assert.equal(unique.size, selected.tokens.length, 'multi-select decision contains duplicate tokens');
     const selectionType = projection.promptProjection?.publicMetadata?.selectionType;
-    assert.ok(['card-combination', 'pokemon', 'energy-payment', 'prize-slots', 'card-order'].includes(selectionType),
+    assert.ok(['card-combination', 'pokemon', 'energy-payment', 'energy-transfer', 'prize-slots', 'card-order'].includes(selectionType),
       'multi-select decision is unsupported for this prompt type');
     rawResult = selected.tokens.map(selectedToken => {
       assert.equal(typeof selectedToken, 'string');
