@@ -506,4 +506,74 @@ test('BUS no Star if Disgusting Pollen suppressed',()=>{
  assert(f.root().kind,'abstain');
 });
 
+
+test('certified non-GX direct 150 KO takes prizes without sacrificing Dusknoir',()=>{
+ const f=make();f.own.bench[0]=null;f.opp.active.damage=130;
+ f.night.publicMetadata.damageAfterResistance=150;
+ f.night.publicMetadata.attackSource.sourceIndex=1;
+ assert(f.root().token,'night');
+});
+test('certified direct GX KO only when GX remains legal',()=>{
+ const f=make();f.own.bench[0]=null;f.opp.active.printing='Moltres ex';
+ f.opp.active.hp=190;f.duo.publicMetadata.damageAfterResistance=200;
+ f.duo.publicMetadata.attackSource.sourceIndex=0;
+ assert(f.root().token,'duo');
+ f.own.publicTurnRestrictions.gxUsed=true;
+ assert(f.root().kind,'abstain');
+});
+test('certified non-GX KO preferred to once-per-game GX',()=>{
+ const f=make();f.own.bench[0]=null;
+ f.opp.active.printing='Damaged Eevee';f.opp.active.hp=140;
+ f.night.publicMetadata.damageAfterResistance=150;
+ f.duo.publicMetadata.damageAfterResistance=200;
+ f.duo.publicMetadata.attackSource.sourceIndex=0;
+ assert(f.root().token,'night');
+});
+test('not enough certified damage never hallucinated as lethal',()=>{
+ const f=make();f.own.bench[0]=null;f.opp.active.damage=100;
+ f.night.publicMetadata.damageAfterResistance=150;
+ assert(f.root().kind,'abstain');
+});
+test('certified source must match owner Active or Bench donor',()=>{
+ const f=make();f.own.bench[0]=null;f.opp.active.damage=130;
+ f.night.publicMetadata.damageAfterResistance=150;
+ f.night.publicMetadata.attackSource.sourceIndex=0;
+ assert(f.root().kind,'abstain');
+});
+test('suppressed Perfection cannot borrow otherwise certifiable donor KO',()=>{
+ const f=make();f.own.bench[0]=null;f.opp.active.damage=130;
+ f.night.publicMetadata.damageAfterResistance=150;
+ f.own.active.abilitySuppressions[0].suppressed=true;
+ assert(f.root().kind,'abstain');
+});
+test('certified Mewtwo direct attack cannot strike through suppressed GX use',()=>{
+ const f=make();f.own.bench[0]=null;f.opp.active.hp=200;
+ f.opp.active.printing='Gallade';f.duo.publicMetadata.damageAfterResistance=200;
+ f.own.publicTurnRestrictions.gxUsed=true;
+ assert(f.root().kind,'abstain');
+});
+test('certified lethal vetoes known damage prevention even if nominally paid',()=>{
+ const f=make();f.own.bench[0]=null;f.opp.active.damage=130;
+ f.night.publicMetadata.damageAfterResistance=150;
+ f.night.publicMetadata.damagePrevented=true;
+ assert(f.root().kind,'abstain');
+});
+test('certified lethal vetoes target damage mismatch',()=>{
+ const f=make();f.own.bench[0]=null;f.opp.active.damage=130;
+ f.night.publicMetadata.damageAfterResistance=150;
+ f.night.publicMetadata.targetDamage=0;
+ assert(f.root().kind,'abstain');
+});
+test('certified lethal Active Stage2 Shadow Bind targets unlocked low-HP opponent',()=>{
+ const f=make();f.own.active.printing='Dusknoir SFA020';
+ f.own.active.specialConditions=[];
+ f.own.bench=[];f.opp.active.printing='Klefki SVI96';f.opp.active.hp=70;
+ f.items.splice(0,f.items.length,{kind:'attack',token:'shadow',
+ actorPrinting:'Dusknoir SFA020',attackName:'Shadow Bind',
+ publicMetadata:{attackCostPayable:true,damageAfterResistance:150,
+ attackSource:{sourceKind:'active-pokemon',sourceSlot:'ACTIVE',sourceIndex:0,
+ sourceCardFullName:'Dusknoir SFA020',attackName:'Shadow Bind'}}});
+ assert(f.root().token,'shadow');
+});
+
 console.log('Agent1 v3 research actor tests: '+checks+' assertions passed');
