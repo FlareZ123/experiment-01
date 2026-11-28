@@ -1327,3 +1327,38 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['mega']});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Mimikyu PAL Safeguard does not stop Mega Claw under own Garbotoxin',()=>{
+  const ourGarb=mon('Garbodor LTR 68',{tools:['Float Stone BKT 137'],
+   abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]});
+  const mega=mon('Mega Absol ex MEG 86',{energies:[
+   'Darkness Energy MEE 15','Darkness Energy MEE 15','Darkness Energy MEE 15']});
+  const theirs=opp({active:mon('Mimikyu PAL 97',{hp:70,damage:0})});
+  const board=own({active:mega,bench:[ourGarb],prizeCount:1});
+  const claw=attack('Claw of Darkness','claw');
+  const q=root(seat,[claw,pass],{ownPublic:board,opponentPublic:theirs});
+  assert.equal(policy.activeMimikyuSafeguard(q.observation),false);
+  assert.equal(policy.projectedClawDamage(claw,q.observation),200);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'claw'});
+  theirs.active.tools=['Stealthy Hood UNB 186'];
+  assert.equal(policy.activeMimikyuSafeguard(q.observation),true);
+  assert.equal(policy.projectedClawDamage(claw,q.observation),0);
+  theirs.active.tools=[];theirs.stadium=['Jamming Tower TWM 153'];
+  assert.equal(policy.activeMimikyuSafeguard(q.observation),true);
+  assert.equal(policy.projectedClawDamage(claw,q.observation),0);
+  theirs.stadium=[];
+  ourGarb.tools=[];
+  assert.equal(policy.activeMimikyuSafeguard(q.observation),true);
+ });
+ test('seat '+seat+' opposing live Garbotoxin also suppresses PAL Safeguard on its own side',()=>{
+  const oppGarb=mon('Garbodor BKP 57',{tools:['Float Stone BKT 137'],
+   abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:false}]});
+  const q=root(seat,[pass],{
+   opponentPublic:opp({active:mon('Mimikyu PAL 97'),bench:[oppGarb]})});
+  assert.equal(policy.opponentGarbotoxinStatus(q.observation),'live');
+  assert.equal(policy.activeMimikyuSafeguard(q.observation),false);
+  q.observation.opponentPublic.stadium=['Jamming Tower TWM 153'];
+  assert.equal(policy.activeMimikyuSafeguard(q.observation),true);
+ });
+}
