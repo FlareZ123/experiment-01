@@ -1673,6 +1673,36 @@ test('two physically held Gloom copies still exhaust Grand Tree Stage1 search',(
    kind:'select-action',token:'pass'});
 });
 
+
+function artazonRoot(ownPublic,opponentPublic=player()){
+ return rootRequest({ownHand:['Artazon PAL 171'],ownPublic,opponentPublic,
+   items:[{token:'artazon',kind:'play-card',
+     actorPrinting:'Artazon PAL 171',
+     publicMetadata:{cardType:'trainer',handIndex:0}},
+    {token:'pass',kind:'pass',label:'Pass turn'}]});
+}
+test('Artazon is not played with full Bench and no Stadium suppressor',()=>{
+ const full=[pokemon('Bunnelby PRC 121'),pokemon('Oddish UNB 5'),
+   pokemon('Lillipup CEC 175'),pokemon('Pidgey MEW 16'),
+   pokemon('Girafarig LOT 94')];
+ const request=artazonRoot(player({active:pokemon('Fan Rotom SCR 118'),
+   bench:full,stadium:['Grand Tree SCR 136']}));
+ assert.deepEqual(checkedDecision(request),{kind:'select-action',token:'pass'});
+});
+test('Artazon is available to search a Basic into an actual vacant Bench slot',()=>{
+ const request=artazonRoot(player({active:pokemon('Bunnelby PRC 121'),
+   bench:[pokemon('Oddish UNB 5')]}));
+ assert.deepEqual(checkedDecision(request),{kind:'select-action',token:'artazon'});
+});
+test('Artazon can replace Path to the Peak even if actor Bench is full',()=>{
+ const full=[pokemon('Bunnelby PRC 121'),pokemon('Oddish UNB 5'),
+   pokemon('Lillipup CEC 175'),pokemon('Pidgey MEW 16'),
+   pokemon('Girafarig LOT 94')];
+ const request=artazonRoot(player({active:pokemon('Fan Rotom SCR 118'),
+   bench:full}),player({stadium:['Path to the Peak CRE 148']}));
+ assert.deepEqual(checkedDecision(request),{kind:'select-action',token:'artazon'});
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
