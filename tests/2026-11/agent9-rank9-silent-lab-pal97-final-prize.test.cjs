@@ -13,7 +13,7 @@ function card(printing,hp,stage=2,types=[5]){
 }
 function state(seat,{
   cologne=true,labInHand=true,stadiumAlready=false,stadiumDisabled=false,
-  newMoon=false,newMoonOff=false,itemLock=false,labLocked=false,
+  newMoon=false,newMoonOff=false,solrock=true,itemLock=false,labLocked=false,
   targetTool=false,targetStage=2,native=true
 }={}) {
   const attacker={
@@ -30,7 +30,7 @@ function state(seat,{
     abilitySuppressions:[{abilityName:'Safeguard',suppressed:null}]
   };
   const blocker={
-    ...card('Lunatone CRZ',90),
+    ...card('Lunatone OBF',90),
     abilityDetails:[{
       name:'New Moon',text:'Prevent all effects of Stadium cards done to your Pokémon.'
     }],
@@ -52,7 +52,7 @@ function state(seat,{
     },
     opponentPublic:{
       active:target,
-      bench:newMoon?[blocker]:[card('Snorlax PGO',150,2,[9])],
+      bench:newMoon?[blocker,...(solrock?[card('Solrock OBF',90,2,[6])]:[])]:[card('Snorlax PGO',150,2,[9])],
       stadium:[],prizeCount:4
     },
     ownTurnResources:{
@@ -115,6 +115,13 @@ for(const seat of [0,1]){
     assert.equal(rank9.stadiumScore('Silent Lab PRC',o),0);
     assert.deepEqual(root(actor(seat),seat,o),{
       kind:'select-action',token:'cologne'
+    });
+  });
+  test(`seat ${seat}: lone New Moon Lunatone without Solrock cannot block Lab`,()=>{
+    const o=state(seat,{newMoon:true,solrock:false});
+    assert.equal(rank9.stadiumScore('Silent Lab PRC',o),950);
+    assert.deepEqual(root(actor(seat),seat,o),{
+      kind:'select-action',token:'lab'
     });
   });
   test(`seat ${seat}: known suppressed New Moon reopens Lab`,()=>{
