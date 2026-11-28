@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {pendingPaleMoonGXKnockOut,choosePaleMoonEscapeRetreat}=require('../../simulation/twinleaf/2026-11/agent34-pale-moon-escape.cjs');
+const {pendingPaleMoonGXKnockOut,choosePaleMoonEscapeRetreat,choosePaleMoonEscapeRanger}=require('../../simulation/twinleaf/2026-11/agent34-pale-moon-escape.cjs');
 const {actorObservation}=require('../../simulation/twinleaf/actor-observation-contract.cjs');
 const {validateActorObservation}=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 
@@ -82,4 +82,30 @@ test('hard negatives: unknown / absent KO, no legal root, multiple benches, atta
   assert.equal(choosePaleMoonEscapeRetreat(choiceView(),[...offered,retreat()]),null);
   assert.equal(choosePaleMoonEscapeRetreat(choiceView(),[{...retreat(),
     publicMetadata:{targetSeat:'opponent',targetZone:'bench',targetIndex:0,benchIndex:0}}]),null);
+});
+
+const ranger=(token='ranger1')=>({token,kind:'play-card',actorPrinting:'Pokemon Ranger STS'});
+const rangerView=(flag=true)=>({decisionKind:'owner-root',ownPublic:{
+  active:{publicRestrictions:{pendingPaleMoonGXKnockOut:flag}},
+  publicTurnRestrictions:{alteredCreationDamage:false,usedAlteredCreation:false}},
+  ownTurnResources:{supporterPlayLocked:false,supporterPlayedTurn:0}
+});
+test('Ranger removes known queued KO over Pass as an exact offered action',()=>{
+  assert.deepEqual(choosePaleMoonEscapeRanger(rangerView(),[{token:'pass',kind:'pass'},ranger()]),
+    {token:'ranger1',reason:'PUBLIC_PALE_MOON_PENDING_KO_ONLY_RANGER_ROOT'});
+});
+test('Ranger negatives: no threat, competing Trainer, retreat, Supporter use, own GX bonus',()=>{
+  const offered=[{token:'pass',kind:'pass'},ranger()];
+  assert.equal(choosePaleMoonEscapeRanger(rangerView(false),offered),null);
+  assert.equal(choosePaleMoonEscapeRanger(rangerView(null),offered),null);
+  assert.equal(choosePaleMoonEscapeRanger(rangerView(),[...offered,
+    {token:'fog',kind:'play-card',actorPrinting:'Fog Crystal CRE'}]),null);
+  assert.equal(choosePaleMoonEscapeRanger(rangerView(),[...offered,{token:'retreat',kind:'retreat'}]),null);
+  assert.equal(choosePaleMoonEscapeRanger(rangerView(),[{token:'pass',kind:'pass'},
+    {...ranger(),actorPrinting:'Guzma BUS'}]),null);
+  assert.equal(choosePaleMoonEscapeRanger({...rangerView(),
+    ownTurnResources:{supporterPlayedTurn:1,supporterPlayLocked:false}},offered),null);
+  assert.equal(choosePaleMoonEscapeRanger({...rangerView(),
+    ownPublic:{...rangerView().ownPublic,publicTurnRestrictions:{
+      alteredCreationDamage:false,usedAlteredCreation:true}}},offered),null);
 });
