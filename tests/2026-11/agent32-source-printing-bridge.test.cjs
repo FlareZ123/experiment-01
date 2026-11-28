@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {buildSourcePrintingMap,projectSourcePrintings,projectAdmittedWorkerParts}=
+const {buildSourcePrintingMap,projectSourcePrintings,projectAdmittedWorkerParts,wrapSourcePrintedObserver}=
   require('../../simulation/evaluation/2026-11/agent32-source-printing-bridge.cjs');
 
 const source={cards:[
@@ -309,4 +309,45 @@ test('native attack-source and cross-seat targets preserve exact owner provenanc
     original.items.map(x=>x.token));
   assert.equal(original.items[0].publicMetadata.attackSource.sourceCardFullName,
     'Penny SVI');
+});
+
+
+test('native.observe source wrapper seals frozen view before driver digest',()=>{
+  const {createHash}=require('node:crypto');
+  const sha=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
+  const mine=buildSourcePrintingMap(source,ids);
+  const raw={actorSeat:0,ownHand:['Penny SVI'],
+    ownPublic:{active:{printing:'Penny SVI'},bench:[],
+      prizeSlots:[{index:0}]},opponentPublic:null};
+  const validator={validateActorObservation(view,seat){
+    assert.equal(view.actorSeat,seat);
+    assert.equal(view.ownPublic.prizeSlots[0].printing,undefined);
+    return view;
+  }};
+  let calls=0;
+  const native={observe(state,seat){
+    calls++;
+    assert.equal(state.stage,'fixture');
+    assert.equal(seat,0);
+    return raw;
+  },sentinel:42};
+  const wrapped=wrapSourcePrintedObserver(native,[mine,new Map()],validator);
+  const observation=wrapped.observe({stage:'fixture'},0);
+  assert.equal(calls,1);
+  assert.equal(wrapped.sentinel,42);
+  assert.notStrictEqual(observation,raw);
+  assert.equal(observation.ownHand[0],'Penny SVI 183');
+  assert.equal(observation.ownPublic.active.printing,'Penny SVI 183');
+  assert.equal(raw.ownPublic.active.printing,'Penny SVI');
+  assert.equal(Object.isFrozen(observation),true);
+  assert.equal(Object.isFrozen(observation.ownPublic.active),true);
+  assert.equal(Object.isFrozen(raw.ownPublic.active),false);
+  const driverSha=sha(observation);
+  const later=projectSourcePrintings(observation,{schema:'fixture',items:[]},
+    [mine,new Map()]).observation;
+  assert.equal(sha(later),driverSha,
+    'later frontier/receipt projection must not mutate the driver actor SHA');
+  assert.equal(wrapped.observe({stage:'fixture'},0).ownHand[0],
+    observation.ownHand[0]);
+  assert.equal(calls,2);
 });
