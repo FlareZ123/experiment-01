@@ -136,7 +136,7 @@ function stage(seat, withLatias = false, { manualItemLock = true, heldFogCrystal
   source.cannotPlaySupporterCards = false;
   candidate.cannotPlaySupporterCards = false;
   source.hand.cards.push(src('Guzma BUS'));
-  candidate.hand.cards.push(hood("Lillie's Determination MEG"));
+  candidate.hand.cards.push(hood('Iono PAL'));
   if (heldFogCrystal) candidate.hand.cards.push(hood('Fog Crystal CRE'));
   if (heldFloatStone) candidate.hand.cards.push(hood('Float Stone BKT'));
 
@@ -330,8 +330,8 @@ for (const seat of [0, 1]) {
   test('rank2 seat ' + seat + ': native Stoutland Active causes next-turn Supporter veto (matched 60-card baseline)', () => {
     const heldSupporterAction = x => {
       const i = x.candidate.hand.cards.findIndex(c =>
-        c.fullName?.startsWith("Lillie's Determination MEG"));
-      assert.ok(i >= 0, 'real Hood 60 must hold its printed Supporter');
+        c.fullName === 'Iono PAL');
+      assert.ok(i >= 0, 'real Hood 60 must hold its printed Iono Supporter');
       return new PlayCardAction(x.candidate.id, i, {
         player: PlayerType.ANY, slot: SlotType.BOARD, index: 0
       });
