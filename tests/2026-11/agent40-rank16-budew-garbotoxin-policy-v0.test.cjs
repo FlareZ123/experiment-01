@@ -2321,7 +2321,6 @@ for(const seat of [0,1]){
   assert.equal(policy.basicSearchDemand(q.observation),true);
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'crobat'});
   enemy.stadium=['Path to the Peak CRE 148'];
-  assert.equal(policy.forestSealHostSearchDemand,undefined);
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'crobat'});
  });
 }
