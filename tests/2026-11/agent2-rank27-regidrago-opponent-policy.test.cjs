@@ -3,7 +3,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {validateDecision,validatePrompt}=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const {POLICY_VERSION,SOURCE_RANK,SOURCE_BLOB_SHA1,SOURCE_PRINTINGS,
-  createPolicy,scoreRoot,choosePrompt,donorScore}=
+  createPolicy,scoreRoot,choosePrompt,donorScore,resolveSourcePrinting}=
  require('../../simulation/evaluation/2026-11/agent2-rank27-regidrago-opponent-policy.cjs');
 
 const P={
@@ -459,5 +459,53 @@ test('native source-typed support Ability confirmations complete actual recovery
   const handSix=observation(seat,{ownHand:Array(6).fill('Grass Energy MEE 9')});
   assert.deepEqual(decide(seat,make(handSix,P.crobat,'Dark Asset')),
    {kind:'select-choice',token:'no'});
+ }
+});
+
+test('pinned Twinleaf name+set fullName resolves only unique ledger number',()=>{
+ assert.equal(resolveSourcePrinting('Regidrago VSTAR SIT'),
+   'Regidrago VSTAR SIT 136');
+ assert.equal(resolveSourcePrinting('Net Ball LOT'),'Net Ball LOT 187');
+ assert.equal(resolveSourcePrinting('Eldegoss V RCL'),'Eldegoss V RCL 19');
+ assert.equal(resolveSourcePrinting('Crispin SCR'),'Crispin SCR 133');
+ assert.equal(resolveSourcePrinting('Guzma BUS'),'Guzma BUS 115');
+ assert.equal(resolveSourcePrinting('Grass Energy MEE'),'Grass Energy MEE 9');
+ assert.equal(resolveSourcePrinting('Regidrago VSTAR SIT 136'),
+   'Regidrago VSTAR SIT 136');
+ assert.equal(resolveSourcePrinting('Regidrago VSTAR SIT 201'),null);
+ assert.equal(resolveSourcePrinting('Ultra Ball MEG 130'),null);
+ assert.equal(resolveSourcePrinting('Quick Ball SSH 179'),null);
+ assert.equal(resolveSourcePrinting('Fake Card SIT'),null);
+});
+test('native numberless roots, on-enter prompts and Apex donors remain source-bound',()=>{
+ for(const seat of [0,1]){
+  const obs=observation(seat);
+  const nativeRoots=[
+   action('native-quick','play-card','Quick Ball FST'),
+   action('wrong-number','play-card','Quick Ball FST 238'),
+   action('pass','pass','Pass')];
+  assert.equal(tok(root(seat,obs,nativeRoots)),'native-quick');
+  assert.equal(scoreRoot(nativeRoots[1],
+     rootRequest(seat,obs,nativeRoots)),-Infinity);
+  const haveV=observation(seat,{ownPublic:{...obs.ownPublic,
+    bench:[pokemon('Regidrago V SIT')]}});
+  assert.equal(tok(root(seat,haveV,[
+    action('vstar','play-card','Regidrago VSTAR SIT'),
+    action('pass','pass','Pass')])),'vstar');
+  const discarded=observation(seat,{ownPublic:{...obs.ownPublic,
+    discard:['Dialga-GX UPR','Noivern ex PAL']}});
+  const prompt=promptRequest(seat,discarded,'Apex Dragon',
+    'Regidrago VSTAR SIT','ChooseAttackPrompt',[
+     choice('gx','Dialga-GX UPR',{sourceZone:'discard',
+       sourceAttack:'Timeless-GX'},'attack'),
+     choice('noivern','Noivern ex PAL',{sourceZone:'discard',
+       sourceAttack:'Covert Flight'},'attack'),
+     choice('wrong','Dialga-GX UPR 146',{sourceZone:'discard',
+       sourceAttack:'Timeless-GX'},'attack')
+    ],{selectionType:'attack',count:3,allowCancel:false});
+  const decision=decide(seat,prompt);
+  assert.deepEqual(decision,{kind:'select-choice',token:'gx'});
+  assert.deepEqual(validateDecision(decision,
+     validatePrompt(prompt.prompt,seat),new Set()),decision);
  }
 });
