@@ -441,7 +441,13 @@ function score(action,req){
   if(match(p,PRINT.squawk))return o.globalTurn<=2&&canRiskFullHandDiscard(o)?655:0;
  }
  if(match(p,PRINT.garbodor)){
-  return onBoard(own,PRINT.trubbish)&&!onBoard(own,PRINT.garbodor)?620:235;
+  if(!onBoard(own,PRINT.trubbish)||onBoard(own,PRINT.garbodor))return 0;
+  const equipped=slots(own).some(x=>match(x.pokemon.printing,PRINT.trubbish)&&
+    list(x.pokemon.tools).length>0);
+  // Playing Garbodor on an already equipped Trubbish immediately switches
+  // off our own on-board setup Abilities, unlike simply equipping Trubbish.
+  if(equipped&&setupAbilityPending(items,o))return 140;
+  return 620;
  }
  if(match(p,PRINT.trubbish))return benchCount(own)<5&&!onBoard(own,PRINT.trubbish)?555:20;
  if(match(p,PRINT.budew))return benchCount(own)<5&&!onBoard(own,PRINT.budew)?300:25;
