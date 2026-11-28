@@ -78,13 +78,13 @@ test('full 60-card physical census K1 + prized Dusknoir proven',()=>{
  check(f.root(),{kind:'select-action',token:'gladion'});
  check(f.prizePrompt(),{kind:'select-choices',tokens:['dusknoir']});
 });
-test('PrizeSlots choice only with visible printing',()=>{
+test('native prize kind only with visible printing',()=>{
  const f=fixture();check(f.root().token,'gladion');
- check(f.prizePrompt({kind:'prize-slot',sourceZone:'prize'}).tokens[0],'dusknoir');
+ check(f.prizePrompt({kind:'prize',sourceZone:'prize'}).tokens[0],'dusknoir');
 });
 test('unknown Prize printing withheld',()=>{
  const f=fixture();check(f.root().token,'gladion');
- check(f.prizePrompt({kind:'prize-slot',printing:'Unknown Prize'}).kind,'abstain');
+ check(f.prizePrompt({kind:'prize',printing:'Unknown Prize'}).kind,'abstain');
 });
 test('non-owner-visible Prize withheld',()=>{
  const f=fixture();check(f.root().token,'gladion');
