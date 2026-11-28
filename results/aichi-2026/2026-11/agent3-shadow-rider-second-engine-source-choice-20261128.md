@@ -49,3 +49,39 @@ The original separate parent failures were 2/20, 2/8, and 10/14,
 respectively. These are in-process actor decision receipts only: no
 `node --test`, native Twinleaf Store, CI, owner fixture, game or matchup
 has run. Draft PR #109 is the single combined review path.
+
+## Source-printed terminal attack-before-draw correction
+
+A fourth competing-action defect was fixed in the same unified candidate
+worker: previously `chooseRoot` committed a Bench Basic, search or Supporter
+*before* considering any currently available attack. In game states where
+a printed `Max Geist` or `Eon Blade` already KOs the opponent's only
+remaining Pokémon, or would take the last Prize cards, wasting a card
+could lose the position. The new `candidateTerminalAttack` admits
+**only native-offered, payable, printed direct-damage actions**, and only
+when the actor-owned public state projects an immediate win by final
+Prize count or last-board Knock Out. It fails closed for a visible
+Spiky Energy JTG159 reflection that would KO our own Active (the
+opposing rank-6/29 source inventories contain Spiky Energy).
+The source calculation is an estimate, **not** a complete immunity,
+retaliation or native damage adjudicator.
+
+`tests/2026-11/agent3-terminal-attack-before-draw-source-policy-20261128.test.cjs`
+covers eleven forks across both physical seats: five newly admitted
+immediate-terminal attacks, nonlethal and non-final negatives,
+native-attack-not-offered negative, Spiky recoil, VSTAR-vs-Mega
+Prize differences, and insufficient-color payment. Against the
+prior unified worker **12/22** passed and ten immediate-terminal
+choices failed; corrected **22/22**. Existing Copycat/Regidrago
+retreat controls were repaired to retain a **second opponent Pokémon**
+on the Bench: the old singleton fixture incorrectly expected a
+Copycat extra turn when Fairy Zone already made Max Geist a
+direct board-wipe win. With this coherent nonterminal scenario,
+all ten test modules passed **146/146** source-worker/protocol
+V8 groups: dual-engine 20, Guzma 10, Tool Jammer 18,
+terminal attack 22, and six neighboring suites 76.
+
+No native Store/Node/CI or complete game was run. This expanded
+forecast is a policy-development heuristic; source card text,
+effects and damage must be checked in actual native games before
+any competitive inference or owner registration.
