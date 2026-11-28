@@ -2077,3 +2077,42 @@ paired('Agent46: Wondrous Labyrinth source cost is paid before Shadow Mist final
   view.opponentPublic.stadium=[];
   assert.equal(rule(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK'); // No Stadium.
 });
+
+paired('Agent46: source Path and Silent Lab do not erase payable direct KO but suppress Fairy Zone',(seat,profile)=>{
+  const dragon=pokemon({printing:'Regidrago VSTAR SIT',name:'Regidrago VSTAR',
+    hp:280,damage:0,types:['Dragon'],subtypes:['Stage 1','VSTAR'],
+    abilities:['Legacy Star'],suppression:null});
+  const view=observation(seat,{active:vmax(Array(9).fill(P)),opponentActive:dragon});
+  view.globalTurn=8;view.ownPublic.prizeCount=2;
+  const max={token:'max',kind:'attack',attackName:'Max Geist'};
+  const policy=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile});
+  const final=()=>policy.decideWithAudit(root(seat,view,[max]))
+    .policyAudit.selectionRuleCode;
+  for(const stadium of ['Path to the Peak CRE','Silent Lab PRC']){
+    view.opponentPublic.stadium=[stadium];
+    assert.equal(final(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK',stadium);
+  }
+  // The same Stadium really removes the Basic Clefairy's Fairy Zone:
+  // 5 Psychic give Geist 160, enough only if doubled against Dragon.
+  view.ownPublic.active=vmax(Array(5).fill(P));
+  view.ownPublic.bench[0]=pokemon({printing:"Lillie's Clefairy ex JTG",
+    name:"Lillie's Clefairy ex",hp:190,subtypes:['Basic','ex'],
+    types:['Psychic'],abilities:['Fairy Zone'],suppression:null});
+  view.opponentPublic.stadium=[];
+  assert.equal(final(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+  for(const stadium of ['Path to the Peak CRE','Silent Lab PRC']){
+    view.opponentPublic.stadium=[stadium];
+    assert.notEqual(final(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK',stadium);
+  }
+  // Silent Lab disables a Basic Safeguard on the defender. Path does not,
+  // because the non-Rule-Box Mimikyu is unaffected by Path.
+  view.ownPublic.active=vmax(Array(9).fill(P));
+  view.ownPublic.bench=[null,null,null,null,null];
+  view.ownPublic.prizeCount=1;
+  view.opponentPublic.active=pokemon({printing:'Mimikyu PAL',name:'Mimikyu',
+    hp:70,subtypes:['Basic'],abilities:['Safeguard'],suppression:null});
+  view.opponentPublic.stadium=['Silent Lab PRC'];
+  assert.equal(final(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+  view.opponentPublic.stadium=['Path to the Peak CRE'];
+  assert.notEqual(final(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+});

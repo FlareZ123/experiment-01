@@ -4059,6 +4059,10 @@ function directTerminalSafeStadium(stadium,view){
   if(!isText(stadium))return false;
   if(hasAnyName(stadium,['Tropical Beach','Chaotic Swell','Artazon',
       'Wondrous Labyrinth']))return true; // Extra C checked by effectiveAttackCost.
+  // These Stadiums only suppress Abilities. Their current suppression is
+  // accounted for by effectiveAbilityStatus/fairyZoneHolderStatus, and cannot
+  // prohibit a printed, already-paid direct damaging attack.
+  if(hasAnyName(stadium,['Path to the Peak','Silent Lab']))return true;
   // The immutable Hood/Lockbridge lists use no Lightning Pokémon attackers.
   // Still fail closed for a future Lightning-type caller of this helper.
   if(hasName(stadium,'Thunder Mountain') &&
