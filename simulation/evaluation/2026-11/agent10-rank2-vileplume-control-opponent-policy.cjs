@@ -257,8 +257,15 @@ function opponentHasSpecialEnergy(player) {
 }
 
 function opponentHasGarbotoxin(player) {
-  return boardSlots(player).some(({ pokemon }) =>
-    list(pokemon.abilities).includes('Garbotoxin'));
+  return boardSlots(player).some(({ pokemon }) => {
+    if (!list(pokemon.abilities).includes('Garbotoxin') ||
+        list(pokemon.tools).length === 0) return false;
+    const suppression = list(pokemon.abilitySuppressions).find(row =>
+      row.abilityName === 'Garbotoxin');
+    // Explicit actor-visible suppression defeats a Tool-bearing Garbotoxin.
+    // Unknown suppression stays conservative rather than guessed inactive.
+    return suppression?.suppressed !== true;
+  });
 }
 
 function opponentHasAnyEnergy(player) {
