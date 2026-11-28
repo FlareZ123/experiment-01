@@ -912,9 +912,9 @@ test('printed Crush and Burn-GX: 5 physical attached Energy -> exact terminal VS
     assert.equal(projection.publicMetadata.energyCount,5);
     assert.equal(projection.choices.length,6,'five physical energies plus the legal empty selection');
     assert.equal(projection.choices.filter(c=>
-      c.publicMetadata?.zone='active').length,2);
+      c.publicMetadata?.zone==='active').length,2);
     assert.equal(projection.choices.filter(c=>
-      c.publicMetadata.zone==='bench').length,3);
+      c.publicMetadata?.zone==='bench').length,3);
     const decision=f.decide(2,projection);
     assert.equal(decision.kind,'select-choices');
     assert.equal(decision.tokens.length,5);
