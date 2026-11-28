@@ -280,6 +280,9 @@ paired('Raihan after manual attachment funds the Active, not the unfundable Meta
 });
 paired('Guzma evaluates the compulsory own switch before committing the Supporter',(seat,profile)=>{
   const name='Guzma BUS',fragile=defender({hp:70}),view=observation(seat,{active:vmax([P,P,P,P]),bench:[dialga()],ownHand:[name],opponentActive:defender(),opponentBench:[fragile]});
+  // Actual Dialga-GX UPR 100 retreats for three Colorless; the synthetic
+  // builder otherwise defaults to a fictional zero-cost retreat.
+  view.ownPublic.bench[0].printed.retreatCost=['Colorless','Colorless','Colorless'];
   assert.deepEqual(decide(profile,root(seat,view,[play('guzma',name)])),sel('pass'));
   view.ownPublic.bench[0]=vmax([P,P,P]);
   assert.deepEqual(decide(profile,root(seat,view,[play('guzma',name)])),sel('guzma'));
