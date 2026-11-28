@@ -1752,8 +1752,8 @@ test('Peonia rescues confirmed Prized Thunder when DCE remains in deck, but igno
       {token:'pass',kind:'pass'}
     ]
   };
-  const k1=(entries)=>({exactMembershipKnown:true,
-    knownPrintings:entries.map(printing=>({printing,copies:1}))});
+  const k1=(entries)=>({epoch:2,exactMembershipKnown:true,
+    knownPrintings:entries.map(printing=>({printing,copies:1})),invalidationReason:null});
   assert.deepEqual(checkedDecision(rootRequest({...base,
     ownerK1:k1(['Double Colorless Energy SUM 136','Megaton Blower SSP 182'])
   })),{kind:'select-action',token:'peonia'});
