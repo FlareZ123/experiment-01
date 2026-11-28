@@ -452,24 +452,27 @@ function bestAttackForSlot(slot, view, target, options = {}) {
   return best && Number.isFinite(best.score) ? best : null;
 }
 
-function choiceBenchIndex(choice) {
-  const label = choice?.label ?? '';
-  const match = /^(?:Your|Opponent) bench ([1-9][0-9]*)(?::|$)/i.exec(label);
-  return match ? Number(match[1]) - 1 : null;
-}
-
+// Public prompt metadata encodes the *physical* card target. Do not derive
+// identity from an arbitrary presentation label: repeated printings may have
+// distinct damage, Tool, evolution, and Energy states, and Active Acerola
+// targets are legal even though Guzma's two branches are Bench-only.
 function slotForPokemonChoice(view, choice) {
-  const metadata = choice?.publicMetadata;
-  if (!metadata || metadata.isOwnerVisible !== true ||
-      !['actor', 'opponent'].includes(metadata.ownerSeat) ||
-      metadata.targetZone !== 'bench') return null;
-  const index = choiceBenchIndex(choice);
-  if (!Number.isSafeInteger(index)) return null;
-  const player = metadata.ownerSeat === 'actor'
-    ? view.ownPublic : view.opponentPublic;
-  const slot = player.bench[index] ?? null;
-  if (!slot || (choice.printing && slot.printing !== choice.printing)) return null;
-  return { slot, index, ownerSeat: metadata.ownerSeat };
+  const m=choice?.publicMetadata;
+  if(choice?.kind!=='pokemon'||!m||m.isOwnerVisible!==true||
+      !['actor','opponent'].includes(m.ownerSeat)||
+      !['active','bench'].includes(m.targetZone))return null;
+  const player=m.ownerSeat==='actor'?view.ownPublic:view.opponentPublic;
+  let index,slot;
+  if(m.targetZone==='active'){
+    if(m.slotIndex!==0)return null;
+    index=0;slot=player.active;
+  }else{
+    if(!Number.isSafeInteger(m.benchIndex)||m.benchIndex<0||
+       m.benchIndex>4)return null;
+    index=m.benchIndex;slot=player.bench[index];
+  }
+  if(!slot||slot.printing!==choice.printing)return null;
+  return {slot,index,zone:m.targetZone,ownerSeat:m.ownerSeat};
 }
 
 // Source-specific disruption heuristic. Girafarig LOT Get Lost moves two
