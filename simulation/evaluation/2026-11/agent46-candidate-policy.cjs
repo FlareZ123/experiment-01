@@ -302,13 +302,37 @@ function effectiveAttackCost(slot, attack, view) {
   return required;
 }
 
+// Wondrous Labyrinth taxes non-Fairy attacks by one Colorless while active.
+ // Null means the actor-visible suppression state cannot justify a playable
+ // hypothetical attack; the native action frontier still decides real legality.
+function wondrousLabyrinthTax(slot, view) {
+  if (slot?.printed?.types?.includes('Fairy')) return 0;
+  const stadiums = [...view.ownPublic.stadium, ...view.opponentPublic.stadium];
+  if (!stadiums.some(name => hasName(name, 'Wondrous Labyrinth'))) return 0;
+  const own = view.ownPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining;
+  const opponent = view.opponentPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining;
+  if (own === null || opponent === null) return null;
+  if (own > 0 || opponent > 0) return 0;
+  for (const holder of allBoard(view)) {
+    if (!holder.abilities?.includes('New Moon')) continue;
+    const status = abilityStatus(holder, 'New Moon');
+    if (status === true) return 0;
+    if (status === null) return null;
+  }
+  return 1;
+}
+
 function canPayAttack(slot, attack, view) {
   // Fixed Hood Shadow Rider 60 has ONLY Basic Psychic Energy MEE 13:
   // five Psychic cards cannot pay Dialga-GX's Metal-heavy attacks.
   // Source-specific hypothetical-play estimator; native roots remain authoritative.
   if (!Array.isArray(attack?.cost)) return false;
   const attached = Array.isArray(slot?.energies) ? slot.energies : [];
-  if (attached.length < effectiveAttackCost(slot, attack, view)) return false;
+  const labyrinthTax = wondrousLabyrinthTax(slot, view);
+  if (labyrinthTax === null ||
+      attached.length < effectiveAttackCost(slot, attack, view) + labyrinthTax) {
+    return false;
+  }
   const typed = attack.cost.filter(type => type !== 'Colorless');
   return typed.every(type => type === 'Psychic') &&
     attached.filter(id => hasName(id, 'Psychic Energy')).length >= typed.length;
@@ -1200,9 +1224,10 @@ function freeRetreatKnown(view) {
   return isBasic && skylinerStatus(view) === true;
 }
 
-function chooseRetreat(view, items) {
+function chooseRetreat(view, items, receipt) {
   if (!freeRetreatKnown(view) || !view.opponentPublic.active) return null;
-  const current = bestAttackForSlot(view.ownPublic.active, view, view.opponentPublic.active);
+  const current = bestAttackForSlot(view.ownPublic.active, view,
+    view.opponentPublic.active, { publicEventReceipt: receipt });
   const retreats = items.filter(item => item.kind === 'retreat');
   let best = null;
   for (const item of retreats) {
@@ -1213,7 +1238,8 @@ function chooseRetreat(view, items) {
       recordPolicyAuditUnscored(item.token, 'RETREAT_TARGET_UNAVAILABLE');
       continue;
     }
-    const attack = bestAttackForSlot(target, view, view.opponentPublic.active);
+    const attack = bestAttackForSlot(target, view,
+      view.opponentPublic.active, { publicEventReceipt: receipt });
     if (!attack) {
       recordPolicyAuditUnscored(item.token, 'RETREAT_ATTACK_NOT_PAYABLE');
       continue;
@@ -1280,7 +1306,7 @@ function chooseRoot(view, request) {
     return { kind: 'select-action', token: scoredPlays[0].item.token };
   }
 
-  const retreat = chooseRetreat(view, items);
+  const retreat = chooseRetreat(view, items, request.publicEventReceipt);
   if (retreat) {
     setPolicyAuditRule('ROOT_RETREAT_ATTACK_IMPROVEMENT', 'SCORE_DESC_NATIVE_FRONTIER_ORDER');
     return { kind: 'select-action', token: retreat.token };
