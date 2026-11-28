@@ -5,7 +5,7 @@
 // targetIndex: two subsequent ChoosePokemonPrompts supply the target slots.
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { POLICY_VERSION, createPolicy } =
+const { POLICY_VERSION, createPolicy, scoreAction } =
   require('../../simulation/evaluation/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.cjs');
 
 const stoutland = { printing: 'Stoutland BCR 122', hp: 140, damage: 0, tools: [] };
@@ -209,6 +209,31 @@ for (const seat of [0, 1]) {
     };
     assert.deepEqual(policy(seat).decide(rootRequest(seat, view, false)),
       { kind: 'select-action', token: 'guzma' });
+  });
+
+  test('seat ' + seat + ': native numeric Stage Oddish from prior turn makes Grand Tree a real Stage1->Stage2 line', () => {
+    const view = actorView(seat);
+    view.ownPublic.bench = [
+      { printing: 'Oddish UNB 5', hp: 50, damage: 0,
+        printed: { stage: 1 }, evolutionPrintings: ['Oddish UNB 5'],
+        lastPlayedOrEvolvedTurn: 2 },
+      null, null, null, null
+    ];
+    const grandTree = { kind: 'play-card', token: 'grand', actorPrinting: 'Grand Tree SCR 136',
+      publicMetadata: { cardType: 'trainer', handIndex: 0 } };
+    assert.equal(scoreAction(grandTree, rootRequest(seat, view, false)), 180);
+  });
+
+  test('seat ' + seat + ': old Bunnelby cannot trigger Grand Tree even if Oddish is held in hand', () => {
+    const view = actorView(seat);
+    view.ownHand.push('Oddish UNB 5');
+    view.ownPublic.active = { printing: 'Bunnelby PRC 121',
+      printed: { stage: 1 }, evolutionPrintings: ['Bunnelby PRC 121'],
+      lastPlayedOrEvolvedTurn: 2 };
+    view.ownPublic.bench = [null, null, null, null, null];
+    const grandTree = { kind: 'play-card', token: 'grand', actorPrinting: 'Grand Tree SCR 136',
+      publicMetadata: { cardType: 'trainer', handIndex: 0 } };
+    assert.equal(scoreAction(grandTree, rootRequest(seat, view, false)), 95);
   });
 
   test('seat ' + seat + ': Regidrago Mega Dragonite Sky Transport escapes Gust without any retreat, Items or Supporters', () => {
