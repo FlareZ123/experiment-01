@@ -301,12 +301,21 @@ function pickRows(prompt,rows,min,max,rank){
  }
  return {kind:'select-choices',tokens:selected.map(c=>c.token)};
 }
+function readyToPivotIntoBudew(o){
+ const active=o.ownPublic?.active;
+ if(!active||match(active.printing,PRINT.budew)||o.globalTurn>4||
+    o.ownTurnResources?.retreatedTurn===o.globalTurn||
+    active.publicRestrictions?.cannotRetreat===true)return false;
+ if(list(active.tools).some(x=>match(x,PRINT.float))&&toolEnabled(o))return true;
+ if(list(active.tools).length>0)return false;
+ return toolEnabled(o)&&list(o.ownHand).some(x=>match(x,PRINT.float));
+}
 function cardScore(c,o){
  if(owner(c)!=='actor')return 0;
  if(match(c,PRINT.trubbish))return onBoard(o.ownPublic,PRINT.trubbish)?5:120;
  if(match(c,PRINT.garbodor))return onBoard(o.ownPublic,PRINT.trubbish)?135:15;
  if(match(c,PRINT.mega))return onBoard(o.ownPublic,PRINT.mega)?10:105;
- if(match(c,PRINT.budew))return onBoard(o.ownPublic,PRINT.budew)?15:100;
+ if(match(c,PRINT.budew))return onBoard(o.ownPublic,PRINT.budew)?15:(readyToPivotIntoBudew(o)?200:100);
  if(match(c,PRINT.float))return onBoard(o.ownPublic,PRINT.garbodor)?100:45;
  if(match(c,PRINT.forest))return onBoard(o.ownPublic,PRINT.crobat)&&!o.ownTurnResources?.vstarUsed?145:25;
  if(match(c,PRINT.muscle))return onBoard(o.ownPublic,PRINT.mega)?80:20;
@@ -343,7 +352,14 @@ function promptDecision(req){
    const candidates=cs.filter(c=>c.kind==='card'&&owner(c)==='actor'&&zone(c)==='hand'&&c.publicMetadata?.isOwnerVisible===true);
    const basic=[PRINT.budew,PRINT.mega,PRINT.trubbish,PRINT.crobat,PRINT.tapu,PRINT.dedenne,PRINT.squawk];
    if(candidates.some(c=>!basic.some(re=>match(c,re))))return {kind:'abstain',reasonCode:'UNSUPPORTED_ENGINE_SETUP_PROMPT'};
-   const preference=c=>match(c,PRINT.budew)?100:match(c,PRINT.mega)?75:match(c,PRINT.trubbish)?70:match(c,PRINT.squawk)?35:10;
+   const search=list(o.ownHand).some(x=>match(x,PRINT.quick)||match(x,PRINT.vip));
+   const holdFloat=list(o.ownHand).some(x=>match(x,PRINT.float));
+   const hasBudew=candidates.some(c=>match(c,PRINT.budew));
+   const reserveActiveTrubbish=!hasBudew&&holdFloat&&search&&candidates.some(c=>match(c,PRINT.trubbish));
+   // A Trubbish with Float can retreat into a fetched Budew; Float stays to enable Garbotoxin next turn.
+   const preference=c=>match(c,PRINT.budew)?120:
+    match(c,PRINT.trubbish)&&reserveActiveTrubbish?110:
+    match(c,PRINT.mega)?75:match(c,PRINT.trubbish)?70:match(c,PRINT.squawk)?35:10;
    const selected=[];
    if(bd.min===1){
     const active=candidates.slice().sort((a,b)=>preference(b)-preference(a))[0];
