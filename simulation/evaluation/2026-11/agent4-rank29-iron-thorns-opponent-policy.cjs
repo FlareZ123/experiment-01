@@ -1643,7 +1643,7 @@ function turboDceAttackWindow(request) {
 // supplies [C][C]. A free Stadium replacement is stronger than consuming
 // the one-off ACE SPEC. Return only an owner-visible conditional window,
 // never claim that a future native attack was actually executed.
-function templeThornsAttackUnlock(observation) {
+function templeThornsAttackUnlock(observation,replacingWithThunder=false) {
   if(!hasStadium(observation,/^Temple of Sinnoh\b/i) ||
       !ownActiveIsThorns(observation))return null;
   const active=observation.ownPublic?.active;
@@ -1654,9 +1654,34 @@ function templeThornsAttackUnlock(observation) {
       list(restrictions.cannotUseAttacksNextTurn).includes('Volt Cyclone') ||
       restrictions.blockedAttackNameNextTurn==='Volt Cyclone' ||
       Number(ownerLocks.attackLockTurnsRemaining??0)>0 ||
-      Number(observation?.ownTurnResources?.attackLockTurnsRemaining??0)>0 ||
-      !energies.some(value=>matches(value,PRINT.speedLightning)) ||
-      !energies.some(value=>matches(value,PRINT.doubleColorless)))return null;
+      Number(observation?.ownTurnResources?.attackLockTurnsRemaining??0)>0)
+    return null;
+  // Source-rank29's actual eight Special Energy: Speed Lightning ×4,
+  // Capture ×2, Spiky ×1, Double Colorless ×1. Each physically attached
+  // card provides its printed Energy only after replacing Temple.
+  let lightningUnits=0;
+  let totalUnits=0;
+  for(const energy of energies){
+    if(matches(energy,PRINT.speedLightning)){
+      lightningUnits++;totalUnits++;
+    }else if(matches(energy,PRINT.doubleColorless)){
+      totalUnits+=2;
+    }else if(matches(energy,PRINT.captureEnergy) ||
+        matches(energy,PRINT.spikyEnergy)){
+      totalUnits++;
+    }else{
+      // Unidentified physical card: no invented unit or Energy type.
+      return null;
+    }
+  }
+  // Thunder Mountain Prism Star removes one [L] from a Lightning Pokémon
+  // attack: Volt Cyclone's [L][C][C] then requires *two* Colorless units,
+  // playable even on DCE alone. Other Stadiums and Megaton's Stadium
+  // removal still require at least one true Lightning unit and three
+  // total units. Do not assume an unplayed Thunder Mountain is active.
+  const payable=replacingWithThunder?totalUnits>=2:
+    lightningUnits>=1&&totalUnits>=3;
+  if(!payable)return null;
   const target=opponentActive(observation);
   const ko=target&&visibleVoltCycloneDamage(target).knockout;
   const prizeEnd=ko&&guzmaTargetPrizeValue(target)>=
@@ -1711,7 +1736,8 @@ function scorePlayCard(item, request) {
   // Replacing Temple with a playable, non-taxing Stadium clears the same
   // attack lock as Megaton Blower without spending our singleton ACE SPEC.
   // Wondrous Labyrinth is excluded: it would add a Colorless cost instead.
-  const templeWindow=templeThornsAttackUnlock(observation);
+  const templeWindow=templeThornsAttackUnlock(observation,
+    matches(card,PRINT.thunderMountain));
   if(templeWindow&&!stadiumLocked(observation) &&
       [PRINT.thunderMountain,PRINT.tropicalBeach,PRINT.playersCeremony]
         .some(pattern=>matches(card,pattern))){
