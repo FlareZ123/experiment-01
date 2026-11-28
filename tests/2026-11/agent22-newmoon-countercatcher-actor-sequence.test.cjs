@@ -468,5 +468,15 @@ for(const tweak of [
  assert.equal(s.decide(finish).decision.token,'duo');checks++;
  assert.equal(s.peek(),null);checks++;
 }
-assert.equal(checks,129);
+// Unresolved source-suppression facts are normal in raw observation-v4.
+// An actually offered native Ability is a stronger availability witness.
+{
+ const a=f();a.observation.ownPublic.bench[0].
+  abilitySuppressions[0].suppressed=null;
+ assert.equal(createSlice({seat:0}).decide(a).decision.token,'blast');checks++;
+ const b=regidrago();b.observation.ownPublic.active.
+  abilitySuppressions[0].suppressed=null;
+ assert.equal(createSlice({seat:0}).decide(b).decision.token,'blast');checks++;
+}
+assert.equal(checks,131);
 console.log('Agent22 actor-countercatcher exact multi-prompt slice: '+checks+' synthetic checks passed');
