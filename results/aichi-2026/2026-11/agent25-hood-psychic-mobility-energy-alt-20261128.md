@@ -1,0 +1,50 @@
+# A genuinely new mobility channel for the fixed Hood Shadow Rider 60: Mystery vs Jet vs Warp Energy
+
+**Outcome:** a concrete, new *paper-legal one-card deck-design hypothesis*, not a certified improvement. Compare original unchanged Hood 60 with strictly one-for-one alternatives **11 Psychic Energy MEE 13 → 10 Psychic Energy + 1 Mystery Energy PHF 112**, **10 + Jet Energy PAL 190**, or **10 + Warp Energy SLG 70**. No competitive win rates, no game simulations, and no recommendation to replace the nominated 60 without facing its Underworld Door consistency cost.
+
+## Why this is a distinct structural option, not a cosmetic swap
+
+The Aichi rank-2 original source uses **Stoutland BCR** Supporter lock while **Vileplume AOR** has Item lock on Bench. A central failure state for the current Hood candidate is a stranded Active **Basic Shadow Rider Calyrex V CRE 74** (printed Psychic; **two Colorless retreat cost**), with a fully powered VMAX on Bench and no usable Float Stone or unsuppressed Latias ex's Skyliner. Item and Supporter access can be cut simultaneously, and Tools may be occupied by Stealthy Hood or disabled by a separate effect. **Ordinary attachment of a single Basic Psychic does not pay a 2C retreat.** Special Energy played as the turn's *normal Energy attachment* is a different channel, unaffected by Item/Supporter lock alone.
+
+The *exact* published cards and pinned native implementation have complementary behaviors:
+
+| Card, legal Expanded printing | Specific action from hand | Under ordinary retreat restrictions | Psychic contribution after switch |
+| --- | --- | --- | --- |
+| Original Basic Psychic MEE 13 | Attach one Psychic to Active V | Still needs a second Energy to pay 2C | No switch in this 0-Energy state |
+| **Mystery Energy PHF 112** | Attach to **Psychic** Active V; makes retreat **2 Colorless less** | Enables **zero-cost ordinary retreat** if not used/disabled, not Asleep/Paralyzed | **+1 Psychic** remains on the Benched V and boosts Max Geist by +30 |
+| **Jet Energy PAL 190** | Attach directly to target **Bench VMAX**; instantly switch it Active | Ignores normal retreat-limit, status and can't-retreat restrictions | No Psychic; provides **1 Colorless on the attacking VMAX** |
+| **Warp Energy SLG 70** | Attach to **Active V**; select a Bench Pokémon to switch Active | Ignores normal retreat-limit, status and can't-retreat restrictions | No Psychic; provides 1 Colorless to the former Active |
+
+**Source facts:** card pool entries \`xy4-112\`, \`sv2-190\`, \`sm35-70\`; pinned Twinleaf modules \`07-x-and-y/set-phantom-forces/mystery-energy.ts\`, \`10-scarlet-and-violet/set-paldea-evolved/jet-energy.ts\`, \`set-shining-legends/warp-energy.ts\`; \`set-chilling-reign/shadow-rider-calyrex-v.ts\` confirms Psychic type and \`retreat=[C,C]\`. The native \`retreat-effect.ts\` applies \`CheckRetreatCostEffect\` and enforces once-per-turn retreat, status and cannot-retreat. Printed/pinned \`Temple of Sinnoh ASR\` makes Special Energy Colorless with no other effects, so all three Special Energy rescues fail while it is effective. A preceding opponent \`Shadow Mist\` prevents playing Special Energy from hand, also excluding all three. These claims are card-text/source-based, not observed engine outcomes.
+
+### Matched decision states
+
+With zero Energy on the stranded Psychic Active V, five Basic Psychic already attached to Bench VMAX, untouched normal attachment and retreat, no Special Energy suppression, and opposing undamaged 140-HP Stoutland:
+
+- **Basic Psychic**: no switch, so no immediate Max Geist.
+- **Mystery**: attach Active → 0 retreat → promote VMAX → at least 6 Psychic total → printed \`Max Geist = 10+30×6=190\` and conditional Stoutland KO.
+- **Jet**: attach Bench VMAX → switch it Active → 5 Psychic → \`160\` and conditional KO; the added Jet provides Colorless but does not count as Psychic.
+- **Warp**: attach Active → switch VMAX Active → 5 Psychic → \`160\` and conditional KO; the new Colorless stays on the former Active after switch.
+
+If damage threshold rises to **190**, Mystery has a unique extra-30 edge. If Active is **Paralyzed**, has already retreated or cannot retreat, Mystery cannot operate, whereas Jet and Warp can switch. If VMAX on Bench has exactly **2 Psychic and no other Energy**, Jet can attach the third required Colorless while promoting it; Mystery and Warp do not satisfy VMAX's payable \`[P][P][C]\` cost. Mystery additionally fails when the Active is not Psychic. Jet attaches to the attacker, Warp to the departing Active, making their aftermath different.
+
+**Broader opponent field context (membership, not prevalence in games):** rank-2 source uniquely includes Stoutland and Vileplume; ranks **6, 24, 29** include Iron Thorns ex (\`Initialization\` disables Rule-Box Abilities while Active but is not an Item/Energy lock). These are four concrete opponent 60s in which a non-Ability mobility channel may matter. **Tool Jammer** appears in ranks 3,6,7,24,29; **Temple of Sinnoh** in 3,8,11,16,22; **Enhanced Hammer** in 3,5,6,7,22,24,29; **Faba** in 2,3,6,7,10,24,29. This is a **risk map of printed deck membership**, not a win, frequency, expected-value or tempo estimate. Rank-1 has Shadow Rider V and can apply Shadow Mist to deny Special Energy play.
+
+## The actual opportunity cost: do not silently promote this swap
+
+The fixed Hood Shield list has **11 Basic Psychic Energy** and **four Shadow Rider VMAX's Underworld Door**, whose activation requires a Basic Psychic from hand to an eligible Benched Psychic and draws **two cards**. Mystery provides Psychic when attached to Psychic Pokémon but **is not Basic Psychic**, so cannot be attached by Underworld Door. Jet/Warp neither qualify nor supply Psychic for attacks. All three replacements reduce Basic Psychic density **11→10** and reduce Fog Crystal's Basic-Energy retrieval targets. They can also be prized, stranded behind Temple/Shadow Mist, unsearchable under locks, discarded by Enhanced Hammer/Faba, or consume the only manual attachment when it was needed elsewhere.
+
+**Exact opening-seven hypergeometric illustration, not an empirical game result:** Original source 60 has **14 starting Basic Pokémon**, so an opening hand with a Basic occurs in **86.1409%** of seven-card draws *before* mulligan retries. Conditional on having at least one Basic in that seven, the probability of at least one Basic Psychic in the same seven is **76.2007%** with 11 copies versus **72.4852%** with 10, an immediate **−3.7155 percentage-point** loss. Basic Psychic *or* any of four Fog Crystal in that hand drops **87.1499%→84.9229% (−2.2270 pp)**, before allowing actual Item lock/search sequencing. A singleton added mobility Energy appears in an opening hand conditioned on a Basic Pokémon **11.0954%** of the time (not a measurement of lock-break opportunity). The total Psychic-capable *normal* Energy count remains 11 for Mystery when attaching to Psychic, but Underworld Door's **Basic-only** source still falls to 10. Jet/Warp reduce both.
+
+The correct optimization question is **whether the chance of converting a real double-lock/Ability-lock trap into a decisive attack outweighs the opportunity cost of reduced Underworld Door and Fog Crystal consistency**, plus card-specific suppressions. These conditional scene tests do not estimate the incidence of the traps, how often the singleton is drawn/retrievable by that moment, the counterfactual opponent turn, or survival afterward. In particular, do not assume the **3.7155 pp opening statistic** is directly a loss of win rate.
+
+## Executable bounded evidence
+
+- [Pure, fail-closed four-Energy paper-mechanic scenario evaluator](https://github.com/FlareZ123/experiment-01/blob/agent25/rank2-duplicate-gust-target-20261128/simulation/evaluation/2026-11/agent25-mobility-energy-frontier.cjs) — branch commit \`446eb14c\`.
+- [16 local passing Node tests](https://github.com/FlareZ123/experiment-01/blob/agent25/rank2-duplicate-gust-target-20261128/tests/2026-11/agent25-mobility-energy-frontier.test.cjs) — branch commit \`4c69008e\`.
+
+**Local \`node --test\`: 16/16 passed** for the explicit tactical model: baseline failed escape, all three lock breaks, Mystery's extra Psychic threshold, Jet's third-Colorless attack, status/used-retreat/cannot-retreat controls, non-Psychic Active, Temple, Shadow Mist, already-used attachment, missing Bench, unknown fields, and 60-card conservation for each hypothesis. The verifier references the actual \`candidate-hood-shadow-rider.json\` and does **not** mutate that nominated list. The model uses card-text transitions, **not real pinned-Twinleaf Store reducers**, so validation on the actual original-60 board and a true candidate-policy decision is still required.
+
+**Decision:** Retain the current fixed 60 as *nominated* until a source-bound no-game native tactical witness and a qualified field-wide comparison can be run under approved CI. Of the three experiments, **Mystery Energy is the first test candidate** for Psychic-typed, unstatused 2C stranded Active and 190-damage thresholds; **Jet Energy** is the first alternative for used/blocked retreat, special-status mobility or powering a 2P VMAX's third Colorless. **Warp Energy is not obviously better than Jet** on this specific active-stranded → bench-attacker line because its Colorless stays behind, though it can be relevant to other sequences. No universal superiority asserted.
+
+**Qualification: 0/32 competitive Aichi matchups. The fixed sixty was not altered.**
