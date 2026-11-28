@@ -477,3 +477,30 @@ for(const seat of [0,1]){
   });
  });
 }
+
+for(const seat of [0,1]){
+ for(const energyCase of [
+  ['Grass Energy SVE','Fire Energy SVE','Double Dragon Energy ROS'],
+  ['Grass Energy SVE','Grass Energy SVE','Double Dragon Energy ROS']
+ ]){
+  test('Benched Regidrago one-manual-attachment alternative '+energyCase.join('+')+', seat '+seat,()=>{
+   const v=view(seat);
+   v.opponentPublic.bench[0]=slot('Regidrago V SIT',energyCase,
+      [['Dragon Laser',['Grass','Grass','Fire'],130]],['Dragon'],['Basic','V']);
+   // Once Temple is still active, one normal G or F attachment is enough
+   // for this second attacker. Removing Megaton+Crispin does not deny Apex.
+   assert.deepEqual(decision(prompt(seat,v)),{
+     kind:'select-choices',tokens:['card-0','card-1']
+   });
+  });
+ }
+ test('Benched Regidrago G+DDE+DDE still cannot manually cover GGF, seat '+seat,()=>{
+  const v=view(seat);
+  v.opponentPublic.bench[0]=slot('Regidrago V SIT',
+   ['Grass Energy SVE','Double Dragon Energy ROS','Double Dragon Energy ROS'],
+   [['Dragon Laser',['Grass','Grass','Fire'],130]],['Dragon'],['Basic','V']);
+  assert.deepEqual(decision(prompt(seat,v)),{
+    kind:'select-choices',tokens:['card-2','card-3']
+  });
+ });
+}
