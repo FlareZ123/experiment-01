@@ -2126,7 +2126,7 @@ paired('Agent46: CIN Counter and LPM Unit source energy supply is state and Priz
     energies:['Counter Energy CIN','Counter Energy CIN','Unit Energy LPM UPR'],
     attacks:[attack('Electric Ball',['Lightning','Colorless','Colorless'],'90')]});
   const view=observation(seat,{active:tp,opponentActive:raichu});
-  view.globalTurn=8;view.ownPublic.prizeCount=2;view.opponentPublic.prizeCount=4;
+  view.globalTurn=8;view.ownPublic.prizeCount=1;view.opponentPublic.prizeCount=4;
   const drive={token:'drive',kind:'attack',attackName:'Energy Drive'};
   const policy=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile});
   const rule=()=>policy.decideWithAudit(root(seat,view,[drive])).policyAudit.selectionRuleCode;
