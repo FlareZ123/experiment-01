@@ -1,7 +1,7 @@
 {
-  "run_id": "agent33-chat-20261125T162325895Z-normal8-gpt6-rank7-policy-continuity",
-  "claimed_at": "2026-11-25T16:23:25.895944592Z",
+  "run_id": "agent33-chat-20261128T111123897Z-normal5-gpt6-05ce395ae6c76c2f",
+  "claimed_at": "2026-11-28T11:11:23.897Z",
   "mode": "normal",
-  "selection_draw": 8,
-  "previous_claim": "2026-11-09T22:36:23.486602Z"
+  "selection_draw": 5,
+  "previous_claim": "2026-11-25T16:23:25.895944592Z"
 }
