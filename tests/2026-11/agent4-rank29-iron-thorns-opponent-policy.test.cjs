@@ -1761,3 +1761,96 @@ test('Peonia rescues confirmed Prized Thunder when DCE remains in deck, but igno
     ownerK1:k1(['Double Colorless Energy SUM 136','Thunder Mountain ♢ LOT 191'])
   })),{kind:'select-action',token:'pass'});
 });
+
+
+test('Guzma prizes a vulnerable Bench when a powered Iron Thorns can switch in',()=>{
+  const items=[
+    action('guzma','play-card','Guzma BUS 115',{cardType:'supporter'}),
+    action('plumeria','play-card','Plumeria BUS 120',{cardType:'supporter'}),
+    {token:'pass',kind:'pass'}
+  ];
+  const active=pokemon('Iron Thorns ex TWM 77');
+  const opponent=player({
+    active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{energies:['Psychic Energy CRE 232']}),
+    bench:[pokemon('Tapu Lele-GX GRI 60',{hp:170,damage:40,retreatCost:[]})]
+  });
+  const ready=player({
+    active,
+    bench:[pokemon('Iron Thorns ex TWM 77',{energies:['Double Colorless Energy SUM 136']})],
+    stadium:['Thunder Mountain ♢ LOT 191']
+  });
+  const req=rootRequest({
+    ownHand:['Guzma BUS 115','Plumeria BUS 120',
+      "Trainers' Mail ROS 92",'Captivating Poké Puff STS 99'],
+    ownPublic:ready,opponentPublic:opponent,items
+  });
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'guzma'});
+  const unready=player({
+    active,bench:[pokemon('Iron Thorns ex TWM 77',{energies:['Double Colorless Energy SUM 136']})]
+  });
+  assert.notEqual(checkedDecision(rootRequest({
+    ownHand:['Guzma BUS 115','Plumeria BUS 120',
+      "Trainers' Mail ROS 92",'Captivating Poké Puff STS 99'],
+    ownPublic:unready,opponentPublic:opponent,items
+  })).token,'guzma');
+});
+
+test('Guzma target selection ranks a visible KO above high-retreat trap, both seats',()=>{
+  for(const seat of [0,1]) {
+    const req=promptRequest({
+      seat,promptType:'ChoosePokemonPrompt',
+      source:actorChoiceSource('Guzma BUS 115','Guzma'),
+      publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+        allowCancel:false,isSecret:false},
+      observation:{
+        ownPublic:player({
+          active:pokemon('Iron Thorns ex TWM 77'),
+          bench:[pokemon('Iron Thorns ex TWM 77',{
+            energies:['Double Colorless Energy SUM 136']})],
+          stadium:['Thunder Mountain ♢ LOT 191']
+        }),
+        opponentPublic:player({
+          active:pokemon('Shadow Rider Calyrex VMAX CRE 75'),
+          bench:[
+            pokemon('Tapu Lele-GX GRI 60',{hp:170,damage:40,retreatCost:[]}),
+            pokemon('Snorlax UNB 158',{hp:230,retreatCost:
+              ['Colorless','Colorless','Colorless'],energies:[]})
+          ]
+        })
+      },
+      choices:[
+        pokemonChoice('trap','Snorlax UNB 158','opponent','bench',1),
+        pokemonChoice('ko','Tapu Lele-GX GRI 60','opponent','bench',0)
+      ]
+    });
+    assert.deepEqual(checkedDecision(req,seat),
+      {kind:'select-choices',tokens:['ko']});
+  }
+});
+
+test('Guzma own switch selects electrically ready Benched Thorns over colorless-only stash',()=>{
+  const req=promptRequest({
+    promptType:'ChoosePokemonPrompt',
+    source:actorChoiceSource('Guzma BUS 115','Guzma'),
+    publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+      allowCancel:false,isSecret:false},
+    observation:{ownPublic:player({
+      active:pokemon('Iron Thorns ex TWM 77'),
+      bench:[
+        pokemon('Iron Thorns ex TWM 77',{energies:[
+          'Double Colorless Energy SUM 136','Capture Energy RCL 171'
+        ]}),
+        pokemon('Iron Thorns ex TWM 77',{energies:[
+          'Speed Lightning Energy RCL 173','Capture Energy RCL 171',
+          'Spiky Energy JTG 159'
+        ]})
+      ]
+    })},
+    choices:[
+      pokemonChoice('stash','Iron Thorns ex TWM 77','actor','bench',0),
+      pokemonChoice('ready','Iron Thorns ex TWM 77','actor','bench',1)
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-choices',tokens:['ready']});
+});
