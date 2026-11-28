@@ -216,3 +216,21 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'benchFloat'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' replacing Jamming Tower restores Garbotoxin candidate turn without assuming it is live',()=>{
+  const q=root(seat,[play('Temple of Sinnoh ASR 155','temple'),attack('Itchy Pollen','budew'),pass],{
+   ownPublic:own({active:mon('Budew ASC 16'),bench:[mon('Garbodor LTR 68',{tools:['Float Stone BKT 137'],
+    abilitySuppressions:[{abilityName:'Garbotoxin',suppressed:true}]})]}),
+   opponentPublic:opp({stadium:['Jamming Tower TWM 153']})});
+  assert.equal(policy.toolEnabled(q.observation),false);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
+ });
+ test('seat '+seat+' attack-cost stadium denial matters even without Special Energy',()=>{
+  const q=root(seat,[play('Temple of Sinnoh ASR 155','temple'),pass],{
+   opponentPublic:opp({stadium:['Dimension Valley PHF 93']})});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'temple'});
+  q.observation.opponentPublic.stadium=[];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+ });
+}
