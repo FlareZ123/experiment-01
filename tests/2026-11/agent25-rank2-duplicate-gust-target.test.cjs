@@ -11,7 +11,7 @@ const distinct = 'Shadow Rider Calyrex V CRE 74';
 function state(seat, damages = [0, 220], printings = [duplicate, duplicate]) {
   return {
     actorSeat: seat, globalTurn: 3,
-    ownHand: ['Guzma BUS 115', 'Cassius XY 123'],
+    ownHand: ['Guzma BUS 115', 'Cassius XY 115'],
     ownPublic: { active: { printing: 'Bunnelby PRC 121', hp: 60, damage: 0 },
       bench: [null, null, null, null, null] },
     opponentPublic: {
