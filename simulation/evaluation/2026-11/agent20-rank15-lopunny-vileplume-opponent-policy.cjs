@@ -246,7 +246,7 @@ function ghPrompt(request) {
   const available=arr(p.choices).filter(c=>c.kind==='card'&&typeof c.token==='string');
   let selected=[];
   if(m.sourceZone==='hand'){
-    if(m.minimumCount!==2||m.maximumCount!==2)return abstain('BAD_CARD_SELECTION_BOUNDS');
+    if(m.minimumCount>2||m.maximumCount!==2)return abstain('BAD_CARD_SELECTION_BOUNDS');
     const handCounts=new Map();
     for(const h of arr(o.ownHand))handCounts.set(txt(h),(handCounts.get(txt(h))??0)+1);
     const physicallyOwned=available.filter(c=>{
@@ -282,23 +282,47 @@ function ghPrompt(request) {
   return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
     abstain('NO_LEGAL_CARD_SET');
 }
+function stageTargets(o) {
+  const bench=arr(o?.ownPublic?.bench).filter(Boolean);
+  return bench.some(x=>[P.oddish,P.gloom,P.buneary,P.pidgey,P.pidgeotto].some(p=>has(x,p)));
+}
 function evolutionPrompt(request) {
-  const p=request.prompt,m=p.publicMetadata??{},own=request.observation?.ownPublic;
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  const own=o?.ownPublic;
   if(p.promptType==='ChooseCardsPrompt'&&m.selectionType==='card-combination'&&
     m.ownerSeat==='actor'&&m.isOwnerVisible===true&&m.sourceZone==='deck'&&
     Number.isSafeInteger(m.minimumCount)&&Number.isSafeInteger(m.maximumCount)&&
     m.maximumCount<=2&&m.minimumCount<=m.maximumCount){
     const bench=arr(own?.bench).filter(Boolean);
-    const wants=bench.map(x=>has(x,P.oddish)?P.gloom:
-      has(x,P.buneary)?P.mega:has(x,P.pidgey)?P.pidgeotto:null).filter(Boolean);
+    const inPlay=slots(own);
+    const gloom=bench.filter(x=>has(x,P.gloom)).length;
+    const priority=[];
+    // A newly evolved Gloom may evolve again by this second attack's effect.
+    // Dual-lock line requires distinct Vileplume cards on distinct Gloom.
+    if(gloom){
+      const needsBus=!inPlay.some(x=>has(x,P.bus));
+      const needsAor=!inPlay.some(x=>has(x,P.aor));
+      const stages=[];
+      if(needsBus)stages.push(P.bus);
+      if(needsAor)stages.push(P.aor);
+      stages.push(P.aor,P.bus);
+      priority.push(...stages.slice(0,gloom));
+    }
+    for(const x of bench){
+      if(has(x,P.oddish))priority.push(P.gloom);
+      else if(has(x,P.buneary))priority.push(P.mega);
+      else if(has(x,P.pidgey))priority.push(P.pidgeotto);
+      else if(has(x,P.pidgeotto))priority.push(P.pidgeot);
+    }
     const selected=[],used=new Set();
-    for(const pattern of wants){
+    for(const pattern of priority){
       const c=arr(p.choices).find(x=>x.kind==='card'&&!used.has(x.token)&&
         typeof x.token==='string'&&has(x,pattern));
       if(c){selected.push(c);used.add(c.token);}
       if(selected.length>=m.maximumCount)break;
     }
-    if(selected.length>=m.minimumCount&&selected.length)return {kind:'select-choices',tokens:selected.map(x=>x.token)};
+    if(selected.length>=m.minimumCount&&selected.length)
+      return {kind:'select-choices',tokens:selected.map(x=>x.token)};
     const empty=arr(p.choices).find(x=>x.kind==='empty-selection'&&typeof x.token==='string');
     return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
       abstain('NO_LEGAL_CARD_SET');
@@ -307,11 +331,48 @@ function evolutionPrompt(request) {
     m.targetZone==='bench'&&m.maximumCount===1&&m.minimumCount===1){
     const option=arr(p.choices).find(x=>x.kind==='pokemon'&&
       x.publicMetadata?.ownerSeat==='actor'&&x.publicMetadata?.targetZone==='bench'&&
-      [P.oddish,P.buneary,P.pidgey].some(pat=>has(x,pat)));
+      [P.gloom,P.oddish,P.pidgeotto,P.buneary,P.pidgey].some(pat=>has(x,pat)));
     return option?{kind:'select-choices',tokens:[option.token]}:
       abstain('NO_SUPPORTED_POKEMON_CHOICE');
   }
   return abstain('UNSUPPORTED_PROMPT_TYPE');
+}
+function omegaBarragePrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='ConfirmPrompt'||m.selectionType!=='confirm'||
+    !(has(p.source?.sourcePrinting,P.bunnelby)||
+      p.source?.effectName==='Omega Barrage'))
+    return abstain('UNSUPPORTED_CONFIRMATION_SOURCE');
+  const yes=arr(p.choices).find(c=>c.kind==='confirm'&&c.label==='Yes'&&typeof c.token==='string');
+  const no=arr(p.choices).find(c=>c.kind==='confirm'&&c.label==='No'&&typeof c.token==='string');
+  const own=o.ownPublic;
+  const ready=has(own?.active,P.bunnelby)&&
+    arr(own.active.tools).some(x=>has(x,P.tmEvolution))&&
+    arr(own.active.energies).length>0&&stageTargets(o);
+  if(ready&&yes)return {kind:'select-choice',token:yes.token};
+  return no?{kind:'select-choice',token:no.token}:
+    abstain('UNRECOGNIZED_SIMPLE_PROMPT');
+}
+function busActivePromotionOpportunity(o) {
+  const own=o?.ownPublic,opp=o?.opponentPublic;
+  if(!own||!opp||!opp.active||!has(own.active,P.bunnelby))return false;
+  if(opp.active.printed?.stage!=='BASIC')return false;
+  return arr(own.bench).some(x=>x&&has(x,P.bus)&&
+    !arr(x.abilitySuppressions).some(a=>
+      a.abilityName==='Disgusting Pollen'&&a.suppressed===true));
+}
+function busRetreatPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{};
+  if(p.promptType!=='ChoosePokemonPrompt'||m.selectionType!=='pokemon'||
+    m.targetZone!=='bench'||m.minimumCount!==1||m.maximumCount!==1)
+    return abstain('UNSUPPORTED_POKEMON_PROMPT');
+  if(!busActivePromotionOpportunity(request.observation))
+    return abstain('NO_SUPPORTED_POKEMON_CHOICE');
+  const choices=arr(p.choices).filter(x=>x.kind==='pokemon'&&
+    x.publicMetadata?.ownerSeat==='actor'&&x.publicMetadata?.targetZone==='bench'&&
+    has(x,P.bus));
+  return choices.length===1?{kind:'select-choices',tokens:[choices[0].token]}:
+    abstain('NO_SUPPORTED_POKEMON_CHOICE');
 }
 function rootDecision(request) {
   const o=request.observation;
@@ -335,7 +396,16 @@ function rootDecision(request) {
     has(o.ownPublic?.active,P.bunnelby)&&
     arr(o.ownPublic?.active?.tools).some(c=>has(c,P.tmEvolution)));
   if(tmAttack&&arr(o.ownPublic?.bench).some(x=>x&&
-     [P.oddish,P.buneary,P.pidgey].some(p=>has(x,p))))return take(tmAttack);
+     [P.oddish,P.gloom,P.buneary,P.pidgey,P.pidgeotto].some(p=>has(x,p))))return take(tmAttack);
+  const busWindow=busActivePromotionOpportunity(o);
+  if(busWindow){
+    const jetBus=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.jet)&&
+      has(x.targetPrinting,P.bus));
+    if(jetBus)return take(jetBus);
+    const retreatBus=items.find(x=>x.kind==='retreat'&&
+      (!x.targetPrinting||has(x.targetPrinting,P.bus)));
+    if(retreatBus)return take(retreatBus);
+  }
   const attachTm=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.tmEvolution)&&
     has(x.targetPrinting,P.bunnelby));
   if(attachTm&&slots(o.ownPublic).some(x=>has(x,P.bunnelby)&&
@@ -415,6 +485,13 @@ function createPolicy({role,seat,policyVersion,config}) {
       if(has(request.prompt?.source?.sourcePrinting,P.tagCall))return tagCallPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.guzmaHala))return ghPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.tmEvolution))return evolutionPrompt(request);
+      if(has(request.prompt?.source?.sourcePrinting,P.bunnelby)&&
+        request.prompt?.promptType==='ConfirmPrompt')return omegaBarragePrompt(request);
+      if(request.prompt?.source?.effectName==='Omega Barrage'&&
+        request.prompt?.promptType==='ConfirmPrompt')return omegaBarragePrompt(request);
+      if(request.prompt?.promptType==='ChoosePokemonPrompt'&&
+        (request.prompt?.source?.effectName==='Retreat'||
+         has(request.prompt?.source?.sourcePrinting,P.bunnelby)))return busRetreatPrompt(request);
       return abstain('UNSUPPORTED_PROMPT_TYPE');
     }
     return rootDecision(request);
@@ -422,4 +499,4 @@ function createPolicy({role,seat,policyVersion,config}) {
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,
   createPolicy,rootDecision,poffinPrompt,printedDamage,movementEvidence,
-  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible};
+  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
