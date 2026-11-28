@@ -56,7 +56,8 @@ for(const seat of [0,1]){
       action('pass','pass','Pass')]);
     assert.deepEqual(worker.decide(seekerRoot),{kind:'select-action',token:'seeker'});
     const seekerPrompt=prompt(seat,view,'ChooseCardsPrompt','VS Seeker PHF 109',
-      {selectionType:'card-combination',minimumCount:1,maximumCount:1},
+      {selectionType:'card-combination',minimumCount:1,maximumCount:1,
+        ownerSeat:'actor',sourceZone:'discard',isOwnerVisible:true,allowCancel:false},
       [card('guzma','Guzma BUS 115'),card('crispin','Crispin SCR 133')]);
     // Exact underlying worker would choose a non-funding gust in this state.
     assert.deepEqual(before.decide(seekerPrompt),{kind:'select-choices',tokens:['guzma']});
@@ -106,7 +107,8 @@ test('negative: incomplete funded geometry delegates to baseline Guzma rather th
   const seat=0,view=observation(seat);
   view.ownPublic.active.energies=[grass(),grass()];
   const r=prompt(seat,view,'ChooseCardsPrompt','VS Seeker PHF 109',
-      {selectionType:'card-combination',minimumCount:1,maximumCount:1},
+      {selectionType:'card-combination',minimumCount:1,maximumCount:1,
+        ownerSeat:'actor',sourceZone:'discard',isOwnerVisible:true,allowCancel:false},
       [card('guzma','Guzma BUS 115'),card('crispin','Crispin SCR 133')]);
   const worker=overlay.createPolicy({role:'opponent',seat,
     policyVersion:overlay.POLICY_VERSION,config:{}});
