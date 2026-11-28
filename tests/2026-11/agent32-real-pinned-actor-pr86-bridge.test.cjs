@@ -80,23 +80,51 @@ for(const seat of [0,1]){
 
   test('real pinned BASIC and native/source printing split in rank3 root; seat '+seat,()=>{
     const x=stage(seat),manager=initializeCards();
-    const snorlax=createCard(manager,'Snorlax PGO');
+    const sourceDeck=JSON.parse(fs.readFileSync(path.resolve(__dirname,
+      '../../results/aichi-2026/full-decklists.json'),'utf8'))
+      .decks.find(d=>d.rank===3);
+    const resolved=planAichi(1,{
+      allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true
+    }).opponents.find(d=>d.rank===3);
+    assert.equal(resolved.status,'ready');
+    const sourcePool=resolved.cards.map(name=>createCard(manager,name));
+    const take=name=>{
+      const i=sourcePool.findIndex(card=>card.fullName===name);
+      assert.ok(i>=0,'source 60 missing '+name);
+      return sourcePool.splice(i,1)[0];
+    };
+    const snorlax=take('Snorlax PGO');
     assert.equal(snorlax.stage,Stage.BASIC);
     replaceActive(x.owner,[snorlax]);
     x.owner.active.damage=70;
-    // Only rank3 source cards on the rank3 side: the generic Agent5 stage
-    // starts with Regidrago V, which is NOT in Aichi rank3's fixed 60.
-    x.owner.bench[1].cards.length=0;
-    x.owner.bench[1].cards.push(createCard(manager,'Galarian Stunfisk SSH'));
+    for(const slot of x.owner.bench){
+      slot.cards.length=0;slot.energies.cards.length=0;slot.damage=0;
+    }
+    x.owner.bench[1].cards.push(take('Galarian Stunfisk SSH'));
     // Non-Snorlax damaged Basic creates a truly executable Penny target.
     x.owner.bench[1].damage=50;
     x.owner.hand.cards.length=0;
-    const penny=createCard(manager,'Penny SVI');
-    const handi=createCard(manager,"Team Rocket's Handiwork FCO");
+    const penny=take('Penny SVI');
+    const handi=take("Team Rocket's Handiwork FCO");
     x.owner.hand.cards.push(penny,handi);
     x.owner.deck.cards.length=0;
+    for(const prize of x.owner.prizes)prize.cards.length=0;
+    for(const prize of x.owner.prizes)prize.cards.push(sourcePool.pop());
+    x.owner.deck.cards.push(...sourcePool);
+    assert.equal(x.owner.deck.cards.length,50);
+    assert.equal(x.owner.prizes.reduce((n,p)=>n+p.cards.length,0),6);
+    const actual60=[
+      ...x.owner.active.cards,
+      ...x.owner.bench.flatMap(slot=>slot.cards),
+      ...x.owner.hand.cards,
+      ...x.owner.deck.cards,
+      ...x.owner.prizes.flatMap(prize=>prize.cards)
+    ];
+    assert.equal(actual60.length,60);
+    assert.deepEqual(actual60.map(c=>c.fullName).sort(),
+      resolved.cards.slice().sort(),
+      'actual pinned physical rank3 side must contain exactly its frozen 60');
     x.opponent.deck.cards.length=0;
-    for(let i=0;i<20;i++)x.owner.deck.cards.push(createCard(manager,'Psychic Energy SVE'));
     for(let i=0;i<30;i++)x.opponent.deck.cards.push(createCard(manager,'Psychic Energy SVE'));
     // Keep a nonempty Bench as a possible Active replacement; this is not
     // itself a native PlayCardAction validation.
@@ -168,13 +196,6 @@ for(const seat of [0,1]){
     
     // Full source-sixty + exact native-sixty order defines the alias; neither
     // a naive string suffix nor a guess from card name is accepted.
-    const sourceDeck=JSON.parse(fs.readFileSync(path.resolve(__dirname,
-      '../../results/aichi-2026/full-decklists.json'),'utf8'))
-      .decks.find(d=>d.rank===3);
-    const resolved=planAichi(1,{
-      allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true
-    }).opponents.find(d=>d.rank===3);
-    assert.equal(resolved.status,'ready');
     const printMap=buildSourcePrintingMap(sourceDeck,resolved.cards);
     assert.equal(printMap.get('Penny SVI'),'Penny SVI 183');
     assert.equal(printMap.get("Team Rocket's Handiwork FCO"),
