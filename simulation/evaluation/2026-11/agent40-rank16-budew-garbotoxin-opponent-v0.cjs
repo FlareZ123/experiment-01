@@ -43,6 +43,7 @@ const PRINT=Object.freeze({
  skyField:/^Sky Field ROS 89\b/i,
  path:/^Path to the Peak (?:CRE 148|ASR 213)\b/i,
  silentLab:/^Silent Lab PRC 140\b/i,
+ chaoticSwell:/^Chaotic Swell CEC 187\b/i,
  klefki:/^Klefki (?:SVI 96|PAF 159)\b/i,
  flutterMane:/^Flutter Mane (?:TEF 78|PAF 43|SVP 97)\b/i,
  dimensionValley:/^Dimension Valley\b/i,
@@ -761,6 +762,22 @@ function score(action,req){
   return drawSupporterScore(p,o);
  if(match(p,PRINT.guzma))return guzmaRootScore(o);
  if(match(p,PRINT.temple)){
+  const activeStadium=[...list(opp.stadium),...list(own.stadium)];
+  // Chaotic Swell discards BOTH itself and a newly played Stadium; the
+  // new Temple never receives a turn of Special Energy denial.
+  if(activeStadium.some(x=>match(x,PRINT.chaoticSwell))){
+   const spare=list(o.ownHand).filter(x=>match(x,PRINT.temple)).length;
+   return spare>=2?150:0;
+  }
+  // Removing Sky Field collapses both Benches to 5. Opponent overflow
+  // provides concrete forced-discard leverage; never sacrifice only
+  // our own expansion for a speculative Stadium tax.
+  if(activeStadium.some(x=>match(x,PRINT.skyField))){
+   const enemyExcess=Math.max(0,benchCount(opp)-5);
+   const ownExcess=Math.max(0,benchCount(own)-5);
+   if(enemyExcess>0&&ownExcess===0)return 600+40*enemyExcess;
+   if(enemyExcess===0&&ownExcess>0)return 0;
+  }
   // Replacing active Jamming can revive an opponent's Hooded Ability lock
   // by making Hood work again; no marginal Special-Energy tax justifies
   // sacrificing live access to Items or Supporters in this policy.
