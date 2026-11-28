@@ -515,6 +515,27 @@ function wonderTagSupporterScore(view, printing) {
   return -Infinity;
 }
 
+function nightStretcherRecoveryScore(view, printing) {
+  if (!isText(printing)) return 0;
+  if (hasName(printing, 'Mimikyu') && opponentHasRegidrago(view) &&
+      !boardHas(view, 'Mimikyu') && !handHas(view, 'Mimikyu')) return 1050;
+  if (hasName(printing, 'Shadow Rider Calyrex VMAX') &&
+      boardHas(view, 'Shadow Rider Calyrex V') &&
+      !boardHas(view, 'Shadow Rider Calyrex VMAX') &&
+      !handHas(view, 'Shadow Rider Calyrex VMAX')) return 950;
+  if (hasName(printing, 'Shadow Rider Calyrex V') &&
+      !hasName(printing, 'VMAX') && !boardHas(view, 'Shadow Rider Calyrex V') &&
+      !handHas(view, 'Shadow Rider Calyrex V')) return 920;
+  if (hasName(printing, "Lillie's Clefairy ex") && opponentHasDragon(view) &&
+      !boardHas(view, "Lillie's Clefairy ex") &&
+      !handHas(view, "Lillie's Clefairy ex")) return 850;
+  if (hasName(printing, 'Psychic Energy') &&
+      !handHas(view, 'Psychic Energy')) return 600;
+  if (hasName(printing, 'Latias ex') && !boardHas(view, 'Latias ex'))
+    return 450;
+  return 0;
+}
+
 function searchNeedScore(view, printing, effectName = '') {
   if (!isText(printing)) return -Infinity;
   const regidrago = opponentHasRegidrago(view);
@@ -627,7 +648,17 @@ function searchCandidates(view, prompt, choices) {
   const effectName = prompt.source?.effectName ?? '';
   const sourceZone = prompt.publicMetadata?.sourceZone;
   let rows;
-  if (sourceZone === 'deck' && effectName === 'Wonder Tag' &&
+  if (sourceZone === 'discard' && effectName === 'VS Seeker' &&
+      prompt.source?.sourcePrinting === 'VS Seeker PHF 109') {
+    rows = choices.map(choice => ({
+      choice, score: wonderTagSupporterScore(view, choice.printing)
+    }));
+  } else if (sourceZone === 'discard' && effectName === 'Night Stretcher' &&
+      prompt.source?.sourcePrinting === 'Night Stretcher SFA 61') {
+    rows = choices.map(choice => ({
+      choice, score: nightStretcherRecoveryScore(view, choice.printing)
+    }));
+  } else if (sourceZone === 'deck' && effectName === 'Wonder Tag' &&
       prompt.source?.sourcePrinting === 'Tapu Lele-GX GRI 60') {
     rows = choices.map(choice => ({
       choice, score: wonderTagSupporterScore(view, choice.printing)
@@ -672,7 +703,9 @@ function chooseCardCombination(view, prompt) {
   const ownerSourceBindings = {
     'Wonder Tag': 'Tapu Lele-GX GRI 60',
     'Climactic Gate': 'Radiant Eternatus CRZ 105',
-    'Get Lost': 'Girafarig LOT 94'
+    'Get Lost': 'Girafarig LOT 94',
+    'VS Seeker': 'VS Seeker PHF 109',
+    'Night Stretcher': 'Night Stretcher SFA 61'
   };
   const effect = prompt.source?.effectName;
   if (Object.hasOwn(ownerSourceBindings, effect) &&
@@ -1348,6 +1381,13 @@ function scoreTrainerPlay(item, view, receipt) {
   const name = item.actorPrinting ?? '';
   const supporterUsed = view.ownTurnResources.supporterPlayedTurn > 0;
   if (hasName(name, 'Unfair Stamp') && receipt?.priorOpponentTurnKO?.any === true) return 980;
+  if (hasName(name, 'VS Seeker') && !supporterUsed &&
+      !handHas(view, 'Arven') && !handHas(view, "Lillie's Determination") &&
+      view.ownPublic.discard.some(printing =>
+        wonderTagSupporterScore(view, printing) > 0)) return 745;
+  if (hasName(name, 'Night Stretcher') &&
+      view.ownPublic.discard.some(printing =>
+        nightStretcherRecoveryScore(view, printing) > 0)) return 690;
   if (hasName(name, 'Field Blower') && hasStadiumRemovalTarget(view)) return 950;
   if (hasName(name, 'Battle Compressor') && opponentHasRegidrago(view) &&
       !discardHas(view, 'Dialga-GX') && !handHas(view, 'Dialga-GX') &&
