@@ -1703,6 +1703,51 @@ test('Artazon can replace Path to the Peak even if actor Bench is full',()=>{
  assert.deepEqual(checkedDecision(request),{kind:'select-action',token:'artazon'});
 });
 
+
+test('Get Lost eliminates Regidrago Timeless-GX and Phantom Dive before VS Seeker',()=>{
+ const opponent=player({
+   active:pokemon('Regidrago VSTAR SIT 136'),
+   discard:['Dialga-GX UPR 100','Dragapult ex TWM 130','VS Seeker PHF 109']
+ });
+ const request=promptRequest({promptType:'ChooseCardsPrompt',
+   source:actorChoiceSource('Girafarig LOT 94','Get Lost'),
+   choices:[cardChoice('vs','VS Seeker PHF 109','discard','opponent'),
+     cardChoice('dialga','Dialga-GX UPR 100','discard','opponent'),
+     cardChoice('dragapult','Dragapult ex TWM 130','discard','opponent')],
+   observation:{opponentPublic:opponent},
+   publicMetadata:{selectionType:'card-combination',minimumCount:2,
+     maximumCount:2,allowCancel:false,isSecret:false}});
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-choices',tokens:['dialga','dragapult']});
+});
+test('Get Lost preserves generic resource-priority ordering off Regidrago matchup',()=>{
+ const opponent=player({
+   active:pokemon('Iron Thorns ex TWM 77'),
+   discard:['Dialga-GX UPR 100','Dragapult ex TWM 130','VS Seeker PHF 109']
+ });
+ const request=promptRequest({promptType:'ChooseCardsPrompt',
+   source:actorChoiceSource('Girafarig LOT 94','Get Lost'),
+   choices:[cardChoice('vs','VS Seeker PHF 109','discard','opponent'),
+     cardChoice('dialga','Dialga-GX UPR 100','discard','opponent'),
+     cardChoice('dragapult','Dragapult ex TWM 130','discard','opponent')],
+   observation:{opponentPublic:opponent},
+   publicMetadata:{selectionType:'card-combination',minimumCount:2,
+     maximumCount:2,allowCancel:false,isSecret:false}});
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-choices',tokens:['vs','dialga']});
+});
+test('Get Lost can remove one Regidrago Dragon payload and one other legal target',()=>{
+ const request=promptRequest({promptType:'ChooseCardsPrompt',
+   source:actorChoiceSource('Girafarig LOT 94','Get Lost'),
+   choices:[cardChoice('vs','VS Seeker PHF 109','discard','opponent'),
+     cardChoice('dialga','Dialga-GX UPR 100','discard','opponent')],
+   observation:{opponentPublic:player({active:pokemon('Regidrago VSTAR SIT 136')})},
+   publicMetadata:{selectionType:'card-combination',minimumCount:2,
+     maximumCount:2,allowCancel:false,isSecret:false}});
+ assert.deepEqual(checkedDecision(request),{
+   kind:'select-choices',tokens:['dialga','vs']});
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
