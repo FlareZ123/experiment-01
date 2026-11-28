@@ -127,7 +127,8 @@ function sourcePrizeValue(pokemon,o) {
   const activeTools=arr(pokemon?.tools);
   const liveTools=!toolEffectsSuppressed(o);
   const lifeDew=liveTools&&activeTools.some(x=>has(x,P.lifeDew));
-  const island=liveTools&&/(?:-GX\b|-EX\b| GX\b| EX\b)/i.test(p)&&
+  // Island Challenge Amulet affects Pokémon-GX only, never Pokémon-EX.
+  const island=liveTools&&/(?:-GX\b| GX\b)/i.test(p)&&
     activeTools.some(x=>has(x,P.islandAmulet));
   return Math.max(0,normal-Number(activeLegacy)-Number(lifeDew)-Number(island));
 }
