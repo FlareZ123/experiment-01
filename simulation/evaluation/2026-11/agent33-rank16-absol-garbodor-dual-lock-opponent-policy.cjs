@@ -324,6 +324,8 @@ function basicScore(choice, observation) {
   if (owner(choice) !== 'actor' || zone(choice) !== 'deck') return 0;
   const printing = textOf(choice);
   const own = observation.ownPublic;
+  if([PRINT.crobat,PRINT.dedenne,PRINT.tapuLele,PRINT.squawk].some(p=>matches(printing,p))&&
+    (rank16LockLive(observation)||rank16OpponentBlocksSupport(observation,printing)))return 0;
   if (matches(printing, PRINT.trubbish)) return !hasTrubbish(observation) && !hasGarbodor(observation) ?
     365+(benchCount(own)>=4?40:0) : 20;
   if (matches(printing, PRINT.mega)) return count(own, PRINT.mega) === 0 ? 330 : count(own, PRINT.mega) === 1 ? 170 : 25;
@@ -472,6 +474,28 @@ function rank16UntooledGarb(o) {
   return slots(o?.ownPublic).some(row=>matches(row.pokemon.printing,PRINT.garbodor)&&
     list(row.pokemon.tools).length===0);
 }
+function rank16OpponentBlocksSupport(o,printing) {
+  const opponent=o?.opponentPublic;
+  const active=opponent?.active;
+  const activePrint=active?.printing??'';
+  const suppressed=ability=>list(active?.abilitySuppressions).some(row=>
+    row.abilityName===ability&&row.suppressed===true);
+  // Wobbuffet PHF36 / GEN RC11 Bide Barricade blocks non-Psychic
+  // hand/Bench Abilities. Tapu Lele-GX is Psychic and remains exempt.
+  if(/^Wobbuffet (?:PHF 36|GEN RC11)\b/i.test(activePrint)&&
+     !suppressed('Bide Barricade')&&!matches(printing,PRINT.tapuLele))return true;
+  // Iron Thorns ex TWM77 Initialization removes Abilities of Rule Box
+  // non-Future Pokémon; all four original rank16 utility Basics qualify.
+  if(/^Iron Thorns ex (?:TWM 77|TWM 196|PAF 32)\b/i.test(activePrint)&&
+     !suppressed('Initialization'))return true;
+  if(/^Galarian Weezing RCL 113\b/i.test(activePrint)&&
+     !suppressed('Neutralizing Gas'))return true;
+  // An opposing equipped Garbotoxin works from either Active or Bench,
+  // unless the public Tool or Garbotoxin effect itself is suppressed.
+  return !rank16ToolSuppressed(o)&&slots(opponent).some(row=>
+    matches(row.pokemon.printing,PRINT.garbodor)&&
+    list(row.pokemon.tools).length>0&&!rank16GarbotoxinSuppressed(row.pokemon));
+}
 function rank16UsefulOwnSetup(item,o) {
   if(rank16LockLive(o))return false;
   if(item.kind==='play-card') {
@@ -479,6 +503,7 @@ function rank16UsefulOwnSetup(item,o) {
     // They often do not appear as independent use-ability roots.
     if(!rank16CanBenchSupport(o))return false;
     const print=item.actorPrinting??'';
+    if(rank16OpponentBlocksSupport(o,print))return false;
     if(matches(print,PRINT.crobat))return handCount(o)<6&&deckCount(o)>0;
     if(matches(print,PRINT.tapuLele)) {
       const hasSupporter=list(o.ownHand).some(card=>
@@ -734,7 +759,7 @@ function scoreAction(item, request) {
   if(rank16UsefulOwnSetup(item,observation))return 480;
   // If Garbotoxin is already live, benching Ability-only utility Basics
   // consumes Bench capacity without triggering their usual draw/search.
-  if(rank16LockLive(observation)&&
+  if((rank16LockLive(observation)||rank16OpponentBlocksSupport(observation,printing))&&
     [PRINT.crobat,PRINT.dedenne,PRINT.tapuLele,PRINT.squawk]
       .some(pattern=>matches(printing,pattern)))return 0;
   if (matches(printing, PRINT.trubbish)) return count(own, PRINT.trubbish) < 2 ? 210 : 20;
