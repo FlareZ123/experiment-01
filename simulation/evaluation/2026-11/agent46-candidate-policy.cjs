@@ -171,8 +171,16 @@ function allBoard(view) {
   return [...ownBoard(view), ...opponentBoard(view)];
 }
 
+// An Evolution VMAX has a different name from its Basic V. The frozen 60
+// uses exact CRE 74/75 printing IDs; matching the substring "Calyrex V"
+// against VMAX suppresses legitimate follow-up Basic-V establishment.
+function isExactShadowRiderBasicV(printing) {
+  return printing === 'Shadow Rider Calyrex V CRE 74';
+}
 function boardHas(view, name) {
-  return ownBoard(view).some(slot => hasName(slot.printing, name));
+  return ownBoard(view).some(slot => name === 'Shadow Rider Calyrex V'
+    ? isExactShadowRiderBasicV(slot.printing)
+    : hasName(slot.printing, name));
 }
 
 function handHas(view, name) {
@@ -448,7 +456,7 @@ function searchNeedScore(view, printing, effectName = '') {
   const regidrago = opponentHasRegidrago(view);
   const dragon = opponentHasDragon(view);
   const board = ownBoard(view);
-  const hasShadowV = board.some(slot => hasName(slot.printing, 'Shadow Rider Calyrex V'));
+  const hasShadowV = board.some(slot => isExactShadowRiderBasicV(slot.printing));
   const hasShadowVmax = board.some(slot => hasName(slot.printing, 'Shadow Rider Calyrex VMAX'));
   const hasMimikyu = board.some(slot => hasName(slot.printing, 'Mimikyu'));
   const hasClefairy = board.some(slot => hasName(slot.printing, "Lillie's Clefairy ex"));
@@ -1432,7 +1440,7 @@ function scoreEnergyPlay(item, view) {
       psychicEnergyCount(view) < 5 && count < 5) return 880;
   if (opponentHasDragon(view) && hasName(target.printing, "Lillie's Clefairy ex") &&
       count < 2) return 840;
-  if (hasName(target.printing, 'Shadow Rider Calyrex V') && count < 3) return 600;
+  if (isExactShadowRiderBasicV(target.printing) && count < 3) return 600;
   return -Infinity;
 }
 
