@@ -1570,3 +1570,27 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Sky Field collapse discards spent support without losing powered Mega or unused FSS',()=>{
+  const bench=[mon('Dedenne-GX UNB 57'),
+   mon('Crobat V DAA 104',{tools:['Forest Seal Stone SIT 156']}),
+   mon('Mega Absol ex MEG 86',{energies:[
+    'Darkness Energy MEE 15','Darkness Energy MEE 15']}),
+   mon('Garbodor LTR 68',{tools:['Float Stone BKT 137']}),
+   mon('Trubbish CRI 56'),
+   mon('Tapu Lele-GX GRI 60'),
+   mon('Squawkabilly ex PAL 169')];
+  const board=own({active:mon('Budew ASC 16'),bench});
+  const target=prompt(seat,{promptType:'ChoosePokemonPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Sky Field ROS 89',effectName:'Sky Field'},
+   publicMetadata:{selectionType:'pokemon',minimumCount:2,maximumCount:2},
+   choices:bench.map((x,i)=>({kind:'pokemon',token:'bench'+i,printing:x.printing,
+    publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:i}}))},
+   {globalTurn:4,ownPublic:board,opponentPublic:opp({stadium:[]})});
+  assert.deepEqual(decide(seat,target),{kind:'select-choices',tokens:['bench0','bench6']});
+  board.bench=bench.slice(0,5);
+  target.prompt.choices=target.prompt.choices.slice(0,5);
+  assert.deepEqual(decide(seat,target),{kind:'abstain',reasonCode:'NO_SUPPORTED_POKEMON_CHOICE'});
+ });
+}
