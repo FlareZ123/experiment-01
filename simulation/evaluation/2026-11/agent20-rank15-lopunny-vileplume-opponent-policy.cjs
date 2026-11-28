@@ -114,12 +114,12 @@ function movementEvidence(request) {
   return typeof r.ownerActive.movedFromBenchToActiveThisTurn==='boolean' ?
     r.ownerActive.movedFromBenchToActiveThisTurn:null;
 }
-function applyColorlessWeaknessResistance(base,target) {
-  if(!Number.isFinite(base)||base<0)return null;
+function applyTypedWeaknessResistance(base,target,attackerType) {
+  if(!Number.isFinite(base)||base<0||!attackerType)return null;
   let damage=base;
   for(const row of arr(target?.printed?.weakness)){
     const type=typeof row==='string'?row:row?.type;
-    if(type!=='Colorless')continue;
+    if(type!==attackerType)continue;
     const val=String(row?.value??'');
     const mul=/^[x×*]([2-9])$/.exec(val);
     const plus=/^\+([1-9]\d*)$/.exec(val);
@@ -129,12 +129,23 @@ function applyColorlessWeaknessResistance(base,target) {
   }
   for(const row of arr(target?.printed?.resistance)){
     const type=typeof row==='string'?row:row?.type;
-    if(type!=='Colorless')continue;
+    if(type!==attackerType)continue;
     const value=String(row?.value??'');
     if(!/^-[1-9]\d*$/.test(value))return null;
     damage=Math.max(0,damage+Number(value));
   }
   return damage;
+}
+function applyColorlessWeaknessResistance(base,target) {
+  return applyTypedWeaknessResistance(base,target,'Colorless');
+}
+function sourcePrintedType(pokemon) {
+  if([P.mega,P.pidgey,P.pidgeotto,P.pidgeot,P.buneary,P.bunnelby,P.fan].
+      some(p=>has(pokemon,p)))return 'Colorless';
+  if([P.oddish,P.gloom,P.aor,P.bus,P.budew,P.eldegoss].
+      some(p=>has(pokemon,p)))return 'Grass';
+  if(has(pokemon,/^Tatsugiri TWM(?: 131)?\b/i))return 'Dragon';
+  return null;
 }
 function printedDamage(item,request) {
   const o=request.observation,own=o?.ownPublic?.active,op=o?.opponentPublic?.active;
@@ -144,9 +155,10 @@ function printedDamage(item,request) {
       meta.hasPrevention===true) return null;
   if(Number.isSafeInteger(meta.damageAfterResistance)&&meta.damageAfterResistance>=0)
     return meta.damageAfterResistance;
-  // V3 presents printed Weakness/Resistance as {type,value} arrays.
-  // Other-type modifiers do not affect source Colorless attackers. Spiky
-  // Hopper explicitly ignores defensive effects, not Weakness/Resistance.
+  const type=sourcePrintedType(own);
+  if(!type)return null;
+  // Spiky Hopper shreds defender effects but still applies Weakness/Resistance.
+  // Other attacks fail closed if opaque defensive effects may change damage.
   const bypass=has(own,P.mega)&&item.attackName==='Spiky Hopper';
   if(!bypass&&(arr(op.tools).length||
      arr(op.abilitySuppressions).some(x=>x.suppressed===false)))return null;
@@ -159,19 +171,38 @@ function printedDamage(item,request) {
     }
     if(item.attackName==='Spiky Hopper')value=160;
   }
+  // The full original rank15 source printing inventory: fixed-damage attack
+  // branches, not global guesses about similarly named later card printings.
   if(has(own,P.pidgeot)&&item.attackName==='Blustery Wind')value=120;
   if(has(own,P.pidgey)&&item.attackName==='Peck Off')value=10;
-  // The printed source's Pidgey, Pidgeot ex and Mega Lopunny ex are all
-  // Colorless. Powerful Colorless Energy and Choice Belt modify their attacks,
-  // not just Mega Lopunny's attacks. Apply bonuses after base/conditional
-  // attack damage and before target Weakness/Resistance.
-  if(value!==null&&[P.mega,P.pidgeot,P.pidgey].some(p=>has(own,p))){
-    if(!templeSuppressesSpecialEnergy(o)&&
-      arr(own.energies).some(e=>has(e,P.powerful)))value+=20;
-    if(!toolEffectsSuppressed(o)&&arr(own.tools).some(e=>has(e,P.choiceBelt))&&
-      /\bV(?:MAX|STAR)?\b/i.test(txt(op)))value+=30;
+  if(has(own,P.pidgeotto)) {
+    if(/^Pidgeotto TEU(?: 123)?\b/i.test(txt(own))&&item.attackName==='Gust')value=30;
+    if(/^Pidgeotto MEW(?: 17)?\b/i.test(txt(own))&&item.attackName==='Flap')value=20;
   }
-  return value===null?null:applyColorlessWeaknessResistance(value,op);
+  if(has(own,P.buneary)&&item.attackName==='Kick')value=20;
+  if(has(own,P.fan)&&item.attackName==='Assault Landing') {
+    // Printed attack: with no Stadium in play, it does nothing; suppressing
+    // Stadium effects does not remove a Stadium from play.
+    if(![...arr(o.ownPublic?.stadium),...arr(o.opponentPublic?.stadium)].length)
+      return 0;
+    value=70;
+  }
+  if(has(own,P.oddish)&&item.attackName==='Seed Bomb')value=20;
+  if(has(own,P.gloom)&&item.attackName==='Drool')value=30;
+  if(has(own,P.aor)&&item.attackName==='Solar Beam')value=70;
+  if(has(own,P.bus)&&item.attackName==='Downer Shock')value=60;
+  if(has(own,P.budew)&&item.attackName==='Itchy Pollen')value=10;
+  if(has(own,P.eldegoss)&&item.attackName==='Float Up')value=50;
+  if(has(own,/^Tatsugiri TWM(?: 131)?\b/i)&&item.attackName==='Surf')value=50;
+
+  if(value===null)return null;
+  // PCE boosts only Colorless Pokémon, but Choice Belt boosts every Type.
+  // Both modifiers act before Weakness/Resistance and only when still live.
+  if(type==='Colorless'&&!templeSuppressesSpecialEnergy(o)&&
+    arr(own.energies).some(e=>has(e,P.powerful)))value+=20;
+  if(!toolEffectsSuppressed(o)&&arr(own.tools).some(e=>has(e,P.choiceBelt))&&
+    /\bV(?:MAX|STAR)?\b/i.test(txt(op)))value+=30;
+  return applyTypedWeaknessResistance(value,op,type);
 }
 function knockOut(item,request) {
   const op=request.observation?.opponentPublic?.active;
@@ -182,6 +213,11 @@ function knockOut(item,request) {
 function terminal(item,request) {
   if(!knockOut(item,request))return false;
   const o=request.observation;
+  // Float Up removes Eldegoss V itself from play after attacking. If it was
+  // our only Pokémon, we also have no Pokémon in play; do not certify that
+  // simultaneous game-ending position as a straightforward win.
+  if(item.attackName==='Float Up'&&has(o.ownPublic?.active,P.eldegoss)&&
+    benchCount(o.ownPublic)===0)return false;
   return Number.isSafeInteger(o.ownPublic?.prizeCount)&&o.ownPublic.prizeCount>0&&
     (o.ownPublic.prizeCount<=sourcePrizeValue(o.opponentPublic.active)||
      benchCount(o.opponentPublic)===0);
