@@ -3992,6 +3992,23 @@ function astralTerminalHarmlessAbility(slot,name){
 }
 // A direct final attack must be permitted by independently live, public lock
 // sources, not only by stale per-Pokemon suppression rows in a projected board.
+// The candidate's present direct-damage final-Prize attack is not changed by
+// these printed Special Energy effects on an opposing Pokémon. This list is
+// intentionally closed: Spiky/Horror retaliation, Stone reduction and Legacy
+// Prize modification are NOT harmless. In particular, Mist prevents effects
+// of attacks, not damage. This helper must never certify effect-based attacks.
+const TERMINAL_DIRECT_SAFE_ENERGY_NAMES=Object.freeze([
+  'Double Colorless Energy','Capture Energy','Jet Energy',
+  'Reversal Energy','Counter Energy','Memory Energy','Recycle Energy',
+  'Prism Energy','Powerful Colorless Energy','Mist Energy'
+]);
+function directTerminalSafeSpecialEnergy(energy,slot) {
+  if(!isText(energy))return false;
+  const matches=name=>energy===name || energy.startsWith(name+' ');
+  if(matches('Double Dragon Energy'))return isDragon(slot);
+  if(matches('Unit Energy'))return true; // all three printed Unit families are type-only
+  return TERMINAL_DIRECT_SAFE_ENERGY_NAMES.some(matches);
+}
 function terminalAbilityProvablyOff(slot, abilityName, view) {
   if (abilityStatus(slot, abilityName) === true) return false;
   if (abilityLockSourceStadiumSuppression({slot}, view) === true) return true;
@@ -4011,11 +4028,7 @@ function cleanPublicTerminalView(view,direct=false,extraHarmlessAbility=null){
     (direct&&slot===view.opponentPublic.active&&isDragon(slot)&&hasName(t,'Stealthy Hood'))) &&
   (slot.energies??[]).every(p=>
     isBasicEnergyPrinting(p) ||
-    (direct && (
-      (hasName(p,'Double Dragon Energy')&&isDragon(slot)) ||
-      // Mist prevents effects of attacks, not directly dealt damage.
-      // This is deliberately direct-only, never an Astral effect bypass.
-      hasName(p,'Mist Energy')))))&&
+    (direct && directTerminalSafeSpecialEnergy(p,slot))))&&
     !(view.ownPublic.active.specialConditions??[]).length&&
     !(view.opponentPublic.active.specialConditions??[]).length&&
     [...view.ownPublic.stadium,...view.opponentPublic.stadium].every(p=>hasAnyName(p,['Sky Field','Dimension Valley','Temple of Sinnoh']));

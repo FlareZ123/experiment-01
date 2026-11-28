@@ -1902,3 +1902,29 @@ paired('Agent46: Mist Energy does not prevent direct final-Prize damage, unlike 
   const mist={token:'mist',kind:'attack',attackName:'Shadow Mist'};
   assert.deepEqual(decide(profile,root(seat,view,[barrage,mist])),sel('mist'));
 });
+
+paired('Agent46: source-field non-defensive Special Energy does not erase a direct Prize KO',(seat,profile)=>{
+  const victim=defender({hp:280,damage:0});
+  const view=observation(seat,{active:vmax(Array(9).fill(P)),opponentActive:victim});
+  view.globalTurn=8;view.ownPublic.prizeCount=2;
+  const max={token:'max',kind:'attack',attackName:'Max Geist'};
+  const policy=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile});
+  const receipt=()=>policy.decideWithAudit(root(seat,view,[max]));
+  const plain=['Double Colorless Energy FCO','Capture Energy RCL','Jet Energy PAL',
+    'Reversal Energy PAL','Counter Energy CIN','Unit Energy LPM UPR',
+    'Memory Energy LOT','Recycle Energy UNM','Prism Energy NXD',
+    'Powerful Colorless Energy DAA','Mist Energy TEF',
+    'Double Dragon Energy ROS'];
+  for(const special of plain){
+    view.opponentPublic.active.energies=[special];
+    const got=receipt();
+    assert.deepEqual(got.decision,sel('max'),special);
+    assert.equal(got.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK',special);
+  }
+  // Special-energy effects that change the direct outcome are still withheld.
+  for(const unsafe of ['Spiky Energy JTG','Legacy Energy TWM','Stone Fighting Energy VIV',
+    'Horror Psychic Energy RCL','UNKNOWN ENERGY']) {
+    view.opponentPublic.active.energies=[unsafe];
+    assert.notEqual(receipt().policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+  }
+});
