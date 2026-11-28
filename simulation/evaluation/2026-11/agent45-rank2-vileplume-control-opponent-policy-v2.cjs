@@ -281,6 +281,12 @@ function opponentHasGarbotoxin(player) {
 function hasStealthyHood(pokemon) {
   return list(pokemon?.tools).some(tool => matches(tool, PRINT.stealthyHood));
 }
+function hoodFunctionsThroughStadium(observation, pokemon) {
+  // Jamming Tower makes Pokémon Tools have no effect without removing them.
+  // Thus Garbotoxin stays live even though an attached Hood stops working.
+  return hasStealthyHood(pokemon) &&
+    !stadiumInPlay(observation, /^Jamming Tower TWM(?: \d+)?\b/i);
+}
 function ownToolLocked(observation) {
   return observation?.ownTurnResources?.toolPlayLocked === true ||
     observation?.ownPublic?.publicTurnRestrictions?.toolPlayLocked === true;
@@ -300,7 +306,7 @@ function vileplumeItemLockPersistent(observation) {
       row.abilityName === 'Irritating Pollen');
     if (pollen?.suppressed === true) return false;
     if (status === 'unknown') return false;
-    return status !== 'live' || hasStealthyHood(pokemon);
+    return status !== 'live' || hoodFunctionsThroughStadium(observation, pokemon);
   });
 }
 
@@ -309,7 +315,7 @@ function stoutlandSentinelEffective(observation, targetPokemon) {
   const opponent = observation?.opponentPublic ?? {};
   if (opponent.publicTurnRestrictions?.supporterPlayLocked === true) return false;
   const status = opponentGarbotoxinStatus(opponent);
-  if (status === 'live') return hasStealthyHood(targetPokemon);
+  if (status === 'live') return hoodFunctionsThroughStadium(observation, targetPokemon);
   if (status === 'unknown') return false;
   return true;
 }
@@ -339,6 +345,11 @@ function nominalGuzmaRetreatTrap(target, opponent) {
   if (!target || guzmaTargetWouldDisableOwnLock(target) ||
       list(target.energies).length > 0 ||
       list(target.printed?.retreatCost).length === 0) return false;
+  // If Garbotoxin is active, promoting an opposing Tool Jammer makes our
+  // Active Stoutland's Stealthy Hood inert, undoing the Supporter lock.
+  if (opponentGarbotoxinStatus(opponent) === 'live' &&
+      list(target.tools).some(tool =>
+        /^Tool Jammer BST(?: \d+)?\b/i.test(printingValue(tool)))) return false;
   if (list(target.tools).some(tool =>
     /Float Stone|Air Balloon|Escape Board|U-Turn Board/i.test(printingValue(tool)))) {
     return false;
