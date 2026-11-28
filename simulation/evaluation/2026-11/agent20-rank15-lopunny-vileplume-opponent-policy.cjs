@@ -668,6 +668,66 @@ function evolutionPrompt(request) {
   }
   return abstain('UNSUPPORTED_PROMPT_TYPE');
 }
+function rototillerPriority(card,o) {
+  const own=o?.ownPublic,opp=o?.opponentPublic;
+  const lock=slots(own).some(x=>has(x,P.aor)&&
+    !arr(x.abilitySuppressions).some(z=>
+      z.abilityName==='Irritating Pollen'&&z.suppressed===true));
+  if(has(card,P.karen)&&karenOpportunity({...o,ownTurnResources:{
+    ...o.ownTurnResources,supporterPlayedTurn:-1}}))return 140;
+  if(has(card,P.grandTree)&&slots(own).some(x=>[P.oddish,P.gloom,P.buneary,P.pidgey].
+    some(p=>has(x,p))))return 130;
+  if(has(card,P.guzma)&&slots(own).some(x=>has(x,P.mega)))return 125;
+  if(has(card,P.jet)&&slots(own).some(x=>has(x,P.bus)))return 120;
+  if(has(card,P.doubleColorless)&&slots(own).some(x=>has(x,P.mega)))return 115;
+  if(has(card,P.guzmaHala)&&!lock&&missingEvolutionChannels(o))return 110;
+  if(has(card,P.aor)&&!slots(own).some(x=>has(x,P.aor)))return 105;
+  if(has(card,P.bus)&&!slots(own).some(x=>has(x,P.bus)))return 100;
+  if(has(card,P.gloom)&&slots(own).some(x=>has(x,P.oddish)))return 95;
+  if(has(card,P.oddish)&&slots(own).filter(x=>[P.oddish,P.gloom,P.aor,P.bus].
+    some(p=>has(x,p))).length<2)return 90;
+  if(has(card,P.poffin))return lock?10:70;
+  if(has(card,P.tagCall))return lock?8:60;
+  if(has(card,P.grass))return 35;
+  if(has(card,P.jet))return 30;
+  if(has(card,P.karen))return 25;
+  return 20;
+}
+function rototillerPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
+    !actorCardZone(p,'discard')||!Number.isSafeInteger(m.minimumCount)||
+    !Number.isSafeInteger(m.maximumCount)||m.minimumCount<0||
+    m.minimumCount>1||m.maximumCount!==1)
+    return abstain('UNSUPPORTED_DISCARD_RETRIEVAL');
+  const actual=new Map();
+  for(const c of arr(o.ownPublic?.discard)){
+    const printing=txt(c);actual.set(printing,(actual.get(printing)??0)+1);
+  }
+  const candidates=arr(p.choices).filter(c=>c.kind==='card'&&
+    typeof c.token==='string'&&(actual.get(txt(c))??0)>0)
+    .map((c,i)=>({c,i,score:rototillerPriority(c,o)}))
+    .sort((a,b)=>b.score-a.score||a.i-b.i);
+  if(candidates.length)return {kind:'select-choices',tokens:[candidates[0].c.token]};
+  const empty=arr(p.choices).find(c=>c.kind==='empty-selection'&&typeof c.token==='string');
+  return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
+    abstain('NO_LEGAL_CARD_SET');
+}
+function bunnelbyAttritionAction(items,o) {
+  if(!has(o.ownPublic?.active,P.bunnelby)||
+    arr(o.ownPublic.active.energies).length===0)return null;
+  const burrow=items.find(x=>x.kind==='attack'&&x.attackName==='Burrow');
+  const rototiller=items.find(x=>x.kind==='attack'&&x.attackName==='Rototiller');
+  const ownDeck=o.ownPublic.deckCount,oppDeck=o.opponentPublic?.deckCount;
+  const meaningfulDiscard=arr(o.ownPublic.discard).length>0;
+  if(rototiller&&Number.isSafeInteger(ownDeck)&&ownDeck<=1&&meaningfulDiscard)
+    return rototiller;
+  if(burrow&&Number.isSafeInteger(oppDeck)&&oppDeck>0&&oppDeck<=2)return burrow;
+  if(rototiller&&Number.isSafeInteger(ownDeck)&&ownDeck<=3&&meaningfulDiscard)
+    return rototiller;
+  if(burrow&&Number.isSafeInteger(oppDeck)&&oppDeck>0)return burrow;
+  return rototiller&&meaningfulDiscard?rototiller:null;
+}
 function omegaBarragePrompt(request) {
   const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
   if(p.promptType!=='ConfirmPrompt'||m.selectionType!=='confirm'||
@@ -679,7 +739,10 @@ function omegaBarragePrompt(request) {
   const own=o.ownPublic;
   const ready=has(own?.active,P.bunnelby)&&
     arr(own.active.tools).some(x=>has(x,P.tmEvolution))&&
-    arr(own.active.energies).length>0&&k1EvoTarget(o);
+    arr(own.active.energies).length>0&&(
+      k1EvoTarget(o)||
+      (Number.isSafeInteger(o.opponentPublic?.deckCount)&&o.opponentPublic.deckCount>0)||
+      arr(own.discard).length>0);
   if(ready&&yes)return {kind:'select-choice',token:yes.token};
   return no?{kind:'select-choice',token:no.token}:
     abstain('UNRECOGNIZED_SIMPLE_PROMPT');
@@ -753,6 +816,8 @@ function rootDecision(request) {
     has(o.ownPublic?.active,P.bunnelby)&&
     arr(o.ownPublic?.active?.tools).some(c=>has(c,P.tmEvolution)));
   if(tmAttack&&k1EvoTarget(o))return take(tmAttack);
+  const attrition=bunnelbyAttritionAction(items,o);
+  if(attrition)return take(attrition);
   const busWindow=busActivePromotionOpportunity(o);
   if(busWindow){
     const jetBus=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.jet)&&
@@ -850,6 +915,9 @@ function createPolicy({role,seat,policyVersion,config}) {
       if(has(request.prompt?.source?.sourcePrinting,P.guzma))return guzmaPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.tmEvolution))return evolutionPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.bunnelby)&&
+        request.prompt?.source?.effectName==='Rototiller'&&
+        request.prompt?.promptType==='ChooseCardsPrompt')return rototillerPrompt(request);
+      if(has(request.prompt?.source?.sourcePrinting,P.bunnelby)&&
         request.prompt?.promptType==='ConfirmPrompt')return omegaBarragePrompt(request);
       if(request.prompt?.source?.effectName==='Omega Barrage'&&
         request.prompt?.promptType==='ConfirmPrompt')return omegaBarragePrompt(request);
@@ -863,4 +931,4 @@ function createPolicy({role,seat,policyVersion,config}) {
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,
   createPolicy,rootDecision,poffinPrompt,printedDamage,movementEvidence,karenOpportunity,REGIDRAGO_DRAGON_PAYLOADS,
-  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,k1Available,k1EvoTarget,usefulArtazonBasic,artazonPrompt,airMailPrompt,grandTreePrompt,grandTreeTarget,guzmaOpportunity,guzmaPrompt,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
+  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,k1Available,k1EvoTarget,usefulArtazonBasic,artazonPrompt,airMailPrompt,grandTreePrompt,grandTreeTarget,guzmaOpportunity,guzmaPrompt,rototillerPrompt,rototillerPriority,bunnelbyAttritionAction,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
