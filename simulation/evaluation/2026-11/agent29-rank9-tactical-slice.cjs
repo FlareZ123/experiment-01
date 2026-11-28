@@ -76,20 +76,36 @@ module.exports = (function build() {
     return 1;
   }
   function activeStadium(o) { return [...L(o.ownPublic?.stadium),...L(o.opponentPublic?.stadium)].map(name); }
-  function abilityTexts(player,target) {
+  function labSuppressesPal97(o,p) {
+    if(!p||!/^Mimikyu PAL(?: 97)?$/i.test(name(p))||
+       !isBasicStage(p)||!liveStadium(o,/^Silent Lab/i)||
+       L(p.tools).length>0)return false;
+    // Lunatone's New Moon prevents Stadium effects on its owner's Pokémon,
+    // even if the other Stadium would ordinarily shut Basic Abilities off.
+    // A visible uncertain New Moon is enough to keep this route closed.
+    if(slots(o.opponentPublic).some(row=>L(row.p.abilityDetails).some(a=>
+       a.name==='New Moon'&&
+       !L(row.p.abilitySuppressions).some(x=>
+         x.abilityName===a.name&&x.suppressed===true))))return false;
+    return true;
+  }
+  function abilityTexts(player,target,o) {
     const board=slots(player);
-    // PAL97 Safeguard protects only its own holder. A Benched Safeguard
-    // cannot make the opponent's different Active Pokémon immune to damage.
-    // If target-to-board identity is unknown, retain the conservative veto.
+    // PAL97 Safeguard protects only its holder, and Silent Lab disables
+    // that holder's Basic Ability when the Stadium effect is provably live.
+    // If target identity or relevant public Stadium status is unknown,
+    // preserve the conservative prevent-damage veto.
     const targetKnown=board.some(row=>row.p===target);
     return board.flatMap(({p})=>L(p.abilityDetails).filter(a=>
       !L(p.abilitySuppressions).some(s=>s.abilityName===a.name&&s.suppressed===true)&&
-      !(targetKnown&&p!==target&&/^Mimikyu PAL(?: 97)?$/i.test(name(p))&&a.name==='Safeguard')
+      !(targetKnown&&/^Mimikyu PAL(?: 97)?$/i.test(name(p))&&
+        a.name==='Safeguard'&&
+        (p!==target||labSuppressesPal97(o,p)))
     ).map(a=>String(a.text??'')));
   }
   function uncertainDefense(o,p,kind) {
     // These are deliberate vetoes, not a complete paper modifier engine.
-    const texts=abilityTexts(o.opponentPublic,p);
+    const texts=abilityTexts(o.opponentPublic,p,o);
     const attachments=slots(o.opponentPublic).flatMap(({p})=>[...L(p.tools),...L(p.energies)]).map(name);
     if (attachments.some(x=>/Life Dew|Legacy Energy|Survival Brace|Hero's Cape|Luxurious Cape/i.test(x))) return true;
     if (kind==='effect') {
@@ -1153,6 +1169,16 @@ function bombPlanner(o,sourceBenchIndex){
       if(directScore>=1000)return {kind:'select-action',token:direct.token};
       const cologneWin=items.find(x=>x.kind==='play-card'&&cologne(x));
       if(cologneWin&&cologneFinalPrize(o)){
+        // Both answers win this turn, but a live Silent Lab also turns off
+        // PAL97 and conserves the single Cologne for another lock matchup.
+        const lab=items.find(x=>x.kind==='play-card'&&
+          /^Silent Lab PRC 140$/i.test(name(x))&&
+          M(x).canPlay!==false&&M(x).isLegal!==false);
+        if(lab&&handHas(o,x=>/^Silent Lab PRC 140$/i.test(name(x)))&&
+           !o.ownTurnResources?.stadiumPlayLocked&&
+           !own?.publicTurnRestrictions?.stadiumPlayLocked&&
+           stadiumScore(name(lab),o)>=950)
+          return {kind:'select-action',token:lab.token};
         cologneFollow={
           turn:o.globalTurn,sequence:r.sequence,
           attackerPrinting:name(own.active),targetPrinting:name(opp.active),
