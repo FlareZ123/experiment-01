@@ -65,6 +65,61 @@ for(const seat of [0,1]){
     assert.equal(scoreAction(before.actionFrontier.items[0],before),1000);
     assert.deepEqual(policy.decide(before),{kind:'select-action',token:'volt'});
   });
+  test('seat '+seat+': DCE-only Thunder replacement beats Plumeria, restores terminal Volt',()=>{
+    const r=request(seat,{energies:['Double Colorless Energy SUM 136'],
+      opponentEnergy:true});
+    // Match original rank11 Mega Absol ex and the rank29 source's
+    // Temple→Thunder+DCE-only first-attack ALS. Three remaining Prizes.
+    const thunder='Thunder Mountain Prism Star LOT 191';
+    r.observation.ownHand.push(thunder,'Plumeria BUS 120',
+      'Crushing Hammer POR 71','Enhanced Hammer PHF 93');
+    r.actionFrontier.items=[
+      {kind:'play-card',token:'thunder',actorPrinting:thunder,
+        publicMetadata:{cardType:'stadium'}},
+      {kind:'play-card',token:'plumeria',actorPrinting:'Plumeria BUS 120',
+        publicMetadata:{cardType:'supporter'}},
+      {kind:'pass',token:'pass'}
+    ];
+    assert.equal(scoreAction(r.actionFrontier.items[0],r),925);
+    assert.equal(scoreAction(r.actionFrontier.items[1],r),190);
+    assert.deepEqual(policy.decide(r),{kind:'select-action',token:'thunder'});
+    // Separate actor-root next state: do not claim a native settlement.
+    r.observation.opponentPublic.stadium=[thunder];
+    r.actionFrontier.items=[{kind:'attack',token:'volt',
+      attackName:'Volt Cyclone',publicMetadata:{attackCostPayable:true}},
+      {kind:'pass',token:'pass'}];
+    assert.equal(scoreAction(r.actionFrontier.items[0],r),1000);
+    assert.deepEqual(policy.decide(r),{kind:'select-action',token:'volt'});
+  });
+  test('seat '+seat+': Thunder reduces Lightning cost but still requires two total units',()=>{
+    for(const energies of [
+      ['Speed Lightning Energy RCL 173'],
+      ['Capture Energy RCL 171'],
+      ['Spiky Energy JTG 159']
+    ]){
+      const r=request(seat,{energies});
+      const thunder='Thunder Mountain Prism Star LOT 191';
+      r.observation.ownHand.push(thunder);
+      r.actionFrontier.items=[
+        {kind:'play-card',token:'thunder',actorPrinting:thunder,
+          publicMetadata:{cardType:'stadium'}},
+        {kind:'pass',token:'pass'}];
+      assert.equal(scoreAction(r.actionFrontier.items[0],r),0);
+      assert.deepEqual(policy.decide(r),{kind:'select-action',token:'pass'});
+    }
+    // Two physical Colorless-type Special Energy units are sufficient
+    // AFTER replacing Temple with the actual Lightning-cost reducer.
+    const r=request(seat,{energies:[
+      'Capture Energy RCL 171','Spiky Energy JTG 159']});
+    const thunder='Thunder Mountain Prism Star LOT 191';
+    r.observation.ownHand.push(thunder);
+    r.actionFrontier.items=[
+      {kind:'play-card',token:'thunder',actorPrinting:thunder,
+        publicMetadata:{cardType:'stadium'}},
+      {kind:'pass',token:'pass'}];
+    assert.equal(scoreAction(r.actionFrontier.items[0],r),925);
+    assert.deepEqual(policy.decide(r),{kind:'select-action',token:'thunder'});
+  });
   test('seat '+seat+': Temple unlock remains useful without immediate KO',()=>{
     const r=request(seat,{damage:0});
     assert.equal(scoreAction(r.actionFrontier.items[0],r),225);
