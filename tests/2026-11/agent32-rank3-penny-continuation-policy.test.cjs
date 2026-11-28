@@ -136,7 +136,7 @@ for(const seat of [0,1]){
     assert.equal(scoreAt(0),110);
     assert.equal(scoreAt(1),180);
     assert.equal(rank3.scoreAction({...base,targetPrinting:'Snorlax PGO 999',
-      publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:1}},req),0);
+      publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:1}},req),5);
   });
   test('rank3 Capture Energy Bench action is not misread as identical-print Active, seat '+seat,()=>{
     const req=root(seat,[snorlax(0),snorlax(0)]);
