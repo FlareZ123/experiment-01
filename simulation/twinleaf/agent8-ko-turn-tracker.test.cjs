@@ -32,7 +32,7 @@ function storeAt(turn=0){
   const store={
     state,
     reduceEffect(stateArg,effect){
-      if(effect instanceof KnockOutEffect){
+      if(effect instanceof KnockOutEffect&&effect.preventDefault!==true){
         const victim=effect.player;
         const actor=stateArg.players[stateArg.activePlayer];
         if(actor!==victim&&
@@ -92,6 +92,21 @@ test('instance Store hook stamps the actual KO turn and restores the reducer',()
   assert.deepEqual(tracker.snapshot('B','A',4),[]);
   uninstall();
   assert.strictEqual(store.reduceEffect,original);
+});
+
+test('a prevented KO effect makes its turn unknown rather than known-empty',()=>{
+  const {store,a,b}=storeAt(0);
+  const {tracker,uninstall}=installStoreKnockoutTurnTracker(store,{
+    KnockOutEffect,EndTurnEffect,GamePhase
+  });
+  store.state.turn=2;
+  store.state.phase=GamePhase.ATTACK;
+  const prevented=new KnockOutEffect(b);
+  prevented.preventDefault=true;
+  store.reduceEffect(store.state,prevented);
+  store.reduceEffect(store.state,new EndTurnEffect(a));
+  assert.equal(tracker.snapshot('B','A',3),null);
+  uninstall();
 });
 
 test('a KO during the opponent extra turn is fresh on the next owner turn',()=>{
