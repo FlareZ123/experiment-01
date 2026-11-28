@@ -512,6 +512,9 @@ function canGuzmaLeadToFundedAttack(o){
   list(r.pokemon.tools).some(x=>match(x,PRINT.float)));
 }
 function guzmaRootScore(o){
+ // Guzma's first switch must select an opposing Benched Pokémon. Without
+ // one, the conditional own switch cannot occur even through Snorlax Block.
+ if(benchCount(o.opponentPublic)===0)return 0;
  if(o.ownTurnResources?.supporterPlayedTurn!==0||o.ownPublic?.publicTurnRestrictions?.supporterPlayLocked===true||
     o.ownTurnResources?.supporterPlayLocked===true||!canGuzmaLeadToFundedAttack(o)&&!opponentSnorlaxBlock(o))return 0;
  const bestMega=attackingBenchedMega(o)[0]?.pokemon??o.ownPublic?.active;
