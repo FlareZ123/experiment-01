@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {validateDecision,validatePrompt}=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const {POLICY_VERSION,SOURCE_RANK,SOURCE_BLOB_SHA1,SOURCE_PRINTINGS,
   createPolicy,scoreRoot,choosePrompt,donorScore,resolveSourcePrinting,
-  energyCoverage,rank27EnergyAttachScore}=
+  energyCoverage,rank27EnergyAttachScore,finalPrizePrimeTarget}=
  require('../../simulation/evaluation/2026-11/agent2-rank27-regidrago-opponent-policy.cjs');
 
 const P={
@@ -733,5 +733,84 @@ test('rank27 Net Ball does not chase dead Eldegoss under source-real Aichi locks
   assert.equal(tok(decide(seat,noTool)),'eldegoss');
   const ownLab=mk(base.opponentPublic,{...own,stadium:['Silent Lab PRC 140']});
   assert.equal(tok(decide(seat,ownLab)),'grass');
+ }
+});
+
+test('last-Prize Prime Catcher beats immediate Apex only with real ready Bench VSTAR',()=>{
+ for(const seat of [0,1]){
+  const base=observation(seat);
+  const own={...base.ownPublic,prizeCount:1,
+   bench:[
+    pokemon(P.star,{energies:[
+     'Double Dragon Energy ROS','Grass Energy MEE']}),
+    pokemon(P.budew)
+   ],
+   discard:[P.dragapult]
+  };
+  const opp={...base.opponentPublic,bench:[
+   pokemon('Pidgeot ex OBF 164',{hp:280,damage:120}),
+   pokemon('Arceus VSTAR BRS 123',{hp:280,damage:0})
+  ]};
+  const obs=observation(seat,{ownPublic:own,opponentPublic:opp});
+  assert.equal(finalPrizePrimeTarget(obs)?.index,0);
+  const offered=[action('apex','attack',P.star,{attackName:'Apex Dragon'}),
+    action('gust','play-card','Prime Catcher TEF'),
+    action('pass','pass','Pass')];
+  assert.equal(tok(root(seat,obs,offered)),'gust');
+  const promptChoice=(token,ownerSeat,index)=>{
+    return {kind:'pokemon',token,label:token,publicMetadata:{
+      targetZone:'bench',ownerSeat,benchIndex:index,isOwnerVisible:true
+    }};
+  };
+  const oppPrompt=promptRequest(seat,obs,'Prime Catcher','Prime Catcher TEF',
+   'ChoosePokemonPrompt',[
+     promptChoice('healthy','opponent',1),
+     promptChoice('wounded','opponent',0),
+     promptChoice('wrong-owner','actor',0)
+   ],{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+     allowCancel:false});
+  const oppDecision=decide(seat,oppPrompt);
+  assert.deepEqual(oppDecision,{kind:'select-choices',tokens:['wounded']});
+  assert.deepEqual(validateDecision(oppDecision,
+   validatePrompt(oppPrompt.prompt,seat),new Set()),oppDecision);
+  const afterGust=observation(seat,{ownPublic:own,opponentPublic:{
+    ...opp,active:opp.bench[0],bench:[opp.active,opp.bench[1]]
+  }});
+  const ownPrompt=promptRequest(seat,afterGust,'Prime Catcher',
+   'Prime Catcher TEF','ChoosePokemonPrompt',[
+    promptChoice('budew','actor',1),
+    promptChoice('ready-star','actor',0)
+   ],{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+     allowCancel:false});
+  const ownDecision=decide(seat,ownPrompt);
+  assert.deepEqual(ownDecision,
+    {kind:'select-choices',tokens:['ready-star']});
+  assert.deepEqual(validateDecision(ownDecision,
+   validatePrompt(ownPrompt.prompt,seat),new Set()),ownDecision);
+  const noReady=observation(seat,{ownPublic:{...own,
+   bench:[pokemon(P.star,{energies:['Grass Energy MEE']})]},
+   opponentPublic:opp});
+  assert.equal(finalPrizePrimeTarget(noReady),null);
+  assert.equal(tok(root(seat,noReady,offered)),'apex');
+  const noDonor=observation(seat,{ownPublic:{...own,discard:[P.dialga]},
+   opponentPublic:opp});
+  assert.equal(finalPrizePrimeTarget(noDonor),null);
+  assert.equal(tok(root(seat,noDonor,offered)),'apex');
+  const notFinal=observation(seat,{ownPublic:{...own,prizeCount:2},
+   opponentPublic:opp});
+  assert.equal(finalPrizePrimeTarget(notFinal),null);
+  assert.equal(tok(root(seat,notFinal,offered)),'apex');
+  const noVictim=observation(seat,{ownPublic:own,
+    opponentPublic:{...opp,bench:opp.bench.map(x=>({
+     ...x,damage:0}))}});
+  assert.equal(finalPrizePrimeTarget(noVictim),null);
+  assert.equal(tok(root(seat,noVictim,offered)),'apex');
+  const wrong=promptRequest(seat,obs,'Prime Catcher','Prime Catcher TEF',
+   'ChoosePokemonPrompt',[
+    {kind:'pokemon',token:'fake',publicMetadata:{
+      targetZone:'deck',ownerSeat:'opponent',benchIndex:0}}
+   ],{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+     allowCancel:false});
+  assert.equal(decide(seat,wrong).kind,'abstain');
  }
 });
