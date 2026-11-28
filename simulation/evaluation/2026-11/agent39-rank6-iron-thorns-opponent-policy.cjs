@@ -188,6 +188,24 @@ function stadiumLocked(observation) {
     observation?.ownTurnResources?.stadiumPlayedTurn === true;
 }
 
+// Project exactly the Energy families in the unchanged Aichi rank-6 source.
+function voltCycloneFunding(observation,addEnergy=null,replaceWithThunder=false) {
+  const active=observation?.ownPublic?.active;
+  if(!active||!matches(active.printing,PRINT.ironThorns))return null;
+  const temple=!replaceWithThunder&&hasStadium(observation,/Temple of Sinnoh/i);
+  const thunder=replaceWithThunder||hasStadium(observation,PRINT.thunderMountain);
+  const labyrinth=!replaceWithThunder&&hasStadium(observation,PRINT.wondrousLabyrinth);
+  const cards=[...list(active.energies),...(addEnergy?[addEnergy]:[])];
+  let total=0,lightning=0;
+  for(const card of cards){
+    if(matches(card,PRINT.speedLightning)){total++;if(!temple)lightning++;}
+    else if(matches(card,PRINT.doubleColorless))total+=temple?1:2;
+    else if(matches(card,PRINT.spikyEnergy)||matches(card,PRINT.captureEnergy))total++;
+    else return null; // Unknown Energy: never invent readiness.
+  }
+  const cost=(thunder?2:3)+(labyrinth?1:0);
+  return {ready:total>=cost&&(thunder||lightning>0),total,cost};
+}
 function energyAvailable(observation) {
   const usedAt=observation?.ownTurnResources?.energyPlayedTurn;
   const turn=observation?.globalTurn;
@@ -738,10 +756,15 @@ function scorePlayCard(item, request) {
     activeEnergies.some(energy=>/^(?:Basic )?Lightning Energy/i.test(valueText(energy)));
   if(matches(card,PRINT.speedLightning)){
     const hadSpeed=activeEnergies.some(energy=>matches(energy,PRINT.speedLightning));
+    const before=voltCycloneFunding(observation),after=voltCycloneFunding(observation,card);
+    const attackNow=before&&after&&!before.ready&&after.ready;
+    const advancing=before&&after&&!before.ready&&after.total>before.total&&
+      after.total<=after.cost;
     return energyAvailable(observation)&&!specialEnergyLocked(observation)&&
       matches(target||own.active?.printing,PRINT.ironThorns)&&
-      ((!temple&&!hadSpeed)||completesVoltCycloneUnderTemple)?
-      (temple?125:155):0;
+      (attackNow||(!hadSpeed&&!temple)||completesVoltCycloneUnderTemple||
+        (hadSpeed&&!temple&&advancing))?
+      attackNow?175:temple?125:hadSpeed?110:155:0;
   }
   if(matches(card,PRINT.doubleColorless)){
     const hadDce=activeEnergies.some(energy=>matches(energy,PRINT.doubleColorless));
@@ -760,10 +783,13 @@ function scorePlayCard(item, request) {
   }
   if (matches(card, PRINT.thunderMountain)) {
     const activeEnergy = energyCount(own.active);
-    return !stadiumLocked(observation) &&
-      !hasStadium(observation, PRINT.thunderMountain) &&
-      (activeEnergy >= 2 || list(request.actionFrontier.items).some(action =>
-        action.kind === 'attack' && /Volt Cyclone/i.test(action.attackName ?? ''))) ? 115 : 0;
+    const before=voltCycloneFunding(observation),after=voltCycloneFunding(observation,null,true);
+    if(stadiumLocked(observation)||hasStadium(observation,PRINT.thunderMountain))return 0;
+    // DCE is one card providing two Colorless. Thunder removes the Lightning
+    // symbol; DCE alone can now fund Volt Cyclone.
+    if(before&&after&&!before.ready&&after.ready)return 185;
+    return activeEnergy>=2||list(request.actionFrontier.items).some(action=>
+      action.kind==='attack'&&/Volt Cyclone/i.test(action.attackName??''))?115:0;
   }
   if (matches(card, PRINT.wondrousLabyrinth)) {
     const opponentActive = opponent.active;
