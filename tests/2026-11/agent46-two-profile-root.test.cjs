@@ -1975,9 +1975,9 @@ paired('Agent46: inert source Stadium must not mask a payable direct final Prize
     view.opponentPublic.stadium=[stadium];
     assert.equal(final(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK',stadium);
   }
-  // The price of Wondrous is now checked by the explicit payment
-  // calculator; other unverified Stadiums remain excluded.
-  for(const stadium of ['Path to the Peak CRE','UNRECOGNIZED STADIUM']){
+  // Wondrous payment and Path/Silent Ability suppression are now
+  // modeled explicitly; unverified Stadiums remain excluded.
+  for(const stadium of ['UNRECOGNIZED STADIUM']){
     view.opponentPublic.stadium=[stadium];
     assert.notEqual(final(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
   }
