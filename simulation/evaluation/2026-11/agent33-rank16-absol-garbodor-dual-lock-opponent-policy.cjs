@@ -1004,11 +1004,6 @@ function promptDecision(request) {
       return multi ? multiSelect(prompt, discard, choice => matches(choice, PRINT.dark) ? 180 : 0, 'NO_MOTIVATE_ENERGY')
         : singleChoice(prompt, discard, choice => matches(choice, PRINT.dark) ? 180 : 0, 'NO_MOTIVATE_ENERGY');
     }
-    if (/dark patch/.test(source)) {
-      return singleChoice(prompt, choices, choice =>
-        owner(choice) === 'actor' && zone(choice) === 'discard' && matches(choice, PRINT.dark) ? 180 : 0,
-      'NO_DARKNESS_ENERGY_TO_ATTACH');
-    }
     if (/night stretcher/.test(source)) {
       return singleChoice(prompt, discard, choice => {
         if (matches(choice, PRINT.mega) && count(observation.ownPublic, PRINT.mega) < 2) return 230;
@@ -1065,13 +1060,6 @@ function promptDecision(request) {
         choice => opponentTargetScore(choice, observation, 220), 'NO_GUZMA_TARGET');
       return singleChoice(prompt, choices.filter(choice => owner(choice) === 'actor'),
         choice => ownSwitchScore(choice, observation), 'NO_GUZMA_SWITCH_TARGET');
-    }
-    if (/dark patch/.test(source)) {
-      return singleChoice(prompt, choices.filter(choice => owner(choice) === 'actor' && zone(choice) === 'bench'),
-        choice => {
-          const row = ownPokemon(choice, observation);
-          return row && matches(row.pokemon.printing, PRINT.mega) && energyCount(row.pokemon) < 3 ? 220 : 0;
-        }, 'NO_DARK_PATCH_BENCH_TARGET');
     }
     if (/float stone|forest seal stone|muscle band/.test(source)) {
       return singleChoice(prompt, choices.filter(choice => owner(choice) === 'actor'), choice => {
