@@ -256,10 +256,10 @@ function stadiumScene(seat){
   const x=stage(seat),manager=initializeCards();
   replaceActive(x.owner,[createCard(manager,'Iron Thorns ex TWM')]);
   replaceActive(x.opponent,[createCard(manager,'Gardevoir-GX BUS')]);
-  const fairy=createCard(manager,'Fairy Energy SVE');
+  const psychic=createCard(manager,'Psychic Energy SVE');
   const dce=createCard(manager,'Double Colorless Energy FCO');
-  x.opponent.active.cards.push(fairy,dce);
-  x.opponent.active.energies.cards.push(fairy,dce);
+  x.opponent.active.cards.push(psychic,dce);
+  x.opponent.active.energies.cards.push(psychic,dce);
   x.owner.hand.cards.length=0;
   x.owner.hand.cards.push(createCard(manager,'Wondrous Labyrinth Prism Star TEU'),
     createCard(manager,'Tropical Beach BWP'));
@@ -291,7 +291,7 @@ function rank6Root(seat,{rawOldType=false}={}){
   const observation=actorObservation(x.state,seat);
   assert.deepEqual(observation.opponentPublic.active.printed.types,['Fairy']);
   assert.deepEqual(observation.opponentPublic.active.energies,
-    ['Fairy Energy SVE','Double Colorless Energy FCO']);
+    ['Psychic Energy SVE','Double Colorless Energy FCO']);
   const view=rawOldType?JSON.parse(JSON.stringify(observation)):observation;
   if(rawOldType)view.opponentPublic.active.printed.types=[CardType.FAIRY];
   if(!rawOldType)assert.doesNotThrow(()=>
