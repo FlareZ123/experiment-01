@@ -695,6 +695,20 @@ function bestAction(req){
  const items=list(req.actionFrontier?.items).filter(i=>ROOT_KINDS.has(i.kind));
  if(!items.length)return {kind:'abstain',reasonCode:'NO_EXECUTABLE_ACTION'};
  const ranked=items.map(i=>({i,score:score(i,req)}));
+ // Boost Shake itself ends the turn. Its 350-point local value must not
+ // preempt an available safe Item/search, Tool, Stadium or needed Basic
+ // placement that can be performed first without losing Boost Shake.
+ // Avoid forcing full-hand-replacement Supporters such as Carmine/Marnie:
+ // they would shuffle/discard the very Boost Shake being sequenced.
+ const preBoost=ranked.some(x=>{
+  if(x.i.kind!=='play-card'||x.score<200)return false;
+  const p=x.i.actorPrinting;
+  return !match(p,PRINT.boost)&&(sourceItem(p)||
+   [PRINT.float,PRINT.muscle,PRINT.forest,PRINT.temple,
+    PRINT.trubbish,PRINT.mega,PRINT.budew,PRINT.dark].some(rx=>match(p,rx)));
+ });
+ if(preBoost)for(const x of ranked)if(x.i.kind==='play-card'&&
+  match(x.i.actorPrinting,PRINT.boost))x.score=0;
  // Every attack ends the current turn. Do not announce an ordinary attack
  // while another realistically useful, executable non-turn-ending setup
  // action is still offered. This is much stronger than local score sorting.
