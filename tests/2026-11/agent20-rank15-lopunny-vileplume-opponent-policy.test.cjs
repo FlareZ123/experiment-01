@@ -714,3 +714,86 @@ test('Karen acts against funded Bench Regidrago threat but not unpowered future 
   r.observation.opponentPublic.bench[0].energies=[];
   assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
 });
+
+function millRoot(seat=0) {
+  const r=ghRoot(seat);r.observation.globalTurn=13;
+  r.observation.ownPublic=p(pokemon('Bunnelby PRC 121',{hp:60,
+    energies:['Grass Energy MEE 9']}),[],{discard:['Karen XYP 177','Grass Energy MEE 9']});
+  r.observation.ownPublic.deckCount=8;
+  r.observation.opponentPublic=p(pokemon('Regidrago VSTAR SIT 136',{hp:280}),
+    [pokemon('Regidrago V SIT 135',{hp:220})],
+    {discard:['Dialga-GX UPR 100','Dragapult ex TWM 130']});
+  r.observation.opponentPublic.deckCount=2;
+  r.actionFrontier.items=[{kind:'attack',token:'mill',attackName:'Burrow'},
+    {kind:'attack',token:'recover',attackName:'Rototiller'}];
+  return r;
+}
+for(const seat of [0,1]){
+  test('seat '+seat+': Bunnelby mills 2-card opponent deck; Rototiller averts own deckout',()=>{
+    const r=millRoot(seat);
+    assert.deepEqual(decision(r),{kind:'select-action',token:'mill'});
+    r.observation.ownPublic.deckCount=1;
+    assert.deepEqual(decision(r),{kind:'select-action',token:'recover'});
+    r.observation.ownPublic.deckCount=8;
+    r.observation.opponentPublic.deckCount=0;
+    assert.deepEqual(decision(r),{kind:'select-action',token:'recover'});
+  });
+}
+test('Bunnelby Rototiller retrieves own Karen in Regidrago matchup, not a dead Item',()=>{
+  const r=millRoot();
+  r.observation.ownPublic.deckCount=0;
+  r.observation.ownPublic.discard=['Karen XYP 177',
+    'Buddy-Buddy Poffin TEF 144','Grass Energy MEE 9'];
+  r.observation.ownPublic.bench=[pokemon('Vileplume AOR 3',{hp:130})];
+  r.prompt={promptType:'ChooseCardsPrompt',
+    source:{sourcePrinting:'Bunnelby PRC 121',effectName:'Rototiller'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:1,maximumCount:1},
+    choices:[{...card('Karen XYP 177','k'),
+      publicMetadata:{sourceZone:'discard',ownerSeat:'actor'}},
+      {...card('Buddy-Buddy Poffin TEF 144','p'),
+      publicMetadata:{sourceZone:'discard',ownerSeat:'actor'}},
+      {...card('Grass Energy MEE 9','e'),
+      publicMetadata:{sourceZone:'discard',ownerSeat:'actor'}}]};
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['k']});
+});
+test('Rototiller refuses opponent discard and even actor token not physically owned',()=>{
+  const r=millRoot();r.prompt={promptType:'ChooseCardsPrompt',
+    source:{sourcePrinting:'Bunnelby PRC 121',effectName:'Rototiller'},
+    publicMetadata:{selectionType:'card-combination',minimumCount:1,maximumCount:1},
+    choices:[{...card('Karen XYP 177','not-owned'),
+      publicMetadata:{sourceZone:'discard',ownerSeat:'opponent'}}]};
+  assert.equal(decision(r).reasonCode,'UNSUPPORTED_DISCARD_RETRIEVAL');
+  r.prompt.choices=[{...card('Guzma BUS 115','invented'),
+    publicMetadata:{sourceZone:'discard',ownerSeat:'actor'}}];
+  assert.equal(decision(r).reasonCode,'NO_LEGAL_CARD_SET');
+  r.prompt.choices=[{...card('Karen XYP 177','k'),
+    publicMetadata:{sourceZone:'discard',ownerSeat:'actor'}}];
+  assert.deepEqual(decision(r),{kind:'select-choices',tokens:['k']});
+});
+test('Omega Barrage yes after paid Burrow without TM when another Burrow matters',()=>{
+  const r=millRoot();r.actionFrontier.items=[];r.prompt={
+    promptType:'ConfirmPrompt',source:{sourcePrinting:'Bunnelby PRC 121',effectName:'Omega Barrage'},
+    publicMetadata:{selectionType:'confirm'},
+    choices:[{kind:'confirm',token:'yes',label:'Yes'},{kind:'confirm',token:'no',label:'No'}]};
+  assert.deepEqual(decision(r),{kind:'select-choice',token:'yes'});
+  r.observation.opponentPublic.deckCount=0;
+  r.observation.ownPublic.discard=[];
+  assert.deepEqual(decision(r),{kind:'select-choice',token:'no'});
+  r.observation.ownPublic.discard=['Karen XYP 177'];
+  assert.deepEqual(decision(r),{kind:'select-choice',token:'yes'});
+});
+test('Bunnelby prioritizes live BUS lock over nonurgent Burrow, but immediate self-deckout is higher priority',()=>{
+  const r=millRoot();r.observation.ownPublic.bench=[pokemon('Vileplume BUS 6',{hp:140})];
+  r.observation.opponentPublic.active=pokemon(MIMIKYU,{hp:70,printed:{stage:'BASIC',weakness:[],resistance:[]}});
+  r.actionFrontier.items.push({kind:'retreat',token:'promote-bus',targetPrinting:'Vileplume BUS 6'});
+  assert.deepEqual(decision(r),{kind:'select-action',token:'promote-bus'});
+  r.observation.ownPublic.deckCount=0;
+  assert.deepEqual(decision(r),{kind:'select-action',token:'recover'});
+});
+test('Bunnelby attrition requires offered paid attack, not invented action',()=>{
+  const r=millRoot();r.observation.ownPublic.active.energies=[];
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  r.observation.ownPublic.active.energies=['Grass Energy MEE 9'];
+  r.actionFrontier.items=[{kind:'pass',token:'pass'}];
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+});
