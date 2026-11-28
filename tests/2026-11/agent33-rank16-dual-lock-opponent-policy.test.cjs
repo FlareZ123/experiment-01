@@ -118,17 +118,19 @@ for (const seat of [0, 1]) {
     const request = state(seat, { ownPublic: { bench: [
       poke(P.garbBKP), poke(P.absol)] }, prompt: {
       promptType: 'ChoosePokemonPrompt',
+      publicMetadata: { selectionType: 'pokemon', minimumCount: 1, maximumCount: 1, allowCancel: false },
       source: { sourcePrinting: P.float, effectName: 'Float Stone' },
       choices: toolChoices() } });
-    assert.deepEqual(decide(request), { kind: 'select-choice', token: 'g' });
+    assert.deepEqual(decide(request), { kind: 'select-choices', tokens: ['g'] });
   });
   test('do not consume Tool recipient prompt when only opponent target is offered seat ' + seat, () => {
     const request = state(seat, { prompt: {
       promptType: 'ChoosePokemonPrompt',
+      publicMetadata: { selectionType: 'pokemon', minimumCount: 1, maximumCount: 1, allowCancel: false },
       source: { sourcePrinting: P.float, effectName: 'Float Stone' },
       choices: [{ token: 'opponent-garbodor', printing: P.garbBKP,
         publicMetadata: { ownerSeat: 'opponent', targetZone: 'bench', benchIndex: 0 } }] } });
-    assert.deepEqual(decide(request), { kind: 'abstain', reasonCode: 'NO_TOOL_ATTACHMENT_TARGET' });
+    assert.deepEqual(decide(request), { kind: 'abstain', reasonCode: 'NO_SUPPORTED_POKEMON_CHOICE' });
   });
 }
 test('rejects role/seat confusion with no access to a private zone', () => {
