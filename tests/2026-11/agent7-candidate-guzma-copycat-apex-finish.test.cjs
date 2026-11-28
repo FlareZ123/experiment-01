@@ -85,6 +85,24 @@ for(const seat of [0,1]){
       choose('mimikyu',M,'actor',0)]);
     assert.deepEqual(policy.decide(request),{kind:'select-choices',tokens:['mimikyu']});
   });
+  test('after GX is used, copied Radiant Power Beam Gust KOs 3-Prize Mega ex, seat='+seat,()=>{
+    const {policy,request,view}=fixture(seat,{gxUsed:true,hasDialga:false});
+    view.ownPublic.discard=['Radiant Eternatus CRZ 105'];
+    view.ownPublic.prizeCount=3;
+    view.opponentPublic.bench[0].hp=320;
+    view.opponentPublic.bench[0].damage=0;
+    view.opponentPublic.bench[1].damage=90; // 190 remaining; Power Beam 200
+    assert.deepEqual(policy.decide(request),{kind:'select-action',token:'guzma'});
+    putPrompt(request,'opponent',[
+      choose('mega','Mega Absol ex ME1 86','opponent',1),
+      choose('mew','Mew ex MEW 151','opponent',0)]);
+    assert.deepEqual(policy.decide(request),{kind:'select-choices',tokens:['mega']});
+    view.opponentPublic.active=view.opponentPublic.bench[1];
+    putPrompt(request,'actor',[
+      choose('mimikyu',M,'actor',0),
+      choose('v','Shadow Rider Calyrex V CRE 74','actor',1)]);
+    assert.deepEqual(policy.decide(request),{kind:'select-choices',tokens:['mimikyu']});
+  });
   test('Guzma root abstains without valid prior Apex, GX or donor, seat='+seat,()=>{
     for(const opts of [
       {priorApex:false},{gxUsed:true},{energy:1},{hasDialga:false}
