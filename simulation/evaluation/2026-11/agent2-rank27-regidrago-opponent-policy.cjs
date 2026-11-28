@@ -216,8 +216,16 @@ function rank27EnergyAttachScore(item,obs){
   return score;
 }
 function ownTurnKOEligible(obs,receipt){
+  // Current main v3 receipt copies a potentially stale Twinleaf Boolean.
+  // Do NOT enable Raihan until an authenticated owner-turn tracker and the
+  // strict v5 protocol independently attest the actual latest
+  // opponent-owned completed turn. An actor may take consecutive turns.
   const turn=receipt?.opponentLastTurnTurn,ko=receipt?.priorOpponentTurnKO;
-  return Number.isSafeInteger(turn)&&turn>=0&&turn<obs.globalTurn&&
+  return receipt?.version==='agent47-public-event-receipt-v5-opponent-owned-ko'&&
+    receipt.actorSeat===obs?.actorSeat&&
+    receipt.turn===obs?.globalTurn&&
+    receipt.opponentLastTurnOwnerCertified===true&&
+    Number.isSafeInteger(turn)&&turn>=0&&turn<obs.globalTurn&&
     ko?.turn===turn&&ko?.any===true;
 }
 function scoreRoot(item,request){
