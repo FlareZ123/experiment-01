@@ -3759,3 +3759,38 @@ test('Chaotic makes singleton Field Blower UDP in Guzma-Hala discard payment',()
         ['mail','spare-gh']:['mail','blower']});
   }
 });
+test('last VS Seeker is UDP when discarded Faba is the only Chaotic-clear line',()=>{
+  for(const seat of [0,1])for(const chaotic of [false,true]){
+    const hand=[
+      'Guzma & Hala CEC 193','VS Seeker PHF 109',
+      'Peonia CRE 149',"Trainers' Mail ROS 92",
+      'Thunder Mountain ◇ LOT 191'
+    ];
+    const own=player({
+      active:pokemon('Iron Thorns ex TWM 77',{
+        energies:['Double Colorless Energy SUM 136']}),
+      bench:[pokemon('Iron Thorns ex TWM 77')],
+      discard:['Faba LOT 173'],
+      stadium:chaotic?['Chaotic Swell CEC 187']:[],
+      prizeCount:1
+    });
+    const opponent=player({
+      active:pokemon('Wobbuffet PHF 36',{hp:110}),
+      bench:[pokemon('Snorlax PGO 55',{hp:150})],prizeCount:4
+    });
+    const req=promptRequest({
+      seat,promptType:'ChooseCardsPrompt',
+      source:actorChoiceSource('Guzma & Hala CEC 193','Guzma & Hala'),
+      publicMetadata:multiMetadata(2,2),
+      observation:{ownPublic:own,opponentPublic:opponent,ownHand:hand},
+      choices:[
+        cardChoice('mail',"Trainers' Mail ROS 92",'hand','actor'),
+        cardChoice('seeker','VS Seeker PHF 109','hand','actor'),
+        cardChoice('peonia','Peonia CRE 149','hand','actor')
+      ]
+    });
+    assert.deepEqual(checkedDecision(req,seat),
+      {kind:'select-choices',tokens:chaotic?
+        ['mail','peonia']:['mail','seeker']});
+  }
+});

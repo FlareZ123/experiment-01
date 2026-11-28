@@ -423,6 +423,14 @@ function discardPriority(card, observation) {
       !boardHasTool(observation.ownPublic,PRINT.toolJammer)) return -85;
   if (matches(card, PRINT.ironThorns) &&
       slots(observation.ownPublic).filter(row=>matches(row.pokemon.printing,PRINT.ironThorns)).length < 2) return -90;
+  // When Field Blower is not held and Faba is already discarded, one
+  // remaining VS Seeker is our only visible Supporter retrieval for the
+  // same-turn Chaotic clear into a winning Thunder/Volt Cyclone.
+  if(matches(card,PRINT.vsSeeker) &&
+      handCopies(hand,PRINT.vsSeeker)===1 &&
+      list(observation.ownPublic?.discard).some(x=>matches(x,PRINT.faba)) &&
+      !hand.some(x=>matches(x,PRINT.fieldBlower)) &&
+      clearChaoticForTerminal(observation))return -95;
   if (matches(card, PRINT.fieldBlower))
     // The singleton Item is needed to remove Chaotic before Thunder.
     return hasStadium(observation,/^Chaotic Swell\b/i) ? -95 :
