@@ -489,7 +489,16 @@ function scoreAttack(item, observation) {
     ? metadata.targetHp - metadata.targetDamage : -1;
   // Mega Absol ex MEG 86: Terminal Period Knocks Out only if the target
   // has exactly SIX 10-damage counters (60 damage), not 300 damage.
-  if (/^Terminal Period$/i.test(attack)) return metadata.targetDamage === 60 ? 460 : 0;
+  if (/^Terminal Period$/i.test(attack)) {
+    // Prefer the public Active Pokémon. Frontiers may omit targetDamage,
+    // but a conflicting metadata receipt is not a reliable KO proof.
+    const visible = observation?.opponentPublic?.active?.damage;
+    const hasPublic = Number.isSafeInteger(visible) && visible >= 0;
+    const hasMeta = Number.isSafeInteger(metadata.targetDamage) && metadata.targetDamage >= 0;
+    if (hasPublic && hasMeta && visible !== metadata.targetDamage) return 0;
+    const damage = hasPublic ? visible : hasMeta ? metadata.targetDamage : -1;
+    return damage === 60 ? 460 : 0;
+  }
   if (/^Claw of Darkness$/i.test(attack)) {
     const damage = Number.isFinite(metadata.damageAfterWeakness) ? metadata.damageAfterWeakness :
       Number.isFinite(metadata.damage) ? metadata.damage : 200;
