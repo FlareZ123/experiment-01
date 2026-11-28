@@ -17,6 +17,7 @@ const {buildSourcePrintingMap,projectAdmittedWorkerParts}=
   require('../../simulation/evaluation/2026-11/agent32-source-printing-bridge.cjs');
 const {stage}=require('../../simulation/twinleaf/agent5-attack-special-arbitration-native.cjs');
 const {initializeCards}=require('../../simulation/twinleaf/headless.cjs');
+const {registerPlayersCeremony}=require('../../simulation/twinleaf/card-patches.cjs');
 const {actorObservation}=require('../../simulation/twinleaf/actor-observation-contract.cjs');
 const {publicEventReceipt}=require('../../simulation/twinleaf/agent8-public-event-receipt.cjs');
 const {installPromptProvenanceHook}=
@@ -91,6 +92,9 @@ for(const seat of [0,1]){
     const opponentResolved=sourcePlan.opponents.find(d=>d.rank===1);
     assert.equal(resolved.status,'ready');
     assert.equal(opponentResolved.status,'ready');
+    // Exactly the existing research-owned Japanese promo hook allowed by
+    // sourcePlan; pinned upstream itself does not register S-P 127.
+    assert.equal(registerPlayersCeremony(),"Player's Ceremony SP 127");
     const sourcePool=resolved.cards.map(name=>createCard(manager,name));
     const take=name=>{
       const i=sourcePool.findIndex(card=>card.fullName===name);
