@@ -1159,7 +1159,23 @@ function engineSetupDecision(request) {
     // leading a first-turn Bunnelby enables Barrage/Technical Machine: Evolution.
     // Do not automatically fill all five Bench slots with incidental Basics;
     // this deck needs room for three distinct evolution lines and a pivot.
+    const setupHand=list(request.observation?.ownHand);
+    const hasStageBasic=selected.some(row=>
+      [PRINT.oddish,PRINT.lillipup,PRINT.pidgey].some(p=>matches(row.printing,p)));
+    const hasFanCall=selected.some(row=>matches(row.printing,PRINT.fanRotom));
+    const tm=setupHand.some(card=>matches(card,PRINT.tmEvolution));
+    const energy=setupHand.some(card=>
+      matches(card,PRINT.jetEnergy)||matches(card,PRINT.captureEnergy)||
+      matches(card,PRINT.memoryEnergy)||matches(card,PRINT.grassEnergy));
+    const immediateEvolutionRoute=tm&&energy&&(hasStageBasic||hasFanCall);
+    // Budew's Itchy Pollen is a guaranteed zero-Energy one-turn Item lock.
+    // Prefer it to an idle Bunnelby only with a complete observed hand and no
+    // directly funded TM Evolution attack route for the opening turn.
+    const budewLockLead=setupHand.length>=7&&!immediateEvolutionRoute&&
+      selected.some(row=>matches(row.printing,PRINT.budew))&&
+      selected.some(row=>matches(row.printing,PRINT.bunnelby));
     const activeRank=printing=>
+      matches(printing,PRINT.budew)&&budewLockLead?440:
       matches(printing,PRINT.bunnelby)?400:
       matches(printing,PRINT.budew)?380:
       matches(printing,PRINT.fanRotom)?360:
@@ -1176,8 +1192,11 @@ function engineSetupDecision(request) {
     const tokens=[active.token],used=new Set(tokens);
     // Four starting Bench occupants at most leaves one emergency/pivot slot.
     // A second copy of an already represented Basic stays in hand.
-    const desiredBench=[PRINT.oddish,PRINT.lillipup,PRINT.pidgey,
-      PRINT.fanRotom,PRINT.relicanth,PRINT.bunnelby];
+    const desiredBench=budewLockLead?
+      [PRINT.oddish,PRINT.lillipup,PRINT.bunnelby,PRINT.fanRotom,
+        PRINT.pidgey,PRINT.relicanth]:
+      [PRINT.oddish,PRINT.lillipup,PRINT.pidgey,
+        PRINT.fanRotom,PRINT.relicanth,PRINT.bunnelby];
     for(const pattern of desiredBench) {
       if(tokens.length>=Math.min(meta.maximumCount,5))break;
       if(matches(active.printing,pattern))continue;
