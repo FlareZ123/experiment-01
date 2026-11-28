@@ -259,7 +259,7 @@ test('two complete source 60 maps retain different printings in opposite seats',
     const receipt={ownerActive:{printing:'Penny SVI'},ownerBench:[],
       opponentLastTurnAttacks:null};
     const result=projectSourcePrintings(observed,{items:[]},
-      seat===0?[a,b]:[b,a],{publicEventReceipt:receipt});
+      [a,b],{publicEventReceipt:receipt});
     assert.equal(result.observation.ownPublic.active.printing,
       own.get('Penny SVI'));
     assert.equal(result.observation.opponentPublic.active.printing,
