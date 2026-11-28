@@ -1163,13 +1163,21 @@ function hasStadiumRemovalTarget(view) {
     hasName(name, 'Wondrous Labyrinth'));
 }
 
-function canGuzmaForAttack(view) {
-  const active = view.ownPublic.active;
-  if (!active || !view.opponentPublic.active) return false;
-  return view.opponentPublic.bench.some(slot => {
-    if (!slot) return false;
-    const attack = bestAttackForSlot(active, view, slot);
-    return attack && attack.damage >= Math.max(0, slot.hp - slot.damage);
+// Guzma forces the current Active to the Bench after gusting. A terminal
+// attack must be payable by a prospective *Benched* attacker, not by the
+// current Active which will leave the Active Spot when the card resolves.
+function canGuzmaForAttack(view, receipt) {
+  if (!view.ownPublic.bench.some(Boolean) ||
+      !view.opponentPublic.bench.some(Boolean)) return false;
+  return view.opponentPublic.bench.some(target => {
+    if (!target) return false;
+    return view.ownPublic.bench.some(attacker => {
+      if (!attacker) return false;
+      const attack = bestAttackForSlot(attacker, view, target,
+        { publicEventReceipt: receipt });
+      return attack && attack.damage !== null &&
+        attack.damage >= Math.max(0, target.hp - target.damage);
+    });
   });
 }
 
@@ -1195,7 +1203,7 @@ function scoreTrainerPlay(item, view, receipt) {
       (!boardHas(view, 'Shadow Rider Calyrex V') ||
        (hasAbilityLockThreat(view) && !ownBoard(view).some(slot =>
          slot.tools.some(tool => hasName(tool, 'Stealthy Hood')))))) return 760;
-  if (hasName(name, 'Guzma') && !supporterUsed && canGuzmaForAttack(view)) return 750;
+  if (hasName(name, 'Guzma') && !supporterUsed && canGuzmaForAttack(view, receipt)) return 750;
   if (hasName(name, "Lillie's Determination") && !supporterUsed &&
       (view.ownPublic.handCount <= 3 || view.ownPublic.deckCount <= 10)) return 700;
   if (hasName(name, 'Sky Field') && !view.ownPublic.stadium.some(s => hasName(s, 'Sky Field')) &&
