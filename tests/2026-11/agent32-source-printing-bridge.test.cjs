@@ -107,3 +107,21 @@ test('ambiguous origin retains native identity and Night Watch fails closed',()=
   assert.throws(()=>projectSourcePrintings(view,null,[map,otherMap],
     {prompt:nightWatch}),/HOST_ONLY_PHYSICAL_PROMPT/);
 });
+
+
+test('certified map is fail-closed against post-build mutations',()=>{
+  const m=buildSourcePrintingMap(source,ids);
+  const view={actorSeat:0,ownHand:['Penny SVI'],ownPublic:null,
+    opponentPublic:null};
+  assert.equal(projectSourcePrintings(view,null,[m,new Map()])
+    .observation.ownHand[0],'Penny SVI 183');
+  m.set('Penny SVI','INJECTED_CARD_NAME');
+  assert.throws(()=>projectSourcePrintings(view,null,[m,new Map()]),
+    /nonempty source-printing map must be created/);
+  m.set('Penny SVI','Penny SVI 183');
+  assert.equal(projectSourcePrintings(view,null,[m,new Map()])
+    .observation.ownHand[0],'Penny SVI 183');
+  m.set('Forged Native','Penny SVI 183');
+  assert.throws(()=>projectSourcePrintings(view,null,[m,new Map()]),
+    /nonempty source-printing map must be created/);
+});
