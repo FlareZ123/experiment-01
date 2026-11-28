@@ -241,3 +241,67 @@ for(const seat of [0,1])for(const actorExtra of [false,true]){
     }finally{uninstall();}
   });
 }
+
+test('Promise-valued workload is rejected and native prototype restored',()=>{
+  const t=trial();
+  const original=Raihan.prototype.canPlay;
+  assert.throws(()=>withCertifiedLastOpponentTurnKO({
+    store:t.store,tracker:t.tracker,dependencies,execute(){
+      return Promise.resolve('not-allowed');
+    }
+  }),/synchronous work only/);
+  assert.strictEqual(Raihan.prototype.canPlay,original);
+});
+
+test('nested same-Store guard rejects concurrent prototype scope, outer restores',()=>{
+  const t=trial();
+  const original=Raihan.prototype.canPlay;
+  const response=withCertifiedLastOpponentTurnKO({
+    store:t.store,tracker:t.tracker,dependencies,execute(){
+      assert.throws(()=>withCertifiedLastOpponentTurnKO({
+        store:t.store,tracker:t.tracker,dependencies,execute(){}
+      }),/Nested conditional-KO guard/);
+      return 'outer-still-correct';
+    }
+  });
+  assert.equal(response.result,'outer-still-correct');
+  assert.equal(response.audit.restored,true);
+  assert.strictEqual(Raihan.prototype.canPlay,original);
+});
+
+test('partially installed hook is rolled back when native prototype rejects reducer',()=>{
+  const t=trial();
+  function FragileRaihan(){}
+  const base={};
+  Object.defineProperty(base,'canPlay',{value:function canPlay(){return true;},
+    writable:true,configurable:true,enumerable:false});
+  Object.defineProperty(base,'reduceEffect',{value:function reduceEffect(){return null;},
+    writable:true,configurable:true,enumerable:false});
+  let failInstall=true;
+  const proto=new Proxy(base,{
+    defineProperty(target,key,desc){
+      if(key==='reduceEffect'&&failInstall)
+        throw new Error('native-reducer-install-failure');
+      return Reflect.defineProperty(target,key,desc);
+    }
+  });
+  FragileRaihan.prototype=proto;
+  const originals={
+    can:base.canPlay,
+    reduce:base.reduceEffect
+  };
+  assert.throws(()=>withCertifiedLastOpponentTurnKO({
+    store:t.store,tracker:t.tracker,
+    dependencies:{...dependencies,Raihan:FragileRaihan},
+    execute(){throw new Error('should-never-run');}
+  }),/native-reducer-install-failure/);
+  failInstall=false;
+  assert.strictEqual(base.canPlay,originals.can);
+  assert.strictEqual(base.reduceEffect,originals.reduce);
+  // Failure must not poison the same Store for a subsequent normal scope.
+  const after=withCertifiedLastOpponentTurnKO({
+    store:t.store,tracker:t.tracker,dependencies,execute(){return 8;}
+  });
+  assert.equal(after.result,8);
+  assert.equal(after.audit.restored,true);
+});
