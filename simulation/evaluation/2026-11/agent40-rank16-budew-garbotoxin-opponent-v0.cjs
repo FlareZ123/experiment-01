@@ -921,7 +921,7 @@ function promptDecision(req){
     if(/forest seal/.test(src)){
      if(match(q.pokemon.printing,PRINT.crobat)&&toolEnabled(o)&&
         !o.ownTurnResources?.vstarUsed&&benchSupportAbilityUsable('Crobat V DAA 104',o))return 200;
-     if(emergencyGarbotoxinToolEligible(o,PRINT.forest)){
+     if(emergencyGarbotoxinToolEligible(o,'Forest Seal Stone SIT 156')){
       if(match(q.pokemon.printing,PRINT.garbodor))return 270;
       if(match(q.pokemon.printing,PRINT.trubbish))return 190;
      }
@@ -947,7 +947,7 @@ function promptDecision(req){
      if(match(q.pokemon.printing,PRINT.trubbish))return 165;
      return 0;
     }
-    if(/muscle band/.test(src)&&emergencyGarbotoxinToolEligible(o,PRINT.muscle)){
+    if(/muscle band/.test(src)&&emergencyGarbotoxinToolEligible(o,'Muscle Band XY 121')){
      if(match(q.pokemon.printing,PRINT.garbodor))return 260;
      if(match(q.pokemon.printing,PRINT.trubbish))return 185;
     }
