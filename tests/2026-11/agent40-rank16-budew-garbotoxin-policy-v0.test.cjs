@@ -568,3 +568,35 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'boost'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' CRI Trubbish paid Acid Spray can challenge DDE Regidrago when no Budew',()=>{
+  const their=opp({active:mon('Regidrago VSTAR SIT 136',{energies:['Double Dragon Energy ROS 97']})});
+  const q=root(seat,[attack('Acid Spray','acid'),pass],
+   {ownPublic:own({active:mon('Trubbish CRI 56',{energies:['Darkness Energy MEE 15']})}),
+    opponentPublic:their});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'acid'});
+  their.active.energies=[];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'acid'});
+  q.actionFrontier.items=[attack('Acid Spray','acid',false),pass];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+ });
+ test('seat '+seat+' coin-head Acid Spray selects opponent Double Dragon Energy',()=>{
+  const q=prompt(seat,{promptType:'ChooseEnergyPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Trubbish CRI 56',effectName:'Acid Spray'},
+   publicMetadata:{selectionType:'energy-payment',energyCount:2},
+   choices:[{kind:'energy',token:'grass',printing:'Grass Energy MEE 8',
+    publicMetadata:{ownerSeat:'opponent',sourceZone:'attached',isOwnerVisible:true}},
+   {kind:'energy',token:'dde',printing:'Double Dragon Energy ROS 97',
+    publicMetadata:{ownerSeat:'opponent',sourceZone:'attached',isOwnerVisible:true}}]});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['dde']});
+ });
+ test('seat '+seat+' printed Trubbish CRI ChooseAttackPrompt supported',()=>{
+  const q=prompt(seat,{promptType:'ChooseAttackPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Trubbish CRI 56',effectName:'Choose attack'},
+   publicMetadata:{selectionType:'attack'},
+   choices:[{kind:'attack',token:'acid',label:'Trubbish CRI 56 — Acid Spray',
+     publicMetadata:{sourceAttack:'Acid Spray'}}]});
+  assert.deepEqual(decide(seat,q),{kind:'select-choice',token:'acid'});
+ });
+}
