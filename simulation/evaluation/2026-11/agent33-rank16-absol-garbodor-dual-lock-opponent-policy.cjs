@@ -550,7 +550,10 @@ function supporterScore(card, observation) {
 // cards are expendable; its payoff needs an opponent's visible attached Energy.
 function rank16PlumeriaAvailable(o) {
   return supporterAvailable(o) &&
-    list(o?.ownHand).filter(card=>discardScore(card,o)>0).length>=2 &&
+    // VS Seeker is never expendable while evaluating a recovery route:
+    // evaluating its own discardability would recursively rescore Plumeria.
+    list(o?.ownHand).filter(card=>!matches(card,PRINT.vs)&&
+      discardScore(card,o)>0).length>=2 &&
     slots(o?.opponentPublic).some(row=>energyCount(row.pokemon)>0);
 }
 function rank16PlumeriaTargetScore(choice,o) {
