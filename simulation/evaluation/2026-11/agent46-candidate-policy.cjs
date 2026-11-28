@@ -1472,6 +1472,11 @@ function choosePrompt(view, prompt, receipt) {
       prompt.source?.classification !== 'actor-choice') {
     return abstain('UNTRUSTED_PROMPT');
   }
+  // Setup prompt descriptions are reserved for the engine. An untrusted
+  // card-effect cannot impersonate the setup source by copying its label.
+  if (prompt.description === 'CHOOSE_STARTING_POKEMONS' &&
+      prompt.source.sourceKind !== 'engine')
+    return abstain('UNTRUSTED_ENGINE_SETUP_PROMPT');
   if (prompt.source.sourceKind === 'engine') {
     return chooseEngineSetupPrompt(view, prompt);
   }
