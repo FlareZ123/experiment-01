@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {buildSourcePrintingMap,projectSourcePrintings}=
+const {buildSourcePrintingMap,projectSourcePrintings,projectAdmittedWorkerParts}=
   require('../../simulation/evaluation/2026-11/agent32-source-printing-bridge.cjs');
 
 const source={cards:[
@@ -145,4 +145,38 @@ test('visible ability suppression source is unique or stays native',()=>{
     'Psychic Energy SVE 5');
   assert.equal(out.observation.ownPublic.active.printing,'Penny SVI 183');
   assert.equal(p.abilitySuppressions[0].sourcePrinting,'Penny SVI');
+});
+
+
+test('admission wrapper validates both native and projected views before worker SHA',()=>{
+  const map=buildSourcePrintingMap(source,ids);
+  const order=[];
+  const policy={
+    validateActorObservation(view,seat){
+      order.push('view-'+view.ownHand[0]);
+      assert.equal(view.actorSeat,seat);
+      assert.equal(view.untrustedExtra,undefined);
+    },
+    validatePrompt(prompt,seat){order.push('prompt');assert.equal(prompt,null);},
+    validatePublicEventReceipt(receipt){order.push('receipt');assert.equal(receipt,null);},
+    validateFrontier(frontier){
+      order.push('frontier-'+frontier.items[0].actorPrinting);
+      return new Set(frontier.items.map(a=>a.token));
+    }
+  };
+  const parts={
+    observation:{actorSeat:0,ownHand:['Penny SVI'],ownPublic:null,opponentPublic:null},
+    prompt:null,publicEventReceipt:null,
+    actionFrontier:{items:[{token:'native-0',kind:'play-card',
+      actorPrinting:'Penny SVI',publicMetadata:{}}]}
+  };
+  const mapped=projectAdmittedWorkerParts(parts,[map,new Map()],policy);
+  assert.deepEqual(order,[
+    'view-Penny SVI','prompt','receipt','frontier-Penny SVI',
+    'view-Penny SVI 183','prompt','receipt','frontier-Penny SVI 183'
+  ]);
+  assert.deepEqual(mapped.actionFrontier.items.map(x=>x.token),['native-0']);
+  assert.throws(()=>projectAdmittedWorkerParts({...parts,
+    observation:{...parts.observation,untrustedExtra:'secret'}},
+    [map,new Map()],policy));
 });
