@@ -1067,11 +1067,20 @@ function promptDecision(request) {
     const tokens = ranked.map(row => row.choice.token);
     const required = selectionType === 'prize-slots' &&
       Number.isSafeInteger(metadata.requiredCount) ? metadata.requiredCount : min;
+    // Every abstention must use the worker's closed public reason codebook.
+    // Ambiguous same-print Bench choices are expected to hit this branch.
+    const noSelectionCode = {
+      pokemon: 'NO_SUPPORTED_POKEMON_CHOICE',
+      'card-combination': 'NO_SUPPORTED_CARD_SELECTION',
+      'energy-payment': 'NO_SUPPORTED_ENERGY_PAYMENT',
+      'prize-slots': 'NO_SUPPORTED_PRIZE_SELECTION',
+      'card-order': 'NO_SUPPORTED_CARD_ORDER'
+    }[selectionType];
     if (tokens.length < required) {
-      return emptyOrAbstain(prompt, choices, 'INSUFFICIENT_SUPPORTED_PROMPT_CHOICES');
+      return emptyOrAbstain(prompt, choices, noSelectionCode);
     }
     if (tokens.length > 0) return { kind: 'select-choices', tokens };
-    return emptyOrAbstain(prompt, choices, 'NO_SUPPORTED_MULTI_SELECT');
+    return emptyOrAbstain(prompt, choices, noSelectionCode);
   }
 
   if (prompt.promptType === 'SelectOptionPrompt' && context.includes('guzma & hala')) {
