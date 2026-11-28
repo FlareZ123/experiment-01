@@ -551,6 +551,8 @@ console.log('passed '+(function cologneUltraBallFollowThrough(P,protocol){
  for(const seat of [0,1]){
   let o=obs(seat),pol=P.createPolicy({role:'opponent',seat,policyVersion:P.POLICY_VERSION,config:{}});
   check(root(pol,o,1,[C,U]).token==='a0','payable Cologne chosen seat '+seat);
+  {const known=obs(seat);known.ownerK1={epoch:1,exactMembershipKnown:true,knownPrintings:[{printing:'Guzma BUS 115',copies:1}],invalidationReason:null};
+   check(root(P.createPolicy({role:'opponent',seat,policyVersion:P.POLICY_VERSION,config:{}}),known,1,[C,U]).token==='a0','certified not-Prized Dedenne still reachable seat '+seat);}
   o.ownHand=[U,VIP,VIP];o.opponentPublic.active.abilitySuppressions[0].suppressed=true;
   check(root(pol,o,2,[U]).token==='a0','payable Ultra selected seat '+seat);
   let p=prompt(o,U,[VIP,VIP],'hand',2,2);
@@ -565,6 +567,7 @@ console.log('passed '+(function cologneUltraBallFollowThrough(P,protocol){
    ['one VIP',v=>{v.ownHand=[C,U,VIP];return v}],
    ['missing Ultra',v=>{v.ownHand=[C,VIP,VIP];return v}],
    ['already in discard',v=>{v.ownPublic.discard=[D];return v}],
+   ['certified Prize singleton',v=>{v.ownerK1={epoch:1,exactMembershipKnown:true,knownPrintings:[{printing:'Dedenne-GX UNB',copies:1}],invalidationReason:null};return v}],
    ['missing core',v=>{v.ownPublic.active=mk('Unown AOR 30');return v}],
    ['opponent lock unknown',v=>{v.opponentPublic.active.abilitySuppressions=[];return v}],
    ['item locked',v=>{v.ownTurnResources.itemPlayLocked=true;return v}],

@@ -511,6 +511,10 @@ function bombPlanner(o,sourceBenchIndex){
        Number(o.ownPublic?.deckCount)<=6)return 0;
     const h=L(o.ownHand).filter(x=>!cologne(x)),d=h.find(isDedenne);
     if(d)return h.length<=4&&protectedReset({...o,ownHand:h},name(d))?415:0;
+    // Owner-certified K1 identifies the unique Dedenne as Prized: don't
+    // consume the singleton Cologne for an impossible deck-search line.
+    if(o.ownerK1?.exactMembershipKnown===true&&
+       L(o.ownerK1.knownPrintings).some(c=>isDedenne(c)&&c.copies>0))return 0;
     // The unheld Dedenne route is supported only through an existing
     // Ultra Ball and two expendable cards; do not posit a free search.
     const ball=h.find(x=>match(x,R.ultra));
