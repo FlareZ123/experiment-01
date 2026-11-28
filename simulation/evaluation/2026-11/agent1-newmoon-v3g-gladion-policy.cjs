@@ -95,14 +95,14 @@ function choosePrize(prompt,seat,pending,turn){
  }
  if(prompt.promptType==='ChoosePrizePrompt'&&
    p?.selectionType==='prize-slots'&&p.requiredCount===1){
-   valid=true;kind='prize-slot';
+   valid=true;kind='prize';
  }
  if(!valid||p.ownerSeat!=='actor'||p.isOwnerVisible!==true)return null;
  const target=prompt.choices.find(x=>x.kind===kind&&targetPrint(x.printing)&&
   x.publicMetadata?.isOwnerVisible===true&&
   x.publicMetadata?.ownerSeat==='actor'&&
   (x.publicMetadata?.sourceZone===p.sourceZone||
-   (kind==='prize-slot'&&x.publicMetadata?.selectionType==='prize-slots')));
+   (kind==='prize'&&x.publicMetadata?.selectionType==='prize-slots')));
  return target?{decision:{kind:'select-choices',tokens:[target.token]},
   reason:'V3G_GLADION_SELECT_REVEALED_PRIZED_DUSKNOIR'}:null;
 }
