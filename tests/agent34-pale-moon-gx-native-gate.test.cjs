@@ -681,3 +681,79 @@ for (const seat of [0, 1]) {
     assert.equal(f.attacker.usedGX, true);
   });
 }
+
+
+/**
+ * Review-only real Store boundary extension: the printed Pale Moon-GX
+ * attack queues a public target; the defender actor view must see it, and
+ * printed Pokemon Ranger STS must remove it through its actual reducer.
+ * Both physical seats, no frozen V3 fixture or game is dispatched.
+ */
+for(const attackerSeat of [0,1]){
+  test('native queued Pale Moon public actor cue and printed Ranger answer, attacker seat '+attackerSeat,()=>{
+    const {AttackAction}=native('game/store/actions/game-actions');
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    const {ResolvePromptAction}=
+      native('game/store/actions/resolve-prompt-action');
+    const {EndTurnEffect}=native('game/store/effects/game-phase-effects');
+    const {GamePhase}=native('game/store/state/state');
+    const {RESOLVE_PENDING_END_OF_OPPONENTS_NEXT_TURN_EFFECTS}=
+      native('game/store/prefabs/attack-effects');
+    const {actorObservation}=require('../simulation/twinleaf/actor-observation-contract.cjs');
+    const {validateActorObservation}=
+      require('../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
+    const {choosePaleMoonEscapeRanger}=
+      require('../simulation/twinleaf/2026-11/agent34-pale-moon-escape.cjs');
+    const f=stage(attackerSeat,2,false,'Rotom V LOR');
+    const ownerSeat=1-attackerSeat;
+    const threatenedCard=f.defender.active.getPokemonCard();
+    const ranger=initializeCards().getCardByName('Pokemon Ranger STS');
+    assert.ok(ranger,'pinned printed Ranger must be registered');
+    ranger.id=360100+attackerSeat;
+    f.defender.hand.cards.push(ranger);
+    f.store.dispatch(new AttackAction(f.attacker.id,'Pale Moon-GX'));
+    assert.equal(f.defender.pendingEndOfTurnEffects.length,1);
+    // Pinned attack enters between-turn WaitPrompt before new root actions.
+    let settled=0;
+    while(f.state.prompts.some(prompt=>prompt.result===undefined)){
+      assert.ok(settled<8,'bounded native WaitPrompt sequence');
+      const prompt=f.state.prompts.find(prompt=>prompt.result===undefined);
+      assert.equal(prompt.constructor.name,'WaitPrompt');
+      f.store.dispatch(new ResolvePromptAction(prompt.id,true));
+      settled++;
+    }
+    assert.ok(settled>=1);
+    f.state.turn=5;
+    f.state.activePlayer=ownerSeat;
+    f.state.phase=GamePhase.PLAYER_TURN;
+    const view=actorObservation(f.state,ownerSeat);
+    validateActorObservation(view,ownerSeat);
+    assert.equal(view.ownPublic.active.publicRestrictions.pendingPaleMoonGXKnockOut,true);
+    assert.equal(view.opponentPublic.active.publicRestrictions.pendingPaleMoonGXKnockOut,false);
+    const actualOffer={token:'ranger-native-root',kind:'play-card',
+      actorPrinting:ranger.fullName};
+    const decision=choosePaleMoonEscapeRanger(view,[
+      {token:'pass-native-root',kind:'pass'},actualOffer
+    ]);
+    assert.equal(decision?.token,'ranger-native-root',
+      'the actor should prefer its known delayed-KO cancellation over Pass');
+    const handIndex=f.defender.hand.cards.indexOf(ranger);
+    assert.ok(handIndex>=0);
+    f.store.dispatch(new PlayCardAction(f.defender.id,handIndex,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+    }));
+    assert.equal(f.defender.pendingEndOfTurnEffects.length,0);
+    assert.equal(f.defender.supporterTurn,1);
+    const after=actorObservation(f.state,ownerSeat);
+    assert.equal(after.ownPublic.active.publicRestrictions.pendingPaleMoonGXKnockOut,false);
+    RESOLVE_PENDING_END_OF_OPPONENTS_NEXT_TURN_EFFECTS(f.store,f.state,
+      new EndTurnEffect(f.defender));
+    assert.strictEqual(f.defender.active.getPokemonCard(),threatenedCard);
+    assert.equal(f.attacker.usedGX,true,'Ranger must not refresh the game GX quota');
+    console.log('AGENT34_NATIVE_PUBLIC_RANGER_PALE_MOON',JSON.stringify({
+      attackerSeat,ownerSeat,queuedBefore:1,queuedAfter:0,
+      rangerRootAccepted:true,defenderSurvived:true,qualifiedCompetitiveGames:0
+    }));
+  });
+}
