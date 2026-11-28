@@ -726,3 +726,48 @@ test('connected source-print rank2 opening Hala -> TM -> Jet -> Evolution -> Glo
  assert.deepEqual(checkedDecision(stage),{
    kind:'select-choices',tokens:['gloom']});
 });
+
+test('native Counter Gain targeted root rejects wrong physical Active while free Bench duplicate exists',()=>{
+  const mk=(token,zone,index)=>({token,kind:'play-card',
+    actorPrinting:'Counter Gain SSP 169',targetPrinting:'Bunnelby PRC 121',
+    publicMetadata:{cardType:'trainer',handIndex:0,targetSeat:'actor',
+      targetZone:zone,targetIndex:index,isOwnerVisible:true}});
+  const req=rootRequest({ownHand:['Counter Gain SSP 169'],
+    ownPublic:player({active:pokemon('Bunnelby PRC 121',{
+      tools:['Stealthy Hood UNB 186']}),
+      bench:[pokemon('Bunnelby PRC 121')],prizeCount:6}),
+    opponentPublic:player({prizeCount:4}),items:[
+      mk('occupied','active',0),mk('free','bench',0),
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-action',token:'free'});
+});
+test('native Counter Gain targeted root rejects Budew and prefers viable Active Bunnelby',()=>{
+  const mk=(token,printing,zone,index)=>({
+    token,kind:'play-card',actorPrinting:'Counter Gain SSP 169',
+    targetPrinting:printing,publicMetadata:{cardType:'trainer',
+      handIndex:0,targetSeat:'actor',targetZone:zone,
+      targetIndex:index,isOwnerVisible:true}});
+  const req=rootRequest({ownHand:['Counter Gain SSP 169'],
+    ownPublic:player({active:pokemon('Bunnelby PRC 121'),
+      bench:[pokemon('Budew ASC 16')],prizeCount:6}),
+    opponentPublic:player({prizeCount:4}),items:[
+      mk('budew','Budew ASC 16','bench',0),
+      mk('bunny','Bunnelby PRC 121','active',0),
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-action',token:'bunny'});
+});
+test('native targeted Counter Gain action does not select an opponent Bench target',()=>{
+  const req=rootRequest({ownHand:['Counter Gain SSP 169'],
+    ownPublic:player({active:pokemon('Bunnelby PRC 121'),prizeCount:6}),
+    opponentPublic:player({prizeCount:4,bench:[pokemon('Bunnelby PRC 121')]}),
+    items:[
+      {token:'wrong',kind:'play-card',actorPrinting:'Counter Gain SSP 169',
+        targetPrinting:'Bunnelby PRC 121',publicMetadata:{
+          cardType:'trainer',handIndex:0,targetSeat:'opponent',
+          targetZone:'bench',targetIndex:0,isOwnerVisible:true}},
+      {token:'pass',kind:'pass',label:'Pass turn'}]});
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-action',token:'pass'});
+});
