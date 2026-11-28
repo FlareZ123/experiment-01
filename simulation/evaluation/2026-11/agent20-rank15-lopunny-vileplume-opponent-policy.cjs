@@ -439,19 +439,28 @@ function guzmaPrompt(request) {
     !Number.isSafeInteger(m.minimumCount)||!Number.isSafeInteger(m.maximumCount)||
     m.minimumCount!==1||m.maximumCount!==1)
     return abstain('UNSUPPORTED_POKEMON_PROMPT');
-  const chance=guzmaOpportunity(o,{resolvingGuzma:true});
-  if(!chance)return abstain('NO_SUPPORTED_POKEMON_CHOICE');
   const source=arr(p.choices).filter(c=>c.kind==='pokemon'&&
     typeof c.token==='string'&&c.publicMetadata?.targetZone==='bench');
   const enemy=source.filter(c=>c.publicMetadata?.ownerSeat==='opponent');
   const ours=source.filter(c=>c.publicMetadata?.ownerSeat==='actor');
   if(enemy.length&&ours.length)return abstain('UNSUPPORTED_POKEMON_PROMPT');
-  const owner=enemy.length?'opponent':'actor';
-  const index=owner==='opponent'?chance.opponentIndex:chance.attackerIndex;
-  const board=owner==='opponent'?o.opponentPublic:o.ownPublic;
-  const choices=owner==='opponent'?enemy:ours;
-  const found=choices.find(c=>c.publicMetadata?.benchIndex===index&&
-    txt(board.bench[index])===txt(c));
+  if(enemy.length){
+    // Opposing target hasn't changed position yet. Re-evaluate directly.
+    const chance=guzmaOpportunity(o,{resolvingGuzma:true});
+    if(!chance)return abstain('NO_SUPPORTED_POKEMON_CHOICE');
+    const found=enemy.find(c=>c.publicMetadata?.benchIndex===chance.opponentIndex&&
+      txt(o.opponentPublic.bench[chance.opponentIndex])===txt(c));
+    return found?{kind:'select-choices',tokens:[found.token]}:
+      abstain('NO_SUPPORTED_POKEMON_CHOICE');
+  }
+  // Guzma's mandatory second switch happens AFTER the opponent's selected
+  // Bench Pokémon moved Active. Its old Bench target is now absent: never
+  // recompute the original gust candidate against the changed opponent Bench.
+  const bench=arr(o.ownPublic?.bench);
+  const index=bench.findIndex(x=>has(x,P.mega)&&arr(x.energies).length>=1&&
+    x.publicRestrictions?.cannotAttackNextTurn!==true);
+  const found=ours.find(c=>c.publicMetadata?.benchIndex===index&&
+    txt(bench[index])===txt(c));
   return found?{kind:'select-choices',tokens:[found.token]}:
     abstain('NO_SUPPORTED_POKEMON_CHOICE');
 }
