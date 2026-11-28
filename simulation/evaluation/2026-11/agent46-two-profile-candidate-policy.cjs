@@ -2694,7 +2694,11 @@ const heldFloat = hand.some(p=>hasName(p,'Float Stone'));
   // If the sole starter is a fragile single-Prize body and there is literally no
   // other safe Bench candidate, give up Wonder Tag rather than risk a lone-board
   // loss. Radiant is retained instead; its setup payoff is the shared engine.
+  // On the first player's setup, no opposing turn intervenes before they can
+  // play an entry-trigger Basic from hand. Preserve Wonder Tag in that case;
+  // keep lone-board insurance when going second or turn orientation is unknown.
   if (room>0 && bench.length+placed===0 &&
+      view.turnSeat!==view.actorSeat &&
       hasAnyName(activePrinting,['Girafarig','Mimikyu','Marshadow'])) {
     const lele=candidates.find(row=>hasName(row.choice.printing,'Tapu Lele-GX'));
     if (lele) selected.push(lele.choice);
@@ -2707,7 +2711,8 @@ const heldFloat = hand.some(p=>hasName(p,'Float Stone'));
     const backup=['Dialga-GX','Tapu Lele-GX','Radiant Eternatus']
       .map(name=>candidates.find(row=>hasName(row.choice.printing,name)))
       .find(Boolean);
-    if(backup)selected.push(backup.choice);
+    if(backup && (view.turnSeat!==view.actorSeat ||
+        !isSetupTrigger(backup.choice.printing))) selected.push(backup.choice);
   }
   setPolicyAuditRule(initial ? 'STRATEGIC_INITIAL_ACTIVE_AND_BENCH' :
     'POST_BONUS_RETAIN_TRIGGERS_AND_RESERVE_BENCH', 'SCORE_DESC_NATIVE_INDEX_ASC');

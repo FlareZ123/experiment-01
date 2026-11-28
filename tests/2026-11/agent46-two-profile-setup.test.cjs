@@ -18,10 +18,12 @@ const card=(printing,index)=>({kind:'card',token:'card-'+index,printing,label:pr
 }});
 const empty={kind:'empty-selection',token:'empty',label:'Choose no items'};
 const slot=printing=>({printing});
-function setup(seat, printings, {extra=false,active=null,bench=[],ownHand=[],max=extra?printings.length:6}={}) {
+function setup(seat, printings, {extra=false,active=null,bench=[],ownHand=[],
+  turnSeat=null,max=extra?printings.length:6}={}) {
   const choices=printings.map(card);
   if(extra)choices.push(empty);
   return {role:'candidate',seat,observation:{actorSeat:seat,phase:1,decisionKind:'owner-prompt',
+    ...(turnSeat===null?{}:{turnSeat}),
     ownHand,ownPublic:{active:active?slot(active):null,bench:bench.map(slot)}},
     prompt:{actingSeat:seat,promptType:'ChooseCardsPrompt',description:'CHOOSE_STARTING_POKEMONS',
       source:{classification:'actor-choice',sourceKind:'engine',sourcePrinting:null,effectName:'CHOOSE_STARTING_POKEMONS'},
@@ -123,5 +125,30 @@ test('paper Astral target capability is exact, optional at worker boundary, and 
     factory(hooked,seat);
     const wrong={...profile,paperAstralBarrageTargets:'agent4-cre74-hook-v2'};
     assert.throws(()=>factory(wrong,seat));
+  }
+});
+
+test('going-first initial setup preserves hand-entry triggers while going-second insurance survives',()=>{
+  const cases=[
+    {hand:[V,R],first:multi('card-0'),second:multi('card-0','card-1')},
+    {hand:[V,L],first:multi('card-0'),second:multi('card-0','card-1')},
+    {hand:['Girafarig LOT',L],first:multi('card-0'),second:multi('card-0','card-1')},
+    {hand:['Mimikyu GRI',L],first:multi('card-0'),second:multi('card-0','card-1')},
+    {hand:['Marshadow UNB',L],first:multi('card-0'),second:multi('card-0','card-1')},
+    {hand:[V,D],first:multi('card-0','card-1'),second:multi('card-0','card-1')},
+    {hand:[V,V],first:multi('card-0','card-1'),second:multi('card-0','card-1')},
+    {hand:[V,R,A],first:multi('card-0','card-2'),second:multi('card-0','card-2')}
+  ];
+  for(const profile of profiles)for(const seat of [0,1]){
+    for(const row of cases){
+      // Turn ownership is a public fact established by GO_FIRST before setup.
+      assert.deepEqual(choose(profile,setup(seat,row.hand,{turnSeat:seat})),row.first,
+        profile.profileId+' first seat '+seat+' '+row.hand.join('/'));
+      assert.deepEqual(choose(profile,setup(seat,row.hand,{turnSeat:1-seat})),row.second,
+        profile.profileId+' second seat '+seat+' '+row.hand.join('/'));
+    }
+    // An unknown starting orientation retains the original insurance policy.
+    assert.deepEqual(choose(profile,setup(seat,[V,R])),multi('card-0','card-1'));
+    assert.deepEqual(choose(profile,setup(seat,['Girafarig LOT',L])),multi('card-0','card-1'));
   }
 });
