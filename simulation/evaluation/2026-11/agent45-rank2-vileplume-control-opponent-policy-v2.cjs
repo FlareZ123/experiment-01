@@ -285,6 +285,25 @@ function ownToolLocked(observation) {
   return observation?.ownTurnResources?.toolPlayLocked === true ||
     observation?.ownPublic?.publicTurnRestrictions?.toolPlayLocked === true;
 }
+// A public player-level Item lock is insufficient to infer Vileplume's
+// enduring lock: Budew and other sources can impose temporary lock effects.
+// Demand a present rank2 Vileplume whose printed Ability will still function
+// after our Stoutland is promoted.
+function vileplumeItemLockPersistent(observation) {
+  const own = observation?.ownPublic ?? {};
+  const opponent = observation?.opponentPublic ?? {};
+  if (opponent.publicTurnRestrictions?.itemPlayLocked !== true) return false;
+  const status = opponentGarbotoxinStatus(opponent);
+  return boardSlots(own).some(({ pokemon }) => {
+    if (!matches(pokemon.printing, PRINT.vileplume)) return false;
+    const pollen = list(pokemon.abilitySuppressions).find(row =>
+      row.abilityName === 'Irritating Pollen');
+    if (pollen?.suppressed === true) return false;
+    if (status === 'unknown') return false;
+    return status !== 'live' || hasStealthyHood(pokemon);
+  });
+}
+
 function stoutlandSentinelEffective(observation, targetPokemon) {
   if (!targetPokemon || !matches(targetPokemon.printing, PRINT.stoutland)) return false;
   const opponent = observation?.opponentPublic ?? {};
@@ -715,7 +734,7 @@ function scoreAction(item, request) {
     // above another Supporter search (Guzma & Hala scores 215) and Jet (225)
     // to avoid forfeiting the lock by spending the single Supporter use,
     // while still letting free Quick Search (250) and Fan Call (245) go first.
-    return benchStoutland && opponent.publicTurnRestrictions?.itemPlayLocked === true &&
+    return benchStoutland && vileplumeItemLockPersistent(observation) &&
       list(opponent.active?.energies).length > 0 && targetStranded ? 230 : 0;
   }
   if (matches(card, PRINT.faba)) return opponentHasFabaTarget(opponent) ? 94 : 0;
@@ -1006,7 +1025,7 @@ function scorePokemonChoice(choice, observation, context) {
     const multiPrize = prizeYield(target);
     const lockPivot = list(observation.ownPublic?.bench).some(pokemon =>
       stoutlandSentinelEffective(observation, pokemon)) &&
-      observation.opponentPublic?.publicTurnRestrictions?.itemPlayLocked === true;
+      vileplumeItemLockPersistent(observation);
     if (lockPivot && guzmaTargetWouldDisableOwnLock(target)) return -100;
     const stranded = lockPivot && nominalGuzmaRetreatTrap(target,
       observation.opponentPublic);
