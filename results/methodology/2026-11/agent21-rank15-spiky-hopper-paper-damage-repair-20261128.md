@@ -24,6 +24,10 @@ This is a *conditional paper-legal tactical threshold*, not evidence of how ofte
 
 The separate Gale Thrust attack has **60 + 170** only if **Mega Lopunny ex itself** moved Bench→Active *after evolving*, not if Buneary moved first and then evolved on Active. That rule is independently confirmed by the Japanese official Pokémon FAQ on the mechanically identical Rapid Strike Urshifu V→VMAX timing question. The native ID check should **not** be widened to the evolution stack; the earlier proposed widening was withdrawn and the source public receipt restored without a mainline mutation.
 
+## Sampling consequence of the two singleton modifiers
+
+Without search, mulligan conditioning, opening-card identity conditioning, or further draws, a random 8-card subset of a 60-card source contains **both** singleton Powerful Colorless and Choice Belt with exact probability `(8/60)*(7/59) = 1.5819%`. This is **not** the probability either card is legally attached or effective; those require Pokémon type, Tool/Special Energy suppression, energy attachment sequence, actor choices, and search access. It explains why an unstratified short natural-deal run can miss the 210-damage case even if the pinned implementation is wrong. A constructed real native **both-live-attached** test is the appropriate initial admission gate.
+
 ## Exact pinned-engine defect
 
 Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`:
