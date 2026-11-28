@@ -38,6 +38,7 @@ const P = Object.freeze({
   guzma: /^Guzma BUS(?: 115)?\b/i,
   marnie: /^Marnie SSH(?: 169)?\b/i,
   raihan: /^Raihan EVS(?: 152)?\b/i,
+  heavyBall: /^Hisuian Heavy Ball ASR(?: 146)?\b/i,
   stretcher: /^Rescue Stretcher GRI(?: 130)?\b/i,
   lele: /^Tapu Lele(?:-GX| GX) GRI(?: 60)?\b/i,
   crobat: /^Crobat V DAA(?: 104)?\b/i,
@@ -85,6 +86,8 @@ const PUBLIC_ABORT = Object.freeze({
   R30_RAIHAN_ATTACH_NO_TARGET:'NO_VISIBLE_POKEMON_TARGET',
   R30_RAIHAN_SEARCH_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
   R30_RAIHAN_SEARCH_NO_TARGET:'NO_LEGAL_CARD_SET',
+  R30_HEAVYBALL_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
+  R30_HEAVYBALL_NO_EMPTY_CHOICE:'NO_LEGAL_EMPTY_CHOICE',
   R30_TELEPATH_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
   R30_TELEPATH_NO_TARGET:'NO_LEGAL_CARD_SET',
   R30_STAR_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
@@ -1385,6 +1388,58 @@ function raihanPrompt(request) {
   if(p.promptType==='ChooseCardsPrompt')return raihanSearchPrompt(request);
   return no('R30_RAIHAN_ATTACH_UNSUPPORTED');
 }
+function hisuianHeavyBallOpportunity(o) {
+  const own=o?.ownPublic;
+  if(!own||!safeInt(own.prizeCount)||own.prizeCount<=0)return false;
+  const hand=arr(o.ownHand),board=slots(own);
+  const owned=pattern=>hand.some(c=>has(c,pattern))||
+    board.some(c=>has(c,pattern));
+  const clefairyCount=hand.filter(c=>has(c,P.clefairy)).length+
+    board.filter(c=>has(c,P.clefairy)).length;
+  return clefairyCount<2||
+    (!owned(P.latias)&&benchCount(own)<5)||
+    (!owned(P.fez)&&hasFreshPriorOpponentTurnKO({observation:o,
+      publicEventReceipt:o.publicEventReceipt})&&hand.length<=3)||
+    (!owned(P.crobat)&&hand.length<=3)||
+    (!owned(P.lele)&&hand.some(c=>has(c,P.guzma)||has(c,P.marnie)));
+}
+function hisuianHeavyBallPriority(choice,o,request) {
+  const hand=arr(o.ownHand),board=slots(o.ownPublic);
+  const owned=pattern=>hand.some(c=>has(c,pattern))||
+    board.some(c=>has(c,pattern));
+  const clefairyCount=hand.filter(c=>has(c,P.clefairy)).length+
+    board.filter(c=>has(c,P.clefairy)).length;
+  if(has(choice,P.clefairy)&&clefairyCount<2)return 125-clefairyCount*5;
+  if(has(choice,P.fez)&&!owned(P.fez)&&hand.length<=3&&
+     hasFreshPriorOpponentTurnKO(request))return 120;
+  if(has(choice,P.latias)&&!owned(P.latias)&&benchCount(o.ownPublic)<5)return 110;
+  if(has(choice,P.crobat)&&!owned(P.crobat)&&hand.length<=3)return 100;
+  if(has(choice,P.lele)&&!owned(P.lele)&&
+     hand.some(c=>has(c,P.guzma)||has(c,P.marnie)))return 90;
+  if(has(choice,P.unown)&&!owned(P.unown)&&benchCount(o.ownPublic)<5)return 80;
+  if(has(choice,P.minior)&&!owned(P.minior)&&benchCount(o.ownPublic)<5)return 75;
+  return 0;
+}
+function hisuianHeavyBallPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(!sameSource(p,P.heavyBall)||p.promptType!=='ChooseCardsPrompt'||
+     m.selectionType!=='card-combination'||m.sourceZone!=='prizes'||
+     m.ownerSeat!=='actor'||m.isOwnerVisible!==true||
+     m.minimumCount!==0||m.maximumCount!==1)
+    return no('R30_HEAVYBALL_PROMPT_UNSUPPORTED');
+  // Only owner-visible Basic Pokémon from the actor's own Prize list are
+  // eligible. The empty choice is legal because the native prompt is 0..1.
+  const offered=arr(p.choices).filter(c=>c.kind==='card'&&
+    typeof c.token==='string'&&benchBasicRole(c)!==null);
+  const ranked=offered.map((c,index)=>({c,index,
+    score:hisuianHeavyBallPriority(c,o,request)}))
+    .filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.index-b.index);
+  if(ranked.length)return picks([ranked[0].c]);
+  const empty=arr(p.choices).find(c=>c.kind==='empty-selection'&&
+    typeof c.token==='string');
+  return empty?{kind:'select-choice',token:empty.token}:
+    no('R30_HEAVYBALL_NO_EMPTY_CHOICE');
+}
 function drawSupportOpportunity(request) {
   const o=request?.observation,own=o?.ownPublic,items=availableCards(request);
   if(!own||!leleAbilityAccessIsSafe(o)||
@@ -1538,6 +1593,8 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   // Minior Far-Flying Meteor / Gravitational Tackle counter sequence.
   const forceBlower=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.blower));
   if(forceBlower&&fieldBlowerOpportunity(o))return act(forceBlower);
+  const heavyBall=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.heavyBall));
+  if(heavyBall&&hisuianHeavyBallOpportunity(o))return act(heavyBall);
   const raihan=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.raihan));
   if(raihan&&raihanOpportunity(request))return act(raihan);
   // If Field Blower removes Sky Field, the attack's damage may fall below KO.
@@ -1657,6 +1714,7 @@ function createPolicy({role,seat,policyVersion,config}) {
         return onPlayDrawConfirmPrompt(request);
       if(sameSource(request.prompt,P.stretcher))return rescueStretcherPrompt(request);
       if(sameSource(request.prompt,P.raihan))return raihanPrompt(request);
+      if(sameSource(request.prompt,P.heavyBall))return hisuianHeavyBallPrompt(request);
       if(sameSource(request.prompt,P.lele))return wonderTagPrompt(request);
       if(sameSource(request.prompt,P.blower))return fieldBlowerPrompt(request);
       if(sameSource(request.prompt,P.box))return boxPrompt(request);
@@ -1682,4 +1740,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,certifiedPsychicBenchTargets,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy,hasFreshPriorOpponentTurnKO,raihanOpportunity,raihanAttachPrompt,raihanSearchPrompt,raihanPrompt};
+  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,certifiedPsychicBenchTargets,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy,hasFreshPriorOpponentTurnKO,raihanOpportunity,raihanAttachPrompt,raihanSearchPrompt,raihanPrompt,hisuianHeavyBallOpportunity,hisuianHeavyBallPrompt};
