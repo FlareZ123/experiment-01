@@ -1181,3 +1181,46 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Forest Seal Stone must not be wasted under Jamming Tower',()=>{
+  const board=own({active:mon('Budew ASC 16'),bench:[mon('Crobat V DAA 104')]});
+  const other=opp({stadium:['Jamming Tower TWM 153']});
+  const target=play('Forest Seal Stone SIT 156','forest',
+   {targetSeat:'actor',targetZone:'bench',targetIndex:0});
+  const q=root(seat,[target,pass],{ownPublic:board,opponentPublic:other,
+   ownHand:['Forest Seal Stone SIT 156']});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  const pc=prompt(seat,{promptType:'ChoosePokemonPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Forest Seal Stone SIT 156',
+    effectName:'Forest Seal Stone'},
+   publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+   choices:[{kind:'pokemon',token:'crobat',printing:'Crobat V DAA 104',
+    publicMetadata:{ownerSeat:'actor',targetZone:'bench',benchIndex:0}}]},
+   {ownPublic:board,opponentPublic:other});
+  assert.deepEqual(decide(seat,pc),{kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'});
+  other.stadium=[];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'forest'});
+  assert.deepEqual(decide(seat,pc),{kind:'select-choices',tokens:['crobat']});
+ });
+ test('seat '+seat+' Muscle Band root and native target respect Jamming Tower',()=>{
+  const board=own({active:mon('Mega Absol ex MEG 86'),bench:[]});
+  const other=opp({stadium:['Jamming Tower TWM 153']});
+  const target=play('Muscle Band XY 121','muscle',
+   {targetSeat:'actor',targetZone:'active'});
+  const q=root(seat,[target,pass],{ownPublic:board,opponentPublic:other,
+   ownHand:['Muscle Band XY 121']});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  const pc=prompt(seat,{promptType:'ChoosePokemonPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Muscle Band XY 121',
+    effectName:'Muscle Band'},
+   publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},
+   choices:[{kind:'pokemon',token:'mega',printing:'Mega Absol ex MEG 86',
+    publicMetadata:{ownerSeat:'actor',targetZone:'active'}}]},
+   {ownPublic:board,opponentPublic:other});
+  assert.deepEqual(decide(seat,pc),{kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'});
+  other.stadium=[];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'muscle'});
+  assert.deepEqual(decide(seat,pc),{kind:'select-choices',tokens:['mega']});
+ });
+}
