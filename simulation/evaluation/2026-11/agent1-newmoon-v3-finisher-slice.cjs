@@ -116,7 +116,7 @@ function shadowBindBus(view,items) {
    return null;
  const attack=items.find(x=>x.kind==='attack'&&x.attackName==='Shadow Bind'&&
    x.actorPrinting===active.printing&&verifiedAttackDamage(x,150)&&
-   x.publicMetadata?.attackSource?.sourceKind='active-pokemon'&&
+   x.publicMetadata?.attackSource?.sourceKind==='active-pokemon'&&
    x.publicMetadata.attackSource.sourceSlot==='ACTIVE'&&
    x.publicMetadata.attackSource.sourceCardFullName===active.printing);
  return select(attack,'V3_PAID_STAGE2_SHADOW_BIND_KOS_HOODED_BUS_WITHOUT_SELF_KO');
