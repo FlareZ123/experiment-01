@@ -365,3 +365,16 @@ for(const seat of [0,1]){
    {kind:'select-choices',tokens:['card-0','card-1']});
  });
 }
+
+for(const seat of [0,1]){
+ test('rank32-like third Dragon donor leaves two distinct funding cuts, seat '+seat,()=>{
+  const v=view(seat);
+  v.opponentPublic.discard=[
+   'Dialga-GX UPR','Kyurem SFA','Megaton Blower SSP',
+   'Crispin SCR','Mega Dragonite ex ASC'];
+  assert.deepEqual(decision(root(seat,v)),
+   {kind:'select-action',token:'attack-getlost'});
+  assert.deepEqual(decision(prompt(seat,v)),
+   {kind:'select-choices',tokens:['card-2','card-3']});
+ });
+}
