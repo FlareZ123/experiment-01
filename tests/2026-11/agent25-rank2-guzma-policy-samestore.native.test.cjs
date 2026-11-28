@@ -57,7 +57,7 @@ const native = {
 };
 
 
-function stage(seat, withLatias = false) {
+function stage(seat, withLatias = false, { manualItemLock = true, heldFogCrystal = false } = {}) {
   const manager = initializeCards();
   let serial = 625000 + seat * 2000 + Number(withLatias) * 1000;
   const card = name => {
@@ -108,12 +108,13 @@ function stage(seat, withLatias = false) {
 
   // Explicitly stage an already-established publicly observed Item lock.
   // Native passive-ability -> turn-restriction derivation is a separate test.
-  source.cannotPlayItemCards = true;
-  candidate.cannotPlayItemCards = true;
+  source.cannotPlayItemCards = manualItemLock;
+  candidate.cannotPlayItemCards = manualItemLock;
   source.cannotPlaySupporterCards = false;
   candidate.cannotPlaySupporterCards = false;
   source.hand.cards.push(src('Guzma BUS'));
   candidate.hand.cards.push(hood("Lillie's Determination MEG"));
+  if (heldFogCrystal) candidate.hand.cards.push(hood('Fog Crystal CRE'));
 
   for (const [player, remaining] of [
     [source, sourceRemaining], [candidate, candidateRemaining]
@@ -344,6 +345,54 @@ for (const seat of [0, 1]) {
     console.log('AGENT25_RANK2_NATIVE_SENTINEL_CAUSAL', JSON.stringify({
       seat, matchedControlSupporterAccepted: true,
       opponentAfterPromotionSupporterRejected: true,
+      nativeRejection: rejection, qualifiedGame: false
+    }));
+  });
+}
+
+
+// Independent causal Item-lock contrast: no staged player-level flags, one
+// genuine Fog Crystal taken from the original Hood 60. Vileplume remains
+// the sole Item-lock source; the matched control moves its entire evolution
+// stack back into the source deck while conserving all 60 cards.
+for (const seat of [0, 1]) {
+  test('rank2 seat ' + seat + ': native Vileplume Item-lock causal check with real Fog Crystal (no manual flags)', () => {
+    const options = { manualItemLock: false, heldFogCrystal: true };
+    const fogAction = x => {
+      const i = x.candidate.hand.cards.findIndex(c => c.fullName === 'Fog Crystal CRE');
+      assert.ok(i >= 0, 'Hood fixed 60 must contain the genuine printed Fog Crystal');
+      return new PlayCardAction(x.candidate.id, i, {
+        player: PlayerType.ANY, slot: SlotType.BOARD, index: 0
+      });
+    };
+    const control = stage(seat, false, options);
+    const removed = control.source.bench[2].cards.splice(0);
+    assert.equal(removed.length, 3);
+    control.source.deck.cards.push(...removed);
+    assert.equal(control.candidate.cannotPlayItemCards, false);
+    control.store.dispatch(new gameActions.PassTurnAction(control.source.id));
+    assert.equal(control.state.activePlayer, 1 - seat);
+    assert.doesNotThrow(() => control.store.dispatch(fogAction(control)),
+      'Fog Crystal must be allowed in matched control with no Vileplume');
+
+    const locked = stage(seat, false, options);
+    assert.equal(locked.candidate.cannotPlayItemCards, false,
+      'the test must not fabricate the Item lock in public player flags');
+    locked.store.dispatch(new gameActions.PassTurnAction(locked.source.id));
+    assert.equal(locked.state.activePlayer, 1 - seat);
+    let rejection = null;
+    try {
+      locked.store.dispatch(fogAction(locked));
+    } catch (error) {
+      rejection = { name: error?.constructor?.name, message: error?.message };
+    }
+    assert.ok(rejection,
+      'a real Vileplume on the Bench must prevent the otherwise legal native Item');
+    assert.match(rejection.message ?? '', /BLOCKED_BY_EFFECT|CANNOT_PLAY_THIS_CARD/,
+      'Vileplume denial must have a typed native effect/legality failure');
+    console.log('AGENT25_RANK2_NATIVE_VILEPLUME_CAUSAL', JSON.stringify({
+      seat, controlFogCrystalAccepted: true,
+      withVileplumeFogCrystalRejected: true,
       nativeRejection: rejection, qualifiedGame: false
     }));
   });
