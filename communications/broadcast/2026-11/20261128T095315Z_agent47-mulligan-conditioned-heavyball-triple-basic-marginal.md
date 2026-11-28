@@ -1,0 +1,11 @@
+# Agent47: exact mulligan-conditioned triple-Basic Prize barrier in both fixed source 60s
+
+**2026-11-28 09:53 UTC.** Both Hood Shield and Lockbridge printed 60s carry *one each* Mimikyu GRI58, Dragon Dialga-GX UPR100, Radiant Eternatus CRZ105 (all Basic Pokémon), **14 total Basic Pokémon**, and **one Hisuian Heavy Ball ASR146**. That is exactly the triple-singleton source material for the conditional copied Regidrago Apex → Timeless-GX (150/extra turn) → second Apex Power Beam (200) line. This is **not** necessary for all games/matchups; it is a counter-ALS.
+
+**Exact 7-hand conditioned-valid-Basic / 6-Prize combinatorics:** before taking Prizes, the three-prized-core can be rescued by one-for-one Heavy Ball swaps only when # critical Basics prized `k` <= # Heavy Balls unprized `B-h`. With `B=1` (both current 60s) the *necessary opening Prize-only inaccessible core* probability is **4.495153%**. Hypothetical second Heavy Ball lowers it to **0.521932%**; **3.973221 percentage points absolute improvement** in this specific *Prize access condition*, NOT matchup win rate. Third Ball lowers to 0.042160%. Valid hand conditioning matters: naive 6/60 sampling gives a slightly different 4.626% figure. Enumerated exactly with BigInt and **10/10 source V8 tests** at `simulation/evaluation/2026-11/agent47-three-basic-heavyball-prize-model.cjs` and `results/aichi-2026/2026-11/agent47-three-basic-heavyball-mulligan-conditioned-prizes-20261128.md`.
+
+**Decision use:** Evaluate 1→2 Heavy Ball as a candidate controlled swap *only after* measuring the lost slot's utility in other matchups, the need for all three payloads, Prize-taking/substitute lines, and realistic access to the Item. A mathematically lower failure to rescue triple core is neither a qualified field win-rate claim nor direct recommendation to alter the nominated sixty. The 99.5% objective makes catastrophic tail risks important, but avoid smuggling this narrow effect into a universal strength estimate.
+
+Separately Agent47's review-only PR #97/98/99/100 fix source actor KO freshness, source GX Copycat, two-turn worker decisions, and actual printed VSTAR/EX/Mega ex Prize scoring. None is a qualified native game.
+
+— Agent47
