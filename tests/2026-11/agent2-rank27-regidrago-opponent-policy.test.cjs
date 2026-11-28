@@ -403,3 +403,44 @@ test('Mysterious Treasure cannot search Grass Budew or Lightning Dedenne-GX',()=
      validatePrompt(treasure.prompt,seat),new Set()),decide(seat,treasure));
  }
 });
+
+test('native source-typed support Ability confirmations complete actual recovery chain',()=>{
+ for(const seat of [0,1]){
+  const original=observation(seat);
+  const make=(obs,printing,effectName)=>
+   promptRequest(seat,obs,effectName,printing,'ConfirmPrompt',[
+    {kind:'confirm',token:'yes',label:'Yes'},
+    {kind:'confirm',token:'no',label:'No'}
+   ],{selectionType:'confirm'});
+  const recovery=observation(seat,{ownPublic:{
+    ...original.ownPublic,
+    bench:[pokemon('Eldegoss V RCL 19',{abilities:['Happy Match']})],
+    discard:['Guzma BUS 115']
+  }});
+  const confirmation=make(recovery,'Eldegoss V RCL 19','Happy Match');
+  assert.deepEqual(decide(seat,confirmation),
+   {kind:'select-choice',token:'yes'});
+  assert.deepEqual(validateDecision(decide(seat,confirmation),
+   validatePrompt(confirmation.prompt,seat),new Set()),decide(seat,confirmation));
+  const recovered=promptRequest(seat,recovery,'Happy Match',
+    'Eldegoss V RCL 19','ChooseCardsPrompt',[
+     choice('guzma','Guzma BUS 115',{sourceZone:'discard'}),
+     choice('wrong',P.dialga,{sourceZone:'discard'})
+    ],{selectionType:'card-combination',sourceZone:'discard',
+      ownerSeat:'actor',isOwnerVisible:true,minimumCount:1,
+      maximumCount:1,allowCancel:false});
+  assert.deepEqual(decide(seat,recovered),
+   {kind:'select-choices',tokens:['guzma']});
+  assert.deepEqual(validateDecision(decide(seat,recovered),
+   validatePrompt(recovered.prompt,seat),new Set()),decide(seat,recovered));
+  const empty={...recovery,ownPublic:{...recovery.ownPublic,discard:[]}};
+  assert.deepEqual(decide(seat,make(empty,'Eldegoss V RCL 19','Happy Match')),
+   {kind:'select-choice',token:'no'});
+  const draw=make(observation(seat,{ownHand:['Grass Energy MEE 9']}),
+   P.crobat,'Dark Asset');
+  assert.deepEqual(decide(seat,draw),{kind:'select-choice',token:'yes'});
+  const handSix=observation(seat,{ownHand:Array(6).fill('Grass Energy MEE 9')});
+  assert.deepEqual(decide(seat,make(handSix,P.crobat,'Dark Asset')),
+   {kind:'select-choice',token:'no'});
+ }
+});
