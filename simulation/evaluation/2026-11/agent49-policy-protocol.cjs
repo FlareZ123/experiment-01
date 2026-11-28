@@ -644,7 +644,7 @@ function sourceCopycatEligible(row) {
       typeof row.attackName !== 'string' ||
       /-GX$/i.test(row.attackName)) return false;
   return !(row.attackName === 'Copycat' &&
-    /^Mimikyu(?:\\s|$)/i.test(row.sourcePrinting ?? ''));
+    /^Mimikyu(?:\s|$)/i.test(row.sourcePrinting ?? ''));
 }
 
 /** Reconstruct exactly the choices made by the same-turn native observer. */
