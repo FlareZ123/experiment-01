@@ -2029,3 +2029,29 @@ paired('Agent46: opponent control locks do not by themselves negate a funded dir
   const basic=policy.decideWithAudit(root(seat,view,[mist]));
   assert.notEqual(basic.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
 });
+
+paired('Agent46: nondefensive opponent Tools do not veto a direct final Prize hit',(seat,profile)=>{
+  const victim=defender({hp:280});
+  const view=observation(seat,{active:vmax(Array(9).fill(P)),opponentActive:victim});
+  view.globalTurn=8;view.ownPublic.prizeCount=2;
+  const max={token:'max',kind:'attack',attackName:'Max Geist'};
+  const policy=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile});
+  const rule=()=>policy.decideWithAudit(root(seat,view,[max])).policyAudit.selectionRuleCode;
+  const safe=['Float Stone BKT','Muscle Band XY','Forest Seal Stone SIT',
+    'Tool Jammer BST','Stealthy Hood UNB','Telescopic Sight VIV',
+    'U-Turn Board UNM','Air Balloon SSH','Big Parasol DAA'];
+  for(const tool of safe){
+    view.opponentPublic.active.tools=[tool];
+    assert.equal(rule(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK',tool);
+    view.opponentPublic.active.tools=[];
+    view.opponentPublic.bench[0]=pokemon({printing:'Dedenne-GX UNB',name:'Dedenne-GX',
+      abilities:['Dedechange'],suppression:false,tools:[tool]});
+    assert.equal(rule(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK',tool+' bench');
+  }
+  view.opponentPublic.bench=[null,null,null,null,null];
+  for(const reactive of ['Rock Guard PLF','Eviolite NVI','Hero\'s Cape TEF',
+    'Bravery Charm PAL','UNRECOGNIZED TOOL']){
+    view.opponentPublic.active.tools=[reactive];
+    assert.notEqual(rule(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK',reactive);
+  }
+});

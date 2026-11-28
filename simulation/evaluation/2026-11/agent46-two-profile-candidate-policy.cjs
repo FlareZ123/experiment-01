@@ -4037,6 +4037,18 @@ function directTerminalSafeSpecialEnergy(energy,slot) {
 }
 // Current, directly offered printed attacks are unaffected by Stadiums that
 // only provide optional searches/draws or respond to Stadium replacement.
+// This closed Tool set does not modify *incoming* direct attack damage,
+// Pokemon HP, Prize liability, or KO prevention. The fixed candidate 60s
+// have no attacking Tool damage bonuses that opponent Tool Jammer could erase.
+// Do not infer safety for reactive/HP/damage-reduction Tools.
+const DIRECT_TERMINAL_SAFE_TOOLS=Object.freeze([
+  'Float Stone','Muscle Band','Forest Seal Stone','Tool Jammer',
+  'Stealthy Hood','Telescopic Sight','U-Turn Board','Air Balloon','Big Parasol'
+]);
+function directTerminalSafeTool(tool) {
+  return isText(tool) && DIRECT_TERMINAL_SAFE_TOOLS.some(name=>
+    tool===name || tool.startsWith(name+' '));
+}
 function directTerminalSafeStadium(stadium,view){
   if(!isText(stadium))return false;
   if(hasAnyName(stadium,['Tropical Beach','Chaotic Swell','Artazon']))return true;
@@ -4062,7 +4074,7 @@ function cleanPublicTerminalView(view,direct=false,extraHarmlessAbility=null){
     ((a==='Garbotoxin'&&hasName(slot.printing,'Garbodor')) ||
       terminalAbilityProvablyOff(slot,a,view))) &&
   (slot.tools??[]).every(t=>hasName(t,'Float Stone') ||
-    (direct&&slot===view.opponentPublic.active&&isDragon(slot)&&hasName(t,'Stealthy Hood'))) &&
+    (direct && directTerminalSafeTool(t))) &&
   (slot.energies??[]).every(p=>
     isBasicEnergyPrinting(p) ||
     (direct && directTerminalSafeSpecialEnergy(p,slot))))&&
