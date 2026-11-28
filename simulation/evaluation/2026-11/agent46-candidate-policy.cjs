@@ -1605,6 +1605,32 @@ function chooseRetreat(view, items) {
   return best && best.score > 0 ? best.item : null;
 }
 
+// Source-specific one-Energy contention: a manual attachment to the Active
+// Shadow Rider VMAX can unlock an immediate Max Geist knockout.  Underworld
+// Door only attaches to the Bench; spending the sole hand Psychic there would
+// miss this knockout (and might lose the game). The attack is hypothetical,
+// not a native authorized action: prefer the Active attachment only for the
+// concrete known lethal cost/damage condition, never invent an attack token.
+function activeAttachmentUnlocksMaxGeistKnockout(item, view) {
+  if (item?.actorPrinting !== 'Psychic Energy MEE 13' ||
+      item.publicMetadata?.targetSeat !== 'actor' ||
+      item.publicMetadata?.targetZone !== 'active' ||
+      !view.ownPublic?.active?.printing?.startsWith('Shadow Rider Calyrex VMAX CRE') ||
+      !view.opponentPublic?.active) return false;
+  const active = view.ownPublic.active;
+  const maxGeist = (active.attacks ?? []).find(a => a.name === 'Max Geist');
+  if (!maxGeist || !Array.isArray(active.energies) ||
+      !active.printed?.types?.includes('Psychic')) return false;
+  const afterActive = {...active, energies:[...active.energies,item.actorPrinting]};
+  const afterView = {...view, ownPublic:{...view.ownPublic,active:afterActive}};
+  if (canPayAttack(active,maxGeist,view) ||
+      !canPayAttack(afterActive,maxGeist,afterView)) return false;
+  const damage = estimatedDamage(afterActive,maxGeist,afterView,view.opponentPublic.active);
+  const remaining = view.opponentPublic.active.hp - view.opponentPublic.active.damage;
+  return Number.isFinite(damage) && Number.isFinite(remaining) &&
+    remaining>0 && damage>=remaining;
+}
+
 function chooseRoot(view, request) {
   const items = request.actionFrontier.items.filter(item =>
     ['play-card', 'attack', 'retreat', 'use-ability', 'use-stadium', 'pass'].includes(item.kind));
@@ -1652,6 +1678,14 @@ function chooseRoot(view, request) {
     // override a manual attachment when a second Psychic remains available.
     if (availableDoor && scoredPlays[0].item.actorPrinting === 'Psychic Energy MEE 13' &&
         view.ownHand.filter(p => p === 'Psychic Energy MEE 13').length === 1) {
+      const immediateKnockout = scoredPlays.find(row =>
+        activeAttachmentUnlocksMaxGeistKnockout(row.item,view));
+      if (immediateKnockout) {
+        setPolicyAuditRule('ROOT_SINGLE_ENERGY_ACTIVE_MAX_GEIST_KO',
+          'KNOWN_LETHAL_SOURCE_ONLY');
+        recordPolicyAuditRule(immediateKnockout.item.token,'ATTACH_TO_UNLOCK_ACTIVE_KNOCKOUT');
+        return {kind:'select-action',token:immediateKnockout.item.token};
+      }
       // First resolve non-Energy construction lines that remain legal and
       // profitable; e.g. Fog Crystal thinning precedes the two new draws.
       const development=scoredPlays.find(row=>
