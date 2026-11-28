@@ -274,13 +274,17 @@ function prizeLiability(slot) {
   if (!slot) return 1;
   const subtypes = slot.printed?.subtypes ?? [];
   const printing = slot.printing ?? '';
-  if (subtypes.some(value => ['VMAX', 'V-UNION', 'TAG TEAM', 'MEGA'].includes(value)) ||
-      /^Mega [^\n]* ex(?:\s|$)/.test(printing) ||
-      hasName(printing, 'VMAX') || hasName(printing, 'V-UNION') ||
-      hasName(printing, ' & ') && hasName(printing, '-GX')) return 3;
-  if (subtypes.some(value => ['ex', 'GX', 'V', 'VSTAR'].includes(value)) ||
-      /\bVSTAR\b/.test(printing) ||
-      hasName(printing, '-GX') || / ex(?: |$)/.test(printing) ||
+  // Modern Mega Evolution ex yields THREE Prizes; legacy XY Mega-EX
+  // has the distinct two-Prize Pokemon-EX rule even though both carry MEGA.
+  const modernMegaEx=(subtypes.includes('MEGA')&&subtypes.includes('ex')) ||
+    /^Mega .+ ex(?: |$)/.test(printing);
+  if (modernMegaEx ||
+      subtypes.some(value => ['VMAX','V-UNION','TAG TEAM'].includes(value)) ||
+      hasName(printing,'VMAX') || hasName(printing,'V-UNION') ||
+      (hasName(printing,' & ')&&hasName(printing,'-GX'))) return 3;
+  if (subtypes.some(value=>['EX','ex','GX','V','VSTAR'].includes(value)) ||
+      /-EX(?: |$)/.test(printing) || /\bVSTAR\b/.test(printing) ||
+      hasName(printing,'-GX') || / ex(?: |$)/.test(printing) ||
       / V(?: |$)/.test(printing)) return 2;
   return 1;
 }
