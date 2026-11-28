@@ -24,7 +24,7 @@ The rank-30 worker now also has a conservative Raihan line, using the same fresh
 The rank-30 worker also handles Hisuian Heavy Ball:
 
 - Root play is limited to a missing Basic-Pokémon need while Prize cards remain and the native action frontier offers the Item.
-- The prompt must be the actor-visible `ChooseCardsPrompt` from `sourceZone: 'prizes'` with a 0–1 selection. It considers only offered Basic Pokémon from the actor's own Prize list, prefers a missing Clefairy/other useful Basic by deterministic priority, and chooses the explicit empty-selection token if no useful Basic is offered. Already recovered copies in hand, board, or discard are not treated as missing targets.
+- The prompt must be the actor-visible `ChooseCardsPrompt` from `sourceZone: 'prizes'` with a 0–1 selection. It considers only offered Basic Pokémon from the actor's own Prize list, prefers a missing Clefairy/other useful Basic by deterministic priority, and chooses the explicit empty-selection token if no useful Basic is offered. The policy accounts for all 12 Basic printings in this 60-card source (including Tapu Lele and Mimikyu), counts recovered copies in hand/board/discard against source counts, and does not treat already recovered copies as missing targets.
 - No opponent Prize faces or inferred hidden Prize contents are used.
 
 The worker does not add Teammates to the deck; Teammates is not in this rank-30 60-card source list.
@@ -49,18 +49,18 @@ Both physical seats are covered for the rank-30 worker. Tracker/receipt/helper/R
 - Fezandipiti root/ability and Raihan root/attach/search require a fresh event stamp; Raihan also requires Basic Psychic in discard and a useful Clefairy target.
 - Raihan refuses stale/missing KO stamps, no Basic Energy, no useful Clefairy target, and unsupported/non-Basic Energy choices.
 - Raihan search selects an offered Fezandipiti when the fresh KO condition and small-hand context make that line available.
-- Heavy Ball root requires a missing Basic-Pokémon need and remaining Prizes; its owner-visible Prize prompt selects a useful unrecovered Basic or the legal empty-selection token, with duplicate-recovery suppression, for both seats.
+- Heavy Ball root requires a missing Basic-Pokémon need and remaining Prizes; its owner-visible Prize prompt selects a useful unrecovered Basic or the legal empty-selection token, with duplicate-recovery suppression and explicit Tapu Lele/Mimikyu target cases, for both seats.
 
-The exact fetched branch worker, complete rank-30 source suite, tracker, receipt, helper, and new tests were executed together in an isolated V8 harness with synchronous `node:test` / `node:assert/strict` shims: **133/133 test callbacks passed**. This is not the Node test runner and the Store hook tests use injected fake Store/effect classes. The tracker is source-aligned to the pinned reducer but has **not** yet been executed against the actual pinned Store instance.
+The exact fetched branch worker, complete rank-30 source suite, tracker, receipt, helper, and new tests were executed together in an isolated V8 harness with synchronous `node:test` / `node:assert/strict` shims: **137/137 test callbacks passed**. This is not the Node test runner and the Store hook tests use injected fake Store/effect classes. The tracker is source-aligned to the pinned reducer but has **not** yet been executed against the actual pinned Store instance.
 
 - Branch: `agent8/rank30-gust-psychic-weakness-20261128`
-- Branch head: `8f9b4fc983eca77b9db8f47d2e6b80cff476a494`
+- Branch head: `651f37b81e7004b0df73ec485d29532ae8d4f053`
 - Tracker blob: `7757f5f9ff2115076335f4f40b13556e74c4d10b`
 - Tracker test blob: `8042de02894750912e116af1fdd7444dfcf60309`
 - Receipt blob: `296fa226c55923b91797370eeb8d1b3e0c3a49dc`
 - Receipt test blob: `fdbe5164486c4055f6302875f701e2c384ea8de6`
 - Supporter helper blob: `fcb0e0a8706bae6834f5c8dfb15d4f93d8631224`
-- Rank-30 worker/test blobs: `c1d99e9ec795e1abfe59402768d9a11334fb6928` / `d8f98ea58b87bbb191720b100f0ea4ff8804859a`
+- Rank-30 worker/test blobs: `8aac9193d096187f77d7d3d1c72da9132f943c1c` / `d37f38d15e08997883c50b6582819aba5ce3edc7`
 
 ## Remaining integration work and boundaries
 
