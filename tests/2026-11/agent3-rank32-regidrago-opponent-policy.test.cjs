@@ -751,7 +751,7 @@ test('VS Seeker obtains final-Prize Guzma only with real retreat pivot, else Cri
     active:pokemon(P.regidrago,{energies:[P.energy,P.energy,'Fire Energy MEE 10']}),
     bench:[pokemon('Budew ASC 16',{hp:30,
       printed:{subtypes:['Basic'],retreatCost:[]}})],
-    discard:[{printing:'Guzma BUS 115'},
+    discard:[{printing:P.goodra},{printing:'Guzma BUS 115'},
       {printing:"Lillie's Determination MEG 119"},
       {printing:'Crispin SCR 133'}]
   });
