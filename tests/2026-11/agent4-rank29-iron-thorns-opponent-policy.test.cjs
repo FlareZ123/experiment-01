@@ -1997,3 +1997,78 @@ test('Guzma sees TAG TEAM GX as three Prizes and chooses a final-three knockout'
   assert.deepEqual(checkedDecision(req),
     {kind:'select-choices',tokens:['winning-three']});
 });
+
+
+test('Guzma refrains from false public wall knockout: HP Tools, printed shields, -40 Resistance',()=>{
+  const ready=player({
+    active:pokemon('Iron Thorns ex TWM 77'),
+    bench:[pokemon('Iron Thorns ex TWM 77',{
+      energies:['Double Colorless Energy SUM 136']})],
+    stadium:['Thunder Mountain ♢ LOT 191']
+  });
+  const baseAction=[
+    action('guzma','play-card','Guzma BUS 115',{cardType:'supporter'}),
+    {token:'pass',kind:'pass'}
+  ];
+  const potential=pokemon('Tapu Lele-GX GRI 60',{hp:170,damage:40,retreatCost:[]});
+  const protectedCape=pokemon('Tapu Lele-GX GRI 60',{
+    hp:170,damage:40,tools:["Hero's Cape TEF 152"],retreatCost:[]
+  });
+  const protectedAbility=pokemon('Mimikyu GRI 58',{
+    hp:70,damage:0,abilities:['Safeguard'],retreatCost:[]
+  });
+  protectedAbility.abilityDetails[0].text =
+    "Prevent all damage done to this Pokémon by attacks from your opponent's Pokémon ex.";
+  const resistance=pokemon('Resistant Basic PAR 9',{hp:110,damage:0,
+    resistance:[{type:'Lightning',value:'-40'}],retreatCost:[]});
+  const reqFor=target=>rootRequest({
+    ownHand:['Guzma BUS 115',"Trainers' Mail ROS 92"],
+    ownPublic:ready,
+    opponentPublic:player({
+      active:pokemon('Shadow Rider Calyrex VMAX CRE 75'),
+      bench:[target]
+    }),
+    items:baseAction
+  });
+  assert.deepEqual(checkedDecision(reqFor(potential)),
+    {kind:'select-action',token:'guzma'});
+  for(const target of [protectedCape,protectedAbility,resistance]){
+    assert.deepEqual(checkedDecision(reqFor(target)),
+      {kind:'select-action',token:'pass'});
+  }
+});
+
+test('Guzma target ranks unprotected 2-Prize KO over public HP Cape or prevention Ability',()=>{
+  const cape=pokemon('Tapu Lele-GX GRI 60',{
+    hp:170,damage:40,tools:["Hero's Cape TEF 152"]
+  });
+  const shield=pokemon('Mimikyu GRI 58',{
+    hp:70,abilities:['Safeguard']
+  });
+  shield.abilityDetails[0].text='Prevent all damage done to this Pokémon by attacks.';
+  const req=promptRequest({
+    promptType:'ChoosePokemonPrompt',
+    source:actorChoiceSource('Guzma BUS 115','Guzma'),
+    publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+      allowCancel:false,isSecret:false},
+    observation:{
+      ownPublic:player({
+        active:pokemon('Iron Thorns ex TWM 77'),
+        bench:[pokemon('Iron Thorns ex TWM 77',{
+          energies:['Double Colorless Energy SUM 136']})],
+        stadium:['Thunder Mountain ♢ LOT 191']
+      }),
+      opponentPublic:player({
+        active:pokemon('Shadow Rider Calyrex VMAX CRE 75'),
+        bench:[cape,shield,pokemon('Dedenne-GX UNB 57',{hp:160,damage:30})]
+      })
+    },
+    choices:[
+      pokemonChoice('cape','Tapu Lele-GX GRI 60','opponent','bench',0),
+      pokemonChoice('shield','Mimikyu GRI 58','opponent','bench',1),
+      pokemonChoice('dedenne','Dedenne-GX UNB 57','opponent','bench',2)
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),
+    {kind:'select-choices',tokens:['dedenne']});
+});
