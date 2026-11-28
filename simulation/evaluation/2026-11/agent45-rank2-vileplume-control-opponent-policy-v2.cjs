@@ -653,6 +653,19 @@ function cardPriority(printing, observation, context) {
   const own = observation.ownPublic;
   const hand = list(observation.ownHand);
 
+  if (context.includes('technical machine: evolution')) {
+    // The pinned Tool's Evolution ATTACK selects up to two Bench Basics,
+    // then searches separately for a Stage1 evolving from each. The
+    // native prompt already blocks unrelated evolution printings; do not
+    // replace an evolution with an unrelated generic Trainer search.
+    if (matches(printing, PRINT.gloom) && boardHas(own, PRINT.oddish))
+      return 200;
+    if (matches(printing, PRINT.herdier) && boardHas(own, PRINT.lillipup))
+      return 185;
+    if (matches(printing, PRINT.pidgeotto) && boardHas(own, PRINT.pidgey))
+      return 170;
+    return 0;
+  }
   if (context.includes('grand tree')) {
     // Pinned SCR Grand Tree emits separate Stage1/Stage2 owner-deck
     // ChooseCardsPrompts after the Basic target. A path must settle BOTH.
@@ -1186,7 +1199,9 @@ function promptDecision(request) {
       selectionType === 'card-order') {
     const grandTreeSearch = matches(prompt.source?.sourcePrinting, PRINT.grandTree) &&
       String(prompt.source?.effectName ?? '').toLowerCase() === 'grand tree';
-    const recognizedCardSource = grandTreeSearch || context.includes('tag call') ||
+    const tmEvolutionSearch = matches(prompt.source?.sourcePrinting, PRINT.tmEvolution) &&
+      String(prompt.source?.effectName ?? '').toLowerCase() === 'evolution';
+    const recognizedCardSource = grandTreeSearch || tmEvolutionSearch || context.includes('tag call') ||
       context.includes('fan call') || context.includes('guzma & hala') ||
       context.includes('artazon') || context.includes('rototiller') ||
       context.includes('get lost') || context.includes('quick search') ||
