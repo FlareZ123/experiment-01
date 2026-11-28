@@ -610,3 +610,53 @@ test('TEU Pidgeotto Air Mail chooses best of actually revealed two cards',()=>{
     publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}});
   assert.equal(decision(r).reasonCode,'UNSUPPORTED_CARD_COMBINATION_SOURCE');
 });
+
+function setK1(r,rows,exact=true) {
+  r.observation.ownerK1={epoch:1,exactMembershipKnown:exact,
+    knownPrintings:rows.map(([printing,copies])=>({printing,copies})),
+    invalidationReason:null};return r;
+}
+test('owner exact K1 zero Gloom prevents worthless TM evolution; K0 retains uncertainty',()=>{
+  const r=ghRoot(0);r.observation.ownPublic.active.tools=[tm];
+  r.observation.ownPublic.active.energies=[jet];
+  r.actionFrontier.items=[{kind:'attack',token:'evo',attackName:'Evolution'}];
+  assert.deepEqual(decision(r),{kind:'select-action',token:'evo'});
+  setK1(r,[['Gloom UNB 7',0],['Mega Lopunny ex PFL 84',0]]);
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  r.observation.ownerK1.exactMembershipKnown=false;
+  assert.deepEqual(decision(r),{kind:'select-action',token:'evo'});
+  r.observation.ownerK1.exactMembershipKnown=true;
+  r.observation.ownerK1.knownPrintings=[{printing:'Gloom UNB 7',copies:1}];
+  assert.deepEqual(decision(r),{kind:'select-action',token:'evo'});
+});
+test('exact K1 absent both Stage2 causes Omega Barrage no; unknown K0 yes',()=>{
+  const r=secondBarrageFixture();
+  assert.deepEqual(decision(r),{kind:'select-choice',token:'yes'});
+  setK1(r,[['Vileplume AOR 3',0],['Vileplume BUS 6',0]]);
+  assert.deepEqual(decision(r),{kind:'select-choice',token:'no'});
+  r.observation.ownerK1.exactMembershipKnown=false;
+  assert.deepEqual(decision(r),{kind:'select-choice',token:'yes'});
+  r.observation.ownerK1.exactMembershipKnown=true;
+  r.observation.ownerK1.knownPrintings=[{printing:'Vileplume BUS 6',copies:1}];
+  assert.deepEqual(decision(r),{kind:'select-choice',token:'yes'});
+});
+test('Tag Call does not search absent GH when K1 exact, but K0 remains playable',()=>{
+  const r=ghRoot(0);
+  assert.deepEqual(decision(r),{kind:'select-action',token:'tag'});
+  setK1(r,[['Guzma & Hala CEC 193',0]]);
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  r.observation.ownerK1.exactMembershipKnown=false;
+  assert.deepEqual(decision(r),{kind:'select-action',token:'tag'});
+});
+test('Grand Tree respects exact owner deck membership without pretending K0 zero',()=>{
+  const r=grandRoot();
+  assert.deepEqual(decision(r),{kind:'select-action',token:'tree'});
+  setK1(r,[['Gloom UNB 7',0],['Vileplume AOR 3',2]]);
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  r.observation.ownerK1.exactMembershipKnown=false;
+  assert.deepEqual(decision(r),{kind:'select-action',token:'tree'});
+  r.observation.ownerK1.exactMembershipKnown=true;
+  r.observation.ownerK1.knownPrintings=[{printing:'Gloom UNB 7',copies:1},
+    {printing:'Vileplume AOR 3',copies:2}];
+  assert.deepEqual(decision(r),{kind:'select-action',token:'tree'});
+});
