@@ -826,3 +826,36 @@ test('TM Evolution physical target rejects a printing/slot mismatch even if high
       allowCancel:false,isSecret:false}});
   assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:['physical']});
 });
+
+
+test('Guzma second native prompt promotes own Stoutland over funded Bunnelby to reapply Sentinel',()=>{
+  const own=player({active:pokemon('Budew ASC 16'),bench:[
+    pokemon('Bunnelby PRC 121',{energies:['Jet Energy PAL 190']}),
+    pokemon('Stoutland BCR 122',{stage:'STAGE2',
+      evolutionPrintings:['Lillipup CEC 174','Herdier SUM 104']})]});
+  const req=promptRequest({promptType:'ChoosePokemonPrompt',
+    description:'CHOOSE_NEW_ACTIVE_POKEMON',
+    source:actorChoiceSource('Guzma BUS 115','Guzma'),
+    choices:[pokemonChoice('bunny','Bunnelby PRC 121','actor','bench',0),
+      pokemonChoice('stout','Stoutland BCR 122','actor','bench',1)],
+    observation:{ownPublic:own},
+    publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+      allowCancel:false,isSecret:false}});
+  assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:['stout']});
+});
+test('Guzma second prompt avoids suppressed Stoutland and selects funded Bunnelby',()=>{
+  const own=player({active:pokemon('Budew ASC 16'),bench:[
+    pokemon('Stoutland BCR 122',{stage:'STAGE2'}),
+    pokemon('Bunnelby PRC 121',{energies:['Jet Energy PAL 190']})]});
+  const opp=player({active:pokemon('Garbodor BKP 57',{stage:'STAGE1',
+    abilities:['Garbotoxin'],tools:['Float Stone PLF 99']})});
+  const req=promptRequest({promptType:'ChoosePokemonPrompt',
+    description:'CHOOSE_NEW_ACTIVE_POKEMON',
+    source:actorChoiceSource('Guzma BUS 115','Guzma'),
+    choices:[pokemonChoice('stout','Stoutland BCR 122','actor','bench',0),
+      pokemonChoice('bunny','Bunnelby PRC 121','actor','bench',1)],
+    observation:{ownPublic:own,opponentPublic:opp},
+    publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+      allowCancel:false,isSecret:false}});
+  assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:['bunny']});
+});
