@@ -602,6 +602,13 @@ function rondoSearchFillerOpportunity(o) {
     !rondoBenchFillerDemand(o))return false;
   const hand=arr(o.ownHand);
   if(hand.some(c=>benchBasicRole(c)!==null))return false;
+  // `ownerK1.knownPrintings` is specifically the owner-certified *remaining
+  // deck*, not the prize composition (owner-k1-prize-knowledge.cjs). Refuse a
+  // doomed connector when its source deck contains no usable Basic filler.
+  const k1=o.ownerK1;
+  if(k1?.exactMembershipKnown===true&&Array.isArray(k1.knownPrintings)&&
+    !k1.knownPrintings.some(row=>safeInt(row.copies)&&row.copies>0&&
+      benchBasicRole(row.printing)!==null))return false;
   return true;
 }
 function canStartQuickBall(o) {
