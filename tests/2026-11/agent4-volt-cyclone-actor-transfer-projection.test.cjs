@@ -266,3 +266,76 @@ test('Handheld Fan zero-source native [] and shape/source negative controls',()=
   const noBench=fanFixture({hasBench:false});
   assert.equal(runProjection(noBench).promptProjection.choices[0].kind,'empty-selection');
 });
+
+
+test('Peonia exact native prizes root-to-owner prompt resolves three secret slots, both physical seats',()=>{
+  class ChoosePrizePrompt {
+    constructor(playerId) {
+      this.id=52;this.playerId=playerId;
+      this.message='CHOOSE_PRIZE_CARD';
+      this.options={count:3,max:3,blocked:[],allowCancel:false,
+        isSecret:false,useOpponentPrizes:false};
+      this.result=undefined;
+    }
+    getPerspectivePlayerId(){return this.playerId;}
+    decode(raw,state) {
+      if(raw===null)return null;
+      const owner=state.players.find(player=>player.id===this.playerId);
+      const nonEmpty=owner.prizes.filter(prize=>prize.cards.length>0);
+      return raw.map(index=>nonEmpty[index]);
+    }
+    validate(decoded,state) {
+      if(decoded===null)return false;
+      const owner=state.players.find(player=>player.id===this.playerId);
+      const prizes=owner.prizes.filter(prize=>prize.cards.length>0);
+      return decoded.length===Math.min(this.options.count,prizes.length)&&
+        new Set(decoded).size===decoded.length&&
+        decoded.every(prize=>prize?.cards.length>0);
+    }
+  }
+  for(const seat of [0,1]){
+    const f=fixture({seat,energyNames:[]});
+    const peonia={name:'Peonia',fullName:'Peonia CRE',set:'CRE',setNumber:'149'};
+    f.actor.supporter.cards=[peonia];f.actor.prizes=Array.from({length:6},(_,n)=>({
+      cards:[{name:'secret-'+n}],isSecret:true
+    }));
+    f.state.players[1-seat].prizes=[];
+    f.prompt=new ChoosePrizePrompt(seat);
+    f.state.prompts=[f.prompt];
+    f.provenanceHook.getPromptProvenance=()=>({
+      sourceKind:'card-effect',sourceCard:peonia,effectName:'Peonia'
+    });
+    const projection=runProjection(f);
+    const p=projection.promptProjection;
+    assert.equal(p.source.effectName,'Peonia');
+    assert.equal(p.publicMetadata.selectionType,'prize-slots');
+    assert.equal(p.publicMetadata.ownerSeat,'actor');
+    assert.equal(p.publicMetadata.sourceZone,'prizes');
+    assert.equal(p.publicMetadata.isOwnerVisible,false);
+    assert.equal(p.publicMetadata.requiredCount,3);
+    assert.equal(p.choices.length,6);
+    assert.ok(p.choices.every(choice=>
+      choice.kind==='prize'&&
+      choice.publicMetadata.sourceZone==='prizes'&&
+      choice.publicMetadata.isOwnerVisible===false&&
+      !('printing' in choice)&&
+      !('slotIndex' in choice.publicMetadata)));
+    const decision=promptDecision({prompt:p,observation:{
+      ownPublic:{prizeCount:6}
+    }});
+    assert.deepEqual(decision,{kind:'select-choices',tokens:[
+      'prompt-0','prompt-1','prompt-2'
+    ]});
+    const continued=dispatchPromptChoice({
+      store:{state:f.state,dispatch(){throw Error('no live dispatch');}},
+      prompt:f.prompt,state:f.state,actorSeat:seat,
+      projection,decision,native:f.native,dispatch:false
+    });
+    assert.deepEqual(continued.rawResult,[0,1,2]);
+    assert.equal(continued.decoded.length,3);
+    assert.ok(continued.decoded.every(prize=>f.actor.prizes.includes(prize)));
+    assert.ok(continued.action instanceof f.native.ResolvePromptAction);
+    assert.equal(f.actor.prizes.length,6);
+    assert.ok(f.actor.prizes.every(prize=>prize.cards.length===1));
+  }
+});
