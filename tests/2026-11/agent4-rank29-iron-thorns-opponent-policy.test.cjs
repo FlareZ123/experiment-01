@@ -2990,3 +2990,45 @@ test('Wondrous Labyrinth requires four paid units, not an absolute Bench-Guzma a
     ]),seat),{kind:'select-action',token:'plumeria'});
   }
 });
+
+test('replacing Wondrous with Thunder Mountain unlocks DCE-only final-prize Volt Cyclone',()=>{
+  const items=[
+    action('thunder','play-card','Thunder Mountain ◇ LOT 191',{cardType:'stadium'}),
+    action('flare','play-card','Team Flare Grunt XY 129',{cardType:'supporter'}),
+    {token:'pass',kind:'pass'}
+  ];
+  for(const seat of [0,1]){
+    const opponent=player({
+      active:pokemon('Tapu Lele-GX GRI 60',{
+        hp:170,damage:60,subtypes:['GX'],
+        energies:['Psychic Energy CRE 232']
+      }),
+      bench:[pokemon('Shadow Rider Calyrex V CRE 74')],
+      prizeCount:3
+    });
+    const base={
+      seat,items,opponentPublic:opponent,
+      ownHand:['Thunder Mountain ◇ LOT 191','Team Flare Grunt XY 129']
+    };
+    const ready=energies=>rootRequest({
+      ...base,
+      ownPublic:player({
+        active:pokemon('Iron Thorns ex TWM 77',{energies}),
+        bench:[pokemon('Iron Thorns ex TWM 77')],
+        stadium:['Wondrous Labyrinth ◇ TEU 158'],
+        prizeCount:2
+      })
+    });
+    const funded=ready(['Double Colorless Energy SUM 136']);
+    assert.deepEqual(checkedDecision(funded,seat),
+      {kind:'select-action',token:'thunder'});
+    const audit=makePolicy(seat).decideWithAudit(funded);
+    assert.equal(audit.policyAudit.evaluations.find(row=>row.token==='thunder').score,925);
+    assert.equal(audit.policyAudit.evaluations.find(row=>row.token==='flare').score,185);
+
+    // One Colorless unit still cannot pay Volt Cyclone after the [L]
+    // reduction, so the offered opponent Energy denial remains preferable.
+    assert.deepEqual(checkedDecision(ready(['Capture Energy RCL 171']),seat),
+      {kind:'select-action',token:'flare'});
+  }
+});

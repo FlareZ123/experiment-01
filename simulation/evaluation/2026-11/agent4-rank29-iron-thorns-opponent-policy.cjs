@@ -1672,12 +1672,17 @@ function turboDceAttackWindow(request) {
     item.kind === 'attack' && /Volt Cyclone/i.test(item.attackName ?? ''));
 }
 
-// When Temple is removed, Speed Lightning again supplies [L] and DCE
+// When Temple or Wondrous is replaced, Speed Lightning supplies [L] and DCE
 // supplies [C][C]. A free Stadium replacement is stronger than consuming
 // the one-off ACE SPEC. Return only an owner-visible conditional window,
 // never claim that a future native attack was actually executed.
-function templeThornsAttackUnlock(observation,replacingWithThunder=false) {
-  if(!hasStadium(observation,/^Temple of Sinnoh\b/i) ||
+function templeThornsAttackUnlock(observation,replacingWithThunder=false,
+    replacingByStadium=false) {
+  // A playable Stadium can replace either Temple or Wondrous; an Item
+  // such as Megaton Blower must NOT pretend to remove Prism Star Wondrous.
+  const temple=hasStadium(observation,/^Temple of Sinnoh\b/i);
+  const wondrous=hasStadium(observation,PRINT.wondrousLabyrinth);
+  if((!temple && !(replacingByStadium && wondrous)) ||
       !ownActiveIsThorns(observation))return null;
   const active=observation.ownPublic?.active;
   const energies=list(active?.energies);
@@ -1766,11 +1771,11 @@ function scorePlayCard(item, request) {
     PRINT.captivatingPuff, PRINT.echoingHorn, PRINT.targetWhistle, PRINT.fieldBlower,
     PRINT.vsSeeker
   ].some(pattern => matches(card, pattern));
-  // Replacing Temple with a playable, non-taxing Stadium clears the same
-  // attack lock as Megaton Blower without spending our singleton ACE SPEC.
-  // Wondrous Labyrinth is excluded: it would add a Colorless cost instead.
+  // Replacing Temple or Wondrous with a payable, non-taxing Stadium
+  // can unlock a winning attack without spending our singleton ACE SPEC.
+  // Wondrous itself is excluded: its Colorless tax would remain.
   const templeWindow=templeThornsAttackUnlock(observation,
-    matches(card,PRINT.thunderMountain));
+    matches(card,PRINT.thunderMountain),true);
   if(templeWindow&&!stadiumLocked(observation) &&
       [PRINT.thunderMountain,PRINT.tropicalBeach,PRINT.playersCeremony]
         .some(pattern=>matches(card,pattern))){
