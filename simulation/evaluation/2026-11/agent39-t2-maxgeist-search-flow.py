@@ -21,7 +21,8 @@ V, VM, E, D, F, FOG, MYST, ARVEN, BASIC, OTHER = range(10)
 BASE=(4,4,11,1,1,4,4,1,10,20)
 
 def possible(hand,deck,allow_arven=True,allow_fss=True,allow_myst=True,
-             allow_fog=True,free_myst_discard=False,fss_used_initial=False):
+             allow_fog=True,free_myst_discard=False,fss_used_initial=False,
+             block_arven_myst_fss=False):
     """Existential T2 planner: three conditions after ordinary T2 attachment.
 
     A genuine search takes a source copy out of the remaining deck.
@@ -85,6 +86,9 @@ def possible(hand,deck,allow_arven=True,allow_fss=True,allow_myst=True,
             tools=[None,F] if d[F]>0 else [None]
             for item in items:
                 for tool in tools:
+                    # Research ablation: suppress precisely the two-axis
+                    # Item+Tool Arven pair, leaving other Arven lines legal.
+                    if block_arven_myst_fss and item==MYST and tool==F:continue
                     if item is None and tool is None:continue
                     selected=row.copy();remain=list(d)
                     for target in (item,tool):
