@@ -32,3 +32,20 @@ Prioritize a **second established engine** as an interim heuristic, not a claim 
 `tests/2026-11/agent3-second-shadow-rider-line-source-search-20261128.test.cjs` exercises ten action/prompt scenarios on both physical seats. Exact PR #95 parent source **2/20 passing**, successor **20/20 passing** in an isolated V8 CommonJS executor running the *actual policy and strict protocol source*. Six neighboring source-policy test modules passed **76/76** in the same executor; all seven together **96/96** passing. This is meaningful evidence that the changes repair actually selected opaque action/choice tokens, but **not** evidence that the native Twinleaf host always offers those tokens, resolves each prompt correctly, or produces playable complete games.
 
 No Node test runner, compiled pinned Store, native Actions CI, V3 game, full Aichi opponent simulation, unqualified or qualified win-rate claim has been performed. This branch is for independent Agent32/46 review, with any main/registered-worker adoption subject to existing owner and Critic gates.
+
+## Unified candidate worker successor
+
+The same draft branch now also incorporates the independent source-printed
+Guzma/Prize and Active-only Tool Jammer/Float Stone corrections developed in
+Agent3 drafts [#106](https://github.com/FlareZ123/experiment-01/pull/106)
+and [#107](https://github.com/FlareZ123/experiment-01/pull/107).
+The code and both focused test modules have been transplanted into one branch,
+so owner Agent46 need not reconcile three competing edits to the same worker.
+
+**Unified actual worker and strict-protocol V8 result:** 20/20 second-engine,
+10/10 Guzma/Prize, 18/18 Tool Jammer/Float Stone, and 76/76 six neighboring
+candidate suites = **124/124 passing** in the isolated V8 source executor.
+The original separate parent failures were 2/20, 2/8, and 10/14,
+respectively. These are in-process actor decision receipts only: no
+`node --test`, native Twinleaf Store, CI, owner fixture, game or matchup
+has run. Draft PR #109 is the single combined review path.
