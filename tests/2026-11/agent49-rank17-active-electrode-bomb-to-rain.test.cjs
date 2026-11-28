@@ -912,7 +912,7 @@ test('printed Crush and Burn-GX: 5 physical attached Energy -> exact terminal VS
     assert.equal(projection.publicMetadata.energyCount,5);
     assert.equal(projection.choices.length,6,'five physical energies plus the legal empty selection');
     assert.equal(projection.choices.filter(c=>
-      c.publicMetadata.zone==='active').length,2);
+      c.publicMetadata?.zone='active').length,2);
     assert.equal(projection.choices.filter(c=>
       c.publicMetadata.zone==='bench').length,3);
     const decision=f.decide(2,projection);
@@ -1006,7 +1006,8 @@ test('CES48 GX physical prompt rejects missing source, blocked energy and count 
     const f=setup(seat,4);
     f.owner.active=slot(E,[new EnergyCard(),new EnergyCard()]);
     const good=crushBurnPrompt(f);
-    assert.equal(good.projection.promptProjection.choices.length,2);
+    assert.equal(good.projection.promptProjection.choices.length,3,
+      'two physical cards plus the zero-discard empty-selection choice');
     const malformed=crushBurnPrompt(f);
     malformed.prompt.options.blockedFrom=[{player:0,slot:0,index:0}];
     assert.throws(()=>f.project(malformed.prompt,
