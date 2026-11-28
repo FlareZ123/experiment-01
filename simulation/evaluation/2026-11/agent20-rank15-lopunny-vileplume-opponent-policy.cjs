@@ -645,22 +645,22 @@ function grandTreePrompt(request) {
      !Number.isSafeInteger(m.maximumCount)||m.minimumCount>1||m.maximumCount>1)
     return abstain('UNSUPPORTED_CARD_COMBINATION_SOURCE');
   const board=slots(own);
-  let priorities=[];
-  // The stage-one search happens while the prior-turn Basic remains in play;
-  // the second prompt occurs after the engine has already evolved to Stage 1.
-  if(board.some(x=>has(x,P.gloom))){
-    priorities=board.some(x=>has(x,P.aor))?[P.bus,P.aor]:[P.aor,P.bus];
-  }else if(board.some(x=>has(x,P.oddish))){
-    priorities=[P.gloom];
-  }else if(board.some(x=>has(x,P.pidgeotto))){
-    priorities=[P.pidgeot];
-  }else if(board.some(x=>has(x,P.pidgey))){
-    priorities=[P.pidgeotto];
-  }else if(board.some(x=>has(x,P.buneary))){
-    priorities=[P.mega];
-  }
+  const priorities=[];
+  // An existing Gloom is NOT proof that Grand Tree's current evolution
+  // target belongs to its chain. A Pidgeotto may have just evolved during
+  // the same Grand Tree resolution while another Gloom remains on the board.
+  // Consider each *offered* legal evolutionary family, rather than using
+  // else-if on unrelated board members to shadow the actual offered card.
+  if(board.some(x=>has(x,P.gloom)))
+    priorities.push(...(board.some(x=>has(x,P.aor))?[P.bus,P.aor]:[P.aor,P.bus]));
+  if(board.some(x=>has(x,P.pidgeotto)))priorities.push(P.pidgeot);
+  if(board.some(x=>has(x,P.oddish)))priorities.push(P.gloom);
+  if(board.some(x=>has(x,P.pidgey)))priorities.push(
+    /^Pidgeotto TEU(?: 123)?\b/i,/^Pidgeotto MEW(?: 17)?\b/i);
+  if(board.some(x=>has(x,P.buneary)))priorities.push(P.mega);
+  const choices=arr(p.choices).filter(c=>c.kind==='card'&&typeof c.token==='string');
   for(const pat of priorities){
-    const c=arr(p.choices).find(c=>c.kind==='card'&&has(c,pat)&&typeof c.token==='string');
+    const c=choices.find(c=>has(c,pat));
     if(c)return {kind:'select-choices',tokens:[c.token]};
   }
   const empty=arr(p.choices).find(c=>c.kind==='empty-selection'&&typeof c.token==='string');
