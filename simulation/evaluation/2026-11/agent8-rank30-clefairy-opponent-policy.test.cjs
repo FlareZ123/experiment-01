@@ -1638,6 +1638,34 @@ for(const seat of [0,1]) {
     assert.deepEqual(policy(seat).decide(r),
       {kind:'select-choices',tokens:['prize-clef']});
   });
+  test('seat '+seat+' Heavy Ball can retrieve Tapu Lele outside the Rondo bench-role subset',()=>{
+    const r=request(seat);
+    r.observation.ownHand=['Guzma BUS 115'];
+    r.prompt={
+      promptType:'ChooseCardsPrompt',
+      source:{sourcePrinting:'Hisuian Heavy Ball ASR 146',effectName:'HisuianHeavyBall'},
+      publicMetadata:{selectionType:'card-combination',sourceZone:'prizes',
+        ownerSeat:'actor',isOwnerVisible:true,minimumCount:0,maximumCount:1},
+      choices:[card('Tapu Lele-GX GRI 60','prize-lele'),
+        {kind:'empty-selection',token:'empty'}]
+    };
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choices',tokens:['prize-lele']});
+  });
+  test('seat '+seat+' Heavy Ball can retrieve Mimikyu against a GX board',()=>{
+    const r=request(seat);
+    r.observation.opponentPublic.active={printing:'Dedenne-GX UNB 57',hp:160,damage:0};
+    r.prompt={
+      promptType:'ChooseCardsPrompt',
+      source:{sourcePrinting:'Hisuian Heavy Ball ASR 146',effectName:'HisuianHeavyBall'},
+      publicMetadata:{selectionType:'card-combination',sourceZone:'prizes',
+        ownerSeat:'actor',isOwnerVisible:true,minimumCount:0,maximumCount:1},
+      choices:[card('Mimikyu GRI 58','prize-mimikyu'),
+        {kind:'empty-selection',token:'empty'}]
+    };
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-choices',tokens:['prize-mimikyu']});
+  });
   test('seat '+seat+' Heavy Ball ignores Basics already recovered to hand, board, or discard',()=>{
     const r=request(seat);
     r.observation.ownHand=[
