@@ -395,8 +395,23 @@ function score(action,req){
   return list(t.pokemon.energies).length<3?425:30;
  if(match(p,PRINT.patch))return hasFundedDarkPatchRecipient(o)&&list(own.discard).some(x=>match(x,PRINT.dark))?430:0;
  if(match(p,PRINT.boost)){
+  // Boost Shake explicitly ENDS THE TURN. Protect any funded Budew lock or
+  // unspent Darkness attachment that will power up the next Mega turn.
   const ready=slots(own).some(x=>match(x.pokemon.printing,PRINT.trubbish)&&list(x.pokemon.tools).length>0);
-  return ready&&!setupAbilityPending(items,o)&&!onBoard(own,PRINT.garbodor)?350:0;
+  if(!ready||setupAbilityPending(items,o)||onBoard(own,PRINT.garbodor))return 0;
+  if(items.some(i=>i.kind==='attack'&&i.publicMetadata?.attackCostPayable===true&&
+     (i.attackName==='Itchy Pollen'||i.attackName==='Terminal Period')))return 0;
+  const canAttach=own.ownTurnRestrictions?.energyPlayLocked!==true&&
+     o.ownTurnResources?.energyPlayedTurn!==true&&
+     list(o.ownHand).some(x=>match(x,PRINT.dark))&&
+     slots(own).some(x=>match(x.pokemon.printing,PRINT.mega)&&
+        list(x.pokemon.energies).length<3);
+  if(canAttach)return 0;
+  if(items.some(i=>i.kind==='attack'&&i.publicMetadata?.attackCostPayable===true&&
+    i.attackName==='Claw of Darkness')){
+   return 255;
+  }
+  return 350;
  }
  if(match(p,PRINT.vip))return o.globalTurn<=2&&benchCount(own)<=3?420:0;
  if(match(p,PRINT.mail))return deckCount(o)>0?255:0;
