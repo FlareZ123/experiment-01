@@ -291,6 +291,34 @@ function remainingHp(pokemon) {
   return pokemon.hp - pokemon.damage;
 }
 
+// Published rank6/29 Iron Thorns both contain exactly eight Special Energy.
+// Only remove visibly identified *physical cards* from a category prior;
+// unseen decks/hands/Prizes remain unknown. Item names are the union of the
+// two authenticated source manifests and exclude Tools/Supporters/Stadiums.
+function thornsPublicCategory(printing, targetType) {
+  const name=valueText(printing);
+  const energy=/\\bEnergy\\b/i.test(name);
+  const specialEnergy=energy&&!/^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy\\b/i
+    .test(name);
+  const toolOrStadium=/\\b(?:Palace Belt|Handheld Fan|Tool Jammer|Tropical Beach|Player'?s Ceremony|Thunder Mountain|Wondrous Labyrinth)\\b/i.test(name);
+  const item=/\\b(?:Crushing Hammer|Enhanced Hammer|VS Seeker|Trainers['’]? Mail|Tag Call|Camping Gear|Captivating Pok[eé] Puff|Echoing Horn|Target Whistle|Field Blower|Megaton Blower|Palace Book)\\b/i
+    .test(name);
+  return targetType==='energy'?energy :
+    targetType==='item'?item :
+    targetType==='toolOrStadium'?toolOrStadium||specialEnergy:false;
+}
+
+function thornsKnownPublicCards(opponent) {
+  return [
+    ...list(opponent.discard),...list(opponent.lostZone),
+    ...list(opponent.resolvingSupporter),...list(opponent.stadium),
+    ...slots(opponent).flatMap(row=>[
+      row.pokemon.printing,...list(row.pokemon.evolutionPrintings),
+      ...list(row.pokemon.energies),...list(row.pokemon.tools)
+    ])
+  ].filter(value=>typeof valueText(value)==='string'&&valueText(value).length>0);
+}
+
 function hiddenHandTargetProbability(observation, targetType) {
   const opponent = observation?.opponentPublic;
   if (!opponent || Array.isArray(opponent.publicHand)) return 0;
@@ -307,14 +335,27 @@ function hiddenHandTargetProbability(observation, targetType) {
   const thornsBoard=visible.some(printing=>matches(printing,PRINT.ironThorns));
   if (!shadowBoard && !thornsBoard) return 0;
   const proxy = thornsBoard ?
-    {item:18,energy:8,toolOrStadium:7} :
+    {item:18,energy:8,toolOrStadium:15} :
     {item:10,energy:8,toolOrStadium:4};
-  const k=proxy[targetType];
+  let k=proxy[targetType];
   if (!k) return 0;
+  let population=60;
+  if(thornsBoard){
+    const exposed=thornsKnownPublicCards(opponent);
+    // Rank6 and rank29 share a lower bound of 18 Items and 7
+    // Tools/Stadiums plus exactly 8 Special Energy (15 Sidney targets).
+    // Removing known public cards yields a conservative *lower bound*
+    // on remaining hits, not a posterior for an unidentified exact list.
+    k=Math.max(0,k-exposed.filter(value=>
+      thornsPublicCategory(value,targetType)).length);
+    population=Math.max(handCount,60-exposed.length);
+  }
+  if(k===0)return 0;
+  k=Math.min(k,population);
   let zero=1;
-  const n=Math.min(handCount,60-k);
-  for(let i=0;i<n;i++)zero*=(60-k-i)/(60-i);
-  if (handCount>60-k) return 1;
+  const n=Math.min(handCount,population-k);
+  for(let i=0;i<n;i++)zero*=(population-k-i)/(population-i);
+  if(handCount>population-k)return 1;
   return 1-zero;
 }
 
