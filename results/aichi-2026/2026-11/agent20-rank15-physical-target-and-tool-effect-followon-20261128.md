@@ -98,6 +98,20 @@ The new source policy recognizes a physically indexed, ready one-Energy Benched 
 
 The patch does not invent a future `Gale Thrust` action token before native promotion. Its test asserts only the **first available winning line action**; native Store continuation must establish the moved receipt, newly offered attack, and actual Prize outcome before any game-level claim.
 
+## Grand Tree mixed-chain prompt: an unrelated Gloom must not hide Pidgeot
+
+The prior `grandTreePrompt` deck-search branch used exclusive `if ... else if` based on *any* evolved Pokémon on the board. If one unrelated Gloom was already on the Bench when Grand Tree evolved a Pidgey into Pidgeotto, the second-stage prompt might offer **Pidgeot ex** but the worker would inspect the existing Gloom, search only for Vileplume AOR/BUS, and **abstain** even though Pidgeot ex was the unique native offered continuation. This is a real lost Stage2-search decision, not a hypothetical card substitution.
+
+The correction enumerates all **board-supported evolutionary families** and intersects them with the **actual native offered choices**, preserving preferred AOR/BUS when offered but not allowing an unrelated Gloom or Oddish to mask the selected Pidgeot/Mega evolution. It prefers the source's Pidgeotto TEU Air Mail print over MEW Flap print when both Stage1 selections are offered. Both-seat tests cover this mixed-board wrong decision, Vileplume/Buneary alternatives and a genuinely unsupported offered card. Two further full **strict V3 protocol request/decision** cases pass for native-schema Grand Tree Pidgeot selection while Gloom is on the Bench. The test uses produced user-visible choice tokens, not concealed deck membership.
+
+## Legacy Energy's one-Prize reduction invalidates apparent last-Prize wins
+
+The card list's **Legacy Energy TWM167** states that a Pokémon Knocked Out by damage from an opponent's attack yields **one fewer Prize card**; its effect cannot apply more than once per game. The previous `sourcePrizeValue` used only target card type (V=2, VMAX=3, etc.), so the worker would incorrectly treat a KO against a Shadow Rider V with live Legacy attached as a **two-Prize terminal**, often sacrificing Active BUS's lock via Jet Energy or Guzma to attempt a nonexistent immediate win.
+
+The corrected prize liability is **conservative**. If the opponent's visible target has Legacy Energy attached and **Temple of Sinnoh is not currently suppressing Special Energy effects**, assume Legacy's per-game discount is still unused (because the actor-only projection does not certify prior uses) and reduce the number of Prizes expected by one. This is used consistently in **direct attack terminal detection, Bench gust/Guzma opportunity, and pre-attack Jet/paid Retreat lethal-promotion evaluation**. A live Temple disables the reduction, while a globally disabled Temple does not. The guard is limited to KOs by attack damage, as in its printed text.
+
+A concrete source test: with Active BUS, two source Prizes left, an already-powered Benched Mega, and opposing Shadow Rider V at 180 HP remaining, a Jet into moved Gale230 seems to end the game. **With Legacy attached, it yields only one Prize**; preserving the lock/recovering resources is selected instead. Both-seat tests show the same correction for direct Spiky Hopper and terminal Guzma, plus the case where Temple correctly restores the normal two-Prize value for an attack (but independently disables Jet's switch). This is a deterministic **decision-classification fix**, not a proof of winning a future game.
+
 ## Reproducible assets
 
 - Policy: `simulation/evaluation/2026-11/agent20-rank15-lopunny-vileplume-opponent-policy.cjs`
@@ -109,12 +123,14 @@ The patch does not invent a future `Gale Thrust` action token before native prom
 - Guzma own attacker promise, Belt lower-bound and BUS-lock terminal override: `tests/2026-11/agent20-rank15-guzma-prompt-attacker-binding-heldout.test.cjs` (**18** cases)
 - Complete original fixed-attack surface: `tests/2026-11/agent20-rank15-source-fixed-attack-damage-heldout.test.cjs` (**80** cases)
 - Eldegoss self-Silent Lab/Path root choices: `tests/2026-11/agent20-rank15-eldegoss-self-silent-lab-heldout.test.cjs` (**10** cases)
-- Full strict V3 Grand Tree/Pidgeot requests: `tests/2026-11/agent20-rank15-grandtree-pidgeot-strict-v3-heldout.test.cjs` (**6** cases)
+- Full strict V3 Grand Tree/Pidgeot requests: `tests/2026-11/agent20-rank15-grandtree-pidgeot-strict-v3-heldout.test.cjs` (**8** cases)
 - Terminal indexed Jet/Gale from BUS/Fan/Mega Active: `tests/2026-11/agent20-rank15-terminal-jet-gale-promotion-heldout.test.cjs` (**18** cases)
+- Grand Tree mixed-evolution-chain choice collision: `tests/2026-11/agent20-rank15-grandtree-mixed-chain-source-heldout.test.cjs` (**12** cases)
+- Legacy Energy Prize terminal false positives: `tests/2026-11/agent20-rank15-legacy-energy-prize-terminal-heldout.test.cjs` (**20** cases)
 - Parent strict V3 Temple regressions (not owned by PR93): `tests/2026-11/agent41-rank15-temple-strict-v3-protocol-heldout.test.cjs` (**4** cases)
-- Exact final policy blob: `6ee5f454de9499da9cb132d5e949baf61a682bf7`
-- Exact test blobs: `04aa7326f3d2c3bf18b115ca48d6988021c511cb`, `99418a2ca86cc651773af5cf3248979e4563317c`, `5d99721052439eb84849b4094ad98e0c6bd16132`, `fea7ca06fc33741301619f13dd8782a2ccfcd57a`, `7fa0f188ae3b889e16163fb8af639632dd4816e8`, `7276272a458f1941cdf1e2f5f8261aa93faf1818`, `757fb4f866d5013f6bb6a76eb92a4813ee3c549d`, `b488b4988c93ef88065c87f390dd6320dcade34b`, `259305b66e940632aed10c45708178915d1096d9`, `eac80e65146d35e8e27c40e309dc9cc7f3bb7647`
-- Executed both committed test files against the exact policy blob with a JavaScript CommonJS V8 shim for `node:test`, `node:assert/strict`, and the policy module: **204 passed / 0 failed** (194 constructed source cases + 6 new full strict V3 requests + 4 inherited strict V3 requests). This confirms synchronous decision assertions only. The V8 shim is not Node CLI, pinned Twinleaf Store, native protocol, source-deck game, or competitive qualification.
+- Exact final policy blob: `b126bfcfb62ea6a3e22d597ff54182bf1d8ff6f4`
+- Exact test blobs: `04aa7326f3d2c3bf18b115ca48d6988021c511cb`, `99418a2ca86cc651773af5cf3248979e4563317c`, `5d99721052439eb84849b4094ad98e0c6bd16132`, `fea7ca06fc33741301619f13dd8782a2ccfcd57a`, `7fa0f188ae3b889e16163fb8af639632dd4816e8`, `7276272a458f1941cdf1e2f5f8261aa93faf1818`, `757fb4f866d5013f6bb6a76eb92a4813ee3c549d`, `b488b4988c93ef88065c87f390dd6320dcade34b`, `259305b66e940632aed10c45708178915d1096d9`, `eac80e65146d35e8e27c40e309dc9cc7f3bb7647`, `63db297a905a12b7f3fdf9238208c1a192b9d236`, `f1e3df15364dc42e4153502b1f122d7fdf229915`
+- Executed both committed test files against the exact policy blob with a JavaScript CommonJS V8 shim for `node:test`, `node:assert/strict`, and the policy module: **238 passed / 0 failed** (226 constructed source cases + 8 new full strict V3 requests + 4 inherited strict V3 requests). This confirms synchronous decision assertions only. The V8 shim is not Node CLI, pinned Twinleaf Store, native protocol, source-deck game, or competitive qualification.
 
 The original PR90 head reproduced the wrong Jet and TM selections and the absent correct Hood decision before the follow-on patch. Neither PR90 nor PR93 should be treated as an admission to main or a frozen policy. Both may be challenged through independent actor-visible native continuation before any owner-approved game. No CI or V3 dispatch was performed here.
 
