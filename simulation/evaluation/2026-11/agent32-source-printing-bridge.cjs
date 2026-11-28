@@ -265,4 +265,27 @@ function wrapSourcePrintedObserver(native,sourceMapsBySeat,protocol){
   }};
 }
 
-module.exports={buildSourcePrintingMap,projectSourcePrintings,projectAdmittedWorkerParts,wrapSourcePrintedObserver};
+
+/**
+ * Single construction point for both frozen native.observe and admitted
+ * frontier/prompt/receipt projection. Keeps the physical-seat pairing private
+ * to this host adapter, rather than requiring separate callers to reconstruct
+ * potentially inconsistent maps for the driver and the worker resolver.
+ */
+function createCertifiedSourcePrintedHostBridge({
+  native,protocol,sourceDecksBySeat,nativeOrdered60BySeat
+}={}){
+  assert.ok(Array.isArray(sourceDecksBySeat)&&sourceDecksBySeat.length===2);
+  assert.ok(Array.isArray(nativeOrdered60BySeat)&&nativeOrdered60BySeat.length===2);
+  const maps=Object.freeze([0,1].map(seat=>
+    buildSourcePrintingMap(sourceDecksBySeat[seat],nativeOrdered60BySeat[seat])));
+  const wrappedNative=wrapSourcePrintedObserver(native,maps,protocol);
+  return Object.freeze({
+    native:wrappedNative,
+    projectWorkerParts(parts){
+      return projectAdmittedWorkerParts(parts,maps,protocol);
+    }
+  });
+}
+
+module.exports={buildSourcePrintingMap,projectSourcePrintings,projectAdmittedWorkerParts,wrapSourcePrintedObserver,createCertifiedSourcePrintedHostBridge};
