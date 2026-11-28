@@ -154,3 +154,52 @@ test('older uppercase-EX Mega and ordinary lower-case ex remain two-Prize target
   activeObs.opponentPublic.bench = [];
   assert.equal(evaluateApexAttackChoice(ryuno, activeObs).immediateWin, true);
 });
+
+
+const laser = { token: 'laser', publicMetadata: { sourceAttack: 'Dragon Laser', attackCostPayable: true } };
+const timeless = { token: 'timeless', publicMetadata: { sourceAttack: 'Timeless-GX', attackCostPayable: true } };
+const frost = { token: 'frost', publicMetadata: { sourceAttack: 'Frost Spear', attackCostPayable: true } };
+
+test('single-target Dragon Laser ranks a lethal three-Prize Mega bench KO above Timeless-GX', () => {
+  for (const seat of [0, 1]) {
+    const obs = megaView(seat);
+    obs.ownPublic.prizeCount = 3;
+    obs.opponentPublic.bench[0].damage = 260; // 20 HP remaining
+    const laserEval = evaluateApexAttackChoice(laser, obs);
+    const timelessEval = evaluateApexAttackChoice(timeless, obs);
+    assert.equal(laserEval.activeKnockout, false);
+    assert.equal(laserEval.benchKnockoutPotential, true);
+    assert.equal(laserEval.benchPrizeValue, 3);
+    assert.equal(laserEval.immediateWin, true);
+    assert.equal(timelessEval.immediateWin, false);
+    assert.deepEqual(chooseApexAttack([laser, timeless], obs), { kind: 'select-choice', token: 'laser' });
+  }
+});
+
+test('single-target Bench attacks select exactly one target and count zero-Prize Items as zero', () => {
+  const obs = megaView();
+  obs.opponentPublic.bench = [
+    { hp: 30, damage: 10, printing: "Lillie's Poké Doll CEC 197", printed: { subtypes: ['Item'] } },
+    { hp: 280, damage: 260, printing: 'Mega Absol ex MEG 86', printed: { subtypes: ['Basic', 'MEGA', 'ex'] } },
+    { hp: 280, damage: 260, printing: 'Mega Absol ex MEG 86', printed: { subtypes: ['Basic', 'MEGA', 'ex'] } }
+  ];
+  obs.ownPublic.prizeCount = 4;
+  const l = evaluateApexAttackChoice(laser, obs);
+  const f = evaluateApexAttackChoice(frost, obs);
+  assert.equal(l.benchPrizeValue, 3);
+  assert.equal(f.benchPrizeValue, 3);
+  assert.equal(l.immediateWin, false);
+  assert.equal(f.immediateWin, false);
+
+  obs.opponentPublic.bench = [
+    { hp: 30, damage: 10, printing: 'Robo Substitute PHF 102', printed: { subtypes: ['Item'] } }
+  ];
+  const dollLaser = evaluateApexAttackChoice(laser, obs);
+  const dollFrost = evaluateApexAttackChoice(frost, obs);
+  assert.equal(dollLaser.benchKnockoutPotential, true);
+  assert.equal(dollFrost.benchKnockoutPotential, true);
+  assert.equal(dollLaser.benchPrizeValue, 0);
+  assert.equal(dollFrost.benchPrizeValue, 0);
+  assert.equal(dollLaser.immediateWin, false);
+  assert.equal(dollFrost.immediateWin, false);
+});
