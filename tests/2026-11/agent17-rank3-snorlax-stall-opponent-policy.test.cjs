@@ -726,7 +726,7 @@ test("Player's Ceremony is a conservative shared draw-two and is played only int
     choices: [cardChoice('choice', 'Tropical Beach BWP 50')]
   });
   assert.deepEqual(checkedDecision(unexpectedPrompt), {
-    kind: 'abstain', reasonCode: 'UNSUPPORTED_SINGLE_CARD_PROMPT'
+    kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_COMBINATION_SOURCE'
   });
 });
 
