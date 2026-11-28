@@ -602,10 +602,10 @@ function agent26ChooseGetLostPublicCut(view, prompt) {
       meta.sourceZone !== 'discard' || meta.ownerSeat !== 'opponent' ||
       meta.isOwnerVisible !== true ||
       meta.minimumCount !== 2 || meta.maximumCount !== 2) {
-    return abstain('GET_LOST_UNTRUSTED_OPPONENT_DISCARD');
+    return abstain('UNTRUSTED_CARD_SELECTION');
   }
   if (!agent26TempleGetLostContext(view)) {
-    return abstain('GET_LOST_UNSUPPORTED_TACTICAL_CONTEXT');
+    return abstain('NO_SUPPORTED_CARD_SELECTION');
   }
   const cards = prompt.choices.filter(choice => choice.kind === 'card' &&
     isText(choice.printing) &&
@@ -615,11 +615,11 @@ function agent26ChooseGetLostPublicCut(view, prompt) {
     Number.isSafeInteger(choice.publicMetadata.selectionIndex) &&
     choice.publicMetadata.selectionIndex >= 0);
   if (cards.length !== prompt.choices.filter(choice => choice.kind === 'card').length)
-    return abstain('GET_LOST_CARD_VISIBILITY_MISMATCH');
+    return abstain('UNTRUSTED_CARD_SELECTION');
   const megaton = cards.find(choice => hasName(choice.printing, 'Megaton Blower'));
   const crispin = cards.find(choice => hasName(choice.printing, 'Crispin') &&
     choice.token !== megaton?.token);
-  if (!megaton || !crispin) return abstain('GET_LOST_CUT_TARGETS_NOT_OFFERED');
+  if (!megaton || !crispin) return abstain('NO_LEGAL_CARD_SET');
   recordPolicyAuditRule(megaton.token, 'GET_LOST_PUBLIC_MEGATON_TARGET');
   recordPolicyAuditRule(crispin.token, 'GET_LOST_PUBLIC_CRISPIN_TARGET');
   return { kind: 'select-choices', tokens: [megaton.token, crispin.token] };
@@ -1060,7 +1060,7 @@ function choosePrompt(view, prompt, receipt) {
     return abstain('UNTRUSTED_PROMPT_SOURCE');
   }
   if (agent26GetLostSource(prompt)) {
-    if (prompt.promptType !== 'ChooseCardsPrompt') return abstain('GET_LOST_WRONG_PROMPT_TYPE');
+    if (prompt.promptType !== 'ChooseCardsPrompt') return abstain('UNSUPPORTED_PROMPT_TYPE');
     return agent26ChooseGetLostPublicCut(view, prompt);
   }
   switch (prompt.promptType) {
