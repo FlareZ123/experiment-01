@@ -439,3 +439,54 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Plumeria denies DDE-powered Regidrago only when two discards payable',()=>{
+  const reg=opp({active:mon('Regidrago VSTAR SIT 136',{energies:['Double Dragon Energy ROS 97',
+   'Double Dragon Energy ROS 97']})});
+  const items=[play('Plumeria BUS 120','plumeria'),attack('Itchy Pollen','pollen'),pass];
+  const q=root(seat,items,{globalTurn:5,ownPublic:own({active:mon('Budew ASC 16')}),
+   opponentPublic:reg,ownHand:['Plumeria BUS 120','Battle VIP Pass FST 225','Darkness Energy MEE 15']});
+  assert.equal(policy.plumeriaDenialScore(q.observation),690);
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'plumeria'});
+  q.observation.ownHand=['Plumeria BUS 120','Forest Seal Stone SIT 156','Secret Box TWM 163'];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pollen'});
+ });
+ test('seat '+seat+' Plumeria pays actual two-card prompt without burning protected ACE SPEC',()=>{
+  const q=prompt(seat,{source:{sourceKind:'card-effect',sourcePrinting:'Plumeria BUS 120',effectName:'Plumeria'},
+   publicMetadata:{minimumCount:2,maximumCount:2},choices:[
+    choice('vip','Battle VIP Pass FST 225','hand'),choice('dark','Darkness Energy MEE 15','hand'),
+    choice('ace','Secret Box TWM 163','hand')]},
+   {globalTurn:5,ownHand:['Battle VIP Pass FST 225','Darkness Energy MEE 15','Secret Box TWM 163']});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['vip','dark']});
+ });
+ test('seat '+seat+' Plumeria chooses visible opponent Regidrago then Double Dragon Energy',()=>{
+  const reg=opp({active:mon('Regidrago VSTAR SIT 136',{energies:['Double Dragon Energy ROS 97',
+    'Fire Energy MEE 2']}),bench:[mon('Shadow Rider Calyrex V CRE 74',{energies:['Psychic Energy MEE 5']})]});
+  const q=prompt(seat,{promptType:'ChoosePokemonPrompt',
+   source:{sourceKind:'card-effect',sourcePrinting:'Plumeria BUS 120',effectName:'Plumeria'},
+   publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1},choices:[
+    {kind:'pokemon',token:'active',printing:'Regidrago VSTAR SIT 136',
+     publicMetadata:{ownerSeat:'opponent',targetZone:'active'}},
+    {kind:'pokemon',token:'bench',printing:'Shadow Rider Calyrex V CRE 74',
+     publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:0}}
+   ]},{opponentPublic:reg});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['active']});
+  q.prompt.promptType='ChooseEnergyPrompt';
+  q.prompt.publicMetadata={selectionType:'energy-payment',energyCount:2,allowCancel:false};
+  q.prompt.choices=[
+   {kind:'energy',token:'basic',printing:'Fire Energy MEE 2',publicMetadata:{ownerSeat:'opponent',sourceZone:'attached',isOwnerVisible:true}},
+   {kind:'energy',token:'double',printing:'Double Dragon Energy ROS 97',publicMetadata:{ownerSeat:'opponent',sourceZone:'attached',isOwnerVisible:true}}
+  ];
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['double']});
+ });
+ test('seat '+seat+' Karen Supporter wins contention versus Plumeria when Budew can lock 2 Dragon payloads',()=>{
+  const reg=opp({active:mon('Regidrago VSTAR SIT 136',{energies:['Double Dragon Energy ROS 97']}),
+   discard:['Dialga-GX UPR 100','Dragapult ex TWM 130']});
+  const q=root(seat,[play('Karen XYP 177','karen'),play('Plumeria BUS 120','plum'),
+    attack('Itchy Pollen','pollen'),pass],{globalTurn:5,ownPublic:own({active:mon('Budew ASC 16')}),
+    opponentPublic:reg,ownHand:['Karen XYP 177','Plumeria BUS 120','Darkness Energy MEE 15',
+     'Battle VIP Pass FST 225']});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'karen'});
+ });
+}
