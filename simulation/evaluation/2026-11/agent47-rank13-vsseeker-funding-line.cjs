@@ -5,9 +5,10 @@
  * Intended delegation point: before the generic /vs seeker/i prompt branch in
  * agent24-rank13-regidrago-opponent-policy.cjs.
  *
- * Exactly one endgame condition: with Active SIT136 attached Grass+Fire,
- * prior UPR100 in own discard, and an exposed 70-HP GRI58 defending, Crispin
- * is the only offered Supporter that can fund a same-turn Apex Dragon/Shred KO.
+ * Exact endgame condition: Active SIT136 has either Grass+Fire (needs a
+ * Grass attachment) or Grass+Grass (needs Fire); UPR100 is in discard and
+ * the opponent has a vulnerable GRI58 Active. Crispin can then fund a
+ * same-turn Apex Dragon/Shred KO through one Basic attachment.
  * Crispin succeeds only if the deck still contains DIFFERENT Basic Energy types
  * (Grass and Fire). Fresh owner K1 or a K0 Prize-count lower-bound sometimes
  * CERTIFIES both deck types; uncertain K0 remains prospective. It selects
@@ -127,6 +128,24 @@ function assessRank13CrispinEnergyPair(view) {
   return assessSourceCountCrispinEnergyPair(view,RANK13_ENERGY_COPIES);
 }
 
+/**
+ * Regidrago VSTAR Apex Dragon costs exactly Grass + Grass + Fire.
+ * Crispin can attach ONE Basic Energy, therefore an active with exactly two
+ * Basic Energy cards is immediately fundable only in either configuration:
+ * - 1 Grass + 1 Fire: needs Grass;
+ * - 2 Grass + 0 Fire: needs Fire.
+ * Other cases (such as two Fire, mixed Special Energy, extra Energy) require
+ * separate analysis and must not be assumed to fit this exact branch.
+ */
+function requiredBasicForApex(energy) {
+  if(!Array.isArray(energy)||energy.length!==2)return null;
+  const grass=energy.filter(card=>isPrint(card,GRASS)).length;
+  const fire=energy.filter(card=>isPrint(card,FIRE)).length;
+  if(grass===1 && fire===1)return 'grass';
+  if(grass===2 && fire===0)return 'fire';
+  return null;
+}
+
 function isRank13CrispinFundingWindow(view) {
   const own = view?.ownPublic;
   const foe = view?.opponentPublic;
@@ -145,9 +164,7 @@ function isRank13CrispinFundingWindow(view) {
       // not the global-turn stamp. Any positive value exhausts the quota.
       view.ownTurnResources.supporterPlayedTurn !== 0 ||
       view.ownTurnResources.supporterPlayLocked === true ||
-      !Array.isArray(energy) || energy.length !== 2 ||
-      energy.filter(e => isPrint(e, GRASS)).length !== 1 ||
-      energy.filter(e => isPrint(e, FIRE)).length !== 1 ||
+      requiredBasicForApex(energy)===null ||
       !Array.isArray(own?.discard) ||
       !own.discard.some(card => isPrint(card, DIALGA)) ||
       !Number.isFinite(defending?.hp) ||
@@ -223,4 +240,4 @@ function chooseRank13VsSeekerFundingLine(request) {
 module.exports = { chooseRank13VsSeekerFundingLine,
   chooseRank13VsSeekerFundingRoot,isRank13CrispinFundingWindow,
   assessRank13CrispinEnergyPair,assessSourceCountCrispinEnergyPair,
-  RANK13_ENERGY_COPIES };
+  RANK13_ENERGY_COPIES,requiredBasicForApex };
