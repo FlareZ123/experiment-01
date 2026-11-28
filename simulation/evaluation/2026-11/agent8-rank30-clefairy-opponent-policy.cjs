@@ -831,6 +831,17 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   const attack=items.find(a=>a.kind==='attack' && a.attackName==='Full Moon Rondo' &&
     has(ownPrinting(a),P.clefairy));
   if(attack && terminalRondo(o))return act(attack);
+  // A source-legal Guzma can win now. Do not spend a generic draw/search
+  // connector before a supported 3-/2-Prize terminal gust-and-Rondo line.
+  const finishingGust=guzmaOpportunity(o);
+  if(finishingGust&&safeInt(o.ownPublic?.prizeCount)&&
+     o.ownPublic.prizeCount>0&&o.ownPublic.prizeCount<=finishingGust.prizeValue){
+    const directGuzma=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.guzma));
+    if(directGuzma)return act(directGuzma);
+    const retrievedGuzma=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.vsSeeker));
+    if(retrievedGuzma&&supporterAvailable(o)&&
+       arr(o.ownPublic?.discard).some(x=>has(x,P.guzma)))return act(retrievedGuzma);
+  }
   // If Field Blower removes Sky Field, the attack's damage may fall below KO.
   // No Field Blower line is opened before a still-available Rondo attack.
   const sky=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.sky));
@@ -905,7 +916,11 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
     a.publicMetadata?.abilityName==='Farewell Letter'&&
     /^Unown AOR(?: 30)?\b/i.test(text(ownPrinting(a))));
   if(farewell&&farewellOpportunity(o))return act(farewell);
-  return attack ? act(attack) : no('R30_ROOT_UNSUPPORTED');
+  if(attack)return act(attack);
+  // Only an exclusively passive native frontier can be safely passed.
+  // Never mask an unsupported legal source action (notably Copycat) as a pass.
+  if(items.every(x=>x.kind==='pass'))return act(items[0]);
+  return no('R30_ROOT_UNSUPPORTED');
 }
 function createPolicy({role,seat,policyVersion,config}) {
   const keys=config&&typeof config==='object'&&!Array.isArray(config)?
