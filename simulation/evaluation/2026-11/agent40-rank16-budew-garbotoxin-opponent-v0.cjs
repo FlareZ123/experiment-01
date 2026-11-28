@@ -392,8 +392,10 @@ function opponentHandDiscardScore(c,o){
  if(c.kind!=='card'||owner(c)!=='opponent'||zone(c)!=='hand'||
    c.publicMetadata?.isOwnerVisible!==true)return 0;
  const p=name(c);
- if(/^Battle VIP Pass\b/i.test(p)&&o.globalTurn>2)return 3;
+ if(/^Battle VIP Pass\b/i.test(p))return o.globalTurn>2?3:205;
  if(/^(?:Computer Search|Secret Box|Prime Catcher|Brilliant Blender|Dowsing Machine)\b/i.test(p))return 250;
+ if(/^(?:Crobat V|Dedenne-GX|Tapu Lele-GX|Squawkabilly ex)\b/i.test(p))
+  return garbotoxinStatus(o)==='live'?20:210;
  if(/^Regidrago VSTAR\b/i.test(p)&&onBoard(o.opponentPublic,/^Regidrago V\b/i))return 235;
  if(/^Vileplume\b/i.test(p)&&onBoard(o.opponentPublic,/^Oddish\b/i))return 235;
  if(/^Shadow Rider Calyrex VMAX\b/i.test(p)&&onBoard(o.opponentPublic,/^Shadow Rider Calyrex V\b/i))return 235;
