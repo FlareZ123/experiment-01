@@ -125,7 +125,7 @@ function actionSignature(action) {
   ].join('|');
 }
 
-function projectNativeAction(action, state, actorSeat, native, token) {
+function projectNativeAction(action, state, actorSeat, native, token, verifiedRetreatCost=null) {
   const player = state.players[actorSeat];
   const type = action?.type;
   const item = { token, kind: 'unsupported' };
@@ -189,6 +189,14 @@ function projectNativeAction(action, state, actorSeat, native, token) {
       metadata.targetZone = 'bench';
       metadata.targetIndex = action.benchIndex;
       metadata.isOwnerVisible = true;
+      // A printed Retreat Cost or speculative Skyliner/Float Stone flag is
+      // insufficient. This certificate is calculated by the pinned Store on
+      // a detached copy of the exact pre-action physical state.
+      if(verifiedRetreatCost!==null){
+        assert.ok(Number.isSafeInteger(verifiedRetreatCost)&&verifiedRetreatCost>=0);
+        metadata.retreatEnergyCost=verifiedRetreatCost;
+        metadata.freeRetreat=verifiedRetreatCost===0;
+      }
       break;
     }
     case 'USE_ABILITY_ACTION':
@@ -464,6 +472,23 @@ function createIsolatedValidationSimulator(state,native){
   return simulator;
 }
 
+// The pinned Store computes effective retreat cost from face-up cards,
+// current Ability locks and Tools with CheckRetreatCostEffect. Do this only
+// inside a fully detached native Simulator: Store.reduceEffect recalculates
+// playability and may rewrite arrays even for a pure-looking type/cost check.
+// The root frontier already has native-authoritative legal RetreatAction(s),
+// so expose an additional zero-cost certificate without inventing a move.
+function certifiedNativeRetreatCost(state,actorSeat,native){
+  if(typeof native.CheckRetreatCostEffect!=='function')return null;
+  const simulator=createIsolatedValidationSimulator(state,native);
+  const independent=simulator.store.state;
+  const effect=new native.CheckRetreatCostEffect(independent.players[actorSeat]);
+  simulator.store.reduceEffect(independent,effect);
+  assert.ok(Array.isArray(effect.cost),
+    'native retreat-cost probe did not return an Energy cost array');
+  return effect.cost.length;
+}
+
 function buildNativeActionFrontier({
   state,
   actorSeat,
@@ -492,6 +517,12 @@ function buildNativeActionFrontier({
     'a pinned or explicitly supplied native ActionEnumerator is required');
   const candidates = enumerator.enumerate(state, player, player.id);
   assert.ok(Array.isArray(candidates), 'ActionEnumerator did not return an array');
+  // One native-effect calculation per root state, not per Bench target.
+  // Without a supplied pinned CheckRetreatCostEffect, retain the existing
+  // conservative worker fallback and do not manufacture a free-cost claim.
+  const verifiedRetreatCost=candidates.some(action=>
+    action?.type==='RETREAT_ACTION')?
+    certifiedNativeRetreatCost(state,actorSeat,native):null;
 
   const items = [];
   const actionByToken = new Map();
@@ -523,7 +554,8 @@ function buildNativeActionFrontier({
       continue;
     }
     const token = 'act-' + items.length.toString(36);
-    const item = projectNativeAction(action, state, actorSeat, native, token);
+    const item = projectNativeAction(action, state, actorSeat, native, token,
+      verifiedRetreatCost);
     if (!item) {
       unsupportedCount += 1;
       continue;
