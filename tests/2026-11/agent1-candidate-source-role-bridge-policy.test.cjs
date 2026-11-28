@@ -271,9 +271,13 @@ for(const candidateSeat of [0,1])for(const mode of ['lethal','door'])
       fixture.actions.map(x=>x.token));
     assert.equal(root.actionByToken.get(rootToken),realRootAction);
 
-    const projected=wrapped.promptProjection.projectPrompt({
-      state,actorSeat:candidateSeat,prompt:fixture.prompt
-    });
+    // V3 invokes promptProjection only for an actual pending native prompt.
+    // Root turns with null prompt do not call the native prompt projector.
+    const projected=mode==='door'
+      ?wrapped.promptProjection.projectPrompt({
+        state,actorSeat:candidateSeat,prompt:fixture.prompt
+      })
+      :{promptProjection:null};
     if(mode==='door'){
       assert.equal(projected.promptProjection.source.sourcePrinting,
         'Shadow Rider Calyrex VMAX CRE 75');
