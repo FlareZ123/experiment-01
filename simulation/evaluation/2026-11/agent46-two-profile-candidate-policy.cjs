@@ -2470,6 +2470,25 @@ function stealthyHoodTargetScore(view,slot,receipt=null) {
   return score;
 }
 
+// Prepare a source-paid Float Stone -> Latias -> held Guzma -> VMAX
+// line that KOs the *sole* live Garbotoxin source in the present turn.
+// This evaluates the opportunity cost against spending Float Stone elsewhere.
+function floatStoneLockBreakTargetScore(view,slot,receipt=null){
+  if(!slot||!hasName(slot.printing,'Latias ex')||
+     slot===view.ownPublic.active||slot.tools?.length!==0||
+     !isShadowRiderVmax(view.ownPublic.active)||!handHas(view,'Guzma')||
+     handHas(view,'Psychic Energy')||!supporterAvailable(view)||
+     toolsEffectiveForRetreat(view,slot,'actor')!==true)return -Infinity;
+  const equipped={...slot,tools:['Float Stone BKT 137']};
+  const projected={...view,ownPublic:{...view.ownPublic,
+    bench:view.ownPublic.bench.map(p=>p===slot?equipped:p)}};
+  return guzmaPlans(projected,receipt).some(row=>
+    row.multiPrizePivot===true&&row.prizes===1&&
+    (hasName(view.opponentPublic.bench[row.targetIndex]?.printing,'Garbodor BKP')||
+     hasName(view.opponentPublic.bench[row.targetIndex]?.printing,'Garbodor LTR')))
+    ?2470:-Infinity;
+}
+
 function choosePokemonRecipient(view, prompt, receipt=null, profile=null) {
   setPolicyAuditRule('POKEMON_TARGET_SCORE', 'SCORE_DESC_NATIVE_TARGET_INDEX');
   const metadata = prompt.publicMetadata;
@@ -2499,6 +2518,11 @@ function choosePokemonRecipient(view, prompt, receipt=null, profile=null) {
   if ((hasName(prompt.source?.sourcePrinting, 'Stealthy Hood') ||
        effectName === 'Stealthy Hood') && actorChoices.length > 0) {
     ranked = actorChoices.map(row => ({...row,score:stealthyHoodTargetScore(view,row.target.slot,receipt)}));
+  } else if ((hasName(prompt.source?.sourcePrinting,'Float Stone')||
+      effectName==='Float Stone')&&actorChoices.length>0&&
+      actorChoices.some(row=>Number.isFinite(floatStoneLockBreakTargetScore(view,row.target.slot,receipt)))) {
+    ranked=actorChoices.map(row=>({...row,
+      score:floatStoneLockBreakTargetScore(view,row.target.slot,receipt)}));
   } else if (effectName==='Astral Barrage'&&hasName(prompt.source?.sourcePrinting,'Shadow Rider Calyrex V CRE')&&
       actorChoices.length===0&&(
         (minimum===2&&maximum===2&&opponentChoices.length>=2&&
@@ -3791,7 +3815,10 @@ function scoreTrainerPlay(item, view, receipt, profile) {
   if (hasName(name,'Float Stone')) {
     const target=actionTargetSlot(view,item.publicMetadata);
     if (!target || target.tools?.length!==0 || toolsEffectiveForRetreat(view,target,'actor')!==true ||
-        !view.ownPublic.bench.some(Boolean) || hasStealthyHoodSearchNeed(view)) return -Infinity;
+        !view.ownPublic.bench.some(Boolean)) return -Infinity;
+    const payoff=floatStoneLockBreakTargetScore(view,target,receipt);
+    if(Number.isFinite(payoff))return payoff;
+    if(hasStealthyHoodSearchNeed(view))return -Infinity;
     if (target.printed?.subtypes?.includes('Basic') && skylinerStatus(view)===true) return -Infinity;
     if (target===view.ownPublic.active && (ownRetreatCost(view)??0)>0 &&
         ((handHas(view,'Radiant Eternatus') || gateAccessNeed(view)) && hasName(target.printing,'Wobbuffet') ||
