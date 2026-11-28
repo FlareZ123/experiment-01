@@ -1454,6 +1454,28 @@ function scoreTrainerPlay(item, view, receipt) {
   if (hasName(name, 'Dimension Valley') &&
       dimensionValleyStatus(view) === false &&
       ownBoard(view).some(slot => slot.printed.types.includes('Psychic'))) return 600;
+  if (name === 'Float Stone BKT 137') {
+    const meta = item.publicMetadata ?? {};
+    const active = view.ownPublic.active;
+    if (meta.targetSeat !== 'actor' || meta.targetZone !== 'active' ||
+        meta.isOwnerVisible !== true || item.targetPrinting !== active?.printing ||
+        (active.tools ?? []).length > 0 ||
+        (active.printed?.retreatCost ?? []).length === 0 ||
+        view.ownPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining !== 0 ||
+        view.opponentPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining !== 0 ||
+        !view.opponentPublic.active) return -Infinity;
+    // Spend the one mobility Tool only when it unlocks an actually payable
+    // Bench attack. A no-cost Active retreat is available next decision;
+    // preserve other Tools and the only copy of Float Stone otherwise.
+    if (freeRetreatKnown(view)) return -Infinity;
+    const current = bestAttackForSlot(active, view, view.opponentPublic.active,
+      {publicEventReceipt: receipt});
+    const bestBench = view.ownPublic.bench.filter(Boolean).map(slot =>
+      bestAttackForSlot(slot, view, view.opponentPublic.active,
+        {publicEventReceipt: receipt})).filter(Boolean).sort((a,b)=>b.score-a.score)[0];
+    if (!bestBench || bestBench.score <= (current?.score ?? 0)) return -Infinity;
+    return 1020;
+  }
   if (name === 'Stealthy Hood UNB 186' && hasAbilityLockThreat(view)) {
     const meta = item.publicMetadata ?? {};
     const target = meta.targetSeat === 'actor' &&
