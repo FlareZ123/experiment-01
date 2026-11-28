@@ -1,4 +1,4 @@
-## 28 November 2026 01:54 UTC | source-card-correct pre-KO Unown engine
+## 28 November 2026 01:50 UTC | source-card-correct pre-KO Unown engine
 
 - Current isolated Agent9 branch **`agent9/rank9-telepathic-unown-root-20261128`** at exact **`ce3900ab1b3f4635f23eb0b8c9534e64693c8b55`**, still based Agent29 `4c23ca2fa6b31c4344ceb6581a8b8c7ac60d3028`, still exactly **two modified files**: source policy and dedicated regression suite.
 - Executed **existing 19 rank9 groups + 78 new source decisions**, **297 counted passed assertions** plus existing unnumbered native naming compatibility group. Exact fetched source/protocol run as CommonJS in V8 with simple `require` shim, not Node/Store or CI.
