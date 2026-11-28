@@ -807,3 +807,59 @@ for(const seat of [0,1]) {
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' Sky Field funds a three-Basic terminal Rondo against Iron Thorns',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active={printing:clef,
+      abilities:['Fairy Zone'],abilitySuppressions:[{
+        abilityName:'Fairy Zone',suppressed:true,reasonCode:'ABILITY_LOCKED',
+        sourcePrinting:'Iron Thorns ex TWM 77'}],
+      energies:[psychic,psychic]};
+    r.observation.ownPublic.bench=[
+      b('Latias ex SSP 76'),b('Unown AOR 30'),b('Dedenne-GX UNB 57'),
+      b('Crobat V DAA 104'),b('Tapu Lele-GX GRI 60')];
+    r.observation.opponentPublic.active={printing:'Iron Thorns ex TWM 77',
+      hp:230,damage:0};
+    r.observation.opponentPublic.bench=[
+      b('Iron Thorns ex TWM 77'),b('Iron Thorns ex TWM 77'),
+      b('Iron Thorns ex TWM 77')];
+    r.observation.ownPublic.prizeCount=2;
+    r.observation.ownHand=['Sky Field ROS 89',
+      'Unown AOR 30','Unown AOR 30','Minior PAR 99'];
+    r.actionFrontier.items=[
+      root('play-card',"Trainers' Mail ROS 92",'mail'),
+      root('play-card','Sky Field ROS 89','sky')];
+    assert.deepEqual(projectedRondo(r.observation),
+      {damage:180,remaining:230,total:8});
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'sky'});
+    // If two future Basic additions cannot bridge the threshold, do not
+    // consume the Stadium just because its theoretical cap is eight.
+    r.observation.ownHand.pop();
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'mail'});
+    r.observation.ownHand.push('Minior PAR 99');
+    r.observation.ownPublic.stadium=['Sky Field ROS 89'];
+    r.observation.ownHand.shift();
+    for(let i=0;i<2;i++) {
+      r.actionFrontier.items=[
+        root('play-card','Minior PAR 99','minior'),
+        root('play-card','Unown AOR 30','unown')];
+      assert.deepEqual(policy(seat).decide(r),
+        {kind:'select-action',token:'unown'});
+      r.observation.ownPublic.bench.push(b('Unown AOR 30'));
+      r.observation.ownHand.splice(r.observation.ownHand.indexOf('Unown AOR 30'),1);
+    }
+    r.actionFrontier.items=[root('play-card','Minior PAR 99','minior')];
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'minior'});
+    r.observation.ownPublic.bench.push(b('Minior PAR 99'));
+    r.observation.ownHand=[];
+    r.actionFrontier.items=[
+      {...root('attack',clef,'rondo'),attackName:'Full Moon Rondo'}];
+    assert.deepEqual(projectedRondo(r.observation),
+      {damage:240,remaining:230,total:11});
+    assert.deepEqual(policy(seat).decide(r),
+      {kind:'select-action',token:'rondo'});
+  });
+}
