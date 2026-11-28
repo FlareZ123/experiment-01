@@ -256,6 +256,74 @@ function k1EvoTarget(o) {
     return pats.length>0&&k1Available(o,pats)!==false;
   });
 }
+function energyProvided(card) {
+  return has(card,P.doubleColorless)?2:1;
+}
+function attachedEnergyUnits(slot) {
+  return arr(slot?.energies).reduce((sum,card)=>sum+energyProvided(card),0);
+}
+function energyActionScore(item,o) {
+  if(item?.kind!=='play-card'||
+    ![P.jet,P.capture,P.doubleColorless,P.powerful,P.grass].some(p=>has(ownPrinting(item),p)))return 0;
+  const own=o?.ownPublic,energy=ownPrinting(item);
+  const target=slots(own).find(x=>txt(x)===item.targetPrinting);
+  if(!target||!item.targetPrinting)return 0;
+  const used=attachedEnergyUnits(target),available=5-benchCount(own);
+  if(has(target,P.bus)&&has(energy,P.jet)&&has(own.active,P.bunnelby)&&
+    o.opponentPublic?.active?.printed?.stage==='BASIC'&&
+    !arr(target.abilitySuppressions).some(x=>
+      x.abilityName==='Disgusting Pollen'&&x.suppressed===true))return 169;
+  if(has(target,P.bunnelby)){
+    const tm=arr(target.tools).some(t=>has(t,P.tmEvolution));
+    if(tm&&used===0)return 165;
+    if(used===0)return 100;
+    return 0;
+  }
+  if(has(target,P.mega)){
+    if(used>=2)return 0;
+    if(has(energy,P.doubleColorless))return 158;
+    if(has(energy,P.powerful))return used===0?137:140;
+    if(has(energy,P.capture))return available>0?132:113;
+    if(has(energy,P.jet))return used===0?130:135;
+    return used===0?128:132;
+  }
+  if(has(target,P.buneary))return used===0?75:0;
+  if(has(target,P.eldegoss))return used===0?70:used===1?65:0;
+  if(has(target,P.fan)||has(target,P.budew)||has(target,P.pidgey))
+    return used===0&&has(energy,P.capture)&&available>0?65:0;
+  return 0;
+}
+function capturePrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
+    !actorCardZone(p,'deck')||!Number.isSafeInteger(m.minimumCount)||
+    !Number.isSafeInteger(m.maximumCount)||m.minimumCount>1||m.maximumCount!==1)
+    return abstain('UNSUPPORTED_CARD_COMBINATION_SOURCE');
+  const empty=arr(p.choices).find(x=>x.kind==='empty-selection'&&typeof x.token==='string');
+  if(benchCount(o.ownPublic)>=5)return m.minimumCount===0&&empty?
+    {kind:'select-choice',token:empty.token}:abstain('NO_LEGAL_CARD_SET');
+  const prefer=[usefulArtazonBasic(o),P.oddish,P.bunnelby,P.buneary,P.pidgey,P.fan,P.budew]
+    .filter(Boolean);
+  for(const pat of prefer){
+    const c=arr(p.choices).find(c=>c.kind==='card'&&has(c,pat)&&typeof c.token==='string');
+    if(c)return {kind:'select-choices',tokens:[c.token]};
+  }
+  return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
+    abstain('NO_LEGAL_CARD_SET');
+}
+function hoodProtectionScore(item,o) {
+  if(item?.kind!=='play-card'||!has(ownPrinting(item),P.hood)||
+    !has(item.targetPrinting,P.aor))return 0;
+  const target=slots(o.ownPublic).find(x=>has(x,P.aor)&&arr(x.tools).length===0);
+  if(!target)return 0;
+  const suppressed=arr(target.abilitySuppressions).some(x=>
+    x.abilityName==='Irritating Pollen'&&x.suppressed===true&&
+    /^(?:Galarian Weezing|Garbodor|Wobbuffet)\b/i.test(x.sourcePrinting??''));
+  if(!suppressed)return 0;
+  const jammed=[...arr(o.ownPublic.stadium),...arr(o.opponentPublic?.stadium)]
+    .some(x=>/^Jamming Tower TWM(?: 153)?\b/i.test(txt(x)));
+  return jammed?0:172;
+}
 function missingEvolutionChannels(o) {
   const own=o.ownPublic;
   const bench=arr(own?.bench).filter(Boolean);
@@ -1013,12 +1081,18 @@ function rootDecision(request) {
   if(tag&&!arr(o.ownHand).some(c=>has(c,P.guzmaHala))&&
     k1Available(o,[P.guzmaHala])!==false&&
     ghLineFeasible(o,P.tagCall))return take(tag);
+  const hood=items.map(x=>({item:x,score:hoodProtectionScore(x,o)}))
+    .filter(x=>x.score>0)[0];
+  if(hood)return take(hood.item);
   // Only a complete offered two-Basic deck-search line is initiated here.
   const poffin=items.find(x=>x.kind==='play-card'&&has(ownPrinting(x),P.poffin));
   if(poffin&&benchCount(o.ownPublic)<5&&
       slots(o.ownPublic).filter(x=>[P.oddish,P.gloom,P.aor,P.bus].some(p=>has(x,p))).length<2&&
       arr(o.ownHand).filter(x=>has(x,P.oddish)).length<2)
     return take(poffin);
+  const energy=items.map((item,index)=>({item,index,score:energyActionScore(item,o)}))
+    .filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.index-b.index)[0];
+  if(energy)return take(energy.item);
   const scored=items.map((item,index)=>{
     let score=0;
     if(item.kind==='play-card')score=Math.max(usefulEvolution(item,o),usefulBasic(item,o));
@@ -1079,6 +1153,7 @@ function createPolicy({role,seat,policyVersion,config}) {
       if(has(request.prompt?.source?.sourcePrinting,P.pidgeot))return quickSearchPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.grandTree))return grandTreePrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.artazon))return artazonPrompt(request);
+      if(has(request.prompt?.source?.sourcePrinting,P.capture))return capturePrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.xtransceiver))return xtransceiverPrompt(request);
       if(has(request.prompt?.source?.sourcePrinting,P.eldegoss)&&
         request.prompt?.promptType==='ConfirmPrompt')return floatUpPrompt(request);
@@ -1106,4 +1181,4 @@ function createPolicy({role,seat,policyVersion,config}) {
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,
   createPolicy,rootDecision,poffinPrompt,printedDamage,applyColorlessWeaknessResistance,movementEvidence,karenOpportunity,REGIDRAGO_DRAGON_PAYLOADS,
-  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,k1Available,k1EvoTarget,nOpportunity,peakLockOpportunity,silentLabOpportunity,eldCanBench,eldegossPrompt,floatUpPrompt,eldSupporterPriority,xtransceiverPrompt,usefulArtazonBasic,artazonPrompt,airMailPrompt,grandTreePrompt,grandTreeTarget,guzmaOpportunity,guzmaPrompt,rototillerPrompt,rototillerPriority,bunnelbyAttritionAction,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
+  candidateCopycatThreat,doubleBaseCutExposed,ghPrompt,tagCallPrompt,evolutionPrompt,ghLineFeasible,actorCardZone,actorPokemonBench,fanCallPrompt,quickSearchPrompt,energyProvided,attachedEnergyUnits,energyActionScore,capturePrompt,hoodProtectionScore,k1Available,k1EvoTarget,nOpportunity,peakLockOpportunity,silentLabOpportunity,eldCanBench,eldegossPrompt,floatUpPrompt,eldSupporterPriority,xtransceiverPrompt,usefulArtazonBasic,artazonPrompt,airMailPrompt,grandTreePrompt,grandTreeTarget,guzmaOpportunity,guzmaPrompt,rototillerPrompt,rototillerPriority,bunnelbyAttritionAction,omegaBarragePrompt,busActivePromotionOpportunity,busRetreatPrompt};
