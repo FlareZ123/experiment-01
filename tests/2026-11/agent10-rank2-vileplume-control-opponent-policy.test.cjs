@@ -1353,6 +1353,23 @@ test('Certified suppressed Tool-bearing Garbotoxin permits Stoutland pivot',()=>
   assert.deepEqual(checkedDecision(request),{kind:'select-choices',tokens:['stoutland']});
 });
 
+
+test('targetless Guzma still gusts with no own Bench under partial-resolution rule',()=>{
+  const request=rootRequest({
+    ownPublic:player({active:pokemon('Vileplume-GX CEC 4'),bench:[]}),
+    opponentPublic:player({active:pokemon('Snorlax PGO 55'),bench:[
+      pokemon('Pidgeot ex OBF 164',{hp:280,damage:270})
+    ]}),
+    items:[
+      {token:'guzma',kind:'play-card',actorPrinting:'Guzma BUS 115',
+        publicMetadata:{cardType:'trainer',handIndex:0}},
+      {token:'pass',kind:'pass',label:'Pass turn'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(request),{
+    kind:'select-action',token:'guzma'});
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
