@@ -851,6 +851,48 @@ function candidateCanUseBoardHeldStarAlchemy(observation) {
 // Bench for 100. The opponent-board target is a real ChoosePokemonPrompt,
 // not an attack root token and not a guess about hidden targets. We prefer
 // a certified knockout and then resolve the exact offered prompt.
+// Tapu Cure-GX restores exactly two damaged Bench Pokémon, but consumes
+// the source 60's once-per-game GX opportunity. Hold the attack until its
+// healing is genuinely substantial, then use the actual actor-owned targets
+// from the native ChoosePokemonPrompt rather than guessed positions.
+function tapuCureTargets(o) {
+  const bench=arr(o?.ownPublic?.bench),rows=[];
+  for(let i=0;i<bench.length;i++){
+    const p=bench[i];
+    if(!p||!safeInt(p.hp)||!safeInt(p.damage)||p.damage<=0||
+       p.damage>=p.hp||p.effectUnknown===true||
+       p.publicRestrictions?.cannotHeal===true)continue;
+    const highValue=has(p,P.clefairy)||has(p,P.latias);
+    const score=p.damage+(highValue?60:0)+(p.hp-p.damage<=100?35:0);
+    rows.push({index:i,printing:text(p),damage:p.damage,score});
+  }
+  rows.sort((a,b)=>b.score-a.score||a.index-b.index);
+  if(rows.length<2||rows[0].damage<60||
+     rows[0].damage+rows[1].damage<150)return [];
+  return rows.slice(0,2);
+}
+function tapuCurePrompt(request) {
+  const p=request?.prompt,m=p?.publicMetadata??{},o=request?.observation;
+  if(!sameSource(p,P.lele)||p.source?.effectName!=='Tapu Cure-GX'||
+     p.promptType!=='ChoosePokemonPrompt'||
+     m.selectionType!=='pokemon'||m.minimumCount!==2||
+     m.maximumCount!==2||m.allowCancel!==false)
+    return no('R30_TAPU_CURE_PROMPT_UNSUPPORTED');
+  const goals=tapuCureTargets(o);
+  if(goals.length!==2)return no('R30_TAPU_CURE_NO_HEAL_TARGETS');
+  const picks=[];
+  for(const g of goals){
+    const offered=arr(p.choices).filter(c=>c.kind==='pokemon'&&
+      typeof c.token==='string'&&c.publicMetadata?.ownerSeat==='actor'&&
+      c.publicMetadata?.isOwnerVisible===true&&
+      c.publicMetadata?.targetZone==='bench'&&
+      c.publicMetadata?.benchIndex===g.index&&
+      text(c)===g.printing);
+    if(offered.length!==1)return no('R30_TAPU_CURE_HEAL_TARGET_MISSING');
+    picks.push(offered[0].token);
+  }
+  return {kind:'select-choices',tokens:picks};
+}
 function cruelArrowTargetScore(target,zone,o) {
   if(!target||!safeInt(target.hp)||!safeInt(target.damage)||
      target.damage>=target.hp||
@@ -1902,6 +1944,9 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
     !(a.kind==='play-card'&&[P.guzma,P.marnie,P.raihan].some(p=>
       has(ownPrinting(a),p))));
   if(!items.length)return no('R30_NO_OFFERED_ROOT');
+  const tapuCure=items.find(a=>a.kind==='attack'&&
+    a.attackName==='Tapu Cure-GX'&&has(ownPrinting(a),P.lele));
+  if(tapuCure&&tapuCureTargets(o).length===2)return act(tapuCure);
   const cruelArrow=items.find(a=>a.kind==='attack'&&
     a.attackName==='Cruel Arrow'&&has(ownPrinting(a),P.fez));
   if(cruelArrow&&cruelArrowKOTargets(o).length)return act(cruelArrow);
@@ -2085,6 +2130,7 @@ function createPolicy({role,seat,policyVersion,config}) {
       if(sameSource(request.prompt,P.stretcher))return rescueStretcherPrompt(request);
       if(sameSource(request.prompt,P.raihan))return raihanPrompt(request);
       if(sameSource(request.prompt,P.fez)&&request.prompt.source?.effectName==='Cruel Arrow')return cruelArrowPrompt(request);
+      if(sameSource(request.prompt,P.lele)&&request.prompt.source?.effectName==='Tapu Cure-GX')return tapuCurePrompt(request);
       if(sameSource(request.prompt,P.heavyBall))return hisuianHeavyBallPrompt(request);
       if(sameSource(request.prompt,P.lele))return wonderTagPrompt(request);
       if(sameSource(request.prompt,P.blower))return fieldBlowerPrompt(request);
@@ -2111,4 +2157,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,sourceCardPatternCoverage,heavyBallBasicCoverage,createPolicy,
-  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,certifiedPsychicBenchTargets,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,freeRetreatToPrintedFinisher,manualEnergyCompletesPrintedKO,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,minimumPrizesOnAttackKnockout,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,cruelArrowTargetScore,cruelArrowKOTargets,cruelArrowPrompt,latiasEonBladeKO,tapuLeleEnergyDriveKO,guaranteedMimikyuCopycatKO,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy,hasFreshPriorOpponentTurnKO,raihanOpportunity,raihanAttachPrompt,raihanSearchPrompt,raihanPrompt,hisuianHeavyBallOpportunity,hisuianHeavyBallPrompt};
+  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,certifiedPsychicBenchTargets,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,freeRetreatToPrintedFinisher,manualEnergyCompletesPrintedKO,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,minimumPrizesOnAttackKnockout,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,tapuCureTargets,tapuCurePrompt,cruelArrowTargetScore,cruelArrowKOTargets,cruelArrowPrompt,latiasEonBladeKO,tapuLeleEnergyDriveKO,guaranteedMimikyuCopycatKO,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy,hasFreshPriorOpponentTurnKO,raihanOpportunity,raihanAttachPrompt,raihanSearchPrompt,raihanPrompt,hisuianHeavyBallOpportunity,hisuianHeavyBallPrompt};
