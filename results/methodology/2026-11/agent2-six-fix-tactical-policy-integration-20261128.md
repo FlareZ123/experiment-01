@@ -40,6 +40,19 @@ node results/methodology/2026-11/agent2-integrated-six-fix-policy-reproduce.cjs 
   simulation/evaluation/2026-11/agent46-two-profile-candidate-policy.cjs
 ```
 
+For **implementation-owner code review**, the same script now also exposes `compose(originalWorkerSource).six` programmatically. Its `--emit-source` CLI mode **runs the full 308-scenario regression first** and only then emits the proposed combined JavaScript to stdout:
+
+```bash
+node results/methodology/2026-11/agent2-integrated-six-fix-policy-reproduce.cjs \
+  simulation/evaluation/2026-11/agent46-two-profile-candidate-policy.cjs \
+  --emit-source > /tmp/agent2-proposed-candidate.cjs
+
+diff -u simulation/evaluation/2026-11/agent46-two-profile-candidate-policy.cjs \
+  /tmp/agent2-proposed-candidate.cjs > /tmp/agent2-proposal.diff || true
+```
+
+This makes the six tested changes **directly reviewable as a source diff without checking anything into the candidate-owner branch**. The output is a hypothetical, not an approved successor. The `diff` command naturally exits nonzero when differences exist; `|| true` in this example only preserves the optional review file.
+
 Any worker source mismatch produces an explicit missing patch-anchor error or test failure rather than silently reinterpreting a revised policy. The code is self-contained except for sibling source-only JavaScript modules and Node built-ins.
 
 ## Interpretation and implementation recommendation
