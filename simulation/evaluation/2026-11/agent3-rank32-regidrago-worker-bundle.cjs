@@ -5,7 +5,7 @@
  * Pin the bundle blob after independent review before any native worker use.
  * agent43-regidrago-apex-choice.cjs 65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b
  * agent1-rank12-regidrago-opponent-policy-v2.cjs bfaee2205ea9d0c3b618948fe24ff81075d4ccda
- * agent3-rank32-regidrago-opponent-policy.cjs 525acdb8483ef888dc6ceda80d1de8be837ee2cb
+ * agent3-rank32-regidrago-opponent-policy.cjs d10a2bff2e4f41106f1b6226cfa8ec3b8ef65af9
  */
 const __rank32Modules = Object.freeze({
 "./agent43-regidrago-apex-choice.cjs": function(require, module, exports) {
@@ -1737,6 +1737,43 @@ function engineSetupDecision(prompt, observation, choices) {
   }
   return null;
 }
+function chooseTrifrostTargets(prompt,observation) {
+  // Printed SFA47: damage exactly three opposing Pokémon, or every
+  // opposing Pokémon when fewer than three exist (Rulebook D-04).
+  // The current native prompt may offer 1..3; choosing just one with three
+  // available is not paper-legal. Never exploit that native under-selection.
+  const meta=prompt?.publicMetadata??{},choices=list(prompt?.choices);
+  const opponent=observation?.opponentPublic??{};
+  const targets=slots(opponent);
+  const needed=Math.min(3,targets.length);
+  if(prompt?.promptType!=='ChoosePokemonPrompt' ||
+      meta.selectionType!=='pokemon' || needed<=0 ||
+      !Number.isSafeInteger(meta.maximumCount) ||
+      !Number.isSafeInteger(meta.minimumCount) ||
+      meta.maximumCount<needed || meta.minimumCount>needed)
+    return {kind:'abstain',reasonCode:'RANK32_TRIFROST_POKEMON_CHOICE_UNAVAILABLE'};
+  const ranked=[];
+  const seen=new Set();
+  for(const choice of choices) {
+    const metaChoice=choice?.publicMetadata??{};
+    if(choice?.kind!=='pokemon' || !choice?.token ||
+        metaChoice.ownerSeat!=='opponent')continue;
+    const pokemon=targetFromGustChoice(choice,observation);
+    if(!pokemon || !targets.includes(pokemon) || seen.has(pokemon))continue;
+    seen.add(pokemon);
+    const active=pokemon===opponent.active;
+    const damage=active?estimatedDragonDamage(110,observation,pokemon):110;
+    const knockout=remainingHP(pokemon)>0 && remainingHP(pokemon)<=damage;
+    const prizes=prizeValue(pokemon,observation);
+    const score=(knockout?1000+prizes*100:0)+
+      (active?25:0)+Math.max(0,350-Math.min(350,remainingHP(pokemon)));
+    ranked.push({choice,pokemon,score});
+  }
+  ranked.sort((a,b)=>b.score-a.score);
+  if(ranked.length<needed)
+    return {kind:'abstain',reasonCode:'RANK32_TRIFROST_POKEMON_CHOICE_UNAVAILABLE'};
+  return {kind:'select-choices',tokens:ranked.slice(0,needed).map(row=>row.choice.token)};
+}
 function promptDecision(request) {
   const p = request?.prompt ?? {};
   const choices = list(p.choices);
@@ -1750,6 +1787,10 @@ function promptDecision(request) {
     (Number.isSafeInteger(meta.count) ? meta.count : Math.max(1,min));
   if (p.promptType === 'ChooseAttackPrompt' && /apex dragon/.test(source)) {
     return chooseRank32Apex(choices, obs);
+  }
+  if (/trifrost|kyurem sfa 47/.test(source) &&
+      p.promptType==='ChoosePokemonPrompt') {
+    return chooseTrifrostTargets(p,obs);
   }
   if (/legacy star/.test(source)) {
     // The native seven-card mill has already resolved before this prompt;
@@ -1937,7 +1978,8 @@ module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
   legacyRecoverPriority,canUseLegacyStar,superRodRecoverPriority,estimatedDragonDamage,
   strongestCopiedDamage,canAttackNow,tacticalGustScore,gustTargetPriority,targetFromGustChoice,
   aceSpecBlowerPriority,muscleBandPriority,evolveRegidragoPriority,retreatToAttackerPriority,
-  prizeValue,crispinAccelerationPriority,crispinDeckEnergyChoice};
+  prizeValue,crispinAccelerationPriority,crispinDeckEnergyChoice,
+  chooseTrifrostTargets};
 
 }
 });
