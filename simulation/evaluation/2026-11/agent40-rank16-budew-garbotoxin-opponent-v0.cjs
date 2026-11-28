@@ -136,6 +136,12 @@ function usableOwnAbilities(o){
   opponentGarbotoxinStatus(o)==='inactive'&&
   !pathToThePeakInPlay(o)&&!silentLabInPlay(o)&&!activeKlefkiLock(o);
 }
+function pokemonIsPsychic(pokemon){
+ const types=list(pokemon?.printed?.types).map(x=>String(x).toLowerCase());
+ if(types.length)return types.includes('psychic');
+ // Exact Psychic identities used by the supported lock/engine slice.
+ return /^(?:Wobbuffet PHF 36|Mimikyu PAL 97|Klefki (?:SVI 96|PAF 159)|Flutter Mane (?:TEF 78|PAF 43|SVP 97)|Shadow Rider Calyrex VMAX CRE 75)\b/i.test(name(pokemon?.printing));
+}
 function activeOpponentAbilityWorking(o,printing,abilityName){
  const p=o.opponentPublic?.active;
  if(!match(p?.printing,printing))return false;
@@ -148,8 +154,13 @@ function opponentLockAbilityLive(o,pokemon,abilityName){
  const suppression=list(pokemon?.abilitySuppressions).find(x=>x.abilityName===abilityName);
  if(suppression?.suppressed===true)return false;
  if(suppression?.suppressed===false)return true;
- // When typed suppression evidence is absent, reconstruct the two global
- // Stadium locks that matter to this worker's supported opponent abilities.
+ // When typed suppression evidence is absent, reconstruct visible global
+ // locks. Active Bide Barricade suppresses non-Psychic Pokémon on BOTH sides,
+ // including a Benched Vileplume whose Item lock would otherwise be counted.
+ const activeWobbuffet=o.opponentPublic?.active;
+ if(match(activeWobbuffet?.printing,/^Wobbuffet PHF 36\b/i)&&
+    !pokemonIsPsychic(pokemon)&&
+    opponentLockAbilityLive(o,activeWobbuffet,'Bide Barricade'))return false;
  // Path to the Peak removes Rule-Box Abilities; Silent Lab removes Basic
  // Pokémon Abilities. Never treat a suppressed lock as a live retreat,
  // Item, Supporter, Safeguard or Underworld Door effect.
