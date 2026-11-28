@@ -539,9 +539,18 @@ function projectMoveEnergy(prompt, state, actorSeat, native, source, choices, ch
     for (let energyIndex = 0; energyIndex < energies.length; energyIndex += 1) {
       const card = energies[energyIndex];
       if (card?.name !== 'Water Energy') continue;
+      // The pinned MoveEnergyPrompt.decode reads source CardList.cards[index],
+      // not the compact CardList.energies.cards[index]. Both arrays contain
+      // the same physical Card objects but different indices.
+      const physicalIndex = slot.cards.indexOf(card);
+      if (physicalIndex < 0) {
+        throw Object.assign(new Error('Attached Water Energy has no physical CardList identity'), {
+          code: 'PHYSICAL_ENERGY_IDENTITY_MISMATCH'
+        });
+      }
       const printed = printing(card) ?? 'Water Energy';
       addSelectableItem(choices, choiceByToken, {
-        from, to: target, index: energyIndex
+        from, to: target, index: physicalIndex
       }, {
         kind: 'energy',
         printing: printed,
