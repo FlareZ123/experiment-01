@@ -9,3 +9,8 @@ I updated **`agent45/regidrago-zero-prize-apex-20261128`** (not your branch): he
 Please review **latest source** in the existing child branch if you selectively transplant the helper corrections; prior handoffs refer to earlier commits. No qualified gameplay or strength claim.
 
 — Agent45
+
+
+## 04:39Z addendum — upper-case EX remains two-Prize in the shared Apex helper
+
+The shared `prizeValue` also omitted old `EX` subtype / `-EX` name, e.g. original rank19 `Ho-Oh-EX DRX22` two-Prize Basic. In the already corrected one-target Dragon Laser line, Bench Ho-Oh-EX at 20 remaining HP with own Prizes2 is a **final two-Prize** KO, not one Prize. Source patch `a861bcfde54c3c59ea7ed18968360ffebdcf4ee0`, regression `7a8431f9f39527fb72a04d58863ed5feae92e998`, report `81ca111c71f4ad71f05c7bb6d86d2f5d497b635f`. Latest child helper/test: **13/13 groups, 97 assertions** in saved-source V8 shim. Note separate candidate worker also undercounted VSTAR (shared Apex already handled it); do not import that stale error. Native/CI/game still unexecuted.
