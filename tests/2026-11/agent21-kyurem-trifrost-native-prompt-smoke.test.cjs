@@ -89,3 +89,63 @@ test('native Kyurem SFA Trifrost prompt is exactly three distinct targets',
       for(const count of [1,2,3,4])one(seat,count,true);
     }
   });
+
+
+test('native sticky Apex Dragon copy delegates Kyurem target cardinality',
+  {skip:exists?false:'requires compiled pinned Twinleaf'},()=>{
+    const {Store}=load('game/store/store');
+    const {State,GamePhase}=load('game/store/state/state');
+    const {Player}=load('game/store/state/player');
+    const {AttackEffect}=load('game/store/effects/game-effects');
+    const {ChoosePokemonPrompt}=load(
+      'game/store/prompts/choose-pokemon-prompt');
+    const {Kyurem}=load(kyuremPath);
+    const {RegidragoVSTAR}=load(
+      'sets/09-sword-and-shield/set-silver-tempest/regidrago-vstar');
+    const {Girafarig}=load(
+      'sets/08-sun-and-moon/set-lost-thunder/girafarig');
+    const {PokemonCardList}=load('game/store/state/pokemon-card-list');
+    const {cloneAttacks,openCopyAttackSession,
+      clearCopyAttackSessionsForTests}=load(
+      'game/store/prefabs/copy-attack-delegation');
+
+    for(const seat of [0,1]){
+      clearCopyAttackSessionsForTests();
+      const state=new State(),own=new Player(),opponent=new Player();
+      own.id=111;opponent.id=222;
+      state.players=seat===0?[own,opponent]:[opponent,own];
+      state.activePlayer=seat;state.phase=GamePhase.ATTACK;state.turn=5;
+      const regidrago=new RegidragoVSTAR(),kyurem=new Kyurem();
+      regidrago.id=1111;kyurem.id=2222;
+      own.active.cards.push(regidrago);
+      own.discard.cards.push(kyurem);
+      for(let i=0;i<3;i++){
+        const pokemon=new Girafarig();pokemon.id=3000+i;
+        if(i===0)opponent.active.cards.push(pokemon);
+        else{
+          const bench=new PokemonCardList();bench.cards.push(pokemon);
+          opponent.bench.push(bench);
+        }
+      }
+      const store=new Store({gameSettings:state.gameSettings,
+        onStateChange(){},onPrompt(){},onFinish(){}});
+      store.state=state;
+      const cloned=cloneAttacks(kyurem.attacks);
+      openCopyAttackSession(state,own,regidrago,kyurem,cloned,cloned[0]);
+      try{
+        const attack=new AttackEffect(own,opponent,cloned[0]);
+        const result=withPaperKyuremTrifrostTargets(()=>
+          store.reduceEffect(state,attack));
+        assert.equal(result,state);
+        const prompts=state.prompts.filter(p=>p instanceof ChoosePokemonPrompt);
+        assert.equal(prompts.length,1);
+        assert.equal(prompts[0].options.min,3);
+        assert.equal(prompts[0].options.max,3);
+        const selected=[opponent.active,...opponent.bench];
+        assert.equal(prompts[0].validate(selected,state),true);
+        assert.equal(prompts[0].validate(selected.slice(0,2),state),false);
+      }finally{
+        clearCopyAttackSessionsForTests();
+      }
+    }
+  });
