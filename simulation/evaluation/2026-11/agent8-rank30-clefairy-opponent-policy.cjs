@@ -343,6 +343,15 @@ function battleCompressorPrompt(request,{enablePatchProjection=false}={}) {
   }
   return picks(selected);
 }
+function vsSeekerMarnieRecovery(o) {
+  if(!o||!supporterAvailable(o)||!safeInt(o.ownPublic?.deckCount)||
+     o.ownPublic.deckCount<5||
+     !arr(o.ownPublic?.discard).some(c=>has(c,P.marnie))||
+     arr(o.ownHand).some(c=>has(c,P.marnie)||has(c,P.guzma)))
+    return false;
+  const other=arr(o.ownHand).filter(c=>!has(c,P.vsSeeker));
+  return other.length<=2&&other.every(c=>discardScore(c,o)>=35);
+}
 function vsSeekerPrompt(request) {
   const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
   if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
@@ -353,6 +362,10 @@ function vsSeekerPrompt(request) {
   const needsGuzma=Boolean(guzmaOpportunity(o))&&supporterAvailable(o);
   const guzma=needsGuzma?choices.find(c=>has(c,P.guzma)):null;
   if(guzma)return picks([guzma]);
+  if(vsSeekerMarnieRecovery(o)){
+    const marnie=choices.find(c=>has(c,P.marnie));
+    if(marnie)return picks([marnie]);
+  }
   if(m.minimumCount===0){
     const empty=arr(p.choices).find(c=>c.kind==='empty-selection'&&typeof c.token==='string');
     if(empty)return {kind:'select-choice',token:empty.token};
@@ -1372,8 +1385,9 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   if(box && canStartBox(o))return act(box);
   const discard=arr(o.ownPublic?.discard);
   const seeker=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.vsSeeker));
-  if(seeker&&guzmaOpportunity(o)&&supporterAvailable(o)&&
-     discard.some(c=>has(c,P.guzma)))return act(seeker);
+  if(seeker&&supporterAvailable(o)&&(
+       (guzmaOpportunity(o)&&discard.some(c=>has(c,P.guzma)))||
+       vsSeekerMarnieRecovery(o)))return act(seeker);
   const compressor=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.compressor));
   if(compressor&&compressorOpportunity(o,{enablePatchProjection}).active)
     return act(compressor);
@@ -1480,4 +1494,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  emperorEyesDisablesBasicBlock,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
+  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy};
