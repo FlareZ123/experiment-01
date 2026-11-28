@@ -833,3 +833,15 @@ test('unknown matching modifier is not silently assumed standard 2×',()=>{
     {type:'Psychic',value:'×1.5'}];
   assert.equal(printedDamage(r.actionFrontier.items[1],r),160);
 });
+
+test('Guzma considers irrelevant printed weakness rather than treating every VMAX as unattackable',()=>{
+  const r=gustRoot();
+  r.observation.opponentPublic.bench[0].printed.weakness=[{type:'Psychic',value:'×2'}];
+  r.observation.opponentPublic.bench[0].printed.resistance=[{type:'Fighting',value:'-30'}];
+  assert.deepEqual(decision(r),{kind:'select-action',token:'gust'});
+  r.observation.opponentPublic.bench[0].printed.resistance=[{type:'Colorless',value:'-30'}];
+  r.observation.opponentPublic.bench[1].tools=['Stealthy Hood UNB 186'];
+  assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  r.observation.opponentPublic.bench[0].printed.weakness=[{type:'Colorless',value:'×2'}];
+  assert.deepEqual(decision(r),{kind:'select-action',token:'gust'});
+});
