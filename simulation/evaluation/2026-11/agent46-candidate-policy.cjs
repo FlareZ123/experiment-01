@@ -519,8 +519,13 @@ function searchNeedScore(view, printing, effectName = '') {
     if (hasShadowV && !hasShadowVmax && !handHas(view, 'Shadow Rider Calyrex VMAX')) return 94;
     return -5;
   }
-  if (hasName(printing, 'Shadow Rider Calyrex V')) {
-    if (!hasShadowV && !hasShadowVmax && !handHas(view, 'Shadow Rider Calyrex V')) return 100;
+  if (isExactShadowRiderBasicV(printing)) {
+    // Radiant Eternatus's Climactic Gate can install two VMAX directly,
+    // without their Basic V pre-evolutions. Their presence does not satisfy
+    // the future replacement/basic development channel. Search an actual
+    // Basic V while a free Bench slot remains and no Basic V is established.
+    if (!hasShadowV && !handHas(view, 'Shadow Rider Calyrex V') &&
+        countBench(view.ownPublic)<5) return 100;
     return -5;
   }
   if (hasName(printing, "Lillie's Clefairy ex")) {
