@@ -15,7 +15,13 @@ function scenario({float=false,twoEggs=false,carrier=false}={}){
   trainersHand:{tm:1,rope:1,...(float?{float:1}:{})},maxStates:100000};
  const physical={hand:{...empty(),tm:1,rope:1,pump:4,
     ...(float?{float:1}:{}),...(carrier?{carrier:1}:{})},
-  discard:empty(),dowsingAvailable:true,fodder:2,kokoId:'K'};
+  discard:empty(),dowsingAvailable:true,fodder:2,kokoId:'K',
+  certifiedDonors:[
+   {id:'e0',kind:'E',zone:'H'},
+   {id:'e1',kind:'E',zone:twoEggs?'H':'X'},
+   {id:'u0',kind:'U',zone:'H'},
+   ...(!twoEggs?[{id:'u1',kind:'U',zone:'H'}]:[])
+  ]};
  const makeDonationInput=final=>({
   finishReady:true,itemsPlayable:true,riskyRuinsActive:true,opponentBenchCount:0,
   propagationAvailable:true,farewellAvailable:true,opponentPrizes:6,
@@ -107,4 +113,19 @@ test('phase boundary cannot fabricate active Ruins, Item access or Grass Propaga
    {...base,itemsPlayable:false}).reason,'POST_POWER_ITEM_LOCK_MISMATCH');
  assert.equal(verifyPostPowerProjection(s.powerInput,{...final,locked:true},
    {...base,propagationAvailable:true}).reason,'WOBBUFFET_STILL_BLOCKS_PROPAGATION');
+});
+
+test('unknown extra Egg cannot appear in donation without known physical identity and zone',()=>{
+ const s=scenario({float:true});
+ s.physical.certifiedDonors=s.physical.certifiedDonors.filter(c=>c.id!=='e0');
+ const r=planJointKnownTurn(s);
+ assert.equal(r.status,'no-verified-joint-resource-trace');
+ assert.ok(r.checks.some(x=>x.reason==='UNCERTIFIED_DONOR_CARD'));
+});
+test('known donated Egg cannot teleport from discard to hand before donation starts',()=>{
+ const s=scenario({float:true});
+ s.physical.certifiedDonors.find(c=>c.id==='e0').zone='D';
+ const r=planJointKnownTurn(s);
+ assert.equal(r.status,'no-verified-joint-resource-trace');
+ assert.ok(r.checks.some(x=>x.reason==='UNCERTIFIED_DONOR_ZONE_CHANGE'));
 });
