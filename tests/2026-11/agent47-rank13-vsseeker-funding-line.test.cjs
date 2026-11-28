@@ -82,7 +82,11 @@ test('fail-closed: no Dialga payload, already powered, already used Supporter or
     r => { r.observation.opponentPublic.active.damage = 70; },
     r => { r.observation.ownPublic.discard.push('Grass Energy MEE 9','Grass Energy MEE 9','Grass Energy MEE 9'); },
     r => { r.observation.ownPublic.discard.push('Fire Energy MEE 10','Fire Energy MEE 10'); },
-    r => { r.prompt.publicMetadata.sourceZone = 'opponent-discard'; }
+    r => { r.prompt.publicMetadata.sourceZone = 'opponent-discard'; },
+    r => { r.observation.ownerK1 = { epoch:2,exactMembershipKnown:true,
+      invalidationReason:null,knownPrintings:[{printing:'Grass Energy MEE',copies:2}] }; },
+    r => { r.observation.ownerK1 = { epoch:2,exactMembershipKnown:true,
+      invalidationReason:null,knownPrintings:[{printing:'Fire Energy MEE',copies:1}] }; }
   ];
   for (const mutation of variants) {
     const request = base(); mutation(request); assert.equal(choose(request), null);
@@ -100,4 +104,16 @@ test('fail-closed: unknown prompt provenance, bounds and paralysis', () => {
   for (const mutation of variants) {
     const request = base(); mutation(request); assert.equal(choose(request), null);
   }
+});
+
+test('fresh actor-only K1 recognizes an intact Grass/Fire deck pair; stale K1 does not veto',()=>{
+  const r=base();
+  r.observation.ownerK1={epoch:2,exactMembershipKnown:true,
+    invalidationReason:null,knownPrintings:[
+      {printing:'Grass Energy MEE',copies:2},
+      {printing:'Fire Energy MEE',copies:1}]};
+  assert.deepEqual(choose(r),{kind:'select-choices',tokens:['crispin']});
+  r.observation.ownerK1={epoch:3,exactMembershipKnown:false,
+    invalidationReason:'own-deck-may-have-changed',knownPrintings:[]};
+  assert.deepEqual(choose(r),{kind:'select-choices',tokens:['crispin']});
 });
