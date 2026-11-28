@@ -749,7 +749,8 @@ function chooseCardCombination(view, prompt) {
     'VS Seeker': 'VS Seeker PHF 109',
     'Night Stretcher': 'Night Stretcher SFA 61',
     'Star Alchemy': 'Forest Seal Stone SIT 156',
-    'Hisuian Heavy Ball': 'Hisuian Heavy Ball ASR 146'
+    'Hisuian Heavy Ball': 'Hisuian Heavy Ball ASR 146',
+    'Raihan': 'Raihan EVS 152'
   };
   const effect = prompt.source?.effectName;
   if (Object.hasOwn(ownerSourceBindings, effect) &&
@@ -1203,6 +1204,50 @@ function chooseEngineSetupPrompt(view, prompt) {
  * Trust only the typed, source-certified, actor-visible native choices,
  * retaining their opaque token and exact Bench index.
  */
+// Raihan EVS: once legal after a prior opponent-turn KO, attach a Basic
+// Energy from discard to Active or Bench, then choose one deck card. This
+// effect remains usable even if ordinary Energy attachment was spent.
+function chooseRaihanDiscardAttachment(view, prompt) {
+  setPolicyAuditRule('RAIHAN_DISCARD_BASIC_TO_BOARD','SCORE_DESC_PHYSICAL_SLOT_ASC');
+  const source=prompt.source,meta=prompt.publicMetadata;
+  if(source?.sourceKind!=='card-effect'||source.effectName!=='Raihan'||
+     source.sourcePrinting!=='Raihan EVS 152'||
+     meta?.selectionType!=='energy-attachment'||
+     meta.ownerSeat!=='actor'||meta.isOwnerVisible!==true||
+     meta.sourceZone!=='discard'||meta.energyType!=='BASIC'||
+     meta.minimumCount!==1||meta.maximumCount!==1||
+     meta.allowCancel!==false)return abstain('UNTRUSTED_PROMPT_SOURCE');
+  const eligible=[];
+  for(const choice of prompt.choices){
+    const m=choice.publicMetadata??{};
+    let slot=null,index=0;
+    if(m.zone==='active')slot=view.ownPublic.active;
+    else if(m.zone==='bench' && Number.isSafeInteger(m.benchIndex)){
+      index=m.benchIndex;slot=view.ownPublic.bench[index];
+    }
+    if(choice.kind!=='energy'||!hasName(choice.printing,'Psychic Energy')||
+       m.sourceZone!=='discard'||m.ownerSeat!=='actor'||
+       m.isOwnerVisible!==true||m.energyType!=='BASIC'||
+       !slot||index<0||index>4){
+      recordPolicyAuditUnscored(choice.token,'UNTRUSTED_RAIHAN_ENERGY_SELECTION');
+      continue;
+    }
+    let score=150-slotEnergyCount(slot)*20;
+    if(hasName(slot.printing,'Shadow Rider Calyrex VMAX'))score+=500;
+    else if(hasName(slot.printing,'Shadow Rider Calyrex V'))score+=260;
+    if(opponentHasRegidrago(view)&&hasName(slot.printing,'Mimikyu')&&
+       slotEnergyCount(slot)<2)score+=1100;
+    if(opponentHasDragon(view)&&hasName(slot.printing,"Lillie's Clefairy ex")&&
+       slotEnergyCount(slot)<2)score+=750;
+    recordPolicyAuditScore(choice.token,score);
+    eligible.push({choice,score,index});
+  }
+  eligible.sort((a,b)=>b.score-a.score||a.index-b.index||
+      a.choice.token.localeCompare(b.choice.token));
+  return eligible.length?{kind:'select-choice',token:eligible[0].choice.token}:
+      abstain('NO_VISIBLE_ENERGY_CHOICE');
+}
+
 function chooseUnderworldEnergyAssignment(view, prompt) {
   setPolicyAuditRule('UNDERWORLD_ENERGY_TO_PSYCHIC_BENCH', 'SCORE_DESC_INDEX_ASC');
   const meta=prompt.publicMetadata;
@@ -1276,7 +1321,9 @@ function choosePrompt(view, prompt, receipt) {
   }
   switch (prompt.promptType) {
     case 'AttachEnergyPrompt':
-      return chooseUnderworldEnergyAssignment(view,prompt);
+      return prompt.source?.effectName === 'Raihan'
+        ? chooseRaihanDiscardAttachment(view,prompt)
+        : chooseUnderworldEnergyAssignment(view,prompt);
     case 'ChooseCardsPrompt':
       return chooseCardCombination(view, prompt);
     case 'ChoosePokemonPrompt':
@@ -1499,6 +1546,10 @@ function scoreTrainerPlay(item, view, receipt) {
     return isVmax ? 905 : 920;
   }
   if (hasName(name, 'Unfair Stamp') && receipt?.priorOpponentTurnKO?.any === true) return 980;
+  if (name === 'Raihan EVS 152' && !supporterUsed &&
+      receipt?.priorOpponentTurnKO?.any === true &&
+      view.ownPublic.deckCount > 0 &&
+      discardHas(view, 'Psychic Energy')) return 905;
   if (hasName(name, 'VS Seeker') && !supporterUsed &&
       !handHas(view, 'Arven') && !handHas(view, "Lillie's Determination") &&
       view.ownPublic.discard.some(printing =>
