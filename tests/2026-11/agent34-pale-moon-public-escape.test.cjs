@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {pendingPaleMoonGXKnockOut,choosePaleMoonEscapeRetreat,choosePaleMoonEscapeRanger,choosePaleMoonEscapeGuzmaRoot,choosePaleMoonEscapeGuzmaPrompt,rescuePaleMoonTerminalPass,choosePaleMoonFloatStonePreparation,knownNoPrizeAwardOnPaleMoonKO,terminalPaleMoonPrizeRisk,preferredPaleMoonDiscardSupporter,choosePaleMoonVSSeekerPreparation,choosePaleMoonVSSeekerPrompt,choosePaleMoonArvenPreparation,choosePaleMoonArvenPrompt}=require('../../simulation/twinleaf/2026-11/agent34-pale-moon-escape.cjs');
+const {pendingPaleMoonGXKnockOut,choosePaleMoonEscapeRetreat,choosePaleMoonEscapeRanger,choosePaleMoonEscapeGuzmaRoot,choosePaleMoonEscapeGuzmaPrompt,rescuePaleMoonTerminalPass,choosePaleMoonFloatStonePreparation,knownNoPrizeAwardOnPaleMoonKO,terminalPaleMoonPrizeRisk,preferredPaleMoonDiscardSupporter,choosePaleMoonVSSeekerPreparation,choosePaleMoonVSSeekerPrompt,choosePaleMoonArvenPreparation,choosePaleMoonArvenPrompt,offeredPaleMoonShadowRiderEvolutions}=require('../../simulation/twinleaf/2026-11/agent34-pale-moon-escape.cjs');
 const {actorObservation}=require('../../simulation/twinleaf/actor-observation-contract.cjs');
 const {validateActorObservation}=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 
@@ -454,4 +454,45 @@ test('two separately offered Ranger Supporter roots still rescue instead of losi
   const v=rangerView();
   const actions=[{token:'pass',kind:'pass'},ranger('ranger-b'),ranger('ranger-a')];
   assert.equal(rescuePaleMoonTerminalPass(v,actions,'pass')?.token,'ranger-a');
+});
+
+test('same-turn evolution removes public delayed KO even if pinned queue remains stale',()=>{
+  for(const seat of [0,1]){
+    const players=[player(17,'Shadow Rider Calyrex VMAX CRE 75'),
+      player(19,'Regidrago VSTAR SIT 136')];
+    const owner=players[seat];
+    owner.active.cards.push({...owner.active.cards[0],
+      fullName:'Shadow Rider Calyrex V CRE'});
+    owner.active.pokemonPlayedTurn=6;
+    owner.pendingEndOfTurnEffects=[effect(owner.active)];
+    const state={players,activePlayer:seat,turn:6,phase:2,prompts:[]};
+    const observation=actorObservation(state,seat);
+    assert.equal(observation.ownPublic.active.publicRestrictions.pendingPaleMoonGXKnockOut,false);
+    assert.equal(pendingPaleMoonGXKnockOut(owner,owner.active,6),false);
+    assert.equal(pendingPaleMoonGXKnockOut(owner,owner.active,5),true);
+    validateActorObservation(observation,seat);
+  }
+});
+test('printed Shadow Rider VMAX evolution beats last-Pokemon Pale Moon instead of passing',()=>{
+  const view={...rangerView(),opponentPublic:{prizeCount:3},ownPublic:{
+    ...rangerView().ownPublic,bench:[],active:{
+      printing:'Shadow Rider Calyrex V CRE',
+      publicRestrictions:{pendingPaleMoonGXKnockOut:true},
+      printed:{retreatCost:['Colorless']}}}};
+  const evolution={token:'evolve-native',kind:'play-card',
+    actorPrinting:'Shadow Rider Calyrex VMAX CRE',
+    targetPrinting:'Shadow Rider Calyrex V CRE',
+    publicMetadata:{targetSeat:'actor',targetZone:'active',targetIndex:0}};
+  const choices=[{token:'pass',kind:'pass'},evolution,ranger('ranger2')];
+  assert.deepEqual(offeredPaleMoonShadowRiderEvolutions(view,choices),['evolve-native']);
+  assert.deepEqual(rescuePaleMoonTerminalPass(view,choices,'pass'),{
+    token:'evolve-native',reason:'PUBLIC_PALE_MOON_TERMINAL_PASS_OVERRIDE',
+    selectedSourceReason:'PUBLIC_PALE_MOON_SHADOW_RIDER_EVOLVE_ESCAPE'});
+  assert.equal(offeredPaleMoonShadowRiderEvolutions(view,[{...evolution,
+    targetPrinting:'Regidrago V SIT'}]).length,0);
+  assert.equal(offeredPaleMoonShadowRiderEvolutions(view,[{...evolution,
+    publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:0}}]).length,0);
+  assert.equal(offeredPaleMoonShadowRiderEvolutions({...view,ownPublic:{
+    ...view.ownPublic,active:{...view.ownPublic.active,
+      printing:'Shadow Rider Calyrex VMAX CRE'}}},choices).length,0);
 });
