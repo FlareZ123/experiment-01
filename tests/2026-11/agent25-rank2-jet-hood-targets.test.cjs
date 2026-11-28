@@ -191,4 +191,39 @@ for (const seat of [0, 1]) {
     assert.equal(score(tm, obs), 88);
   });
 
+  function halaResourceState() {
+    const obs = tmDecisionView();
+    obs.ownTurnResources.supporterPlayedTurn = 0;
+    obs.ownTurnResources.supporterPlayLocked = false;
+    obs.ownHand = ['Guzma & Hala CEC 193',
+      'Grass Energy MEE 9', 'Grass Energy MEE 9'];
+    // First Bunnelby empty, SECOND Bunnelby already TM-equipped.
+    obs.ownPublic.bench[0].tools = [];
+    obs.ownPublic.bench[1].tools = [TM];
+    return obs;
+  }
+  function halaScore(obs) {
+    return score({ token: 'hala', kind: 'play-card',
+      actorPrinting: 'Guzma & Hala CEC 193',
+      publicMetadata: { cardType: 'trainer' } }, obs);
+  }
+
+  test('seat ' + seat + ': Hala searches missing Jet when TM is on second Bunnelby', () => {
+    assert.equal(halaScore(halaResourceState()), 215);
+  });
+
+  test('seat ' + seat + ': Hala declines redundant TM search when Jet is already in hand', () => {
+    const obs = halaResourceState();
+    obs.ownHand.push('Jet Energy PAL 190');
+    // The freshly played Oddish also has no legal Grand Tree alternative
+    // (normal evolution restrictions), so no other reason to use Hala.
+    assert.equal(halaScore(obs), 0);
+  });
+
+  test('seat ' + seat + ': a previously attached Jet cannot trigger another Bench switch', () => {
+    const obs = halaResourceState();
+    obs.ownPublic.bench[1].energies = ['Jet Energy PAL 190'];
+    assert.equal(halaScore(obs), 215);
+  });
+
 }
