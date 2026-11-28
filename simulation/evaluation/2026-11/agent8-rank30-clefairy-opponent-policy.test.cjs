@@ -1719,3 +1719,19 @@ test('Heavy Ball Basic inventory matches every source Basic printing and copy co
     row.sourceCopies===row.configuredCopies),true,JSON.stringify(coverage));
   assert.equal(coverage.reduce((sum,row)=>sum+row.configuredCopies,0),16);
 });
+
+test('Heavy Ball can select each of the 12 source Basic printings when offered and unrecovered',()=>{
+  for(const row of heavyBallBasicCoverage()) {
+    const r=request(0);
+    r.prompt={
+      promptType:'ChooseCardsPrompt',
+      source:{sourcePrinting:'Hisuian Heavy Ball ASR 146',effectName:'HisuianHeavyBall'},
+      publicMetadata:{selectionType:'card-combination',sourceZone:'prizes',
+        ownerSeat:'actor',isOwnerVisible:true,minimumCount:0,maximumCount:1},
+      choices:[card(row.printing,'basic-'+row.kind),
+        {kind:'empty-selection',token:'empty'}]
+    };
+    assert.deepEqual(policy(0).decide(r),
+      {kind:'select-choices',tokens:['basic-'+row.kind]},row.kind);
+  }
+});
