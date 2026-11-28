@@ -148,7 +148,7 @@ for(const seat of [0,1]){
     const r=envelope(seat,active,[a,b],opp);
     r.prompt={schema:protocol.PROMPT_SCHEMA,actingSeat:seat,
       promptType:'ChoosePokemonPrompt',description:null,
-      source:{classification:'actor-choice',sourceKind:'attack',
+      source:{classification:'actor-choice',sourceKind:'card-effect',
         sourcePrinting:'Technical Machine: Evolution PAR 178',
         effectName:'Evolution'},
       choices:[0,1].map(i=>({kind:'pokemon',token:'oddish-'+i,
