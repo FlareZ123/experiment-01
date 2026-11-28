@@ -1348,6 +1348,49 @@ test('rank2 does not place duplicate setup lines into all starting Bench slots',
   assert.deepEqual(checkedDecision(request),{
     kind:'select-choices',tokens:['b1','o1']});
 });
+test('rank2 leads zero-Energy Budew Item lock if Bunnelby TM is unfunded',()=>{
+  const hand=['Budew ASC 16','Bunnelby PRC 121','Oddish UNB 5','Pidgey MEW 16',
+    'Stealthy Hood UNB 186','Guzma BUS 115','Grand Tree SCR 136'];
+  const request=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[
+    setupCard('bunnelby','Bunnelby PRC 121',0),
+    setupCard('budew','Budew ASC 16',1),
+    setupCard('oddish','Oddish UNB 5',2),
+    setupCard('pidgey','Pidgey MEW 16',3)],
+    {selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+      isOwnerVisible:true,isSecret:false,allowCancel:false,
+      minimumCount:1,maximumCount:6},{ownHand:hand});
+  assert.deepEqual(checkedDecision(request),{kind:'select-choices',
+    tokens:['budew','oddish','bunnelby','pidgey']});
+});
+test('rank2 leads Bunnelby for fully funded T1 TM Evolution attack',()=>{
+  const hand=['Budew ASC 16','Bunnelby PRC 121','Oddish UNB 5',
+    'Technical Machine: Evolution PAR 178','Capture Energy RCL 171',
+    'Stealthy Hood UNB 186','Guzma BUS 115'];
+  const request=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[
+    setupCard('budew','Budew ASC 16',0),
+    setupCard('bunnelby','Bunnelby PRC 121',1),
+    setupCard('oddish','Oddish UNB 5',2)],
+    {selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+      isOwnerVisible:true,isSecret:false,allowCancel:false,
+      minimumCount:1,maximumCount:6},{ownHand:hand});
+  assert.deepEqual(checkedDecision(request),{kind:'select-choices',
+    tokens:['bunnelby','oddish']});
+});
+test('rank2 chooses Budew when TM Tool is held but Energy is missing',()=>{
+  const hand=['Bunnelby PRC 121','Budew ASC 16','Oddish UNB 5',
+    'Technical Machine: Evolution PAR 178','Grand Tree SCR 136',
+    'Faba LOT 173','Guzma & Hala CEC 193'];
+  const request=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[
+    setupCard('b','Bunnelby PRC 121',0),
+    setupCard('budew','Budew ASC 16',1),
+    setupCard('oddish','Oddish UNB 5',2)],
+    {selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+      isOwnerVisible:true,isSecret:false,allowCancel:false,
+      minimumCount:1,maximumCount:6},{ownHand:hand});
+  assert.deepEqual(checkedDecision(request),{
+    kind:'select-choices',tokens:['budew','oddish','b']});
+});
+
 test('rank2 respects narrow native maximum starting-selection count',()=>{
   const request=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[
     setupCard('p','Pidgey MEW 16',0),
