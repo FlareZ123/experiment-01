@@ -968,12 +968,29 @@ function readyGuzmaMega(x,o) {
 // Distinct two-action terminal line: Guzma moves an unpowered Bench Mega,
 // then the actor's still-unused normal Basic Grass attachment pays Gale [C].
 // Require both steps from visible, owner-owned state, not projected hand odds.
-function handFundableGuzmaMegaIndex(o) {
-  const turn=o?.globalTurn,resource=o?.ownTurnResources;
+// Exact original rank15 inventory: two Basic Grass plus five Special
+// Energy copies that can each fund Gale Thrust's [C] via one hand attach.
+// Under live Temple of Sinnoh they still provide one Colorless.
+const SOURCE_GALE_ENERGY_FAMILIES=[
+  P.grass,P.jet,P.capture,P.doubleColorless,P.powerful
+];
+function handPayableGaleEnergy(o) {
+  const resource=o?.ownTurnResources,turn=o?.globalTurn;
   if(!Number.isSafeInteger(turn)||
      !Number.isSafeInteger(resource?.energyPlayedTurn)||
-     resource.energyPlayedTurn>=turn||resource.energyPlayLocked===true||
-     !arr(o?.ownHand).some(x=>has(x,P.grass)))return -1;
+     resource.energyPlayedTurn>=turn||resource.energyPlayLocked===true)return [];
+  // A known special-energy ban (e.g., Shadow Mist) forbids those five
+  // sources; absent a trustworthy false flag, only Basic Grass is safe.
+  const specialsAllowed=resource.specialEnergyPlayLocked===false;
+  return arr(o?.ownHand).filter(card=>has(card,P.grass)||
+    (specialsAllowed&&SOURCE_GALE_ENERGY_FAMILIES.slice(1)
+      .some(pattern=>has(card,pattern))));
+}
+function sameGaleEnergyPrinting(a,b) {
+  return SOURCE_GALE_ENERGY_FAMILIES.some(pattern=>has(a,pattern)&&has(b,pattern));
+}
+function handFundableGuzmaMegaIndex(o) {
+  if(!handPayableGaleEnergy(o).length)return -1;
   return arr(o?.ownPublic?.bench).findIndex(x=>x&&
     jetPoweredGaleEligible(x)&&attachedEnergyUnits(x,o)===0);
 }
@@ -993,8 +1010,9 @@ function terminalHandGalePayment(items,request) {
      !jetPoweredGaleEligible(own.active)||
      attachedEnergyUnits(own.active,o)!==0||
      !certifiedLastPrizeMovedGale(o,o.opponentPublic?.active))return null;
+  const eligibleHand=handPayableGaleEnergy(o);
   return items.find(item=>item.kind==='play-card'&&
-    has(ownPrinting(item),P.grass)&&
+    eligibleHand.some(card=>sameGaleEnergyPrinting(card,ownPrinting(item)))&&
     ownActionTarget(item,own)===own.active)??null;
 }
 function guzmaOpportunity(o,{resolvingGuzma=false}={}) {
