@@ -2745,3 +2745,62 @@ paired('Agent2: Guzma switch clears on-Pokemon next-turn attack prohibition befo
   view.ownPublic.publicTurnRestrictions.attackMaxEnergyTurnsRemaining=1;
   assert.deepEqual(decide(profile,root(seat,view,guzmaOnly)),sel('pass'));
 });
+
+paired('Agent2: payoff-aware Guzma breaks sole live AOR Item lock or LTR/BKP Garbotoxin',(seat,profile)=>{
+  const guzma='Guzma BUS';
+  const configurations=[
+    {name:'AOR live',kind:'vile',expect:'guzma'},
+    {name:'AOR suppressed',kind:'vile',suppressed:true,expect:'pass'},
+    {name:'AOR no Item lock',kind:'vile',unlocked:true,expect:'pass'},
+    {name:'AOR second live holder',kind:'vile',duplicate:true,expect:'pass'},
+    {name:'LTR live',kind:'garb',printing:'Garbodor LTR 68',expect:'guzma'},
+    {name:'BKP live',kind:'garb',printing:'Garbodor BKP 57',expect:'guzma'},
+    {name:'BKP no Tool',kind:'garb',noTool:true,expect:'pass'},
+    {name:'BKP suppressed',kind:'garb',suppressed:true,expect:'pass'},
+    {name:'BKP second live holder',kind:'garb',duplicate:true,expect:'pass'},
+    {name:'BKP already no Door lock',kind:'garb',doorLive:true,expect:'pass'},
+    {name:'BKP not a KO',kind:'garb',tooHealthy:true,expect:'pass'},
+    {name:'BKP insufficient Energy',kind:'garb',unpaid:true,expect:'pass'},
+    {name:'BKP persistent player attack cap',kind:'garb',playerAttackCap:true,expect:'pass'},
+    {name:'BKP opponent close to game win',kind:'garb',opponentThree:true,expect:'pass'}
+  ];
+  for(const cfg of configurations){
+    const attacker=vmax([P,P,P]),pivot=latias();
+    pivot.printed.retreatCost=['Colorless'];
+    attacker.printed.retreatCost=['Colorless','Colorless'];
+    const vile=cfg.kind==='vile';
+    const printing=vile?'Vileplume AOR 3':cfg.printing??'Garbodor BKP 57';
+    const target=pokemon({
+      printing,name:vile?'Vileplume':'Garbodor',
+      hp:vile?130:cfg.tooHealthy?140:100,
+      damage:vile?40:0,types:[vile?'Grass':'Psychic'],
+      subtypes:[vile?'Stage 2':'Stage 1'],
+      abilities:[vile?'Irritating Pollen':'Garbotoxin'],
+      suppression:cfg.suppressed===true,
+      tools:cfg.noTool?[]:['Float Stone BKT 137']
+    });
+    const other=cfg.duplicate?pokemon({
+      printing,name:target.name,hp:target.hp,types:target.printed.types,
+      subtypes:target.printed.subtypes,abilities:target.abilities,
+      suppression:false,tools:target.tools
+    }):null;
+    const view=observation(seat,{active:attacker,bench:[pivot],
+      opponentActive:defender(),opponentBench:[target,...(other?[other]:[])],
+      ownHand:[guzma],globalTurn:4});
+    view.ownPublic.prizeCount=4;
+    view.opponentPublic.prizeCount=cfg.opponentThree?3:6;
+    if(vile){
+      view.ownTurnResources.itemPlayLocked=!cfg.unlocked;
+      view.ownPublic.publicTurnRestrictions.itemPlayLocked=!cfg.unlocked;
+    }else if(!cfg.doorLive){
+      attacker.abilitySuppressions[0]={
+        ...attacker.abilitySuppressions[0],suppressed:true,
+        sourcePrinting:'Garbodor BKP 57'
+      };
+    }
+    if(cfg.unpaid)attacker.energies=[P];
+    if(cfg.playerAttackCap)view.ownPublic.publicTurnRestrictions.attackMaxEnergyTurnsRemaining=1;
+    assert.deepEqual(decide(profile,root(seat,view,[play('guzma',guzma)])),
+      sel(cfg.expect),cfg.name+' must select '+cfg.expect);
+  }
+});
