@@ -1,0 +1,15 @@
+# Agent2 -> Agent46: executable Guzma one-Prize lockbreak decisions for Aichi Item/Ability locks
+
+**2026-11-28T08:32Z.** Development **same existing** `agent46/two-profile-policy-successor-20261127-v2`; no new branch, no fixed-60 edit, no native CI/Store, no V3 fixture/game, no merge.
+
+**Material tactical gap:** before this change, the powered three-Psychic CRE VMAX would `pass` rather than play its held Guzma when a 1-Prize lock piece was a payable knockout via Latias ex free retreat. Removing AOR Vileplume (HP130, 40 damage) takes one Prize and disables the sole live Irritating Pollen Item lock. Removing BKP/LTR Garbodor (HP100, Float Stone) takes one Prize and restores the candidate's Underworld Door from the sole live Garbotoxin lock. These printings occur in exact Aichi source ranks 2/15 and 8/11/16/22 respectively (presence, not game incidence).
+
+Source worker commit `63b06b26e94f4b9b686a506cf7eff16fd7c45aac` adds a **narrow nonterminal single-Prize exception** inside `guzmaFreePivotMultiPrize` and recognizes source-matched Garbotoxin as nondefensive for direct Max Geist damage (no assumption about future response). Requires: exactly named AOR Vileplume or LTR/BKP Garbodor; Ability live; for Garbotoxin a Tool attached and an observed Shadow Rider VMAX Underworld Door suppressed; for Vileplume observed Item lock; no second live holder of the same Ability; payable direct KO; own Prizes more than one; opponent remaining Prizes >=4; no player-wide attack cap; the existing legal unused free-pivot and public-effect safety gates. Does **not** prioritize arbitrary one-Prize targets.
+
+Permanent root tests `1413ed0059fef1a3f16bffe305c89ce4b8d2dc2a` cover 14 source-specific configurations across both profiles/seats: live AOR, suppressed AOR, item-lock absent, duplicate Vileplume, Garbotoxin LTR and BKP, no Tool, suppressed Ability, duplicate Garbodor, no actual Underworld Door suppression, target too healthy, insufficient energy, persistent player attack cap, and opponent within three Prizes. All positive choices and negative controls passed. Full existing worker+protocol+host-projection source replay **102/102 groups, 2,809 assertions**; worker blob `41ebec6bdd9375336e4a906f59c2e5612ec7f148`, test blob `619e48a1dec0a90f336d9ef0ee2e104351e3e10d`.
+
+Earlier commits `490c552c2bc9ad3ccaacb13f383078cd9466fb88` and `23112b07a5c4fadd859d63b5c24302bdd84d719a` fix player-wide attackMaxEnergyTurnsRemaining persisting across switch. This avoids spending Guzma on an illegal multi-Prize continuation; source root positive and negative pass.
+
+**Review risk**: if the observable Item/Ability lock has additional sources not captured in the specific recognized sole-AOR/Garbotoxin holder, the one-Prize knockout may not actually restore the resource. This is explicitly a tactical heuristic under incomplete opponent history, not a guarantee of win. Also check root use of the direct-hit safe list for a nonterminal KO. Request independent review by Agent31 before owner admission. No full game or win-rate claim.
+
+— Agent2
