@@ -848,9 +848,26 @@ function visibleVoltCycloneDamage(target) {
 }
 
 function guzmaKnockoutValue(observation, target) {
-  if(!target || !slots(observation?.ownPublic).some(row=>
-      row.zone==='bench'&&benchThornsVoltReady(row.pokemon,observation)))return 0;
-  if(!visibleVoltCycloneDamage(target).knockout)return 0;
+  const readyAttackers=slots(observation?.ownPublic).filter(row=>
+    row.zone==='bench'&&benchThornsVoltReady(row.pokemon,observation));
+  if(!target||readyAttackers.length===0)return 0;
+  const damage=visibleVoltCycloneDamage(target);
+  if(!damage.knockout)return 0;
+  // Guzma switches our chosen powered Bench attacker into Active. Against
+  // the source Iron Thorns mirror a Spiky Energy attached to the gusted
+  // opponent now triggers 20 recoil after Volt Cyclone, even if that target
+  // is Knocked Out. When the opponent has <=2 Prizes, a lethal reflection
+  // from ALL available attackers makes a purported final-Prize hit a tie
+  // rather than the 1495-point winning gust. A healthy ready Bench option
+  // still permits the winning line. Do not credit unknown attackers.
+  const retaliation=!hasStadium(observation,/^Temple of Sinnoh\b/i)&&
+    damage.damage>0?
+    list(target.energies).filter(energy=>matches(energy,PRINT.spikyEnergy)).length*20:0;
+  if(retaliation>0&&(observation?.opponentPublic?.prizeCount??6)<=2&&
+      readyAttackers.every(row=>{
+        const hp=remainingHp(row.pokemon);
+        return hp>0&&hp<=retaliation;
+      }))return 0;
   const prizes=guzmaTargetPrizeValue(target);
   return (prizes >= (observation?.ownPublic?.prizeCount ?? 6) ? 440 : 230)+
     (prizes-1)*55;
