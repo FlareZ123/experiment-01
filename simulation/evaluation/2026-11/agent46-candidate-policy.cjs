@@ -1170,10 +1170,11 @@ function hasAbilityLockThreat(view) {
 }
 
 function hasStadiumRemovalTarget(view) {
+  // Wondrous Labyrinth ◇ prevents all effects of Items and Supporters done
+  // to itself, so Field Blower cannot remove it. A different Stadium may.
   return [...view.ownPublic.stadium, ...view.opponentPublic.stadium].some(name =>
     hasName(name, 'Path to the Peak') ||
-    hasName(name, 'Jamming Tower') ||
-    hasName(name, 'Wondrous Labyrinth'));
+    hasName(name, 'Jamming Tower'));
 }
 
 // Guzma requires our Active to switch only when we have a Bench to switch
