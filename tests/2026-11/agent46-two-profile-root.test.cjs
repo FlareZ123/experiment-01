@@ -1833,3 +1833,39 @@ paired('Agent2: source-certified disabled Safeguard admits a final Prize attack,
   view.opponentPublic.active.abilitySuppressions=[];
   assert.deepEqual(decision(),sel('max')); // Ordinary unprotected final-Prize KO.
 });
+
+paired('Agent7: an authenticated opponent Tropical Beach draws instead of passing, without displacing attacks',(seat,profile)=>{
+  const beach={token:'beach',kind:'use-stadium',
+    actorPrinting:'Tropical Beach BWP 50',publicMetadata:{stadiumEffectLive:true}};
+  const mist={token:'mist',kind:'attack',attackName:'Shadow Mist'};
+  const view=observation(seat,{active:v(),opponentActive:defender()});
+  view.ownPublic.deckCount=20;
+  view.opponentPublic.stadium=['Tropical Beach BWP 50'];
+  const select=items=>decide(profile,root(seat,view,items));
+  assert.deepEqual(select([beach]),sel('beach'));
+  view.ownPublic.stadium=['Tropical Beach BWP 50'];
+  view.opponentPublic.stadium=[];
+  assert.deepEqual(select([beach]),sel('beach')); // Either physical owner.
+  view.ownPublic.active=v([P]);
+  assert.deepEqual(select([beach,mist]),sel('mist')); // Beach ends turn.
+  view.ownPublic.active=v();
+  view.ownPublic.stadium=[];
+  assert.deepEqual(select([beach]),sel('pass')); // No visible source.
+  view.opponentPublic.stadium=['Tropical Beach BWP 50'];
+  assert.deepEqual(select([{...beach,actorPrinting:'Tropical Beach BWP 28'}]),sel('pass'));
+  assert.deepEqual(select([{...beach,publicMetadata:{stadiumEffectLive:false}}]),sel('pass'));
+  assert.deepEqual(select([{...beach,actorPrinting:'Tropical Beach BWP'}]),sel('pass'));
+  view.ownHand=[P,P,P,P,P,P];view.ownPublic.handCount=6;
+  assert.deepEqual(select([beach]),sel('pass')); // <=1 draw.
+  view.ownHand=[];view.ownPublic.handCount=0;
+  view.ownPublic.deckCount=8;
+  assert.deepEqual(select([beach]),sel('pass')); // Leave >=2 after draw 7.
+  view.ownHand=[P,P,P,P,P];view.ownPublic.handCount=5;
+  view.ownPublic.deckCount=4;
+  assert.deepEqual(select([beach]),sel('beach')); // Exactly two retained.
+  view.ownPublic.deckCount=3;
+  assert.deepEqual(select([beach]),sel('pass'));
+  view.ownPublic.deckCount=20;
+  view.ownHand=[V];view.ownPublic.handCount=1;
+  assert.deepEqual(select([beach,play('bench',V,null,target('bench',0))]),sel('bench'));
+});

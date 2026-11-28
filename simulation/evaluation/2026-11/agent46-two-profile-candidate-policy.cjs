@@ -4357,6 +4357,31 @@ function chooseRoot(view, request, profile) {
     return { kind: 'select-action', token: terminalPlays[0].item.token };
   }
 
+  // Tropical Beach may be used by either player regardless of the owner of
+  // the Stadium. Never infer its identity from raw Twinleaf BWP numbering:
+  // source-certified Aichi BWP 50 must be present in the visible Stadium zone
+  // and on the actually offered native frontier. Beach ends the turn, so only
+  // choose it after every supported play, retreat, Ability and attack.
+  const stadiumItems=items.filter(item=>item.kind==='use-stadium');
+  const observedStadiums=[...view.ownPublic.stadium,...view.opponentPublic.stadium];
+  const beach=stadiumItems.find(item=>
+    item.actorPrinting==='Tropical Beach BWP 50' &&
+    item.publicMetadata?.stadiumEffectLive===true &&
+    observedStadiums.includes(item.actorPrinting) &&
+    Array.isArray(view.ownHand) && view.ownHand.length<=5 &&
+    Number.isSafeInteger(view.ownPublic.deckCount) &&
+    // Its draw-to-seven should leave at least two cards in deck.
+    view.ownPublic.deckCount>=9-view.ownHand.length);
+  for(const item of stadiumItems) {
+    if(beach && item.token===beach.token)
+      recordPolicyAuditRule(item.token,'SOURCE_CERTIFIED_BEACH_DRAW_FALLBACK');
+    else recordPolicyAuditUnscored(item.token,'UNSUPPORTED_OR_UNSAFE_STADIUM_USE');
+  }
+  if(beach){
+    setPolicyAuditRule('ROOT_BEACH_DRAW_INSTEAD_OF_PASS','FIRST_SOURCE_STAMPED_LEGAL_BEACH');
+    return {kind:'select-action',token:beach.token};
+  }
+
   if (pass) {
     setPolicyAuditRule('ROOT_PASS_FALLBACK', 'FIRST_FRONTIER_MATCH');
     recordPolicyAuditRule(pass.token, 'PASS_FALLBACK');
