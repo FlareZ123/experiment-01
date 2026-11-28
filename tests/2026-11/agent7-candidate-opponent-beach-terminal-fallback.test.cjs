@@ -13,9 +13,11 @@ function caseFor(seat,{handCount=0,deckCount=30,owner='opponent',
   const stadium=owner==='actor'?[BEACH]:owner==='opponent'?[BEACH]:[];
   const oppStadium=owner==='opponent'?[BEACH]:[];
   const card={printing:'Shadow Rider Calyrex V CRE 74',name:'Shadow Rider Calyrex V',
-    hp:210,damage:0,energies:[],attacks:[],tools:[],abilities:[]};
+    hp:210,damage:0,energies:[],attacks:[],tools:[],abilities:[],
+    printed:{subtypes:['Basic'],types:['Psychic'],retreatCost:['Colorless']}};
   const target={printing:'Snorlax PGO 55',name:'Snorlax',hp:150,
-    damage:0,energies:[],attacks:[],tools:[],abilities:[]};
+    damage:0,energies:[],attacks:[],tools:[],abilities:[],
+    printed:{subtypes:['Basic'],types:['Colorless'],retreatCost:['Colorless']}};
   const observation={
     actorSeat:seat,decisionKind:'owner-root',
     ownHand:Array.from({length:handCount},(_,i)=>'Psychic Energy CRE '+(232+i)),
@@ -23,7 +25,7 @@ function caseFor(seat,{handCount=0,deckCount=30,owner='opponent',
     ownPublic:{active:card,bench:[],stadium,discard:[],lostZone:[],
       deckCount,handCount,publicTurnRestrictions:{}},
     opponentPublic:{active:target,bench:[],stadium:oppStadium,
-      discard:[],lostZone:[],deckCount:25}
+      discard:[],lostZone:[],deckCount:25,publicTurnRestrictions:{}}
   };
   const actionFrontier={schema:'aichi-action-frontier-v1',items:[
     ...extraActions,
