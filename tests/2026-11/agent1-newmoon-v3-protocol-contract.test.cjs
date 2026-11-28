@@ -183,7 +183,7 @@ const copyPrompt={schema:P.PROMPT_SCHEMA,actingSeat:0,
  promptType:'ChooseAttackPrompt',description:'Choose a copied attack',
  source:{classification:'actor-choice',sourceKind:'card-effect',
  sourcePrinting:mew.printing,effectName:'Perfection'},
- publicMetadata:{count:2,selectionType:'attack',allowCancel:true},
+ publicMetadata:{count:2,selectionType:'attack',allowCancel:false},
  choices:[
   {kind:'attack',token:'night-copy',printing:trev.printing,
    publicMetadata:{choiceIndex:0,sourceAttack:'Night Watch',
