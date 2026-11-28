@@ -1160,6 +1160,35 @@ function freeRetreatToClefairy(items,o) {
   })??null;
 }
 
+// Native-offered free retreat to an already-funded secondary attacker:
+// evaluate the actual new Active and the old Active's occupied Bench slot,
+// rather than counting the target in both places or inventing an attack root.
+function freeRetreatToPrintedFinisher(items,o) {
+  if(!noCostRetreatOpportunity(o))return null;
+  const own=o.ownPublic,bench=arr(own.bench),active=own.active;
+  const psychic=/^(?:Psychic Energy|Telepathic Psychic Energy)\b/i;
+  const candidates=[];
+  for(const root of items) {
+    if(root.kind!=='retreat'||root.publicMetadata?.targetSeat!=='actor'||
+       root.publicMetadata?.targetZone!=='bench'||
+       !safeInt(root.publicMetadata?.benchIndex))continue;
+    const i=root.publicMetadata.benchIndex,target=bench[i];
+    if(!target||text(root.targetPrinting)!==text(target))continue;
+    const nextBench=bench.slice();nextBench[i]=active;
+    const next={...o,ownPublic:{...own,active:target,bench:nextBench}};
+    let win=null;
+    if(has(target,P.latias)&&arr(target.energies).length>=3&&
+       arr(target.energies).filter(e=>psychic.test(text(e))).length>=2)
+      win=latiasEonBladeKO(next);
+    if(has(target,P.lele)&&arr(target.energies).length>=2)
+      win=tapuLeleEnergyDriveKO(next);
+    if(!win)continue;
+    candidates.push({root,win,prizes:win.prizeLowerBound??1,
+      damage:win.damage??win.damageLowerBound??0});
+  }
+  candidates.sort((a,b)=>b.prizes-a.prizes||b.damage-a.damage);
+  return candidates[0]?.root??null;
+}
 function certifiedPsychicBenchTargets(o) {
   const k1=o?.ownerK1;
   if(k1?.exactMembershipKnown!==true||!Array.isArray(k1.knownPrintings))
@@ -1853,6 +1882,8 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   if(star && starNeedsResource(o,{enablePatchProjection}))return act(star);
   const guzma=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.guzma));
   if(guzma&&guzmaOpportunity(o))return act(guzma);
+  const freeFinisher=freeRetreatToPrintedFinisher(items,o);
+  if(freeFinisher)return act(freeFinisher);
   // Prefer a free native RetreatAction to a funded Clefairy over ending a
   // turn with an inert Active. A tactical 3-Prize Guzma keeps precedence.
   const freeRetreat=freeRetreatToClefairy(items,o);
@@ -1943,4 +1974,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,sourceCardPatternCoverage,heavyBallBasicCoverage,createPolicy,
-  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,certifiedPsychicBenchTargets,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,minimumPrizesOnAttackKnockout,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,latiasEonBladeKO,tapuLeleEnergyDriveKO,guaranteedMimikyuCopycatKO,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy,hasFreshPriorOpponentTurnKO,raihanOpportunity,raihanAttachPrompt,raihanSearchPrompt,raihanPrompt,hisuianHeavyBallOpportunity,hisuianHeavyBallPrompt};
+  vsSeekerMarnieRecovery,emperorEyesDisablesBasicBlock,certifiedPsychicBenchTargets,rescueStretcherTarget,rescueStretcherPrompt,marnieRecoveryOpportunity,rondoSearchFillerOpportunity,isInitialOwnerTurn,handIsSafeToReset,drawSupportOpportunity,onPlayDrawConfirmPrompt,leleAbilityAccessIsSafe,needWonderTag,wonderTagPrompt,skyFieldHandExpansionKO,rondoBenchFillerDemand,fieldBlowerTargetPrintings,fieldBlowerOpportunity,fieldBlowerPrompt,opponentSnorlaxBlockMayBeLive,retreatIsForbidden,floatStoneEffectAvailable,floatStoneIsLive,floatStoneMobilityRoot,rank30EngineSetupPrompt,startingActiveRank,startingBenchRank,psychicResistanceLoss,clefairyRondoDamage,clefairyWeaknessAgainst,skylinerIsLive,noCostRetreatOpportunity,freeRetreatToClefairy,freeRetreatToPrintedFinisher,bestManualPsychicAttachment,rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,minimumPrizesOnAttackKnockout,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,miniorStallOpportunity,miniorConfirmPrompt,latiasEonBladeKO,tapuLeleEnergyDriveKO,guaranteedMimikyuCopycatKO,trainersMailPriority,trainersMailPrompt,liveFairyZone,rondoWeaknessMultiplier,rondoIncrement,safeDiscardPayment,ultraOpportunity,ultraBallPrompt,candidateCanUseBoardHeldStarAlchemy,hasFreshPriorOpponentTurnKO,raihanOpportunity,raihanAttachPrompt,raihanSearchPrompt,raihanPrompt,hisuianHeavyBallOpportunity,hisuianHeavyBallPrompt};
