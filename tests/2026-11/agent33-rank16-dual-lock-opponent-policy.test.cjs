@@ -167,3 +167,36 @@ for(const seat of [0,1]){
     assert.deepEqual(decide(request),{kind:'select-choices',tokens:['budew']});
   });
 }
+
+for(const seat of [0,1]) {
+  test('Terminal Period reads exactly six ten-damage counters not 300 damage seat '+seat,()=>{
+    const request=state(seat,{
+      ownPublic:{active:poke(P.absol),bench:[poke(P.garbLTR)]},
+      opponentPublic:{active:{...poke('Shadow Rider Calyrex VMAX CRE 75'),damage:60}},
+      items:[action('attack','terminal',{attackName:'Terminal Period',
+        publicMetadata:{attackCostPayable:true,targetDamage:60}}),
+        action('attack','claw',{attackName:'Claw of Darkness',
+          publicMetadata:{attackCostPayable:true,targetHp:320,targetDamage:60,damage:200}}),
+        action('pass','pass')]
+    });
+    assert.deepEqual(decide(request),{kind:'select-action',token:'terminal'});
+  });
+  test('Terminal Period never claims a phantom 300-damage KO seat '+seat,()=>{
+    const request=state(seat,{
+      opponentPublic:{active:{...poke('Shadow Rider Calyrex VMAX CRE 75'),damage:300}},
+      items:[action('attack','phantom',{attackName:'Terminal Period',
+        publicMetadata:{attackCostPayable:true,targetDamage:300}}),
+        action('pass','pass')]
+    });
+    assert.deepEqual(decide(request),{kind:'select-action',token:'pass'});
+  });
+  test('Terminal Period does not attack when public state disagrees with offered damage seat '+seat,()=>{
+    const request=state(seat,{
+      opponentPublic:{active:{...poke('Shadow Rider Calyrex VMAX CRE 75'),damage:300}},
+      items:[action('attack','inconsistent',{attackName:'Terminal Period',
+        publicMetadata:{attackCostPayable:true,targetDamage:60}}),
+        action('pass','pass')]
+    });
+    assert.deepEqual(decide(request),{kind:'select-action',token:'pass'});
+  });
+}
