@@ -783,7 +783,7 @@ function selectBasicBenchRoot(items,o) {
 
 function skylinerIsLive(o) {
   const allStadiums=[...arr(o?.ownPublic?.stadium),...arr(o?.opponentPublic?.stadium)];
-  if(allStadiums.some(x=>/^Path to the Peak CRE(?: 148)?\b/i.test(text(x))))return false;
+  if(allStadiums.some(x=>/^(?:Path to the Peak CRE(?: 148)?|Silent Lab PRC(?: 140)?)\b/i.test(text(x))))return false;
   return slots(o?.ownPublic).some(p=>/^Latias ex SSP(?: 76)?\b/i.test(text(p))&&
     arr(p.abilities).includes('Skyliner')&&
     arr(p.abilitySuppressions).some(row=>row?.abilityName==='Skyliner'&&
@@ -798,12 +798,12 @@ function noCostRetreatOpportunity(o) {
   if(restrictions.cannotRetreat===true||
     restrictions.cannotRetreatNextTurn===true||
     restrictions.cannotRetreatWhileActive===true)return false;
-  // Do not infer a free retreat from unverified tools or attached Energy:
-  // these depend on current card effects, available payment, and prompt support.
-  const printedFree=Array.isArray(active.printed?.retreatCost)&&
-    active.printed.retreatCost.length===0;
+  // Skyliner says Basic Pokémon HAVE NO Retreat Cost: the rulebook gives
+  // that wording precedence over added-cost modifiers. A printed zero alone
+  // is insufficient, because an unobserved continuous modifier can raise it
+  // and the worker does not yet support paid-retreat Energy prompts.
   const basicStage=String(active.printed?.stage??'').toUpperCase()==='BASIC';
-  return printedFree||(basicStage&&skylinerIsLive(o));
+  return basicStage&&skylinerIsLive(o);
 }
 function freeRetreatToClefairy(items,o) {
   if(!noCostRetreatOpportunity(o)||has(o?.ownPublic?.active,P.clefairy))
