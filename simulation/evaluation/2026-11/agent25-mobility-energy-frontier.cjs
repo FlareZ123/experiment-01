@@ -56,8 +56,9 @@ function runMobilityCounterline(state, energy) {
     (canPromoteAttacker && effectLive && isMystery ? 1 : 0);
   const benchP=state.benchedPsychic;
   const benchC=state.benchedColorless + (isJet && attachmentLegal ? 1 : 0);
-  const canPayMaxGeist=canPromoteAttacker &&
-    benchP>=2 && benchP+benchC>=3;
+  // Pinned CRE 75 Max Geist costs exactly [C,C,C], NOT [P,P,C].
+  // Psychic anywhere on YOUR board determines damage, not attack cost.
+  const canPayMaxGeist=canPromoteAttacker && benchP+benchC>=3;
   const maxGeistDamage=canPayMaxGeist ? 10+30*psychicAfter : null;
   return {
     energy,attachmentLegal,effectLive,effectiveRetreatCost,
