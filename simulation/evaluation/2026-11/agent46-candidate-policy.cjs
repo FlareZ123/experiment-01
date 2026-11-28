@@ -1615,6 +1615,27 @@ function scoreToolAttachment(item,view){
   return -Infinity;
 }
 
+// Budew PRE4's Itchy Pollen is an attack effect on the opposing PLAYER.
+// Ranger STS104 removes it without playing an Item; it does not defeat
+// Vileplume's Ability Item lock or an unattributed generic lock flag.
+// Require both the live player restriction and the prior turn's witnessed
+// exact Budew attack, plus an Item actually stuck in our hand.
+function rangerCanUnlockBudewItemTurn(view, receipt) {
+  if (view.ownPublic?.publicTurnRestrictions?.itemPlayLocked !== true ||
+      view.ownPublic.publicTurnRestrictions.supporterPlayLocked === true ||
+      receipt?.actorSeat !== view.actorSeat ||
+      receipt?.turn !== view.globalTurn ||
+      !Number.isSafeInteger(receipt.opponentLastTurnTurn) ||
+      receipt.opponentLastTurnTurn>=view.globalTurn ||
+      !Array.isArray(receipt.opponentLastTurnAttacks) ||
+      !receipt.opponentLastTurnAttacks.some(row =>
+        row.turn===receipt.opponentLastTurnTurn &&
+        row.sourcePrinting==='Budew PRE 4' &&
+        row.attackName==='Itchy Pollen' &&
+        row.gxAttack!==true)) return false;
+  return view.ownHand.some(name=>isItem(name));
+}
+
 function scoreTrainerPlay(item, view, receipt) {
   const name = item.actorPrinting ?? '';
   // These three non-replaceable Tools require a specific legal recipient.
@@ -1622,6 +1643,8 @@ function scoreTrainerPlay(item, view, receipt) {
   if(['Forest Seal Stone SIT 156','Stealthy Hood UNB 186',
       'Float Stone BKT 137'].includes(name))return -Infinity;
   const supporterUsed = view.ownTurnResources.supporterPlayedTurn > 0;
+  if (name==='Pokémon Ranger STS 104' && !supporterUsed &&
+      rangerCanUnlockBudewItemTurn(view,receipt)) return 1100;
   // VS Seeker is an Item, but consumes a finite 2-of Supporter connector.
   // Do not recover redundantly when a Supporter is already available.
   if(name==='VS Seeker PHF 109' &&
