@@ -18,6 +18,62 @@ const CANDIDATE_FINGERPRINT_SHA256 = '1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc
 const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const WORKER_PROTOCOL_BLOB_SHA1 = 'd8349ae6f3537816b357b8309e9ab140ddec51eb';
 
+
+// The shared V3 runner rejects even a correct decision if the worker omits
+// policyAudit. Trace actual per-option scoring; do not fabricate scores for
+// branches that return a rule decision without comparing every option.
+// Audit state lives only inside the synchronous one-decision call and is
+// cleared in finally so one worker turn cannot contaminate the next.
+let activeRank29PolicyAudit = null;
+function createRank29PolicyAuditContext(request) {
+  const options = request?.prompt ? request.prompt.choices :
+    request?.actionFrontier?.items;
+  const evaluations = list(options).map(option=>({
+    token:option.token,status:'not-evaluated',score:null,
+    reasonCode:'NOT_EVALUATED_BY_THIS_POLICY_BRANCH'
+  }));
+  return {
+    evaluations,
+    byToken:new Map(evaluations.map(row=>[row.token,row])),
+    decisionKind:request?.observation?.decisionKind ?? 'unknown',
+    policyVersion:POLICY_VERSION,
+    selectedRule:null
+  };
+}
+function rank29RecordScore(token, score) {
+  const row=activeRank29PolicyAudit?.byToken.get(token);
+  if(!row)return;
+  if(!Number.isFinite(score))
+    throw new Error('RANK29_NONFINITE_ACTION_OR_PROMPT_SCORE');
+  row.status='scored';row.score=score;row.reasonCode=null;
+}
+function rank29FinishAudit(decision) {
+  const ctx=activeRank29PolicyAudit;
+  if(!ctx)throw new Error('RANK29_AUDIT_CONTEXT_MISSING');
+  const selectedTokens=decision.kind==='select-choices'?
+    decision.tokens.slice():
+    (decision.kind==='select-action'||decision.kind==='select-choice')?
+      [decision.token]:[];
+  for(const token of selectedTokens){
+    const row=ctx.byToken.get(token);
+    if(!row)throw new Error('RANK29_SELECTED_UNKNOWN_AUDIT_ITEM');
+    if(row.status==='not-evaluated'){
+      row.status='rule-selected';row.reasonCode='SELECTED_BY_UNSCORED_POLICY_RULE';
+    }
+  }
+  const hasScores=ctx.evaluations.some(row=>row.status==='scored');
+  return {
+    schema:'agent6-policy-audit-v1',
+    policyVersion:ctx.policyVersion,
+    decisionKind:ctx.decisionKind,
+    decisionType:decision.kind,
+    selectionRuleCode:decision.kind==='abstain'?'RANK29_ABSTAIN':
+      (hasScores?'RANK29_SCORED_SELECTION':'RANK29_DIRECT_SELECTION'),
+    tieBreakCode:hasScores?'FRONTIER_ORDER':'NONE',
+    selectedTokens,evaluations:ctx.evaluations
+  };
+}
+
 const PRINT = Object.freeze({
   ironThorns: /^Iron Thorns ex\b/i,
   speedLightning: /^Speed Lightning Energy\b/i,
@@ -577,7 +633,11 @@ function cardChoiceScore(choice, observation, context) {
 function rankedChoices(choices, scorer, maximum) {
   return list(choices)
     .filter(choice => choice.kind !== 'cancel' && choice.kind !== 'empty-selection')
-    .map((choice, index) => ({ choice, index, score: scorer(choice) }))
+    .map((choice, index) => {
+      const score=scorer(choice);
+      rank29RecordScore(choice.token,score);
+      return { choice,index,score };
+    })
     .filter(row => row.score > 0)
     .sort((a, b) => b.score - a.score || a.index - b.index)
     .slice(0, maximum);
@@ -600,9 +660,11 @@ function multiSelectDecision(prompt, rows, minimum, maximum) {
 }
 
 function singleChoice(choices, scorer, reasonCode) {
-  const ranked = list(choices).map((choice, index) => ({
-    choice, index, score: scorer(choice)
-  })).filter(row => row.score > 0)
+  const ranked = list(choices).map((choice, index) => {
+    const score=scorer(choice);
+    rank29RecordScore(choice.token,score);
+    return {choice,index,score};
+  }).filter(row => row.score > 0)
     .sort((a, b) => b.score - a.score || a.index - b.index);
   if (!ranked.length) return { kind: 'abstain', reasonCode };
   return { kind: 'select-choice', token: ranked[0].choice.token };
@@ -1657,6 +1719,7 @@ function bestAction(request) {
   let bestScore = 0;
   for (const item of items) {
     const score = scoreAction(item, request);
+    rank29RecordScore(item.token,score);
     if (score > bestScore) {
       best = item;
       bestScore = score;
@@ -1679,14 +1742,23 @@ function createPolicy({ role, seat, policyVersion, config }) {
     throw new Error('AGENT4_RANK29_POLICY_INIT_MISMATCH');
   }
 
+  const evaluateRequest=request=>{
+    if (!request || request.role !== 'opponent' || request.seat !== seat ||
+        request.observation?.actorSeat !== seat) {
+      return { kind: 'abstain', reasonCode: 'ROLE_SEAT_BINDING_MISMATCH' };
+    }
+    if (request.prompt !== null) return promptDecision(request);
+    return bestAction(request);
+  };
   return Object.freeze({
-    decide(request) {
-      if (!request || request.role !== 'opponent' || request.seat !== seat ||
-          request.observation?.actorSeat !== seat) {
-        return { kind: 'abstain', reasonCode: 'ROLE_SEAT_BINDING_MISMATCH' };
-      }
-      if (request.prompt !== null) return promptDecision(request);
-      return bestAction(request);
+    decide(request) {return evaluateRequest(request);},
+    decideWithAudit(request) {
+      if(activeRank29PolicyAudit !== null)throw new Error('RANK29_AUDIT_REENTRANT');
+      activeRank29PolicyAudit=createRank29PolicyAuditContext(request);
+      try {
+        const decision=evaluateRequest(request);
+        return {decision,policyAudit:rank29FinishAudit(decision)};
+      } finally {activeRank29PolicyAudit=null;}
     }
   });
 }
