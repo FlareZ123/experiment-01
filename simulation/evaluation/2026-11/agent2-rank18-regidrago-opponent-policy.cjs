@@ -59,13 +59,16 @@ function stadiumPresent(obs,pattern){
   return [...arr(obs?.ownPublic?.stadium),...arr(obs?.opponentPublic?.stadium)]
     .some(x=>pattern.test(name(x)));
 }
-function benchOpen(obs){
+function benchAvailable(obs){
   const n=arr(obs?.ownPublic?.bench).filter(Boolean).length;
   const roadblock=board(obs?.opponentPublic).some(x=>name(x)===P.sudowoodo&&
-    arr(x?.abilities).some(a=>/Roadblock/i.test(typeof a==='string'?a:a?.name??'')));
+    arr(x?.abilities).some(a=>/Roadblock/i.test(typeof a==='string'?a:a?.name??''))&&
+    !arr(x?.abilitySuppressions).some(a=>
+      a?.abilityName==='Roadblock'&&a?.suppressed===true));
   const limit=roadblock?4:stadiumPresent(obs,/^Sky Field ROS(?: 89)?$/)?8:5;
-  return n<limit;
+  return Math.max(0,limit-n);
 }
+const benchOpen=obs=>benchAvailable(obs)>0;
 function templeUnlocksApex(obs){
   const active=obs?.ownPublic?.active;
   if(!stadiumPresent(obs,/^Temple of Sinnoh ASR(?: 155)?$/)||
@@ -125,6 +128,10 @@ function carmineScore(obs){
 function searchValue(source,printing,obs){
   if(!SOURCE_SET.has(printing))return -Infinity;
   if([P.quick,P.vip,P.heavy].includes(source)&&!BASIC.has(printing))return -Infinity;
+  // VIP puts directly from the DECK onto Bench: Dedechange and Wonder Tag
+  // explicitly trigger only when played from HAND. Squawk is different:
+  // Squawk and Seize is once during the first turn, not a hand-play trigger.
+  if(source===P.vip&&[P.dedenne,P.tapu].includes(printing))return 5;
   if(source===P.treasure&&!PSYCHIC_DRAGON.has(printing))return -Infinity;
   const g=goal(obs),own=obs.ownPublic??{};
   if(printing===P.star)return g.v>0&&g.star===0?360:g.star>1?25:125;
@@ -200,7 +207,7 @@ function scoreRoot(item,request){
   if(item.kind==='play-card'&&!SOURCE_SET.has(p))return -Infinity;
   const g=goal(obs);
   if(item.kind==='play-card'){
-    if(p===P.vip)return benchOpen(obs)?(g.v===0?390:315):-Infinity;
+    if(p===P.vip)return benchOpen(obs)?(g.v===0?430:390):-Infinity;
     if(p===P.sky)return templeUnlocksApex(obs)?590:
       (!stadiumPresent(obs,/^Sky Field ROS(?: 89)?$/)&&
        arr(own.bench).filter(Boolean).length>=4?195:65);
@@ -310,7 +317,8 @@ function promptDecision(request){
           sourceDiscardValue(name(c),obs):-Infinity,min,max);
       if(zone==='deck')
         return pick(choices,c=>validOwnerCard(c,'deck')?
-          searchValue(sourcePrinting,name(c),obs):-Infinity,min,max);
+          searchValue(sourcePrinting,name(c),obs):-Infinity,min,
+          sourcePrinting===P.vip?Math.min(max,benchAvailable(obs)):max);
       if(zone==='prizes'&&sourcePrinting===P.heavy)
         return pick(choices,c=>validOwnerCard(c,'prizes')?
           searchValue(P.heavy,name(c),obs):-Infinity,min,max);
@@ -375,4 +383,4 @@ function createPolicy({role,seat,policyVersion,config}={}){
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_BLOB_SHA1,
  SOURCE_PRINTINGS,createPolicy,scoreRoot,promptDecision,searchValue,
- sourceDiscardValue,benchOpen,pickAttack,templeUnlocksApex,carmineScore,motivateScore,resettingHoleScore,resolveSourcePrinting:name};
+ sourceDiscardValue,benchOpen,benchAvailable,pickAttack,templeUnlocksApex,carmineScore,motivateScore,resettingHoleScore,resolveSourcePrinting:name};
