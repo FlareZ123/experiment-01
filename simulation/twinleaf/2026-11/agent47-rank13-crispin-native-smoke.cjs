@@ -15,6 +15,8 @@
  *   AGENT47_SOURCE_60=1 node simulation/twinleaf/2026-11/agent47-rank13-crispin-native-smoke.cjs
  * Optional combined smoke:
  *   AGENT47_SOURCE_60=1 AGENT47_STRICT_ROOTS=1 node simulation/twinleaf/2026-11/agent47-rank13-crispin-native-smoke.cjs
+ * Native original-vs-overlay root decision comparison (requires strict roots):
+ *   AGENT47_STRICT_ROOTS=1 AGENT47_LEGACY_STAR_COMPETITOR=1 node simulation/twinleaf/2026-11/agent47-rank13-crispin-native-smoke.cjs
  *
  * It uses the existing host's native Store, native prompt origin hook,
  * typed owner prompt projector (with one opt-in Crispin extension), native
@@ -35,6 +37,7 @@ const {installPromptProvenanceHook}=
 const {projectRank13CrispinPrompt}=
   require('../../evaluation/2026-11/agent47-rank13-crispin-attach-projection.cjs');
 const workerModule=require('../../evaluation/2026-11/agent47-rank13-crispin-overlay.cjs');
+const originalRank13=require('../../evaluation/2026-11/agent24-rank13-regidrago-opponent-policy.cjs');
 
 const output=path.resolve(__dirname,'../../../vendor/twinleaf/ptcg-server/output');
 const native=relative=>require(path.join(output,relative));
@@ -311,6 +314,23 @@ function dispatchWorkerRoot(x,policy,wanted,history){
   });
   const request={role:'opponent',seat:x.seat,observation:view,
     prompt:null,actionFrontier:validated.actionFrontier};
+  if(wanted==='VS Seeker PHF' &&
+     process.env.AGENT47_LEGACY_STAR_COMPETITOR==='1'){
+    const nativeLegacy=validated.actionFrontier.items.filter(item=>
+      item.kind==='use-ability' &&
+      /Legacy Star/i.test(item.publicMetadata?.abilityName??item.label??''));
+    assert.equal(nativeLegacy.length,1,
+      'Native source-60 Legacy Star competitor must be executable');
+    const before=originalRank13.createPolicy({role:'opponent',seat:x.seat,
+      policyVersion:originalRank13.POLICY_VERSION,config:{}});
+    const priorDecision=before.decide(request);
+    assert.deepEqual(priorDecision,
+      {kind:'select-action',token:nativeLegacy[0].token},
+      'Original rank13 policy must prefer the native Legacy Star competitor');
+    history.push({kind:'native-policy-control',baseline:'Legacy Star',
+      upgraded:'VS Seeker',cardPrinting:'Regidrago VSTAR SIT',
+      sameNativeFrontier:true});
+  }
   const decision=policy.decide(request);
   const accepted=protocol.validateDecision(decision,null,
     new Set(validated.actionFrontier.items.map(item=>item.token)));
@@ -348,6 +368,10 @@ function runSeat(seat) {
     stageOriginalRank13Source60(x):null;
   const provenance=installPromptProvenanceHook(x.store);
   const strictRoots=process.env.AGENT47_STRICT_ROOTS==='1';
+  if(process.env.AGENT47_LEGACY_STAR_COMPETITOR==='1'){
+    assert.equal(strictRoots,true,'Legacy Star comparator requires strict roots');
+    x.owner.usedVSTAR=false;
+  }
   const policy=workerModule.createPolicy({role:'opponent',seat,
     policyVersion:workerModule.POLICY_VERSION,config:{}});
   try{
@@ -382,6 +406,7 @@ function runSeat(seat) {
       nativeOwnerPromptHistory:history,
       finalOwnerPrizes:prizesRemaining(x.owner),
       nativeStagedLastPrize:true,strictRoots,
+      legacyStarComparator:process.env.AGENT47_LEGACY_STAR_COMPETITOR==='1',
       stagedShuffleSeed:x.shuffle.seed,
       source60StagedInventory:source60,qualifiedGame:false,
       originalSource60InventoryPreserved:source60!==null,
