@@ -43,7 +43,6 @@ function terminalGuzmaTarget(request){
       request.observation.decisionKind!=='owner-prompt'||
       request.prompt?.source?.effectName!=='Guzma'||
       request.prompt.source.sourcePrinting!=='Guzma BUS 115'||
-      request.prompt.publicMetadata?.ownerSeat!=='opponent'||
       request.prompt.publicMetadata?.selectionType!=='pokemon'||
       !Array.isArray(request.prompt.choices))return null;
   const view=request.observation,own=view.ownPublic,opp=view.opponentPublic;
