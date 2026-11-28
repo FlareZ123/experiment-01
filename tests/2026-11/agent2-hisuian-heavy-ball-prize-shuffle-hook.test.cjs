@@ -68,7 +68,7 @@ test('hook performs real uniform in-place slot-payload permutation',()=>{
  });
  assert.equal(api.id,HOOK_ID);
  const slots=[prize('A'),prize('B'),prize('C'),prize('D')];
- const refs=slots.slice(),cardRefs=slots.map(x=>x.cards.slice());
+ const refs=slots.slice(),arrayRefs=slots.map(x=>x.cards);
  const originalIds=new Set(slots.flatMap(p=>p.cards).map(c=>c.id));
  const returned=item.shuffleFaceDownPrizeCards(slots);
  assert.equal(returned,slots);
@@ -79,7 +79,7 @@ test('hook performs real uniform in-place slot-payload permutation',()=>{
   assert.equal(slots[i].isSecret,true);
   assert.equal(slots[i].faceUpPrize,false);
   assert.equal(slots[i].slotMark,'fixed-location');
-  assert.notEqual(slots[i].cards,cardRefs[i]);
+  assert.equal(slots[i].cards,arrayRefs[i]);
   assert.equal(slots[i].cards.length,1);
  }
  assert.equal(api.uninstall(),true);
