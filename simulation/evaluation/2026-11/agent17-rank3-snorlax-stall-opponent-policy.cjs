@@ -80,7 +80,7 @@ const EXECUTABLE = new Set([
 const ITEM_PATTERNS = [
   PRINT.nestBall, PRINT.vsSeeker, PRINT.enhancedHammer, PRINT.trainersMail,
   PRINT.counterCatcher, PRINT.scoopCyclone, PRINT.quickBall, PRINT.heavyBall,
-  PRINT.nightStretcher, PRINT.forestSealStone
+  PRINT.nightStretcher
 ];
 const TOOL_PATTERNS = [PRINT.toolJammer, PRINT.floatStone, PRINT.stealthyHood, PRINT.forestSealStone];
 const BASIC_SEARCH_PATTERNS = Object.freeze([
@@ -112,13 +112,12 @@ const LUSAMINE_TARGET_PATTERNS = Object.freeze([
   PRINT.handiwork, PRINT.gladion, PRINT.guzma, PRINT.faba, PRINT.penny, PRINT.eri,
   PRINT.lillie, PRINT.tropicalBeach, PRINT.playersCeremony, PRINT.temple
 ]);
-// The bound Hood Shield v1 list has 17 Item-subtype cards. Forest Seal Stone
-// is dual-subtype Item + Pokémon Tool; Stealthy Hood and Float Stone are
-// Pokémon Tool-only and are not legal Eri discards.
+// Despite pre-Scarlet & Violet card-pool metadata listing both Item and
+// Pokémon Tool, the current rules treat older Pokémon Tools only as Tools.
+// In particular, Eri cannot discard Forest Seal Stone (SIT 156).
 const ERI_ITEM_PATTERNS = [
   /^Field Blower GRI 125\b/i,
   /^Unfair Stamp TWM 165\b/i,
-  PRINT.forestSealStone,
   /^Mysterious Treasure FLI 113\b/i,
   /^Fog Crystal CRE 140\b/i,
   PRINT.vsSeeker,
@@ -280,7 +279,8 @@ function hasUnseenArvenSearchTargets(observation) {
   // A positive remainder is only a possibility because unknown Prizes are hidden.
   const itemPossible = ITEM_PATTERNS.some(pattern => sourceCopiesRemaining(observation, pattern) > 0);
   const toolPossible = TOOL_PATTERNS.some(pattern => sourceCopiesRemaining(observation, pattern) > 0);
-  return itemPossible && toolPossible;
+  // Arven's native min=0 search can take just one category if the other is gone.
+  return itemPossible || toolPossible;
 }
 
 function hasUnseenBasicSearchTargets(observation) {
@@ -804,7 +804,6 @@ function cardChoiceScore(choice, observation, context) {
   if (context === 'eri') {
     if (/Field Blower GRI 125/i.test(printing)) return 260;
     if (/Unfair Stamp TWM 165/i.test(printing)) return 250;
-    if (matches(printing, PRINT.forestSealStone)) return 230;
     if (/Mysterious Treasure FLI 113/i.test(printing)) return 215;
     if (/Fog Crystal CRE 140/i.test(printing)) return 205;
     if (matches(printing, PRINT.vsSeeker)) return 190;
@@ -967,10 +966,24 @@ function promptDecision(request) {
             }
           }
         }
-        if (!bestPair || min > 2 || max < 2) {
-          return { kind: 'abstain', reasonCode: 'ARVEN_ITEM_TOOL_PAIR_UNAVAILABLE' };
+        if (bestPair && min <= 2 && max >= 2) {
+          return { kind: 'select-choices', tokens: bestPair.map(choice => choice.token) };
         }
-        return { kind: 'select-choices', tokens: bestPair.map(choice => choice.token) };
+        // Arven's pinned native prompt permits just an Item or just a Tool
+        // (min=0, max=1) when no eligible card remains in the other category.
+        const singles = [...itemChoices, ...toolChoices]
+          .map((choice, index) => ({
+            choice, index, score: cardChoiceScore(choice, observation, 'arven')
+          }))
+          .filter(row => row.score > 0)
+          .sort((a, b) => b.score - a.score || a.index - b.index);
+        if (singles.length && min <= 1 && max >= 1) {
+          return { kind: 'select-choices', tokens: [singles[0].choice.token] };
+        }
+        // A zero-target native Arven search is still a legal empty choice.
+        const empty = choices.find(choice => choice.kind === 'empty-selection');
+        if (min === 0 && empty) return { kind: 'select-choice', token: empty.token };
+        return { kind: 'abstain', reasonCode: 'ARVEN_ITEM_TOOL_PAIR_UNAVAILABLE' };
       }
       if (source.includes('plumeria')) {
         const handChoices = choices.filter(choice => choiceOwner(choice) === 'actor' &&
