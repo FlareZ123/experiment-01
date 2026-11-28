@@ -66,7 +66,7 @@ module.exports = (function build() {
     const targetKnown=board.some(row=>row.p===target);
     return board.flatMap(({p})=>L(p.abilityDetails).filter(a=>
       !L(p.abilitySuppressions).some(s=>s.abilityName===a.name&&s.suppressed===true)&&
-      !(targetKnown&&p!==target&&/^Mimikyu PAL 97\\b/i.test(name(p))&&a.name==='Safeguard')
+      !(targetKnown&&p!==target&&/^Mimikyu PAL 97\b/i.test(name(p))&&a.name==='Safeguard')
     ).map(a=>String(a.text??'')));
   }
   function uncertainDefense(o,p,kind) {
