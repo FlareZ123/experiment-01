@@ -1443,6 +1443,46 @@ test('rank2 leads Bunnelby for fully funded T1 TM Evolution attack',()=>{
   assert.deepEqual(checkedDecision(request),{kind:'select-choices',
     tokens:['bunnelby','oddish']});
 });
+test('rank2 chooses Bunnelby when Hala can pay 2 and fetch TM plus Jet',()=>{
+  const hand=['Budew ASC 16','Bunnelby PRC 121','Oddish UNB 5',
+    'Guzma & Hala CEC 193','Tag Call CEC 206','Artazon PAL 171',
+    'Pidgeotto TEU 123'];
+  const req=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[
+    setupCard('budew','Budew ASC 16',0),setupCard('b','Bunnelby PRC 121',1),
+    setupCard('odd','Oddish UNB 5',2)],
+    {selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+      isOwnerVisible:true,isSecret:false,allowCancel:false,
+      minimumCount:1,maximumCount:6},{ownHand:hand});
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-choices',tokens:['b','odd']});
+});
+test('rank2 chooses Bunnelby for Tag Call to Hala with two discards',()=>{
+  const hand=['Budew ASC 16','Bunnelby PRC 121','Lillipup CEC 174',
+    'Tag Call CEC 206','Artazon PAL 171','Counter Gain SSP 169',
+    'Plumeria BUS 120'];
+  const req=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[
+    setupCard('budew','Budew ASC 16',0),setupCard('b','Bunnelby PRC 121',1),
+    setupCard('l','Lillipup CEC 174',2)],
+    {selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+      isOwnerVisible:true,isSecret:false,allowCancel:false,
+      minimumCount:1,maximumCount:6},{ownHand:hand});
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-choices',tokens:['b','l']});
+});
+test('rank2 keeps Budew if Hala payment would burn protected lock',()=>{
+  const hand=['Budew ASC 16','Bunnelby PRC 121','Oddish UNB 5',
+    'Guzma & Hala CEC 193','Vileplume AOR 3','Stoutland BCR 122',
+    'Guzma BUS 115'];
+  const req=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[
+    setupCard('b','Bunnelby PRC 121',0),setupCard('budew','Budew ASC 16',1),
+    setupCard('odd','Oddish UNB 5',2)],
+    {selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+      isOwnerVisible:true,isSecret:false,allowCancel:false,
+      minimumCount:1,maximumCount:6},{ownHand:hand});
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-choices',tokens:['budew','odd','b']});
+});
+
 test('rank2 chooses Budew when TM Tool is held but Energy is missing',()=>{
   const hand=['Bunnelby PRC 121','Budew ASC 16','Oddish UNB 5',
     'Technical Machine: Evolution PAR 178','Grand Tree SCR 136',
