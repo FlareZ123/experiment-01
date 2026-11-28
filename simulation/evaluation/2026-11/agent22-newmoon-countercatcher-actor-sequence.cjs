@@ -144,7 +144,7 @@ function visiblePrintedDuoDamage(own,opp,target){
     !Array.isArray(target.printed?.resistance)||
     target.printed.resistance.some(r=>r?.type==='Psychic')||
     !['Mega Lopunny ex','Mega Kangaskhan ex','Mega Absol ex',
-      'Mega Dragonite ex'].some(n=>has(target.printing,n)))
+      'Mega Dragonite ex','Regidrago VSTAR'].some(n=>has(target.printing,n)))
    return null;
  const dragon=has(target.printing,'Mega Dragonite ex')&&
    Array.isArray(target.printed.types)&&
