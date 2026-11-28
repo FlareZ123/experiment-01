@@ -26,6 +26,7 @@ const PRINT = Object.freeze({
   iono: /^Iono PAL 185\b/i,
   roxanne: /^RANK16_NO_ROXANNE$/i,
   marnie: /^Marnie SSH 169\b/i,
+  plumeria: /^Plumeria BUS 120\b/i,
   trainersMail: /^Trainers' Mail ROS 92\b/i,
   guzma: /^Guzma BUS 115\b/i,
   crispin: /^Crispin SCR 133\b/i,
@@ -513,6 +514,24 @@ function supporterScore(card, observation) {
   }
   return 0;
 }
+// Plumeria's discard-2 cost is realistically payable only if two actor-hand
+// cards are expendable; its payoff needs an opponent's visible attached Energy.
+function rank16PlumeriaAvailable(o) {
+  return supporterAvailable(o) &&
+    list(o?.ownHand).filter(card=>discardScore(card,o)>0).length>=2 &&
+    slots(o?.opponentPublic).some(row=>energyCount(row.pokemon)>0);
+}
+function rank16PlumeriaTargetScore(choice,o) {
+  if(owner(choice)!=='opponent')return 0;
+  const row=opponentPokemon(choice,o);
+  if(!row||energyCount(row.pokemon)===0)return 0;
+  return 90+energyCount(row.pokemon)*45+(row.zone==='active'?30:0)+prizeLiability(row.pokemon)*9;
+}
+function rank16PlumeriaEnergyScore(choice) {
+  if(owner(choice)!=='opponent'||choice.kind!=='energy')return 0;
+  if(!['attached','active','bench','in-play'].includes(zone(choice)))return 0;
+  return /Double Dragon Energy|Double Colorless Energy|Special Energy|Jet Energy|Legacy Energy/i.test(textOf(choice))?225:150;
+}
 function scoreAction(item, request) {
   const observation = request.observation;
   const own = observation.ownPublic;
@@ -613,6 +632,11 @@ function scoreAction(item, request) {
     if (matches(printing, PRINT.muscle) && matches(row.pokemon.printing, PRINT.mega)) return 150;
     return 25;
   }
+  if(matches(printing,PRINT.plumeria)) {
+    if(!rank16PlumeriaAvailable(observation))return 0;
+    const n=energyCount(opponent?.active);
+    return n>=2?280:n===1?245:195;
+  }
   if(matches(printing,PRINT.marnie))return supporterAvailable(observation)&&hand.length<=3?220:0;
   if(matches(printing,PRINT.trainersMail))return deckCount(observation)>0?185:0;
   if (matches(printing, PRINT.vs)) {
@@ -696,6 +720,20 @@ function promptDecision(request) {
     const deck = choices.filter(choice => owner(choice) === 'actor' && zone(choice) === 'deck');
     const discard = choices.filter(choice => owner(choice) === 'actor' && zone(choice) === 'discard');
     const multi = ['card-combination', 'pokemon', 'energy-payment', 'prize-slots', 'card-order'].includes(prompt.publicMetadata?.selectionType);
+    if (/plumeria/.test(source)) {
+      const cost=choices.filter(c=>owner(c)==='actor'&&zone(c)==='hand');
+      if(cost.length) {
+        const meta=prompt.publicMetadata??{};
+        if(meta.selectionType!=='card-combination'||meta.minimumCount!==2||
+           meta.maximumCount!==2)return {kind:'abstain',reasonCode:'BAD_PLUMERIA_COST_SHAPE'};
+        return multiSelect(prompt,cost,c=>discardScore(c,observation),
+          'NO_PLUMERIA_TWO_DISPOSABLE_CARDS');
+      }
+      const attached=choices.filter(c=>rank16PlumeriaEnergyScore(c)>0);
+      if(attached.length)return singleChoice(prompt,attached,rank16PlumeriaEnergyScore,
+        'NO_PLUMERIA_ATTACHED_ENERGY');
+      return {kind:'abstain',reasonCode:'UNSUPPORTED_PLUMERIA_CARD_PROMPT'};
+    }
     if (/claw of darkness/.test(source)) {
       return singleChoice(prompt, choices.filter(choice => owner(choice) === 'opponent' && zone(choice) === 'hand'),
         choice => opponentHandDiscardScore(choice, observation), 'NO_REVEALED_OPPONENT_HAND_CARD');
@@ -789,6 +827,10 @@ function promptDecision(request) {
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_PROMPT' };
   }
   if (prompt.promptType === 'ChoosePokemonPrompt') {
+    if(/plumeria/.test(source))return singleChoice(prompt,
+      choices.filter(c=>owner(c)==='opponent'),
+      c=>rank16PlumeriaTargetScore(c,observation),
+      'NO_PLUMERIA_TARGET_WITH_ENERGY');
     if (/motivate/.test(source)) {
       return singleChoice(prompt, choices.filter(choice => owner(choice) === 'actor' && zone(choice) === 'bench'),
         choice => {
@@ -825,6 +867,10 @@ function promptDecision(request) {
       return { kind: 'abstain', reasonCode: 'RANK16_TAPU_KOKO_PROMPT_HELD_OUT' };
     }
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_POKEMON_PROMPT' };
+  }
+  if(prompt.promptType==='ChooseEnergyPrompt'&&/plumeria/.test(source)) {
+    return singleChoice(prompt,choices.filter(c=>rank16PlumeriaEnergyScore(c)>0),
+      rank16PlumeriaEnergyScore,'NO_PLUMERIA_ATTACHED_ENERGY');
   }
   if (['ConfirmPrompt', 'SelectPrompt', 'SelectOptionPrompt'].includes(prompt.promptType)) {
     const yes = choices.find(choice => /^(yes|true|confirm)$/i.test(choice.label ?? ''));
