@@ -342,3 +342,19 @@ test('forbidden seed and hidden-state fields are rejected by the real worker val
   protocol.validateInit(init);
   assert.throws(() => protocol.validateRequest(request, init, 1, new Set()));
 });
+
+test('Float Stone activates Garbotoxin even if Garbodor evolved before receiving a Tool', () => {
+  const own = player({ active: pokemon(P.garbodor, { tools: [] }),
+    bench: [pokemon(P.mega, { tools: [] })] });
+  const root = rootRequest({ ownPublic: own, items: [
+    { token: 'garb-tool', kind: 'play-card', actorPrinting: P.float,
+      targetPrinting: P.garbodor, publicMetadata: { targetZone: 'active' } },
+    { token: 'pass', kind: 'pass' }
+  ] });
+  assert.deepEqual(checked(root), { kind: 'select-action', token: 'garb-tool' });
+  const prompt = promptRequest({ promptType: 'ChoosePokemonPrompt',
+    source: source(P.float, 'Float Stone'), ownPublic: own,
+    choices: [poke('mega', P.mega, 'actor', 'bench', 0),
+      poke('garb', P.garbodor, 'actor', 'active', 0)] });
+  assert.deepEqual(checked(prompt), { kind: 'select-choice', token: 'garb' });
+});
