@@ -159,6 +159,24 @@ function validOwnerCard(choice,zone){
   return choice?.kind==='card'&&m.ownerSeat==='actor'&&
     m.isOwnerVisible===true&&m.sourceZone===zone;
 }
+function resettingHoleScore(obs){
+  // Marshadow UNB81 Resetting Hole is Bench-only. Its Stadium removal
+  // is the *condition* for discarding itself; it can unlock colored DDE
+  // or Legacy Star but has a genuine board/Prize opportunity cost.
+  const own=obs?.ownPublic??{},bench=arr(own.bench);
+  if(!bench.some(x=>name(x)===P.marshadow))return -Infinity;
+  const stadiums=[...arr(own.stadium),...arr(obs?.opponentPublic?.stadium)];
+  if(!stadiums.length)return -Infinity;
+  const sky=stadiumPresent(obs,/^Sky Field ROS(?: 89)?$/);
+  if(sky&&bench.filter(Boolean).length>5)return -Infinity;
+  if(templeUnlocksApex(obs))return 560;
+  if(stadiumPresent(obs,/^Path to the Peak CRE(?: 148)?$/)&&
+     board(own).some(x=>name(x)===P.star)&&
+     own.publicTurnRestrictions?.vstarUsed!==true)return 395;
+  if(sky)return 15;
+  if(stadiumPresent(obs,/^Temple of Sinnoh ASR(?: 155)?$/))return 170;
+  return 125;
+}
 function motivateScore(obs){
   if(name(obs?.ownPublic?.active)!==P.squawk)return -Infinity;
   const basic=arr(obs?.ownPublic?.discard).filter(x=>
@@ -196,6 +214,8 @@ function scoreRoot(item,request){
   if(item.kind==='use-ability'){
     const ability=item?.publicMetadata?.sourceEffect??item?.publicMetadata?.abilityName??item?.label??'';
     if(/Squawk and Seize/i.test(ability))return g.hand<=3?320:90;
+    if(/Resetting Hole/i.test(ability)&&p===P.marshadow)
+      return resettingHoleScore(obs);
     if(/Run Errand/i.test(ability))return name(own.active)===P.kang?185:-Infinity;
   }
   if(item.kind==='attack'){
@@ -350,4 +370,4 @@ function createPolicy({role,seat,policyVersion,config}={}){
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_BLOB_SHA1,
  SOURCE_PRINTINGS,createPolicy,scoreRoot,promptDecision,searchValue,
- sourceDiscardValue,benchOpen,pickAttack,templeUnlocksApex,carmineScore,motivateScore,resolveSourcePrinting:name};
+ sourceDiscardValue,benchOpen,pickAttack,templeUnlocksApex,carmineScore,motivateScore,resettingHoleScore,resolveSourcePrinting:name};
