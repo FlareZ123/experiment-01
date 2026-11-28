@@ -218,6 +218,7 @@ for(const seat of [0,1]){
       'Damaged Active Snorlax alone must not choose a dead-end Penny');
     const oldView=JSON.parse(JSON.stringify(view));
     oldView.ownPublic.active.printed.stage=Stage.BASIC;
+    oldView.ownPublic.bench[1].printed.stage=Stage.BASIC;
     assert.deepEqual(policy.decide({...sourceStamped,observation:oldView}),
       {kind:'select-action',token:'handi'});
 
@@ -225,6 +226,8 @@ for(const seat of [0,1]){
     const unknownView=JSON.parse(JSON.stringify(view));
     unknownView.ownPublic.active.printed.stage=98765;
     unknownView.ownPublic.active.printed.subtypes=[];
+    unknownView.ownPublic.bench[1].printed.stage=98765;
+    unknownView.ownPublic.bench[1].printed.subtypes=[];
     assert.deepEqual(policy.decide({...sourceStamped,observation:unknownView}),
       {kind:'select-action',token:'handi'});
     
@@ -285,6 +288,7 @@ for(const seat of [0,1]){
       selected,null,admitted.actionTokens),selected);
     const oldMapped=JSON.parse(JSON.stringify(mapped.observation));
     oldMapped.ownPublic.active.printed.stage=Stage.BASIC;
+    oldMapped.ownPublic.bench[1].printed.stage=Stage.BASIC;
     assert.deepEqual(policy.decide({...bridgedRoot,observation:oldMapped}),
       {kind:'select-action',token:nativeHandi.token});
 
