@@ -539,6 +539,28 @@ function bombPlanner(o,sourceBenchIndex){
     const payment=safeCosts(h.filter(x=>!match(x,R.ultra)).map(printing=>({printing})),o,2,name(ball));
     return payment.length===2?375:0;
   }
+  function cologneFinalPrize(o) {
+    // The singleton Item is justified when it unlocks a proven immediate
+    // final-Prize Claw against Active PAL97 Safeguard, not merely because it
+    // is reachable. No speculative conversion of a Benched Safeguard.
+    const own=o?.ownPublic,opp=o?.opponentPublic,attacker=own?.active,target=opp?.active;
+    if(own?.prizeCount!==1||!mega(attacker)||
+       !/^Mimikyu PAL(?: 97)?$/i.test(name(target))||
+       o?.ownTurnResources?.itemPlayLocked||own?.publicTurnRestrictions?.itemPlayLocked||
+       !handHas(o,cologne)||!usable(attacker,'Claw of Darkness',o)||
+       L(target?.tools).length>0)return false;
+    if(!L(target.abilityDetails).some(a=>a.name==='Safeguard')||
+       L(target.abilitySuppressions).some(a=>a.abilityName==='Safeguard'&&a.suppressed===true))
+      return false;
+    // Strictly model the exact Item's known Active-holder Ability suppression;
+    // keep every other defender and global damage-prevention uncertainty.
+    const t={...target,abilitySuppressions:[
+      ...L(target.abilitySuppressions),{abilityName:'Safeguard',suppressed:true}
+    ]};
+    const changed={...o,opponentPublic:{...opp,active:t}};
+    const damage=printedDamage(changed,attacker,t,'Claw of Darkness');
+    return Number.isFinite(damage)&&damage>=remaining(t);
+  }
   const abilityLive=(p,a)=>p&&!L(p.abilitySuppressions).some(x=>x.abilityName===a&&x.suppressed===true);
   const stadiumCard=x=>/^(?:Silent Lab PRC 140|Path to the Peak CRE 148|PokéStop PGO 68)\b/i.test(name(x));
   const basicDark=x=>/^Darkness Energy MEE 15\b/i.test(name(x));
@@ -1073,6 +1095,9 @@ function bombPlanner(o,sourceBenchIndex){
       const direct=best(items,x=>rootAttack(x,o)), directScore=direct?rootAttack(direct,o):0;
       // A direct final-Prize KO beats spending any connector.
       if(directScore>=1000)return {kind:'select-action',token:direct.token};
+      const cologneWin=items.find(x=>x.kind==='play-card'&&cologne(x));
+      if(cologneWin&&cologneFinalPrize(o))
+        return {kind:'select-action',token:cologneWin.token};
       const ret=best(items.filter(x=>x.kind==='retreat'),x=>retreatPlan(o,x)?.score??0);
       const retPlan=ret?retreatPlan(o,ret):null,retScore=retPlan?.score??0;
       // Guzma forces an own switch if a Bench exists. Only evaluate a powered
