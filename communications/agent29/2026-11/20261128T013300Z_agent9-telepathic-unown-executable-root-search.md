@@ -2,7 +2,7 @@
 
 **Decision affected:** source-bound rank-9 opponent policy chooses a strictly more productive action before an already payable non-final Claw of Darkness. **This is an isolated two-file review patch, not a competing opponent worker or approval to run games, merge, or alter owner-gated V3/Stage-A.**
 
-**Patch:** `agent9/rank9-telepathic-unown-root-20261128` at latest review-branch commit `6651e70c8d6608842d11b3c10a15c2f7822033d6`, based on the exact Agent29 integration head `4c23ca2fa6b31c4344ceb6581a8b8c7ac60d3028`.
+**Patch:** `agent9/rank9-telepathic-unown-root-20261128` at latest review-branch commit `12fd8643e469c7d72911b339e27a26bec6b59b81`, based on the exact Agent29 integration head `4c23ca2fa6b31c4344ceb6581a8b8c7ac60d3028`.
 - Source: [rank-9 worker on review branch](https://github.com/FlareZ123/experiment-01/blob/agent9/rank9-telepathic-unown-root-20261128/simulation/evaluation/2026-11/agent29-rank9-tactical-slice.cjs)
 - Test: [new two-seat executable decision regression](https://github.com/FlareZ123/experiment-01/blob/agent9/rank9-telepathic-unown-root-20261128/tests/2026-11/agent9-rank9-telepathic-unown-root.test.cjs)
 
@@ -18,7 +18,7 @@ The latest branch also normalizes the pinned native `Telepath [P] Energy M3` ful
 
 I evaluated the exact branch worker and existing protocol module in the JavaScript V8 runtime (same code bodies, no fabricated worker response). The **old** code chose `nonfinal-claw` for both physical seats. The **patch** chose `attach-unown`, then selected **two Unown** legal Telepathic prompt tokens, and on a constructed post-resolution public board chose `Farewell Letter` on the new Unown over Claw. All are checked against the existing frontier/prompt/decision validators.
 
-The current test contributes **98 passed assertions** across both seats: three positive staged decisions, two native-printing root/search checks, twelve negative root decisions, plus the K0-root/K1-empty-prompt failing-control pair per seat. Negatives: full Bench, insufficient deck threshold, all Psychic Basic targets already visibly consumed, **only Gengar as a remaining source Basic**, certified Prize exhaustion, already-energized Unown, non-Telepathic Energy, **live Temple of Sinnoh**, **Silent Lab**, **explicit Farewell Letter suppression**, unfunded Mega, and a final-Prize KO. The existing 19 test groups also passed unchanged under the patched source. **317 counted assertions** over both test files; one existing unnumbered compatibility test group additionally passed. This is synthetic policy execution, **not** native Node/Store IPC, a played game, CI, qualification, or win-rate evidence.
+The current test contributes **116 passed assertions** across both seats: three positive staged decisions, two native-printing root/search checks, twelve negative root decisions, plus the K0-root/K1-empty-prompt failing-control pair per seat. Negatives: full Bench, insufficient deck threshold, all Psychic Basic targets already visibly consumed, **only Gengar as a remaining source Basic**, certified Prize exhaustion, already-energized Unown, non-Telepathic Energy, **live Temple of Sinnoh**, **Silent Lab**, **explicit Farewell Letter suppression**, unfunded Mega, and a final-Prize KO. The existing 19 test groups also passed unchanged under the patched source. **335 counted assertions** over both test files; one existing unnumbered compatibility test group additionally passed. This is synthetic policy execution, **not** native Node/Store IPC, a played game, CI, qualification, or win-rate evidence.
 
 
 ### Follow-up: original four-copy Rescue Carrier line also executes in policy
@@ -49,6 +49,11 @@ The root's earlier hard non-final-KO priority also blocked a **held Unown AOR 30
 ### New owner priority: four-copy Carrier now has a concrete pre-KO continuation
 
 The original rank9 has **four Rescue Carrier** and four Unown. A held Carrier with two discarded Unown was also being skipped before a non-final Claw KO because of the earlier hard root gate (Carrier value320 vs direct three-Prize KO612). Source-bound code now prioritizes Carrier only with an actor-visible live Unown draw path, selects **two Unown over Voltorb** in the exact `Rescue Carrier` discard `ChooseCardsPrompt`, and follows the source hand-Unown → two Farewell → same Claw line. Tests stage the whole seven-decision chain plus final-Prize, Silent Lab and no-Unown negatives on **both seats**. **+20 new assertions; 98 new / 317 counted total**. This four-copy Item line may matter more for practical rank9 opponent competence than the scarce singleton Telepath; native Store needs to validate real source effects, especially the physical hand/discard/Bench transitions.
+
+
+### Lock-aware rejection prevents dead pre-KO draw lines
+
+New source-exact veto in the review worker: **Garbodor Garbotoxin with an attached Tool**, **Alolan Muk Power of Alchemy** from Bench, or **Active Galarian Weezing Neutralizing Gas** suppress the freshly Benched Basic Unown's Farewell Letter. Without checking the global public lock, the worker could burn a scarce Telepath or Carrier, or Bench a Unown, ahead of a funded KO for a draw that cannot occur. Three lock sources × three draw entry routes × two seats = **18 new passing fail-closed decisions**; **116 new / 335 counted total**. The check uses only the visible opponent board, Tools, printed Ability names or explicit actor-view suppression. It does **not** conflate Iron Thorns ex Initialization with an Unown lock. Native lock interactions still require same-Store tests.
 
 ## Integration recommendation
 
