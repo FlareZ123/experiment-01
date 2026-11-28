@@ -1360,8 +1360,61 @@ function canGuzmaForAttack(view) {
   });
 }
 
+// Tools are once-attached, non-replaceable Bench/Active allocations.
+// Score the actual native legal target rather than only the Tool name:
+// attaching Stealthy Hood to a utility Pokemon instead of an attacking
+// Shadow Rider cannot restore Underworld Door under Ability lock.
+function scoreToolAttachment(item,view){
+  const name=item.actorPrinting;
+  if(!['Forest Seal Stone SIT 156','Stealthy Hood UNB 186',
+       'Float Stone BKT 137'].includes(name)) return -Infinity;
+  const meta=item.publicMetadata??{};
+  if(meta.targetSeat!=='actor' ||
+     !['active','bench'].includes(meta.targetZone))return -Infinity;
+  const target=meta.targetZone==='active'?view.ownPublic.active:
+    view.ownPublic.bench[meta.targetIndex];
+  if(!target||!Array.isArray(target.tools)||target.tools.length!==0 ||
+     (item.targetPrinting&&item.targetPrinting!==target.printing))
+    return -Infinity;
+  const toolSuppressed=[...view.ownPublic.stadium,...view.opponentPublic.stadium]
+    .some(stadium=>hasName(stadium,'Jamming Tower'))||
+    view.ownPublic.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining>0||
+    view.opponentPublic.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining>0;
+  if(toolSuppressed)return -Infinity;
+  const targetV=target.printed?.subtypes?.some(x=>
+    ['V','VMAX','VSTAR','V-UNION'].includes(x));
+  const isRider=hasName(target.printing,'Shadow Rider Calyrex V');
+  const hasRealAbilityLock=allBoard(view).some(slot=>
+    hasAnyName(slot.printing,
+      ['Iron Thorns ex','Garbodor','Galarian Weezing']));
+  if(name==='Forest Seal Stone SIT 156') {
+    if(!targetV||
+       view.ownPublic.publicTurnRestrictions?.vstarUsed!==false ||
+       !Number.isSafeInteger(view.ownPublic.deckCount) ||
+       view.ownPublic.deckCount<2) return -Infinity;
+    // Prefer reserving VMAX Tools for protective Hood if needed.
+    return isRider && !target.printed.subtypes.includes('VMAX')?680:
+      isRider?550:450;
+  }
+  if(name==='Stealthy Hood UNB 186'){
+    if(!hasRealAbilityLock||!isRider)return -Infinity;
+    return target.printed?.subtypes?.includes('VMAX')?800:700;
+  }
+  if(name==='Float Stone BKT 137'){
+    if(meta.targetZone!=='active'||
+       target.printed?.retreatCost?.length===0 ||
+       freeRetreatKnown(view))return -Infinity;
+    return 540;
+  }
+  return -Infinity;
+}
+
 function scoreTrainerPlay(item, view, receipt) {
   const name = item.actorPrinting ?? '';
+  // These three non-replaceable Tools require a specific legal recipient.
+  // Never revive generic name-only score when its recipient is wrong.
+  if(['Forest Seal Stone SIT 156','Stealthy Hood UNB 186',
+      'Float Stone BKT 137'].includes(name))return -Infinity;
   const supporterUsed = view.ownTurnResources.supporterPlayedTurn > 0;
   if (hasName(name, 'Unfair Stamp') && receipt?.priorOpponentTurnKO?.any === true) return 980;
   if (hasName(name, 'Field Blower') && hasStadiumRemovalTarget(view)) return 950;
@@ -1464,12 +1517,14 @@ function chooseRoot(view, request) {
     const evolution = scoreEvolutionPlay(item);
     const energy = scoreEnergyPlay(item, view);
     const trainer = scoreTrainerPlay(item, view, request.publicEventReceipt);
-    const score = Math.max(basic, evolution, energy, trainer);
+    const tool = scoreToolAttachment(item,view);
+    const score = Math.max(basic, evolution, energy, trainer, tool);
     recordPolicyAuditScore(item.token, score, 'NO_ELIGIBLE_PLAY_COMPONENT', [
       { name: 'basic-play', score: basic },
       { name: 'evolution-play', score: evolution },
       { name: 'energy-play', score: energy },
-      { name: 'trainer-play', score: trainer }
+      { name: 'trainer-play', score: trainer },
+      { name: 'tool-target-attachment', score: tool }
     ]);
     return { item, score };
   }).filter(row => Number.isFinite(row.score)).sort((a, b) =>
