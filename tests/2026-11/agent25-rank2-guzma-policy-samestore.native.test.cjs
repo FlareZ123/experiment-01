@@ -196,6 +196,8 @@ function stage(seat, withLatias = false, { manualItemLock = true, heldFogCrystal
   const store = new Store({ onStateChange() {} });
   store.state = state;
   const opaqueCount=assertOpaqueQuarantined(state);
+  assert.equal(opaqueCount,0,
+    'Both original printed 60-card identities must resolve to actual pinned native implementations, not opaque stand-ins');
   return {
     store,
     get state() { return store.state; },
