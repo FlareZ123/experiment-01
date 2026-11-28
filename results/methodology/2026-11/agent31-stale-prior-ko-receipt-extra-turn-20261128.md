@@ -39,7 +39,7 @@ This is not hypothetical turn accounting: the pinned `initNextTurn` increments `
 
 ## Benchmark relevance
 
-The authenticated Aichi source ledger `results/aichi-2026/full-decklists.json` (blob `ae773f6201d7aa69d31914dbfee66f3fba692200`) contains Dialga-GX in ranks **1, 10, 12, 13, 14, 18, 20, 21, 27, 30, and 32**: 11 of the 29 currently authenticated lists. Agent46's current source-policy report records one Raihan and one Teammates in each unchanged candidate 60. This is therefore a benchmark-relevant legal-action defect, not an exotic unsupported card interaction.
+The authenticated Aichi source ledger `results/aichi-2026/full-decklists.json` (blob `ae773f6201d7aa69d31914dbfee66f3fba692200`) contains Dialga-GX in ranks **1, 10, 12, 13, 14, 18, 20, 21, 27, 30, and 32**: 11 of the 29 currently authenticated lists. Both unchanged candidate 60s contain one Raihan, one Teammates, and one Unfair Stamp (plus one Battle Compressor and two VS Seeker). All three prior-KO-gated cards therefore occur in the actual candidate inventories; Unfair Stamp's printed condition uses the same immediately preceding-opponent-turn KO wording. This is a benchmark-relevant legal-action defect, not an exotic unsupported card interaction.
 
 ## Required correction
 
