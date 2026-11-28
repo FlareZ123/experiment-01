@@ -20,7 +20,7 @@ const v2Need="const oldSetup=require('./agent1-newmoon-v2-jammer-decision.cjs');
 const v3Need="const parent=require('./agent1-newmoon-v3-finisher-slice.cjs');";
 const seqNeed="const {createSlice,visiblePrintedDuoDamage}=require('./agent22-newmoon-countercatcher-actor-sequence.cjs');";
 const directNeed="const {createDirectGustSlice}=require('./agent22-newmoon-direct-countercatcher-gust.cjs');";
-const directSeqNeed="const {\n offeredMewtwoAttack,ownerBenchChoice,ownerPerfectionNightWatchPrompt,\n visiblePrintedDuoDamage,psychicCostPhysicallyReady,nightWatchDonor,\n certifiedDamage\n}=require('./agent22-newmoon-countercatcher-actor-sequence.cjs');";
+const directSeqNeed="const {\n offeredMewtwoAttack,ownerBenchChoice,ownerPerfectionNightWatchPrompt,\n visiblePrintedDuoDamage,psychicCostPhysicallyReady,nightWatchDonor,\n certifiedDamage,DIRECT_GUST_TARGETS\n}=require('./agent22-newmoon-countercatcher-actor-sequence.cjs');";
 const replaceOnce=(txt,needle,value)=>{
  if(txt.split(needle).length!==2)throw Error('BUNDLE_SOURCE_CONTRACT_DRIFT: '+needle);
  return txt.replace(needle,value);
@@ -37,7 +37,7 @@ const v3Standalone=replaceOnce(v3,v2Need,
  'const oldSetup='+scoped('v2 setup',v2)+';');
 const directStandalone=replaceOnce(
  direct,directSeqNeed,
- 'const {offeredMewtwoAttack,ownerBenchChoice,ownerPerfectionNightWatchPrompt,visiblePrintedDuoDamage,psychicCostPhysicallyReady,nightWatchDonor,certifiedDamage}='+
+ 'const {offeredMewtwoAttack,ownerBenchChoice,ownerPerfectionNightWatchPrompt,visiblePrintedDuoDamage,psychicCostPhysicallyReady,nightWatchDonor,certifiedDamage,DIRECT_GUST_TARGETS}='+
  scoped('countercatcher sequence for direct gust',seq)+';');
 const ownStandalone=replaceOnce(
  replaceOnce(
