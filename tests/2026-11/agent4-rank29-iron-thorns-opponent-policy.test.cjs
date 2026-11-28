@@ -1222,12 +1222,19 @@ test('Camping Gear owner-deck single search preserves DCE after G&H and Thunder 
   const req=promptRequest({
     promptType:'ChooseCardsPrompt',
     source:actorChoiceSource('Camping Gear BST 122','Camping Gear'),
-    publicMetadata:multiMetadata(1,1),
+    publicMetadata:{selectionType:'card-combination',count:3,minimumCount:0,
+      maximumCount:1,allowCancel:false,sourceZone:'deck',
+      ownerSeat:'actor',isOwnerVisible:true},
     observation:{ownHand:['Guzma & Hala CEC 193','Thunder Mountain ♢ LOT 191']},
     choices:[
-      cardChoice('plumeria','Plumeria BUS 120'),
-      cardChoice('dce','Double Colorless Energy SUM 136'),
-      cardChoice('jammer','Tool Jammer BST 136')
+      ...[
+        cardChoice('plumeria','Plumeria BUS 120'),
+        cardChoice('dce','Double Colorless Energy SUM 136'),
+        cardChoice('jammer','Tool Jammer BST 136')
+      ].map((choice,index)=>({...choice,publicMetadata:{
+        ...choice.publicMetadata,isOwnerVisible:true,
+        selectionIndex:index,selectedCount:1}})),
+      {token:'empty',kind:'empty-selection',label:'Choose no cards'}
     ]
   });
   assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:['dce']});
@@ -2905,7 +2912,7 @@ test('Camping Gear root preserves exact next-turn DCE and does not preempt immed
     {kind:'select-action',token:'camp'});
   const k1MissingDce=rootRequest({...base,
     ownerK1:{epoch:4,exactMembershipKnown:true,invalidationReason:null,
-      knownPrintings:[{printing:'Thunder Mountain ♢ LOT 191',copies:1}]}
+      knownPrintings:[{printing:'Guzma BUS 115',copies:1}]}
   });
   assert.deepEqual(checkedDecision(k1MissingDce),
     {kind:'select-action',token:'pass'});
