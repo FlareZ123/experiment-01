@@ -375,3 +375,110 @@ test('Counter Gain does not attach onto equipped Active if only Bench Bunnelby i
       allowCancel:false,isSecret:false}});
   assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:['free']});
 });
+
+// Reused exact Actor49-protocol setup envelopes from tested rank-2 v1 branch.
+function engineRequest(promptType,description,choices,publicMetadata,overrides={}){
+  return promptRequest({promptType,description,source:actorChoiceSource(null,description),
+    choices,publicMetadata,observation:{phase:1,...overrides}});
+}
+function setupCard(token,printing,index){
+  return {token,kind:'card',printing,label:printing,publicMetadata:{
+    selectionIndex:index,selectedCount:1,sourceZone:'hand',ownerSeat:'actor',
+    isOwnerVisible:true}};
+}
+test('rank2 reorders starting Basic to lead Bunnelby and reserves a Bench slot',()=>{
+  const request=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[
+    setupCard('fan','Fan Rotom SCR 118',0),
+    setupCard('odd','Oddish UNB 5',1),
+    setupCard('odd2','Oddish UNB 5',2),
+    setupCard('pidgey','Pidgey MEW 16',3),
+    setupCard('lillipup','Lillipup CEC 174',4),
+    setupCard('relicanth','Relicanth TEF 84',5),
+    setupCard('bunnelby','Bunnelby PRC 121',6)
+  ],{selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+    isOwnerVisible:true,isSecret:false,allowCancel:false,
+    minimumCount:1,maximumCount:6});
+  assert.deepEqual(checkedDecision(request),{
+    kind:'select-choices',tokens:['bunnelby','odd','lillipup','pidgey','fan']});
+});
+test('rank2 opponent mulligan bonus uses min0 Bench-only placement, no new Active',()=>{
+  const request=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[
+    setupCard('newB','Bunnelby PRC 121',0),
+    setupCard('newOdd','Oddish UNB 5',1),
+    {token:'empty',kind:'empty-selection',label:'Choose no items'}],
+    {selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+      isOwnerVisible:true,isSecret:false,allowCancel:false,
+      minimumCount:0,maximumCount:2},{
+      ownPublic:player({active:pokemon('Bunnelby PRC 121'),bench:[]})});
+  assert.deepEqual(checkedDecision(request),{
+    kind:'select-choices',tokens:['newOdd']});
+});
+test('rank2 mulligan extra setup declines when all five Bench slots occupied',()=>{
+  const request=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[
+    setupCard('pidgey','Pidgey MEW 16',0),
+    {token:'empty',kind:'empty-selection',label:'Choose no items'}],
+    {selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+      isOwnerVisible:true,isSecret:false,allowCancel:false,
+      minimumCount:0,maximumCount:1},{
+      ownPublic:player({active:pokemon('Bunnelby PRC 121'),bench:[
+        pokemon('Oddish UNB 5'),pokemon('Lillipup CEC 174'),
+        pokemon('Fan Rotom SCR 118'),pokemon('Budew ASC 16'),
+        pokemon('Girafarig LOT 94')]})});
+  assert.deepEqual(checkedDecision(request),{
+    kind:'select-choice',token:'empty'});
+});
+
+test('rank2 chooses Bunnelby when Hala can pay 2 and fetch TM plus Jet',()=>{
+  const hand=['Budew ASC 16','Bunnelby PRC 121','Oddish UNB 5',
+    'Guzma & Hala CEC 193','Tag Call CEC 206','Artazon PAL 171',
+    'Pidgeotto TEU 123'];
+  const req=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[
+    setupCard('budew','Budew ASC 16',0),setupCard('b','Bunnelby PRC 121',1),
+    setupCard('odd','Oddish UNB 5',2)],
+    {selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+      isOwnerVisible:true,isSecret:false,allowCancel:false,
+      minimumCount:1,maximumCount:6},{ownHand:hand});
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-choices',tokens:['b','odd']});
+});
+test('rank2 chooses Bunnelby for Tag Call to Hala with two discards',()=>{
+  const hand=['Budew ASC 16','Bunnelby PRC 121','Lillipup CEC 174',
+    'Tag Call CEC 206','Artazon PAL 171','Counter Gain SSP 169',
+    'Plumeria BUS 120'];
+  const req=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[
+    setupCard('budew','Budew ASC 16',0),setupCard('b','Bunnelby PRC 121',1),
+    setupCard('l','Lillipup CEC 174',2)],
+    {selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+      isOwnerVisible:true,isSecret:false,allowCancel:false,
+      minimumCount:1,maximumCount:6},{ownHand:hand});
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-choices',tokens:['b','l']});
+});
+test('rank2 keeps Budew if Hala payment would burn protected lock',()=>{
+  const hand=['Budew ASC 16','Bunnelby PRC 121','Oddish UNB 5',
+    'Guzma & Hala CEC 193','Vileplume AOR 3','Stoutland BCR 122',
+    'Guzma BUS 115'];
+  const req=engineRequest('ChooseCardsPrompt','CHOOSE_STARTING_POKEMONS',[
+    setupCard('b','Bunnelby PRC 121',0),setupCard('budew','Budew ASC 16',1),
+    setupCard('odd','Oddish UNB 5',2)],
+    {selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+      isOwnerVisible:true,isSecret:false,allowCancel:false,
+      minimumCount:1,maximumCount:6},{ownHand:hand});
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-choices',tokens:['budew','odd','b']});
+});
+
+test('rank2 chooses to go second for Barrage Evolution opportunity',()=>{
+  const request=engineRequest('ConfirmPrompt','GO_FIRST',
+    [{token:'yes',kind:'confirm',label:'Yes'},{token:'no',kind:'confirm',label:'No'}],
+    {selectionType:'confirm'});
+  assert.deepEqual(checkedDecision(request),{kind:'select-choice',token:'no'});
+});
+test('rank2 takes largest native optional opponent mulligan draw',()=>{
+  const request=engineRequest('SelectPrompt','WANT_TO_DRAW_CARDS',[
+    {token:'one',kind:'option',label:'Draw 1 card(s)',publicMetadata:{choiceIndex:1}},
+    {token:'two',kind:'option',label:'Draw 2 card(s)',publicMetadata:{choiceIndex:0}},
+    {token:'zero',kind:'option',label:'Draw 0 card(s)',publicMetadata:{choiceIndex:2}}],
+    {selectionType:'option',count:3,allowCancel:false});
+  assert.deepEqual(checkedDecision(request),{kind:'select-choice',token:'two'});
+});
