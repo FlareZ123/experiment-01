@@ -202,6 +202,12 @@ paired('manual Energy funds a real attack and does not mistake Dialga Metal cost
   const view=observation(seat,{active:dialga(),bench:[v()],ownHand:[P],opponentActive:defender()});
   assert.deepEqual(decide(profile,root(seat,view,[play('dialga-energy',P,D,target('active',0)),
     play('rider-energy',P,V,target('bench',0))])),sel('rider-energy'));
+  for(const previousTurn of [-1,0,2]){
+    view.ownTurnResources.energyPlayedTurn=previousTurn;
+    assert.deepEqual(decide(profile,root(seat,view,[play('rider-energy',P,V,target('bench',0))])),sel('rider-energy'));
+  }
+  view.ownTurnResources.energyPlayedTurn=view.globalTurn;
+  assert.deepEqual(decide(profile,root(seat,view,[play('rider-energy',P,V,target('bench',0))])),sel('pass'));
   view.ownTurnResources.energyPlayedTurn=true;
   assert.deepEqual(decide(profile,root(seat,view,[play('rider-energy',P,V,target('bench',0))])),sel('pass'));
 });
@@ -1233,7 +1239,16 @@ paired('Manual Psychic funds a final-Prize bench Rondo before a legal pivot; pai
   assert.deepEqual(get().decision,sel('charge'));
   assert.equal(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_BENCH_CHARGE_RETREAT');
   assert.notEqual(get([attach,reset]).policyAudit.selectionRuleCode,'ROOT_FINAL_BY_BENCH_CHARGE_RETREAT');
-  view.ownTurnResources.retreatedTurn=1;
+  view.ownTurnResources.energyPlayedTurn=2;
+  assert.deepEqual(get().decision,sel('charge'));
+  assert.equal(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_BENCH_CHARGE_RETREAT');
+  view.ownTurnResources.energyPlayedTurn=view.globalTurn;
+  assert.notEqual(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_BENCH_CHARGE_RETREAT');
+  view.ownTurnResources.energyPlayedTurn=false;
+  view.ownTurnResources.retreatedTurn=2;
+  assert.deepEqual(get().decision,sel('charge'));
+  assert.equal(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_BENCH_CHARGE_RETREAT');
+  view.ownTurnResources.retreatedTurn=view.globalTurn;
   assert.notEqual(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_BENCH_CHARGE_RETREAT');
   view.ownTurnResources.retreatedTurn=0;
   view.ownPublic.prizeCount=3;
