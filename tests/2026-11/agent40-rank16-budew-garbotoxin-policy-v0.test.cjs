@@ -291,3 +291,42 @@ for(const seat of [0,1]){
   assert.deepEqual(decide(seat,q6),{kind:'select-action',token:'pollen'});
  });
 }
+
+for(const seat of [0,1]){
+ test('seat '+seat+' Ultra Ball joint payment preserves manual Energy for unfunded Mega',()=>{
+  const board=own({active:mon('Budew ASC 16'),bench:[mon('Mega Absol ex MEG 86',{energies:[]})]});
+  const u=play('Ultra Ball MEG 131','ultra');
+  const q=root(seat,[u,pass],{ownHand:['Ultra Ball MEG 131','Darkness Energy MEE 15','Darkness Energy MEE 15'],
+   ownPublic:board,ownTurnResources:{energyPlayedTurn:false}});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'pass'});
+  q.observation.ownHand=['Ultra Ball MEG 131','Darkness Energy MEE 15','Darkness Energy MEE 15','Darkness Energy MEE 15'];
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'ultra'});
+  const pc=prompt(seat,{source:{sourceKind:'card-effect',sourcePrinting:'Ultra Ball MEG 131',effectName:'Ultra Ball'},
+   publicMetadata:{minimumCount:2,maximumCount:2},
+   choices:[choice('d1','Darkness Energy MEE 15','hand'),choice('d2','Darkness Energy MEE 15','hand'),
+    choice('d3','Darkness Energy MEE 15','hand')]},{ownPublic:board,ownHand:q.observation.ownHand.slice(1),
+    ownTurnResources:{energyPlayedTurn:false}});
+  assert.deepEqual(decide(seat,pc),{kind:'select-choices',tokens:['d1','d2']});
+ });
+ test('seat '+seat+' preserves last Garbotoxin Float in discard-choice prompt',()=>{
+  const board=own({active:mon('Budew ASC 16'),bench:[mon('Garbodor LTR 68',{tools:[]})]});
+  const q=prompt(seat,{source:{sourceKind:'card-effect',sourcePrinting:'Ultra Ball MEG 131',effectName:'Ultra Ball'},
+   publicMetadata:{minimumCount:2,maximumCount:2},
+   choices:[choice('f1','Float Stone BKT 137','hand'),choice('f2','Float Stone BKT 137','hand'),
+     choice('vip','Battle VIP Pass FST 225','hand')]},{ownPublic:board,globalTurn:3,
+    ownHand:['Float Stone BKT 137','Float Stone BKT 137','Battle VIP Pass FST 225']});
+  assert.deepEqual(decide(seat,q),{kind:'select-choices',tokens:['vip','f1']});
+  q.prompt.choices.splice(2,1);
+  assert.deepEqual(decide(seat,q),{kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'});
+ });
+ test('seat '+seat+' urgent second-turn Budew pivot overrides last Energy discard reserve',()=>{
+  const board=own({active:mon('Trubbish CRI 56'),bench:[mon('Mega Absol ex MEG 86',{energies:[]})]});
+  const h=['Quick Ball FST 237','Float Stone BKT 137','Darkness Energy MEE 15'];
+  const q=root(seat,[play('Quick Ball FST 237','quick'),pass],{globalTurn:2,ownPublic:board,ownHand:h});
+  assert.deepEqual(decide(seat,q),{kind:'select-action',token:'quick'});
+  const pc=prompt(seat,{source:{sourceKind:'card-effect',sourcePrinting:'Quick Ball FST 237',effectName:'Quick Ball'},
+   choices:[choice('dark','Darkness Energy MEE 15','hand'),choice('float','Float Stone BKT 137','hand')]},
+   {globalTurn:2,ownPublic:board,ownHand:['Float Stone BKT 137','Darkness Energy MEE 15']});
+  assert.deepEqual(decide(seat,pc),{kind:'select-choices',tokens:['dark']});
+ });
+}
