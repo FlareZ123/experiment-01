@@ -101,3 +101,51 @@ for(const seat of [0,1]) {
     assert.deepEqual(decision(request),{kind:'select-action',token:'unique'});
   });
 }
+
+for(const seat of [0,1]) {
+  test('seat '+seat+': retreat must promote funded bench index, not first identical Mega',()=>{
+    const active=CARD(FAN),unpaid=CARD(MEGA),paid=CARD(MEGA);
+    paid.energies=[DCE];
+    const actions=[
+      {kind:'retreat',token:'unpaid',targetPrinting:MEGA,
+        publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:0,benchIndex:0}},
+      {kind:'retreat',token:'paid',targetPrinting:MEGA,
+        publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:1,benchIndex:1}}
+    ];
+    assert.deepEqual(decision(makeRequest(seat,active,[unpaid,paid],actions)),
+      {kind:'select-action',token:'paid'});
+  });
+
+  test('seat '+seat+': Float Stone must attach to Active, not identically printed Bench',()=>{
+    const active=CARD(MEGA),paid=CARD(MEGA);
+    paid.energies=[DCE];
+    const stone='Float Stone BKT 137';
+    const actions=[
+      {kind:'play-card',token:'to-bench',actorPrinting:stone,targetPrinting:MEGA,
+        publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:0}},
+      {kind:'play-card',token:'to-active',actorPrinting:stone,targetPrinting:MEGA,
+        publicMetadata:{targetSeat:'actor',targetZone:'active'}}
+    ];
+    assert.deepEqual(decision(makeRequest(seat,active,[paid],actions)),
+      {kind:'select-action',token:'to-active'});
+  });
+
+  test('seat '+seat+': contradictory physical retreat indexes cannot impersonate funded slot',()=>{
+    const active=CARD(FAN),paid=CARD(MEGA);
+    paid.energies=[DCE];
+    const actions=[
+      {kind:'retreat',token:'contradictory',targetPrinting:MEGA,
+        publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:0,benchIndex:1}}
+    ];
+    assert.deepEqual(decision(makeRequest(seat,active,[paid],actions)),
+      {kind:'abstain',reasonCode:'NO_SUPPORTED_ROOT_ACTION'});
+  });
+
+  test('seat '+seat+': unique Bench printing supports legacy name-only retreat',()=>{
+    const active=CARD(FAN),paid=CARD(MEGA);
+    paid.energies=[DCE];
+    const action={kind:'retreat',token:'only-mega',targetPrinting:MEGA};
+    assert.deepEqual(decision(makeRequest(seat,active,[paid],[action])),
+      {kind:'select-action',token:'only-mega'});
+  });
+}
