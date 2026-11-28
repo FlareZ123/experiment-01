@@ -17,7 +17,7 @@ function request(seat=0){
     opponentPublic:{active:{printing:'Bunnelby PRC',hp:70},
       bench:[dedenne(),mega(),null,null,null],stadium:[]}},
     prompt:{source:{effectName:'Guzma',sourcePrinting:'Guzma BUS 115'},
-      publicMetadata:{ownerSeat:'opponent',selectionType:'pokemon',minimumCount:1,maximumCount:1},
+      publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,targetZone:'bench'},
       choices:[
         {kind:'pokemon',token:'dedenne',printing:'Dedenne-GX UNB 57',
           publicMetadata:{ownerSeat:'opponent',isOwnerVisible:true,benchIndex:0}},
