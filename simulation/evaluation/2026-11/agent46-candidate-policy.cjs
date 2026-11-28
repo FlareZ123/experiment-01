@@ -446,6 +446,43 @@ function copycatApexPotential(attacker, view, target, receipt) {
     damage:beamDamage,payload:'Power Beam'};
 }
 
+// Aichi rank3/7 PAL97 Safeguard prevents DAMAGE from ex/V but not
+// damage counters placed by attack EFFECTS. Its Ghost Eye puts seven
+// damage counters on the opponent Active. Our exact GRI58 Copycat can
+// reuse an observed last-turn, non-GX Ghost Eye and KO the active PAL97.
+// The 70 below is effect-counter equivalence solely for KO sequencing;
+// it must not be treated as ordinary damage/Weakness/Resistance.
+function copycatGhostEyePotential(attacker,view,target,receipt) {
+  if(attacker?.printing!=='Mimikyu GRI 58' ||
+     target?.printing!=='Mimikyu PAL 97' ||
+     !Array.isArray(receipt?.opponentCopycatChoices) ||
+     !receipt.opponentCopycatChoices.some(row=>
+       row.sourcePrinting==='Mimikyu PAL 97' &&
+       row.attackName==='Ghost Eye' &&
+       row.gxAttack===false && row.copycatAttack===false) ||
+     !Number.isFinite(target.hp) || !Number.isFinite(target.damage))
+    return null;
+  const remaining=target.hp-target.damage;
+  if(remaining<=0)return null;
+  const knockedOut=remaining<=70;
+  const finalPrizes=Number.isSafeInteger(view.ownPublic.prizeCount) &&
+    view.ownPublic.prizeCount>0 &&
+    view.ownPublic.prizeCount<=prizeLiability(target);
+  const finalNoBench=Array.isArray(view.opponentPublic.bench) &&
+    view.opponentPublic.bench.every(p=>p===null);
+  const final=knockedOut && (finalPrizes || finalNoBench);
+  return {score:final?90000:knockedOut?12000:0,
+    damage:70,payload:'Ghost Eye',knockedOut,final,
+    effectCounters:true};
+}
+function bestCopycatPotential(attacker,view,target,receipt) {
+  const apex=copycatApexPotential(attacker,view,target,receipt);
+  const ghost=copycatGhostEyePotential(attacker,view,target,receipt);
+  if(!apex)return ghost;
+  if(!ghost)return apex;
+  return ghost.score>apex.score?ghost:apex;
+}
+
 function attackScore(attacker, attack, view, target, options = {}) {
   if (!attacker || !attack || !target) return -Infinity;
   if (attack.gxAttack && view.ownPublic.publicTurnRestrictions.gxUsed) return -Infinity;
@@ -454,7 +491,7 @@ function attackScore(attacker, attack, view, target, options = {}) {
   }
 
   if (attack.name === 'Copycat') {
-    return copycatApexPotential(attacker,view,target,
+    return bestCopycatPotential(attacker,view,target,
       options.publicEventReceipt)?.score ?? -Infinity;
   }
 
@@ -491,7 +528,7 @@ function bestAttackForSlot(slot, view, target, options = {}) {
     });
     if (score > (best?.score ?? -Infinity)) {
       const damage = attack.name === 'Copycat'
-        ? copycatApexPotential(slot,view,target,
+        ? bestCopycatPotential(slot,view,target,
           options.publicEventReceipt)?.damage ?? null
         : estimatedDamage(slot, attack, view, target);
       best = { attack, score, damage };
@@ -858,6 +895,11 @@ function chooseAttackPrompt(view, prompt, receipt) {
     let score = 0;
     if (effectName === 'Apex Dragon' && attackName === 'Timeless-GX' &&
         hasDialga && gxUnused) score = powerBeamEndsGame ? 150 : 50000;
+    else if (effectName==='Copycat' && attackName==='Ghost Eye' &&
+        choice.printing==='Mimikyu PAL 97' &&
+        prompt.source?.sourcePrinting==='Mimikyu GRI 58' &&
+        copycatGhostEyePotential(copyAttacker,view,target,receipt))
+      score=copycatGhostEyePotential(copyAttacker,view,target,receipt).score;
     else if (effectName === 'Copycat' && attackName === 'Apex Dragon' &&
         Array.isArray(receipt?.opponentCopycatChoices) &&
         receipt.opponentCopycatChoices.some(row =>
@@ -1604,7 +1646,7 @@ function hasStadiumRemovalTarget(view) {
 // decides the actual copied payload; this is nominal 150 Psychic only.
 function nominalGuzmaAttackDamage(slot, attack, view, target, receipt) {
   return attack?.attack?.name==='Copycat'
-    ? copycatApexPotential(slot,view,target,receipt)?.damage ?? null
+    ? bestCopycatPotential(slot,view,target,receipt)?.damage ?? null
     : attack?.damage??null;
 }
 function bestGuzmaBenchKnockout(view, target, receipt) {
@@ -1970,6 +2012,20 @@ function doorMakesFinalMaxGeist(view,items){
     Number.isFinite(a.afterDoor) && a.afterDoor>=a.hp;
 }
 
+function terminalGhostEyeCopycat(view,items,receipt){
+  const active=view.ownPublic?.active;
+  const target=view.opponentPublic?.active;
+  const effect=copycatGhostEyePotential(active,view,target,receipt);
+  if(!effect?.final)return null;
+  const copycat=active.attacks?.find(a=>a.name==='Copycat');
+  if(!copycat || !canPayAttack(active,copycat,view))return null;
+  return items.find(item=>item.kind==='attack' &&
+    item.actorPrinting===active.printing &&
+    item.attackName==='Copycat' &&
+    item.publicMetadata?.attackCostPayable!==false &&
+    !nativeAttackMayBeProtected(item))??null;
+}
+
 function chooseRoot(view, request) {
   const items = request.actionFrontier.items.filter(item =>
     ['play-card', 'attack', 'retreat', 'use-ability', 'use-stadium', 'pass'].includes(item.kind));
@@ -1999,6 +2055,17 @@ function chooseRoot(view, request) {
     setPolicyAuditRule('ROOT_IMMEDIATE_TERMINAL_DIRECT_ATTACK','FIRST_NATIVE_MATCH');
     recordPolicyAuditRule(terminalAttack.token,'DIRECT_ATTACK_FINAL_PRIZE_NOW');
     return {kind:'select-action',token:terminalAttack.token};
+  }
+  // Mimikyu GRI58's copied PAL97 Ghost Eye places counters, not damage:
+  // a certified non-GX prior attack can take the last Prize through Safeguard.
+  const terminalCopycat=terminalGhostEyeCopycat(view,items,
+    request.publicEventReceipt);
+  if(terminalCopycat){
+    setPolicyAuditRule('ROOT_TERMINAL_COPYCAT_GHOST_EYE',
+      'FIRST_NATIVE_MATCH');
+    recordPolicyAuditRule(terminalCopycat.token,
+      'GHOST_EYE_EFFECT_COUNTERS_LAST_PRIZE');
+    return {kind:'select-action',token:terminalCopycat.token};
   }
   // With exactly two deck cards, Door draws the last two but the empty
   // deck only loses on the NEXT own turn. If the new Psychic enables the
