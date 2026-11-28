@@ -1353,6 +1353,14 @@ function promptDecision(request) {
     }
 
     const tokens = ranked.map(row => row.choice.token);
+    // Pinned Grand Tree Stage1/Stage2 searches both have min:1 and
+    // allowCancel:true. With no viable printed Stage card, decline by the
+    // native cancel token; never fabricate an empty multi-select result.
+    if(grandTreeSearch&&tokens.length===0&&metadata.allowCancel===true){
+      const cancel=choices.find(row=>row.kind==='cancel'&&
+        row.label==='Cancel selection');
+      if(cancel)return {kind:'select-choice',token:cancel.token};
+    }
     const required = selectionType === 'prize-slots' &&
       Number.isSafeInteger(metadata.requiredCount) ? metadata.requiredCount : min;
     if (tokens.length < required) {
