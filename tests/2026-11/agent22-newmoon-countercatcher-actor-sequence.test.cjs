@@ -134,6 +134,13 @@ const regidrago=()=>{
  q.observation.ownPublic.prizeCount=2;
  q.observation.opponentPublic.prizeCount=2;
  q.observation.ownPublic.publicTurnRestrictions.gxUsed=true;
+ q.observation.ownPublic.stadium=[];
+ q.observation.opponentPublic.stadium=[];
+ q.observation.ownPublic.discard=[];
+ q.observation.ownPublic.active.energies=[
+  'Basic Psychic Energy SVE005','Basic Psychic Energy SVE005',
+  'Basic Psychic Energy SVE005'];
+ q.observation.ownPublic.active.specialConditions=[];
  q.observation.ownPublic.active.abilities=['Perfection'];
  q.observation.ownPublic.active.abilitySuppressions=[
   {abilityName:'Perfection',suppressed:false}];
@@ -143,15 +150,26 @@ const regidrago=()=>{
  q.observation.opponentPublic.bench=[{
   printing:'Regidrago VSTAR SIT136',hp:280,damage:0,tools:[]}];
  q.actionFrontier.items[1]={
-  kind:'attack',token:'night',attackName:'Night Watch',
-  actorPrinting:'Trevenant & Dusknoir-GX SMP SM217',
-  publicMetadata:{attackCostPayable:true,damageAfterResistance:150,
-   attackSource:{sourceKind:'bench-pokemon',sourceSlot:'BENCH',
-    sourceIndex:1,sourceCardFullName:'Trevenant & Dusknoir-GX SMP SM217',
-    attackName:'Night Watch'}}
+  kind:'use-ability',token:'perfection',
+  actorPrinting:'Mewtwo & Mew-GX UNM071',
+  publicMetadata:{abilityName:'Perfection',sourceZone:'active',
+    sourceSeat:'actor',sourceIndex:0}
  };
  return q;
 };
+function nightPrompt(req){
+ const q=clone(req);
+ q.observation.decisionKind='owner-prompt';
+ q.actionFrontier=null;
+ q.prompt={actingSeat:0,promptType:'ChooseAttackPrompt',
+  source:{classification:'actor-choice',sourceKind:'card-effect',
+   sourcePrinting:'Mewtwo & Mew-GX UNM071',effectName:'Perfection'},
+  publicMetadata:{selectionType:'attack'},
+  choices:[{kind:'attack',token:'nw',printing:'Trevenant & Dusknoir-GX SMP SM217',
+   publicMetadata:{ownerSeat:'actor',isOwnerVisible:true,sourceZone:'bench',
+    sourceAttack:'Night Watch'}}]};
+ return q;
+}
 const s2=createSlice({seat:0}),r2=regidrago();
 let d=s2.decide(r2);
 assert.equal(d.decision.token,'blast');checks++;
@@ -169,15 +187,19 @@ const end=clone(after);
 end.observation.opponentPublic.active=clone(after.observation.opponentPublic.bench[0]);
 end.observation.opponentPublic.bench=[after.observation.opponentPublic.active];
 end.actionFrontier={items:[clone(r2.actionFrontier.items[1])]};
-d=s2.decide(end);assert.equal(d.decision.token,'night');checks++;
+d=s2.decide(end);assert.equal(d.decision.token,'perfection');checks++;
+d=s2.decide(nightPrompt(end));
+assert.equal(d.decision.token,'nw');checks++;
+assert.equal(d.decision.kind,'select-choice');checks++;
 assert.equal(s2.peek(),null);checks++;
 // Stop before spending the Stage2 if Perfection is suppressed or donor
 // provenance is not an actual supported Benched Trev-Dusk GX.
 for(const tweak of [
  q=>{q.observation.ownPublic.active.abilitySuppressions[0].suppressed=true},
  q=>{q.observation.ownPublic.bench[1].printing='Gengar & Mimikyu-GX'},
- q=>{q.actionFrontier.items[1].publicMetadata.attackSource.sourceIndex=0},
- q=>{q.actionFrontier.items[1].publicMetadata.attackCostPayable=false},
+ q=>{q.actionFrontier.items[1].publicMetadata.sourceIndex=1},
+ q=>{q.actionFrontier.items[1].publicMetadata.sourceZone='bench'},
+ q=>{q.observation.ownPublic.active.energies=[]},
  q=>{q.observation.opponentPublic.bench[0].damage=150},
  q=>{q.observation.ownPublic.prizeCount=1}
 ]){
@@ -190,7 +212,8 @@ for(const tweak of [
 // Actual post-gust offer/damage must still independently certify success.
 {
  const s=createSlice({seat:0}),q=regidrago();
- q.actionFrontier.items[1].publicMetadata.damagePrevented=true;
+ // The opponent Active can prevent Basic damage; only post-gust matters.
+ q.observation.opponentPublic.active.abilities=['Prevent Basic Damage'];
  assert.equal(s.decide(q).decision.token,'blast');checks++;
  const p=prompt(q,'Cursed Blast','bench',0);
  assert.equal(s.decide(p).decision.tokens[0],'bench-pick');checks++;
@@ -206,14 +229,13 @@ for(const tweak of [
  now.observation.opponentPublic.active=clone(post.observation.opponentPublic.bench[0]);
  now.observation.opponentPublic.bench=[post.observation.opponentPublic.active];
  now.actionFrontier.items=[clone(q.actionFrontier.items[1])];
- now.actionFrontier.items[0].publicMetadata.damagePrevented=false;
- now.actionFrontier.items[0].publicMetadata.damageAfterResistance=150;
- assert.equal(s.decide(now).decision.token,'night');checks++;
+ assert.equal(s.decide(now).decision.token,'perfection');checks++;
+ assert.equal(s.decide(nightPrompt(now)).decision.token,'nw');checks++;
  const bad=createSlice({seat:0});
  bad.decide(q);bad.decide(p);bad.decide(post);
  bad.decide(prompt(post,'Counter Catcher','bench',130));
- now.actionFrontier.items[0].publicMetadata.damagePrevented=true;
- assert.equal(bad.decide(now),null);checks++;
+ const noOffer=clone(now);noOffer.actionFrontier.items=[];
+ assert.equal(bad.decide(noOffer),null);checks++;
 }
 
 // Five original Aichi ranks carry Mega Absol ex 280 HP, 3 Prizes; a
@@ -282,5 +304,5 @@ for(const tweak of [
  without.observation.opponentPublic.bench[0].damage=40;
  assert.equal(createSlice({seat:0}).decide(without).decision.token,'blast');checks++;
 }
-assert.equal(checks,88);
+assert.equal(checks,92);
 console.log('Agent22 actor-countercatcher exact multi-prompt slice: '+checks+' synthetic checks passed');
