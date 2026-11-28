@@ -26,7 +26,7 @@ const PRINT = Object.freeze({
   mimikyu: /^Mimikyu PAL 97\b/i,
   girafarig: /^Girafarig LOT 94\b/i,
   bunnelby: /^Bunnelby PRC 121\b/i,
-  articuno: /^Articuno-GX CES 31\b/i,
+  articuno: /^Articuno-GX CES(?: 31)?$/i,
   rotom: /^Rotom V LOR 58\b/i,
   plumeria: /^Plumeria BUS 120\b/i,
   arven: /^Arven OBF(?: 186)?$/i,
