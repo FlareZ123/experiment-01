@@ -9,11 +9,13 @@ const mon=(id,types=['PSYCHIC'],energies=[])=>({
  abilitySuppressions:[]
 });
 function request(seat,mode){
- const ownBench=mode==='dupeV'?
+ const ownBench=mode==='dragonClefairy'?
+ [mon("Lillie's Clefairy ex JTG 56"),mon('Shadow Rider Calyrex VMAX CRE 75')]:
+ mode==='dupeV'?
  [mon('Shadow Rider Calyrex V CRE 74',['PSYCHIC'],[E,E]),
   mon('Shadow Rider Calyrex V CRE 74')]:
  [mon('Shadow Rider Calyrex V CRE 74'),mon('Mimikyu GRI 58')];
- const opponent=mode==='regidrago'?
+ const opponent=(mode==='regidrago'||mode==='dragonClefairy')?
  mon('Regidrago VSTAR SIT 136',['DRAGON']):
  mon('Shadow Rider Calyrex VMAX CRE 75');
  const ownPublic={active:mon('Shadow Rider Calyrex VMAX CRE 75'),
@@ -48,7 +50,7 @@ function request(seat,mode){
  actionFrontier:{schema:protocol.FRONTIER_SCHEMA,items:[]}};
 }
 for(const seat of [0,1])for(const [mode,want] of [
- ['regidrago','assign-1'],['shadowRider','assign-0'],
+ ['regidrago','assign-1'],['dragonClefairy','assign-0'],['shadowRider','assign-0'],
  ['dupeV','assign-1'],['wrongEnergy',null],['foreignSeat',null],
  ['badIndex',null],['wrongSource',null]
 ])test('native Underworld Door energy-attachment '+mode+' seat '+seat,()=>{
