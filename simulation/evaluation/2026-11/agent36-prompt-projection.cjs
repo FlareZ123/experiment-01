@@ -662,7 +662,10 @@ function projectHandheldFanEnergyTransfer({
       },prompt,state);
     }
   }
-  addEmptySelectionChoice(choices,choiceByToken,prompt,state);
+  // Fan's printed move is compulsory when a native-valid transfer exists;
+  // expose the native [] resolution only if no transfer can be performed.
+  if(choices.length===0)
+    addEmptySelectionChoice(choices,choiceByToken,prompt,state);
   if(choices.length===0)
     throw Object.assign(new Error('No native-valid Handheld Fan energy or no-transfer choice'),{
       code:'NO_VALID_HANDHELD_FAN_ENERGY_TRANSFER'
