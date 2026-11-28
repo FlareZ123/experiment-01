@@ -174,6 +174,24 @@ test('Carmine remains a low-hand Supporter after turn one, with DDE protection',
   }
 });
 
+test('rank14 inherits zero-retreat Budew Guzma final-Prize pivot safely',()=>{
+  const active=pokemon(R,{energies:['Grass Energy MEE 9','Grass Energy MEE 9','Fire Energy MEE 10']});
+  const pivot=pokemon('Budew ASC 16',{printed:{subtypes:['Basic'],retreatCost:[]}});
+  const target=pokemon('Dedenne-GX UNB 57',{hp:160,damage:0,printed:{subtypes:['GX']}});
+  for(const seat of [0,1]){
+    const own=board({active,bench:[pivot],discard:['Hisuian Goodra VSTAR LOR 136']});
+    own.prizeCount=2;
+    const opponent=board({active:pokemon('Budew ASC 16',{hp:30}),
+      bench:[target]});
+    const req=request({seat,turn:7,own,opponent,items:[
+      action('g','play-card','Guzma BUS 115'),action('a','attack',R,{attackName:'Apex Dragon'}),action('pass','pass')]});
+    req.observation.ownTurnResources.retreatedTurn=0;
+    assert.deepEqual(rank14.bestAction(req),{kind:'select-action',token:'g'});
+    req.observation.ownTurnResources.retreatedTurn=7;
+    assert.deepEqual(rank14.bestAction(req),{kind:'select-action',token:'a'});
+  }
+});
+
 test('rank14 factory binds both seats without drawing RNG',()=>{
   for(const seat of [0,1]){
     let draws=0;
