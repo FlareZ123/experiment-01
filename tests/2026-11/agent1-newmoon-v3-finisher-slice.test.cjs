@@ -100,4 +100,45 @@ test('invalid policy init config rejected',()=>{
  let rejected=false;try{createPolicy({role:'candidate',seat:0,policyVersion:POLICY_VERSION,
   config:{hash:'untrusted'}})}catch{rejected=true;}assert(rejected,true);
 });
+
+function shadowFixture(){
+ const f=make('Regidrago VSTAR');
+ f.own.active={printing:'Dusknoir SFA20',hp:160,damage:0,
+  specialConditions:[],tools:[],abilities:['Cursed Blast'],
+  abilitySuppressions:[{abilityName:'Cursed Blast',suppressed:false}]};
+ f.opp.active={printing:'Vileplume BUS sm3-6',hp:140,damage:0,
+  tools:['Stealthy Hood UNB 186'],specialConditions:[],
+  abilities:['Disgusting Pollen'],
+  abilitySuppressions:[{abilityName:'Disgusting Pollen',suppressed:false}]};
+ f.items.push({kind:'attack',token:'shadow',attackName:'Shadow Bind',
+  actorPrinting:f.own.active.printing,publicMetadata:{attackCostPayable:true,
+  attackSource:{sourceKind:'active-pokemon',sourceSlot:'ACTIVE',
+    sourceCardFullName:f.own.active.printing}}});
+ return f;
+}
+test('Stage2 direct Shadow Bind beats Hooded BUS without any self-KO',()=>{
+ const f=shadowFixture();f.opp.prizeCount=1;
+ assert(f.root().token,'shadow');
+});
+test('Shadow Bind must actually be payable',()=>{
+ const f=shadowFixture();f.items.at(-1).publicMetadata.attackCostPayable=false;
+ assert(f.root().kind,'abstain');
+});
+test('Shadow Bind requires correct Active Stage2 provenance',()=>{
+ const f=shadowFixture();f.items.at(-1).publicMetadata.attackSource.sourceCardFullName='Mewtwo & Mew-GX';
+ assert(f.root().kind,'abstain');
+});
+test('BUS Basic-attack lock never misattributes Mewtwo as Stage2',()=>{
+ const f=shadowFixture();f.own.active.printing='Mewtwo & Mew-GX UNM71';
+ assert(f.root().kind,'abstain');
+});
+test('unknown opponent Tool damage protection vetoes Shadow Bind',()=>{
+ const f=shadowFixture();f.opp.active.tools=['Stealthy Hood','Eviolite'];
+ assert(f.root().kind,'abstain');
+});
+test('status risk vetoes Shadow Bind',()=>{
+ const f=shadowFixture();f.own.active.specialConditions=['CONFUSED'];
+ assert(f.root().kind,'abstain');
+});
+
 console.log('Agent1 v3 research actor tests: '+checks+' assertions passed');
