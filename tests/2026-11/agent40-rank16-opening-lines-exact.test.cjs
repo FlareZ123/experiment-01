@@ -43,3 +43,23 @@ test('first-turn prize chance correctly accounts for 2 unseen Budew',()=>{
  assert(d.prizeAdjustedUnion.probability>0.45);
  assert(d.direct.probability<d.union.probability);
 });
+
+test('rank16 all two-copy core Prize collapse events are computed conditional on a legal initial hand',()=>{
+ const d=opening.twoCopyCorePrizeCollapse();
+ assert.equal(d.denominator,'6894276702593280');
+ assert.equal(d.anyOneSpecifiedCoreCompletelyPrized.numerator,'53671898649600');
+ assert.equal(d.anyTwoSpecifiedCoresCompletelyPrized.numerator,'171715775616');
+ assert.equal(d.allThreeCoresCompletelyPrized.numerator,'91199976');
+ assert.equal(d.atLeastOneOfThreeCoresCompletelyPrized.numerator,'160500639821928');
+ assert(Math.abs(d.anyOneSpecifiedCoreCompletelyPrized.probability-0.007784993403211004)<1e-15);
+ assert(Math.abs(d.atLeastOneOfThreeCoresCompletelyPrized.probability-0.023280272426773316)<1e-15);
+});
+test('conditional prize collapse is less than misleading raw unconditional six-of-60 calculation',()=>{
+ const d=opening.twoCopyCorePrizeCollapse();
+ const unconditional=30/(60*59);
+ assert(d.anyOneSpecifiedCoreCompletelyPrized.probability<unconditional);
+ assert(d.atLeastOneOfThreeCoresCompletelyPrized.probability<
+   3*unconditional);
+ assert(d.atLeastOneOfThreeCoresCompletelyPrized.probability>
+   2*d.anyOneSpecifiedCoreCompletelyPrized.probability);
+});
