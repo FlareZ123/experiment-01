@@ -2,7 +2,7 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const {createPolicy,POLICY_VERSION}=require('../../simulation/evaluation/2026-11/agent46-candidate-policy.cjs');
 const E='Psychic Energy MEE 13';
-const pokemon=(id,types=['Psychic'],stage='BASIC')=>({
+const pokemon=(id,types=['PSYCHIC'],stage='BASIC')=>({
  printing:id,hp:200,damage:0,printed:{stage,types,subtypes:stage==='VMAX'?['VMAX']:['Basic'],
  weakness:[],resistance:[],retreatCost:[]},energies:[E],tools:[],
  attacks:[],abilities:stage==='VMAX'?['Underworld Door']:[],abilitySuppressions:[]});
@@ -10,8 +10,8 @@ const player=(active,bench,deckCount=30)=>({active,bench,deckCount,handCount:1,
  stadium:[],discard:[],lostZone:[],resolvingSupporter:[],
  publicTurnRestrictions:{gxUsed:false,stadiumAndToolHaveNoEffectTurnsRemaining:0}});
 function request(seat,variant) {
- const active=pokemon('Shadow Rider Calyrex VMAX CRE 75',['Psychic'],'VMAX');
- const bench=variant==='metalBench'?[pokemon('Dialga-GX UPR 100',['Metal'])]:
+ const active=pokemon('Shadow Rider Calyrex VMAX CRE 75',['PSYCHIC'],'VMAX');
+ const bench=variant==='metalBench'?[pokemon('Dialga-GX UPR 100',['METAL'])]:
    [pokemon('Shadow Rider Calyrex V CRE 74')];
  const hand=variant==='noHandEnergy'?[]:[E];
  const actions=[{token:'door',kind:'use-ability',actorPrinting:active.printing,

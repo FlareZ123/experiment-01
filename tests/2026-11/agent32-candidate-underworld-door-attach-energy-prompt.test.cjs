@@ -3,18 +3,18 @@ const test=require('node:test'),assert=require('node:assert/strict');
 const policy=require('../../simulation/evaluation/2026-11/agent46-candidate-policy.cjs');
 const protocol=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const E='Psychic Energy MEE 13';
-const mon=(id,types=['Psychic'],energies=[])=>({
+const mon=(id,types=['PSYCHIC'],energies=[])=>({
  printing:id,hp:200,damage:0,printed:{stage:'BASIC',types,subtypes:['Basic'],
  weakness:[],resistance:[],retreatCost:[]},energies,tools:[],attacks:[],abilities:[],
  abilitySuppressions:[]
 });
 function request(seat,mode){
  const ownBench=mode==='dupeV'?
- [mon('Shadow Rider Calyrex V CRE 74',['Psychic'],[E,E]),
+ [mon('Shadow Rider Calyrex V CRE 74',['PSYCHIC'],[E,E]),
   mon('Shadow Rider Calyrex V CRE 74')]:
  [mon('Shadow Rider Calyrex V CRE 74'),mon('Mimikyu GRI 58')];
  const opponent=mode==='regidrago'?
- mon('Regidrago VSTAR SIT 136',['Dragon']):
+ mon('Regidrago VSTAR SIT 136',['DRAGON']):
  mon('Shadow Rider Calyrex VMAX CRE 75');
  const ownPublic={active:mon('Shadow Rider Calyrex VMAX CRE 75'),
    bench:ownBench,stadium:[],discard:[],lostZone:[],resolvingSupporter:[],

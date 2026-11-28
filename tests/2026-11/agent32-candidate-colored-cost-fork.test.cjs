@@ -9,18 +9,18 @@ const poke=(id,hp,type,energy,attacks,tools=[])=>({
  types:[type],weakness:[],retreatCost:[],resistance:[]},
  energies:energy,attacks,tools,abilities:[],abilitySuppressions:[]
 });
-const dialga=()=>poke('Dialga-GX UPR 100',180,'Metal',psychic,[{
- name:'Timeless-GX',cost:['Metal','Metal','Metal','Colorless','Colorless'],
+const dialga=()=>poke('Dialga-GX UPR 100',180,'METAL',psychic,[{
+ name:'Timeless-GX',cost:['METAL','METAL','METAL','COLORLESS','COLORLESS'],
  damage:'150',gxAttack:true
 }]);
-const latias=()=>poke('Latias ex SSP 76',210,'Psychic',psychic.slice(0,3),[{
- name:'Eon Blade',cost:['Psychic','Psychic','Colorless'],damage:'200'
+const latias=()=>poke('Latias ex SSP 76',210,'PSYCHIC',psychic.slice(0,3),[{
+ name:'Eon Blade',cost:['PSYCHIC','PSYCHIC','COLORLESS'],damage:'200'
 }]);
-const vmax=()=>poke('Shadow Rider Calyrex VMAX CRE 75',320,'Psychic',
- psychic.slice(0,3),[{name:'Max Geist',cost:Array(3).fill('Colorless'),
+const vmax=()=>poke('Shadow Rider Calyrex VMAX CRE 75',320,'PSYCHIC',
+ psychic.slice(0,3),[{name:'Max Geist',cost:Array(3).fill('COLORLESS'),
  damage:'10+',text:'This attack does 30 more damage for each Psychic Energy attached to all of your Pokémon.'}]);
-const mimikyu=()=>poke('Mimikyu GRI 58',70,'Psychic',
- psychic.slice(0,2),[{name:'Copycat',cost:['Psychic','Colorless'],
+const mimikyu=()=>poke('Mimikyu GRI 58',70,'PSYCHIC',
+ psychic.slice(0,2),[{name:'Copycat',cost:['PSYCHIC','COLORLESS'],
  damage:''}],['Float Stone BKT 137']);
 const p=(active,bench=[])=>({active,bench,stadium:[],discard:[],lostZone:[],
  resolvingSupporter:[],handCount:1,deckCount:30,
@@ -37,8 +37,8 @@ const make=(seat,kind)=>{
  return {role:'candidate',seat,prompt:null,publicEventReceipt:null,
  observation:{actorSeat:seat,decisionKind:'owner-root',ownHand:retreat?[]:
  ['Guzma BUS 115'],ownPublic:p(active,retreat?[dialga()]:[]),
- opponentPublic:p(poke('Shadow Rider Calyrex VMAX CRE 75',320,'Psychic',[],[]),
- [poke('Mimikyu GRI 58',70,'Psychic',[],[])]),
+ opponentPublic:p(poke('Shadow Rider Calyrex VMAX CRE 75',320,'PSYCHIC',[],[]),
+ [poke('Mimikyu GRI 58',70,'PSYCHIC',[],[])]),
  ownTurnResources:{supporterPlayedTurn:0}},
  actionFrontier:{schema:'aichi-action-frontier-v1',items:actions}};
 };
