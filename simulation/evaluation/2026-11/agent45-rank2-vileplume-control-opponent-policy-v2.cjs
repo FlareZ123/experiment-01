@@ -365,6 +365,42 @@ function choiceOwner(choice) {
   return choice?.publicMetadata?.ownerSeat ?? null;
 }
 
+// Target-only supporter/stadium effects may offer identical-printing Pokémon
+// on different physical slots. A choice ordinal is not a board slot index.
+// Resolve the actual actor-visible slot before pricing its HP or evolution age.
+function ownedPokemonForChoice(choice, player) {
+  const printing = choicePrinting(choice);
+  const meta = choice?.publicMetadata ?? {};
+  const zone = choiceZone(choice);
+  if (!printing || (zone && zone !== 'active' && zone !== 'bench')) return null;
+  const hasBench = Number.isSafeInteger(meta.benchIndex);
+  const hasSlot = Number.isSafeInteger(meta.slotIndex);
+  if (zone === 'active') {
+    if (hasBench || (hasSlot && meta.slotIndex !== 0)) return null;
+    const active = player?.active;
+    return active && samePrinting(active.printing, printing) ? active : null;
+  }
+  if (zone === 'bench' || hasBench) {
+    if (hasBench && hasSlot && meta.benchIndex !== meta.slotIndex) return null;
+    const index = hasBench ? meta.benchIndex : hasSlot && zone === 'bench' ?
+      meta.slotIndex : null;
+    const bench = list(player?.bench);
+    if (index !== null) {
+      if (index < 0 || index >= bench.length) return null;
+      const pokemon = bench[index];
+      return pokemon && samePrinting(pokemon.printing, printing) ? pokemon : null;
+    }
+    const copies = bench.filter(pokemon =>
+      pokemon && samePrinting(pokemon.printing, printing));
+    return copies.length === 1 ? copies[0] : null;
+  }
+  // With neither a zone nor a physical index, only unique board printings
+  // can be resolved safely. This is weaker than native projected metadata.
+  const copies = boardSlots(player).filter(({ pokemon }) =>
+    samePrinting(pokemon.printing, printing));
+  return copies.length === 1 ? copies[0].pokemon : null;
+}
+
 function missingLinePriority(observation) {
   const own = observation?.ownPublic ?? {};
   const hand = list(observation?.ownHand);
@@ -917,17 +953,14 @@ function scorePokemonChoice(choice, observation, context) {
       (stranded ? 85 : 0);
   }
   if (context.includes('cassius')) {
-    const target = boardSlots(observation.ownPublic).find(row =>
-      samePrinting(row.pokemon.printing, printing));
+    const target = ownedPokemonForChoice(choice, observation.ownPublic);
     if (!target) return -100;
-    return remainingHp(target.pokemon) > 0 &&
-      remainingHp(target.pokemon) <= 50 ? 160 : 15;
+    return remainingHp(target) > 0 &&
+      remainingHp(target) <= 50 ? 160 : 15;
   }
   if (context.includes('grand tree')) {
-    const target = boardSlots(observation.ownPublic).find(row =>
-      samePrinting(row.pokemon.printing, printing) &&
-      grandTreeTargetPossible(observation, row.pokemon));
-    if (!target) return -100;
+    const target = ownedPokemonForChoice(choice, observation.ownPublic);
+    if (!target || !grandTreeTargetPossible(observation, target)) return -100;
     if (matches(printing, PRINT.oddish)) return 140;
     if (matches(printing, PRINT.lillipup)) return 135;
     if (matches(printing, PRINT.pidgey)) return 125;
