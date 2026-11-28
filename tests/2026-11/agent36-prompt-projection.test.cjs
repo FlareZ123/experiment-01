@@ -30,7 +30,9 @@ function slot(card = null, energies = []) {
     cards: card ? [card] : [],
     energies: { cards: energies },
     tools: [],
-    getPokemonCard() { return card; }
+    // Native PokemonCardList resolves via this.cards, not a lexical source
+    // variable; the detached Store's cloned Bench must remain independent.
+    getPokemonCard() { return this.cards[0] ?? null; }
   };
 }
 
@@ -199,6 +201,15 @@ class AttachEnergyPrompt {
   }
 }
 class InvitePlayerPrompt {}
+
+class StubDetachedPsychicTypeStore {
+  constructor(){this.state=null;}
+  reduceEffect(state,effect){
+    assert.strictEqual(state,this.state,
+      'stub dynamic type calculation must use only the cloned native State');
+    effect.cardTypes=effect.slot.getPokemonCard()?.dynamicTypes??[];
+  }
+}
 
 const native = {
   PlayerType,
@@ -866,7 +877,8 @@ test('Underworld Door AttachEnergyPrompt stubbed projection contract projects ac
     constructor(slot){this.slot=slot;this.cardTypes=[];}
   }
   const nativeAttach={
-    ...native,EnergyCard,EnergyType,CardType,SuperType,CheckPokemonTypeEffect
+    ...native,EnergyCard,EnergyType,CardType,SuperType,
+    CheckPokemonTypeEffect,Store:StubDetachedPsychicTypeStore
   };
   for(const actorSeat of [0,1]){
     const state=makeState();
@@ -997,7 +1009,8 @@ test('Underworld Door AttachEnergyPrompt stubbed projection fails closed when a 
   class CheckPokemonTypeEffect {
     constructor(slot){this.slot=slot;this.cardTypes=[];}
   }
-  const nativeAttach={...native,EnergyCard,EnergyType,CardType,SuperType,CheckPokemonTypeEffect};
+  const nativeAttach={...native,EnergyCard,EnergyType,CardType,SuperType,
+    CheckPokemonTypeEffect,Store:StubDetachedPsychicTypeStore};
   const state=makeState();
   const actor=state.players[0];
   const sourceCard={name:'Shadow Rider Calyrex VMAX',fullName:'Shadow Rider Calyrex VMAX CRE75',set:'CRE'};
@@ -1035,7 +1048,8 @@ test('Underworld Door AttachEnergyPrompt stubbed projection exposes a cancel-onl
   class CheckPokemonTypeEffect {
     constructor(slot){this.slot=slot;this.cardTypes=[];}
   }
-  const nativeAttach={...native,EnergyCard,EnergyType,CardType,SuperType,CheckPokemonTypeEffect};
+  const nativeAttach={...native,EnergyCard,EnergyType,CardType,SuperType,
+    CheckPokemonTypeEffect,Store:StubDetachedPsychicTypeStore};
 
   for(const actorSeat of [0,1]){
     const state=makeState();
