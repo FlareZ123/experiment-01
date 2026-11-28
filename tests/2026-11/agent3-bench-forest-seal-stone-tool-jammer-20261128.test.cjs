@@ -102,3 +102,44 @@ for (const seat of [0, 1]) for (const [label, mode, onBench,
     assert.deepEqual(got.policyAudit.selectedTokens, [token]);
   });
 }
+
+function retreatRequest(seat, jammer) {
+  const ownActive = mon('Shadow Rider Calyrex V CRE 74',
+    ['Float Stone BKT 137']);
+  const ownBench = mon('Shadow Rider Calyrex VMAX CRE 75');
+  ownBench.energies = Array(3).fill('Psychic Energy MEE 13');
+  ownBench.attacks = [{
+    name:'Max Geist',cost:['Colorless','Colorless','Colorless'],
+    damage:'10+'
+  }];
+  const oppActive = mon('Pikachu ex SVI 63',
+    jammer ? [JAM] : []);
+  return {
+    role:'candidate',seat,prompt:null,publicEventReceipt:null,
+    observation:{
+      actorSeat:seat,decisionKind:'owner-root',ownHand:[],
+      ownTurnResources:{supporterPlayedTurn:0},
+      ownPublic:side(ownActive,[ownBench]),
+      opponentPublic:side(oppActive,[])
+    },
+    actionFrontier:{schema:protocol.FRONTIER_SCHEMA,items:[
+      {token:'retreat',kind:'retreat',
+        targetPrinting:'Shadow Rider Calyrex VMAX CRE 75',
+        publicMetadata:{benchIndex:0}},
+      {token:'pass',kind:'pass'}
+    ]}
+  };
+}
+for(const seat of [0,1])for(const jammer of [true,false]){
+  test('Active Float Stone '+(jammer?'suppressed':'live')+
+    ' before native-offered retreat seat '+seat,()=>{
+    const input=retreatRequest(seat,jammer);
+    const got=policy.createPolicy({role:'candidate',seat,
+      policyVersion:policy.POLICY_VERSION,config:{}}).decideWithAudit(input);
+    const expected=jammer?'pass':'retreat';
+    assert.deepEqual(got.decision,{kind:'select-action',token:expected});
+    protocol.validatePolicyAudit(got.policyAudit,input,got.decision,
+      policy.POLICY_VERSION);
+    assert.deepEqual(got.policyAudit.selectedTokens,[expected]);
+  });
+}
