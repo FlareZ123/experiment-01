@@ -113,6 +113,7 @@ function stage(seat, withLatias = false) {
   source.cannotPlaySupporterCards = false;
   candidate.cannotPlaySupporterCards = false;
   source.hand.cards.push(src('Guzma BUS'));
+  candidate.hand.cards.push(hood("Lillie's Determination MEG"));
 
   for (const [player, remaining] of [
     [source, sourceRemaining], [candidate, candidateRemaining]
@@ -290,6 +291,61 @@ for (const seat of [0, 1]) {
     } finally {
       hook.restore();
     }
+  });
+}
+
+
+// Causal native follow-through: the exact original Hood 60 holds a real
+// Supporter. Compare acceptance on its next turn with Stoutland Benched
+// (no Sentinel) against Guzma-promoted Stoutland (Sentinel Active). This is
+// a one-turn Store decision, not a complete competitive game.
+for (const seat of [0, 1]) {
+  test('rank2 seat ' + seat + ': native Stoutland Active causes next-turn Supporter veto (matched 60-card baseline)', () => {
+    const heldSupporterAction = x => {
+      const i = x.candidate.hand.cards.findIndex(c =>
+        c.fullName?.startsWith("Lillie's Determination MEG"));
+      assert.ok(i >= 0, 'real Hood 60 must hold its printed Supporter');
+      return new PlayCardAction(x.candidate.id, i, {
+        player: PlayerType.ANY, slot: SlotType.BOARD, index: 0
+      });
+    };
+    const control = stage(seat);
+    assert.equal(control.candidate.cannotPlaySupporterCards, false);
+    control.store.dispatch(new gameActions.PassTurnAction(control.source.id));
+    assert.equal(control.state.activePlayer, 1 - seat);
+    assert.doesNotThrow(() => control.store.dispatch(heldSupporterAction(control)),
+      'the identical source board without an Active Stoutland must not block the held Supporter');
+
+    const locked = stage(seat);
+    const agent = policy(seat);
+    const hook = installPromptProvenanceHook(locked.store);
+    try {
+      locked.store.dispatch(new PlayCardAction(locked.source.id, 0, {
+        player: PlayerType.ANY, slot: SlotType.BOARD, index: 0
+      }));
+      chooseAndSettle(locked, seat, agent, hook, locked.strandedId, 'opponent');
+      chooseAndSettle(locked, seat, agent, hook, locked.sentinelId, 'actor');
+    } finally {
+      hook.restore();
+    }
+    assert.equal(locked.source.active.getPokemonCard().id, locked.sentinelId);
+    locked.store.dispatch(new gameActions.PassTurnAction(locked.source.id));
+    assert.equal(locked.state.activePlayer, 1 - seat);
+    let rejection = null;
+    try {
+      locked.store.dispatch(heldSupporterAction(locked));
+    } catch (error) {
+      rejection = { name: error?.constructor?.name, message: error?.message };
+    }
+    assert.ok(rejection,
+      'native Stoutland Sentinel must actually reject an otherwise legal opposing Supporter');
+    assert.match(rejection.message ?? '', /BLOCKED_BY_EFFECT|CANNOT_PLAY_THIS_CARD/,
+      'native Supporter denial must use a typed effect/legality rejection');
+    console.log('AGENT25_RANK2_NATIVE_SENTINEL_CAUSAL', JSON.stringify({
+      seat, matchedControlSupporterAccepted: true,
+      opponentAfterPromotionSupporterRejected: true,
+      nativeRejection: rejection, qualifiedGame: false
+    }));
   });
 }
 
