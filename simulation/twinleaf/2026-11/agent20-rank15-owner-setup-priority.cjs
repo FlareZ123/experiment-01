@@ -48,6 +48,7 @@ function planRank15StartingBasics(hand,eligible,{maxSelections=6}={}) {
     ['Bunnelby',1],['Tatsugiri',1],['Budew',1]
   ];
   const selected=[active],benchLimit=Math.min(BENCH_CAP,maxSelections-1);
+  if(benchLimit===0)return selected;
   for(const [name,limit] of benchPriority){
     let used=0;
     for(const candidate of rest){
