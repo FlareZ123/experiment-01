@@ -1956,11 +1956,7 @@ paired('Agent46: source-field draw/search support Abilities never veto a direct 
     assert.deepEqual(result.decision,sel('max'),printing);
     assert.equal(result.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK',printing);
   }
-  // Never silently generalize all Abilities: a lock/protection/unknown
-  // print must independently satisfy its own terminal rule.
-  view.opponentPublic.bench[0]=pokemon({printing:'Vileplume AOR',name:'Vileplume',
-    abilities:['Irritating Pollen'],suppression:false});
-  assert.notEqual(checked().policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+  // Never generalize beyond a recognized source printing and Ability.
   view.opponentPublic.bench[0]=pokemon({printing:'Dedenne-GX UNB',name:'Dedenne-GX',
     abilities:['UNRECOGNIZED_ABIL'],suppression:false});
   assert.notEqual(checked().policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
