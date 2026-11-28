@@ -14,7 +14,11 @@ const COUNTERS={
  crispin:"Crispin",underworldDoor:"Shadow Rider Calyrex VMAX",
  raihan:"Raihan",maxElixir:"Max Elixir",welder:"Welder",
  gardenia:"Gardenia's Vigor",garbodor:"Garbodor",
- stealthyHood:"Stealthy Hood",toolJammer:"Tool Jammer"
+ stealthyHood:"Stealthy Hood",toolJammer:"Tool Jammer",
+ megatonBlower:"Megaton Blower",handheldFan:"Handheld Fan",
+ plumeria:"Plumeria",flareGrunt:"Team Flare Grunt",faba:"Faba",
+ crushingHammer:"Crushing Hammer",enhancedHammer:"Enhanced Hammer",
+ lusamine:"Lusamine"
 };
 const count=cards=>cards.reduce((n,c)=>n+c.count,0);
 function analyze(source){
@@ -65,6 +69,8 @@ function analyze(source){
    allSpecialWithRanger:having(r=>r.exclusivelySpecial&&r.hasRanger),
    allSpecialWithElectrode:having(r=>r.exclusivelySpecial&&r.hasDiscardSpecialAccel),
    allSpecialWithoutNamedRangerElectrode:having(r=>r.exclusivelySpecial&&!r.hasRanger&&!r.hasDiscardSpecialAccel),
+   allSpecialWithMegatonCounter:having(r=>r.exclusivelySpecial&&r.channels.megatonBlower>0),
+   allSpecialWithPlumeriaCounter:having(r=>r.exclusivelySpecial&&r.channels.plumeria>0),
    garbodorToolRestartRanks:having(r=>r.chaosVsEchoToolDelta),
    megatonItemLockPotentialRanks:having(r=>r.itemLockPotential),
    rangerRanks:having(r=>r.hasRanger),
