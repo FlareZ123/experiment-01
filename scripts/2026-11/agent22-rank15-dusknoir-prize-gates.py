@@ -52,6 +52,12 @@ hood = [
     ("Clefairy", 1, True), ("flex", 1, False),
     ("other basic", 16, True), ("other nonbasic", 42, False),
 ]
+regidrago = [
+    ("Duskull", 2, True), ("Dusclops", 2, False),
+    ("Dusknoir", 1, False), ("Mewtwo", 2, True),
+    ("TrevGX", 1, True), ("other basic", 12, True),
+    ("other nonbasic", 40, False),
+]
 cases = [
     ("v3 Dusknoir + one Duskull + one Dusclops", base,
      {"flex": 1, "Duskull": 1, "Dusclops": 1}),
@@ -61,12 +67,19 @@ cases = [
      {"flex": 1, "Duskull": 1, "Dusclops": 2}),
     ("one Hood + one Clefairy (hypothetical)", hood,
      {"flex": 1, "Clefairy": 1}),
+    ("v3 Night Watch copier + Dusknoir Regidrago 280 gate", regidrago,
+     {"Duskull": 1, "Dusclops": 1, "Dusknoir": 1,
+      "Mewtwo": 1, "TrevGX": 1}),
+    ("v3 direct TrevGX Night Watch + Dusknoir gate", regidrago,
+     {"Duskull": 1, "Dusclops": 1, "Dusknoir": 1, "TrevGX": 1}),
 ]
 expected = [
     Fraction(13813723731137, 15627986902094),
     Fraction(357273038, 493712861),
     Fraction(11205551264669, 15627986902094),
     Fraction(399484511, 493712861),
+    Fraction(24614475913803, 31255973804188),
+    Fraction(31045383146866, 39069967255235),
 ]
 for (label, categories, required), exact in zip(cases, expected):
     p = gate_probability(categories, required)
