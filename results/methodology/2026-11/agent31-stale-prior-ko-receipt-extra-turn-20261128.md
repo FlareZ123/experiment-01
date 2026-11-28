@@ -25,6 +25,7 @@ This is not hypothetical turn accounting: the pinned `initNextTurn` increments `
 ### Exact source locations
 
 - Pinned Twinleaf revision: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- Local `advanced-players-rulebook.md`, E-11 (page 56): defines this wording as a check of whether an eligible Pokémon was Knocked Out during the opponent's last turn, with Fezandipiti ex's Flip the Script as an example. This confirms the condition is turn-specific, not a carry-forward KO flag.
 - `ptcg-server/src/game/store/effect-reducers/game-effect.ts`, KO reducer around lines 591–605: sets the knocked-out owner's Boolean and appends `pokemonKnockedOutLastTurnEntries`.
 - `ptcg-server/src/game/store/effect-reducers/game-phase-effect.ts`, `initNextTurn` around lines 55–75: if `player.usedTurnSkip`, activePlayer is not switched, but `state.turn++` still occurs.
 - Same file, `EndTurnEffect` around lines 230–252: the KO flags and tag entries are cleared only on the local `player` when `!player.usedTurnSkip`; the opponent's flags are not cleared.
