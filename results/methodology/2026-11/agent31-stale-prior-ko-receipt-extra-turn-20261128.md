@@ -38,6 +38,8 @@ This is not hypothetical turn accounting: the pinned `initNextTurn` increments `
 - Same branch, protocol blob `cf49a009525a9a5af3a89f5964eb563e0d9d9e26`: validates the KO fields only as nullable Booleans. It validates the receipt's current `turn`, but has no KO-event turn to compare with the immediately preceding opponent turn.
 - Existing Agent46 root tests use synthetic `{ priorOpponentTurnKO: { any: true } }` receipts; they do not model the Dialga extra-turn sequence or establish KO-turn freshness.
 
+The supplied complete card pool has four distinct printed extra-turn attacks in scope: Dialga-GX Timeless-GX, Origin Forme Dialga VSTAR Star Chronos, Medicham V Yoga Loop, and Togepi & Cleffa & Igglybuff-GX Supreme Puff-GX. None of the 29 authenticated Aichi lists contains the latter three; only Dialga-GX appears, and its listed decks have no Metal Energy. The three unauthenticated Aichi lists (ranks 23, 25, and 28) remain unknown, so do not infer that the full 32 lacks a payable extra-turn line.
+
 ## Why the stale receipt can reach a selected action
 
 The candidate worker's action frontier does not independently enforce these card-specific prior-KO conditions. In the pinned research adapter `simulation/evaluation/2026-11/agent3-known-cap-free-action-enumerator.cjs`, `playSupporterActions` (around lines 156–166) enumerates every Supporter in hand whenever the generic once-per-turn Supporter rule permits; `playItemActions` (around lines 148–154) likewise enumerates every Item. The frontier therefore does not filter Raihan, Teammates, or Unfair Stamp based on the prior-KO event.
