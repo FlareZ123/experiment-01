@@ -111,6 +111,35 @@ for(const seat of [0,1]){
     view.ownPublic.bench.push(target(V,{subtypes:['Basic','V']}));
     assert.deepEqual(policy.decide(request),{kind:'select-action',token:'pass'});
   });
+  test('after direct VMAX Gate, Fog Crystal searches first backup Basic V, seat='+seat,()=>{
+    const {policy,request,view}=setup(seat,{globalTurn:5,
+      active:target('Mimikyu GRI 58')});
+    view.ownPublic.bench=[target(VMAX,{subtypes:['VMAX','V']}),
+      target(VMAX,{subtypes:['VMAX','V']})];
+    view.ownHand=['Fog Crystal CRE 140'];
+    view.ownPublic.handCount=1;
+    view.decisionKind='owner-prompt';
+    const prompt={
+      schema:protocol.PROMPT_SCHEMA,actingSeat:seat,
+      promptType:'ChooseCardsPrompt',description:'CHOOSE_CARD_TO_HAND',
+      source:{classification:'actor-choice',sourceKind:'card-effect',
+        sourcePrinting:'Fog Crystal CRE 140',effectName:'Fog Crystal'},
+      publicMetadata:{selectionType:'card-combination',ownerSeat:'actor',
+        isOwnerVisible:true,sourceZone:'deck',minimumCount:0,maximumCount:1,
+        allowCancel:false,isSecret:true},
+      choices:[card('energy',1,'Psychic Energy MEE 13'),
+        card('basic',2,V),
+        {token:'empty',kind:'empty-selection',label:'Select no cards'}]
+    };
+    request.prompt=prompt;
+    assert.doesNotThrow(()=>protocol.validatePrompt(prompt,seat));
+    assert.deepEqual(policy.decide(request),
+      {kind:'select-choices',tokens:['basic']});
+    // A genuine established Basic V satisfies the replacement channel.
+    view.ownPublic.bench.push(target(V,{subtypes:['Basic','V']}));
+    assert.deepEqual(policy.decide(request),
+      {kind:'select-choices',tokens:['energy']});
+  });
   test('source-or-effect spoofing rejected, seat='+seat,()=>{
     const {policy,request,view}=setup(seat);
     view.decisionKind='owner-prompt';
