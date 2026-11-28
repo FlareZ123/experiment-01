@@ -78,7 +78,8 @@ function toolEnabled(o){
  return n===null||n===undefined||n===0;
 }
 function garbotoxinStatusForSide(o,player){
- if(!toolEnabled(o))return 'inactive';
+ // Jamming Tower disables a Tool's effect, not its attachment.
+ // Garbotoxin only requires any attached Tool.
  let unknown=false;
  for(const {pokemon:p} of slots(player)){
   if(!match(p.printing,PRINT.garbodor)||list(p.tools).length===0)continue;
@@ -175,8 +176,11 @@ function forestSealLinePending(o){
   list(x.pokemon.tools).length===0);
  return Boolean(crobat)&&list(o.ownHand).some(c=>match(c,PRINT.forest));
 }
+function toolAttachAllowed(o){
+ return o?.ownPublic?.publicTurnRestrictions?.toolPlayLocked!==true;
+}
 function emergencyGarbotoxinToolEligible(o,printing){
- if(!toolEnabled(o)||garbotoxinStatus(o)!=='inactive')return false;
+ if(!toolAttachAllowed(o)||garbotoxinStatus(o)!=='inactive')return false;
  const hand=list(o.ownHand),hasFloat=hand.some(x=>match(x,PRINT.float));
  if(match(printing,PRINT.muscle))return !hasFloat;
  if(match(printing,PRINT.forest))return Boolean(o.ownTurnResources?.vstarUsed)&&
@@ -572,7 +576,7 @@ function guzmaRootScore(o){
 function score(action,req){
  const o=req.observation,own=o.ownPublic,opp=o.opponentPublic||{},p=name(action.actorPrinting),t=ownTarget(action,o),meta=action.publicMetadata||{};
  const items=req.actionFrontier?.items;
- const canTool=toolEnabled(o);
+ const canTool=toolEnabled(o),canAttachTool=toolAttachAllowed(o);
  if(!ROOT_KINDS.has(action.kind))return 0;
  if(action.kind==='pass')return 0;
  if(action.kind==='use-ability'){
@@ -647,7 +651,7 @@ function score(action,req){
  if(match(p,PRINT.budew))return benchCount(own)>=benchCapacity(o)?0:!onBoard(own,PRINT.budew)?300:25;
  if(match(p,PRINT.mega))return benchCount(own)>=benchCapacity(o)?0:!onBoard(own,PRINT.mega)?300:15;
  if(match(p,PRINT.float)||match(p,PRINT.muscle)||match(p,PRINT.forest)){
-  if(!t||list(t.pokemon.tools).length!==0)return 0;
+  if(!canAttachTool||!t||list(t.pokemon.tools).length!==0)return 0;
   if(match(p,PRINT.forest)&&canTool&&match(t.pokemon.printing,PRINT.crobat)&&
      !o.ownTurnResources?.vstarUsed&&benchSupportAbilityUsable(p,o))return 570;
   if(match(p,PRINT.float)&&t.zone==='active'&&!opponentSnorlaxBlock(o)&&!match(t.pokemon.printing,PRINT.budew)&&
@@ -659,14 +663,14 @@ function score(action,req){
    const missingPayment=cost!==null&&list(t.pokemon.energies).length<cost;
    if(!paid||missingPayment)return 740;
   }
-  if(match(t.pokemon.printing,PRINT.garbodor)&&canTool&&!liveGarbotoxin(o)){
+  if(match(t.pokemon.printing,PRINT.garbodor)&&canAttachTool&&!liveGarbotoxin(o)){
    if(match(p,PRINT.float))return setupAbilityPending(items,o)?130:600;
    if(emergencyGarbotoxinToolEligible(o,p))
     return setupAbilityPending(items,o)?125:
       match(p,PRINT.muscle)?585:570;
    return 0;
   }
-  if(match(t.pokemon.printing,PRINT.trubbish)&&canTool){
+  if(match(t.pokemon.printing,PRINT.trubbish)&&canAttachTool){
    if(match(p,PRINT.float))return 240;
    if(emergencyGarbotoxinToolEligible(o,p))return match(p,PRINT.muscle)?235:220;
   }
@@ -717,10 +721,7 @@ function score(action,req){
  if(match(p,PRINT.guzma))return guzmaRootScore(o);
  if(match(p,PRINT.temple)){
   const opposingStadium=[...list(opp.stadium),...list(own.stadium)];
-  const suppressedGarbodor=opposingStadium.some(x=>match(x,PRINT.jamming))&&
-   slots(own).some(x=>match(x.pokemon.printing,PRINT.garbodor)&&
-    list(x.pokemon.tools).length>0);
-  if(suppressedGarbodor)return 810;
+  // Jamming Tower does not switch off Garbotoxin: Tool attachments remain.
   if(templeStrandsApexDragon(o))return 670;
   if(templeStrandsIronThorns(o))return 665;
   if(opposingStadium.some(x=>match(x,PRINT.dimensionValley)))return 255;
@@ -934,7 +935,7 @@ function promptDecision(req){
    rank=c=>{
     const q=slots(o.ownPublic).find(x=>x.zone===zone(c)&&x.pokemon.printing===name(c)&&
       (zone(c)!=='bench'||x.index===(c.publicMetadata?.benchIndex??c.publicMetadata?.targetIndex)));
-    if(!q||list(q.pokemon.tools).length!==0)return 0;
+    if(!toolAttachAllowed(o)||!q||list(q.pokemon.tools).length!==0)return 0;
     if(/forest seal/.test(src)){
      if(match(q.pokemon.printing,PRINT.crobat)&&toolEnabled(o)&&
         !o.ownTurnResources?.vstarUsed&&benchSupportAbilityUsable('Crobat V DAA 104',o))return 200;
@@ -945,7 +946,12 @@ function promptDecision(req){
      return 0;
     }
     if(/float stone/.test(src)){
-     if(!toolEnabled(o))return 0;
+     if(!toolEnabled(o)){
+      // No retreat reduction, yet this attached Tool can activate Garbotoxin.
+      if(match(q.pokemon.printing,PRINT.garbodor))return 180;
+      if(match(q.pokemon.printing,PRINT.trubbish))return 165;
+      return 0;
+     }
      // This native target prompt follows playing Float Stone: the Tool is
      // no longer in ownHand, so readyToPivotIntoBudew() cannot be used here.
      // Match the earlier root action's reachable pivot using only board state.
