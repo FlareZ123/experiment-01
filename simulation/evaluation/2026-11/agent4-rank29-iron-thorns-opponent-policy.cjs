@@ -1588,6 +1588,25 @@ function scoreAttack(item, request) {
   const target = opponentActive(observation);
   if (!target) return 20;
   const visible=visibleVoltCycloneDamage(target);
+  // Spiky Energy (present in the original rank6/29 Iron Thorns lists)
+  // puts 20 counters on the attacker when its Active holder takes attack
+  // damage, even if that holder is Knocked Out. If this also KOs our active,
+  // a "final" Prize/board KO can instead be a simultaneous tie or loss.
+  const spikyCount=!hasStadium(observation,/^Temple of Sinnoh\b/i) &&
+    visible.damage>0 ?
+    list(target.energies).filter(card=>matches(card,PRINT.spikyEnergy)).length:0;
+  const selfRecoilKOs=spikyCount>0 && remainingHp(ownActive(observation))>0 &&
+    remainingHp(ownActive(observation))<=20*spikyCount;
+  const ownerHasBench=slots(observation.ownPublic)
+    .some(row=>row.zone==='bench');
+  const opponentCanEndOnRecoil=selfRecoilKOs &&
+    (observation.opponentPublic?.prizeCount??6)<=2;
+  if(selfRecoilKOs && (!ownerHasBench || opponentCanEndOnRecoil)){
+    // Without our Bench the attacker KO ends our board; with 1-2 Prize
+    // cards left, the opponent also reaches its last Prizes. Even if our
+    // attack simultaneously ends their board/Prizes, this is not a win.
+    return 0;
+  }
   if(visible.knockout){
     // Knocking Out the opponent's last Pokémon wins immediately even when
     // there are more Prize cards remaining than this Knock Out would take.
