@@ -586,7 +586,7 @@ function score(action,req){
  if(match(p,PRINT.float)||match(p,PRINT.muscle)||match(p,PRINT.forest)){
   if(!t||list(t.pokemon.tools).length!==0)return 0;
   if(match(p,PRINT.forest)){
-   return match(t.pokemon.printing,PRINT.crobat)&&!o.ownTurnResources?.vstarUsed&&benchSupportAbilityUsable(p,o)?570:0;
+   return canTool&&match(t.pokemon.printing,PRINT.crobat)&&!o.ownTurnResources?.vstarUsed&&benchSupportAbilityUsable(p,o)?570:0;
   }
   if(match(p,PRINT.float)&&t.zone==='active'&&!opponentSnorlaxBlock(o)&&!match(t.pokemon.printing,PRINT.budew)&&
      o.globalTurn<=4&&canTool&&onBoard(own,PRINT.budew)&&
@@ -601,7 +601,7 @@ function score(action,req){
    return setupAbilityPending(items,o)?130:600;
   }
   if(match(t.pokemon.printing,PRINT.trubbish)&&canTool&&match(p,PRINT.float))return 240;
-  if(match(t.pokemon.printing,PRINT.mega)&&match(p,PRINT.muscle))return 200;
+  if(match(t.pokemon.printing,PRINT.mega)&&match(p,PRINT.muscle)&&canTool)return 200;
   return 0;
  }
  if(match(p,PRINT.dark)&&t&&match(t.pokemon.printing,PRINT.mega))
@@ -843,7 +843,7 @@ function promptDecision(req){
     const q=slots(o.ownPublic).find(x=>x.zone===zone(c)&&x.pokemon.printing===name(c)&&
       (zone(c)!=='bench'||x.index===(c.publicMetadata?.benchIndex??c.publicMetadata?.targetIndex)));
     if(!q||list(q.pokemon.tools).length!==0)return 0;
-    if(/forest seal/.test(src))return match(q.pokemon.printing,PRINT.crobat)?200:0;
+    if(/forest seal/.test(src))return toolEnabled(o)&&match(q.pokemon.printing,PRINT.crobat)?200:0;
     if(/float stone/.test(src)){
      if(!toolEnabled(o))return 0;
      // This native target prompt follows playing Float Stone: the Tool is
@@ -864,7 +864,7 @@ function promptDecision(req){
      if(match(q.pokemon.printing,PRINT.trubbish))return 165;
      return 0;
     }
-    if(match(q.pokemon.printing,PRINT.mega)&&/muscle band/.test(src))return 80;
+    if(match(q.pokemon.printing,PRINT.mega)&&/muscle band/.test(src)&&toolEnabled(o))return 80;
     return 0;
    };
   }else if(/boost shake/.test(src)){
