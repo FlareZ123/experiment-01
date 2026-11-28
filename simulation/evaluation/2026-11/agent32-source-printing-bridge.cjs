@@ -288,4 +288,26 @@ function createCertifiedSourcePrintedHostBridge({
   });
 }
 
-module.exports={buildSourcePrintingMap,projectSourcePrintings,projectAdmittedWorkerParts,wrapSourcePrintedObserver,createCertifiedSourcePrintedHostBridge};
+
+/** Adapt the V3 runner's candidate/opponent role assignment without seat drift. */
+function createCertifiedRoleSourcePrintedHostBridge({
+  native,protocol,
+  candidateSeat,opponentSeat,
+  candidateSourceDeck,opponentSourceDeck,
+  candidateNativeOrdered60,opponentNativeOrdered60
+}={}){
+  assert.ok((candidateSeat===0||candidateSeat===1)&&
+    (opponentSeat===0||opponentSeat===1)&&candidateSeat!==opponentSeat,
+    'candidate/opponent roles must occupy different physical seats');
+  const sourceDecksBySeat=[];
+  const nativeOrdered60BySeat=[];
+  sourceDecksBySeat[candidateSeat]=candidateSourceDeck;
+  sourceDecksBySeat[opponentSeat]=opponentSourceDeck;
+  nativeOrdered60BySeat[candidateSeat]=candidateNativeOrdered60;
+  nativeOrdered60BySeat[opponentSeat]=opponentNativeOrdered60;
+  return createCertifiedSourcePrintedHostBridge({
+    native,protocol,sourceDecksBySeat,nativeOrdered60BySeat
+  });
+}
+
+module.exports={buildSourcePrintingMap,projectSourcePrintings,projectAdmittedWorkerParts,wrapSourcePrintedObserver,createCertifiedSourcePrintedHostBridge,createCertifiedRoleSourcePrintedHostBridge};
