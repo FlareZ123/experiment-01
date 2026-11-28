@@ -248,8 +248,14 @@ for(const seat of [0,1]){
         assert.equal(req.prompt.source.sourcePrinting,
           'Shadow Rider Calyrex VMAX CRE 75');
         assert.equal(req.prompt.publicMetadata.selectionType,'energy-attachment');
-        assert.ok(req.prompt.choices.every(choice=>
+        const actualEnergyChoices=req.prompt.choices.filter(choice=>choice.kind==='energy');
+        assert.ok(actualEnergyChoices.length>=1,
+          'native Underworld Door must offer at least one actual Psychic Energy assignment');
+        assert.ok(actualEnergyChoices.every(choice=>
           choice.printing==='Psychic Energy MEE 13'));
+        assert.ok(req.prompt.choices.filter(choice=>choice.kind!=='energy')
+          .every(choice=>choice.kind==='cancel'),
+          'optional native cancellation is permitted, fabricated prompt choice is not');
         const answer=checkedDecision(worker,req,init,1);
         promptDecisionAudit=answer.policyAudit;
         assert.equal(answer.decision.kind,'select-choice');
