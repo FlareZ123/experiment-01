@@ -111,3 +111,24 @@ test('negative control: an old Mega-EX is 2, unlike modern Mega ex 3',()=>{
   assert.equal(modern.policyAudit.evaluations[1].score-
     modern.policyAudit.evaluations[0].score,3400);
 });
+
+const exactAichiObservedPrintings=[
+  ['Ho-Oh-EX DRX',2],
+  ['Hisuian Goodra VSTAR LOR',2],
+  ['Mega Absol ex MEG',3],
+  ['Mega Dragonite ex ASC',3],
+  ['Mega Kangaskhan ex MEG',3],
+  ['Mega Lopunny ex PFL',3]
+];
+for(const seat of [0,1])for(const [printing,prizes] of exactAichiObservedPrintings){
+  test('seat '+seat+' authenticated Aichi face-up printing counts '+prizes+
+    ' Prizes: '+printing,()=>{
+    // Intentionally no native subtype: actor observation may expose only a
+    // source printing. The public fallback must still match the printed rule.
+    const row=audit(seat,baseline,target(printing,{}));
+    assert.deepEqual(row.decision,
+      {kind:'select-choices',tokens:['target-1']});
+    const [one,other]=row.policyAudit.evaluations;
+    assert.equal(other.score-one.score,1700*(prizes-1));
+  });
+}
