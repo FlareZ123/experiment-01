@@ -27,12 +27,12 @@ const shadowMistScreen=function shadowMistScreen(n=100000,seed=28112029) {
       ? 1-Math.pow(1-4/deck.length,mails) : 0;
    const hh=all(hand),dd=all(deck),usedGH=(hh.GH||0)>0,usedTag=!usedGH&&(hh.Tag||0)>0&&(dd.GH||0)>0;
    if(!usedGH&&!usedTag)return {valid:true,direct:false,setup:false,firstReadyP};
-   if(!mountain&&!(dd.Mountain>0))return {valid:true,direct:false,setup:false};
-   if(!dce&&!(dd.DCE>0))return {valid:true,direct:false,setup:false};
+   if(!mountain&&!(dd.Mountain>0))return {valid:true,direct:false,setup:false,firstReadyP};
+   if(!dce&&!(dd.DCE>0))return {valid:true,direct:false,setup:false,firstReadyP};
    // A source T1 going second: one GH Supporter, optionally first Tag Call
    // to find it. Keep Thorns Active and any already held DCE/Mountain.
    const left=hand.length-1-1-(usedTag?1:0)-(dce?1:0)-(mountain?1:0);
-   if(!dce&&left<2)return {valid:true,direct:false,setup:false};
+   if(!dce&&left<2)return {valid:true,direct:false,setup:false,firstReadyP};
    return {valid:true,direct:false,setup:true,firstReadyP};
  };
  const candEval=(cards)=>{
