@@ -50,6 +50,11 @@ Do not use the native owner-side KO Boolean as turn-fresh evidence.
 3. Tighten the worker protocol's exact-key and semantic validation. Centralize a `hasFreshPriorOpponentTurnKO` predicate and use it for Teammates, Raihan, Unfair Stamp search/use planning, and all Compressor/VS Seeker paths. A current-turn receipt stamp alone is not evidence that the KO happened in the previous opponent turn.
 4. Keep the native/vendor code unchanged; implement the tracker at the research adapter/Store-hook boundary.
 
+
+## Concrete adapter implementation seam
+
+The existing `simulation/twinleaf/agent24-native-ko-batch-observer.cjs` already wraps `Store.prototype.reduceEffect` and sees each native `KnockOutEffect`. Extend or reuse that research-owned hook to record the **pre-reducer** `state.turn` and victim seat for every KO, using the same `duringOpponentsTurn` predicate as the pinned KO reducer (phase is `PLAYER_TURN` or `ATTACK`, and the active player is the victim's opponent). Maintain per-seat, per-turn `any` and `byAttack` summaries. The runner can then pass the summary for `state.turn - 1` into `publicEventReceipt`; a tracker installed before the game starts can distinguish a known-empty turn from unavailable history. Do not infer the turn from the persistent Boolean or the un-stamped tag array. The current main runner's `eventReceipt(..., null, null)` call must remain fail-closed until an authorized tracker is wired in.
+
 ## Minimal regression matrix
 
 - **Positive:** KO on opponent turn t; no extra turn; candidate turn t+1 → eligible.
