@@ -240,3 +240,36 @@ test('native pass and optional prompt choices keep exact JSON key sets',()=>{
   assert.doesNotThrow(()=>rejectNonJson(after.prompt));
   assert.doesNotThrow(()=>rejectNonJson(after.actionFrontier));
 });
+
+
+test('two complete source 60 maps retain different printings in opposite seats',()=>{
+  const a=buildSourcePrintingMap(source,ids);
+  const opponentSource={cards:[
+    {name:'Penny',count:1,printing:{set:'SVI',number:'999'}},
+    {name:'Psychic Energy',count:59,printing:{set:'SVE',number:'5'}}]};
+  const b=buildSourcePrintingMap(opponentSource,
+    ['Penny SVI',...Array(59).fill('Psychic Energy SVE')]);
+  for(const seat of [0,1]){
+    const own=seat===0?a:b,other=seat===0?b:a;
+    const observed={actorSeat:seat,ownHand:['Penny SVI'],
+      ownPublic:{active:{printing:'Penny SVI'},bench:[],
+        prizeSlots:[{index:0}]},
+      opponentPublic:{active:{printing:'Penny SVI'},bench:[],
+        publicHand:null,prizeSlots:[{index:1}]}};
+    const receipt={ownerActive:{printing:'Penny SVI'},ownerBench:[],
+      opponentLastTurnAttacks:null};
+    const result=projectSourcePrintings(observed,{items:[]},
+      seat===0?[a,b]:[b,a],{publicEventReceipt:receipt});
+    assert.equal(result.observation.ownPublic.active.printing,
+      own.get('Penny SVI'));
+    assert.equal(result.observation.opponentPublic.active.printing,
+      other.get('Penny SVI'));
+    assert.notEqual(result.observation.ownPublic.active.printing,
+      result.observation.opponentPublic.active.printing);
+    assert.equal(result.publicEventReceipt.ownerActive.printing,
+      result.observation.ownPublic.active.printing);
+    assert.equal(result.observation.opponentPublic.publicHand,null);
+    assert.equal(result.observation.opponentPublic.prizeSlots[0].printing,
+      undefined);
+  }
+});
