@@ -57,7 +57,7 @@ const native = {
 };
 
 
-function stage(seat, withLatias = false, { manualItemLock = true, heldFogCrystal = false } = {}) {
+function stage(seat, withLatias = false, { manualItemLock = true, heldFogCrystal = false, heldFloatStone = false } = {}) {
   const manager = initializeCards();
   let serial = 625000 + seat * 2000 + Number(withLatias) * 1000;
   const card = name => {
@@ -115,6 +115,7 @@ function stage(seat, withLatias = false, { manualItemLock = true, heldFogCrystal
   source.hand.cards.push(src('Guzma BUS'));
   candidate.hand.cards.push(hood("Lillie's Determination MEG"));
   if (heldFogCrystal) candidate.hand.cards.push(hood('Fog Crystal CRE'));
+  if (heldFloatStone) candidate.hand.cards.push(hood('Float Stone BKT'));
 
   for (const [player, remaining] of [
     [source, sourceRemaining], [candidate, candidateRemaining]
@@ -394,6 +395,47 @@ for (const seat of [0, 1]) {
       seat, controlFogCrystalAccepted: true,
       withVileplumeFogCrystalRejected: true,
       nativeRejection: rejection, qualifiedGame: false
+    }));
+  });
+}
+
+
+// A counterexample to interpreting Item + Supporter lock as a total switching
+// lock. Old XY-era Float Stone is a Pokemon Tool, not an Item under paper rules.
+// This is an authentic one-of in the fixed Hood 60 and a valid resource from
+// hand after a successful native Guzma + Stoutland sequence.
+for (const seat of [0, 1]) {
+  test('rank2 seat ' + seat + ': original Hood Float Stone Tool bypasses Item+Supporter lock and enables native retreat', () => {
+    const x = stage(seat, false, { heldFloatStone: true });
+    const agent = policy(seat);
+    const hook = installPromptProvenanceHook(x.store);
+    try {
+      x.store.dispatch(new PlayCardAction(x.source.id, 0, {
+        player: PlayerType.ANY, slot: SlotType.BOARD, index: 0
+      }));
+      chooseAndSettle(x, seat, agent, hook, x.strandedId, 'opponent');
+      chooseAndSettle(x, seat, agent, hook, x.sentinelId, 'actor');
+    } finally {
+      hook.restore();
+    }
+    assert.equal(x.candidate.active.getPokemonCard().id, x.strandedId);
+    x.store.dispatch(new gameActions.PassTurnAction(x.source.id));
+    assert.equal(x.state.activePlayer, 1 - seat);
+    const index = x.candidate.hand.cards.findIndex(c => c.fullName === 'Float Stone BKT');
+    assert.ok(index >= 0);
+    assert.equal(x.candidate.cannotPlayItemCards, true);
+    const target = { player: PlayerType.BOTTOM_PLAYER, slot: SlotType.ACTIVE, index: 0 };
+    assert.doesNotThrow(() => x.store.dispatch(new PlayCardAction(x.candidate.id, index, target)),
+      'Pokemon Tool should remain usable despite ordinary Item and Supporter lock');
+    assert.equal(x.candidate.active.tools.some(c => c.fullName === 'Float Stone BKT'), true);
+    assert.doesNotThrow(() => x.store.dispatch(new gameActions.RetreatAction(x.candidate.id, 0)),
+      'retreat must become payable with native Float Stone attached despite item lock');
+    assert.notEqual(x.candidate.active.getPokemonCard().id, x.strandedId,
+      'native retreat must physically move stranded Shadow Rider from Active');
+    console.log('AGENT25_RANK2_NATIVE_FLOAT_STONE_ESCAPE', JSON.stringify({
+      seat, sourceVileplumeBenched: true, sourceStoutlandActive: true,
+      nativeToolPlayAccepted: true, nativeRetreatAccepted: true,
+      qualifiedGame: false
     }));
   });
 }
