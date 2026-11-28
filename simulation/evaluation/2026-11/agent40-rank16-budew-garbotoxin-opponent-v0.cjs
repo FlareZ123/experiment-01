@@ -173,6 +173,16 @@ function regidragoPayloadCount(o){
  const payload=/^(?:Dialga-GX UPR 100|Dragapult ex TWM 130|Kyurem SFA 47|Noivern ex PAL 153|Hisuian Goodra VSTAR LOR 136|Mega Dragonite ex ASC 152)\b/i;
  return list(o.opponentPublic?.discard).filter(x=>payload.test(name(x))).length;
 }
+function templeStrandsApexDragon(o){
+ const opponent=o.opponentPublic,active=opponent?.active;
+ if(!match(active?.printing,/^Regidrago VSTAR SIT 136\b/i))return false;
+ const energies=list(active.energies);
+ if(!energies.some(e=>/^Double Dragon Energy\b/i.test(name(e))))return false;
+ const grass=energies.filter(e=>/^(?:Basic )?Grass Energy\b/i.test(name(e))).length;
+ const fire=energies.filter(e=>/^(?:Basic )?Fire Energy\b/i.test(name(e))).length;
+ // Apex Dragon needs G G R; Temple removes all special effects and leaves Colorless.
+ return grass<2||fire<1;
+}
 function karenDenialScore(o,items){
  const n=regidragoPayloadCount(o);
  if(n===0)return 0;
@@ -351,6 +361,7 @@ function score(action,req){
    slots(own).some(x=>match(x.pokemon.printing,PRINT.garbodor)&&
     list(x.pokemon.tools).length>0);
   if(suppressedGarbodor)return 810;
+  if(templeStrandsApexDragon(o))return 670;
   if(opposingStadium.some(x=>match(x,PRINT.dimensionValley)))return 255;
   const special=slots(opp).some(({pokemon})=>list(pokemon.energies).some(x=>!/^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal) Energy\b/i.test(name(x))));
   return special?170:0;
@@ -612,4 +623,4 @@ function createPolicy({role,seat,policyVersion,config}){
   return req.prompt==null?bestAction(req):promptDecision(req);
  }});
 }
-module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,regidragoPayloadCount,karenDenialScore,toolEnabled,garbotoxinStatus,liveGarbotoxin};
+module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,SOURCE_INVENTORY,createPolicy,bestAction,promptDecision,score,projectedClawDamage,clawProjectedKnockoutScore,regidragoPayloadCount,karenDenialScore,templeStrandsApexDragon,toolEnabled,garbotoxinStatus,liveGarbotoxin};
