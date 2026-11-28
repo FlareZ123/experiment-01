@@ -797,3 +797,39 @@ test('Bunnelby attrition requires offered paid attack, not invented action',()=>
   r.actionFrontier.items=[{kind:'pass',token:'pass'}];
   assert.equal(decision(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
 });
+
+test('native printed unrelated Weakness/Resistance no longer kills Colorless KO evaluation',()=>{
+  const r=root();
+  r.observation.opponentPublic.active.printed.weakness=[{type:'Psychic',value:'×2'}];
+  r.observation.opponentPublic.active.printed.resistance=[{type:'Fighting',value:'-30'}];
+  assert.equal(printedDamage(r.actionFrontier.items[0],r),230);
+  assert.equal(printedDamage(r.actionFrontier.items[1],r),160);
+});
+test('Colorless Weakness ×2 and Resistance -30 use correct rulebook damage order',()=>{
+  const r=root();
+  const op=r.observation.opponentPublic.active;
+  op.printed.weakness=[{type:'Colorless',value:'×2'}];
+  op.printed.resistance=[{type:'Colorless',value:'-30'}];
+  assert.equal(printedDamage(r.actionFrontier.items[0],r),430);
+  assert.equal(printedDamage(r.actionFrontier.items[1],r),290);
+  op.printed.weakness=[];op.printed.resistance=[{type:'Colorless',value:'-30'}];
+  assert.equal(printedDamage(r.actionFrontier.items[0],r),200);
+  assert.equal(printedDamage(r.actionFrontier.items[1],r),130);
+});
+test('Spiky Hopper bypasses target defensive Ability and Tool where Gale cannot be proven',()=>{
+  const r=root();r.observation.opponentPublic.active.tools=['Stealthy Hood UNB 186'];
+  r.observation.opponentPublic.active.abilitySuppressions=[
+    {abilityName:'Some defensive Ability',suppressed:false}];
+  assert.equal(printedDamage(r.actionFrontier.items[0],r),null);
+  assert.equal(printedDamage(r.actionFrontier.items[1],r),160);
+  r.observation.opponentPublic.active.hp=140;
+  assert.deepEqual(decision(r),{kind:'select-action',token:'spiky'});
+});
+test('unknown matching modifier is not silently assumed standard 2×',()=>{
+  const r=root();r.observation.opponentPublic.active.printed.weakness=[
+    {type:'Colorless',value:'×1.5'}];
+  assert.equal(printedDamage(r.actionFrontier.items[1],r),null);
+  r.observation.opponentPublic.active.printed.weakness=[
+    {type:'Psychic',value:'×1.5'}];
+  assert.equal(printedDamage(r.actionFrontier.items[1],r),160);
+});
